@@ -79,13 +79,13 @@ define(function (require) {
         getCandidatesForProperty: function(propertyName) {
           var self = this;
           this.scope.currentInputCandidatesForProperty = [];
-            nodeInputResource.get({
-              topologyId: self.scope.topology.topology.id,
-              nodeTemplateName: self.scope.selectedNodeTemplate.name,
-              propertyId: propertyName
-            }, function(result) {
-              self.scope.currentInputCandidatesForProperty = result.data;
-            });
+          nodeInputResource.get({
+            topologyId: self.scope.topology.topology.id,
+            nodeTemplateName: self.scope.selectedNodeTemplate.name,
+            propertyId: propertyName
+          }, function(result) {
+            self.scope.currentInputCandidatesForProperty = result.data;
+          });
         },
 
         getCandidatesForCapabilityProperty: function(capabilityName, propertyName) {
@@ -230,10 +230,8 @@ define(function (require) {
         },
 
         remove: function(inputId) {
-          var scope = this.scope;
           this.scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation',
-            nodeName: scope.selectedNodeTemplate.name,
             inputName: inputId
           });
         },

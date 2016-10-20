@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
-import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -39,14 +39,12 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
-import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
@@ -70,13 +68,9 @@ public class TopologyService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
-    private CsarService csarService;
+    private ICsarDependencyLoader csarDependencyLoader;
     @Resource
     private TopologyServiceCore topologyServiceCore;
-    @Resource
-    private ApplicationVersionService applicationVersionService;
-    @Resource
-    private WorkflowsBuilderService workflowBuilderService;
     @Inject
     private ApplicationService appService;
 
@@ -85,7 +79,7 @@ public class TopologyService {
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology, boolean failOnTypeNotFound) {
         // FIXME we should use ToscaContext here, and why not allowing the caller to pass ona Context?
-        ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
+        ToscaTypeLoader loader = new ToscaTypeLoader(csarDependencyLoader);
         Map<String, NodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false, failOnTypeNotFound);
         Map<String, RelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, failOnTypeNotFound);
         if (topology.getNodeTemplates() != null) {
@@ -94,7 +88,7 @@ public class TopologyService {
                 // just load found types.
                 // the type might be null when failOnTypeNotFound is set to false.
                 if (nodeType != null) {
-                    loader.loadType(nodeTemplate.getType(), csarService.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
+                    loader.loadType(nodeTemplate.getType(), csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
                 }
                 if (nodeTemplate.getRelationships() != null) {
 
@@ -104,7 +98,7 @@ public class TopologyService {
                         // the type might be null when failOnTypeNotFound is set to false.
                         if (relationshipType != null) {
                             loader.loadType(relationshipTemplate.getType(),
-                                    csarService.buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
+                                    csarDependencyLoader.buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
                         }
                     }
                 }
@@ -113,30 +107,9 @@ public class TopologyService {
         if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
             NodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
             loader.loadType(substitutionType.getElementId(),
-                    csarService.buildDependencyBean(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
+                    csarDependencyLoader.buildDependencyBean(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
         }
         return loader;
-    }
-
-    /**
-     * Get a map of all capability types defined in the given node types.
-     *
-     * @param nodeTypes The collection of node types for which to get capabilities.
-     * @param dependencies The dependencies in which to look for capabilities.
-     * @return A map of capability types defined in the given node types.
-     */
-    public Map<String, CapabilityType> getIndexedCapabilityTypes(Collection<NodeType> nodeTypes, Set<CSARDependency> dependencies) {
-        Map<String, CapabilityType> capabilityTypes = Maps.newHashMap();
-        for (NodeType nodeType : nodeTypes) {
-            if (nodeType.getCapabilities() != null) {
-                for (CapabilityDefinition capabilityDefinition : nodeType.getCapabilities()) {
-                    CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(),
-                            dependencies);
-                    capabilityTypes.put(capabilityDefinition.getType(), capabilityType);
-                }
-            }
-        }
-        return capabilityTypes;
     }
 
     /**
@@ -267,16 +240,27 @@ public class TopologyService {
      * @param topology The topology for which to check roles.
      * @param applicationRoles The roles required to edit the topology for an application.
      */
-    @ToscaContextual
-    public void checkAuthorizations(Topology topology, ApplicationRole... applicationRoles) {
+    private void checkAuthorizations(Topology topology, ApplicationRole[] applicationRoles, Role[] roles) {
         Csar relatedCsar = ToscaContext.get().getArchive(topology.getArchiveName(), topology.getArchiveVersion());
         if (Objects.equals(relatedCsar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
             String applicationId = relatedCsar.getDelegateId();
             Application application = appService.getOrFail(applicationId);
             AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
         } else {
-            AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
+            AuthorizationUtil.checkHasOneRoleIn(roles);
         }
+    }
+
+    /**
+     * Check that the current user can retrieve the given topology.
+     *
+     * @param topology The topology that is subject to being updated.
+     */
+    @ToscaContextual
+    public void checkAccessAuthorizations(Topology topology) {
+        checkAuthorizations(topology,
+                new ApplicationRole[] { ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER },
+                new Role[] { Role.COMPONENTS_BROWSER, Role.ARCHITECT });
     }
 
     /**
@@ -284,53 +268,10 @@ public class TopologyService {
      *
      * @param topology The topology that is subject to being updated.
      */
+    @ToscaContextual
     public void checkEditionAuthorizations(Topology topology) {
-        checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS);
-    }
-
-    /**
-     * Create a {@link TopologyDTO} from a topology by fetching node types, relationship types and capability types used in the topology.
-     *
-     * @param topology The topology for which to create a DTO.
-     * @return The {@link TopologyDTO} that contains the given topology
-     */
-    @Deprecated
-    public TopologyDTO buildTopologyDTO(Topology topology) {
-        Map<String, NodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false, true);
-        Map<String, RelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, true);
-        Map<String, CapabilityType> capabilityTypes = getIndexedCapabilityTypes(nodeTypes.values(), topology.getDependencies());
-        Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
-        Map<String, DataType> dataTypes = getDataTypes(topology, nodeTypes, relationshipTypes, capabilityTypes);
-        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, dataTypes);
-    }
-
-    private Map<String, DataType> getDataTypes(Topology topology, Map<String, NodeType> nodeTypes, Map<String, RelationshipType> relationshipTypes,
-            Map<String, CapabilityType> capabilityTypes) {
-        Map<String, DataType> indexedDataTypes = Maps.newHashMap();
-        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, nodeTypes);
-        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, relationshipTypes);
-        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, capabilityTypes);
-        return indexedDataTypes;
-    }
-
-    private <T extends AbstractInheritableToscaType> Map<String, DataType> fillDataTypes(Topology topology, Map<String, DataType> indexedDataTypes,
-            Map<String, T> elements) {
-        for (AbstractInheritableToscaType indexedNodeType : elements.values()) {
-            if (indexedNodeType.getProperties() != null) {
-                for (PropertyDefinition pd : indexedNodeType.getProperties().values()) {
-                    String type = pd.getType();
-                    if (ToscaType.isPrimitive(type) || indexedDataTypes.containsKey(type)) {
-                        continue;
-                    }
-                    DataType dataType = csarRepoSearchService.getElementInDependencies(DataType.class, type, topology.getDependencies());
-                    if (dataType == null) {
-                        dataType = csarRepoSearchService.getElementInDependencies(PrimitiveDataType.class, type, topology.getDependencies());
-                    }
-                    indexedDataTypes.put(type, dataType);
-                }
-            }
-        }
-        return indexedDataTypes;
+        checkAuthorizations(topology, new ApplicationRole[] { ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS },
+                new Role[] { Role.ARCHITECT });
     }
 
     /**
@@ -373,7 +314,7 @@ public class TopologyService {
             int comparisonResult = VersionUtil.compare(archiveVersion, topologyDependency.getVersion());
             if (comparisonResult > 0) {
                 // Dependency of the type is more recent, try to upgrade the topology
-                toLoadDependency = csarService.buildDependencyBean(archiveName, archiveVersion);
+                toLoadDependency = csarDependencyLoader.buildDependencyBean(archiveName, archiveVersion);
                 topology.getDependencies().add(toLoadDependency);
                 topology.getDependencies().remove(topologyDependency);
                 Map<String, NodeType> nodeTypes;
@@ -405,7 +346,7 @@ public class TopologyService {
             }
         } else {
             // the type is not yet loaded
-            toLoadDependency = csarService.buildDependencyBean(archiveName, archiveVersion);
+            toLoadDependency = csarDependencyLoader.buildDependencyBean(archiveName, archiveVersion);
         }
         // FIXME Transitive dependencies could change here and thus types be affected ?
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);

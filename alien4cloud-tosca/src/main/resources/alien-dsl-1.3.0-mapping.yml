@@ -275,6 +275,8 @@
     type: attribute_definition
     concat: tosca_concat
     get_operation_output: tosca_function
+    get_attribute: tosca_function
+    get_property: tosca_function
   default: attribute_definition
 
 - operation_definition: org.alien4cloud.tosca.model.definitions.Operation

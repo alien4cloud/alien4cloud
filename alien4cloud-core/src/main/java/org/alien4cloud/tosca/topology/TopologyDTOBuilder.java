@@ -1,7 +1,8 @@
-package org.alien4cloud.tosca.editor;
+package org.alien4cloud.tosca.topology;
 
 import java.util.Map;
 
+import org.alien4cloud.tosca.editor.EditionContext;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
@@ -43,6 +44,22 @@ public class TopologyDTOBuilder {
         topologyDTO.setOperations(context.getOperations());
         topologyDTO.setDelegateType(context.getCsar().getDelegateType());
         // FIXME add validation information
+        return topologyDTO;
+    }
+
+    /**
+     * Build a topology dto from a topology.
+     *
+     * @param topology The topology from which to build the DTO object.
+     * @param <T> The type of topology (can be a topology or a deployment topology)
+     * @return An instance of TopologyDTO (FIXME Should return an Abstract Topology DTO and renamed as not abstract)
+     */
+    @ToscaContextual
+    public <T extends Topology> TopologyDTO buidTopologyDTO(T topology) {
+        TopologyDTO topologyDTO = new TopologyDTO();
+        buildAbstractTopologyDTO(topology, topologyDTO);
+        // This contains the value ouf output properties. This has nothing to do with capability somehow..
+        topologyDTO.setOutputCapabilityProperties(topology.getOutputCapabilityProperties());
         return topologyDTO;
     }
 
@@ -96,7 +113,7 @@ public class TopologyDTOBuilder {
     }
 
     private <T extends AbstractInheritableToscaType, V extends AbstractTemplate> void fillTypeMap(Class<T> elementClass, Map<String, T> types,
-                                                                                                  Map<String, V> templateMap, boolean useTemplateNameAsKey, boolean abstractOnly) {
+            Map<String, V> templateMap, boolean useTemplateNameAsKey, boolean abstractOnly) {
         if (templateMap == null) {
             return;
         }
@@ -119,8 +136,7 @@ public class TopologyDTOBuilder {
         return indexedDataTypes;
     }
 
-    private <T extends AbstractInheritableToscaType> Map<String, DataType> fillDataTypes(Map<String, DataType> indexedDataTypes,
-                                                                                         Map<String, T> elements) {
+    private <T extends AbstractInheritableToscaType> Map<String, DataType> fillDataTypes(Map<String, DataType> indexedDataTypes, Map<String, T> elements) {
         for (AbstractInheritableToscaType indexedNodeType : elements.values()) {
             if (indexedNodeType.getProperties() != null) {
                 for (PropertyDefinition pd : indexedNodeType.getProperties().values()) {

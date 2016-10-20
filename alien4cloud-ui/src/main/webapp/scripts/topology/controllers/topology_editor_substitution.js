@@ -175,7 +175,7 @@ define(function (require) {
             var archiveName = tokens[0];
             var archiveVersion = tokens[1];
             $state.go('topologycatalog.csar', { archiveName: archiveName, archiveVersion: archiveVersion });
-          }          
+          }
         }
       };
 

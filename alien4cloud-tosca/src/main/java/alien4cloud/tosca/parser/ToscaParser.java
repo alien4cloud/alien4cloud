@@ -22,7 +22,6 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.mapping.generator.MappingGenerator;
 import alien4cloud.tosca.parser.postprocess.ArchiveRootPostProcessor;
-import alien4cloud.utils.FileUtil;
 
 /**
  * Main entry point for TOSCA template parsing.
@@ -94,6 +93,7 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
             }
 
             context.setRegistry(registry);
+            context.setDefinitionVersion(definitionVersionInfo.definitionVersion);
             return registry.get(DEFINITION_TYPE);
         } else {
             throw new ParsingException(null,

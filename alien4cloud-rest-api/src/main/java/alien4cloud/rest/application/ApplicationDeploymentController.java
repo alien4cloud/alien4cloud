@@ -65,7 +65,7 @@ import com.google.common.collect.Maps;
 
 @Slf4j
 @RestController
-@RequestMapping({"/rest/applications", "/rest/v1/applications", "/rest/latest/applications"})
+@RequestMapping({ "/rest/applications", "/rest/v1/applications", "/rest/latest/applications" })
 @Api(value = "", description = "Manage opertions on deployed application.")
 public class ApplicationDeploymentController {
     @Resource
@@ -126,7 +126,7 @@ public class ApplicationDeploymentController {
         }
 
         // prepare the deployment
-        TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology);
+        TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);
 
         // if not valid, then return validation errors
         if (!validation.isValid()) {
@@ -400,13 +400,13 @@ public class ApplicationDeploymentController {
 
                 @Override
                 public void onFailure(Throwable e) {
-                    result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage()))
-                            .build());
+                    result.setErrorResult(
+                            RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
                 }
             });
         } catch (OrchestratorDisabledException e) {
-            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
-                    .build());
+            result.setErrorResult(
+                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
         } catch (PaaSDeploymentException e) {
             result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
         }

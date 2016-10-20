@@ -44,9 +44,6 @@ define(function (require) {
       $scope.openOrchestrator = function(orchestratorId) {
         $state.go('admin.orchestrators.details', { id: orchestratorId });
       };
-      $scope.openLocation = function(orchestratorId, locationId) {
-        console.log('Open orchestrator location details page', orchestratorId, locationId);
-      };
 
       $scope.openNewModal = function() {
         var modalInstance = $modal.open({

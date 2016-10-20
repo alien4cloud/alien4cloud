@@ -1,26 +1,18 @@
 <div>
   <!-- CSAR search form -->
   <div class="row" style="margin-top: 10px;">
-    <div class="col-md-2 well" id="search-container">
-      <form role="search" ng-submit="search()">
-        <div class="input-group">
-          <input
-          	id = "csar-query-input"
-          	type="text" class="form-control" placeholder="..."
-            ng-model="query"> <span class="input-group-btn">
-            <button
-              id="btn-search-csar"
-              type="submit" class="btn btn-default"
-              data-loading-text="Loading...">
-              <i class="fa fa-search"></i>
-            </button>
-          </span>
-        </div>
-      </form>
+    <div class="col-md-3" id="search-container">
+      <facet-search-panel search-url="rest/latest/csars/search"
+                          page-size="10"
+                          max-page-count="10"
+                          filter-prefix="COMPONENTS.CSAR."
+                          on-search="onSearch(searchConfig)"
+                          static-facets="staticFacets">
+      </facet-search-panel>
     </div>
 
     <!-- CSAR search result display -->
-    <div class="col-md-10" id = "result-container">
+    <div class="col-md-9" id = "result-container">
       <div class="table-responsive large-data-container" id="csars-table">
         <table class="table table-hover">
           <thead>
@@ -35,7 +27,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="csar in searchResult.data" ng-click="openCsar(csar.id)" id="csar_{{csar.id}}" name="csar_{{csar.id}}" class="clickable">
+            <tr ng-repeat="csar in searchConfig.result.data" ng-click="openCsar(csar.id)" id="csar_{{csar.id}}" name="csar_{{csar.id}}" class="clickable">
               <td>
                 <i class="pull-left media-object fa fa-archive fa-2x"></i>
               </td>
@@ -46,7 +38,7 @@
               <td>{{(csar.importDate | date:'medium') || '---' }}</td>
               <td>
                 <delete-confirm
-                  ng-if="!csar.substitutionTopologyId"
+                  ng-if="!csar.substitutionTopologyId && writeWorkspaces.indexOf(csar.workspace) >= 0"
                   id="delete-csar_{{csar.id}}" func="remove(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
               </td>
@@ -56,10 +48,10 @@
 
         <empty-place-holder
           for="'COMPONENTS.ARCHIVE'"
-          data="searchResult.data">
+          data="searchConfig.result.data">
         </empty-place-holder>
 
-        <pagination-directive pagination-info="searchService.pagination"/>
+        <pagination-directive pagination-info="searchConfig.service.pagination"/>
       </div>
     </div>
   </div>

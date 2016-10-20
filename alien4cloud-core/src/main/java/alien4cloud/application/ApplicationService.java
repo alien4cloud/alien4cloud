@@ -3,7 +3,10 @@ package alien4cloud.application;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
@@ -26,7 +29,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -68,8 +71,6 @@ public class ApplicationService {
 
         application.setName(name);
         application.setDescription(description);
-        application.setCreationDate(new Date());
-        application.setLastUpdateDate(new Date());
 
         application.setTags(Lists.<Tag> newArrayList());
         application.setMetaProperties(Maps.<String, String> newHashMap());
@@ -80,7 +81,7 @@ public class ApplicationService {
 
     private void checkApplicationId(String applicationId) {
         // Check that it matches the required pattern
-        if (!TopologyService.NODE_NAME_PATTERN.matcher(applicationId).matches()) {
+        if (!TopologyUtils.isValidNodeName(applicationId)) {
             // FIXME throw another exception ?
             throw new InvalidApplicationNameException("Application id <" + applicationId + "> is not valid. It must not contains any special characters.");
         }
@@ -120,8 +121,6 @@ public class ApplicationService {
             application.setDescription(newDescription);
         }
 
-        // update updateDate
-        application.setLastUpdateDate(new Date());
         alienDAO.save(application);
     }
 

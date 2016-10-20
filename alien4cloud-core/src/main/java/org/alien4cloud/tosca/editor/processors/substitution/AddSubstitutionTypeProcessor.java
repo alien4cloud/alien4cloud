@@ -6,7 +6,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
-import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
@@ -29,8 +28,6 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
     private IToscaTypeSearchService csarRepoSearchService;
     @Inject
     private TopologyService topologyService;
-    @Inject
-    private CsarService csarService;
 
     @Override
     public void process(AddSubstitutionTypeOperation operation) {
@@ -54,9 +51,6 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
             nodeType = csarRepoSearchService.findMostRecent(NodeType.class, operation.getElementId());
             Set<CSARDependency> oldDependencies = topology.getDependencies();
             topologyService.loadType(topology, nodeType);
-            if (!Objects.equals(topology.getDependencies(), oldDependencies)) {
-                csarService.setDependencies(topology.getId(), topology.getDependencies());
-            }
         }
         topology.getSubstitutionMapping().setSubstitutionType(nodeType);
     }

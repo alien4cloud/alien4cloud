@@ -5,6 +5,7 @@
 module.exports = {
   html: '<%= yeoman.app %>/index.html',
   options: {
+    root: '<%= yeoman.app %>',
     dest: '<%= yeoman.dist %>'
   }
 };

@@ -9,7 +9,8 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
-import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.events.BeforeArchivePromoted;
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.model.Csar;
@@ -40,7 +41,7 @@ public class EditionContextManager {
     private final static ThreadLocal<EditionContext> contextThreadLocal = new ThreadLocal<>();
 
     @Inject
-    private CsarService csarService;
+    private ICsarService csarService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
@@ -56,7 +57,7 @@ public class EditionContextManager {
     @PostConstruct
     public void setup() {
         // initialize the cache
-        contextCache = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).removalListener(new RemovalListener<String, EditionContext>() {
+        contextCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).removalListener(new RemovalListener<String, EditionContext>() {
             @Override
             public void onRemoval(RemovalNotification<String, EditionContext> removalNotification) {
                 log.debug("Topology edition context with id {} has been evicted. {} pending operations are lost.", removalNotification.getKey(),
@@ -149,6 +150,11 @@ public class EditionContextManager {
     @EventListener
     public void handleArchiveUpdated(BeforeArchiveIndexed event) {
         contextCache.invalidate(event.getArchiveRoot().getArchive().getId());
+    }
+
+    @EventListener
+    public void handleArchivePromoted(BeforeArchivePromoted event) {
+        contextCache.invalidate(event.getArchiveId());
     }
 
     /**

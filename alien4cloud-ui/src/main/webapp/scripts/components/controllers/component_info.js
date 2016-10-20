@@ -290,16 +290,10 @@ define(function (require) {
         });
       };
 
-      $scope.displaySubtitutionTopology = function(topologyId) {
-        topologyVersionResource.get({
-          topologyId: topologyId
-        }, {}, function(result) {
-          if (!result.error) {
-            $state.go('topologytemplates.detail.topology.editor', {
-              id: result.data.topologyTemplateId,
-              version: result.data.version
-            });
-          }
+      $scope.displaySubtitutionTopology = function(archiveName, archiveVersion) {
+        $state.go('topologycatalog.csar', {
+          archiveName: archiveName,
+          archiveVersion: archiveVersion
         });
       };
     }

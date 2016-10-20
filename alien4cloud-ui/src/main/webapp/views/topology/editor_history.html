@@ -27,6 +27,9 @@
       </div>
     </div>
     <div id="file-content" class="topology-column" style="padding: 10px;">
+      <div ng-if="gitCommits.length === 0">
+        <h3 class="text-info"><i class="fa fa-info"></i>  {{'EDITOR.EMPTY_GIT_HISTORY' | translate}}</h3>
+      </div>
       <div style="height: inherit; overflow: auto">
         <div ng-if="selectedOperation">
           <div class="row">

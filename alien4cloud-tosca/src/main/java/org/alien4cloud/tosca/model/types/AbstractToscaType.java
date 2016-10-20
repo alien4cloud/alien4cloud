@@ -7,6 +7,7 @@ import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 import java.util.Date;
 import java.util.List;
 
+import alien4cloud.model.common.IUpdatedDate;
 import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESAll;
 import org.elasticsearch.annotation.ESObject;
@@ -35,7 +36,7 @@ import lombok.Setter;
 @JsonInclude(Include.NON_NULL)
 @ESObject
 @ESAll(analyser = "simple")
-public abstract class AbstractToscaType {
+public abstract class AbstractToscaType implements IUpdatedDate {
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter

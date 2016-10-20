@@ -15,6 +15,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.exception.EditorIOException;
 import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
@@ -29,6 +30,7 @@ import org.alien4cloud.tosca.editor.services.TopologySubstitutionService;
 import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -44,6 +46,8 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -73,6 +77,10 @@ public class EditorService {
     private EditorTopologyRecoveryHelperService recoveryHelperService;
     @Inject
     private TopologySubstitutionService topologySubstitutionServive;
+    @Inject
+    private TopologyValidationService topologyValidationService;
+    @Inject
+    private ICsarService csarService;
 
     @Value("${directories.alien}/${directories.upload_temp}")
     private String tempUploadDir;
@@ -189,10 +197,11 @@ public class EditorService {
         process(operation);
 
         List<AbstractEditorOperation> operations = EditionContextManager.get().getOperations();
-        if (EditionContextManager.get().getLastOperationIndex() == operations.size() - 1) {
+        if (EditionContextManager.get().getLastOperationIndex() != operations.size() - 1) {
             // Clear the operations to 'redo'.
             CollectionUtils.clearFrom(operations, EditionContextManager.get().getLastOperationIndex() + 1);
         }
+
         // update the last operation and index
         EditionContextManager.get().getOperations().add(operation);
         EditionContextManager.get().setLastOperationIndex(EditionContextManager.get().getOperations().size() - 1);
@@ -301,7 +310,8 @@ public class EditorService {
         // Save the topology in elastic search
         topologyServiceCore.save(topology);
         topologySubstitutionServive.updateSubstitutionType(topology, EditionContextManager.getCsar());
-
+        // Topology has changed means that dependencies might have changed, must update the dependencies
+        csarService.setDependencies(topology.getId(), topology.getDependencies());
         // Local git commit
         repositoryService.commit(EditionContextManager.get().getCsar(), commitMessage.toString());
 
@@ -432,6 +442,8 @@ public class EditorService {
             Topology topology = EditionContextManager.getTopology();
             String commitMessage = AuthorizationUtil.getCurrentUser().getUserId() + ": Override all content of the topology archive from REST API.";
             topologyServiceCore.save(topology);
+            // Topology has changed means that dependencies might have changed, must update the dependencies
+            csarService.setDependencies(topology.getId(), topology.getDependencies());
             topologySubstitutionServive.updateSubstitutionType(topology, EditionContextManager.getCsar());
 
             // Local git commit
@@ -521,5 +533,20 @@ public class EditorService {
         ResetTopologyOperation operation = new ResetTopologyOperation();
         operation.setPreviousOperationId(lastOperationId);
         return executeAndSave(topologyId, operation);
+    }
+
+    /**
+     * Validate if a topology is valid.
+     * 
+     * @param topologyId The id of the topology.
+     * @return the validation result
+     */
+    public TopologyValidationResult validateTopology(String topologyId) {
+        try {
+            editionContextManager.init(topologyId);
+            return topologyValidationService.validateTopology(EditionContextManager.getTopology());
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 }

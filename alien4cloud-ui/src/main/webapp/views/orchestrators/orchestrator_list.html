@@ -29,7 +29,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat-start="orchestrator in orchestrators" id='orchestrator_{{orchestrator.id}}' class="clickable" ng-click="openOrchestrator(orchestrator.id)" ng-init="islocationCollapsed = true">
+            <tr ng-repeat="orchestrator in orchestrators" id='orchestrator_{{orchestrator.id}}' class="clickable" ng-click="openOrchestrator(orchestrator.id)">
               <td>
                 <i class="fa fa-2x ng-scope" tooltip="{{'ORCHESTRATORS.STATES.' + orchestrator.state | translate}}" ng-class="{
                   'fa-circle text-success' : orchestrator.state == 'CONNECTED',
@@ -40,17 +40,6 @@
               </td>
               <td>{{orchestrator.name  || '---' }}</td>
               <td>{{orchestrator.pluginId || '---' }}</td>
-            </tr>
-            <tr ng-repeat-end ng-repeat="location in orchestrator.locations" id='location_{{orchestrator.id}}_{{location.id}}' ng-click="openLocation(orchestrator.id, location.id)" >
-              <td colspan="3" style="padding: 0px;">
-                <div collapse="islocationCollapsed" style="padding: 8px;">
-                  <i class="fa fa-circle fa-2x" ng-class="{'text-success': orchestrator.enabled,'text-danger': !orchestrator.enabled}"
-                    tooltip="{{'COMMON.ENABLED_' + orchestrator.enabled | translate }}"></i>
-                  <i ng-if="!orchestrator.iaaSType" class="fa fa-cloud fa-2x"></i>
-                  <img ng-if="orchestrator.iaaSType" ng-src="images/cloud-{{orchestrator.iaaSType | lowercase}}-small.png" />
-                    {{location.name}}
-                </div>
-              </td>
             </tr>
           </tbody>
         </table>

@@ -15,6 +15,7 @@ define(function (require) {
       scope: {
         onSelect: '&',
         onSelectForClone: '&',
+        onSearchConfig: '&',
         archiveLink: '@',
         defaultFilters: '=',
         staticFacets: '='

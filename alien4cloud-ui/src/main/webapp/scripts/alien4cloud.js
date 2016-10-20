@@ -101,9 +101,16 @@ define(function(require) {
 
     alien4cloud.run(['$rootScope', '$state', 'editableOptions', 'editableThemes', 'authService',
       function($rootScope, $state, editableOptions, editableThemes, authService) {
+        var statusFetched = false; // flag to know if we have fetched current user status (logged in and roles)
         // check when the state is about to change
-        $rootScope.$on('$stateChangeStart', function(event, toState) {
+        $rootScope.$on('$stateChangeStart', function(event, toState, toParams) {
+          if (!statusFetched && _.defined(event)) {
+            // we must have the user status before going to a state.
+            event.preventDefault();
+          }
           authService.getStatus().$promise.then(function() {
+            var propagateState = !statusFetched; // if we prevented state change we have to trigger it now that we fetched user status
+            statusFetched = true;
             // check all the menu array & permissions
             authService.menu.forEach(function(menuItem) {
               var menuType = menuItem.id.split('.')[1];
@@ -112,6 +119,10 @@ define(function(require) {
                 $state.go('restricted');
               }
             });
+            if (propagateState) {
+              // This is needed only if we prevented the default state change (so if user status was'nt fetched).
+              $state.go(toState, toParams);
+            }
           });
         });
 

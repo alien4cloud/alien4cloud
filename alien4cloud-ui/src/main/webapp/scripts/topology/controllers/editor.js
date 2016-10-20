@@ -14,6 +14,7 @@ define(function (require) {
   require('scripts/topology/controllers/editor_workflow');
   require('scripts/topology/controllers/editor_history');
   require('scripts/topology/controllers/editor_git_modal');
+  require('scripts/topology/controllers/editor_validation');
 
   require('scripts/tosca/services/tosca_cardinalities_service');
   require('scripts/topology/services/topology_json_processor');
@@ -25,27 +26,13 @@ define(function (require) {
   require('scripts/topology/services/topology_editor_events_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
-    ['$scope', 'menu', 'layoutService', 'context', 'workspaces', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
-    'hotkeys','topologyRecoveryServices', '$modal',// 'topologyEditorEventFactory',
-    function($scope, menu, layoutService, context, workspaces, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal) {// , topologyEditorEventFactory) {
-      // register for websockets events
-      // var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
-      //   console.log('received event', event);
-      // });
-      // var operation = {
-      //   type: 'org.alien4cloud.tosca.editor.commands.AddNodeTemplateOperation',
-      //   message: 'Hello world'
-      // };
-      // registration.send('/app/topology-editor/' + $scope.topologyId, operation);
-      // $scope.$on('$destroy', function() {
-      //   registration.close();
-      // });
-
+    ['$scope', 'menu', 'layoutService', 'context', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
+    'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster', '$state',
+    function($scope, menu, layoutService, context, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal, $translate, toaster, $state) {
       // This controller acts as a specific layout for the topology edition.
       layoutService.process(menu);
       $scope.menu = menu;
       $scope.getShortName = toscaService.simpleName;
-      $scope.workspaces = workspaces;
       // Manage topology version selection (version is provided as parameter from the template or application)
       $scope.topologyVersions = archiveVersions.data;
       $scope.versionContext = context;
@@ -69,7 +56,12 @@ define(function (require) {
       */
       $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate, initial) {
         $scope.topology = topologyDTO;
-        console.log();
+        if(topologyDTO.topology.workspace === 'ALIEN_GLOBAL_WORKSPACE') {
+          $scope.workspaces = ['ALIEN_GLOBAL_WORKSPACE'];
+        } else {
+          $scope.workspaces = [topologyDTO.topology.workspace, 'ALIEN_GLOBAL_WORKSPACE'];
+        }
+
         $scope.isTopologyTemplate = ($scope.topology.delegateType !== 'APPLICATION');
         // Process the topology to enrich it with some additional data
         _.each(topologyDTO.topology.nodeTemplates, function(value, key){
@@ -222,12 +214,12 @@ define(function (require) {
         });
 
         modalInstance.result.then(function(remoteUrl) {
-          var ok = gitRemoteResource.update({
+          gitRemoteResource.update({
               topologyId: $scope.topologyId,
               remoteUrl: remoteUrl
             }, null, function() {
               $scope.isGitValid = true;
-            }).$promise;
+            });
         });
       };
 
@@ -250,8 +242,8 @@ define(function (require) {
             if(_.undefined(response.error)) {
               toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PUSH.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PUSH.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
             }
-            console.debug('pushed')
-          }).$promise;
+            console.debug('pushed');
+          });
         });
       };
 
@@ -274,8 +266,8 @@ define(function (require) {
             if(_.undefined(response.error)){
               toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PULL.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PULL.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
             }
-            console.debug('pulled')
-          }).$promise;
+            console.debug('pulled');
+          });
         });
       };
       // -- End of GIT SECTIONS --
@@ -334,6 +326,61 @@ define(function (require) {
             }
           });
         });
+
+      var AskSaveTopologyController = ['$scope', '$modalInstance',
+        function($scope, $modalInstance) {
+          $scope.save = function () {
+            $modalInstance.close();
+          };
+
+          $scope.doNotSave = function () {
+            $modalInstance.dismiss();
+          };
+        }];
+
+      $scope.$on('$stateChangeStart',
+        function(event, toState, toParams, fromState) {
+          if($scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex === -1) {
+            // nothing to save
+            return;
+          }
+          var getStateBasePath = function (state) {
+            var lastIndexOfPoint = state.lastIndexOf('.');
+            if(lastIndexOfPoint >= 0) {
+              return state.substring(0, lastIndexOfPoint);
+            } else {
+              return state;
+            }
+          };
+          if(getStateBasePath(toState.name) === getStateBasePath(fromState.name)) {
+            // We are always inside editor
+            return;
+          }
+          if($scope.skipStateChangeStart) {
+            // Just skip once
+            $scope.skipStateChangeStart = false;
+            return;
+          }
+          event.preventDefault();
+          var modalInstance = $modal.open({
+            templateUrl: 'views/topology/editor_ask_save.html',
+            controller: AskSaveTopologyController
+          });
+
+          var proceedToStateChange = function () {
+            // Don't intercept the next one
+            $scope.skipStateChangeStart = true;
+            // Save
+            $state.go(toState, toParams);
+          };
+
+          modalInstance.result.then(function() {
+            $scope.save();
+            proceedToStateChange();
+          }, function() {
+            proceedToStateChange();
+          });
+      });
     }
   ]);
 }); // define

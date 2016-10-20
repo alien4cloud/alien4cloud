@@ -1,7 +1,7 @@
 
 <!-- Components list and details -->
 <!-- Search result column -->
-<div ng-controller="alienSearchComponentCtrl">
+<div>
   <div class="col-md-2 well" id="comp-search-side-panel">
     <div style="margin-bottom: 10px;">
       <form role="search" ng-submit="doSearch()">
@@ -16,45 +16,13 @@
         </div>
       </form>
     </div>
-
-    <!-- Displaying active filters -->
-    <div ng-show="facetFilters.length>0">
-      <div>
-        {{ 'COMPONENTS.ACTIVE_FILTERS' | translate }} <span class="badge"
-                                                            ng-show="facetFilters.length>0">{{facetFilters.length}}</span>
-        <button type="button" class="btn btn-default btn-xs"
-                ng-click="reset()" ng-disabled="facetFilters.length<=0">
-          <i class="fa fa-trash-o"></i>
-        </button>
-      </div>
-      <div class="facet-choice" collapse="isFacetCollapsed">
-        <ul class="nav facet-choice">
-          <li ng-repeat="filter in facetFilters"><a href=""
-                                                    ng-click="removeFilter(filter)">{{'COMPONENTS.'+(filter.term |
-            uppercase) | translate}}: <span class="label label-primary">
-								{{ filter.facet }}</span><i class="fa fa-times"></i>
-          </a></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Displaying all terms and its facets -->
-    <div ng-repeat="(term, termFacets) in searchResult.facets">
-      <div ng-click="isFacetCollapsed = !isFacetCollapsed"
-           class="facet-category">
-        <span>{{'COMPONENTS.'+(term | uppercase) | translate}}</span> <i
-          class="pull-right fa"
-          ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
-      </div>
-      <div class="facet-option" collapse="isFacetCollapsed">
-        <ul class="nav facet-option">
-          <li ng-repeat="facet in termFacets"><a href=""
-                                                 ng-click="addFilter(term,facet.facetValue)">
-            {{facet.facetValue}} <span class="badge">{{facet.count}}</span>
-          </a></li>
-        </ul>
-      </div>
-    </div>
+    <facets facet-filters="facetFilters"
+            default-filters="defaultFilters"
+            facet-id-converter="facetIdConverter"
+            facets="searchResult.facets"
+            filter-prefix="COMPONENTS."
+            do-search="forcedDoSearch()">
+    </facets>
   </div>
 
   <div class="col-md-10" id="rel-search-result-panel">

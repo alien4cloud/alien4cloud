@@ -29,5 +29,6 @@ define(function (require) {
           }
         };
       };
-  }]); // factory
+    }
+  ]); // factory
 }); // define

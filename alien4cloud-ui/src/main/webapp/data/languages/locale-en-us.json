@@ -96,6 +96,12 @@
       "CAPABILITY_CARDINALITIES_TOOLTIP" : "upperBound (remaining)",
       "CARDINALITIES_TOOLTIP" : "lowerBound..upperBound (remaining)",
       "DEPENDENCY" : "Dependencies",
+      "DEPENDENCIES" : {
+        "CHANGE_VERSION" : {
+          "TITLE": "Change version",
+          "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology."
+        }
+      },      
       "DESC_TEMPLATE" : "Topology template description",
       "GROUPS" : {
         "ADD" : "Add a group",
@@ -181,6 +187,9 @@
           "MISSING" : "Mandatory property"
         },
         "TOADD_RELATIONSHIP_LABEL" : "Unsatisfied requirements (relationship should be added)",
+        "VALIDATION_FAILED" : "The last saved topology is not valid, go to the topology editor for more informations.",
+        "VALIDATION_SUCCESS" : "The last saved topology is valid.",
+        "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "The current topology is valid.",
         "WORKFLOWS" : {
           "HAS_ERROR" : "Workflow '{{workflowName}}' is not valid : {{errorCount}} error(s)",
           "TITLE" : "Workflows"
@@ -373,6 +382,7 @@
     "YES" : "Yes"
   },
   "COMPONENTS" : {
+    "VALIDSOURCES": "Valid sources",
     "ABSTRACT" : "Abstract component",
     "ACTIVE_FILTERS" : "Active filters",
     "ARCHIVE" : "Archive",
@@ -394,6 +404,11 @@
       "MESSAGE" : "A component [ {{componentId}} ] is already set as default for capability [ {{capability}} ]. Would you like to overwrite it?",
       "OK" : "Overwrite"
     },
+    "CSAR" : {
+      "ACTIVE_FILTERS": "Active filters",
+      "TEMPLATEAUTHOR": "Author",
+      "WORKSPACE": "Workspace"
+    },
     "DEFAULTCAPABILITIES" : "Default Capabilities",
     "DERIVEDFROM" : "Derived from",
     "DRAG_DROP_UPLOAD" : "Drop archive files to upload here",
@@ -412,6 +427,8 @@
       "300" : "Unexpected IO error on plugin upload.",
       "353" : "The META-INF/plugin.yml file is missing in your plugin.",
       "ALIEN_MAPPING_ERROR" : "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
+      "CSAR_ALREADY_INDEXED": "The CSAR has already been indexed in Alien with the same content",
+      "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "An archive with the same name and version already exists in Alien repository in another workspace.",
       "CSAR_ALREADY_EXISTS": "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive, if not used in a deployed topology.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien doesn't allow the overriding.",
       "DUPLICATED_ELEMENT_DECLARATION" : "The element [ {{note}} ] has already be defined in this definition file.",
@@ -561,10 +578,16 @@
   },
   "EDITOR": {
     "SAVE": "Save",
+    "DO_NOT_SAVE": "Skip",
+    "ASK_SAVE": {
+      "TITLE": "Unsaved changes",
+      "MESSAGE": "Do you want to save changes before leaving the editor ?"
+    },
     "UNDO": "Undo",
     "REDO": "Redo",
     "OPERATION": "Operation",
     "GIT_HISTORY": "Git history",
+    "EMPTY_GIT_HISTORY": "The git history is empty, you need to save the topology.",
     "MENU_TOPOLOGY": "Topology",
     "MENU_WORKFLOW": "Workflows",
     "MENU_FILES": "Archive content",
@@ -595,6 +618,11 @@
           "SUCCESS_MSGE": "Successfully pushed to git"
         }
       }
+    },
+    "VALIDATION" :{
+      "CURRENT_TOPOLOGY": "Current topology",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology does not have changed.",
+      "LAST_SAVED_TOPOLOGY": "Last saved topology"
     }
   },
   "END_DATE" : "End date",
@@ -680,6 +708,8 @@
     "830" : "A released version can not reference SNAPSHOT dependencies",
     "831" : "This version can not be renamed since it's already used elsewhere",
     "850" : "Not allowed operation for this type of workflow",
+    "860" : "The topology that you select needs recovery",
+    "870" : "The topology that you select cannot be used as it won't be visible in the context of the application",
     "INTERNAL" : "Internal error",
     "UNKNOWN" : "Unknown error"
   },
@@ -874,7 +904,10 @@
     "BREADCRUMB" : {
       "TEMPLATE_LIST" : "Topology templates"
     },
-    "NEW" : "New Template"
+    "DUPLICATE": "Duplicate the topology",
+    "NEW" : "New Template",
+    "REMOVE_TITLE": "How to delete a topology template ?",
+    "REMOVE_CONTENT": "All topology templates are linked to an archive. Delete the associate archive to remove both of them."
   },
   "TRUE" : "True",
   "UPDATE_DATE" : "Update date",

@@ -158,6 +158,24 @@ public class ParsingContextExecution {
     }
 
     /**
+     * Get the definition version of the archive
+     *
+     * @return the definition version of the archive
+     */
+    public static String getDefinitionVersion() {
+        return CONTEXT_THREAD_LOCAL.get().getDefinitionVersion();
+    }
+
+    /**
+     * Set the definition version of the archive to the context
+     * 
+     * @param definitionVersion the definition version to be set
+     */
+    public static void setDefinitionVersion(String definitionVersion) {
+        CONTEXT_THREAD_LOCAL.get().setDefinitionVersion(definitionVersion);
+    }
+
+    /**
      * Destroy the execution context.
      */
     public static void destroy() {
@@ -167,6 +185,8 @@ public class ParsingContextExecution {
     @Getter
     @Setter
     public static class Context {
+        /** The definition version of the archive **/
+        private String definitionVersion;
         /** Root node under parsing. */
         private BeanWrapper root;
         /** Eventually, the current node parent object. */

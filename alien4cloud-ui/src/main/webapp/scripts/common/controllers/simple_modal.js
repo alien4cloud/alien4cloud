@@ -2,6 +2,8 @@ define(function(require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
+
   require('scripts/common/services/properties_services');
 
   modules.get('a4c-common').controller('SimpleModalCtrl', ['$scope', '$translate', '$modal',
@@ -15,7 +17,10 @@ define(function(require) {
         };
       }];
 
-      $scope.openSimpleModal = function(modalTitle, modalContent) {
+      $scope.openSimpleModal = function(modalTitle, modalContent, event) {
+        if (_.defined(event)) {
+          event.stopPropagation();
+        }
         $modal.open({
           templateUrl: 'views/common/simple_modal.html',
           controller: ModalInstanceCtrl,

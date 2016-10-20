@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -23,7 +24,6 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
-import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -56,7 +56,7 @@ public class DeploymentController {
     @Resource
     private ApplicationService applicationService;
     @Resource
-    private CsarService csarService;
+    private ICsarService csarService;
     @Inject
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject

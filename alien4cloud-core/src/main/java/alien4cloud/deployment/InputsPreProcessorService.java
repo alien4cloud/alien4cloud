@@ -5,6 +5,15 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Requirement;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +26,8 @@ import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.TagUtil;
@@ -59,9 +60,10 @@ public class InputsPreProcessorService {
      *
      * @param deploymentTopology The deployment setup that contains the input values.
      * @param environment The environment instance linked to the deployment setup.
-     * @param topology
+     * @param topology The original topology.
+     * @return The full inputs map used to actually inject inputs. This includes both the user inputs as well as location meta and applications meta and tags.
      */
-    public void processGetInput(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
+    public Map<String, PropertyValue> injectInputValues(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
         topologyCompositionService.processTopologyComposition(topology);
         Map<String, PropertyValue> inputs = getInputs(deploymentTopology, environment);
         if (deploymentTopology.getNodeTemplates() != null) {
@@ -90,6 +92,7 @@ public class InputsPreProcessorService {
                 }
             }
         }
+        return inputs;
     }
 
     private void mergeGetInputProperties(Map<String, AbstractPropertyValue> from, Map<String, AbstractPropertyValue> to) {
@@ -118,6 +121,16 @@ public class InputsPreProcessorService {
         if (nodeTemplate.getCapabilities() != null && nodeTemplate.getCapabilities().get(capabilityName) != null) {
             if (nodeTemplate.getCapabilities().get(capabilityName).getProperties() != null) {
                 properties = nodeTemplate.getCapabilities().get(capabilityName).getProperties();
+            }
+        }
+        return properties;
+    }
+
+    private Map<String, AbstractPropertyValue> getInitialRequirementProperties(String requirementName, NodeTemplate nodeTemplate) {
+        Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
+        if (nodeTemplate.getRequirements() != null && nodeTemplate.getRequirements().get(requirementName) != null) {
+            if (nodeTemplate.getRequirements().get(requirementName).getProperties() != null) {
+                properties = nodeTemplate.getRequirements().get(requirementName).getProperties();
             }
         }
         return properties;
@@ -159,8 +172,10 @@ public class InputsPreProcessorService {
      */
     private Map<String, PropertyValue> getInputs(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
         // initialize a map with input from the deployment setup
-        Map<String, PropertyValue> inputs = MapUtils.isEmpty(deploymentTopology.getInputProperties()) ? Maps.newHashMap()
-                : deploymentTopology.getInputProperties();
+        Map<String, PropertyValue> inputs = Maps.newHashMap();
+        if (!MapUtils.isEmpty(deploymentTopology.getInputProperties())) {
+            inputs.putAll(deploymentTopology.getInputProperties());
+        }
 
         // Map id -> value of meta properties from cloud or application.
         Map<String, String> metaPropertiesValuesMap = Maps.newHashMap();
@@ -176,7 +191,7 @@ public class InputsPreProcessorService {
         }
 
         // inputs from the location starts with location meta
-        prefixAndAddContextInput(inputs, InputsPreProcessorService.LOC_META, metaPropertiesValuesMap, true);
+        prefixAndAddContextInput(deploymentTopology, inputs, InputsPreProcessorService.LOC_META, metaPropertiesValuesMap, true);
 
         // and the ones from the application meta-properties
         // meta or tags from application
@@ -186,10 +201,10 @@ public class InputsPreProcessorService {
             if (application.getMetaProperties() != null) {
                 metaPropertiesValuesMap.putAll(application.getMetaProperties());
             }
-            prefixAndAddContextInput(inputs, InputsPreProcessorService.APP_META, metaPropertiesValuesMap, true);
+            prefixAndAddContextInput(deploymentTopology, inputs, InputsPreProcessorService.APP_META, metaPropertiesValuesMap, true);
 
             Map<String, String> tags = TagUtil.tagListToMap(application.getTags());
-            prefixAndAddContextInput(inputs, InputsPreProcessorService.APP_TAGS, tags, false);
+            prefixAndAddContextInput(deploymentTopology, inputs, InputsPreProcessorService.APP_TAGS, tags, false);
         }
 
         return inputs;
@@ -198,11 +213,13 @@ public class InputsPreProcessorService {
     /**
      * Add the context inputs to the actual deployment inputs by adding the given prefix to the key.
      *
+     * @param deploymentTopology The deployment topology under processing (to know if the input exists and should be added).
      * @param inputs The inputs to be used for the topology deployment.
      * @param prefix The prefix to be added to the context inputs.
      * @param contextInputs The map of inputs from context elements (cloud, application, environment).
      */
-    private void prefixAndAddContextInput(Map<String, PropertyValue> inputs, String prefix, Map<String, String> contextInputs, boolean isMeta) {
+    private void prefixAndAddContextInput(DeploymentTopology deploymentTopology, Map<String, PropertyValue> inputs, String prefix,
+            Map<String, String> contextInputs, boolean isMeta) {
         if (contextInputs == null || contextInputs.isEmpty()) {
             return; // no inputs to add.
         }
@@ -214,12 +231,18 @@ public class InputsPreProcessorService {
             }
             Map<String, MetaPropConfiguration> configurationMap = metaPropertiesService.getByIds(ids);
             for (Map.Entry<String, String> contextInputEntry : contextInputs.entrySet()) {
-                inputs.put(prefix + configurationMap.get(contextInputEntry.getKey()).getName(), new ScalarPropertyValue(contextInputEntry.getValue()));
+                addToInputs(deploymentTopology, inputs, prefix + configurationMap.get(contextInputEntry.getKey()).getName(), contextInputEntry.getValue());
             }
         } else {
             for (Map.Entry<String, String> contextInputEntry : contextInputs.entrySet()) {
-                inputs.put(prefix + contextInputEntry.getKey(), new ScalarPropertyValue(contextInputEntry.getValue()));
+                addToInputs(deploymentTopology, inputs, prefix + contextInputEntry.getKey(), contextInputEntry.getValue());
             }
+        }
+    }
+
+    private void addToInputs(DeploymentTopology deploymentTopology, Map<String, PropertyValue> inputs, String inputKey, String value) {
+        if (value != null && deploymentTopology.getInputProperties() != null && deploymentTopology.getInputs().containsKey(inputKey)) {
+            inputs.put(inputKey, new ScalarPropertyValue(value));
         }
     }
 
@@ -254,6 +277,46 @@ public class InputsPreProcessorService {
                                 function.getFunction(), propEntry.getKey());
                     }
                     propEntry.setValue(null);
+                }
+            }
+        }
+    }
+
+    /**
+     * Clean input values from the deployment topologies node templates and put back the getinput functions.
+     *
+     * @param deploymentTopology The deployment topology to clean.
+     * @param topology The initial topology.
+     */
+    public void cleanInputValues(DeploymentTopology deploymentTopology, Topology topology) {
+        topologyCompositionService.processTopologyComposition(topology);
+        if (deploymentTopology.getNodeTemplates() != null) {
+            for (Entry<String, NodeTemplate> entry : deploymentTopology.getNodeTemplates().entrySet()) {
+                NodeTemplate nodeTemplate = entry.getValue();
+                NodeTemplate initialNodeTemplate = topology.getNodeTemplates().get(entry.getKey());
+                mergeGetInputProperties(initialNodeTemplate.getProperties(), nodeTemplate.getProperties());
+
+                // process relationships
+                if (nodeTemplate.getRelationships() != null) {
+                    for (Entry<String, RelationshipTemplate> relEntry : nodeTemplate.getRelationships().entrySet()) {
+                        RelationshipTemplate relationshipTemplate = relEntry.getValue();
+                        Map<String, AbstractPropertyValue> initialProperties = getInitialRelationshipProperties(relEntry.getKey(), initialNodeTemplate);
+                        mergeGetInputProperties(initialProperties, relationshipTemplate.getProperties());
+                    }
+                }
+                if (nodeTemplate.getCapabilities() != null) {
+                    for (Entry<String, Capability> capaEntry : nodeTemplate.getCapabilities().entrySet()) {
+                        Capability capability = capaEntry.getValue();
+                        Map<String, AbstractPropertyValue> capaInitialProps = getInitialCapabilityProperties(capaEntry.getKey(), initialNodeTemplate);
+                        mergeGetInputProperties(capaInitialProps, capability.getProperties());
+                    }
+                }
+                if (nodeTemplate.getRequirements() != null) {
+                    for (Entry<String, Requirement> requirementEntry : nodeTemplate.getRequirements().entrySet()) {
+                        Requirement capability = requirementEntry.getValue();
+                        Map<String, AbstractPropertyValue> reqInitialProps = getInitialRequirementProperties(requirementEntry.getKey(), initialNodeTemplate);
+                        mergeGetInputProperties(reqInitialProps, capability.getProperties());
+                    }
                 }
             }
         }

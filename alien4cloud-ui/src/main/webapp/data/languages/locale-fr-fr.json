@@ -93,6 +93,12 @@
       "CAPABILITY_CARDINALITIES_TOOLTIP" : "maximum (restant)",
       "CARDINALITIES_TOOLTIP" : "minimun..maximum (restant)",
       "DEPENDENCY" : "Dépendances",
+      "DEPENDENCIES" : {
+        "CHANGE_VERSION" : {
+          "TITLE": "Modifier la version",
+          "CONFIRM" : "Confirmez-vous le changement de version de la dépendance ? Cette opération peut affecter certains nodes et/ou relations dans la topologie."
+        }
+      },
       "DESC_TEMPLATE" : "Description du modèle",
       "GROUPS" : {
         "ADD" : "Ajouter un groupe",
@@ -178,6 +184,9 @@
           "MISSING" : "Propriété obligatoire"
         },
         "TOADD_RELATIONSHIP_LABEL" : "Prérequis non statisfaits (ajoutez un lien)",
+        "VALIDATION_FAILED" : "La dernière topologie enregistrée n'est pas valide, aller dans l'éditeur de topology pour plus d'informations.",
+        "VALIDATION_SUCCESS" : "La dernière topologie enregistrée est valide.",
+        "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "La topologie courante est valide.",
         "WORKFLOWS" : {
           "HAS_ERROR" : "Le workflow '{{workflowName}}' n'est pas valide : {{errorCount}} erreur(s)",
           "TITLE" : "Workflows"
@@ -359,6 +368,7 @@
     "YES" : "Oui"
   },
   "COMPONENTS" : {
+    "VALIDSOURCES": "Sources valides",
     "ABSTRACT" : "Composant abstrait",
     "ACTIVE_FILTERS" : "Filtres actifs",
     "ARCHIVE" : "Archive",
@@ -544,10 +554,16 @@
   },
   "EDITOR": {
     "SAVE": "Sauver",
+    "DO_NOT_SAVE": "Ignorer",
+    "ASK_SAVE": {
+      "TITLE": "Changements non sauvegardés",
+      "MESSAGE": "Voulez vous sauvegarder les changements avant de quitter l'éditeur ?"
+    },
     "UNDO": "Annuler",
     "REDO": "Rejouer",
     "OPERATION": "Operation",
     "GIT_HISTORY": "Historique git",
+    "EMPTY_GIT_HISTORY": "L'historique git est vide, vous devez sauver la topologie.",
     "MENU_TOPOLOGY": "Topologie",
     "MENU_WORKFLOW": "Workflows",
     "MENU_FILES": "Fichiers de l'archive",
@@ -578,6 +594,11 @@
           "SUCCESS_MSGE": "Envoi vers le dépôt git terminé avec succès."
         }
       }
+    },
+    "VALIDATION" :{
+      "CURRENT_TOPOLOGY": "Topologie courante",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "La topologie actuelle n'a pas changé.",
+      "LAST_SAVED_TOPOLOGY": "Dernière topologie enregistrée"
     }
   },
   "END_DATE" : "Date de fin",
@@ -663,6 +684,8 @@
     "830" : "Une version releasée ne peut référencer des dépendances SNAPSHOT",
     "831" : "Cette version ne peut être renomée car elle est déjà utilisée par ailleur",
     "850" : "Cette opération n'est pas permise sur ce type de workflow",
+    "860" : "La topologie séléctionnée a besoin d'être réconciliée",
+    "870" : "La topologie séléctionnée n'est pas utilisable parce qu'elle ne sera pas visible dans le context de l'application",
     "INTERNAL" : "Erreur interne",
     "UNKNOWN" : "Erreur inconnue"
   },
@@ -856,7 +879,10 @@
     "BREADCRUMB" : {
       "TEMPLATE_LIST" : "Modèles de topologie"
     },
-    "NEW" : "Nouveau Modèle"
+    "DUPLICATE": "Dupliquer la topology",
+    "NEW" : "Nouveau Modèle",
+    "REMOVE_TITLE": "Comment supprimer un modèle de topologie ?",
+    "REMOVE_CONTENT": "Tous les modèles de topologie sont liés à une archive. En la supprimant vous supprimerai les deux."
   },
   "TRUE" : "Vrai",
   "UPDATE_DATE" : "Date de mise à jour",

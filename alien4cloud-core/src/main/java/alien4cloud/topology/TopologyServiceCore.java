@@ -247,7 +247,6 @@ public class TopologyServiceCore {
     }
 
     public void save(Topology topology) {
-        topology.setLastUpdateDate(new Date());
         this.alienDAO.save(topology);
     }
 

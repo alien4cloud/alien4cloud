@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.utils.ReflectionUtil;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -103,17 +104,22 @@ public class OrchestratorConfigurationService {
      * @param id Id of the orchestrator for which to update the configuration.
      * @param newConfiguration The new configuration.
      */
-    public synchronized void updateConfiguration(String id, Object newConfiguration) throws PluginConfigurationException {
+    public synchronized void updateConfiguration(String id, Object newConfiguration) throws PluginConfigurationException, IOException {
         OrchestratorConfiguration configuration = alienDAO.findById(OrchestratorConfiguration.class, id);
         if (configuration == null) {
             throw new NotFoundException("No configuration exists for cloud [" + id + "].");
         }
-        configuration.setConfiguration(newConfiguration);
+
+        Object oldConfiguration = configuration.getConfiguration();
+        Object oldConfigurationObj = configurationAsValidObject(id, oldConfiguration);
+        // merge the config so that old values are preserved
+        ReflectionUtil.mergeObject(newConfiguration, oldConfigurationObj);
+        configuration.setConfiguration(oldConfigurationObj);
 
         // Trigger update of the orchestrator's configuration if enabled.
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.get(id);
         if (orchestratorInstance != null) {
-            orchestratorInstance.setConfiguration(newConfiguration);
+            orchestratorInstance.setConfiguration(oldConfigurationObj);
         }
 
         alienDAO.save(configuration);

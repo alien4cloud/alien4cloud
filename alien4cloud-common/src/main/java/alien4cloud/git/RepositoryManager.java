@@ -6,21 +6,46 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import alien4cloud.exception.GitConflictException;
-import alien4cloud.exception.GitMergingStateException;
-import alien4cloud.exception.GitStateException;
-import org.eclipse.jgit.api.*;
-import org.eclipse.jgit.api.errors.*;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.DeleteBranchCommand;
+import org.eclipse.jgit.api.FetchCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.RenameBranchCommand;
+import org.eclipse.jgit.api.TransportCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryState;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteConfig;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import com.google.common.collect.Lists;
 
+import alien4cloud.exception.GitConflictException;
 import alien4cloud.exception.GitException;
+import alien4cloud.exception.GitMergingStateException;
+import alien4cloud.exception.GitStateException;
 import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -233,7 +258,11 @@ public class RepositoryManager {
     }
 
     private static void setCredentials(TransportCommand<?, ?> command, String username, String password) {
-        if (username != null) {
+        if (StringUtils.isNotBlank(username)) {
+            if (password == null) {
+                // If an user accessing a GitHub repository through HTTPS with an OAuth access token
+                password = "";
+            }
             command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
         }
     }
@@ -257,6 +286,9 @@ public class RepositoryManager {
                         commit.getAuthorIdent().getEmailAddress(), commit.getFullMessage(), new Date(commit.getCommitTime() * 1000L)));
             }
             return historyEntries;
+        } catch (NoHeadException e) {
+            log.debug("Your repository has no head, you need to save your topology before using the git history.");
+            return Lists.newArrayList();
         } catch (GitAPIException | IOException e) {
             throw new GitException("Unable to get history from the git repository", e);
         } finally {
@@ -319,7 +351,7 @@ public class RepositoryManager {
     public static boolean push(Path repositoryDirectory, String username, String password) {
         return push(repositoryDirectory, username, password, null);
     }
-    
+
     /**
      * Git push to a remote.
      *
@@ -343,18 +375,18 @@ public class RepositoryManager {
                 // Push the current commit into a new alien branch.
                 // Then rebranch to the current branch.
                 String remoteName = repository.getRemoteNames().iterator().next(); // Only handle one remote (default: 'origin')
-                log.info(String.format("Couldn't push git repository=%s to remote=%s on the branch=%s", git.getRepository().getDirectory(),
-                        remoteName, repository.getBranch()));
+                log.debug(String.format("Couldn't push git repository=%s to remote=%s on the branch=%s", git.getRepository().getDirectory(), remoteName,
+                        repository.getBranch()));
                 fetch(git, username, password);
                 String conflictBranchName = generateConflictBranchName(repository, remoteName);
                 isPushed = push(git, username, password, repository.getBranch(), conflictBranchName);
                 if (isPushed) {
-                    log.info(String.format("Pushed git repository=%s on branch=%s", git.getRepository().getDirectory(), conflictBranchName));
+                    log.debug(String.format("Pushed git repository=%s on branch=%s", git.getRepository().getDirectory(), conflictBranchName));
                     rebranch(git, repository.getBranch(), targetRemoteBranch);
                 }
                 throw new GitConflictException(remoteName, repository.getBranch(), conflictBranchName);
             } else {
-                log.info(String.format("Pushed git repository=%s on branch=%s", git.getRepository().getDirectory(), targetRemoteBranch));
+                log.debug(String.format("Pushed git repository=%s on branch=%s", git.getRepository().getDirectory(), targetRemoteBranch));
             }
             return isPushed;
         } catch (IOException e) {
@@ -384,7 +416,8 @@ public class RepositoryManager {
     public static void rebranch(Git git, String localBranch, String remoteBranch) {
         String tmpBranchName = "a4c-switch";
         try {
-            log.debug(String.format("Prepare git repository=%s to re-branch=%s on remote branch=%s", git.getRepository().getDirectory(), localBranch, remoteBranch));
+            log.debug(String.format("Prepare git repository=%s to re-branch=%s on remote branch=%s", git.getRepository().getDirectory(), localBranch,
+                    remoteBranch));
             CheckoutCommand checkoutCommand = git.checkout();
             checkoutCommand.setStartPoint("origin/" + remoteBranch);
             checkoutCommand.setName(tmpBranchName);
@@ -417,7 +450,7 @@ public class RepositoryManager {
      */
     public static boolean push(Git git, String username, String password, String localBranch, String remoteBranch) {
         try {
-            if(git.getRepository().getRemoteNames().isEmpty()) {
+            if (git.getRepository().getRemoteNames().isEmpty()) {
                 throw new GitException("No remote found for the repository");
             }
             PushCommand pushCommand = git.push();
@@ -508,7 +541,7 @@ public class RepositoryManager {
         Git git = null;
         try {
             git = Git.open(repositoryDirectory.resolve(".git").toFile());
-            if(git.getRepository().getRemoteNames().isEmpty()) {
+            if (git.getRepository().getRemoteNames().isEmpty()) {
                 throw new GitException("No remote found for the repository");
             }
             checkRepositoryState(git.getRepository().getRepositoryState(), "Git pull operation failed");

@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,6 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -30,17 +30,15 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.Role;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.context.ToscaContextual;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -48,13 +46,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Slf4j
-public class CsarService implements ICsarDependencyLoader {
+public class CsarService implements ICsarService {
     @Inject
     private ApplicationEventPublisher publisher;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
-    @Resource(name = "alien-monitor-es-dao")
-    private IGenericSearchDAO alienMonitorDao;
     @Inject
     private IToscaTypeSearchService searchService;
     @Inject
@@ -63,69 +59,23 @@ public class CsarService implements ICsarDependencyLoader {
     private CsarFileRepository alienRepository;
     @Inject
     private ApplicationService applicationService;
-    @Inject
-    private ITopologyCatalogService catalogService;
 
-    /**
-     * Get all archive matching the given set of filters.
-     *
-     * @param filters The filters to query the archives.
-     * @param name The name of the archive.
-     * @return Return the matching
-     */
+    @Override
     public long count(Map<String, String[]> filters, String name) {
         return csarDAO.buildQuery(Csar.class).setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "name", name)).count();
     }
 
-    /**
-     * Get all archive matching the given set of filters.
-     *
-     * @param filters The filters to query the archives.
-     * @param name The name of the archive.
-     * @return Return the matching
-     */
-    public Csar[] getAll(Map<String, String[]> filters, String name) {
-        return csarDAO.buildQuery(Csar.class).setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "name", name))
-                .prepareSearch().search(0, Integer.MAX_VALUE).getData();
-    }
-
-    /**
-     * Get a cloud service archive.
-     *
-     * @param name The name of the archive.
-     * @param version The version of the archive.
-     * @return The {@link Csar Cloud Service Archive} if found in the repository or null.
-     */
+    @Override
     public Csar get(String name, String version) {
         return csarDAO.buildQuery(Csar.class).setFilters(fromKeyValueCouples("name", name, "version", version)).prepareSearch().find();
     }
 
-    /**
-     *
-     * Get a cloud service archive.
-     *
-     * @param id The id of the archive to retrieve
-     * @return
-     */
+    @Override
     public Csar get(String id) {
         return csarDAO.findById(Csar.class, id);
     }
 
     @Override
-    public Set<CSARDependency> getDependencies(String name, String version) {
-        Csar csar = get(name, version);
-        if (csar == null) {
-            throw new NotFoundException("Csar with name [" + name + "] and version [" + version + "] cannot be found");
-        }
-        if (csar.getDependencies() == null || csar.getDependencies().isEmpty()) {
-            return Sets.newHashSet();
-        }
-        return Sets.newHashSet(csar.getDependencies());
-    }
-
-    /**
-     * @return an array of CSARs that depend on this name:version.
-     */
     public Csar[] getDependantCsars(String name, String version) {
         FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
                 .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
@@ -133,12 +83,7 @@ public class CsarService implements ICsarDependencyLoader {
         return result.getData();
     }
 
-    /**
-     * Get teh topologies that depends on this csar.
-     * Do not return a topology if this csar is his own
-     * 
-     * @return an array of <code>Topology</code>s that depend on this name:version.
-     */
+    @Override
     public Topology[] getDependantTopologies(String name, String version) {
         FilterBuilder filter = FilterBuilders.boolFilter()
                 .mustNot(FilterBuilders.boolFilter().must(FilterBuilders.termFilter("archiveName", name))
@@ -149,6 +94,7 @@ public class CsarService implements ICsarDependencyLoader {
         return result.getData();
     }
 
+    @Override
     public List<Csar> getTopologiesCsar(Topology... topologies) {
         Set<String> ids = Sets.newHashSet();
         for (Topology topology : topologies) {
@@ -157,9 +103,7 @@ public class CsarService implements ICsarDependencyLoader {
         return csarDAO.findByIds(Csar.class, ids.toArray(new String[ids.size()]));
     }
 
-    /**
-     * @return an array of CSARs that depend on this name:version.
-     */
+    @Override
     public Location[] getDependantLocations(String name, String version) {
         FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
                 .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
@@ -167,11 +111,7 @@ public class CsarService implements ICsarDependencyLoader {
         return result.getData();
     }
 
-    /**
-     * Save a Cloud Service Archive in ElasticSearch.
-     *
-     * @param csar The csar to save.
-     */
+    @Override
     public void save(Csar csar) {
         // save the csar import date
         csar.setImportDate(new Date());
@@ -188,23 +128,18 @@ public class CsarService implements ICsarDependencyLoader {
                 }
             }
         }
-        csar.setDependencies(mergedDependencies, true);
-
+        csar.setDependencies(mergedDependencies);
         this.csarDAO.save(csar);
     }
 
-    /**
-     * Set dependencies to an existing CSAR
-     * 
-     * @param csarId id of the CSAR
-     * @param dependencies the new dependencies
-     */
+    @Override
     public void setDependencies(String csarId, Set<CSARDependency> dependencies) {
         Csar csar = getOrFail(csarId);
         csar.setDependencies(dependencies);
         save(csar);
     }
 
+    @Override
     public Map<String, Csar> findByIds(String fetchContext, String... ids) {
         Map<String, Csar> csarMap = Maps.newHashMap();
         List<Csar> csars = csarDAO.findByIdsWithContext(Csar.class, fetchContext, ids);
@@ -214,13 +149,7 @@ public class CsarService implements ICsarDependencyLoader {
         return csarMap;
     }
 
-    /**
-     *
-     * Get a cloud service archive, or fail if not found
-     *
-     * @param id The id of the archive to retrieve
-     * @return The {@link Csar Cloud Service Archive} if found in the repository
-     */
+    @Override
     public Csar getOrFail(String id) {
         Csar csar = get(id);
         if (csar == null) {
@@ -229,13 +158,7 @@ public class CsarService implements ICsarDependencyLoader {
         return csar;
     }
 
-    /**
-     * Get a cloud service archive, or fail with {@link NotFoundException} if not found
-     *
-     * @param name The name of the archive.
-     * @param version The version of the archive.
-     * @return The {@link Csar Cloud Service Archive} if found in the repository.
-     */
+    @Override
     public Csar getOrFail(String name, String version) {
         Csar csar = searchService.getArchive(name, version);
         if (csar == null) {
@@ -244,9 +167,7 @@ public class CsarService implements ICsarDependencyLoader {
         return csar;
     }
 
-    /**
-     * @return true if the CSar is a dependency for another or used in a topology.
-     */
+    @Override
     public boolean isDependency(String csarName, String csarVersion) {
         // a csar that is a dependency of another csar
         Csar[] result = getDependantCsars(csarName, csarVersion);
@@ -261,21 +182,13 @@ public class CsarService implements ICsarDependencyLoader {
         return false;
     }
 
-    /**
-     * Delete an archive if no topology depends from it.
-     *
-     * @param csarId The id of the archive to delete.
-     */
+    @Override
     public void forceDeleteCsar(String csarId) {
         Csar csar = getOrFail(csarId);
         deleteCsar(csar);
     }
 
-    /**
-     * Delete an archive if no topology depends from it.
-     *
-     * @param csarId The id of the archive to delete.
-     */
+    @Override
     public void deleteCsar(String csarId) {
         Csar csar = getOrFail(csarId);
         // a csar that is a dependency of another csar can not be deleted
@@ -286,7 +199,8 @@ public class CsarService implements ICsarDependencyLoader {
         deleteCsar(csar);
     }
 
-    private void deleteCsar(Csar csar) {
+    @Override
+    public void deleteCsar(Csar csar) {
         // dispatch event before indexing
         publisher.publishEvent(new BeforeArchiveDeleted(this, csar.getId()));
 
@@ -299,11 +213,7 @@ public class CsarService implements ICsarDependencyLoader {
         publisher.publishEvent(new AfterArchiveDeleted(this, csar.getId()));
     }
 
-    /**
-     * Delete the content of the csar from the repository: elements, topologies
-     *
-     * @param csar
-     */
+    @Override
     public void deleteCsarContent(Csar csar) {
         // Delete the topology defined in this archive.
         csarDAO.delete(Topology.class, csar.getId());
@@ -311,14 +221,12 @@ public class CsarService implements ICsarDependencyLoader {
         indexerService.deleteElements(csar.getName(), csar.getVersion());
     }
 
-    /**
-     * Delete an archive an all its registered / saved elements
-     * Abort the deletion if the archive is used by some resources
-     *
-     * @param csar
-     * @return A List of {@link Usage} representing the resources using this archive.
-     */
+    @Override
     public List<Usage> deleteCsarWithElements(Csar csar) {
+        // if the csar is bound to an application, then do not allow the process
+        if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
+            throw new UnsupportedOperationException("Cannot delete an application csar from here ");
+        }
         List<Usage> relatedResourceList = getCsarRelatedResourceList(csar);
         if (relatedResourceList.isEmpty()) {
             deleteCsar(csar);
@@ -326,21 +234,7 @@ public class CsarService implements ICsarDependencyLoader {
         return relatedResourceList;
     }
 
-    public Csar getTopologySubstitutionCsar(String topologyId) {
-        Csar csarResult = csarDAO.customFind(Csar.class, QueryBuilders.termQuery("substitutionTopologyId", topologyId));
-        if (csarResult != null) {
-            return csarResult;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Get the list of resources that are using the given archive.
-     * 
-     * @param csar The archive for which to get usage.
-     * @return The list of usage of the archive.
-     */
+    @Override
     public List<Usage> getCsarRelatedResourceList(Csar csar) {
         List<Usage> relatedResourceList = Lists.newArrayList();
 
@@ -353,6 +247,11 @@ public class CsarService implements ICsarDependencyLoader {
 
         // a csar that is a dependency of another csar can not be deleted
         // FIXME WORKSPACE HANDLING REQUIRED
+        if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
+            // The CSAR is from an application's topology
+            relatedResourceList.addAll(
+                    Collections.singletonList(new Usage(csar.getDelegateId(), Application.class.getSimpleName().toLowerCase(), csar.getDelegateId(), null)));
+        }
         Csar[] relatedCsars = getDependantCsars(csar.getName(), csar.getVersion());
         if (relatedCsars != null && relatedCsars.length > 0) {
             relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
@@ -373,13 +272,8 @@ public class CsarService implements ICsarDependencyLoader {
         return relatedResourceList;
     }
 
-    /**
-     * Generate resources related to a csar list
-     *
-     * @param csars
-     * @return
-     */
-    private List<Usage> generateCsarsInfo(Csar[] csars) {
+    @Override
+    public List<Usage> generateCsarsInfo(Csar[] csars) {
         String resourceName;
         String resourceId;
         List<Usage> resourceList = Lists.newArrayList();
@@ -398,13 +292,8 @@ public class CsarService implements ICsarDependencyLoader {
         return resourceList;
     }
 
-    /**
-     * Generate resources related to a locations list
-     *
-     * @param locations
-     * @return
-     */
-    private List<Usage> generateLocationsInfo(Location[] locations) {
+    @Override
+    public List<Usage> generateLocationsInfo(Location[] locations) {
         String resourceName;
         String resourceId;
         List<Usage> resourceList = Lists.newArrayList();
@@ -417,37 +306,8 @@ public class CsarService implements ICsarDependencyLoader {
         return resourceList;
     }
 
-    /**
-     * Checks if a user has the proper rights to delete an archive, based on what it contents
-     * 
-     * @param csar The archive to delete
-     */
-    public void checkDeletionAuthorizations(Csar csar) {
-
-        // if the csar is bound to an application, then do not alow the process
-        if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
-            throw new UnsupportedOperationException("Cannot delete an application csar from here ");
-        }
-
-        // if this csar has node types, check the COMPONENTS_MANAGER Role
-        if (searchService.hasTypes(csar.getName(), csar.getVersion())) {
-            AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_MANAGER);
-        }
-
-        // if the csar is bound to a topology, check the ARCHITECT Role
-        if (catalogService.exists(csar.getId())) {
-            AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
-        }
-
-    }
-
-    /**
-     * Generate resources (application or template) related to a topology list
-     *
-     * @param topologies
-     * @return
-     */
-    private List<Usage> generateTopologiesInfo(Topology[] topologies) {
+    @Override
+    public List<Usage> generateTopologiesInfo(Topology[] topologies) {
 
         List<Usage> resourceList = Lists.newArrayList();
 
@@ -457,7 +317,6 @@ public class CsarService implements ICsarDependencyLoader {
                 // get the related application
                 Application application = applicationService.checkAndGetApplication(csar.getDelegateId());
                 resourceList.add(new Usage(application.getName(), csar.getDelegateType(), csar.getDelegateId(), csar.getWorkspace()));
-                continue;
             } else {
                 resourceList.add(new Usage(csar.getName() + "[" + csar.getVersion() + "]", "topologyTemplate", csar.getId(), csar.getWorkspace()));
             }
@@ -465,20 +324,8 @@ public class CsarService implements ICsarDependencyLoader {
         return resourceList;
     }
 
-    /**
-     * Build a {@link CSARDependency} bean given an archive name and version. This will also fill in the dependency hash.
-     *
-     * @param name The name of the dependendy
-     * @param version The version of the dependency
-     * @return
-     */
-    @ToscaContextual
-    public static CSARDependency buildDependencyBean(String name, String version) {
-        CSARDependency newDependency = new CSARDependency(name, version);
-        Csar csar = ToscaContext.get().getArchive(name, version);
-        if (csar != null) {
-            newDependency.setHash(csar.getHash());
-        }
-        return newDependency;
+    @Override
+    public FacetedSearchResult search(String query, int from, int size, Map<String, String[]> filters) {
+        return csarDAO.facetedSearch(Csar.class, query, FilterUtil.singleKeyFilter(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID), null, from, size);
     }
 }

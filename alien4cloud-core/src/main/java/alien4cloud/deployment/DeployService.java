@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -189,18 +190,17 @@ public class DeployService {
     }
 
     /**
-     * Performs some actions such as final validation Prepare a deployment topology for deployment
+     * Performs some actions such as final validation Prepare a deployment topology for deployment.
+     * Note that this operation is actually changing the content of the deployment topology.
      *
-     * @param deploymentTopology
-     * @return
+     * @param deploymentTopology The deployment topology to update for deployment.
+     * @return The result of the topology validation.
      */
-    public TopologyValidationResult prepareForDeployment(DeploymentTopology deploymentTopology) {
+    public TopologyValidationResult prepareForDeployment(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
         // finalize the deploymentTopology for deployment
-        deploymentTopologyService.processForDeployment(deploymentTopology);
-
-        // validate again
-        TopologyValidationResult validation = deploymentTopologyValidationService.validateDeploymentTopology(deploymentTopology);
-        return validation;
+        Map<String, PropertyValue> inputs = deploymentTopologyService.processForDeployment(deploymentTopology, environment);
+        // perform validation of the processed deployment topology.
+        return deploymentTopologyValidationService.validateProcessedDeploymentTopology(deploymentTopology, inputs);
     }
 
     // Inner class used to build context for generation of the orchestrator id.

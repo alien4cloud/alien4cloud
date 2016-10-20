@@ -10,6 +10,7 @@ define(function (require) {
     function($scope, $modal, $resource, $state, authService, $alresource) {
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
+        $scope.onSearchConfig({ searchConfig: searchConfig });
       };
 
       $scope.openCsar = function(csarId, event) {
@@ -53,6 +54,38 @@ define(function (require) {
         }
         $scope.onSelectForClone({topology: topology});
       };
+
+      ////////////////////////////////////
+      ///  Delete topology template modal
+      ///
+      var DeleteTopologyTemplateModalCtrl = ['$scope', '$modalInstance', '$state', 'csarId',
+        function($scope, $modalInstance, $state, csarId) {
+          $scope.csarId = csarId;
+          $scope.goToArchive = function () {
+            $state.go('components.csars.csardetail', { csarId: csarId });
+            $scope.close();
+          };
+
+          $scope.close = function () {
+            $modalInstance.dismiss();
+          };
+      }];
+
+      $scope.openDeleteTopologyTemplateModal = function(csar, event) {
+        if (_.defined(event)) {
+          event.stopPropagation();
+        }
+        $modal.open({
+          templateUrl: 'views/topologytemplates/toplogy_template_remove_modal.html',
+          controller: DeleteTopologyTemplateModalCtrl,
+          resolve: {
+            csarId: function() {
+              return csar;
+            }
+          }
+        });
+      };
+
     }
   ]); // controller
 }); // define

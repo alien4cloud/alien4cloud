@@ -11,9 +11,8 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.common.AlienConstants;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
-import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.eclipse.jgit.api.Git;
@@ -24,6 +23,7 @@ import org.springframework.util.FileSystemUtils;
 
 import com.google.common.collect.Lists;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
@@ -50,7 +50,7 @@ public class CsarGitService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
-    private CsarService csarService;
+    private ICsarService csarService;
     // TODO store archives that are not 'temp' in another location.
     private Path tempDirPath;
     private Path tempZipDirPath;

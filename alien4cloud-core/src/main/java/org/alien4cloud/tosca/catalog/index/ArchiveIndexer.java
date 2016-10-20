@@ -5,13 +5,13 @@ import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.events.AfterArchiveIndexed;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
-import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.alien4cloud.tosca.editor.services.TopologySubstitutionService;
 import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -60,15 +60,13 @@ public class ArchiveIndexer {
     @Inject
     private ICsarRepositry archiveRepositry;
     @Inject
-    private CsarService csarService;
+    private ICsarService csarService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
     private IToscaTypeIndexerService indexerService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
-    @Inject
-    private EditorRepositoryService repositoryService;
     @Inject
     private DeploymentService deploymentService;
     @Inject
@@ -150,13 +148,21 @@ public class ArchiveIndexer {
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
         Csar currentIndexedArchive = csarService.get(archiveName, archiveVersion);
-        // if the archive has not changed do nothing.
-        if (currentIndexedArchive != null && currentIndexedArchive.getHash() != null
-                && currentIndexedArchive.getHash().equals(archiveRoot.getArchive().getHash())) {
-            parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.CSAR_ALREADY_INDEXED, "", null,
-                    "The archive already exists in alien4cloud with an identical content (SHA-1 on archive content excluding hidden files is identical).", null,
-                    archiveName));
-            return;
+        if (currentIndexedArchive != null) {
+            if (Objects.equals(currentIndexedArchive.getWorkspace(), archiveRoot.getArchive().getWorkspace())) {
+                if (currentIndexedArchive.getHash() != null && currentIndexedArchive.getHash().equals(archiveRoot.getArchive().getHash())) {
+                    // if the archive has not changed do nothing.
+                    parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.CSAR_ALREADY_INDEXED, "", null,
+                            "The archive already exists in alien4cloud with an identical content (SHA-1 on archive content excluding hidden files is identical).",
+                            null, archiveName));
+                    return;
+                }
+            } else {
+                // If the archive existed in a different workspace then throw error
+                parsingErrors.add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE, "", null,
+                        "The archive already exists in alien4cloud in a different workspace.", null, archiveName));
+                return;
+            }
         }
 
         // Throw an exception if we are trying to override a released (non SNAPSHOT) version.

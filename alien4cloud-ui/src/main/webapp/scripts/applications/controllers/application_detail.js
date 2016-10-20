@@ -276,11 +276,10 @@ define(function (require) {
 
       // TOPOLOGY INFO CONCERNS
       // verify the topology validity
-      $scope.isTopologyValid = function isTopologyValid(topologyId, environmentId) {
+      $scope.isTopologyValid = function isTopologyValid(topologyId) {
         // validate the topology
         return topologyServices.isValid({
-          topologyId: topologyId,
-          environmentId: environmentId
+          topologyId: topologyId
         }, function(result) {
           return result.data;
         });
