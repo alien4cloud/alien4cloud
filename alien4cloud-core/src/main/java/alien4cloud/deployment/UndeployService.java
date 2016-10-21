@@ -1,14 +1,10 @@
 package alien4cloud.deployment;
 
-import java.util.Date;
-
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
@@ -27,8 +23,6 @@ public class UndeployService {
     private OrchestratorPluginService orchestratorPluginService;
     @Inject
     private DeploymentService deploymentService;
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDao;
     @Inject
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
 

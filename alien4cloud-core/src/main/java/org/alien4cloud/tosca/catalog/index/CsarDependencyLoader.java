@@ -18,7 +18,7 @@ import alien4cloud.tosca.context.ToscaContextual;
 public class CsarDependencyLoader implements ICsarDependencyLoader {
 
     @Inject
-    private ICsarService csarService;
+    private CsarService csarService;
 
     @Override
     public Set<CSARDependency> getDependencies(String name, String version) {

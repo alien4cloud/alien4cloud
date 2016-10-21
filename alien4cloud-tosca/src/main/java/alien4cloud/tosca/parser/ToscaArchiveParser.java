@@ -1,12 +1,16 @@
 package alien4cloud.tosca.parser;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.ProviderNotFoundException;
 import java.util.EnumSet;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.validation.Validator;
 
 import org.springframework.stereotype.Component;
 
@@ -32,8 +36,6 @@ public class ToscaArchiveParser {
     private ToscaMetaMapping toscaMetaMapping;
     @Resource
     private ToscaParser toscaParser;
-    @Resource
-    private Validator validator;
 
     /**
      * Parse a TOSCA archive and reuse an existing TOSCA Context. Other methods will create an independent context for the parsing.

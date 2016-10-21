@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.exception.InvalidArgumentException;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.PrimitiveDataType;
-import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.ToscaType;

@@ -38,8 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ApplicationService {
-    @Resource
-    private QueryHelper queryHelper;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource

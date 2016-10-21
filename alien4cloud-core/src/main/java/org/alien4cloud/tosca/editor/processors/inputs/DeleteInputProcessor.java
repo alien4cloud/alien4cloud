@@ -11,6 +11,10 @@ import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -20,11 +24,6 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.deployment.DeploymentTopology;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.PropertyUtil;
@@ -38,8 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOperation> implements IEditorCommitableProcessor<DeleteInputOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Inject
-    private TopologyServiceCore topologyServiceCore;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
 
@@ -84,7 +81,7 @@ public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOper
      * @param inputId The id of the input to remove.
      */
     private void removeInputIdInProperties(final Map<String, AbstractPropertyValue> properties, final Map<String, PropertyDefinition> propertyDefinitions,
-                                           final String inputId) {
+            final String inputId) {
         if (properties == null) {
             return;
         }

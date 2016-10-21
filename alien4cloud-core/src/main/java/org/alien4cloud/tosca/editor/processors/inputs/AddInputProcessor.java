@@ -5,10 +5,12 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
@@ -17,10 +19,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.model.deployment.DeploymentTopology;
-import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.topology.TopologyServiceCore;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,8 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation> implements IEditorCommitableProcessor<AddInputOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Inject
-    private TopologyServiceCore topologyServiceCore;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
 

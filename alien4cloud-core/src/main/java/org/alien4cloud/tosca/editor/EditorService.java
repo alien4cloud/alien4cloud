@@ -15,7 +15,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.catalog.index.ICsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.exception.EditorIOException;
 import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
@@ -80,7 +80,7 @@ public class EditorService {
     @Inject
     private TopologyValidationService topologyValidationService;
     @Inject
-    private ICsarService csarService;
+    private CsarService csarService;
 
     @Value("${directories.alien}/${directories.upload_temp}")
     private String tempUploadDir;

@@ -2,24 +2,19 @@ package alien4cloud.deployment.matching.services.nodes;
 
 import java.util.List;
 
-import javax.annotation.Resource;
-
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.plugin.AbstractPluginLinker;
-import alien4cloud.plugin.model.PluginUsage;
-import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import org.springframework.stereotype.Component;
+
+import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
+import alien4cloud.plugin.AbstractPluginLinker;
+import alien4cloud.plugin.model.PluginUsage;
 
 /**
  * Registry that link INodeMatcherPlugin and checks usages.
  */
 @Component
 public class NodeMatcherRegistry extends AbstractPluginLinker<INodeMatcherPlugin> {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
-
     @Override
     public List<PluginUsage> usage(String pluginId) {
         List<PluginUsage> usages = Lists.newArrayList();

@@ -1,16 +1,14 @@
 package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.InvalidNameException;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import alien4cloud.topology.TopologyService;
-import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.RenameRelationshipOperation;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.InvalidNameException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Rename a relationship.
@@ -18,9 +16,6 @@ import javax.inject.Inject;
 @Slf4j
 @Component
 public class RenameRelationshipProcessor extends AbstractRelationshipProcessor<RenameRelationshipOperation> {
-    @Inject
-    private TopologyService topologyService;
-
     @Override
     protected void processRelationshipOperation(RenameRelationshipOperation operation, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate) {
         if (operation.getNewRelationshipName() == null || operation.getNewRelationshipName().isEmpty()) {

@@ -4,7 +4,6 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -41,8 +40,6 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     private ElasticSearchClient elasticSearchClient;
     @Inject
     private IImageDAO imageDAO;
-    @Inject
-    private IToscaTypeSearchService searchService;
 
     private void refreshIndexForSearching() {
         elasticSearchClient.getClient().admin().indices().prepareRefresh(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).execute().actionGet();

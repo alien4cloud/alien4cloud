@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
-import org.alien4cloud.tosca.catalog.index.ICsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.eclipse.jgit.api.Git;
@@ -50,7 +50,7 @@ public class CsarGitService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
-    private ICsarService csarService;
+    private CsarService csarService;
     // TODO store archives that are not 'temp' in another location.
     private Path tempDirPath;
     private Path tempZipDirPath;

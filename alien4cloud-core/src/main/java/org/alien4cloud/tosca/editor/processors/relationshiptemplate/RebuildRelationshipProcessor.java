@@ -1,22 +1,21 @@
 package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
+import java.util.Map;
+
+import org.alien4cloud.tosca.editor.EditionContextManager;
+import org.alien4cloud.tosca.editor.operations.relationshiptemplate.RebuildRelationshipOperation;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
-import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.operations.relationshiptemplate.RebuildRelationshipOperation;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.Map;
+import com.google.common.collect.Maps;
+
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Process a {@link RebuildRelationshipOperation}.
@@ -27,11 +26,6 @@ import java.util.Map;
 @Slf4j
 @Component
 public class RebuildRelationshipProcessor extends AbstractRelationshipProcessor<RebuildRelationshipOperation> {
-    @Resource
-    private TopologyService topologyService;
-    @Resource
-    private WorkflowsBuilderService workflowBuilderService;
-
     @Override
     protected void processRelationshipOperation(RebuildRelationshipOperation operation, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate) {
         Topology topology = EditionContextManager.getTopology();

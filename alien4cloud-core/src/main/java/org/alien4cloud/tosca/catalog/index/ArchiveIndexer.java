@@ -60,7 +60,7 @@ public class ArchiveIndexer {
     @Inject
     private ICsarRepositry archiveRepositry;
     @Inject
-    private ICsarService csarService;
+    private CsarService csarService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
