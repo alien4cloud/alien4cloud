@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNodeOperation> {
     @Inject
-    private IToscaTypeSearchService searchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
     private TopologyService topologyService;
     @Inject
@@ -41,7 +41,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         NodeTemplate oldNodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
 
         String[] splittedId = operation.getNewTypeId().split(":");
-        NodeType newType = searchService.find(NodeType.class, splittedId[0], splittedId[1]);
+        NodeType newType = toscaTypeSearchService.find(NodeType.class, splittedId[0], splittedId[1]);
         // Load the new type to the topology in order to update its dependencies
         newType = topologyService.loadType(topology, newType);
 

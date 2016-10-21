@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperation> {
     @Inject
-    private IToscaTypeSearchService searchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
     private TopologyService topologyService;
     @Inject
@@ -48,7 +48,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         topologyService.isUniqueNodeTemplateName(topology, operation.getNodeName());
 
         String[] splittedId = operation.getIndexedNodeTypeId().split(":");
-        NodeType indexedNodeType = searchService.find(NodeType.class, splittedId[0], splittedId[1]);
+        NodeType indexedNodeType = toscaTypeSearchService.find(NodeType.class, splittedId[0], splittedId[1]);
         if (indexedNodeType == null) {
             throw new NotFoundException(NodeType.class.getName(), operation.getIndexedNodeTypeId(), "Unable to find node type to create template in topology.");
         }

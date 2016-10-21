@@ -49,7 +49,7 @@ public abstract class AbstractToscaParserSimpleProfileTest {
     protected ToscaParser parser;
 
     @Resource
-    protected ICSARRepositorySearchService repositorySearchService;
+    protected ICSARRepositorySearchService csarRepositorySearchService;
 
     @Test
     public void testDefinitionVersionValid() throws FileNotFoundException, ParsingException {
@@ -63,33 +63,33 @@ public abstract class AbstractToscaParserSimpleProfileTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testNodeType() throws FileNotFoundException, ParsingException {
-        Mockito.reset(repositorySearchService);
+        Mockito.reset(csarRepositorySearchService);
         NodeType mockedResult = Mockito.mock(NodeType.class);
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                         Mockito.any(Set.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
 
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
         CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
                         Mockito.eq("mytypes.mycapabilities.MyCapabilityTypeName"), Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
                         Mockito.eq("mytypes.mycapabilities.MyCapabilityTypeName"), Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
 
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
                         Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
         RelationshipType hostedOn = new RelationshipType();
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
                         Mockito.any(Set.class))).thenReturn(hostedOn);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-node-type.yml"));

@@ -21,7 +21,7 @@ import static alien4cloud.utils.AlienUtils.safe;
 @Slf4j
 public class ToscaContext {
     @Setter
-    private static ICSARRepositorySearchService csarSearchService;
+    private static ICSARRepositorySearchService csarRepositorySearchService;
     private final static ThreadLocal<Context> contextThreadLocal = new ThreadLocal<>();
 
     /**
@@ -244,8 +244,8 @@ public class ToscaContext {
             Csar archive = archivesMap.get(id);
             log.debug("get archive from map {} {} {}", id, archive);
             if (archive == null) {
-                archive = csarSearchService.getArchive(name, version);
-                log.debug("get archive from repo {} {} {}", id, archive, csarSearchService.getClass().getName());
+                archive = csarRepositorySearchService.getArchive(name, version);
+                log.debug("get archive from repo {} {} {}", id, archive, csarRepositorySearchService.getClass().getName());
                 archivesMap.put(id, archive);
             }
             return archive;
@@ -273,8 +273,8 @@ public class ToscaContext {
                 }
             }
 
-            T element = required ? csarSearchService.getRequiredElementInDependencies(elementClass, elementId, dependencies)
-                    : csarSearchService.getElementInDependencies(elementClass, elementId, dependencies);
+            T element = required ? csarRepositorySearchService.getRequiredElementInDependencies(elementClass, elementId, dependencies)
+                    : csarRepositorySearchService.getElementInDependencies(elementClass, elementId, dependencies);
             if (element != null) {
                 typeElements.put(elementId, element);
             }

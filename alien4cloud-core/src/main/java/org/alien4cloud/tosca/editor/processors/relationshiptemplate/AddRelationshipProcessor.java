@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelationshipOperation> {
     @Inject
-    private IToscaTypeSearchService searchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Resource
     private TopologyService topologyService;
     @Resource
@@ -66,7 +66,7 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getTarget(), nodeTemplates);
 
         // We don't use the tosca context as the relationship type may not be in dependencies yet (that's why we use the load type below).
-        RelationshipType indexedRelationshipType = searchService.find(RelationshipType.class, operation.getRelationshipType(),
+        RelationshipType indexedRelationshipType = toscaTypeSearchService.find(RelationshipType.class, operation.getRelationshipType(),
                 operation.getRelationshipVersion());
         if (indexedRelationshipType == null) {
             throw new NotFoundException(RelationshipType.class.getName(), operation.getRelationshipType() + ":" + operation.getRelationshipVersion(),

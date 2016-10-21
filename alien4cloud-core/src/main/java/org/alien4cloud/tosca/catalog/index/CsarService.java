@@ -50,7 +50,7 @@ public class CsarService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
     @Inject
-    private IToscaTypeSearchService searchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
     private IToscaTypeIndexerService indexerService;
     @Inject
@@ -204,7 +204,7 @@ public class CsarService {
      * @return The {@link Csar Cloud Service Archive} if found in the repository.
      */
     public Csar getOrFail(String name, String version) {
-        Csar csar = searchService.getArchive(name, version);
+        Csar csar = toscaTypeSearchService.getArchive(name, version);
         if (csar == null) {
             throw new NotFoundException("Csar with name [" + name + "] and version [" + version + "] do not exist");
         }

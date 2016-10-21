@@ -1,7 +1,15 @@
 package alien4cloud.plugin.mock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -11,7 +19,11 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.ScalingPolicy;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.common.collect.Maps;
@@ -22,7 +34,19 @@ import alien4cloud.dao.MonitorESDAO;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.InstanceStatus;
+import alien4cloud.paas.model.NodeOperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSDeploymentLog;
+import alien4cloud.paas.model.PaaSDeploymentLogLevel;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyUtils;
@@ -49,7 +73,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     private final List<AbstractMonitorEvent> toBeDeliveredEvents = Collections.synchronizedList(new ArrayList<AbstractMonitorEvent>());
 
     @Inject
-    private IToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     @Resource(name = "alien-monitor-es-dao")
     private MonitorESDAO alienMonitorDao;
@@ -366,7 +390,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     private RelationshipType getRelationshipType(String typeName) {
-        return csarRepoSearchService.findMostRecent(RelationshipType.class, typeName);
+        return toscaTypeSearchService.findMostRecent(RelationshipType.class, typeName);
     }
 
     private void doScaledUpNode(ScalingVisitor scalingVisitor, String nodeTemplateId, Map<String, NodeTemplate> nodeTemplates) {
@@ -511,7 +535,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
             Map<String, InstanceInformation> nodeInstances = nodeEntry.getValue();
             if (nodeInstances != null && !nodeInstances.isEmpty()) {
                 NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
-                NodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
+                NodeType nodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
                 if (ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, nodeType)) {
                     for (Entry<String, InstanceInformation> nodeInstanceEntry : nodeInstances.entrySet()) {
                         String instanceId = nodeInstanceEntry.getKey();

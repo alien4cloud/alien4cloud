@@ -1,7 +1,6 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,17 +16,11 @@ import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -54,7 +47,6 @@ import alien4cloud.topology.task.TaskCode;
 import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 import lombok.SneakyThrows;
@@ -64,7 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class TopologyService {
     @Resource
-    private IToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
@@ -124,7 +116,7 @@ public class TopologyService {
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
         Map<String, Map<String, Set<String>>> nodeTemplatesToFilters = Maps.newHashMap();
         Entry<String, NodeTemplate> nodeTempEntry = Maps.immutableEntry(nodeTemplateName, nodeTemplate);
-        NodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
+        NodeType indexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
         processNodeTemplate(topology, nodeTempEntry, nodeTemplatesToFilters);
         List<SuggestionsTask> topoTasks = searchForNodeTypes(nodeTemplatesToFilters,
                 MapUtil.newHashMap(new String[] { nodeTemplateName }, new NodeType[] { indexedNodeType }));
@@ -341,7 +333,7 @@ public class TopologyService {
                 }
             } else if (comparisonResult < 0) {
                 // Dependency of the topology is more recent, try to upgrade the dependency of the type
-                element = csarRepoSearchService.getElementInDependencies((Class<T>) element.getClass(), element.getElementId(), topology.getDependencies());
+                element = toscaTypeSearchService.getElementInDependencies((Class<T>) element.getClass(), element.getElementId(), topology.getDependencies());
                 toLoadDependency = topologyDependency;
             }
         } else {

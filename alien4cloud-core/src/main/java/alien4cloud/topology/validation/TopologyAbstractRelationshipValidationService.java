@@ -28,7 +28,7 @@ import alien4cloud.topology.task.TaskCode;
 @Component
 public class TopologyAbstractRelationshipValidationService {
     @Resource
-    private IToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     /**
      * Checks that no relationships in a topology are abstract (and cannot be instanciated).
@@ -60,7 +60,7 @@ public class TopologyAbstractRelationshipValidationService {
 
             Set<RelationshipType> indexedRelationshipTypes = Sets.newHashSet();
             for (RelationshipTemplate relTemplate : template.getValue().getRelationships().values()) {
-                RelationshipType indexedRelationshipType = csarRepoSearchService.getElementInDependencies(RelationshipType.class, relTemplate.getType(),
+                RelationshipType indexedRelationshipType = toscaTypeSearchService.getElementInDependencies(RelationshipType.class, relTemplate.getType(),
                         topology.getDependencies());
                 if (indexedRelationshipType != null) {
                     if (abstractOnes == null || abstractOnes.equals(indexedRelationshipType.isAbstract())) {

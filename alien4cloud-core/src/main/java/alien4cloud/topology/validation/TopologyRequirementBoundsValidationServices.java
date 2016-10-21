@@ -30,7 +30,7 @@ import alien4cloud.topology.task.TaskCode;
 @Component
 public class TopologyRequirementBoundsValidationServices {
     @Resource
-    private IToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     /**
      * Check if the upperBound of a requirement is reached on a node template
@@ -41,7 +41,7 @@ public class TopologyRequirementBoundsValidationServices {
      * @return true if requirement upper bound is reached, false otherwise
      */
     public boolean isRequirementUpperBoundReachedForSource(NodeTemplate nodeTemplate, String requirementName, Set<CSARDependency> dependencies) {
-        NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), dependencies);
+        NodeType relatedIndexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), dependencies);
         Requirement requirement = nodeTemplate.getRequirements().get(requirementName);
         if (nodeTemplate.getRelationships() == null || nodeTemplate.getRelationships().isEmpty()) {
             return false;
@@ -73,7 +73,7 @@ public class TopologyRequirementBoundsValidationServices {
             if (nodeTemp.getRequirements() == null) {
                 continue;
             }
-            NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemp.getType(),
+            NodeType relatedIndexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemp.getType(),
                     topology.getDependencies());
             // do pass if abstract node
             if (relatedIndexedNodeType.isAbstract()) {
