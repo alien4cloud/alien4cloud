@@ -45,8 +45,8 @@
               <img class="pull-left media-object fa img-circle" style="height: 46px;" ng-if="application.imageId" ng-src="img?id={{application.imageId}}&quality=QUALITY_64" />
               {{application.name}}</div>
             <div class="col-md-5" class="">{{application.description}}</div>
-            <div class="col-md-2" style="width: 130px;" ng-if="isManager" style="width: 115px;">
-              <delete-confirm class="pull-right" id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+            <div class="col-md-2">
+              <delete-confirm ng-if="isManager" class="pull-right" id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
               </delete-confirm>
               <span id="pieChart-{{application.id}}" class="pull-right" style="margin-top: -18px;"></span>
             </div>

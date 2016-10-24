@@ -1,17 +1,17 @@
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
   var d3 = require('d3');
   var _ = require('lodash');
-  
+
   require('scripts/common/services/pie_chart_service.js');
   require('scripts/applications/services/application_services');
   require('scripts/applications/controllers/application_detail');
   require('scripts/topology/services/topology_services');
-  
+
   states.state('applications', {
     url: '/applications',
     template: '<ui-view/>',
@@ -29,7 +29,7 @@ define(function (require) {
     controller: 'ApplicationListCtrl'
   });
   states.forward('applications', 'applications.list');
-  
+
   var NewApplicationCtrl = ['$scope', '$modalInstance', 'topologyServices',
     function ($scope, $modalInstance, topologyServices) {
       $scope.app = {};
@@ -68,13 +68,13 @@ define(function (require) {
           $modalInstance.close($scope.app);
         }
       };
-      
+
       $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
       };
     }
   ];
-  
+
   modules.get('a4c-applications').controller('ApplicationListCtrl',
     ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster', 'searchServiceFactory', 'pieChartService',
       function ($scope, $modal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory, pieChartService) {
@@ -82,7 +82,7 @@ define(function (require) {
         $scope.applicationStatuses = [];
         $scope.onlyShowDeployedApplications = undefined;
         d3.selectAll('.d3-tip').remove();
-        
+
         $scope.openNewApp = function () {
           var modalInstance = $modal.open({
             templateUrl: 'views/applications/application_new.html',
@@ -96,7 +96,7 @@ define(function (require) {
             });
           });
         };
-        
+
         var getApplicationStatuses = function (applications) {
           var requestAppStatuses = [];
           Object.keys(applications).forEach(function (key) {
@@ -105,7 +105,7 @@ define(function (require) {
           var appStatuses = applicationServices.applicationStatus.statuses([], angular.toJson(requestAppStatuses));
           return appStatuses;
         };
-        
+
         var colors = {
           'DEPLOYED': '#398439',
           'UNDEPLOYED': '#D8D8D8',
@@ -115,7 +115,7 @@ define(function (require) {
           'DEPLOYMENT_IN_PROGRESS': '#2C80D3',
           'UNDEPLOYMENT_IN_PROGRESS': '#D0ADAD'
         };
-        
+
         var priorityToOrder = {
           'DEPLOYED': '8',
           'UNDEPLOYED': '7',
@@ -125,7 +125,7 @@ define(function (require) {
           'DEPLOYMENT_IN_PROGRESS': '3',
           'UNDEPLOYMENT_IN_PROGRESS': '2'
         };
-        
+
         var updateApplicationStatuses = function (applicationSearchResult) {
           if (!angular.isUndefined(applicationSearchResult)) {
             var statuses = getApplicationStatuses(applicationSearchResult.data);
@@ -142,17 +142,17 @@ define(function (require) {
                   segment.value = 1;
                   segment.id = key;
                   segment.name = tmpArray[key].environmentName;
-                  
+
                   // Initial the counter of number deployed environment by applications to sort
                   if (!_.isNumber(app.countDeployedEnvironment)) {
                     app.countDeployedEnvironment = 0;
                     applicationSearchResult.data[key] = app;
                   }
-                  
+
                   if (segment.label === 'DEPLOYED') {
                     app.countDeployedEnvironment++;
                   }
-                  
+
                   // Here we manage a filter to display the deployed applications
                   if ($scope.onlyShowDeployedApplications && segment.label === 'DEPLOYED') {
                     app.isDeployed = true;
@@ -160,7 +160,7 @@ define(function (require) {
                   } else if (!$scope.onlyShowDeployedApplications) {
                     data.push(segment);
                   }
-                  
+
                   applicationSearchResult.data[key] = app;
                 }
                 $scope.applicationStatuses[app.name] = data;
@@ -170,26 +170,26 @@ define(function (require) {
           }
           return applicationSearchResult;
         };
-        
+
         $scope.toogleShowDeployedApplications = function () {
           $scope.onlyShowDeployedApplications = ($scope.onlyShowDeployedApplications) ? undefined : true;
           $scope.searchService.search();
         };
-        
+
         $scope.searchService = searchServiceFactory('rest/latest/applications/search', false, $scope, 14);
         $scope.searchService.search();
-        
+
         $scope.onSearchCompleted = function (searchResult) {
           $scope.data = searchResult.data;
           updateApplicationStatuses(searchResult.data);
         };
-        
+
         $scope.openApplication = function (applicationId) {
           $state.go('applications.detail.info', {
             id: applicationId
           });
         };
-        
+
         $scope.openDeploymentPage = function (applicationId, environmentId) {
           $scope.openApplication(applicationId);
           $state.go('applications.detail.deployment', {
@@ -197,7 +197,7 @@ define(function (require) {
             openOnEnvironment: environmentId
           });
         };
-        
+
         $scope.removeApplication = function (applicationId) {
           applicationServices.remove({
             applicationId: applicationId
