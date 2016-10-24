@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.model.Csar;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
@@ -107,6 +108,24 @@ public class CsarFileRepository implements ICsarRepositry {
         } catch (IOException e) {
             throw new CSARStorageFailureException(
                     "Error while trying to store the CSAR: " + csar.getName() + ", Version: " + csar.getVersion() + "...." + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public synchronized void updateFromExpanded(String name, String version) {
+        Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
+        Path expandedPath = csarDirectoryPath.resolve("expanded");
+        String realName = name.concat("-").concat(version).concat("." + CSAR_EXTENSION);
+        Path csarTargetPath = csarDirectoryPath.resolve(realName);
+
+        // Update the content.json file for archive browsing.
+        Path archiveDirectoryPath = EditionContextManager.get().getLocalGitPath().getParent();
+        try {
+            DirectoryJSonWalker.directoryJson(expandedPath, csarDirectoryPath.resolve("content.json"));
+            FileUtil.zip(expandedPath, csarTargetPath);
+        } catch (IOException e) {
+            throw new CSARStorageFailureException("Error while trying to update the CSAR archive: " + name + ", Version: " + version + "...." + e.getMessage(),
+                    e);
         }
     }
 

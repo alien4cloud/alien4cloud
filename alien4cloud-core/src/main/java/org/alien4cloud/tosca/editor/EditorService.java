@@ -15,7 +15,9 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import alien4cloud.utils.DirectoryJSonWalker;
 import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.exception.EditorIOException;
 import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
@@ -304,7 +306,7 @@ public class EditorService {
             commitMessage.append(operation.getAuthor()).append(": ").append(operation.commitMessage()).append("\n");
         }
 
-        saveYamlFile();
+        saveYamlAndZipFile();
 
         Topology topology = EditionContextManager.getTopology();
         // Save the topology in elastic search
@@ -320,13 +322,16 @@ public class EditorService {
         context.setLastOperationIndex(-1);
     }
 
-    private void saveYamlFile() throws IOException {
+    private void saveYamlAndZipFile() throws IOException {
+        // Update the yaml in the archive
         Csar csar = EditionContextManager.getCsar();
         Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(csar.getYamlFilePath());
         String yaml = exportService.getYaml(csar, EditionContextManager.getTopology());
         try (BufferedWriter writer = Files.newBufferedWriter(targetPath)) {
             writer.write(yaml);
         }
+        // Update the archive zip for download
+        repositoryService.updateArchiveZip(EditionContextManager.getCsar().getName(), EditionContextManager.getCsar().getVersion());
     }
 
     /**

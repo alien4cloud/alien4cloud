@@ -34,13 +34,21 @@ public interface ICsarRepositry {
     Path getCSAR(String name, String version);
 
     /**
-     * Get the path of the expended directory in which the CSAR is stored.
+     * Get the path of the expanded directory in which the CSAR is stored.
      *
      * @param name The name of the csar.
      * @param version The version of the CSAR
      * @return The path to the expended csar file.
      */
     Path getExpandedCSAR(String name, String version);
+
+    /**
+     * Update the content of zip and json content file from the actual content of the expanded directory.
+     * 
+     * @param name The name of the archive.
+     * @param version The version of the archive.
+     */
+    void updateFromExpanded(String name, String version);
 
     /**
      * Delete an archive from the local repository.

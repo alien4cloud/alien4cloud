@@ -11,7 +11,7 @@ import alien4cloud.security.model.Role;
 @Component
 public class CsarAuthorizationFilter implements ICsarAuthorizationFilter {
     @Inject
-    private ITopologyCatalogService catalogService;
+    private ITopologyCatalogService topologyCatalogService;
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
 
@@ -22,7 +22,7 @@ public class CsarAuthorizationFilter implements ICsarAuthorizationFilter {
             AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_MANAGER);
         }
         // if the csar is bound to a topology, check the ARCHITECT Role
-        if (catalogService.exists(csar.getId())) {
+        if (topologyCatalogService.exists(csar.getId())) {
             AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         }
     }
