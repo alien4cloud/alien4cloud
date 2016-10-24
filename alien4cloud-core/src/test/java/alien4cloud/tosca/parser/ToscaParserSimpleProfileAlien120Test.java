@@ -7,33 +7,35 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.google.common.collect.Lists;
+
 import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-
-import com.google.common.collect.Lists;
 
 /**
  * Test tosca parsing for Tosca Simple profile in YAML alien_dsl_1_2_0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:tosca/parser-application-context.xml")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSimpleProfileTest {
 
     @Override
@@ -49,27 +51,22 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
     @SuppressWarnings("unchecked")
     @Test
     public void testBadOccurrence() throws FileNotFoundException, ParsingException {
-        Mockito.reset(csarRepositorySearchService);
         NodeType mockedResult = Mockito.mock(NodeType.class);
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
-                        Mockito.any(Set.class))).thenReturn(mockedResult);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                Mockito.any(Set.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
 
         Mockito.when(
                 csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
         RelationshipType hostedOn = new RelationshipType();
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
-                        Mockito.any(Set.class))).thenReturn(hostedOn);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                Mockito.any(Set.class))).thenReturn(hostedOn);
         CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
-                        Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
+                Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-node-type-invalid-occurrence.yml"));
 
         Assert.assertEquals(2, countErrorByLevelAndCode(parsingResult, ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR));
@@ -78,14 +75,13 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
     @SuppressWarnings("unchecked")
     @Test
     public void testRelationshipType() throws FileNotFoundException, ParsingException {
-        Mockito.reset(csarRepositorySearchService);
         RelationshipType mockedResult = Mockito.mock(RelationshipType.class);
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.Relationship"),
-                        Mockito.any(Set.class))).thenReturn(mockedResult);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.Relationship"),
+                Mockito.any(Set.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.capabilities.Root"));
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-relationship-type.yml"));
+        ArchiveParserTest.displayErrors(parsingResult);
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());

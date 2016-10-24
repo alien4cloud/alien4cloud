@@ -6,14 +6,26 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FilterDefinition;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.NodeFilter;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.definitions.constraints.GreaterThanConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
@@ -27,6 +39,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -46,6 +59,7 @@ import alien4cloud.utils.MapUtil;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:tosca/parser-application-context.xml")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleProfileTest {
 
     @Override
@@ -141,7 +155,6 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
 
     @Test
     public void testImportDependency() throws FileNotFoundException, ParsingException {
-        Mockito.reset(repositorySearchService);
         Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
         // Mockito.when(csarRepositorySearchService.getArchive(csar.getId())).thenReturn(csar);
 
@@ -159,7 +172,6 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
 
     @Test
     public void testImportDependencyMissing() throws FileNotFoundException, ParsingException {
-        Mockito.reset(repositorySearchService);
         Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
         // Mockito.when(csarRepositorySearchService.getArchive(csar.getId())).thenReturn(null);
 
@@ -177,7 +189,6 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     @SuppressWarnings("unchecked")
     @Test
     public void testArtifactType() throws FileNotFoundException, ParsingException {
-        Mockito.reset(repositorySearchService);
         ArtifactType mockedResult = Mockito.mock(ArtifactType.class);
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(ArtifactType.class), Mockito.eq("tosca.artifact.Root"), Mockito.any(Set.class)))
@@ -204,7 +215,6 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     @SuppressWarnings("unchecked")
     @Test
     public void testCapabilityType() throws FileNotFoundException, ParsingException {
-        Mockito.reset(repositorySearchService);
         CapabilityType mockedResult = Mockito.mock(CapabilityType.class);
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Feature"),
                 Mockito.any(Set.class))).thenReturn(mockedResult);
@@ -226,7 +236,6 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     @SuppressWarnings("unchecked")
     @Test
     public void testNodeType() throws FileNotFoundException, ParsingException {
-        Mockito.reset(repositorySearchService);
         NodeType mockedResult = Mockito.mock(NodeType.class);
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                 Mockito.any(Set.class))).thenReturn(mockedResult);
@@ -310,7 +319,6 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     @SuppressWarnings("unchecked")
     @Test
     public void testNodeTypeWithCutomInterface() throws FileNotFoundException, ParsingException {
-        Mockito.reset(repositorySearchService);
         NodeType mockedResult = Mockito.mock(NodeType.class);
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                 Mockito.any(Set.class))).thenReturn(mockedResult);
@@ -363,7 +371,6 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     @SuppressWarnings("unchecked")
     @Test
     public void testAttributesConcatValid() throws Throwable {
-        Mockito.reset(repositorySearchService);
         Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
         // Mockito.when(csarRepositorySearchService.getArchive(csar.getId())).thenReturn(csar);
 
@@ -422,7 +429,6 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     @Test
     @SuppressWarnings("unchecked")
     public void testGetOperationOutputFunction() throws Throwable {
-        Mockito.reset(repositorySearchService);
         Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
         // Mockito.when(csarRepositorySearchService.getArchive(csar.getId())).thenReturn(csar);
 
@@ -486,7 +492,6 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
 
     @Test
     public void testNodeTypeNodeFilter() throws ParsingException {
-        Mockito.reset(repositorySearchService);
         Csar csar = new Csar("tosca-normative-types", "1.0.0.wd03-SNAPSHOT");
         // Mockito.when(csarRepositorySearchService.getArchive(csar.getId())).thenReturn(csar);
 
@@ -618,7 +623,6 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
 
     @Test
     public void testParseTopologyReferenceToNormative() throws FileNotFoundException, ParsingException {
-        Mockito.reset(repositorySearchService);
         Csar csar = new Csar("tosca-normative-types", "1.0.0.wd03-SNAPSHOT");
         // Mockito.when(csarRepositorySearchService.getArchive(csar.getId())).thenReturn(csar);
 
