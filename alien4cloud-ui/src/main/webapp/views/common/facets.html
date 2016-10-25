@@ -6,7 +6,7 @@
             <i class="fa fa-trash-o"></i>
         </button>
     </div>
-    <div class="facet-choice" collapse="isFacetCollapsed">
+    <div class="facet-choice">
         <ul class="nav facet-choice">
             <li ng-repeat="filter in facetFilters">
                 <a href="" ng-click="removeFilter(filter)">{{ toDisplayFacet(filter.term, filterPrefix) }}:
@@ -19,11 +19,11 @@
     </div>
 </div>
 <!-- Displaying all terms and its facets -->
-<div ng-repeat="(term, termFacets) in facets">
-    <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
+<div ng-repeat="(term, termFacets) in facets" ng-init="active=!_.isEmpty(termFacets)">
+    <div ng-click="active && (isFacetCollapsed = !isFacetCollapsed)" class="facet-category" ng-class= "{'facet-category-active' : active}">
         <span>{{ toDisplayFacet(term, filterPrefix) }}</span>
         <i class="pull-right fa"
-           ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
+           ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': !active || isFacetCollapsed}"></i>
     </div>
     <div class="facet-option" collapse="isFacetCollapsed">
         <ul class="nav facet-option">

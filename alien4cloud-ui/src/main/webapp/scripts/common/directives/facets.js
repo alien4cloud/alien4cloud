@@ -27,6 +27,9 @@ define(function (require) {
   });
 
   modules.get('a4c-common', []).controller('FacetsController', ['$scope', function ($scope) {
+
+    $scope._ = _;
+
     function removeFilter(filterToRemove) {
       // Remove the selected filter
       _.remove($scope.facetFilters, filterToRemove);
