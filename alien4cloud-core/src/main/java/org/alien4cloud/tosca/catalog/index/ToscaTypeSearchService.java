@@ -32,12 +32,13 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Primary
 public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<AbstractToscaType> implements IToscaTypeSearchService {
+
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO searchDAO;
 
     @Override
     public Csar getArchive(String archiveName, String archiveVersion) {
-        return searchDAO.buildQuery(Csar.class).prepareSearch().setFilters(fromKeyValueCouples("name", archiveName, "version", archiveVersion)).find();
+        return searchDAO.findById(Csar.class, Csar.createId(archiveName, archiveVersion));
     }
 
     @Override

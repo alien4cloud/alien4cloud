@@ -17,6 +17,7 @@ import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.common.IWorkspaceResource;
 import alien4cloud.model.common.Tag;
 import alien4cloud.security.IManagedSecuredResource;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -29,7 +30,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(of = { "name", "version" })
 @ESObject
-public class Csar implements IManagedSecuredResource {
+public class Csar implements IManagedSecuredResource, IWorkspaceResource {
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     @FetchContext(contexts = { SUMMARY }, include = { true })
@@ -106,6 +107,10 @@ public class Csar implements IManagedSecuredResource {
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     @FetchContext(contexts = { SUMMARY }, include = { true })
     public String getId() {
+        return createId(name, version);
+    }
+
+    public static String createId(String name, String version) {
         if (name == null) {
             throw new IndexingServiceException("Csar name is mandatory");
         }

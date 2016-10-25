@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.catalog;
 
 import java.nio.file.Path;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
@@ -22,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ArchiveParser {
     @Inject
     private ToscaArchiveParser toscaArchiveParser;
-    @Inject
-    private ArchivePostProcessor postProcessor;
+    @Resource(name = "archivePostProcessor")
+    private IArchivePostProcessor postProcessor;
 
     /**
      * Parse a TOSCA archive and reuse an existing TOSCA Context. Other methods will create an independent context for the parsing.

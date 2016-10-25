@@ -2,8 +2,10 @@ package org.alien4cloud.tosca.editor.services;
 
 import java.nio.file.Path;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.IArchivePostProcessor;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.EditorToscaYamlUpdateException;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -25,8 +27,8 @@ import alien4cloud.tosca.parser.ToscaArchiveParser;
 public class EditorTopologyUploadService {
     @Inject
     private ToscaArchiveParser toscaArchiveParser;
-    @Inject
-    private EditorArchivePostProcessor postProcessor;
+    @Resource(name = "editorArchivePostProcessor")
+    private IArchivePostProcessor postProcessor;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
 

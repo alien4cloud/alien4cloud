@@ -6,11 +6,15 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.model.common.IUpdatedDate;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.elasticsearch.annotation.*;
+import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.MapKeyValue;
+import org.elasticsearch.annotation.NestedObject;
+import org.elasticsearch.annotation.ObjectField;
+import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
@@ -23,6 +27,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.common.IUpdatedDate;
+import alien4cloud.model.common.IWorkspaceResource;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
@@ -41,7 +47,7 @@ import lombok.Setter;
 @AllArgsConstructor(suppressConstructorProperties = true)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Topology implements IUpdatedDate {
+public class Topology implements IUpdatedDate, IWorkspaceResource {
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter
     private String archiveName;
