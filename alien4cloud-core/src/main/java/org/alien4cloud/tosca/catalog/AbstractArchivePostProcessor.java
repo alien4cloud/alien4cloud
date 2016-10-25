@@ -50,7 +50,7 @@ public abstract class AbstractArchivePostProcessor {
      *
      * @param parsedArchive The archive to post process
      */
-    public ParsingResult<ArchiveRoot> process(Path archive, ParsingResult<ArchiveRoot> parsedArchive, String workspace) {
+    protected ParsingResult<ArchiveRoot> doProcess(Path archive, ParsingResult<ArchiveRoot> parsedArchive, String workspace) {
         String hash = FileUtil.deepSHA1(archive);
         parsedArchive.getResult().getArchive().setHash(hash);
         parsedArchive.getResult().getArchive().setWorkspace(workspace);
