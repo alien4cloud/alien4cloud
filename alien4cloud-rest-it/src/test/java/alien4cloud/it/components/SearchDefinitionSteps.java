@@ -1,32 +1,40 @@
 package alien4cloud.it.components;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
+import org.junit.Assert;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.dao.model.FacetedSearchFacet;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
+import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -130,7 +138,7 @@ public class SearchDefinitionSteps {
     public void I_search_for_from_with_result_size_of_and_filter_set_to(String searchedComponentType, int from, int size, String filterName, String filterValue)
             throws Throwable {
         Map<String, String[]> filters = Maps.newHashMap();
-        filters.put(filterName, new String[] { filterValue.toLowerCase() });
+        filters.put(filterName, new String[]{filterValue.toLowerCase()});
         SearchRequest req = new SearchRequest(QUERY_TYPES.get(searchedComponentType), null, from, size, filters);
         req.setType(req.getType());
 
@@ -148,28 +156,28 @@ public class SearchDefinitionSteps {
             for (Object object : resultData) {
                 NodeType idnt = JsonUtil.readObject(JsonUtil.toString(object), NodeType.class);
                 switch (property) {
-                case "capability":
-                    assertNotNull(idnt.getCapabilities());
-                    assertTrue(idnt.getCapabilities().contains(new CapabilityDefinition(propertyValue, propertyValue, 1)));
-                    break;
-                case "requirement":
-                    assertNotNull(idnt.getRequirements());
-                    assertTrue(idnt.getRequirements().contains(new RequirementDefinition(propertyValue, propertyValue)));
-                    break;
-                default:
-                    break;
+                    case "capability":
+                        assertNotNull(idnt.getCapabilities());
+                        assertTrue(idnt.getCapabilities().contains(new CapabilityDefinition(propertyValue, propertyValue, 1)));
+                        break;
+                    case "requirement":
+                        assertNotNull(idnt.getRequirements());
+                        assertTrue(idnt.getRequirements().contains(new RequirementDefinition(propertyValue, propertyValue)));
+                        break;
+                    default:
+                        break;
                 }
             }
         } else if (searchedComponentType.equalsIgnoreCase("relationship types")) {
             for (Object object : resultData) {
                 RelationshipType idrt = JsonUtil.readObject(JsonUtil.toString(object), RelationshipType.class);
                 switch (property) {
-                case "validSource":
-                    assertNotNull(idrt.getValidSources());
-                    assertTrue(Arrays.equals(new String[] { propertyValue }, idrt.getValidSources()));
-                    break;
-                default:
-                    break;
+                    case "validSource":
+                        assertNotNull(idrt.getValidSources());
+                        assertTrue(Arrays.equals(new String[]{propertyValue}, idrt.getValidSources()));
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -245,24 +253,24 @@ public class SearchDefinitionSteps {
             if (property != null && remaining > 0) {
                 if (type.equalsIgnoreCase("node types")) {
                     switch (property) {
-                    case "capability":
-                        ((NodeType) componentTemplate).setCapabilities(Lists.newArrayList(new CapabilityDefinition(propertyValue, propertyValue, 1)));
-                        break;
-                    case "requirement":
-                        ((NodeType) componentTemplate).setRequirements((Lists.newArrayList(new RequirementDefinition(propertyValue, propertyValue))));
-                        break;
-                    case "default capability":
-                        ((NodeType) componentTemplate).setDefaultCapabilities((Lists.newArrayList(propertyValue)));
-                        break;
-                    case "elementId":
-                        ((NodeType) componentTemplate).setElementId(propertyValue);
-                        break;
+                        case "capability":
+                            ((NodeType) componentTemplate).setCapabilities(Lists.newArrayList(new CapabilityDefinition(propertyValue, propertyValue, 1)));
+                            break;
+                        case "requirement":
+                            ((NodeType) componentTemplate).setRequirements((Lists.newArrayList(new RequirementDefinition(propertyValue, propertyValue))));
+                            break;
+                        case "default capability":
+                            ((NodeType) componentTemplate).setDefaultCapabilities((Lists.newArrayList(propertyValue)));
+                            break;
+                        case "elementId":
+                            ((NodeType) componentTemplate).setElementId(propertyValue);
+                            break;
 
-                    default:
-                        break;
+                        default:
+                            break;
                     }
                 } else if (type.equalsIgnoreCase("relationship types")) {
-                    ((RelationshipType) componentTemplate).setValidSources(new String[] { propertyValue });
+                    ((RelationshipType) componentTemplate).setValidSources(new String[]{propertyValue});
                 }
                 remaining -= 1;
             }
@@ -282,5 +290,25 @@ public class SearchDefinitionSteps {
     @When("^I search for all components type from (\\d+) with result size of (\\d+)$")
     public void iSearchForAllComponentsTypeFromWithResultSizeOf(int from, int size) throws Throwable {
         I_search_for_from_with_result_size_of(null, from, size);
+    }
+
+    @Then("^The search result should contain (\\d+) data with (\\d+) facets and some of them are:$")
+    public void theSearchResultShouldContainDataWithFacetsAndSomeOfThemAre(int numberOfData, int numberOfFacets, DataTable dataTable) throws Throwable {
+        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), FacetedSearchResult.class);
+        Assert.assertNotNull(restResponse.getData());
+        Assert.assertNotNull(restResponse.getData().getData());
+        Assert.assertEquals(numberOfData, restResponse.getData().getData().length);
+        Assert.assertNotNull(restResponse.getData().getFacets());
+        Map<String, FacetedSearchFacet[]> facets = restResponse.getData().getFacets();
+        Assert.assertEquals(numberOfFacets, facets.size());
+        dataTable.raw().forEach(line -> {
+            String key = line.get(0);
+            String value = StringUtils.isBlank(line.get(1)) ? null : line.get(1);
+            long count = Long.parseLong(line.get(2));
+            Assert.assertTrue("Facet " + key + " not found", facets.containsKey(key));
+            Optional<FacetedSearchFacet> facetFound = Arrays.stream(facets.get(key)).filter(facet -> Objects.equals(value, facet.getFacetValue())).findFirst();
+            Assert.assertTrue("Facet " + key + " does not have value " + value, facetFound.isPresent());
+            Assert.assertEquals("Facet " + key + " does not have count " + count + " for value " + value, count, facetFound.get().getCount());
+        });
     }
 }
