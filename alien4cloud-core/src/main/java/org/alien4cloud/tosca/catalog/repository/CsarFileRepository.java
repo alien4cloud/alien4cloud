@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.catalog.repository;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -181,9 +182,15 @@ public class CsarFileRepository implements ICsarRepositry {
 
     @Override
     public void removeCSAR(String name, String version) {
-        Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
-        if (Files.isDirectory(csarDirectoryPath)) {
-            FileSystemUtils.deleteRecursively(csarDirectoryPath.toFile());
+        Path csarDirectoryPathOfVersion = rootPath.resolve(name).resolve(version);
+        if (Files.isDirectory(csarDirectoryPathOfVersion)) {
+            FileSystemUtils.deleteRecursively(csarDirectoryPathOfVersion.toFile());
+        }
+
+        // If the csar has no version, delete csar folder
+        File csarRootFolder = new File(rootPath.resolve(name).toUri());
+        if (csarRootFolder.isDirectory() && csarRootFolder.list().length == 0) {
+            FileSystemUtils.deleteRecursively(csarRootFolder);
         }
     }
 }
