@@ -10,6 +10,7 @@ define(function (require) {
       restrict: 'E',
       controller: 'alienSearchComponentCtrl',
       scope: {
+        'refresh': '=',
         'displayDetailPannel': '=',
         'onSelectItem': '&',
         'globalContext': '=',
