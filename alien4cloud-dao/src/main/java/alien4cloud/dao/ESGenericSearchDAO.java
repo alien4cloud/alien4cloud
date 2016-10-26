@@ -20,8 +20,15 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.mapping.*;
+import org.elasticsearch.mapping.ElasticSearchClient;
+import org.elasticsearch.mapping.FilterValuesStrategy;
+import org.elasticsearch.mapping.ISearchBuilderAdapter;
+import org.elasticsearch.mapping.MappingBuilder;
+import org.elasticsearch.mapping.QueryBuilderAdapter;
+import org.elasticsearch.mapping.QueryHelper;
+import org.elasticsearch.mapping.SourceFetchContext;
 import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.bucket.missing.InternalMissing;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
@@ -445,12 +452,24 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             } else if (aggregation instanceof InternalTerms) {
                 InternalTerms internalTerms = (InternalTerms) aggregation;
 
-                FacetedSearchFacet[] facets = new FacetedSearchFacet[internalTerms.getBuckets().size()];
+                List<FacetedSearchFacet> facets = new ArrayList<>();
                 for (int i = 0; i < internalTerms.getBuckets().size(); i++) {
                     Terms.Bucket bucket = internalTerms.getBuckets().get(i);
-                    facets[i] = new FacetedSearchFacet(bucket.getKey(), bucket.getDocCount());
+                    facets.add(new FacetedSearchFacet(bucket.getKey(), bucket.getDocCount()));
                 }
-                facetMap.put(internalTerms.getName(), facets);
+                // Find the missing aggregation
+                internalAggregationsList.stream()
+                        .filter(missingAggregation -> missingAggregation instanceof InternalMissing
+                                && missingAggregation.getName().equals("missing_" + internalTerms.getName()))
+                        .findAny()
+                        // If the missing aggregation is present then add the number of doc with missing value
+                        .ifPresent(missingAggregation -> {
+                            InternalMissing internalMissingAggregation = (InternalMissing) missingAggregation;
+                            if (internalMissingAggregation.getDocCount() > 0) {
+                                facets.add(new FacetedSearchFacet(null, internalMissingAggregation.getDocCount()));
+                            }
+                        });
+                facetMap.put(internalTerms.getName(), facets.toArray(new FacetedSearchFacet[facets.size()]));
             } else {
                 log.debug("Aggregation is not a facet aggregation (terms) ignore. Name: {} ,Type: {}", aggregation.getName(), aggregation.getClass().getName());
             }
