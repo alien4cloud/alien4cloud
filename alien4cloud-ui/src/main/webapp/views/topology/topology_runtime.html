@@ -1,22 +1,21 @@
+<div id="editor-head-menu" class="topology-editor" style="margin-top: -10px; padding:2px; padding-left:20px; padding-right:20px; background-color: #666666;">
+
+  <ui-select id="editor-env-version-select" ng-model="selectedEnvironment" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeEnvironment(selectedEnvironment)" reset-search-input="true" close-on-select="true">
+    <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name | limitTo: 20}}{{$select.selected.name.length > 20 ? '...' : ''}}</ui-select-match>
+    <ui-select-choices repeat="environment in runtimeEnvironments | filter: {status: '!UNDEPLOYED', name: $select.search}">
+      <span ng-bind-html="environment.name | limitTo: 20 | highlight: $select.search"></span>
+      {{environment.name > 20 ? '...' : ''}}
+    </ui-select-choices>
+  </ui-select>
+
+  <div id="editor-context-container" class="pull-right">
+  </div>
+</div>
 <div id="topology-editor" class="topology-editor" style="height: {{dimensions.height}}px; width: {{dimensions.width}}px;">
   <div class="topology-row" style="height: {{dimensions.height}}px;">
     <!-- TOPOLOGY display -->
     <div id="topology" class="topology-column">
       <div class="topology topology-column-box">
-        <div class="btn-toolbar">
-          <div class="btn-group">
-            <!--  Environment list -->
-            <ui-select id="env-version-select" ng-model="selectedEnvironment" theme="bootstrap"
-              append-to-body="true"  on-select="changeEnvironment(selectedEnvironment)"
-              ng-options="environment.name for environment in runtimeEnvironments | filter:{status: '!UNDEPLOYED'}">
-              <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name | limitTo: 20}}{{$select.selected.name.length > 20 ? '...' : ''}}</ui-select-match>
-              <ui-select-choices repeat="environment in runtimeEnvironments | filter: {status: '!UNDEPLOYED', name: $select.search}">
-                <span ng-bind-html="environment.name | limitTo: 20 | highlight: $select.search"></span>
-                {{environment.name > 20 ? '...' : ''}}
-              </ui-select-choices>
-            </ui-select>
-          </div>
-        </div>
         <topology-rendering ng-if="view === 'RENDERED' && topology" topology="topology" dimensions="visualDimensions"
           trigger-refresh="triggerTopologyRefresh"
           select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true">

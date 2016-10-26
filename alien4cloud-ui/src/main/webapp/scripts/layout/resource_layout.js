@@ -25,7 +25,7 @@ define(function (require) {
   // defines layout controller
   alien4cloud.controller('ResourceLayoutCtrl', ['$scope', 'menu', 'resourceLayoutService', 'resource',
     function( $scope, menu, layoutService, resource) {
-      console.log('resource', resource);
+      // console.log('resource', resource);
       layoutService.process(menu, resource);
       $scope.menu = menu;
       $scope.updateMenu = function() {
