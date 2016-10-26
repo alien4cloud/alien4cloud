@@ -776,6 +776,7 @@
     "MENU_COMPONENTS" : "Composants",
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS importés depuis Git",
+    "MENU_REPOSITORIES": "Dépôts d'artefacts",
     "MENU_TOPOLOGY_TEMPLATE" : "Modèles de topologie"
   },
   "OPTIONAL" : "Optionnel",
@@ -847,6 +848,13 @@
       "USE": "Utiliser ",
       "USE_YOUR_VALUE" : " et l'ajouter aux valeur de suggestion"
     }
+  },
+  "REPOSITORY": {
+    "ACTIVE_FILTERS" : "Filtres actifs",
+    "ADD": "Nouveau dépôt",
+    "PLUGINS_NOT_FOUND": "Aucun plugin résolveur trouvé",
+    "CONFIGURATION": "Configuration",
+    "REPOSITORYTYPE": "Type"
   },
   "REQUIRED" : "Obligatoire",
   "ROLE_TABS" : {

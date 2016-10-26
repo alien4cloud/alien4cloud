@@ -103,8 +103,8 @@ define(function (require) {
     }
   ];
 
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('RepositoryListCtrl', ['$scope', '$modal', 'repositoryService', '$window',
-    function ($scope, $modal, repositoryService, $window) {
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('RepositoryListCtrl', ['$scope', '$modal', 'repositoryService', '$window', '$filter',
+    function ($scope, $modal, repositoryService, $window, $filter) {
 
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
@@ -164,6 +164,13 @@ define(function (require) {
         var request = {};
         request[field] = newValue;
         return repositoryService.update({repositoryId: repository.id}, angular.toJson(request), undefined).$promise;
+      };
+
+      /** Used to display the correct text in UI */
+      $scope.facetIdConverter = {
+        toDisplayFacet: function (termId, filterPrefix) {
+          return $filter('translate')($filter('uppercase')(filterPrefix + termId));
+        }
       };
     }]);
 });

@@ -17,6 +17,7 @@ define(function (require) {
         pageSize: '@',
         maxPageCount: '@',
         filterPrefix: '@',
+        facetIdConverter: '=',
         defaultFilters: '=',
         staticFacets: '=',
         onSearch: '&'

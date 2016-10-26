@@ -98,7 +98,7 @@
           "TITLE": "Change version",
           "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology."
         }
-      },      
+      },
       "DESC_TEMPLATE" : "トポロジテンプレートの説明",
       "GROUPS" : {
         "ADD" : "グループの追加",
@@ -775,6 +775,7 @@
     "MENU_COMPONENTS" : "コンポーネント",
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS Git Integration",
+    "MENU_REPOSITORIES": "Artifacts repositories",
     "MENU_TOPOLOGY_TEMPLATE" : "トポロジテンプレート"
   },
   "OPTIONAL" : "Optional",
@@ -839,6 +840,13 @@
     "UPLOAD" : "プラグインのアップロード"
   },
   "PROPERTY_RESET" : "Set to default value or reset",
+  "REPOSITORY": {
+    "ACTIVE_FILTERS" : "Active filters",
+    "ADD": "New repository",
+    "PLUGINS_NOT_FOUND": "No resolver plugins found",
+    "CONFIGURATION": "Configuration",
+    "REPOSITORYTYPE": "Type"
+  },
   "REQUIRED" : "Required",
   "ROLE_TABS" : {
     "USERS" : "ユーザ"

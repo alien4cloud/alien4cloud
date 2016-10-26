@@ -40,7 +40,7 @@ define(function (require) {
     }
 
     function addFacetFilter(termId, facetId) {
-      if(_.defined($scope.facetIdConverter)) {
+      if(_.definedPath($scope, 'facetIdConverter.toFilter')) {
         facetId = $scope.facetIdConverter.toFilter(termId, facetId);
       }
       // Test if the filter exists : [term:facet] and add it if not
@@ -110,14 +110,14 @@ define(function (require) {
     };
 
     $scope.toDisplay = function(termId, facetId) {
-      if (_.defined($scope.facetIdConverter)) {
+      if (_.definedPath($scope, 'facetIdConverter.toDisplay')) {
         return $scope.facetIdConverter.toDisplay(termId, facetId);
       }
       return facetId;
     };
 
     $scope.toDisplayFacet = function(termId, filterPrefix) {
-      if (_.defined($scope.facetIdConverter)) {
+      if (_.definedPath($scope, 'facetIdConverter.toDisplayFacet')) {
         return $scope.facetIdConverter.toDisplayFacet(termId, filterPrefix);
       }
       return termId;

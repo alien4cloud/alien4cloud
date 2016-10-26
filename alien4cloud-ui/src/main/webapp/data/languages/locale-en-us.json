@@ -101,7 +101,7 @@
           "TITLE": "Change version",
           "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology."
         }
-      },      
+      },
       "DESC_TEMPLATE" : "Topology template description",
       "GROUPS" : {
         "ADD" : "Add a group",
@@ -799,7 +799,7 @@
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS Git Integration",
     "MENU_TOPOLOGY_TEMPLATE" : "Topology templates",
-    "MENU_REPOSITORIES": "Repositories"
+    "MENU_REPOSITORIES": "Artifacts repositories"
   },
   "OPTIONAL" : "Optional",
   "ORCHESTRATORS" : {
@@ -995,10 +995,7 @@
   },
   "REPOSITORY": {
     "ACTIVE_FILTERS" : "Active filters",
-    "TITLE": "Repositories",
     "ADD": "New repository",
-    "NAME": "Name",
-    "TYPE": "Type",
     "PLUGINS_NOT_FOUND": "No resolver plugins found",
     "CONFIGURATION": "Configuration",
     "REPOSITORYTYPE": "Type"
