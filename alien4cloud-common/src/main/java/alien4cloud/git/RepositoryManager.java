@@ -13,18 +13,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jgit.api.CheckoutCommand;
-import org.eclipse.jgit.api.CloneCommand;
-import org.eclipse.jgit.api.DeleteBranchCommand;
-import org.eclipse.jgit.api.FetchCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.PullCommand;
-import org.eclipse.jgit.api.PullResult;
-import org.eclipse.jgit.api.PushCommand;
-import org.eclipse.jgit.api.RenameBranchCommand;
-import org.eclipse.jgit.api.TransportCommand;
+import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Ref;
@@ -559,6 +550,27 @@ public class RepositoryManager {
             throw new GitException("Unable to pull the git repository", e);
         } finally {
             close(git);
+        }
+    }
+
+    /**
+     * Clean the current modifications of the repository
+     *
+     * @param repositoryDirectory
+     */
+    public static void clean(Path repositoryDirectory) {
+        Git repository = null;
+        try {
+            repository = Git.open(repositoryDirectory.resolve(".git").toFile());
+            CleanCommand cleanCommand = repository.clean();
+            cleanCommand.setIgnore(true);
+            cleanCommand.call();
+        } catch (IOException e) {
+            throw new GitException("Unable to open the git repository", e);
+        } catch (GitAPIException e) {
+            throw new GitException("Unable to clean the git repository", e);
+        } finally {
+            close(repository);
         }
     }
 

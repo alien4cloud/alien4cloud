@@ -145,4 +145,9 @@ public class EditorRepositoryService {
         Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         RepositoryManager.pull(archiveGitPath, username, password, remoteBranch);
     }
+
+    public void clean(Csar csar) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+        RepositoryManager.clean(archiveGitPath);
+    }
 }

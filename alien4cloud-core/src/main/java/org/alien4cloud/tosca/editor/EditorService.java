@@ -15,9 +15,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import alien4cloud.utils.DirectoryJSonWalker;
 import org.alien4cloud.tosca.catalog.index.CsarService;
-import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.exception.EditorIOException;
 import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
@@ -45,11 +43,7 @@ import com.google.common.collect.Maps;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.topology.TopologyValidationResult;
-import alien4cloud.topology.TopologyValidationService;
+import alien4cloud.topology.*;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -340,6 +334,9 @@ public class EditorService {
     public void pull(String topologyId, String username, String password, String remoteBranch) {
         try {
             editionContextManager.init(topologyId);
+            if (EditionContextManager.get().getLastSavedOperationIndex() == -1) {
+                repositoryService.clean(EditionContextManager.getCsar());
+            }
             repositoryService.pull(EditionContextManager.getCsar(), username, password, remoteBranch);
         } finally {
             editionContextManager.destroy();
