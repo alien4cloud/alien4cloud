@@ -8,9 +8,9 @@ server:
 
 # Configuration of alien4cloud's CSAR repository, temporary folder and upload settings.
 directories:
-  alien_init: /Users/vuminhkh/Projects/alien4cloud-premium-dist/target/alien4cloud-premium-dist/alien4cloud-premium/init
+  alien_init: ${user.home}/init
   # alien4cloud main directory (other directories are relative path to this one)
-  alien: /Users/vuminhkh/Projects/alien4cloud-premium-dist/target/alien4cloud-premium-dist/alien4cloud-premium/runtime
+  alien: ${user.home}/.alien
   # directory in which alien4cloud stores Cloud Service Archives
   csar_repository: csar
   # directory in which alien4cloud stores uploaded artifacts (war etc.).
