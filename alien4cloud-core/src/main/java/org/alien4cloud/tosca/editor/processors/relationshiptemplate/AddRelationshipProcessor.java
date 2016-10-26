@@ -30,6 +30,7 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.validation.TopologyCapabilityBoundsValidationServices;
 import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import alien4cloud.utils.AlienUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -53,6 +54,10 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
     protected void processNodeOperation(AddRelationshipOperation operation, NodeTemplate sourceNode) {
         if (operation.getRelationshipName() == null || operation.getRelationshipName().isEmpty()) {
             throw new InvalidNameException("relationshipName", operation.getRelationshipName(), "Not null or empty");
+        }
+
+        if (AlienUtils.safe(sourceNode.getRelationships()).containsKey(operation.getRelationshipName())) {
+            throw new AlreadyExistException("Relationship " + operation.getRelationshipName() + " already exist on node " + operation.getNodeName());
         }
 
         if (sourceNode.getRequirements() == null || sourceNode.getRequirements().get(operation.getRequirementName()) == null) {
@@ -94,9 +99,6 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         if (relationships == null) {
             relationships = Maps.newHashMap();
             sourceNode.setRelationships(relationships);
-        }
-        if (relationships.containsKey(operation.getRelationshipName())) {
-            throw new AlreadyExistException("Relationship " + operation.getRelationshipName() + " already exist on node " + operation.getNodeName());
         }
 
         RelationshipTemplate relationshipTemplate = new RelationshipTemplate();

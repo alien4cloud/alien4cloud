@@ -156,10 +156,11 @@ define(function (require) {
         *
         * @param type The type of the relationship for which to generate a name.
         * @param targetName The name of the relationship target.
+        * @param targetedCapabilityName The name of the relationship target's capability.
         * @return the generated name of the relationship.
         */
-        generateRelationshipName: function(type, targetName) {
-          return _.camelCase(this.simpleName(type)) + _.capitalize(_.camelCase(targetName));
+        generateRelationshipName: function(type, targetName, targetedCapabilityName) {
+          return _.camelCase(this.simpleName(type)) + _.capitalize(_.camelCase(targetName)) + _.capitalize(targetedCapabilityName);
         },
 
         /**

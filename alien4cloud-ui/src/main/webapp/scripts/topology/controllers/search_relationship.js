@@ -38,7 +38,7 @@ define(function (require) {
     $scope.onSelectedRelationship = function(relationship) {
       $scope.relationshipModalData.relationship = relationship;
       $scope.relationshipModalData.name = toscaService.generateRelationshipName($scope.relationshipModalData.relationship.elementId,
-          $scope.relationshipModalData.target);
+          $scope.relationshipModalData.target, $scope.relationshipModalData.targetedCapabilityName);
       $scope.next();
     };
 
@@ -61,7 +61,7 @@ define(function (require) {
       if($scope.relationshipModalData.relationship) {
         $scope.next();
         $scope.relationshipModalData.name = toscaService.generateRelationshipName($scope.relationshipModalData.relationship.elementId,
-            $scope.relationshipModalData.target);
+            $scope.relationshipModalData.target, $scope.relationshipModalData.targetedCapabilityName);
       }
     };
 
