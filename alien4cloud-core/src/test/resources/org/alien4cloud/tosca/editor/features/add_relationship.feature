@@ -219,7 +219,7 @@ Feature: Topology editor: add relationship
     When I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
       | nodeName               | Java                                                                               |
-      | relationshipName       | MyRelationship                                                                        |
+      | relationshipName       | MyRelationship_2                                                                      |
       | relationshipType       | tosca.relationships.HostedOn                                                          |
       | relationshipVersion    | 1.0                                                                                   |
       | requirementName        | host                                                                                  |
