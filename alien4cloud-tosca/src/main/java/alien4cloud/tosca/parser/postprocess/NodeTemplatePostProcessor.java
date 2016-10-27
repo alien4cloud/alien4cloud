@@ -38,7 +38,7 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
     @Override
     public void process(final NodeTemplate instance) {
         // ensure type exists
-        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getType(), NodeType.class));
+        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance, instance.getType(), NodeType.class));
         final NodeType nodeType = ToscaContext.get(NodeType.class, instance.getType());
         if (nodeType == null) {
             return; // error managed by the reference post processor.

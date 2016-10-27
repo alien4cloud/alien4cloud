@@ -24,7 +24,7 @@ public class CapabilityPostProcessor implements IPostProcessor<Map.Entry<String,
 
     @Override
     public void process(Map.Entry<String, Capability> instance) {
-        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getValue().getType(), CapabilityType.class));
+        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getValue(), instance.getValue().getType(), CapabilityType.class));
         CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, instance.getValue().getType());
         if (capabilityType == null) {
             return;
