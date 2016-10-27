@@ -576,7 +576,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
         @Override
         public EsQueryBuilderHelper setFilters(Map filters, Map filterStrategies, FilterBuilder... customFilters) {
-            super.filters(filters, customFilters);
+            super.filters(filters, filterStrategies, customFilters);
             return this;
         }
 
