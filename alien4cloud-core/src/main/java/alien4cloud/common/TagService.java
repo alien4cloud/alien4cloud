@@ -1,18 +1,16 @@
 package alien4cloud.common;
 
-import java.util.List;
-import java.util.Map;
-
 import javax.annotation.Resource;
 
-import org.elasticsearch.common.collect.Maps;
+import alien4cloud.Constants;
+import org.elasticsearch.common.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.common.ITaggableResource;
 import alien4cloud.model.common.Tag;
-
-import com.google.common.collect.Lists;
 
 /**
  * Service that manages tags for taggable resources.
@@ -30,6 +28,12 @@ public class TagService {
      * @param value The value of the tag.
      */
     public void upsertTag(ITaggableResource resource, String key, String value) {
+        if (StringUtils.isEmpty(key)) {
+            throw new IllegalArgumentException("The id of a tag cannot be null or empty.");
+        } else if (key.equals(Constants.ALIEN_INTERNAL_TAG)) {
+            throw new InternalError("Tag update operation failed. Could not update internal alien tag  <" + Constants.ALIEN_INTERNAL_TAG + ">.");
+        }
+
         if (resource.getTags() == null) {
             resource.setTags(Lists.<Tag> newArrayList());
         }
@@ -48,6 +52,12 @@ public class TagService {
      * @param key The key of the tag to remove.
      */
     public void removeTag(ITaggableResource resource, String key) {
+        if (StringUtils.isEmpty(key)) {
+            throw new IllegalArgumentException("The id of a tag cannot be null or empty.");
+        } else if (key.equals(Constants.ALIEN_INTERNAL_TAG)) {
+            throw new InternalError("Tag delete operation failed. Could not delete internal alien tag  <" + Constants.ALIEN_INTERNAL_TAG + ">.");
+        }
+
         if (resource.getTags() != null) {
             resource.getTags().remove(new Tag(key, null));
             alienDAO.save(resource);

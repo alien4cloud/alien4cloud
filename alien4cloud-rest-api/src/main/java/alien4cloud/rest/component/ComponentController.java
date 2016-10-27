@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.common.TagService;
 import org.alien4cloud.tosca.catalog.CatalogVersionResult;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -49,6 +50,9 @@ public class ComponentController {
 
     @Resource
     private IToscaTypeSearchService toscaTypeSearchService;
+
+    @Resource
+    private TagService tagService;
 
     /**
      * Get details for a component.
@@ -226,21 +230,7 @@ public class ComponentController {
         RestError updateComponantTagError = null;
         NodeType component = dao.findById(NodeType.class, componentId);
         if (component != null) {
-            if (!updateTagRequest.getTagKey().equals(Constants.ALIEN_INTERNAL_TAG)) {
-                // Put the updated tag (will override the old tag or add it to the tag map)
-                if (component.getTags() == null) {
-                    component.setTags(Lists.<Tag> newArrayList());
-                }
-                Tag newTag = new Tag(updateTagRequest.getTagKey(), updateTagRequest.getTagValue());
-                if (component.getTags().contains(newTag)) {
-                    component.getTags().remove(newTag);
-                }
-                component.getTags().add(newTag);
-                dao.save(component);
-            } else {
-                updateComponantTagError = RestErrorBuilder.builder(RestErrorCode.COMPONENT_INTERNALTAG_ERROR)
-                        .message("Tag update operation failed. Could not update internal alien tag  <" + Constants.ALIEN_INTERNAL_TAG + ">.").build();
-            }
+            tagService.upsertTag(component, updateTagRequest.getTagKey(), updateTagRequest.getTagValue());
         } else {
             updateComponantTagError = RestErrorBuilder.builder(RestErrorCode.COMPONENT_MISSING_ERROR)
                     .message("Tag update operation failed. Could not find component with id <" + componentId + ">.").build();
@@ -254,26 +244,15 @@ public class ComponentController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<Void> deleteTag(@PathVariable String componentId, @PathVariable String tagId) {
-        RestError deleteComponantTagError = null;
+        RestError deleteComponentTagError = null;
         NodeType component = dao.findById(NodeType.class, componentId);
         if (component != null) {
-
-            if (!tagId.equals(Constants.ALIEN_INTERNAL_TAG)) {
-                if (component.getTags() == null) {
-                    return RestResponseBuilder.<Void> builder().error(deleteComponantTagError).build();
-                }
-                component.getTags().remove(new Tag(tagId, null));
-                dao.save(component);
-            } else {
-                deleteComponantTagError = RestErrorBuilder.builder(RestErrorCode.COMPONENT_INTERNALTAG_ERROR)
-                        .message("Tag delete operation failed. Could not delete internal alien tag  <" + Constants.ALIEN_INTERNAL_TAG + ">.").build();
-            }
+            tagService.removeTag(component, tagId);
         } else {
-            deleteComponantTagError = RestErrorBuilder.builder(RestErrorCode.COMPONENT_MISSING_ERROR)
+            deleteComponentTagError = RestErrorBuilder.builder(RestErrorCode.COMPONENT_MISSING_ERROR)
                     .message("Tag delete operation failed. Could not find component with id <" + componentId + ">.").build();
         }
-
-        return RestResponseBuilder.<Void> builder().error(deleteComponantTagError).build();
+        return RestResponseBuilder.<Void> builder().error(deleteComponentTagError).build();
     }
 
     private void removeFromDefaultCapabilities(String capability) {
