@@ -127,6 +127,7 @@ public class TestDataRegistry {
         addConditionFolder("topology-invalid-node-name", "src/test/resources/data/csars/topology_template/topology-invalid-node-name");
         addConditionFolder("topology-empty-deployment-artifact", "src/test/resources/data/csars/validate_topology/deployment_artifact");
         addConditionFolder("topology-input-artifact", "src/test/resources/data/csars/validate_topology/input_artifact");
+        addConditionFolder("node_replacement", "src/test/resources/data/csars/node_replacement");
         // Artifact
         addConditionFolder("artifact java types 1.0", "src/test/resources/data/csars/artifact/java-types-1.0-artifact");
         addConditionFolder("artifact java types 1.0 wrong type", "src/test/resources/data/csars/artifact/java-types-1.0-artifact-wrong-type");

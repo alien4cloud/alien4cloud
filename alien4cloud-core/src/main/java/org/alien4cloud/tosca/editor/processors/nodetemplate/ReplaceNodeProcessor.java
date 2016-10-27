@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
@@ -45,10 +46,10 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         // Load the new type to the topology in order to update its dependencies
         newType = topologyService.loadType(topology, newType);
 
-        // FIXME we should clone all possible properties, capabilities properties, requirements properties and relationships
-        // TODO we should check compatibility between the old and new types to do so
         // Build the new one
-        NodeTemplate newNodeTemplate = topologyService.buildNodeTemplate(topology.getDependencies(), newType, null);
+        NodeTemplate newNodeTemplate = NodeTemplateBuilder.buildNodeTemplate(newType, oldNodeTemplate, false);
+        newNodeTemplate.setName(operation.getNodeName());
+
         newNodeTemplate.setName(oldNodeTemplate.getName());
         newNodeTemplate.setRelationships(oldNodeTemplate.getRelationships());
         // Put the new one in the topology

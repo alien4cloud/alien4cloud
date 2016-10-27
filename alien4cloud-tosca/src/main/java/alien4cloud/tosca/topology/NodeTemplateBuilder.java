@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.utils.services.ConstraintPropertyService;
 import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -164,8 +165,13 @@ public class NodeTemplateBuilder {
                 AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(entry.getValue());
                 properties.put(entry.getKey(), pv);
             } else {
-                // FIXME we should check the property type before accepting it
-                properties.put(entry.getKey(), originalValue);
+                // we check the property type before accepting it
+                try {
+                    ConstraintPropertyService.checkPropertyConstraint(entry.getKey(), originalValue, entry.getValue());
+                    properties.put(entry.getKey(), originalValue);
+                } catch(Exception e) {
+                    log.debug("Not able to merge property <" + entry.getKey() + "> value due to a type check exception", e);
+                }
             }
         }
         if (!adaptToType) {

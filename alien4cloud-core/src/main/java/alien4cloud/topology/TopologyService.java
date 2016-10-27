@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.common.IWorkspaceResource;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
@@ -118,7 +119,7 @@ public class TopologyService {
         Entry<String, NodeTemplate> nodeTempEntry = Maps.immutableEntry(nodeTemplateName, nodeTemplate);
         NodeType indexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
         processNodeTemplate(topology, nodeTempEntry, nodeTemplatesToFilters);
-        List<SuggestionsTask> topoTasks = searchForNodeTypes(nodeTemplatesToFilters,
+        List<SuggestionsTask> topoTasks = searchForNodeTypes(topology.getWorkspace(), nodeTemplatesToFilters,
                 MapUtil.newHashMap(new String[] { nodeTemplateName }, new NodeType[] { indexedNodeType }));
 
         if (CollectionUtils.isEmpty(topoTasks)) {
@@ -191,7 +192,7 @@ public class TopologyService {
     /**
      * Search for nodeTypes given some filters. Apply AND filter strategy when multiple values for a filter key.
      */
-    public List<SuggestionsTask> searchForNodeTypes(Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
+    public List<SuggestionsTask> searchForNodeTypes(String workspace, Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
             Map<String, NodeType> toExcludeIndexedNodeTypes) throws IOException {
         if (nodeTemplatesToFilters == null || nodeTemplatesToFilters.isEmpty()) {
             return null;
@@ -210,6 +211,8 @@ public class TopologyService {
 
                 // retrieve only non abstract components
                 formattedFilters.put("abstract", ArrayUtils.toArray("false"));
+                // use topology workspace + global workspace
+                formattedFilters.put("workspace", ArrayUtils.toArray(workspace, "ALIEN_GLOBAL_WORKSPACE"));
 
                 GetMultipleDataResult<NodeType> searchResult = alienDAO.search(NodeType.class, null, formattedFilters, filterValueStrategy, 20);
                 data = getIndexedNodeTypesFromSearchResponse(searchResult, toExcludeIndexedNodeTypes.get(nodeTemplatesToFiltersEntry.getKey()));

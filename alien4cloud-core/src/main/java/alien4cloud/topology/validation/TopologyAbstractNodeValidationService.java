@@ -37,6 +37,6 @@ public class TopologyAbstractNodeValidationService {
             topologyService.processNodeTemplate(topology, Maps.immutableEntry(idntEntry.getKey(), topology.getNodeTemplates().get(idntEntry.getKey())),
                     nodeTemplatesToFilters);
         }
-        return topologyService.searchForNodeTypes(nodeTemplatesToFilters, nodeTempNameToAbstractIndexedNodeTypes);
+        return topologyService.searchForNodeTypes(topology.getWorkspace(), nodeTemplatesToFilters, nodeTempNameToAbstractIndexedNodeTypes);
     }
 }
