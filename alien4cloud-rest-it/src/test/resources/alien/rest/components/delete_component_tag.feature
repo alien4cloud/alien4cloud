@@ -20,7 +20,7 @@ Feature: Delete a component tag
     Given I have a component with id "1:3.0"
     And I have a tag "icon"
     When I delete a tag with key "icon"
-    Then I should receive a RestResponse with an error code 701
+    Then I should receive a RestResponse with an error code 500
 
   @reset
   Scenario: Delete a tag for a non existing component

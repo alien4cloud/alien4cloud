@@ -79,7 +79,6 @@ public enum RestErrorCode {
 
     // Component handling errors : code 700+
     COMPONENT_MISSING_ERROR(700),
-    COMPONENT_INTERNALTAG_ERROR(701),
 
     // Editor errors
     EDITOR_CONCURRENCY_ERROR(750),
