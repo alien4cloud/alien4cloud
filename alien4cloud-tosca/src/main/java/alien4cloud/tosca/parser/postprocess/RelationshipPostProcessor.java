@@ -61,7 +61,7 @@ public class RelationshipPostProcessor {
             // if the relationship type has not been defined on the requirement assignment it may be defined on the requirement definition.
             relationshipTemplate.setType(rd.getRelationshipType());
         }
-        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(relationshipTemplate.getType(), RelationshipType.class));
+        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(relationshipTemplate, relationshipTemplate.getType(), RelationshipType.class));
         relationshipTemplate.setRequirementType(rd.getType());
 
         ArchiveRoot archiveRoot = (ArchiveRoot) ParsingContextExecution.getRoot().getWrappedInstance();

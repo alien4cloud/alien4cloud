@@ -6,19 +6,19 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
-
-import alien4cloud.exception.InvalidArgumentException;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
+
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -40,7 +40,6 @@ public class PropertyService {
             return;
         }
 
-        // if the default value is also empty, we set the property value to null
         constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
         if (propertyValue instanceof String) {
             properties.put(propertyName, (T) new ScalarPropertyValue((String) propertyValue));

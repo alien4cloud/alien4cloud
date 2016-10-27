@@ -2,6 +2,8 @@ package alien4cloud.paas.model;
 
 import java.util.Date;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.StringField;
@@ -20,6 +22,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @ESObject
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PaaSDeploymentLog {

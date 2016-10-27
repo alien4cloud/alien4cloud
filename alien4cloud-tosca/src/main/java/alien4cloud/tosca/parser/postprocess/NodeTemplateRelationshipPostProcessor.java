@@ -42,6 +42,9 @@ public class NodeTemplateRelationshipPostProcessor implements IPostProcessor<Nod
 
     private String buildRelationShipTemplateName(RelationshipTemplate relationshipTemplate) {
         String value = relationshipTemplate.getType();
+        if(value == null) {
+            return value;
+        }
         if (value.contains(".")) {
             value = value.substring(value.lastIndexOf(".") + 1);
         }

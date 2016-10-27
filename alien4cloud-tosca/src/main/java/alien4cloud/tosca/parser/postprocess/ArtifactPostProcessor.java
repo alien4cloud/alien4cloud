@@ -42,7 +42,7 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
             instance.setArtifactType(getArtifactTypeByExtension(instance.getArtifactRef(), node, archiveRoot));
         } else {
             // check the reference
-            referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getArtifactType(), ArtifactType.class));
+            referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance, instance.getArtifactType(), ArtifactType.class));
         }
         if (instance.getArtifactRepository() != null) {
             RepositoryDefinition repositoryDefinition = archiveRoot.getRepositories() != null
