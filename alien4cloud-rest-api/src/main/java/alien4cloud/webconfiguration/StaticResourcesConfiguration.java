@@ -9,8 +9,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarAuthorizationFilter;
-import org.alien4cloud.tosca.model.Csar;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -33,6 +33,8 @@ public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
 
     @Setter
     private ICsarAuthorizationFilter csarAuthorizationFilter = null;
+    @Setter
+    private CsarService csarService = null;
 
     @Value("${directories.alien}/${directories.csar_repository}/")
     private String toscaRepo;
@@ -60,11 +62,11 @@ public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
                         Map uriTemplateVars = (Map) webRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, 0);
                         String csarName = (String) uriTemplateVars.get("csarName");
                         String csarVersion = (String) uriTemplateVars.get("csarVersion");
-                        if (csarAuthorizationFilter == null) {
+                        if (csarAuthorizationFilter == null || csarService == null) {
                             // not initialized as master
                             throw new NotFoundException("Only master nodes can provide editor static resources.");
                         } else {
-                            csarAuthorizationFilter.checkReadAccess(new Csar(csarName, csarVersion));
+                            csarAuthorizationFilter.checkReadAccess(csarService.getOrFail(csarName, csarVersion));
                         }
                         // let the usual resolving
                         return chain.resolveResource(request, csarName + "/" + csarVersion + "/" + requestPath, locations);
