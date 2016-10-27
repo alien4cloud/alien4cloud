@@ -12,7 +12,7 @@ import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
@@ -45,39 +45,40 @@ public class DeploymentInputService {
     public void processInputProperties(DeploymentTopology topology) {
         Map<String, PropertyValue> inputProperties = topology.getInputProperties();
         Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
-        if (inputDefinitions == null || inputDefinitions.isEmpty()) {
+        if (MapUtils.isEmpty(inputDefinitions)) {
             topology.setInputProperties(null);
+            return;
+        }
+        if (inputProperties == null) {
+            inputProperties = Maps.newHashMap();
+            topology.setInputProperties(inputProperties);
         } else {
-            if (inputProperties == null) {
-                inputProperties = Maps.newHashMap();
-                topology.setInputProperties(inputProperties);
-            } else {
-                // Ensure that previous defined values are still compatible with the latest input definition (as the topology may have changed).
-                Iterator<Map.Entry<String, PropertyValue>> inputPropertyEntryIterator = inputProperties.entrySet().iterator();
-                while (inputPropertyEntryIterator.hasNext()) {
-                    Map.Entry<String, PropertyValue> inputPropertyEntry = inputPropertyEntryIterator.next();
-                    if (!inputDefinitions.containsKey(inputPropertyEntry.getKey())) {
+            // Ensure that previous defined values are still compatible with the latest input definition (as the topology may have changed).
+            Iterator<Map.Entry<String, PropertyValue>> inputPropertyEntryIterator = inputProperties.entrySet().iterator();
+            while (inputPropertyEntryIterator.hasNext()) {
+                Map.Entry<String, PropertyValue> inputPropertyEntry = inputPropertyEntryIterator.next();
+                // remove if the value is null, or the input is not register as one
+                if (inputPropertyEntry.getValue() == null || !inputDefinitions.containsKey(inputPropertyEntry.getKey())) {
+                    inputPropertyEntryIterator.remove();
+                } else {
+                    try {
+                        constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue().getValue(),
+                                inputDefinitions.get(inputPropertyEntry.getKey()));
+                    } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
+                        // Property is not valid anymore for the input, remove the old value
                         inputPropertyEntryIterator.remove();
-                    } else {
-                        try {
-                            constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue().getValue(),
-                                    inputDefinitions.get(inputPropertyEntry.getKey()));
-                        } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                            // Property is not valid anymore for the input, remove the old value
-                            inputPropertyEntryIterator.remove();
-                        }
                     }
                 }
             }
-            // set default values for every unset property.
-            for (Map.Entry<String, PropertyDefinition> inputDefinitionEntry : inputDefinitions.entrySet()) {
-                PropertyValue existingValue = inputProperties.get(inputDefinitionEntry.getKey());
-                if (existingValue == null) {
-                    // If user has not specified a value and there is
-                    PropertyValue defaultValue = inputDefinitionEntry.getValue().getDefault();
-                    if (defaultValue != null) {
-                        inputProperties.put(inputDefinitionEntry.getKey(), defaultValue);
-                    }
+        }
+        // set default values for every unset property.
+        for (Map.Entry<String, PropertyDefinition> inputDefinitionEntry : inputDefinitions.entrySet()) {
+            PropertyValue existingValue = inputProperties.get(inputDefinitionEntry.getKey());
+            if (existingValue == null) {
+                // If user has not specified a value and there is
+                PropertyValue defaultValue = inputDefinitionEntry.getValue().getDefault();
+                if (defaultValue != null) {
+                    inputProperties.put(inputDefinitionEntry.getKey(), defaultValue);
                 }
             }
         }
