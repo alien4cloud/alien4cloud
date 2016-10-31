@@ -313,6 +313,7 @@
   "CANCEL" : "Cancel",
   "CANCELLED" : "Cancelled",
   "CLOSE" : "Close",
+  "SELECT": "Select",
   "OK": "OK",
   "CLOUDS" : {
     "ADMINISTRATION" : {
@@ -624,6 +625,10 @@
       "CURRENT_TOPOLOGY": "Current topology",
       "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology does not have changed.",
       "LAST_SAVED_TOPOLOGY": "Last saved topology"
+    },
+    "ARTIFACTS":{
+      "SELECT": "Select artifact",
+      "REPOSITORY": "Repository"
     }
   },
   "END_DATE" : "End date",

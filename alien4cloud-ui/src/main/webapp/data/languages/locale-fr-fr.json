@@ -87,7 +87,7 @@
       "ADD_RELATIONSHIP" : "Ajouter une relation",
       "ARTIFACTS" : {
         "ADDINPUT" : "Définir l'artefact comme entrée",
-        "INPUTS" : "Artefacts en entrée",
+        "INPUTS" : "Artefacts d'entrée",
         "TITLE" : "Artefacts"
       },
       "CAPABILITY_CARDINALITIES_TOOLTIP" : "maximum (restant)",
@@ -300,6 +300,7 @@
   "CANCELLED" : "Annulé",
   "CLOSE" : "Fermer",
   "OK": "OK",
+  "SELECT": "Selectionner",
   "CLOUDS" : {
     "ADMINISTRATION" : {
       "DRIVER" : {
@@ -602,6 +603,10 @@
       "CURRENT_TOPOLOGY": "Topologie courante",
       "CURRENT_TOPOLOGY_NO_OPERATIONS": "La topologie actuelle n'a pas changé.",
       "LAST_SAVED_TOPOLOGY": "Dernière topologie enregistrée"
+    },
+    "ARTIFACTS":{
+      "SELECT": "Selectionner un artefact",
+      "REPOSITORY": "Dépôt"
     }
   },
   "END_DATE" : "Date de fin",

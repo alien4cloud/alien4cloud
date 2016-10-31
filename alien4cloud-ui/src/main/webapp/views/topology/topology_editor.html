@@ -545,9 +545,9 @@
                       <a id="p_input_art_{{artifactId}}"
                          ng-click="$event.stopPropagation(); inputs.getCandidatesForArtifact(artifact); "
                          class="btn btn-default btn-xs dropdown-toggle"
-                         ng-class="{'active' : inputs.isInputArtifact(artifactId)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate}}"
+                         ng-class="{'active' : inputs.isInputArtifact(artifactId)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate}}"
                          tooltip-append-to-body="true">
-                        <i class="fa fa-file"></i>
+                        <i class="fa fa-sign-in"></i>
                       </a>
                       <ul class="dropdown-menu dropdown-menu-top" role="menu">
                         <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate }}</li>
@@ -578,11 +578,17 @@
                       </span>
                       <span class="pull-right btn-group">
                         <a id="addToInputBtn_art_{{artifactId}}" class="btn btn-default btn-xs"
-                          ng-click="$event.stopPropagation(); artifacts.onSelect(artifactId)">
-                          <i class="fa fa-file" tooltip="{{ 'EDITOR.ARTIFACTS.SELECT' | translate }}"></i>
+                          ng-click="$event.stopPropagation(); artifacts.onSelect(artifactId)"
+                          tooltip="{{ 'EDITOR.ARTIFACTS.SELECT' | translate }}"
+                          tooltip-append-to-body="true"
+                          tooltip-placement="left">
+                          <i class="fa fa-file"></i>
                         </a>
-                        <a id='reset-artifact-{{artifactId}}' class="btn btn-default btn-xs" ng-click="artifacts.reset(artifactId); $event.stopPropagation();">
-                          <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+                        <a id='reset-artifact-{{artifactId}}' class="btn btn-default btn-xs" ng-click="artifacts.reset(artifactId); $event.stopPropagation();"
+                          tooltip="{{ 'PROPERTY_RESET' | translate }}"
+                          tooltip-append-to-body="true"
+                          tooltip-placement="left">
+                          <i class="fa fa-undo text-default"></i>
                         </a>
                       </span>
                     </div>
@@ -673,7 +679,7 @@
                   </a>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu">
                     <li ng-repeat="version in currentVersionCandidatesForDependency | orderBy:'toString()'">
-                      <a  ng-if="version != dependency.version" id="dd_dep_version_{{dependency.name}}_{{version}}" 
+                      <a  ng-if="version != dependency.version" id="dd_dep_version_{{dependency.name}}_{{version}}"
                           ng-click="$event.stopPropagation();"
                           confirm="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.CONFIRM' | translate}}"
                           confirm-title="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate }}"
