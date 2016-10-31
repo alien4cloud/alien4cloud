@@ -5,7 +5,7 @@
 ## - application_description
 ## - topology
 ## --------------------------------------------
-## BEGINING OF DOCUMENT
+## BEGINNING OF DOCUMENT
 tosca_definitions_version: alien_dsl_1_3_0
 description: ${utils.renderDescription(${template_description}, "")}
 template_name: ${template_name}
@@ -19,6 +19,11 @@ imports:
 #end
 #end## if
 
+#if($utils.hasRepositories($topology))
+repositories:
+${utils.formatRepositories($topology)}
+
+#end## if hasRepositories
 topology_template:
 #if($application_description)
   description: ${utils.renderDescription(${topology_description}, "    ")}
@@ -86,10 +91,10 @@ topology_template:
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($relationship.properties))
             properties:$propertyUtils.formatProperties(7, $relationship.properties)
 #end## if
-#if($utils.doesInterfacesContaineImplementedOperation($relationship.interfaces))
+#if($utils.doesInterfacesContainsImplementedOperation($relationship.interfaces))
             interfaces:
 #foreach($interfaceEntry in ${relationship.interfaces.entrySet()})
-#if($utils.doesInterfaceContaineImplementedOperation($interfaceEntry.value))
+#if($utils.doesInterfaceContainsImplementedOperation($interfaceEntry.value))
               ${interfaceEntry.key}:
 #foreach($operationEntry in ${interfaceEntry.value.operations.entrySet()})
 #if($utils.isOperationImplemented($operationEntry.value))
@@ -102,9 +107,9 @@ topology_template:
 #end## if inputParameters not empty
 #end## if isOperationImplemented
 #end## of operations iteration
-#end## if doesInterfaceContaineImplementedOperation
+#end## if doesInterfaceContainsImplementedOperation
 #end## of interfaces iteration
-#end## if doesInterfacesContaineImplementedOperation
+#end## if doesInterfacesContainsImplementedOperation
 #end## of relationship iteration    
 #end## if
 #if($utils.hasCapabilitiesContainingNotNullProperties($nodeTemplateEntry.value))
@@ -116,10 +121,10 @@ topology_template:
 #end## if capability properties not empty
 #end## of capabilityEntry iteration
 #end## if hasCapabilitiesContainingNotNullProperties
-#if($utils.doesInterfacesContaineImplementedOperation($nodeTemplateEntry.value.interfaces))
+#if($utils.doesInterfacesContainsImplementedOperation($nodeTemplateEntry.value.interfaces))
       interfaces:
 #foreach($interfaceEntry in ${nodeTemplateEntry.value.interfaces.entrySet()})
-#if($utils.doesInterfaceContaineImplementedOperation($interfaceEntry.value))
+#if($utils.doesInterfaceContainsImplementedOperation($interfaceEntry.value))
         ${interfaceEntry.key}:
 #foreach($operationEntry in ${interfaceEntry.value.operations.entrySet()})
 #if($utils.isOperationImplemented($operationEntry.value))
@@ -132,9 +137,16 @@ topology_template:
 #end## if inputParameters not empty
 #end## if isOperationImplemented
 #end## of operations iteration
-#end## if doesInterfaceContaineImplementedOperation
+#end## if doesInterfaceContainsImplementedOperation
 #end## of interfaces iteration
-#end## if doesInterfacesContaineImplementedOperation
+#end## if doesInterfacesContainsImplementedOperation
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.artifacts))
+      artifacts:
+#foreach($artifactEntry in ${nodeTemplateEntry.value.artifacts.entrySet()})
+        $artifactEntry.key:
+${utils.formatArtifact($artifactEntry.value, 5)}
+#end## of $artifactEntry iteration
+#end## if has artifacts
 #end## of nodeTemplateEntry iteration
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.groups))
   groups:
