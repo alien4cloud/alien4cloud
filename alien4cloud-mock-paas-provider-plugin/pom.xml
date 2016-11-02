@@ -8,10 +8,6 @@
   <artifactId>alien4cloud-mock-paas-provider-plugin</artifactId>
   <name>Alien 4 Cloud Mock PaaS provider</name>
 
-  <properties>
-    <src-test-directory>src/test/java</src-test-directory>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>alien4cloud</groupId>
@@ -21,23 +17,30 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>do-test</id>
-      <activation>
-        <property>
-          <name>doTest</name>
-        </property>
-      </activation>
-      <properties>
-        <src-test-directory>src/test/java-test</src-test-directory>
-      </properties>
-    </profile>
-  </profiles>
-
   <build>
-    <testSourceDirectory>${src-test-directory}</testSourceDirectory>
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-distribution</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>target/alien4cloud-mock-paas-provider-plugin-demo-${project.version}.zip</file>
+                  <type>zip</type>
+                  <classifier>demo</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
@@ -106,6 +109,19 @@
               <filters>
                 <filter>${basedir}/src/main/assembly/1.1-filter.properties</filter>
               </filters>
+            </configuration>
+          </execution>
+          <execution>
+            <id>assembly-demo</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <finalName>alien4cloud-mock-paas-provider-plugin-demo-${project.version}</finalName>
+              <descriptors>
+                <descriptor>src/main/assembly/mock-plugin-assembly-demo.xml</descriptor>
+              </descriptors>
             </configuration>
           </execution>
           <execution>
