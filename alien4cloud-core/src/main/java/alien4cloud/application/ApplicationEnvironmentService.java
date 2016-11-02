@@ -25,7 +25,6 @@ import alien4cloud.events.DeleteEnvironmentEvent;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
@@ -33,7 +32,6 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.utils.MapUtil;
@@ -232,10 +230,7 @@ public class ApplicationEnvironmentService {
      */
     public ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, ApplicationRole... roles) {
         ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
-        Application application = applicationService.checkAndGetApplication(applicationEnvironment.getApplicationId());
-        roles = (roles == null || roles.length == 0) ? ApplicationRole.values() : roles;
-        // check rights on the application linked to this application environment
-        AuthorizationUtil.checkAuthorizationForApplication(application, roles);
+        applicationService.checkAndGetApplication(applicationEnvironment.getApplicationId());
         return applicationEnvironment;
     }
 

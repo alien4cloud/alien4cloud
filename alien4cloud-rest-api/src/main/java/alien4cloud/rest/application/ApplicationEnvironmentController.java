@@ -45,7 +45,6 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.model.Role;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 import io.swagger.annotations.Api;
@@ -74,11 +73,11 @@ public class ApplicationEnvironmentController {
      * @param searchRequest
      * @return A rest response that contains a {@link FacetedSearchResult} containing application environments for an application id
      */
-    @ApiOperation(value = "Search for application environments", notes = "Returns a search result with that contains application environments DTO matching the request. A application environment is returned only if the connected user has at least one application role in [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Search for application environments", notes = "Returns a search result with that contains application environments DTO matching the request. A application environment is returned only if the connected user has at least one application environment role in [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<GetMultipleDataResult<ApplicationEnvironmentDTO>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
-        FilterBuilder authorizationFilter = getEnvrionmentAuthorizationFilters(applicationId);
+        FilterBuilder authorizationFilter = getEnvironmentAuthorizationFilters(applicationId);
         Map<String, String[]> applicationEnvironmentFilters = getApplicationEnvironmentFilters(applicationId);
         GetMultipleDataResult<ApplicationEnvironment> searchResult = alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(),
                 applicationEnvironmentFilters, authorizationFilter, null, searchRequest.getFrom(), searchRequest.getSize());
@@ -91,7 +90,7 @@ public class ApplicationEnvironmentController {
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentDTO>> builder().data(searchResultDTO).build();
     }
 
-    private FilterBuilder getEnvrionmentAuthorizationFilters(String applicationId) {
+    private FilterBuilder getEnvironmentAuthorizationFilters(String applicationId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         if (AuthorizationUtil.hasAuthorizationForApplication(application)) {
             return null;
@@ -106,17 +105,14 @@ public class ApplicationEnvironmentController {
      * @param applicationEnvironmentId the environment for which to get the status
      * @return A {@link RestResponse} that contains the application environment {@link ApplicationEnvironment}.
      */
-    @ApiOperation(value = "Get an application environment from its id", notes = "Returns the application environment. Application role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get an application environment from its id", notes = "Returns the application environment. Roles required: Application environment [ APPLICATION_USER | DEPLOYMENT_MANAGER ], or application [APPLICATION_MANAGER]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<ApplicationEnvironment> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
-        AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.values());
         return RestResponseBuilder.<ApplicationEnvironment> builder().data(environment).build();
     }
 
@@ -135,10 +131,7 @@ public class ApplicationEnvironmentController {
             throws Exception {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
-        AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.values());
         DeploymentStatus status = applicationEnvironmentService.getStatus(environment);
         return RestResponseBuilder.<DeploymentStatus> builder().data(status).build();
     }
@@ -157,11 +150,8 @@ public class ApplicationEnvironmentController {
     @Audit
     public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationEnvironmentRequest request)
             throws OrchestratorDisabledException {
-        // User should be APPLICATIONS_MANAGER to create an application
-        AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
-        Application application = applicationService.getOrFail(applicationId);
-        // User should be APPLICATION_MANAGER to create an application
-        AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        // User should be APPLICATION_MANAGER to create an environment
+        applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
 
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         ApplicationEnvironment appEnvironment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, request.getName(),
@@ -281,13 +271,10 @@ public class ApplicationEnvironmentController {
     @RequestMapping(value = "/{applicationEnvironmentId:.+}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<String> getTopologyId(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+
         Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationEnvironment environment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
-                ApplicationRole.values());
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.values())) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.values());
         String topologyId = applicationEnvironmentService.getTopologyId(applicationEnvironmentId);
         if (topologyId == null) {
             throw new ApplicationVersionNotFoundException("An application version is required by an application environment.");

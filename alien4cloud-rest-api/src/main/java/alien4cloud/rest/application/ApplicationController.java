@@ -1,7 +1,6 @@
 package alien4cloud.rest.application;
 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -12,7 +11,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -93,9 +98,7 @@ public class ApplicationController {
     @RequestMapping(value = "/{applicationId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<Application> get(@PathVariable String applicationId) {
-        Application data = alienDAO.findById(Application.class, applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(data, ApplicationRole.values());
-        return RestResponseBuilder.<Application> builder().data(data).build();
+        return RestResponseBuilder.<Application> builder().data(applicationService.checkAndGetApplication(applicationId)).build();
     }
 
     /**
@@ -125,8 +128,7 @@ public class ApplicationController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Boolean> delete(@PathVariable String applicationId) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
 
         try {
             boolean deleted = applicationService.delete(applicationId);
@@ -155,8 +157,7 @@ public class ApplicationController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<String> updateImage(@PathVariable String applicationId, @RequestParam("file") MultipartFile image) {
-        Application data = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(data, ApplicationRole.APPLICATION_MANAGER);
+        Application application = applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
         String imageId;
         try {
             imageId = imageDAO.writeImage(image.getBytes());
@@ -164,8 +165,8 @@ public class ApplicationController {
             throw new ImageUploadException(
                     "Unable to read image from file upload [" + image.getOriginalFilename() + "] to update application [" + applicationId + "]", e);
         }
-        data.setImageId(imageId);
-        alienDAO.save(data);
+        application.setImageId(imageId);
+        alienDAO.save(application);
         return RestResponseBuilder.<String> builder().data(imageId).build();
     }
 

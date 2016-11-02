@@ -7,7 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.elasticsearch.annotation.*;
+import org.elasticsearch.annotation.DateField;
+import org.elasticsearch.annotation.ESAll;
+import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.NestedObject;
+import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
@@ -17,14 +22,18 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import alien4cloud.model.common.IDatableResource;
 import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.common.ITaggableResource;
-import alien4cloud.model.common.IUpdatedDate;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.utils.jackson.*;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,7 +47,7 @@ import lombok.Setter;
 @Setter
 @JsonInclude(Include.NON_NULL)
 @ESAll(analyser = "simple")
-public class Application implements ISecuredResource, IDeploymentSource, ITaggableResource, IMetaProperties, IUpdatedDate {
+public class Application implements ISecuredResource, IDeploymentSource, ITaggableResource, IMetaProperties, IDatableResource {
 
     @Id
     @FetchContext(contexts = { SUMMARY }, include = { true })

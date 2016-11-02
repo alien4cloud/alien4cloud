@@ -1,18 +1,11 @@
 package alien4cloud.rest.application;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
-
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
@@ -24,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -57,11 +52,13 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyValidationResult;
-
-import com.google.common.collect.Maps;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
@@ -106,9 +103,7 @@ public class ApplicationDeploymentController {
             throw new NotFoundException("Unable to find environment with id <" + environmentId + "> for application <" + applicationId + ">");
         }
         // Security check user must be authorized to deploy the environment (or be application manager)
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
 
         // check that the environment is not already deployed
         boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
@@ -159,9 +154,7 @@ public class ApplicationDeploymentController {
     public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         Application application = applicationService.checkAndGetApplication(applicationId);
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
         try {
             undeployService.undeployEnvironment(applicationEnvironmentId);
         } catch (OrchestratorDisabledException e) {
@@ -183,11 +176,7 @@ public class ApplicationDeploymentController {
         Application application = applicationService.checkAndGetApplication(applicationId);
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        // when a user is application manager, he can manipulate environment
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER,
-                    ApplicationEnvironmentRole.APPLICATION_USER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();
     }
@@ -204,7 +193,7 @@ public class ApplicationDeploymentController {
             // get all environments status for the current application
             ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
             for (ApplicationEnvironment env : environments) {
-                if (AuthorizationUtil.hasAuthorizationForEnvironment(env, ApplicationEnvironmentRole.values())) {
+                if (AuthorizationUtil.hasAuthorizationForEnvironment(application, env, ApplicationEnvironmentRole.values())) {
                     DeploymentStatus status = DeploymentStatus.UNKNOWN;
                     try {
                         status = applicationEnvironmentService.getStatus(env);
@@ -233,9 +222,7 @@ public class ApplicationDeploymentController {
             @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.values());
 
         Deployment deployment = applicationEnvironmentService.getActiveDeployment(environment.getId());
         final DeferredResult<RestResponse<Map<String, Map<String, InstanceInformation>>>> instancesDeferredResult = new DeferredResult<>(5L * 60L * 1000L);
@@ -326,12 +313,8 @@ public class ApplicationDeploymentController {
 
     private ApplicationEnvironment getAppEnvironmentAndCheckAuthorization(String applicationId, String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
-
-        // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
         return environment;
     }
 

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.mapping.QueryHelper;
+import org.elasticsearch.common.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -19,7 +19,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidApplicationNameException;
 import alien4cloud.exception.NotFoundException;
@@ -108,8 +107,7 @@ public class ApplicationService {
      * @param newDescription The new description for the application.
      */
     public void update(String applicationId, String newName, String newDescription) {
-        Application application = getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        Application application = checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
 
         if (newName != null && !newName.isEmpty() && !application.getName().equals(newName)) {
             checkApplicationName(newName);
@@ -172,10 +170,7 @@ public class ApplicationService {
      */
     public boolean delete(String applicationId) throws OrchestratorDisabledException {
         // ensure that there is no active deployment(s).
-        GetMultipleDataResult<Deployment> result = alienDAO.buildQuery(Deployment.class)
-                .setFilters(fromKeyValueCouples("sourceId", applicationId, "endDate", null)).prepareSearch().search(0, 1);
-
-        if (result.getData().length > 0) {
+        if (alienDAO.count(Deployment.class, null, fromKeyValueCouples("sourceId", applicationId, "endDate", null)) > 0) {
             return false;
         }
 
@@ -195,7 +190,7 @@ public class ApplicationService {
      */
     public Application checkAndGetApplication(String applicationId, ApplicationRole... roles) {
         Application application = getOrFail(applicationId);
-        roles = (roles == null || roles.length == 0) ? ApplicationRole.values() : roles;
+        roles = ArrayUtils.isEmpty(roles) ? ApplicationRole.values() : roles;
         AuthorizationUtil.checkAuthorizationForApplication(application, roles);
         return application;
     }
