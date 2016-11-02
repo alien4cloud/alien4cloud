@@ -1,7 +1,12 @@
 package alien4cloud.it.application;
 
+import static alien4cloud.it.Context.getInstance;
 import static alien4cloud.it.Context.getRestClientInstance;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -589,8 +594,8 @@ public class ApplicationStepDefinitions {
     public void I_delete_the_registered_application_environment_named_from_its_id(String applicationEnvironmentName) throws Throwable {
         Context.getInstance().registerRestResponse(getRestClientInstance().delete("/rest/v1/applications/" + CURRENT_APPLICATION.getId()
                 + "/environments/" + Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), applicationEnvironmentName)));
-        RestResponse<Boolean> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), Boolean.class);
-        Assert.assertNotNull(appEnvironment.getData());
+        // RestResponse<Boolean> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), Boolean.class);
+        // Assert.assertNotNull(appEnvironment.getData());
     }
 
     @Given("^I must have an environment named \"([^\"]*)\" for application \"([^\"]*)\"$")
@@ -645,5 +650,10 @@ public class ApplicationStepDefinitions {
         String topologyTemplateId = TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName);
         assertFalse(StringUtils.isBlank(topologyTemplateId));
         createApplication(name, description, topologyTemplateId);
+    }
+
+    @When("^I get the application named \"([^\"]*)\"$")
+    public void iGetTheApplicationNamed(String name) throws Throwable {
+        getInstance().registerRestResponse(getRestClientInstance().get("/rest/v1/applications/" + Context.getInstance().getApplicationId(name)));
     }
 }

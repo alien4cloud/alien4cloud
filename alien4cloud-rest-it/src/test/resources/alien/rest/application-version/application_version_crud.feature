@@ -3,37 +3,37 @@ Feature: CRUD operations on application version
   Background:
     Given I am authenticated with "ADMIN" role
     And There are these users in the system
-      | lufy |
-    And I add a role "APPLICATIONS_MANAGER" to user "lufy"
-    And I am authenticated with user named "lufy"
+      | luffy |
+    And I add a role "APPLICATIONS_MANAGER" to user "luffy"
+    And I am authenticated with user named "luffy"
 
   @reset
   Scenario: Create an application version with failure
-    Given I create a new application with name "ALIEN" and description "Test application"
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
     And I create an application version with version "0.3..0-SNAPSHOT-SHOULD-FAILED"
     Then I should receive a RestResponse with an error code 605
 
   @reset
   Scenario: Create an application version with the same name version raise a conflict
-    Given I create a new application with name "ALIEN" and description "Test application"
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
     And I create an application version with version "0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 502
 
   @reset
   Scenario: Create an application version with success
-    Given I create a new application with name "ALIEN" and description "Test application"
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
     And I create an application version with version "0.3.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
 
   @reset
   Scenario: Delete an application version when it' the last should failled
-    Given I create a new application with name "ALIEN" and description "Test application"
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
     And I delete an application version with name "0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 610
 
   @reset
   Scenario: Delete an application version with failure
-    Given I create a new application with name "ALIEN" and description "Test application"
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
     And I delete an application version with name "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 504
 
@@ -54,7 +54,7 @@ Feature: CRUD operations on application version
       | managementUrl | http://cloudifyurl:8099 |
       | numberBackup  | 1                       |
       | managerEmail  | admin@alien.fr          |
-    And I create a new application with name "ALIEN" and description "" and node templates
+    And I create a new application with name "ONE-PIECE" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
@@ -63,7 +63,7 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Delete an application version with success
-    Given I create a new application with name "ALIEN" and description "Test application"
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
     And I create an application version with version "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I delete an application version with name "0.2.0-SNAPSHOT"
@@ -71,7 +71,7 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Search for application versions
-    Given I create a new application with name "ALIEN" and description "Test application"
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
     And I create an application version with version "0.3.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     When I search for application versions
@@ -79,7 +79,7 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Update an application version with success
-    Given I create a new application with name "ALIEN" and description "Test application"
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
     And I create an application version with version "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I update an application version with version "0.2.0-SNAPSHOT" to "0.4.0-SNAPSHOT"
@@ -87,7 +87,7 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Update an application version with an existing name should be failed
-    Given I create a new application with name "ALIEN" and description "Test application"
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
     And I create an application version with version "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I update an application version with version "0.1.0-SNAPSHOT" to "0.2.0-SNAPSHOT"
@@ -95,8 +95,34 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Update a released application version should be failed
-    Given I create a new application with name "ALIEN" and description "Test application"
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
     And I create an application version with version "0.2.0"
     Then I should receive a RestResponse with no error
     And I update an application version with version "0.2.0" to "0.2.1"
     Then I should receive a RestResponse with an error code 608
+
+  @reset
+  Scenario: only APPLICATION_MANAGER should be able to create/ delete a version, others can't
+    Given I create a new application with name "ONE-PIECE" and description "Test application"
+    Given I am authenticated with "ADMIN" role
+    And There are these users in the system
+      | zorro |
+      | sanji |
+    And I add a role "APPLICATIONS_MANAGER" to user "zorro"
+    And I add a role "APPLICATION_DEVOPS" to user "sanji" on the resource type "APPLICATION" named "ONE-PIECE"
+    And I create an application version with version "0.3.0-SNAPSHOT"
+    Then I should receive a RestResponse with no error
+    When I am authenticated with user named "zorro"
+    And I create an application version with version "0.3.0-SNAPSHOT"
+    Then I should receive a RestResponse with an error code 102
+    When I update an application version with version "0.1.0-SNAPSHOT" to "0.2.0-SNAPSHOT"
+    Then I should receive a RestResponse with an error code 102
+    When I delete an application version with name "0.3.0-SNAPSHOT"
+    Then I should receive a RestResponse with an error code 102
+    When I am authenticated with user named "sanji"
+    And I create an application version with version "0.3.0-SNAPSHOT"
+    Then I should receive a RestResponse with an error code 102
+    When I update an application version with version "0.1.0-SNAPSHOT" to "0.2.0-SNAPSHOT"
+    Then I should receive a RestResponse with an error code 102
+    When I delete an application version with name "0.3.0-SNAPSHOT"
+    Then I should receive a RestResponse with an error code 102

@@ -230,7 +230,7 @@ public class ApplicationEnvironmentService {
      */
     public ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, ApplicationRole... roles) {
         ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
-        applicationService.checkAndGetApplication(applicationEnvironment.getApplicationId());
+        applicationService.checkAndGetApplication(applicationEnvironment.getApplicationId(), roles);
         return applicationEnvironment;
     }
 

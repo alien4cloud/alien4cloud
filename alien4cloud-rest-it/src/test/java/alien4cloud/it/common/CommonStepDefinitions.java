@@ -227,14 +227,17 @@ public class CommonStepDefinitions {
 
     @When("^I register the rest response data as SPEL context of type \"([^\"]*)\"$")
     public void I_register_the_rest_response_data_as_SPEL_context(String type) throws Throwable {
-        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Class.forName(type));
+        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Class.forName(type), Context.getJsonMapper());
         Context.getInstance().buildEvaluationContext(response.getData());
     }
 
     @When("^I register the rest response data as SPEL context of type2 \"([^\"]*)\"$")
+    /**
+     * @deprecated use "I register the rest response data as SPEL context of type" instead
+     */
+    @Deprecated
     public void I_register_the_rest_response_data_as_SPEL_context2(String type) throws Throwable {
-        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Class.forName(type), Context.getJsonMapper());
-        Context.getInstance().buildEvaluationContext(response.getData());
+        I_register_the_rest_response_data_as_SPEL_context(type);
     }
 
     @Then("^Response should contains (\\d+) items$")

@@ -110,8 +110,7 @@ public class ApplicationEnvironmentController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<ApplicationEnvironment> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
-        ApplicationEnvironment environment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
-                ApplicationRole.APPLICATION_MANAGER);
+        ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.values());
         return RestResponseBuilder.<ApplicationEnvironment> builder().data(environment).build();
     }
@@ -175,10 +174,9 @@ public class ApplicationEnvironmentController {
     public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @RequestBody UpdateApplicationEnvironmentRequest request) throws OrchestratorDisabledException {
 
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         // Only APPLICATION_MANAGER on the underlying application can update an application environment
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+                ApplicationRole.APPLICATION_MANAGER);
 
         if (applicationEnvironment == null) {
             return RestResponseBuilder.<Void> builder().data(null).error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
@@ -206,8 +204,8 @@ public class ApplicationEnvironmentController {
     @Audit
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         // Only APPLICATION_MANAGER on the underlying application can delete an application environment
-        ApplicationEnvironment environmentToDelete = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
-        applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.APPLICATION_MANAGER);
+        ApplicationEnvironment environmentToDelete = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+                ApplicationRole.APPLICATION_MANAGER);
 
         int countEnvironment = applicationEnvironmentService.getByApplicationId(environmentToDelete.getApplicationId()).length;
         if (countEnvironment == 1) {
