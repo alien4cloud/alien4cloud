@@ -43,8 +43,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.ApplicationEnvironmentRole;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
@@ -275,9 +273,7 @@ public class DeploymentTopologyController {
         Application application = applicationService.getOrFail(appId);
         ApplicationEnvironment environment = appEnvironmentService.getOrFail(environmentId);
         // // Security check user must be authorized to deploy the environment (or be application manager)
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
     }
 
 }

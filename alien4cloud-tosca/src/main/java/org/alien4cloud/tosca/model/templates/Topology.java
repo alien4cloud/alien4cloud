@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.common.IUpdatedDate;
+import alien4cloud.model.common.IDatableResource;
 import alien4cloud.model.common.IWorkspaceResource;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.utils.jackson.ConditionalAttributes;
@@ -47,7 +47,7 @@ import lombok.Setter;
 @AllArgsConstructor(suppressConstructorProperties = true)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Topology implements IUpdatedDate, IWorkspaceResource {
+public class Topology implements IDatableResource, IWorkspaceResource {
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter
     private String archiveName;

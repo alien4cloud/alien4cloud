@@ -15,7 +15,7 @@ import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.MappingBuilder;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.common.IUpdatedDate;
+import alien4cloud.model.common.IDatableResource;
 import lombok.SneakyThrows;
 
 /**
@@ -38,8 +38,8 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
      * @param <T>
      */
     private <T> void updateDate(T data) {
-        if (data instanceof IUpdatedDate) {
-            IUpdatedDate resource = (IUpdatedDate) data;
+        if (data instanceof IDatableResource) {
+            IDatableResource resource = (IDatableResource) data;
             resource.setLastUpdateDate(new Date());
             if (resource.getCreationDate() == null) {
                 resource.setCreationDate(resource.getLastUpdateDate());

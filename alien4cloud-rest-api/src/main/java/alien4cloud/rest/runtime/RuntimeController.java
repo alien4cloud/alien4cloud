@@ -52,8 +52,6 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.ApplicationEnvironmentRole;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
@@ -102,9 +100,7 @@ public class RuntimeController {
         Application application = applicationService.getOrFail(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId,
                 operationRequest.getApplicationEnvironmentId());
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
 
         Topology topology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(operationRequest.getApplicationEnvironmentId());
         // validate the operation request
@@ -166,15 +162,13 @@ public class RuntimeController {
             @ApiParam(value = "Id of the application for which to get deployed topology.", required = true) @PathVariable String applicationId,
             @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String applicationEnvironmentId) {
 
-        Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         if (!environment.getApplicationId().equals(applicationId)) {
             throw new NotFoundException("Unable to find environment with id <" + applicationEnvironmentId + "> for application <" + applicationId + ">");
         }
         // Security check user must be authorized to deploy the environment (or be application manager)
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(applicationService.getOrFail(applicationId), environment);
+
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(environment.getId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTOBuilder.buidTopologyDTO(deploymentTopology)).build();
@@ -248,9 +242,7 @@ public class RuntimeController {
     public RestResponse<Map<String, NodeTemplate>> getNonNativesNodes(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.getOrFail(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
 
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(environment.getId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());

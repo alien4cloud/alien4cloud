@@ -7,7 +7,6 @@ import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 import java.util.Date;
 import java.util.List;
 
-import alien4cloud.model.common.ITaggableResource;
 import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESAll;
 import org.elasticsearch.annotation.ESObject;
@@ -24,7 +23,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.common.IUpdatedDate;
+import alien4cloud.model.common.IDatableResource;
+import alien4cloud.model.common.ITaggableResource;
 import alien4cloud.model.common.IWorkspaceResource;
 import alien4cloud.model.common.Tag;
 import alien4cloud.utils.version.Version;
@@ -38,7 +38,7 @@ import lombok.Setter;
 @JsonInclude(Include.NON_NULL)
 @ESObject
 @ESAll(analyser = "simple")
-public abstract class AbstractToscaType implements IUpdatedDate, IWorkspaceResource, ITaggableResource {
+public abstract class AbstractToscaType implements IDatableResource, IWorkspaceResource, ITaggableResource {
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter
