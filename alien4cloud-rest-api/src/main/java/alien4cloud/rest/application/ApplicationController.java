@@ -1,11 +1,12 @@
 package alien4cloud.rest.application;
 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.exception.AlreadyExistException;
+import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,6 +38,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
+import alien4cloud.utils.VersionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +55,8 @@ public class ApplicationController {
     private IImageDAO imageDAO;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Resource
+    ArchiveIndexer archiveIndexer;
     @Resource
     private ApplicationService applicationService;
     @Resource
@@ -77,6 +81,14 @@ public class ApplicationController {
 
         // check the topology template id to recover the related topology id
         String topologyId = request.getTopologyTemplateVersionId();
+        // check unity of archive name
+        try {
+            archiveIndexer.ensureUniqueness(request.getArchiveName(), VersionUtil.DEFAULT_VERSION_NAME);
+        } catch (AlreadyExistException e) {
+            return RestResponseBuilder.<String> builder().error(
+                    RestErrorBuilder.builder(RestErrorCode.APPLICATION_CSAR_VERSION_ALREADY_EXIST).message("CSAR: " + request.getArchiveName() + ", Version: " + VersionUtil.DEFAULT_VERSION_NAME + " already exists in the repository.").build())
+                    .build();
+        }
         // create the application with default environment and version
         String applicationId = applicationService.create(auth.getName(), request.getArchiveName(), request.getName(), request.getDescription());
         ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, topologyId);

@@ -91,8 +91,12 @@ define(function (require) {
           });
           modalInstance.result.then(function (application) {
             // create a new application from the given name and description.
-            applicationServices.create([], angular.toJson(application), function (successResponse) {
-              $scope.openApplication(successResponse.data);
+            applicationServices.create([], angular.toJson(application), function (result) {
+              if (_.defined(result.error)) {
+                toaster.pop('error', $translate.instant('ERRORS.' + result.error.code), $translate.instant('ERRORS.' + result.error.code), 6000, 'trustedHtml');
+              } else {
+                $scope.openApplication(result.data);
+              }
             });
           });
         };

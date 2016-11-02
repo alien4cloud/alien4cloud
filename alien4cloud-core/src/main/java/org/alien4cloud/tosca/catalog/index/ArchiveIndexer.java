@@ -80,7 +80,7 @@ public class ArchiveIndexer {
      * @param name The name of the archive.
      * @param version The version of the archive.
      */
-    private void ensureUniqueness(String name, String version) {
+    public void ensureUniqueness(String name, String version) {
         long count = csarService.count(singleKeyFilter("version", version), name);
         if (count > 0) {
             throw new AlreadyExistException("CSAR: " + name + ", Version: " + version + " already exists in the repository.");
