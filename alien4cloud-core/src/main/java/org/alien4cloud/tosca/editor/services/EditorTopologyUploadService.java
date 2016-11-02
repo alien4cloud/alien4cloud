@@ -54,10 +54,13 @@ public class EditorTopologyUploadService {
             if (!parsingResult.getResult().hasToscaTopologyTemplate()) {
                 throw new EditorToscaYamlUpdateException("A topology template is required in the topology edition context.");
             }
-            // FIXME CHECK IF USER TRIED TO CHANGE CSAR ELEMENTS (name/version etc.) and throw exception (you cannot do that from the editor).
 
             Topology currentTopology = EditionContextManager.getTopology();
             Topology parsedTopology = parsingResult.getResult().getTopology();
+
+            if (!currentTopology.getArchiveName().equals(parsedTopology.getArchiveName()) || !currentTopology.getArchiveVersion().equals(parsedTopology.getArchiveVersion())) {
+                throw new EditorToscaYamlUpdateException("Template name and version cannot be updated in the topology edition context.");
+            }
 
             // Copy static elements from the topology
             parsedTopology.setId(currentTopology.getId());
