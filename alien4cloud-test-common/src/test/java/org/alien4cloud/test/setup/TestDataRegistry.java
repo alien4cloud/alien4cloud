@@ -80,6 +80,7 @@ public class TestDataRegistry {
         addConditionFolder("invalid (icon invalid)", "src/test/resources/data/csars/icon/erroneous");
         addConditionFolder("snapshot", "src/test/resources/data/csars/snapshot");
         addConditionFolder("snapshot-bis", "src/test/resources/data/csars/snapshot-bis");
+        addConditionFolder("snapshot-ter", "src/test/resources/data/csars/snapshot-ter");
         addConditionFolder("released", "src/test/resources/data/csars/released");
         addConditionFolder("released-bis", "src/test/resources/data/csars/released-bis");
         addConditionFolder("relationship test types", "src/test/resources/data/csars/relationship-test-types");
