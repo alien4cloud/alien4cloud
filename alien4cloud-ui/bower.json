@@ -50,7 +50,7 @@
   },
   "resolutions": {
     "angular": "1.2.21",
-    "angular-translate": "1.1.1",
+    "angular-translate": "2.11.0",
     "d3": "^3.4"
   }
 }
