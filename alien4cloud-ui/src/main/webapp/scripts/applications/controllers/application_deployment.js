@@ -83,6 +83,10 @@ define(function(require) {
         function(application, appEnvironments, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu) {
           //build the menu tree
           buildMenuTree(menu);
+          if(appEnvironments.deployEnvironments.indexOf(appEnvironments.selected) < 0) {
+            // If the selected environment is not the one that the user has deployer role then select the first one with this role enabled
+            appEnvironments.select(appEnvironments.deployEnvironments[0].id);
+          }
           var deploymentContextResult = {
             selectedEnvironment: appEnvironments.selected
           };
