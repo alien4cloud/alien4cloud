@@ -1005,5 +1005,8 @@
     "PLUGINS_NOT_FOUND": "No resolver plugins found",
     "CONFIGURATION": "Configuration",
     "REPOSITORYTYPE": "Type"
+  },
+  "PAGINATION": {
+    "OVERFLOW": "The number of results exceeds the maximum number supported by Alien4Cloud, please use the search box."
   }
 }

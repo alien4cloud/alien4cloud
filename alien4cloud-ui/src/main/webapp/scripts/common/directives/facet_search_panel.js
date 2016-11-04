@@ -13,9 +13,9 @@ define(function (require) {
       controller: 'FacetSearchPanelController',
       scope: {
         searchUrl: '@',
-        isPaginatedApi: '@',
-        pageSize: '@',
-        maxPageCount: '@',
+        isPaginatedApi: '=',
+        pageSize: '=',
+        maxPageCount: '=',
         filterPrefix: '@',
         facetIdConverter: '=',
         defaultFilters: '=',

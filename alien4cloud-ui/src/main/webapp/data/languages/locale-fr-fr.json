@@ -983,5 +983,8 @@
       "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "La valeur par défaut n'est pas valide par rapport aux contraintes déclarées dans le type",
       "DUPLICATED_CONSTRAINT": "Contraintes de même type ont été détectées dans la propriété"
     }
+  },
+  "PAGINATION": {
+    "OVERFLOW": "Le nombre de résultat dépasse le nombre maxium supporté par Alien4Cloud, merci d'utiliser le champs de recherche."
   }
 }

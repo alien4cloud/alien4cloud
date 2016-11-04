@@ -969,5 +969,8 @@
       "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "The default value does not match constraints",
       "DUPLICATED_CONSTRAINT": "Multiple constraints with the same type has been detected"
     }
+  },
+  "PAGINATION": {
+    "OVERFLOW": "The number of results exceeds the maximum number supported by Alien4Cloud, please use the search box."
   }
 }
