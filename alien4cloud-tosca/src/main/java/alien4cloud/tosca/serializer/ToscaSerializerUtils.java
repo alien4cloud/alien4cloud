@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
@@ -15,10 +16,12 @@ import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.definitions.constraints.*;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
-
-import alien4cloud.paas.wf.*;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
+
+import com.google.common.collect.Sets;
+
+import alien4cloud.paas.wf.*;
 
 /**
  * Tools for serializing in YAML/TOSCA. ALl methods should be static but did not found how to use statics from velocity.
@@ -277,16 +280,19 @@ public class ToscaSerializerUtils {
 
     public static String formatRepositories(Topology topology) {
         StringBuilder buffer = new StringBuilder();
+        Set<String> repositoriesName = Sets.newHashSet();
         for (NodeTemplate node : topology.getNodeTemplates().values()) {
             if (node.getArtifacts() != null && CollectionUtils.isNotEmpty(node.getArtifacts().values())) {
                 for (DeploymentArtifact artifact : node.getArtifacts().values()) {
-                    if (artifact.getRepositoryURL() != null) {
+                    if (artifact.getRepositoryURL() != null && !repositoriesName.contains(artifact.getArtifactName())) {
+                        repositoriesName.add(artifact.getArtifactName());
                         buffer.append("  ").append(artifact.getRepositoryName()).append(":");
-                        buffer.append("\n").append(formatRepository(artifact, 2));
+                        buffer.append("\n").append(formatRepository(artifact, 2)).append("\n");
                     }
                 }
             }
         }
+        buffer.setLength(buffer.length() - 1);
         return buffer.toString();
     }
 

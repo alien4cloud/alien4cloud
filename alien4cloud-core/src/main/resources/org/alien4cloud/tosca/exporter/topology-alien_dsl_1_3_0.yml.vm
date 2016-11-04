@@ -22,8 +22,8 @@ imports:
 #if($utils.hasRepositories($topology))
 repositories:
 ${utils.formatRepositories($topology)}
-
 #end## if hasRepositories
+
 topology_template:
 #if($application_description)
   description: ${utils.renderDescription(${topology_description}, "    ")}
