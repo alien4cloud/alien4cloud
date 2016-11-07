@@ -5,8 +5,8 @@ define(function (require) {
 
   require('scripts/topology/controllers/editor_artifact_modal');
 
-  modules.get('a4c-topology-editor').factory('topoEditArtifacts', [ '$modal',
-    function($modal) {
+  modules.get('a4c-topology-editor').factory('topoEditArtifacts', [ '$modal', 'topologyServices',
+    function($modal, topologyServices) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };
@@ -17,28 +17,44 @@ define(function (require) {
         /**
         * This method is triggered when the user select the artifact
         */
-        onSelect: function(artifactName) {
+        onSelect: function(artifactName, artifact) {
           var scope = this.scope;
-          var modalInstance = $modal.open({
-            templateUrl: 'views/topology/editor_artifact_modal.html',
-            controller: 'TopologyEditorArtifactModalCtrl',
-            resolve: {
-              archiveContentTree: function() {
-                return scope.topology.archiveContentTree;
-              }
-            }
-          });
+          topologyServices.availableRepositories({
+            topologyId: scope.topologyId
+            }, 
+            function(result) {
+              scope.availableRepositories = result.data;
+              var modalInstance = $modal.open({
+                templateUrl: 'views/topology/editor_artifact_modal.html',
+                controller: 'TopologyEditorArtifactModalCtrl',
+                resolve: {
+                  archiveContentTree: function() {
+                    return scope.topology.archiveContentTree;
+                  },
+                  availableRepositories: function() {
+                    return scope.availableRepositories;
+                  },
+                  artifact: function() {
+                    return artifact;
+                  }                  
+                }
+              });
 
-          modalInstance.result.then(function(artifact) {
-            scope.execute({
-                type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodeDeploymentArtifactOperation',
-                nodeName: scope.selectedNodeTemplate.name,
-                artifactName: artifactName,
-                artifactReference: artifact.reference,
-                artifactRepository: artifact.repository
-              }
-            );
-          });
+              modalInstance.result.then(function(artifact) {
+                scope.execute({
+                    type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodeDeploymentArtifactOperation',
+                    nodeName: scope.selectedNodeTemplate.name,
+                    artifactName: artifactName,
+                    artifactReference: artifact.reference,
+                    artifactRepository: artifact.repository,
+                    repositoryUrl: artifact.repositoryUrl,
+                    repositoryName: artifact.repositoryName
+                  }
+                );
+              });
+            }
+          );           
+
         },
 
         // reset the artifact to the original value from node type

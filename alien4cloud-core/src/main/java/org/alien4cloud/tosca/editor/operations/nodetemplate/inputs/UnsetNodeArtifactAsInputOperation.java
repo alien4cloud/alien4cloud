@@ -11,10 +11,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UnsetNodeArtifactAsInputOperation extends AbstractNodeOperation {
-    private String inputName;
+    private String artifactName;
 
     @Override
     public String commitMessage() {
-        return "artifact <" + inputName + "> from node <" + getNodeName() + "> is not linked to an input artifact anymore.";
+        return "artifact <" + artifactName + "> from node <" + getNodeName() + "> is not linked to an input artifact anymore.";
     }
 }

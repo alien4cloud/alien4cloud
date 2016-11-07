@@ -45,5 +45,6 @@ public class ResetNodeDeploymentArtifactProcessor implements IEditorOperationPro
         }
 
         currentArtifact.setArtifactRef(artifactFromNodeType.getArtifactRef());
+        currentArtifact.setArtifactName(null);
     }
 }

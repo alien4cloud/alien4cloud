@@ -578,7 +578,8 @@
                       </span>
                       <span class="pull-right btn-group">
                         <a id="addToInputBtn_art_{{artifactId}}" class="btn btn-default btn-xs"
-                          ng-click="$event.stopPropagation(); artifacts.onSelect(artifactId)"
+                          ng-click="$event.stopPropagation(); artifacts.onSelect(artifactId, artifact)"
+                          ng-if="!inputs.isInputArtifact(artifactId)"
                           tooltip="{{ 'EDITOR.ARTIFACTS.SELECT' | translate }}"
                           tooltip-append-to-body="true"
                           tooltip-placement="left">

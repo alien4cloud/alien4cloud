@@ -601,6 +601,22 @@
       "CURRENT_TOPOLOGY": "Current topology",
       "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology does not have changed.",
       "LAST_SAVED_TOPOLOGY": "Last saved topology"
+    },
+    "ARTIFACTS":{
+      "SELECT": "Select artifact",
+      "REPOSITORY": "Repository",
+      "REPOS" : {
+        "LOCAL": "Local",
+        "REMOTE": "Remote",
+        "ARCHIVE_REPOSITORIES": "Archive Repositories",
+        "GLOBAL_REPOSITORIES": "Global repositories",
+        "NEW_REPOSITORY": "New repository",
+        "ID": "Repository ID",
+        "MUST_BE_UNIQUE": "Doit être unique pour cette archive",
+        "URL": "URL",
+        "TYPE": "Type",
+        "FILE": "File"
+      }
     }
   },
   "END_DATE" : "終了日",

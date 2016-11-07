@@ -284,8 +284,8 @@ public class ToscaSerializerUtils {
         for (NodeTemplate node : topology.getNodeTemplates().values()) {
             if (node.getArtifacts() != null && CollectionUtils.isNotEmpty(node.getArtifacts().values())) {
                 for (DeploymentArtifact artifact : node.getArtifacts().values()) {
-                    if (artifact.getRepositoryURL() != null && !repositoriesName.contains(artifact.getArtifactName())) {
-                        repositoriesName.add(artifact.getArtifactName());
+                    if (artifact.getRepositoryURL() != null && !repositoriesName.contains(artifact.getRepositoryName())) {
+                        repositoriesName.add(artifact.getRepositoryName());
                         buffer.append("  ").append(artifact.getRepositoryName()).append(":");
                         buffer.append("\n").append(formatRepository(artifact, 2)).append("\n");
                     }

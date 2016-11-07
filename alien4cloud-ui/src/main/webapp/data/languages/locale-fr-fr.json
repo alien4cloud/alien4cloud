@@ -606,7 +606,19 @@
     },
     "ARTIFACTS":{
       "SELECT": "Selectionner un artefact",
-      "REPOSITORY": "Dépôt"
+      "REPOSITORY": "Dépôt",
+      "REPOS" : {
+        "LOCAL": "Local",
+        "REMOTE": "Distant",
+        "ARCHIVE_REPOSITORIES": "Dépôt d'archive",
+        "GLOBAL_REPOSITORIES": "Dépôt global",
+        "NEW_REPOSITORY": "Nouveau dépôt",
+        "ID": "Identifiant",
+        "MUST_BE_UNIQUE": "Doit être unique pour cette archive",
+        "URL": "URL",
+        "TYPE": "Type",
+        "FILE": "Fichier"
+      }
     }
   },
   "END_DATE" : "Date de fin",

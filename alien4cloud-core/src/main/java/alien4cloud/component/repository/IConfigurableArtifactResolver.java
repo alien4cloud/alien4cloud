@@ -42,6 +42,8 @@ public interface IConfigurableArtifactResolver<T> {
      */
     T getConfiguration();
 
+    String getConfigurationUrl();
+
     /**
      * Set the configuration of the artifact resolver
      * 

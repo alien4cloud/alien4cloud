@@ -628,7 +628,19 @@
     },
     "ARTIFACTS":{
       "SELECT": "Select artifact",
-      "REPOSITORY": "Repository"
+      "REPOSITORY": "Repository",
+      "REPOS" : {
+        "LOCAL": "Local",
+        "REMOTE": "Remote",
+        "ARCHIVE_REPOSITORIES": "Archive Repositories",
+        "GLOBAL_REPOSITORIES": "Global repositories",
+        "NEW_REPOSITORY": "New repository",
+        "ID": "Repository ID",
+        "MUST_BE_UNIQUE": "Must be unique for this archive",
+        "URL": "URL",
+        "TYPE": "Type",
+        "FILE": "File"
+      }
     }
   },
   "END_DATE" : "End date",
