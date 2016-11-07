@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -25,6 +26,7 @@ import alien4cloud.repository.services.RepositoryService;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.FileUtil;
@@ -97,8 +99,8 @@ public abstract class AbstractArchivePostProcessor {
             return; // Artifact may not be specified and may be set in alien4cloud.
         }
         if (!archivePathResolver.exists(artifact.getArtifactRef())) {
-            parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Invalid artifact reference", null,
-                    "CSAR's artifact does not exist", null, artifact.getArtifactRef()));
+            parsedArchive.getContext().getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ARTIFACT_REFERENCE,
+                    "Invalid artifact reference", null, "CSAR's artifact does not exist", null, artifact.getArtifactRef()));
         }
     }
 
@@ -158,9 +160,13 @@ public abstract class AbstractArchivePostProcessor {
 
     private void processInterfaces(ArchivePathChecker archivePathResolver, Map<String, Interface> interfaceMap, ParsingResult<ArchiveRoot> parsedArchive) {
         if (interfaceMap != null) {
-            interfaceMap.values().stream().filter(interfazz -> interfazz.getOperations() != null)
-                    .forEach(interfazz -> interfazz.getOperations().values().stream().filter(operation -> operation.getImplementationArtifact() != null)
-                            .forEach(operation -> processArtifact(archivePathResolver, operation.getImplementationArtifact(), parsedArchive)));
+            interfaceMap.values().stream().filter(interfazz -> interfazz.getOperations() != null).forEach(interfazz -> interfazz.getOperations().values()
+                    .stream().filter(operation -> operation.getImplementationArtifact() != null).forEach(operation -> {
+                        processArtifact(archivePathResolver, operation.getImplementationArtifact(), parsedArchive);
+                        for (DeploymentArtifact artifact : safe(operation.getDependencies())) {
+                            processArtifact(archivePathResolver, artifact, parsedArchive);
+                        }
+                    }));
         }
     }
 

@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser;
 
 import java.nio.file.Paths;
 
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.ImplementationArtifact;
 import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
@@ -23,6 +24,21 @@ import alien4cloud.tosca.normative.NormativeCredentialConstant;
 @ContextConfiguration("classpath:tosca/parser-application-context.xml")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSimpleProfileTest {
+
+    @Test
+    public void testNodeTypeMissingRequirementType() throws ParsingException {
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-node-type-missing-requirement-type.yml"));
+        Assert.assertEquals(2, parsingResult.getContext().getParsingErrors().size());
+        Assert.assertEquals(ErrorCode.TYPE_NOT_FOUND, parsingResult.getContext().getParsingErrors().get(0).getErrorCode());
+        Assert.assertEquals(ErrorCode.TYPE_NOT_FOUND, parsingResult.getContext().getParsingErrors().get(1).getErrorCode());
+    }
+
+    @Test
+    public void testNodeTypeMissingCapabilityType() throws ParsingException {
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-node-type-missing-capability-type.yml"));
+        Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
+        Assert.assertEquals(ErrorCode.TYPE_NOT_FOUND, parsingResult.getContext().getParsingErrors().get(0).getErrorCode());
+    }
 
     @Test
     public void testParseImplementationArtifactWithRepository() throws ParsingException {

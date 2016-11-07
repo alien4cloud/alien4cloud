@@ -176,8 +176,7 @@
     type: constraint
 
 # capability definition supports a simple definition or more advanced.
-- capability_definition: alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser
-- capability_definition_detailed: org.alien4cloud.tosca.model.definitions.CapabilityDefinition
+- capability_definition: org.alien4cloud.tosca.model.definitions.CapabilityDefinition
   description: description
   type: type
   occurrences:
@@ -280,15 +279,34 @@
     get_property: tosca_function
   default: attribute_definition
 
+- deployment_artifact: org.alien4cloud.tosca.model.definitions.DeploymentArtifact
+  type: artifactType
+  file:
+    reference: artifactRef
+    type: artifact_ref_parser
+  repository: artifactRepository
+  description: description
+  deploy_path: deployPath
+
+- implementation_artifact: org.alien4cloud.tosca.model.definitions.ImplementationArtifact
+  primary:
+    reference: artifactRef
+    type: artifact_ref_parser
+  type: artifactType
+  repository: artifactRepository
+  dependencies:
+    list: ../dependencies
+    type: deployment_artifact
+
 - operation_definition: org.alien4cloud.tosca.model.definitions.Operation
   implementation:
     reference: implementationArtifact
     type: implementation_artifact
+  dependencies:
+    list: dependencies
+    type: deployment_artifact
   description: description
   inputs:
-    map: inputParameters
-    type: input
-  input: # add tolerance to input as wd03 is inconsistent.
     map: inputParameters
     type: input
 

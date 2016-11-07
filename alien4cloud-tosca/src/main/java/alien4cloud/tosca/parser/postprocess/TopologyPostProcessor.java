@@ -40,8 +40,9 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
     private WorkflowsBuilderService workflowBuilderService;
     @Resource
     private PropertyDefinitionPostProcessor propertyDefinitionPostProcessor;
+    // Inputs do not define artifact reference so we don't perform validation on them like for types.
     @Resource
-    private ArtifactPostProcessor artifactPostProcessor;
+    private TypeDeploymentArtifactPostProcessor typeDeploymentArtifactPostProcessor;
 
     @Override
     public void process(Topology instance) {
@@ -62,7 +63,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
 
         // Inputs validation
         safe(instance.getInputs()).entrySet().stream().forEach(propertyDefinitionPostProcessor);
-        safe(instance.getInputArtifacts()).values().stream().forEach(artifactPostProcessor);
+        safe(instance.getInputArtifacts()).values().stream().forEach(typeDeploymentArtifactPostProcessor);
 
         int groupIndex = 0;
         // Groups validation

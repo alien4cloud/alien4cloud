@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class ReferencePostProcessor implements IPostProcessor<ReferencePostProcessor.TypeReference> {
-
     @Override
     public void process(TypeReference typeReference) {
         for (Class<? extends AbstractInheritableToscaType> clazz : typeReference.classes) {
@@ -52,6 +51,7 @@ public class ReferencePostProcessor implements IPostProcessor<ReferencePostProce
         private String key;
 
         public TypeReference(Object parent, String key, Class<? extends AbstractInheritableToscaType>... classes) {
+            this.parent = parent;
             this.key = key;
             this.classes = classes;
         }

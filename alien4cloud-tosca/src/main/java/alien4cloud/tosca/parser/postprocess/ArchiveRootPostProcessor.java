@@ -31,6 +31,8 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
     @Resource
     private ToscaTypePostProcessor toscaTypePostProcessor;
     @Resource
+    private NodeTypePostProcessor nodeTypePostProcessor;
+    @Resource
     private ToscaArtifactTypePostProcessor toscaArtifactTypePostProcessor;
     @Resource
     private TopologyPostProcessor topologyPostProcessor;
@@ -112,6 +114,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         safe(archiveRoot.getArtifactTypes()).values().stream().forEach(toscaTypePostProcessor);
         safe(archiveRoot.getCapabilityTypes()).values().stream().forEach(toscaTypePostProcessor);
         safe(archiveRoot.getRelationshipTypes()).values().stream().peek(toscaTypePostProcessor).forEach(toscaArtifactTypePostProcessor);
-        safe(archiveRoot.getNodeTypes()).values().stream().peek(toscaTypePostProcessor).forEach(toscaArtifactTypePostProcessor);
+        safe(archiveRoot.getNodeTypes()).values().stream().peek(toscaTypePostProcessor).peek(nodeTypePostProcessor).forEach(toscaArtifactTypePostProcessor);
+
     }
 }
