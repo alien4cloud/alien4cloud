@@ -124,6 +124,7 @@ public class CsarFileRepository implements ICsarRepositry {
         try {
             DirectoryJSonWalker.directoryJson(expandedPath, csarDirectoryPath.resolve("content.json"));
             FileUtil.zip(expandedPath, csarTargetPath);
+            EditionContextManager.get().refreshContentTree();
         } catch (IOException e) {
             throw new CSARStorageFailureException("Error while trying to update the CSAR archive: " + name + ", Version: " + version + "...." + e.getMessage(),
                     e);
