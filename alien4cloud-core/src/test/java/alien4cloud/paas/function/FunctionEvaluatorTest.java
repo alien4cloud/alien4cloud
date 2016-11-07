@@ -12,6 +12,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.AbstractToscaParserSimpleProfileTest;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -96,24 +97,25 @@ public class FunctionEvaluatorTest {
             Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
             FileUtil.zip(typesPath, typesZipPath);
             ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
-            for (ParsingError error : result.getContext().getParsingErrors()) {
-                System.out.println(error.getErrorLevel() + " " + error.getProblem());
-            }
+            AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
 
             typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
             typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
             FileUtil.zip(typesPath, typesZipPath);
             result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
+            AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
 
             typesPath = artifactsDirectory.resolve(sampleLocalName).resolve("tomcat-war");
             typesZipPath = artifactsDirectory.resolve("tomcat_war.zip");
             FileUtil.zip(typesPath, typesZipPath);
             result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
+            AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
 
             typesPath = Paths.get("src/test/resources/alien/paas/function/csars/test-types");
             typesZipPath = artifactsDirectory.resolve("target/test-types.zip");
             FileUtil.zip(typesPath, typesZipPath);
             result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
+            AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
 
             INITIALIZED = true;
         }

@@ -5,10 +5,12 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public abstract class AbstractArtifact implements IArtifact {
     /** This attribute specifies the type of this artifact. */
     private String artifactType;
@@ -24,10 +26,11 @@ public abstract class AbstractArtifact implements IArtifact {
     /** The version of the archive in which the original artifact lies. */
     private String archiveVersion;
 
+    /** Repository url in case the artifact has to be downloaded from a repository. */
     private String repositoryURL;
-
+    /** The credentials to access the repository. */
     private Map<String, Object> repositoryCredential;
-
+    /** The name (id) of the repository to reference. */
     private String repositoryName;
 
     /**
@@ -35,6 +38,15 @@ public abstract class AbstractArtifact implements IArtifact {
      */
     @JsonIgnore
     private String artifactPath;
+
+    /**
+     * Constructor is used to create an artifact out of the artifact reference. This is used when parsing short notation.
+     * 
+     * @param artifactRef The reference of the artifact within the archive.
+     */
+    public AbstractArtifact(String artifactRef) {
+        this.artifactRef = artifactRef;
+    }
 
     @Override
     public String toString() {

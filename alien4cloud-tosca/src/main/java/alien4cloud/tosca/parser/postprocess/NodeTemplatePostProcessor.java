@@ -6,12 +6,12 @@ import java.util.Objects;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.definitions.Operation;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -33,7 +33,9 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
     @Resource
     private PropertyValueChecker propertyValueChecker;
     @Resource
-    private ArtifactPostProcessor artifactPostProcessor;
+    private TemplateDeploymentArtifactPostProcessor templateDeploymentArtifactPostProcessor;
+    @Resource
+    private ImplementationArtifactPostProcessor implementationArtifactPostProcessor;
 
     @Override
     public void process(final NodeTemplate instance) {
@@ -45,10 +47,10 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
         }
 
         // FIXME we should check that the artifact is defined at the type level.
-        safe(instance.getArtifacts()).values().forEach(artifactPostProcessor);
+        safe(instance.getArtifacts()).values().forEach(templateDeploymentArtifactPostProcessor);
         // TODO Manage interfaces inputs to copy them to all operations.
         safe(instance.getInterfaces()).values().stream().flatMap(anInterface -> safe(anInterface.getOperations()).values().stream())
-                .map(Operation::getImplementationArtifact).filter(Objects::nonNull).forEach(artifactPostProcessor);
+                .map(Operation::getImplementationArtifact).filter(Objects::nonNull).forEach(implementationArtifactPostProcessor);
 
         // Merge the node template with data coming from the type (default values etc.).
         NodeTemplate tempObject = NodeTemplateBuilder.buildNodeTemplate(nodeType, instance, false);

@@ -174,8 +174,7 @@
     type: constraint
 
 # capability definition supports a simple definition or more advanced.
-- capability_definition: alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser
-- capability_definition_detailed: org.alien4cloud.tosca.model.definitions.CapabilityDefinition
+- capability_definition: org.alien4cloud.tosca.model.definitions.CapabilityDefinition
   description: description
   type: type
   occurrences:

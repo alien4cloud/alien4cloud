@@ -5,9 +5,6 @@
 - property_value: alien4cloud.tosca.parser.impl.advanced.PropertyValueParser
 - import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
 - occurrences: alien4cloud.tosca.parser.impl.advanced.OccurrencesParser
-- implementation_artifact: alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser
-- node_deployment_artifact: alien4cloud.tosca.parser.impl.advanced.NodeDeploymentArtifactParser
-- type_deployment_artifact: alien4cloud.tosca.parser.impl.advanced.TypeDeploymentArtifactParser
 - input_artifact: alien4cloud.tosca.parser.impl.advanced.InputArtifactParser
 - tag: alien4cloud.tosca.parser.impl.advanced.TagParser
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
@@ -146,7 +143,7 @@
     type: interfaces
   artifacts:
     map: artifacts
-    type: node_deployment_artifact
+    type: deployment_artifact
 
 - node_template_capability_definition: org.alien4cloud.tosca.model.templates.Capability
   type: type
@@ -173,9 +170,8 @@
     list: constraints
     type: constraint
 
-# capability definition supports a simple definition or more advanced.
-- capability_definition: alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser
-- capability_definition_detailed: org.alien4cloud.tosca.model.definitions.CapabilityDefinition
+# capability definition
+- capability_definition: org.alien4cloud.tosca.model.definitions.CapabilityDefinition
   description: description
   type: type
   occurrences:
@@ -209,21 +205,17 @@
     node_is_value: false
 
 - requirement_definition: org.alien4cloud.tosca.model.definitions.RequirementDefinition
-  __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
-    key: id # map the key of the first mapping
-    value: # map the value as a capability_or_node_type_reference
-      reference: type
-      type: scalar
+  capability: type
+  node: nodeType
+  node_filter:
+    reference: nodeFilter
+    type: node_filter_type
   description: description
   occurrences:
     reference: void
     type: occurrences
-  type: relationshipType
   relationship: relationshipType
-  capability: capabilityName
-  node_filter:
-    reference: nodeFilter
-    type: node_filter_type
+  capability_name: capabilityName
 
 - tosca_function: org.alien4cloud.tosca.model.definitions.FunctionPropertyValue
   __0:
@@ -279,10 +271,29 @@
     get_property: tosca_function
   default: attribute_definition
 
+- deployment_artifact: org.alien4cloud.tosca.model.definitions.DeploymentArtifact
+  type: artifactType
+  file:
+    reference: artifactRef
+    type: artifact_ref_parser
+  repository: artifactRepository
+  description: description
+  deploy_path: deployPath
+
+- implementation_artifact: org.alien4cloud.tosca.model.definitions.ImplementationArtifact
+  file:
+    reference: artifactRef
+    type: artifact_ref_parser
+  type: artifactType
+  repository: artifactRepository
+
 - operation_definition: org.alien4cloud.tosca.model.definitions.Operation
   implementation:
     reference: implementationArtifact
     type: implementation_artifact
+  dependencies:
+      list: dependencies
+      type: deployment_artifact
   description: description
   inputs:
     map: inputParameters
@@ -320,7 +331,7 @@
   artifacts:
     sequence_to_map: artifacts
     node_is_value: false
-    type: type_deployment_artifact
+    type: deployment_artifact
   portability:
     map: portability
     type: node_template_property
@@ -393,7 +404,7 @@
   artifacts:
     sequence_to_map: artifacts
     node_is_value: false
-    type: type_deployment_artifact
+    type: deployment_artifact
   valid_target_types:
     list: validTargets
     type: scalar

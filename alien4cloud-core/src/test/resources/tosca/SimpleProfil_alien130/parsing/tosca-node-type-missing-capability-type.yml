@@ -1,0 +1,14 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+tosca_default_namespace:   # Optional. default namespace (schema, types version)
+template_name:             # Optional name of this service template
+template_author:           # Optional author of this service template
+template_version:          # Optional version of this service template
+
+description: This is an example of a single line description (no folding).
+
+node_types:
+  alien.types.test.error.MyType:
+    capabilities:
+      feature:
+        type: tosca.capabilities.Unknown

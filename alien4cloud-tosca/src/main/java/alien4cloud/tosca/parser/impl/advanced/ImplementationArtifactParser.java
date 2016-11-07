@@ -6,6 +6,7 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.alien4cloud.tosca.model.definitions.ImplementationArtifact;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 
+@Deprecated
 @Component
 public class ImplementationArtifactParser extends ArtifactParser<ImplementationArtifact> {
     @Override

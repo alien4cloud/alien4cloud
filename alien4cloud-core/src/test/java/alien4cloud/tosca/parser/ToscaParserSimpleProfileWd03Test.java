@@ -629,8 +629,8 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
         NodeType mockedCompute = Mockito.mock(NodeType.class);
         NodeType mockedSoftware = Mockito.mock(NodeType.class);
         CapabilityType mockedContainer = Mockito.mock(CapabilityType.class);
-        RequirementDefinition hostRequirement = new RequirementDefinition("host", "tosca.capabilities.Container", "", "tosca.relationships.HostedOn", "host", 1,
-                Integer.MAX_VALUE, null);
+        RequirementDefinition hostRequirement = new RequirementDefinition("host", "tosca.capabilities.Container", null, "", "tosca.relationships.HostedOn",
+                "host", 1, Integer.MAX_VALUE, null);
         Mockito.when(mockedSoftware.getRequirements()).thenReturn(Lists.<RequirementDefinition> newArrayList(hostRequirement));
         Mockito.when(mockedSoftware.getElementId()).thenReturn("tosca.nodes.SoftwareComponent");
         CapabilityDefinition capabilityDefinition = new CapabilityDefinition("host", "tosca.capabilities.Container", Integer.MAX_VALUE);

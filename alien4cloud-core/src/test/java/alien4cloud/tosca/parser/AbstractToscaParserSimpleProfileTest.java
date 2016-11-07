@@ -3,23 +3,11 @@ package alien4cloud.tosca.parser;
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.ArchiveParserTest;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import alien4cloud.component.ICSARRepositorySearchService;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
@@ -28,11 +16,23 @@ import org.alien4cloud.tosca.model.definitions.constraints.GreaterThanConstraint
 import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.google.common.collect.Lists;
+
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.MapUtil;
-
-import com.google.common.collect.Lists;
 
 /**
  * Test tosca parsing for Tosca Simple profile in YAML wd03
@@ -65,32 +65,26 @@ public abstract class AbstractToscaParserSimpleProfileTest {
     public void testNodeType() throws FileNotFoundException, ParsingException {
         Mockito.reset(csarRepositorySearchService);
         NodeType mockedResult = Mockito.mock(NodeType.class);
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
-                        Mockito.any(Set.class))).thenReturn(mockedResult);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                Mockito.any(Set.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
 
         Mockito.when(
                 csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
         CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
-                        Mockito.eq("mytypes.mycapabilities.MyCapabilityTypeName"), Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
-                        Mockito.eq("mytypes.mycapabilities.MyCapabilityTypeName"), Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
+                Mockito.eq("mytypes.mycapabilities.MyCapabilityTypeName"), Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
+                Mockito.eq("mytypes.mycapabilities.MyCapabilityTypeName"), Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
 
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
-                        Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
+                Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
         RelationshipType hostedOn = new RelationshipType();
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
-                        Mockito.any(Set.class))).thenReturn(hostedOn);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                Mockito.any(Set.class))).thenReturn(hostedOn);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-node-type.yml"));
 
@@ -141,9 +135,8 @@ public abstract class AbstractToscaParserSimpleProfileTest {
         constraints = Lists.<PropertyConstraint> newArrayList(gtConstraint);
         def4.setConstraints(constraints);
 
-        Assert.assertEquals(
-                MapUtil.newHashMap(new String[] { "my_app_password", "my_app_duration", "my_app_size", "my_app_port" }, new PropertyDefinition[] { def1, def4,
-                        def3, def2 }), nodeType.getProperties());
+        Assert.assertEquals(MapUtil.newHashMap(new String[] { "my_app_password", "my_app_duration", "my_app_size", "my_app_port" },
+                new PropertyDefinition[] { def1, def4, def3, def2 }), nodeType.getProperties());
 
         // check requirements
         Assert.assertEquals(2, nodeType.getRequirements().size());

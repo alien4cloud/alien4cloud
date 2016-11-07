@@ -4,7 +4,11 @@ import java.util.Collection;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.yaml.snakeyaml.nodes.*;
+import org.yaml.snakeyaml.nodes.MappingNode;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.ScalarNode;
+import org.yaml.snakeyaml.nodes.SequenceNode;
 
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
@@ -48,11 +52,18 @@ public abstract class CollectionParser<T> implements INodeParser<Collection<T>> 
         Collection<T> collection = getCollectionInstance();
         Object parent = context.getParent();
         for (Node valueNode : node.getValue()) {
-            T value = valueParser.parse(valueNode, context);
-            context.setParent(parent);
+            T value;
+            if (keyPath != null && valueNode instanceof MappingNode && ((MappingNode) valueNode).getValue().size() == 1) {
+                NodeTuple tuple = ((MappingNode) valueNode).getValue().get(0);
+                value = objectFromTuple(tuple, context);
+            } else {
+                value = valueParser.parse(valueNode, context);
+            }
             if (value != null) {
+                context.setParent(parent, value);
                 collection.add(value);
             }
+            context.setParent(parent);
         }
         return collection;
     }
@@ -61,12 +72,8 @@ public abstract class CollectionParser<T> implements INodeParser<Collection<T>> 
         Collection<T> collection = getCollectionInstance();
         if (keyPath != null) { // we parse a map into a list and must
             for (NodeTuple entry : node.getValue()) {
-                String key = ParserUtils.getScalar(entry.getKeyNode(), context);
-                T value = null;
-                value = valueParser.parse(entry.getValueNode(), context);
+                T value = objectFromTuple(entry, context);
                 if (value != null) {
-                    BeanWrapper valueWrapper = new BeanWrapperImpl(value);
-                    valueWrapper.setPropertyValue(keyPath, key);
                     collection.add(value);
                 }
             }
@@ -75,6 +82,17 @@ public abstract class CollectionParser<T> implements INodeParser<Collection<T>> 
             collection.add(value);
         }
         return collection;
+    }
+
+    private T objectFromTuple(NodeTuple tuple, ParsingContextExecution context) {
+        String key = ParserUtils.getScalar(tuple.getKeyNode(), context);
+        T value;
+        value = valueParser.parse(tuple.getValueNode(), context);
+        if (value != null) {
+            BeanWrapper valueWrapper = new BeanWrapperImpl(value);
+            valueWrapper.setPropertyValue(keyPath, key);
+        }
+        return value;
     }
 
     protected abstract Collection<T> getCollectionInstance();

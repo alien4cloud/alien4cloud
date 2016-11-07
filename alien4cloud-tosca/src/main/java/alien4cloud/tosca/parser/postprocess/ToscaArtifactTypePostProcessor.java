@@ -6,10 +6,9 @@ import java.util.Objects;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Component;
-
-import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
 import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.springframework.stereotype.Component;
 
 /**
  * Performs validation of a type with artifacts.
@@ -17,13 +16,15 @@ import org.alien4cloud.tosca.model.definitions.Operation;
 @Component
 public class ToscaArtifactTypePostProcessor implements IPostProcessor<AbstractInstantiableToscaType> {
     @Resource
-    private ArtifactPostProcessor artifactPostProcessor;
+    private TypeDeploymentArtifactPostProcessor typeDeploymentArtifactPostProcessor;
+    @Resource
+    private ImplementationArtifactPostProcessor implementationArtifactPostProcessor;
 
     @Override
     public void process(AbstractInstantiableToscaType instance) {
-        safe(instance.getArtifacts()).values().forEach(artifactPostProcessor);
+        safe(instance.getArtifacts()).values().forEach(typeDeploymentArtifactPostProcessor);
         // TODO Manage interfaces inputs to copy them to all operations.
         safe(instance.getInterfaces()).values().stream().flatMap(anInterface -> safe(anInterface.getOperations()).values().stream())
-                .map(Operation::getImplementationArtifact).filter(Objects::nonNull).forEach(artifactPostProcessor);
+                .map(Operation::getImplementationArtifact).filter(Objects::nonNull).forEach(implementationArtifactPostProcessor);
     }
 }

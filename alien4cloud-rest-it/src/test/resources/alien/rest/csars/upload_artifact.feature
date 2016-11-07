@@ -22,7 +22,8 @@ Feature: upload CSAR with artifact
     Given I upload the archive "tosca base types 1.0"
     Then I should receive a RestResponse with no error
     When I upload the archive "artifact java types 1.0 wrong path"
-    Then I should receive a RestResponse with an error code 200
+    Then I should receive a RestResponse with no error
+    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 1 warnings and 0 infos
 
   @reset
   Scenario: Upload an invalid CSAR with artifact reference to an unexisting type
