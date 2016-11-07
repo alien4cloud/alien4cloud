@@ -141,6 +141,10 @@
       },
       "RECOVERY": {
         "TITLE": "Dépendences de topologie modifées",
+        "ERRORS_TITLE": "Des erreurs empêche la réconcilliation de la topologie",
+        "ERRORS": {
+          "RELEASED": "Une ou plusieurs dépendances snapshots de la topologie ont été changées, par contre votre topologie a été déjà releasée. Les changements des dépendances SNAPSHOT pourraient générer des conflits dans la topologie actuelle, que Alien4Cloud ne pourrait pas résoudre automatiquement. La version actuelle interdit l'upload des archives releasés qui ont des dépendances SNAPSHOT. Vous devez soit supprimer la topologie actuelle (et le ré-uploader après l'avoir corrigé en dehors de Alien4Cloud) ou continuer de travailler avec (avec le risque que le déploiement de la topologie va échouer dû aux changements dans les dépendences SNAPSHOT)"
+        },
         "DISMISS": "Abandonner",
         "DESCRIPTION": "Les dépendences suivantes de la topologie ont été modifiées:",
         "CHOICE_ASK": "Que souhaitez vous faire de la topologie ?",

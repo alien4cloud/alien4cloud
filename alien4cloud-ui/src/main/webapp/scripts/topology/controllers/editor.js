@@ -340,7 +340,7 @@ define(function (require) {
 
       $scope.$on('$stateChangeStart',
         function(event, toState, toParams, fromState) {
-          if($scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex === -1) {
+          if(_.undefined($scope.topology) || _.undefined($scope.topology.operations) || $scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex === -1) {
             // nothing to save
             return;
           }

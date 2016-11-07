@@ -123,6 +123,10 @@
       "PROPERTIES_OUTPUTS" : "Output properties",
       "RECOVERY": {
         "TITLE": "Topology recevory",
+        "ERRORS_TITLE": "There are errors which prevent the topology from being recovered",
+        "ERRORS": {
+          "RELEASED": "A SNAPSHOT dependency of your topology has changed, but your topology has been released and cannot be changed. The changes in a SNAPSHOT dependency may generate issues in your current topology, that Alien4Cloud won’t be able to handle. Current version of alien4cloud does not authorise you to upload a released version having dependencies on snapshot archives. You may have to either delete the current topology (and re-upload it after fixing issues out of alien) or try to keep working with it (with the risk that this may fail later due to changes in the snapshot dependencies)."
+        },
         "DISMISS": "Dismiss",
         "DESCRIPTION": "The following topology's dependencies have been updated:",
         "CHOICE_ASK": "What would you like to do with the topology ?",
