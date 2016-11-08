@@ -82,6 +82,10 @@ public class TestDataRegistry {
         addConditionFolder("snapshot-bis", "src/test/resources/data/csars/snapshot-bis");
         addConditionFolder("snapshot-ter", "src/test/resources/data/csars/snapshot-ter");
         addConditionFolder("released", "src/test/resources/data/csars/released");
+        addConditionFolder("snapshot dependency", "src/test/resources/data/csars/released-with-snapshot-depdency/snapshot-dependency");
+        addConditionFolder("released dependency", "src/test/resources/data/csars/released-with-snapshot-depdency/released-dependency");
+        addConditionFolder("released with snapshot dependency", "src/test/resources/data/csars/released-with-snapshot-depdency/bad-released");
+        addConditionFolder("released with released dependency", "src/test/resources/data/csars/released-with-snapshot-depdency/good-released");
         addConditionFolder("released-bis", "src/test/resources/data/csars/released-bis");
         addConditionFolder("relationship test types", "src/test/resources/data/csars/relationship-test-types");
         addConditionFolder("valid-csar-with-test", "src/test/resources/data/csars/snapshot-test/snapshot-test-valid");
@@ -98,8 +102,10 @@ public class TestDataRegistry {
         addConditionFolder("topology with wrong relationship property value", "src/test/resources/data/csars/suggestion-test/relationship-wrong-property");
         addConditionFolder("node type with similar node filter constraint value", "src/test/resources/data/csars/suggestion-test/node-type-info-node-filter");
         addConditionFolder("node type with wrong node filter constraint value", "src/test/resources/data/csars/suggestion-test/node-type-wrong-node-filter");
-        addConditionFolder("node type with new suggestion for equal constraint of node filter", "src/test/resources/data/csars/suggestion-test/node-type-new-suggestion-eq");
-        addConditionFolder("node type with new suggestion for valid values constraint of node filter", "src/test/resources/data/csars/suggestion-test/node-type-new-suggestion-vv");
+        addConditionFolder("node type with new suggestion for equal constraint of node filter",
+                "src/test/resources/data/csars/suggestion-test/node-type-new-suggestion-eq");
+        addConditionFolder("node type with new suggestion for valid values constraint of node filter",
+                "src/test/resources/data/csars/suggestion-test/node-type-new-suggestion-vv");
 
         // Topology parsing data
         addConditionFolder("topology-singlecompute", "src/test/resources/data/csars/topology_template/topology-singlecompute");

@@ -64,6 +64,18 @@ Feature: CSAR upload
     Then I should receive a RestResponse with an error code 502
 
   @reset
+  Scenario: Upload CSAR that already exist in the repository
+    Given I upload the archive "snapshot dependency"
+    Then I should receive a RestResponse with no error
+    Given I upload the archive "released dependency"
+    Then I should receive a RestResponse with no error
+    When I upload the archive "released with snapshot dependency"
+    Then I should receive a RestResponse with an error code 200
+    And I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
+    When I upload the archive "released with released dependency"
+    Then I should receive a RestResponse with no error
+
+  @reset
   Scenario: Upload invalid CSAR : dependency in definition do not exist
     Given I upload the archive "sample java types 1.0"
     Then I should receive a RestResponse with an error code 200 and 17 compilation errors in 1 file(s)
