@@ -619,7 +619,7 @@
         "GLOBAL_REPOSITORIES": "Dépôt global",
         "NEW_REPOSITORY": "Nouveau dépôt",
         "ID": "Identifiant",
-        "MUST_BE_UNIQUE": "Doit être unique pour cette archive",
+        "MUST_BE_UNIQUE": "L'identifiant de repository doit être unique pour cette archive",
         "URL": "URL",
         "TYPE": "Type",
         "FILE": "Fichier"

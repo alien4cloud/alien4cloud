@@ -3,8 +3,8 @@ define(function (require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('TopologyEditorArtifactModalCtrl', ['$scope', '$modalInstance', 'explorerService','archiveContentTree', 'availableRepositories', 'artifact',
-    function($scope, $modalInstance, explorerService, archiveContentTree, availableRepositories, artifact) {
+  modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('TopologyEditorArtifactModalCtrl', ['$scope', '$modalInstance', '$translate', 'explorerService','archiveContentTree', 'availableRepositories', 'artifact', 'toaster',
+    function($scope, $modalInstance, $translate, explorerService, archiveContentTree, availableRepositories, artifact, toaster) {
       $scope.artifact = {};
 
       $scope.opts = explorerService.getOps(false);
@@ -51,7 +51,11 @@ define(function (require) {
       };
 
       $scope.selectRemote = function(valid) {
-        if (valid && $scope.isRepositoryUnique()) {
+        if (valid) {
+          if (!$scope.isRepositoryUnique()) {
+            toaster.pop('error', $translate.instant("EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE"), $translate.instant("EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE"), 3000, 'trustedHtml', null);
+            return;
+          }
           var artifact = {};
           artifact.repository = $scope.selectedRepository.type;
           artifact.reference = $scope.selectedRepository.file;

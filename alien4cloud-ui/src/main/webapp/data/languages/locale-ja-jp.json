@@ -617,7 +617,7 @@
         "GLOBAL_REPOSITORIES": "Global repositories",
         "NEW_REPOSITORY": "New repository",
         "ID": "Repository ID",
-        "MUST_BE_UNIQUE": "Doit être unique pour cette archive",
+        "MUST_BE_UNIQUE": "Repository ID must be unique for this archive",
         "URL": "URL",
         "TYPE": "Type",
         "FILE": "File"

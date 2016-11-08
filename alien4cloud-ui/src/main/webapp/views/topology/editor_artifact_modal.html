@@ -57,11 +57,13 @@
         <div class="form-group">
           <label for="repository_type" class="col-lg-3 control-label">{{'EDITOR.ARTIFACTS.REPOS.TYPE' | translate}}</label>
           <div class="col-lg-9">
-          <select class="form-control" id="repository_type" ng-model="selectedRepository.type" required ng-disabled="selectedRepository.classifier != 'new'">
+          <select class="form-control" id="repository_type" ng-model="selectedRepository.type" required ng-disabled="selectedRepository.classifier != 'new'" ng-if="selectedRepository.classifier == 'new'">
             <option ng-repeat="type in repositoryTypes" value="{{type}}">
             {{type}}
             </option>           
-          </select>         
+          </select>  
+          <input type="text" class="form-control" id="repository_type" value="{{ selectedRepository.type }}" required disabled="true" ng-if="selectedRepository.classifier != 'new'">
+          </input>       
           </div>
         </div>
         <div class="form-group">
