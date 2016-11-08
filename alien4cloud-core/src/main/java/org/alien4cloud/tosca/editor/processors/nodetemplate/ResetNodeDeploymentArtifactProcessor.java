@@ -45,6 +45,11 @@ public class ResetNodeDeploymentArtifactProcessor implements IEditorOperationPro
         }
 
         currentArtifact.setArtifactRef(artifactFromNodeType.getArtifactRef());
-        currentArtifact.setArtifactName(null);
+        currentArtifact.setArtifactName(artifactFromNodeType.getArtifactName());
+        currentArtifact.setArtifactType(artifactFromNodeType.getArtifactType());
+        currentArtifact.setArtifactRepository(artifactFromNodeType.getArtifactRepository());
+        currentArtifact.setRepositoryName(artifactFromNodeType.getRepositoryName());
+        currentArtifact.setRepositoryURL(artifactFromNodeType.getRepositoryURL());
+        currentArtifact.setRepositoryCredential(artifactFromNodeType.getRepositoryCredential());
     }
 }
