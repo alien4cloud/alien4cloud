@@ -427,6 +427,7 @@
       "INVALID_YAML" : "The File does not respect YAML format.",
       "LABEL" : "Errors",
       "MISSING_DEPENDENCY" : "Dependency [{{note}}] cannot be found in Alien repository.",
+      "SNAPSHOT_DEPENDENCY" : "Snapshot dependency [{{note}}] is not allowed in released archive.",
       "MISSING_FILE" : "Reference file {{note}} cannot be found within the archive.",
       "MISSING_TOPOLOGY_INPUT" : "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
       "MISSING_TOSCA_VERSION" : "Tosca version is not specified and is required.",

@@ -56,6 +56,8 @@ public enum ErrorCode {
     INVALID_CONSTRAINT,
     /** An imported CSAR cannot be found. */
     MISSING_DEPENDENCY,
+    /** A snapshot dependency not authorized on a release version **/
+    SNAPSHOT_DEPENDENCY,
     /** Scalar unit declaration not well managed. */
     INVALID_SCALAR_UNIT,
     /** Detect a potential bad property value based on precedent inserted values **/

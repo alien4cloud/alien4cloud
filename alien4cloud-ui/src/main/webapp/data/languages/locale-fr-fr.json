@@ -429,6 +429,7 @@
       "INVALID_YAML" : "Le fichier reférencé n'est pas conforme au format YAML.",
       "LABEL" : "Erreurs",
       "MISSING_DEPENDENCY" : "La dépendance [{{note}}] est introuvable dans le repository Alien4Cloud.",
+      "SNAPSHOT_DEPENDENCY" : "Dépendence snapshot [{{note}}] n'est pas autorisée dans une archive releasée.",
       "MISSING_FILE" : "Le fichier référencé {{note}} n'existe pas dans l'archive.",
       "MISSING_TOPOLOGY_INPUT" : "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs",
       "MISSING_TOSCA_VERSION" : "La version de TOSCA n'est pas spécifiée et est obligatoire.",
