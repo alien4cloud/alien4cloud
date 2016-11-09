@@ -100,6 +100,10 @@
         "CHANGE_VERSION" : {
           "TITLE": "Change version",
           "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology."
+        },
+        "INCOMPATIBLE_VERSIONS": {
+          "TITLE": "Dependency version conflict",
+          "CONTENT": "The topology has already a dependency to the archive <{{archiveName}}> version <{{archiveVersion}}>. You can not use a component from the same archive with a different version. Please upgrade or downgrade the topology dependency if you want to use a different version."
         }
       },
       "DESC_TEMPLATE" : "Topology template description",

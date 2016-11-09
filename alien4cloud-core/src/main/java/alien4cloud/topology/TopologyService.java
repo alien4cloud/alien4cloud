@@ -307,37 +307,9 @@ public class TopologyService {
         CSARDependency toLoadDependency = topologyDependency;
         if (topologyDependency != null) {
             int comparisonResult = VersionUtil.compare(archiveVersion, topologyDependency.getVersion());
-            if (comparisonResult > 0) {
-                // Dependency of the type is more recent, try to upgrade the topology
-                toLoadDependency = csarDependencyLoader.buildDependencyBean(archiveName, archiveVersion);
-                topology.getDependencies().add(toLoadDependency);
-                topology.getDependencies().remove(topologyDependency);
-                Map<String, NodeType> nodeTypes;
-                try {
-                    nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false, true);
-                    // TODO WHY DO THIS?
-                    topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, true);
-                } catch (NotFoundException e) {
-                    throw new VersionConflictException("Version conflict, cannot add archive [" + archiveName + ":" + archiveVersion
-                            + "], upgrade of the topology to this archive from version [" + topologyDependency.getVersion() + "] failed", e);
-                }
-                // Try to upgrade existing nodes
-                // FIXME we should try to upgrade relationships also
-                Map<String, NodeTemplate> newNodeTemplates = Maps.newHashMap();
-                Map<String, NodeTemplate> existingNodeTemplates = topology.getNodeTemplates();
-                if (existingNodeTemplates != null) {
-                    for (Entry<String, NodeTemplate> nodeTemplateEntry : existingNodeTemplates.entrySet()) {
-                        NodeTemplate newNodeTemplate = buildNodeTemplate(topology.getDependencies(), nodeTypes.get(nodeTemplateEntry.getValue().getType()),
-                                nodeTemplateEntry.getValue());
-                        newNodeTemplate.setName(nodeTemplateEntry.getKey());
-                        newNodeTemplates.put(nodeTemplateEntry.getKey(), newNodeTemplate);
-                    }
-                    topology.setNodeTemplates(newNodeTemplates);
-                }
-            } else if (comparisonResult < 0) {
-                // Dependency of the topology is more recent, try to upgrade the dependency of the type
-                element = toscaTypeSearchService.getElementInDependencies((Class<T>) element.getClass(), element.getElementId(), topology.getDependencies());
-                toLoadDependency = topologyDependency;
+            if (comparisonResult != 0) {
+                throw new VersionConflictException("Version conflict, cannot add archive [" + archiveName + ":" + archiveVersion
+                    + "] to the topology since it already depends on version [" + topologyDependency.getVersion() + "]");
             }
         } else {
             // the type is not yet loaded

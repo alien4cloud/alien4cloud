@@ -9,4 +9,9 @@ public class VersionConflictException extends TechnicalException {
     public VersionConflictException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public VersionConflictException(String message) {
+        super(message);
+    }
+
 }
