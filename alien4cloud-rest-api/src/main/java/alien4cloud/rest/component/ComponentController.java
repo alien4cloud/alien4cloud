@@ -7,13 +7,19 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.common.TagService;
 import org.alien4cloud.tosca.catalog.CatalogVersionResult;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Lists;
 
@@ -23,7 +29,11 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.common.Tag;
-import alien4cloud.rest.model.*;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +49,10 @@ public class ComponentController {
     private IGenericSearchDAO dao;
 
     @Resource
-    private IToscaTypeSearchService searchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
+
+    @Resource
+    private TagService tagService;
 
     /**
      * Get details for a component.
@@ -69,7 +82,7 @@ public class ComponentController {
     public RestResponse<AbstractToscaType> getComponent(@PathVariable String elementId, @PathVariable String version,
             @RequestParam(required = false) QueryComponentType toscaType) {
         Class<? extends AbstractToscaType> queryClass = toscaType == null ? AbstractToscaType.class : toscaType.getIndexedToscaElementClass();
-        AbstractToscaType component = searchService.find(queryClass, elementId, version);
+        AbstractToscaType component = toscaTypeSearchService.find(queryClass, elementId, version);
         return RestResponseBuilder.<AbstractToscaType> builder().data(component).build();
     }
 
@@ -85,7 +98,7 @@ public class ComponentController {
     public RestResponse<CatalogVersionResult[]> getComponentVersions(@PathVariable String elementId,
             @RequestParam(required = false) QueryComponentType toscaType) {
         Class<? extends AbstractToscaType> queryClass = toscaType == null ? AbstractToscaType.class : toscaType.getIndexedToscaElementClass();
-        Object array = searchService.findAll(queryClass, elementId);
+        Object array = toscaTypeSearchService.findAll(queryClass, elementId);
         if (array != null) {
             int length = Array.getLength(array);
             CatalogVersionResult[] versions = new CatalogVersionResult[length];
@@ -103,7 +116,7 @@ public class ComponentController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<AbstractToscaType> getComponent(@RequestBody ElementFromArchiveRequest checkElementExistRequest) throws ClassNotFoundException {
         Class<? extends AbstractToscaType> elementClass = checkElementExistRequest.getComponentType().getIndexedToscaElementClass();
-        AbstractToscaType element = searchService.getElementInDependencies(elementClass, checkElementExistRequest.getElementName(),
+        AbstractToscaType element = toscaTypeSearchService.getElementInDependencies(elementClass, checkElementExistRequest.getElementName(),
                 checkElementExistRequest.getDependencies());
         return RestResponseBuilder.<AbstractToscaType> builder().data(element).build();
     }
@@ -120,7 +133,7 @@ public class ComponentController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<Boolean> checkElementExist(@RequestBody ElementFromArchiveRequest checkElementExistRequest) throws ClassNotFoundException {
         Class<? extends AbstractToscaType> elementClass = checkElementExistRequest.getComponentType().getIndexedToscaElementClass();
-        Boolean found = searchService.isElementExistInDependencies(elementClass, checkElementExistRequest.getElementName(),
+        Boolean found = toscaTypeSearchService.isElementExistInDependencies(elementClass, checkElementExistRequest.getElementName(),
                 checkElementExistRequest.getDependencies());
         return RestResponseBuilder.<Boolean> builder().data(found).build();
     }
@@ -137,8 +150,8 @@ public class ComponentController {
     public RestResponse<FacetedSearchResult<? extends AbstractToscaType>> search(@RequestBody SearchRequest searchRequest) {
         Class<? extends AbstractToscaType> queryClass = searchRequest.getType() == null ? AbstractToscaType.class
                 : searchRequest.getType().getIndexedToscaElementClass();
-        FacetedSearchResult<? extends AbstractToscaType> searchResult = searchService.search(queryClass, searchRequest.getQuery(), searchRequest.getSize(),
-                searchRequest.getFilters());
+        FacetedSearchResult<? extends AbstractToscaType> searchResult = toscaTypeSearchService.search(queryClass, searchRequest.getQuery(),
+                searchRequest.getSize(), searchRequest.getFilters());
         return RestResponseBuilder.<FacetedSearchResult<? extends AbstractToscaType>> builder().data(searchResult).build();
     }
 
@@ -217,21 +230,7 @@ public class ComponentController {
         RestError updateComponantTagError = null;
         NodeType component = dao.findById(NodeType.class, componentId);
         if (component != null) {
-            if (!updateTagRequest.getTagKey().equals(Constants.ALIEN_INTERNAL_TAG)) {
-                // Put the updated tag (will override the old tag or add it to the tag map)
-                if (component.getTags() == null) {
-                    component.setTags(Lists.<Tag> newArrayList());
-                }
-                Tag newTag = new Tag(updateTagRequest.getTagKey(), updateTagRequest.getTagValue());
-                if (component.getTags().contains(newTag)) {
-                    component.getTags().remove(newTag);
-                }
-                component.getTags().add(newTag);
-                dao.save(component);
-            } else {
-                updateComponantTagError = RestErrorBuilder.builder(RestErrorCode.COMPONENT_INTERNALTAG_ERROR)
-                        .message("Tag update operation failed. Could not update internal alien tag  <" + Constants.ALIEN_INTERNAL_TAG + ">.").build();
-            }
+            tagService.upsertTag(component, updateTagRequest.getTagKey(), updateTagRequest.getTagValue());
         } else {
             updateComponantTagError = RestErrorBuilder.builder(RestErrorCode.COMPONENT_MISSING_ERROR)
                     .message("Tag update operation failed. Could not find component with id <" + componentId + ">.").build();
@@ -245,26 +244,15 @@ public class ComponentController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<Void> deleteTag(@PathVariable String componentId, @PathVariable String tagId) {
-        RestError deleteComponantTagError = null;
+        RestError deleteComponentTagError = null;
         NodeType component = dao.findById(NodeType.class, componentId);
         if (component != null) {
-
-            if (!tagId.equals(Constants.ALIEN_INTERNAL_TAG)) {
-                if (component.getTags() == null) {
-                    return RestResponseBuilder.<Void> builder().error(deleteComponantTagError).build();
-                }
-                component.getTags().remove(new Tag(tagId, null));
-                dao.save(component);
-            } else {
-                deleteComponantTagError = RestErrorBuilder.builder(RestErrorCode.COMPONENT_INTERNALTAG_ERROR)
-                        .message("Tag delete operation failed. Could not delete internal alien tag  <" + Constants.ALIEN_INTERNAL_TAG + ">.").build();
-            }
+            tagService.removeTag(component, tagId);
         } else {
-            deleteComponantTagError = RestErrorBuilder.builder(RestErrorCode.COMPONENT_MISSING_ERROR)
+            deleteComponentTagError = RestErrorBuilder.builder(RestErrorCode.COMPONENT_MISSING_ERROR)
                     .message("Tag delete operation failed. Could not find component with id <" + componentId + ">.").build();
         }
-
-        return RestResponseBuilder.<Void> builder().error(deleteComponantTagError).build();
+        return RestResponseBuilder.<Void> builder().error(deleteComponentTagError).build();
     }
 
     private void removeFromDefaultCapabilities(String capability) {

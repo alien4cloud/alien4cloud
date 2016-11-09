@@ -67,8 +67,6 @@ define(function (require) {
         }
       });
 
-      var topologyVersionResource = $resource('rest/latest/topologies/:topologyId/version');
-
       /**
        * Confirm modal
        */

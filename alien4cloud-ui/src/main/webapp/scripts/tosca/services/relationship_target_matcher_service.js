@@ -31,9 +31,9 @@ define(function (require) {
 
           if(_.defined(requirementDefinition.relationshipType)) { // There is a relationship type specified for the requirement.
             var relationshipType = relationshipTypes[requirementDefinition.relationshipType];
-            if(_.defined(relationshipType)) { // we didn't found the matching relationship type let's look for all.
+            if(_.defined(relationshipType)) { // We have found a valid relationship type
               deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, relationshipType, preferedTarget));
-            } else { // We have found a valid relationship type
+            } else { // we didn't found the matching relationship type let's look for all.
               componentService.getInArchives(requirementDefinition.relationshipType, 'RELATIONSHIP_TYPE', dependencies).success(function(result) {
                 deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, result.data, preferedTarget));
               });

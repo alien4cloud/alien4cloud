@@ -23,6 +23,12 @@ Feature: Creating a new application
     Then I should receive a RestResponse with an error code 502
 
   @reset
+  Scenario: Creating a new application whit an already archive name exist should fail
+    Given I upload the archive "snapshot-ter"
+    When I create a new application with name "mordor" and archive name "snapshot-ter"
+    Then I should receive a RestResponse with an error code 615
+
+  @reset
   Scenario: Searching applications
     Given There is 20 applications indexed in ALIEN
     When I search applications from 0 with result size of 20

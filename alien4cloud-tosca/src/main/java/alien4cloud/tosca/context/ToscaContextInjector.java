@@ -12,7 +12,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 @Service
 public class ToscaContextInjector {
     @Resource
-    public void setCsarSearchService(ICSARRepositorySearchService csarSearchService) {
-        ToscaContext.setCsarSearchService(csarSearchService);
+    public void setCsarRepositorySearchService(ICSARRepositorySearchService csarRepositorySearchService) {
+        ToscaContext.setCsarRepositorySearchService(csarRepositorySearchService);
     }
 }

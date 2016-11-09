@@ -60,7 +60,7 @@ public class ArchiveIndexer {
     @Inject
     private ICsarRepositry archiveRepositry;
     @Inject
-    private ICsarService csarService;
+    private CsarService csarService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
@@ -80,7 +80,7 @@ public class ArchiveIndexer {
      * @param name The name of the archive.
      * @param version The version of the archive.
      */
-    private void ensureUniqueness(String name, String version) {
+    public void ensureUniqueness(String name, String version) {
         long count = csarService.count(singleKeyFilter("version", version), name);
         if (count > 0) {
             throw new AlreadyExistException("CSAR: " + name + ", Version: " + version + " already exists in the repository.");
@@ -142,9 +142,6 @@ public class ArchiveIndexer {
     public synchronized void importArchive(final ArchiveRoot archiveRoot, CSARSource source, Path archivePath, List<ParsingError> parsingErrors)
             throws CSARUsedInActiveDeployment {
         archiveIndexerAuthorizationFilter.checkAuthorization(archiveRoot);
-        // dispatch event before indexing
-        publisher.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
-
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
         Csar currentIndexedArchive = csarService.get(archiveName, archiveVersion);
@@ -164,6 +161,9 @@ public class ArchiveIndexer {
                 return;
             }
         }
+
+        // dispatch event before indexing
+        publisher.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
 
         // Throw an exception if we are trying to override a released (non SNAPSHOT) version.
         checkNotReleased(currentIndexedArchive);

@@ -31,12 +31,10 @@ define(function (require) {
   function($scope, $modalInstance) {
     $scope.appVersion = {};
 
-    $scope.create = function(version, desc, oldAppVersion) {
+    $scope.create = function(version, desc, fromTopologyId) {
       $scope.appVersion.version = version;
       $scope.appVersion.description = desc;
-      if (oldAppVersion) {
-        $scope.appVersion.topologyId = oldAppVersion.topologyId;
-      }
+      $scope.appVersion.topologyId = fromTopologyId;
       $modalInstance.close($scope.appVersion);
       $scope.searchService.search();
     };

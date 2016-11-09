@@ -138,7 +138,7 @@ public class TopologyDTOBuilder {
 
     private <T extends AbstractInheritableToscaType> Map<String, DataType> fillDataTypes(Map<String, DataType> indexedDataTypes, Map<String, T> elements) {
         for (AbstractInheritableToscaType indexedNodeType : elements.values()) {
-            if (indexedNodeType.getProperties() != null) {
+            if (indexedNodeType != null && indexedNodeType.getProperties() != null) {
                 for (PropertyDefinition pd : indexedNodeType.getProperties().values()) {
                     String type = pd.getType();
                     if (ToscaType.isPrimitive(type) || indexedDataTypes.containsKey(type)) {

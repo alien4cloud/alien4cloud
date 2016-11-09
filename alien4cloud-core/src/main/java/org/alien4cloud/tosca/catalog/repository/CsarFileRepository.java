@@ -1,12 +1,14 @@
 package org.alien4cloud.tosca.catalog.repository;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.model.Csar;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
@@ -110,6 +112,25 @@ public class CsarFileRepository implements ICsarRepositry {
         }
     }
 
+    @Override
+    public synchronized void updateFromExpanded(String name, String version) {
+        Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
+        Path expandedPath = csarDirectoryPath.resolve("expanded");
+        String realName = name.concat("-").concat(version).concat("." + CSAR_EXTENSION);
+        Path csarTargetPath = csarDirectoryPath.resolve(realName);
+
+        // Update the content.json file for archive browsing.
+        Path archiveDirectoryPath = EditionContextManager.get().getLocalGitPath().getParent();
+        try {
+            DirectoryJSonWalker.directoryJson(expandedPath, csarDirectoryPath.resolve("content.json"));
+            FileUtil.zip(expandedPath, csarTargetPath);
+            EditionContextManager.get().refreshContentTree();
+        } catch (IOException e) {
+            throw new CSARStorageFailureException("Error while trying to update the CSAR archive: " + name + ", Version: " + version + "...." + e.getMessage(),
+                    e);
+        }
+    }
+
     private void createCSARDirectory(Path csarDirectoryPath, String realName) {
         if (Files.exists(csarDirectoryPath.resolve(realName))) {
             log.info("Overriding CSAR with new one.");
@@ -162,9 +183,15 @@ public class CsarFileRepository implements ICsarRepositry {
 
     @Override
     public void removeCSAR(String name, String version) {
-        Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
-        if (Files.isDirectory(csarDirectoryPath)) {
-            FileSystemUtils.deleteRecursively(csarDirectoryPath.toFile());
+        Path csarDirectoryPathOfVersion = rootPath.resolve(name).resolve(version);
+        if (Files.isDirectory(csarDirectoryPathOfVersion)) {
+            FileSystemUtils.deleteRecursively(csarDirectoryPathOfVersion.toFile());
+        }
+
+        // If the csar has no version, delete csar folder
+        File csarRootFolder = new File(rootPath.resolve(name).toUri());
+        if (csarRootFolder.isDirectory() && csarRootFolder.list().length == 0) {
+            FileSystemUtils.deleteRecursively(csarRootFolder);
         }
     }
 }

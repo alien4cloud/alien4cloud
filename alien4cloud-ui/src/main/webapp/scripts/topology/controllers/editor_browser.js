@@ -61,7 +61,7 @@ define(function (require) {
         selectedUrl = '/rest/latest/editor/' + $scope.topology.topology.id + '/file/' + node.artifactId;
       } else {
         // commited file
-        selectedUrl = '/static/tosca/' + $scope.topology.topology.id + node.fullPath;
+        selectedUrl = '/static/tosca/' + $scope.topology.topology.archiveName + '/' + $scope.topology.topology.archiveVersion + node.fullPath;
       }
       _.isImage(selectedUrl).then(function(isImage) {
         if(isImage) {

@@ -24,7 +24,7 @@
 			<lineEnding>keep</lineEnding>
 			<outputDirectory>/</outputDirectory>
 			<includes>
-				<include>**/**</include>
+				<include>alien4cloud/plugin/mock/ProviderConfig.class</include>
 			</includes>
 		</fileSet>
 	</fileSets>

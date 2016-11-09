@@ -113,6 +113,25 @@ public class ParsingContextExecution {
     }
 
     /**
+     * Set the parent object in the object hierarchy.
+     *
+     * @param parent the parent object in the object hierarchy.
+     */
+    public static void setParent(Object parent, Object child) {
+        CONTEXT_THREAD_LOCAL.get().getObjectToParentMap().put(child, parent);
+    }
+
+    /**
+     * Get the parent from the given child object.
+     *
+     * @param child The child object.
+     * @return The parent of the given child.
+     */
+    public static Object getParent(Object child) {
+        return CONTEXT_THREAD_LOCAL.get().getObjectToParentMap().get(child);
+    }
+
+    /**
      * Get the instance of the root object under parsing.
      *
      * @return the instance of the root object under parsing.
@@ -195,6 +214,8 @@ public class ParsingContextExecution {
         private Map<String, INodeParser> registry;
         /** Map of all parsed objects and the node from which they where parsed. */
         private Map<Object, Node> objectToNodeMap = new IdentityHashMap<>();
+        /** Map that allows to get the parent object from a given object. */
+        private Map<Object, Object> objectToParentMap = new IdentityHashMap<>();
         /** The parsing context. */
         private final ParsingContext parsingContext = new ParsingContext();
 

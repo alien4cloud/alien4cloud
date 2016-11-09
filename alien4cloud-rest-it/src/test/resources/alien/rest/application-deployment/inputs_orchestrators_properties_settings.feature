@@ -48,8 +48,6 @@ Feature: inputs and orchestrator proerties settings in deployment topology
     Then I should receive a RestResponse with no error
     And the deployment topology should have the following inputs properties
       | component_version | 3.0 |
-    And the following nodes properties values sould be "3.0"
-      | WebServer | component_version |
 
   @reset
   Scenario: Setting wrong values to inputs properties should fail

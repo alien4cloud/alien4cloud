@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.model.definitions;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +29,8 @@ import com.google.common.collect.Sets;
 public class Operation {
     /** Implementation artifact for the interface. */
     private ImplementationArtifact implementationArtifact;
+    /** List of artifacts required by the implementation artifact. */
+    private List<DeploymentArtifact> dependencies;
     /** Description of the operation. */
     private String description;
     /** This OPTIONAL property contains a list of one or more input parameter definitions. */

@@ -8,6 +8,7 @@ define(function (require) {
   require('ng-table');
   require('scripts/admin/audit/audit_service');
   require('scripts/admin/audit/audit_conf');
+    require('scripts/common/directives/facets');
 
   // register the state to access the metrics
   states.state('admin.audit', {
@@ -96,6 +97,9 @@ define(function (require) {
         'size': DEFAULT_AUDIT_PAGE_SIZE
       };
 
+      $scope.query = '';
+      $scope.facetFilters = [];
+
       // Ignored: A constructor name should start with an uppercase letter.
       $scope.auditTableParam = new ngTableParams({ // jshint ignore:line
         page: 1, // show first page
@@ -135,35 +139,9 @@ define(function (require) {
         });
       }
 
-      // use to display the correct text in UI
-      $scope.getFormatedFacetValue = function(term, value) {
-        // Add other boolean term facet in the condition
-        if (term === 'abstract') {
-          if (value === 'F' || value[0] === false) {
-            return $filter('translate')('FALSE');
-          } else {
-            return $filter('translate')('TRUE');
-          }
-        } else {
-          return value;
-        }
-      };
-
       $scope.goToAuditConfiguration = function() {
         $state.go('admin.audit.conf');
       };
-
-      //////////////////////////////////
-      // Search methods
-      //////////////////////////////////
-      var doSearch = function() {
-        // prepare filters
-        var allFacetFilters = [];
-        allFacetFilters.push.apply(allFacetFilters, $scope.facetFilters);
-        updateSearch($scope.searchedKeyword, allFacetFilters);
-      };
-
-      $scope.doSearch = doSearch;
 
       // update search result table
       function updateSearch(keyword, filters) {
@@ -197,49 +175,20 @@ define(function (require) {
 
         // reload traces table
         $scope.auditTableParam.reload();
+
       }
 
-      /* Add a facet Filters*/
-      $scope.addFilter = function(termId, facetId) {
-        $scope.facetFilters = $scope.facetFilters || [];
-        // Test if the filter exists : [term:facet]
-        var termIndex = -1;
-        for (var i = 0, len = $scope.facets.length; i < len; i++) {
-          if ($scope.facetFilters[i].term === termId && $scope.facetFilters[i].facet === facetId) {
-            termIndex = i;
-          }
-        }
-
-        if (termIndex < 0) {
-          var facetSearchObject = {};
-          facetSearchObject.term = termId;
-          facetSearchObject.facet = [];
-          facetSearchObject.facet.push(facetId);
-          $scope.facetFilters.push(facetSearchObject);
-        }
-
-        // Search update with new filters list
-        $scope.doSearch();
+      //////////////////////////////////
+      // Search methods
+      //////////////////////////////////
+      var doSearch = function() {
+        // prepare filters
+        var allFacetFilters = [];
+        allFacetFilters.push.apply(allFacetFilters, $scope.facetFilters);
+        updateSearch($scope.searchedKeyword, allFacetFilters);
       };
 
-      /*Remove a facet filter*/
-      $scope.removeFilter = function(filterToRemove) {
-        // Remove the selected filter
-        var index = $scope.facetFilters.indexOf(filterToRemove);
-        if (index >= 0) {
-          $scope.facetFilters.splice(index, 1);
-        }
-
-        // Search update with new filters list
-        $scope.doSearch();
-      };
-
-      /*Reset all filters*/
-      $scope.reset = function() {
-        // Reset all filters
-        $scope.facetFilters.splice(0, $scope.facetFilters.length);
-        $scope.doSearch();
-      };
+      $scope.doSearch = doSearch;
 
     }
   ]);

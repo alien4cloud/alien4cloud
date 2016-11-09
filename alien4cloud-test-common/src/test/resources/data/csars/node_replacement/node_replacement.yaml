@@ -1,0 +1,63 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: node_replacement
+template_author: alien
+template_version: 0.1-SNAPSHOT
+description: Contains the normative types definition.
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+node_types:
+
+  alien.test.nodes.JVM:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    capabilities:
+      jvm:
+        type: alien.test.capabilities.JVMEndpoint
+         
+  alien.test.nodes.ApplicationServer:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    requirements:
+      - jvm: alien.test.capabilities.JVMEndpoint
+        type: alien.test.relationships.DependsOnJVM
+        occurrences: [1, 1]      
+    capabilities:
+      app_server:
+        type: alien.test.capabilities.AppServer
+
+  alien.test.nodes.Application:
+    derived_from: tosca.nodes.Root
+    requirements:
+      - server: alien.test.capabilities.AppServer
+        type: alien.test.relationships.HostedOnAppServer
+        occurrences: [1, 1]      
+
+  alien.test.nodes.Tomcat:
+    derived_from: alien.test.nodes.ApplicationServer
+
+capability_types:
+  alien.test.capabilities.JVMEndpoint:
+    derived_from: tosca.capabilities.Node
+  alien.test.capabilities.AppServer:
+    derived_from: tosca.capabilities.Container
+    properties:
+      securized:
+        type: boolean
+        required: false
+      protocol:
+        type: string
+        required: false
+
+relationship_types:
+  alien.test.relationships.DependsOnJVM:
+    derived_from: tosca.relationships.DependsOn
+    properties:
+      context:
+        type: string
+        required: false
+  alien.test.relationships.HostedOnAppServer:
+    derived_from: tosca.relationships.HostedOn
+

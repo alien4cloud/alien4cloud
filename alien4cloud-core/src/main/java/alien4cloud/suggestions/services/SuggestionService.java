@@ -3,21 +3,39 @@ package alien4cloud.suggestions.services;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FilterDefinition;
+import org.alien4cloud.tosca.model.definitions.NodeFilter;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.*;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -50,7 +68,7 @@ public class SuggestionService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
-    private IToscaTypeSearchService searchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     /* The Levenshtein distance is a string metric for measuring the difference between two sequences. */
     private static final double MIN_JAROWINKLER = 0.0;
@@ -92,7 +110,7 @@ public class SuggestionService {
     }
 
     private AbstractSuggestionEntry checkProperty(String nodePrefix, String propertyName, String propertyTextValue,
-                                                  Class<? extends AbstractInheritableToscaType> type, String elementId, ParsingContext context) {
+            Class<? extends AbstractInheritableToscaType> type, String elementId, ParsingContext context) {
         AbstractSuggestionEntry suggestionEntry = getSuggestionEntry(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, type.getSimpleName().toLowerCase(), elementId,
                 propertyName);
         if (suggestionEntry != null) {
@@ -126,7 +144,7 @@ public class SuggestionService {
     }
 
     private void checkProperties(String nodePrefix, Map<String, AbstractPropertyValue> propertyValueMap, Class<? extends AbstractInheritableToscaType> type,
-                                 String elementId, ParsingContext context) {
+            String elementId, ParsingContext context) {
         if (MapUtils.isNotEmpty(propertyValueMap)) {
             for (Map.Entry<String, AbstractPropertyValue> propertyValueEntry : propertyValueMap.entrySet()) {
                 String propertyName = propertyValueEntry.getKey();
@@ -215,8 +233,7 @@ public class SuggestionService {
      * @param elementId element id
      * @param propertyName property's name
      */
-    public void createSuggestionEntry(String index, Class<? extends AbstractToscaType> type, Set<String> initialValues, String elementId,
-                                      String propertyName) {
+    public void createSuggestionEntry(String index, Class<? extends AbstractToscaType> type, Set<String> initialValues, String elementId, String propertyName) {
         createSuggestionEntry(index, type.getSimpleName().toLowerCase(), initialValues, elementId, propertyName);
     }
 
@@ -247,7 +264,7 @@ public class SuggestionService {
     }
 
     private void checkPropertyConstraints(String prefix, Class<? extends AbstractInheritableToscaType> type, String elementId, String propertyName,
-                                          List<PropertyConstraint> constraints, ParsingContext context) {
+            List<PropertyConstraint> constraints, ParsingContext context) {
         if (constraints != null && !constraints.isEmpty()) {
             for (PropertyConstraint propertyConstraint : constraints) {
                 if (propertyConstraint instanceof EqualConstraint) {
@@ -287,7 +304,7 @@ public class SuggestionService {
         Class<? extends AbstractInheritableToscaType> targetClass = (Class<? extends AbstractInheritableToscaType>) alienDAO.getTypesToClasses()
                 .get(suggestionEntry.getEsType());
 
-        Object array = searchService.findAll(targetClass, suggestionEntry.getTargetElementId());
+        Object array = toscaTypeSearchService.findAll(targetClass, suggestionEntry.getTargetElementId());
         if (array != null) {
             int length = Array.getLength(array);
             for (int i = 0; i < length; i++) {

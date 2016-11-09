@@ -25,7 +25,7 @@ import alien4cloud.topology.TopologyService;
 public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<AddSubstitutionTypeOperation> {
 
     @Inject
-    private IToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
     private TopologyService topologyService;
 
@@ -43,12 +43,12 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
             topology.setSubstitutionMapping(new SubstitutionMapping());
         }
 
-        NodeType nodeType = csarRepoSearchService.getElementInDependencies(NodeType.class, operation.getElementId(), topology.getDependencies());
+        NodeType nodeType = toscaTypeSearchService.getElementInDependencies(NodeType.class, operation.getElementId(), topology.getDependencies());
         // if not null the node type exists in the dependencies, there is no choices for this type version
         if (nodeType == null) {
             // the node type does'nt exist in this topology dependencies
             // we need to find the latest version of this component and use it as default
-            nodeType = csarRepoSearchService.findMostRecent(NodeType.class, operation.getElementId());
+            nodeType = toscaTypeSearchService.findMostRecent(NodeType.class, operation.getElementId());
             Set<CSARDependency> oldDependencies = topology.getDependencies();
             topologyService.loadType(topology, nodeType);
         }

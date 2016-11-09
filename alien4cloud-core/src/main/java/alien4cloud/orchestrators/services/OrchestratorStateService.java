@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -43,8 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class OrchestratorStateService {
-    @Inject
-    private QueryHelper queryHelper;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject

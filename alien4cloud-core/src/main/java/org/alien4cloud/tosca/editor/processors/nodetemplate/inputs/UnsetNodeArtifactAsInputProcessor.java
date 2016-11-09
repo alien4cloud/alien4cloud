@@ -17,8 +17,8 @@ public class UnsetNodeArtifactAsInputProcessor extends AbstractNodeProcessor<Uns
 
     @Override
     protected void processNodeOperation(UnsetNodeArtifactAsInputOperation operation, NodeTemplate nodeTemplate) {
-        if (safe(nodeTemplate.getArtifacts()).containsKey(operation.getInputName())) {
-            InputArtifactUtil.unsetInputArtifact(nodeTemplate.getArtifacts().get(operation.getInputName()));
+        if (safe(nodeTemplate.getArtifacts()).containsKey(operation.getArtifactName())) {
+            InputArtifactUtil.unsetInputArtifact(nodeTemplate.getArtifacts().get(operation.getArtifactName()));
         }
     }
 }

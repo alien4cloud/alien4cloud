@@ -5,14 +5,11 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
-import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.topology.TopologyService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -22,12 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class ResetTopologyProcessor implements IEditorOperationProcessor<ResetTopologyOperation> {
-
-    @Inject
-    private EditorTopologyRecoveryHelperService editorTopologyRecoveryHelperService;
-    @Inject
-    private TopologyService topologyService;
-    private EditorService editorService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
 

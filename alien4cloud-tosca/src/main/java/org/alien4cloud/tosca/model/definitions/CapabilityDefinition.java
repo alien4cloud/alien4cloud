@@ -45,6 +45,11 @@ public class CapabilityDefinition implements UpperBoundedDefinition {
     @TermsFacet
     private String[] validSources;
 
+    /** Constructor for single line parsing definition based on type. */
+    public CapabilityDefinition(String type) {
+        this.type = type;
+    }
+
     public CapabilityDefinition(String id, String type, int upperBound) {
         this.id = id;
         this.type = type;

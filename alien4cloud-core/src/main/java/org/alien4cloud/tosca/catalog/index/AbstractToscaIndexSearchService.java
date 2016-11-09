@@ -79,7 +79,7 @@ public abstract class AbstractToscaIndexSearchService<T> {
                             result.setTotalResults(resultData.size());
                         } else {
                             // just to show that there is more results to fetch but iteration is not possible through aggregations.
-                            result.setTotalResults(size + 1);
+                            result.setTotalResults(resultData.size() + ((Terms) aggregation).getSumOfOtherDocCounts());
                         }
                     }
                 });

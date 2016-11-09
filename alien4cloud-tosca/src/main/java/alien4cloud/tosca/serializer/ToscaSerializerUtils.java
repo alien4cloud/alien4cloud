@@ -4,31 +4,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
-import org.alien4cloud.tosca.model.definitions.constraints.AbstractPropertyConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.GreaterOrEqualConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.GreaterThanConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.InRangeConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.LengthConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.LessOrEqualConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.*;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import alien4cloud.paas.wf.AbstractActivity;
-import alien4cloud.paas.wf.AbstractStep;
-import alien4cloud.paas.wf.DelegateWorkflowActivity;
-import alien4cloud.paas.wf.NodeActivityStep;
-import alien4cloud.paas.wf.OperationCallActivity;
-import alien4cloud.paas.wf.SetStateActivity;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.collections4.CollectionUtils;
+
+import com.google.common.collect.Sets;
+
+import alien4cloud.paas.wf.*;
 
 /**
  * Tools for serializing in YAML/TOSCA. ALl methods should be static but did not found how to use statics from velocity.
@@ -144,28 +137,19 @@ public class ToscaSerializerUtils {
         return false;
     }
 
-    public boolean doesInterfacesContaineImplementedOperation(Map<String, Interface> interfaces) {
+    public boolean doesInterfacesContainsImplementedOperation(Map<String, Interface> interfaces) {
         if (interfaces == null || interfaces.isEmpty()) {
             return false;
         }
         for (Interface interfaze : interfaces.values()) {
-            if (interfaze == null) {
-                continue;
-            }
-            Map<String, Operation> operations = interfaze.getOperations();
-            if (operations == null || operations.isEmpty()) {
-                continue;
-            }
-            for (Operation operation : operations.values()) {
-                if (operation.getImplementationArtifact() != null) {
-                    return true;
-                }
+            if (doesInterfaceContainsImplementedOperation(interfaze)) {
+                return true;
             }
         }
         return false;
     }
 
-    public boolean doesInterfaceContaineImplementedOperation(Interface interfaze) {
+    public boolean doesInterfaceContainsImplementedOperation(Interface interfaze) {
         if (interfaze == null) {
             return false;
         }
@@ -277,4 +261,68 @@ public class ToscaSerializerUtils {
         args.put("arg2", "value2");
         return args;
     }
+
+    public static boolean hasRepositories(Topology topology) {
+        // we don't support node types in Editor context, just check the node templates
+        if (topology.getNodeTemplates() != null && CollectionUtils.isNotEmpty(topology.getNodeTemplates().values())) {
+            for (NodeTemplate node : topology.getNodeTemplates().values()) {
+                if (node.getArtifacts() != null && CollectionUtils.isNotEmpty(node.getArtifacts().values())) {
+                    for (DeploymentArtifact artifact : node.getArtifacts().values()) {
+                        if (artifact.getRepositoryName() != null && artifact.getRepositoryURL() != null) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static String formatRepositories(Topology topology) {
+        StringBuilder buffer = new StringBuilder();
+        Set<String> repositoriesName = Sets.newHashSet();
+        for (NodeTemplate node : topology.getNodeTemplates().values()) {
+            if (node.getArtifacts() != null && CollectionUtils.isNotEmpty(node.getArtifacts().values())) {
+                for (DeploymentArtifact artifact : node.getArtifacts().values()) {
+                    if (artifact.getRepositoryURL() != null && !repositoriesName.contains(artifact.getRepositoryName())) {
+                        repositoriesName.add(artifact.getRepositoryName());
+                        buffer.append("  ").append(artifact.getRepositoryName()).append(":");
+                        buffer.append("\n").append(formatRepository(artifact, 2)).append("\n");
+                    }
+                }
+            }
+        }
+        buffer.setLength(buffer.length() - 1);
+        return buffer.toString();
+    }
+
+    public static String formatRepository(DeploymentArtifact value, int indent) {
+        StringBuilder buffer = new StringBuilder();
+        String spaces = ToscaPropertySerializerUtils.indent(indent);
+        buffer.append(spaces).append("url: ").append(value.getRepositoryURL());
+        buffer.append("\n").append(spaces).append("type: ").append(value.getArtifactRepository());
+        if (value.getRepositoryCredential() != null && value.getRepositoryCredential().containsKey("token")) {
+            buffer.append("\n").append(spaces).append("credential:");
+            spaces += "  ";
+            buffer.append("\n").append(spaces).append("token: ").append(value.getRepositoryCredential().get("token"));
+            if (value.getRepositoryCredential().containsKey("user")) {
+                buffer.append("\n").append(spaces).append("user: ").append(value.getRepositoryCredential().get("user"));
+            }
+        }
+        return buffer.toString();
+    }
+
+    public static String formatArtifact(DeploymentArtifact value, int indent) {
+        String spaces = ToscaPropertySerializerUtils.indent(indent);
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(spaces).append("file: ").append(value.getArtifactRef());
+        if (value.getArtifactType() != null) {
+            buffer.append("\n").append(spaces).append("type: ").append(value.getArtifactType());
+        }
+        if (value.getRepositoryName() != null) {
+            buffer.append("\n").append(spaces).append("repository: ").append(value.getRepositoryName());
+        }
+        return buffer.toString();
+    }
+
 }

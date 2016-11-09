@@ -61,10 +61,15 @@ define(function (require) {
         },
         update: function(searchResult) {
           this.totalItems = searchResult.data.totalResults;
+          // backendTotalResults can be null in non cached search result
+          this.backendTotalItems = searchResult.data.backendTotalResults;
         },
         reset: function() {
           this.from = 0;
           this.currentPage = 1;
+        },
+        isOverflowed: function() {
+          return this.backendTotalItems && this.backendTotalItems > this.totalItems && this.currentPage === this.maxPageNumbers;
         },
         maxSearchSize: maxSearchSize,
         maxPageNumbers: maxPageNumbers,
@@ -94,17 +99,20 @@ define(function (require) {
         if(!isPaginatedAPI) {
           searchResult = _.clone(cachedResult.searchResult); // no need for a deep clone
           searchResult.from = from;
+          var backendTotalResults = searchResult.data.totalResults;
+          var totalResults = searchResult.data.data.length;
           var count = from + maxSearchSize;
-          if(count > searchResult.data.length) {
-            count = searchResult.data.length;
+          if(count > searchResult.data.data.length) {
+            count = searchResult.data.data.length;
           }
           searchResult.data = {
             data: cachedResult.searchResult.data.data.slice(from, count),
+            totalResults: totalResults,
+            backendTotalResults: backendTotalResults,
             facets: cachedResult.searchResult.data.facets,
             from: from,
             queryDuration: 0,
             to: cachedResult.searchResult.data.to,
-            totalResults: cachedResult.searchResult.data.totalResults,
             types: cachedResult.searchResult.data.types.slice(from, count)
           };
         }

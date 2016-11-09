@@ -1,7 +1,6 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,22 +11,17 @@ import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.common.IWorkspaceResource;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -54,7 +48,6 @@ import alien4cloud.topology.task.TaskCode;
 import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 import lombok.SneakyThrows;
@@ -64,7 +57,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class TopologyService {
     @Resource
-    private IToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
@@ -124,9 +117,9 @@ public class TopologyService {
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
         Map<String, Map<String, Set<String>>> nodeTemplatesToFilters = Maps.newHashMap();
         Entry<String, NodeTemplate> nodeTempEntry = Maps.immutableEntry(nodeTemplateName, nodeTemplate);
-        NodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
+        NodeType indexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
         processNodeTemplate(topology, nodeTempEntry, nodeTemplatesToFilters);
-        List<SuggestionsTask> topoTasks = searchForNodeTypes(nodeTemplatesToFilters,
+        List<SuggestionsTask> topoTasks = searchForNodeTypes(topology.getWorkspace(), nodeTemplatesToFilters,
                 MapUtil.newHashMap(new String[] { nodeTemplateName }, new NodeType[] { indexedNodeType }));
 
         if (CollectionUtils.isEmpty(topoTasks)) {
@@ -199,7 +192,7 @@ public class TopologyService {
     /**
      * Search for nodeTypes given some filters. Apply AND filter strategy when multiple values for a filter key.
      */
-    public List<SuggestionsTask> searchForNodeTypes(Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
+    public List<SuggestionsTask> searchForNodeTypes(String workspace, Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
             Map<String, NodeType> toExcludeIndexedNodeTypes) throws IOException {
         if (nodeTemplatesToFilters == null || nodeTemplatesToFilters.isEmpty()) {
             return null;
@@ -218,6 +211,8 @@ public class TopologyService {
 
                 // retrieve only non abstract components
                 formattedFilters.put("abstract", ArrayUtils.toArray("false"));
+                // use topology workspace + global workspace
+                formattedFilters.put("workspace", ArrayUtils.toArray(workspace, "ALIEN_GLOBAL_WORKSPACE"));
 
                 GetMultipleDataResult<NodeType> searchResult = alienDAO.search(NodeType.class, null, formattedFilters, filterValueStrategy, 20);
                 data = getIndexedNodeTypesFromSearchResponse(searchResult, toExcludeIndexedNodeTypes.get(nodeTemplatesToFiltersEntry.getKey()));
@@ -312,37 +307,9 @@ public class TopologyService {
         CSARDependency toLoadDependency = topologyDependency;
         if (topologyDependency != null) {
             int comparisonResult = VersionUtil.compare(archiveVersion, topologyDependency.getVersion());
-            if (comparisonResult > 0) {
-                // Dependency of the type is more recent, try to upgrade the topology
-                toLoadDependency = csarDependencyLoader.buildDependencyBean(archiveName, archiveVersion);
-                topology.getDependencies().add(toLoadDependency);
-                topology.getDependencies().remove(topologyDependency);
-                Map<String, NodeType> nodeTypes;
-                try {
-                    nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false, true);
-                    // TODO WHY DO THIS?
-                    topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, true);
-                } catch (NotFoundException e) {
-                    throw new VersionConflictException("Version conflict, cannot add archive [" + archiveName + ":" + archiveVersion
-                            + "], upgrade of the topology to this archive from version [" + topologyDependency.getVersion() + "] failed", e);
-                }
-                // Try to upgrade existing nodes
-                // FIXME we should try to upgrade relationships also
-                Map<String, NodeTemplate> newNodeTemplates = Maps.newHashMap();
-                Map<String, NodeTemplate> existingNodeTemplates = topology.getNodeTemplates();
-                if (existingNodeTemplates != null) {
-                    for (Entry<String, NodeTemplate> nodeTemplateEntry : existingNodeTemplates.entrySet()) {
-                        NodeTemplate newNodeTemplate = buildNodeTemplate(topology.getDependencies(), nodeTypes.get(nodeTemplateEntry.getValue().getType()),
-                                nodeTemplateEntry.getValue());
-                        newNodeTemplate.setName(nodeTemplateEntry.getKey());
-                        newNodeTemplates.put(nodeTemplateEntry.getKey(), newNodeTemplate);
-                    }
-                    topology.setNodeTemplates(newNodeTemplates);
-                }
-            } else if (comparisonResult < 0) {
-                // Dependency of the topology is more recent, try to upgrade the dependency of the type
-                element = csarRepoSearchService.getElementInDependencies((Class<T>) element.getClass(), element.getElementId(), topology.getDependencies());
-                toLoadDependency = topologyDependency;
+            if (comparisonResult != 0) {
+                throw new VersionConflictException("Version conflict, cannot add archive [" + archiveName + ":" + archiveVersion
+                    + "] to the topology since it already depends on version [" + topologyDependency.getVersion() + "]");
             }
         } else {
             // the type is not yet loaded

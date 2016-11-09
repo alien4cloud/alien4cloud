@@ -10,8 +10,10 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.IArchiveIndexerAuthorizationFilter;
 import org.alien4cloud.tosca.catalog.index.ICsarAuthorizationFilter;
-import org.alien4cloud.tosca.catalog.index.ICsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarSearchService;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -59,16 +61,20 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping({ "/rest/csars", "/rest/v1/csars", "/rest/latest/csars" })
 @Slf4j
 public class CloudServiceArchiveController {
-
     @Resource
     private ArchiveUploadService csarUploadService;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
-    private Path tempDirPath;
     @Resource
-    private ICsarService csarService;
+    private ICsarSearchService csarSearchService;
+    @Resource
+    private CsarService csarService;
     @Resource
     private ICsarAuthorizationFilter csarAuthorizationFilter;
+    @Resource
+    private IArchiveIndexerAuthorizationFilter archiveIndexerAuthorizationFilter;
+
+    private Path tempDirPath;
 
     @ApiOperation(value = "Upload a csar zip file.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -81,6 +87,8 @@ public class CloudServiceArchiveController {
             if (workspace == null) {
                 workspace = AlienConstants.GLOBAL_WORKSPACE_ID;
             }
+            // Perform check that the user has one of ARCHITECT, COMPONENT_MANAGER or ADMIN role
+            archiveIndexerAuthorizationFilter.preCheckAuthorization(workspace);
             log.info("Serving file upload with name [" + csar.getOriginalFilename() + "]");
             csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
             // save the archive in the temp directory
@@ -188,7 +196,7 @@ public class CloudServiceArchiveController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest) {
         return RestResponseBuilder.<FacetedSearchResult> builder()
-                .data(csarService.search(searchRequest.getQuery(), searchRequest.getFrom(), searchRequest.getSize(), searchRequest.getFilters())).build();
+                .data(csarSearchService.search(searchRequest.getQuery(), searchRequest.getFrom(), searchRequest.getSize(), searchRequest.getFilters())).build();
     }
 
     @Required

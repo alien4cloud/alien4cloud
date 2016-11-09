@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.RemoveSubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
@@ -29,13 +28,8 @@ import alien4cloud.topology.TopologyService;
  */
 @Component
 public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcessor<RemoveSubstitutionTypeOperation> {
-
     @Resource
     private TopologyService topologyService;
-
-    @Resource
-    private ICsarService csarService;
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 

@@ -105,14 +105,12 @@
             <tr>
               <td colspan="3" ng-show="isManager">
                 <form name="formAddTag" class="form-inline" ng-submit="addTag(newTag)">
-                  <div ng-class="{'form-group':true, 'has-error': formAddTag.tagkey.$invalid}">
-                    <label class="sr-only" for="tagkey">Tag key</label>
-                    <input type="text" class="form-control" id="input-key" name="tagkey" ng-model="newTag.key" ng-pattern="tagKeyPattern" typeahead="item for item in tagSuggestion.get($viewValue)" typeahead-min-length="tagSuggestion.minLength" />
+                  <div ng-class="{'form-group':true, 'has-error': newTag.val && formAddTag.tagkey.$invalid}">
+                    <input type="text" class="form-control" id="input-key" name="tagkey" ng-model="newTag.key" ng-pattern="tagKeyPattern" typeahead="item for item in tagSuggestion.get($viewValue)" typeahead-min-length="tagSuggestion.minLength" required/>
                   </div>
                   <!-- Don't remove : Space between 2 inputs -->
                   <div class="form-group">
-                    <label class="sr-only" for="tagvalue">Tag value</label>
-                    <input type="text" class="form-control" id="input-value" name="tagvalue" ng-model="newTag.val" required />
+                    <input type="text" class="form-control" id="input-value" name="tagvalue" ng-model="newTag.val"/>
                   </div>
                   <div class="form-group">
                     <button ng-disabled="formAddTag.tagkey.$invalid" type="submit" class="btn btn-primary btn-sm" id="btn-add-tag">
@@ -120,7 +118,7 @@
                     </button>
                   </div>
                   <div class="form-group">
-                    <p ng-class="{'text-danger': formAddTag.tagkey.$invalid}" ng-show="formAddTag.tagkey.$invalid">
+                    <p ng-class="{'text-danger': formAddTag.tagkey.$invalid}" ng-show="newTag.val && formAddTag.tagkey.$invalid">
                       {{ 'COMPONENTS.FORM_ERRORS.TAG_KEY' | translate }}
                     </p>
                   </div>

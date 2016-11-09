@@ -37,9 +37,12 @@ public class UpdateNodeDeploymentArtifactProcessor implements IEditorOperationPr
             // this is an archive file, ensure that the file exists within the archive
             FileProcessorHelper.getFileTreeNode(operation.getArtifactReference());
             artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY);
+            artifact.setRepositoryName(null);
+            artifact.setRepositoryURL(null);
         } else {
-            // FIXME ensure that the repository is defined in the topology or globally in a4c
-            throw new NotImplementedException("Alien 4 Cloud doesn't support repositories in topology editor.");
+            artifact.setArtifactRepository(operation.getArtifactRepository());
+            artifact.setRepositoryName(operation.getRepositoryName());
+            artifact.setRepositoryURL(operation.getRepositoryUrl());
         }
         artifact.setArtifactRef(operation.getArtifactReference());
     }

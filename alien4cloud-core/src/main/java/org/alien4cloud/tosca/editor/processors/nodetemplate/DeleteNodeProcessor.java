@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;

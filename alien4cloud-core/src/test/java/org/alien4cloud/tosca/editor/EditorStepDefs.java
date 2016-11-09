@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
-import org.alien4cloud.tosca.catalog.index.ICsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ITopologyCatalogService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
@@ -48,9 +48,7 @@ import org.springframework.test.context.ContextConfiguration;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
-import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -60,10 +58,8 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.CSARSource;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
@@ -88,19 +84,11 @@ public class EditorStepDefs {
     @Inject
     private EditionContextManager editionContextManager;
     @Inject
-    private ICsarService csarService;
+    private CsarService csarService;
     @Inject
     private ITopologyCatalogService catalogService;
     @Inject
-    private WorkflowsBuilderService workflowBuilderService;
-    @Inject
-    private TopologyServiceCore topologyServiceCore;
-    @Inject
     private ApplicationService applicationService;
-    @Inject
-    private ApplicationVersionService applicationVersionService;
-    @Inject
-    private ApplicationEnvironmentService applicationEnvironmentService;
 
     private LinkedList<String> topologyIds = new LinkedList();
 
@@ -115,7 +103,6 @@ public class EditorStepDefs {
 
     private List<Class> typesToClean = Lists.newArrayList();
     public static final Path CSAR_TARGET_PATH = Paths.get("target/csars");
-
 
     public EditorStepDefs() {
         super();

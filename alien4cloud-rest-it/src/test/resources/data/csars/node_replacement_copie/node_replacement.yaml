@@ -1,0 +1,16 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: node_replacement_alt
+template_author: alien
+template_version: 0.1-SNAPSHOT
+description: Contains the normative types definition.
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+  - "node_replacement:0.1-SNAPSHOT"
+
+node_types:
+
+  alien.test.nodes.RockitJVM:
+    derived_from: alien.test.nodes.JVM
+

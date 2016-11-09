@@ -1,0 +1,120 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: node_replacement
+template_author: alien
+template_version: 0.1-SNAPSHOT
+description: Contains the normative types definition.
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+node_types:
+
+  alien.test.nodes.JVM:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    capabilities:
+      jvm:
+        type: alien.test.capabilities.JVMEndpoint
+         
+  alien.test.nodes.ApplicationServer:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    requirements:
+      - jvm: alien.test.capabilities.JVMEndpoint
+        type: alien.test.relationships.DependsOnJVM
+        occurrences: [1, 1]      
+    capabilities:
+      app_server:
+        type: alien.test.capabilities.AppServer
+
+  alien.test.nodes.Application:
+    derived_from: tosca.nodes.Root
+    requirements:
+      - server: alien.test.capabilities.AppServer
+        type: alien.test.relationships.HostedOnAppServer
+        occurrences: [1, 1]      
+
+  alien.test.nodes.OracleJVM:
+    derived_from: alien.test.nodes.JVM
+
+  alien.test.nodes.Tomcat:
+    derived_from: alien.test.nodes.ApplicationServer
+
+  alien.test.nodes.JBoss:
+    derived_from: tosca.nodes.SoftwareComponent
+    requirements:
+      - jvm: alien.test.capabilities.JVMEndpoint
+        type: alien.test.relationships.DependsOnJVM
+        occurrences: [1, 1]      
+
+capability_types:
+  alien.test.capabilities.JVMEndpoint:
+    derived_from: tosca.capabilities.Node
+  alien.test.capabilities.AppServer:
+    derived_from: tosca.capabilities.Container
+
+relationship_types:
+  alien.test.relationships.DependsOnJVM:
+    derived_from: tosca.relationships.DependsOn
+  alien.test.relationships.HostedOnAppServer:
+    derived_from: tosca.relationships.HostedOn
+
+topology_template:
+  node_templates:
+    Compute_1:
+      type: tosca.nodes.Compute
+    Compute_2:
+      type: tosca.nodes.Compute
+    Compute_3:
+      type: tosca.nodes.Compute
+    Application_3:
+      type: alien.test.nodes.Application
+      requirements:
+        - server:
+            node: ApplicationServer_3
+            capability: alien.test.capabilities.AppServer
+            relationship: alien.test.relationships.HostedOnAppServer
+    ApplicationServer_3:
+      type: alien.test.nodes.ApplicationServer
+      requirements:
+        - jvm:
+            node: JVM_3
+            capability: alien.test.capabilities.JVMEndpoint
+            relationship: alien.test.relationships.DependsOnJVM
+        - host:
+            node: Compute_3
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    ApplicationServer_2:
+      type: alien.test.nodes.ApplicationServer
+      requirements:
+        - host:
+            node: Compute_2
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - jvm:
+            node: JVM_2
+            capability: alien.test.capabilities.JVMEndpoint
+            relationship: alien.test.relationships.DependsOnJVM
+    JVM_1:
+      type: alien.test.nodes.JVM
+      requirements:
+        - host:
+            node: Compute_1
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    JVM_3:
+      type: alien.test.nodes.JVM
+      requirements:
+        - host:
+            node: Compute_3
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    JVM_2:
+      type: alien.test.nodes.JVM
+      requirements:
+        - host:
+            node: Compute_2
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn    

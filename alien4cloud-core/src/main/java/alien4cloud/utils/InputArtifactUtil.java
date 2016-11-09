@@ -28,6 +28,9 @@ public class InputArtifactUtil {
     public static void setInputArtifact(DeploymentArtifact dArtifact, String artifactId) {
         dArtifact.setArtifactRef("{ " + INPUT_ARTIFACT_FN_NAME + ": " + artifactId + " }");
         dArtifact.setArtifactName(null);
+        dArtifact.setArtifactRepository(null);
+        dArtifact.setRepositoryName(null);
+        dArtifact.setRepositoryURL(null);
     }
 
     public static void unsetInputArtifact(DeploymentArtifact dArtifact) {

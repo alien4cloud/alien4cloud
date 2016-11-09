@@ -1,10 +1,11 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.plugin.aop.Overridable;
+import java.util.Map;
+
 import org.alien4cloud.tosca.model.templates.Topology;
 
-import java.util.Map;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.plugin.aop.Overridable;
 
 /**
  * Interface for the TopologyCatalogService to allow jdk dynamic proxy.

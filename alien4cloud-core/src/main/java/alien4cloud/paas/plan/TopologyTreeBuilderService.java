@@ -1,17 +1,36 @@
 package alien4cloud.paas.plan;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.definitions.*;
-import org.alien4cloud.tosca.model.templates.*;
-import org.alien4cloud.tosca.model.types.*;
+import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.OperationOutput;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.ScalingPolicy;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -34,7 +53,11 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.normative.*;
+import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
+import alien4cloud.tosca.normative.NormativeComputeConstants;
+import alien4cloud.tosca.normative.NormativeNetworkConstants;
+import alien4cloud.tosca.normative.NormativeRelationshipConstants;
+import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.TypeMap;
 import lombok.SneakyThrows;
@@ -49,7 +72,7 @@ public class TopologyTreeBuilderService {
     @Resource
     private CsarFileRepository repository;
     @Resource
-    private IToscaTypeSearchService csarSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplates(Topology topology) {
         // cache IndexedToscaElements, CloudServiceArchive and ToscaElements to limit queries.
@@ -304,7 +327,7 @@ public class TopologyTreeBuilderService {
     public <V extends AbstractInheritableToscaType> V getToscaType(String type, TypeMap typeMap, Set<CSARDependency> dependencies, Class<V> clazz) {
         V indexedToscaElement = typeMap.get(clazz, type);
         if (indexedToscaElement == null) {
-            indexedToscaElement = csarSearchService.getElementInDependencies(clazz, type, dependencies);
+            indexedToscaElement = toscaTypeSearchService.getElementInDependencies(clazz, type, dependencies);
             if (indexedToscaElement == null) {
                 throw new NotFoundException("Type <" + type + "> required in the topology cannot be found in the repository.");
             }

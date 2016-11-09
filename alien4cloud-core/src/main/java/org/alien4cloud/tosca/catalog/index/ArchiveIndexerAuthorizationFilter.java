@@ -11,6 +11,12 @@ import alien4cloud.tosca.model.ArchiveRoot;
  */
 @Component
 public class ArchiveIndexerAuthorizationFilter implements IArchiveIndexerAuthorizationFilter {
+
+    @Override
+    public void preCheckAuthorization(String workspace) {
+        AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT, Role.COMPONENTS_MANAGER, Role.ADMIN);
+    }
+
     @Override
     public void checkAuthorization(ArchiveRoot archiveRoot) {
         if (archiveRoot.hasToscaTopologyTemplate()) {

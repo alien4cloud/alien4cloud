@@ -126,13 +126,21 @@ a.accordion-toggle[ng-click] {
 .facet-category {
   border-top: 1px solid #ddd;
   font-weight: 500;
+  font-style: italic;
+  color: gray;
   margin-top: 10px;
   padding-bottom: 5px;
   padding-left: 5px;
   padding-top: 10px;
 }
 
-.facet-category:hover {
+.facet-category-active {
+  color: inherit;
+  font-style: normal;
+  cursor: pointer;
+}
+
+.facet-category-active:hover{
   background-color: whitesmoke;
 }
 
@@ -364,6 +372,15 @@ img.icon_32 {
 
 .resizable-bar {
   cursor: col-resize;
+  z-index: 10;
+}
+
+.splitter-icon {
+  height: 20px;
+  position: absolute;
+  top: 50%;
+  // left: 0%;
+  right: 0%;
 }
 
 .alien-table-row {

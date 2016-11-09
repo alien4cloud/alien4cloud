@@ -16,6 +16,7 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
+@Deprecated
 public abstract class ArtifactParser<T extends AbstractArtifact> implements INodeParser<T> {
     @Resource
     private ScalarParser scalarParser;

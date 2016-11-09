@@ -15,6 +15,8 @@ import alien4cloud.paas.exception.NotSupportedException;
 public class ToscaPropertySerializerUtils {
 
     private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[,:\\[\\]\\{\\}-].*");
+    private static Pattern VALID_YAML_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
+
 
     public static String indent(int indentLevel) {
         StringBuilder buffer = new StringBuilder();
@@ -40,7 +42,12 @@ public class ToscaPropertySerializerUtils {
             }
             return formattedTextBuffer.toString();
         } else {
-            return text == null ? "" : text;
+            if (text == null) {
+                text = "";
+            } else if (!VALID_YAML_PATTERN.matcher(text).matches()) {
+                text = "\"" + text + "\"";
+            }
+            return text;
         }
     }
 

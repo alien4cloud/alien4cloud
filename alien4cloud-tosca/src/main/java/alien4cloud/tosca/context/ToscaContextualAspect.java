@@ -3,7 +3,8 @@ package alien4cloud.tosca.context;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -12,8 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.templates.Topology;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This aspect executes for ToscaContextual methods and ensure that a ToscaContext is defined (or creates one if not).
@@ -36,7 +36,6 @@ public class ToscaContextualAspect {
         }
         try {
             // try to find dependencies from parameters
-            joinPoint.getArgs();
             if (initContext) {
                 Set<CSARDependency> dependencies = findDependencies(joinPoint.getArgs());
                 log.debug("Initializing Tosca Context with dependencies {}", dependencies);

@@ -3,12 +3,18 @@ package alien4cloud.rest.topology;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.repository.model.AvailableTopologyRepositories;
+import alien4cloud.repository.model.AvailableTopologyRepository;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.EditorService;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +32,9 @@ import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.TopologyValidationService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -81,4 +90,5 @@ public class TopologyController {
         TopologyValidationResult dto = topologyValidationService.validateTopology(topology);
         return RestResponseBuilder.<TopologyValidationResult> builder().data(dto).build();
     }
+
 }

@@ -22,6 +22,8 @@ define(function (require) {
   require('scripts/applications/controllers/topology_runtime');
   require('scripts/applications/controllers/application_runtime');
 
+  require('scripts/layout/resource_layout');
+
   states.state('applications.detail', {
     url: '/details/:id',
     resolve: {
@@ -76,48 +78,58 @@ define(function (require) {
 
   // definition of the parent controller and scope for application management.
   modules.get('a4c-applications').controller('ApplicationCtrl',
-    ['$rootScope', '$scope', 'menu', 'authService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor', 'toscaService', '$translate', 'toaster',
-    function($rootScope, $scope, menu, authService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
+    ['$controller','$rootScope', '$scope', 'menu', 'authService', 'resourceLayoutService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor', 'toscaService', '$translate', 'toaster',
+    function($controller, $rootScope, $scope, menu, authService, resourceLayoutService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
       environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor, toscaService, $translate, toaster) {
 
       var application = applicationResult.data;
       $scope.application = application;
 
-      /** ROLES MANAGEMENT */
-      var runtimeMenuItem;
-      var deploymentMenuItem;
-      _.each(menu, function(menuItem) {
-        if(menuItem.id === 'am.applications.detail.runtime') {
-          runtimeMenuItem = menuItem;
-        }
-        if(menuItem.id === 'am.applications.detail.deployment') {
-          deploymentMenuItem = menuItem;
-        }
-        if(_.has(menuItem, 'roles')) {
-          menuItem.show = authService.hasResourceRoleIn(application, menuItem.roles);
-        } else { // if there is no roles requirement then the menu is visible
-          menuItem.show = true;
-        }
-      });
-      $scope.menu = menu;
+      $controller('ResourceLayoutCtrl', {$scope: $scope, menu: menu, resourceLayoutService: resourceLayoutService, resource: application});
+
+      /**
+      The application controller manages two UI Roles that are injected based on selected environment and runtime status
+       - APPLICATION_DEPLOYER if the user has deployment role on the selected environment
+      */
 
       // Application rights
       var isManager = authService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
       // Application environment rights. Manager has right anyway, for other users we check all environments (see below)
+      var runtimeMenuItem;
       var isDeployer = isManager;
+      _.each(menu, function(menuItem) {
+        if(menuItem.id === 'am.applications.detail.runtime') {
+          runtimeMenuItem = menuItem;
+        }
+      });
 
       /** RUNTIME UPDATES MANAGEMENT */
       function updateRuntimeDisabled() {
-        // get newest environments statuses
+        // get newest environments status
         var disabled = true;
         for (var i = 0; i < appEnvironments.environments.length && disabled; i++) {
           if (!(appEnvironments.environments[i].status === 'UNDEPLOYED' || appEnvironments.environments[i].status === 'UNKNOWN')) {
             disabled = false;
           }
         }
-        deploymentMenuItem.show = isDeployer;
-        runtimeMenuItem.show = isDeployer;
         runtimeMenuItem.disabled = disabled;
+      }
+
+      function onDeployerChanged() {
+        var deployerRoleIndex = _.indexOf(application.userRoles[authService.currentStatus.data.username], 'APPLICATION_DEPLOYER');
+        if(isDeployer) {
+          if(deployerRoleIndex === -1) {
+            application.userRoles[authService.currentStatus.data.username].push('APPLICATION_DEPLOYER');
+          }
+        } else {
+          if(deployerRoleIndex !== -1) {
+            application.userRoles[authService.currentStatus.data.username].splice(deployerRoleIndex, 1);
+          }
+        }
+
+        updateRuntimeDisabled();
+
+        $scope.updateMenu();
       }
 
       function displayDeploymentStatusToaster(environment) {
@@ -144,7 +156,7 @@ define(function (require) {
         }
       }
 
-      var callback = function(environment, event) {
+      var deploymentStatusCallback = function(environment, event) {
         environment.status = event.deploymentStatus;
         displayDeploymentStatusToaster(environment);
         updateRuntimeDisabled();
@@ -153,8 +165,13 @@ define(function (require) {
       };
 
       /** ENVIRONMENTS MANAGEMENT */
+      // list of environments for which the user is a deployer
+      appEnvironments.deployEnvironments = [];
+      // registrations for environment events
+      appEnvironments.eventRegistrations = [];
+
       function registerEnvironment(environment) {
-        var registration = environmentEventServicesFactory(application.id, environment, callback);
+        var registration = environmentEventServicesFactory(application.id, environment, deploymentStatusCallback);
         appEnvironments.eventRegistrations.push(registration);
         var isEnvDeployer = authService.hasResourceRole(environment, 'DEPLOYMENT_MANAGER');
         if (isManager || isEnvDeployer) {
@@ -163,31 +180,18 @@ define(function (require) {
         isDeployer = isDeployer || isEnvDeployer;
       }
 
-      appEnvironments.deployEnvironments = [];
-      appEnvironments.eventRegistrations = [];
       appEnvironments.removeEnvironment = function(environmentId) {
-        var envIndex = null,
-          i;
-        for (i = 0; i < appEnvironments.environments.length && envIndex === null; i++) {
-          if (appEnvironments.environments[i].id === environmentId) {
-            envIndex = i;
-          }
-        }
-        if (envIndex !== null) {
+        var envIndex = _.findIndex(appEnvironments.environments, 'id', environmentId);
+        if (envIndex !== -1) { // remove the environment
+          appEnvironments.eventRegistrations[envIndex].close(); // close registration
           appEnvironments.environments.splice(envIndex, 1);
           appEnvironments.eventRegistrations.splice(envIndex, 1);
         }
         // eventually remove the environment from deployable environments
-        envIndex = null;
-        for (i = 0; i < appEnvironments.deployEnvironments.length && envIndex === null; i++) {
-          if (appEnvironments.deployEnvironments[i].id === environmentId) {
-            envIndex = i;
-          }
-        }
-        if (envIndex !== null) {
+        envIndex = _.findIndex(appEnvironments.deployEnvironments, 'id', environmentId);
+        if (envIndex !== -1) {
           appEnvironments.deployEnvironments.splice(envIndex, 1);
         }
-
         //eventually if it was the seleted one, then select another one
         if(appEnvironments.selected.id === environmentId){
           appEnvironments.selected = null;
@@ -195,36 +199,34 @@ define(function (require) {
             appEnvironments.select(appEnvironments.environments[0].id);
           }
         }
+        // user may not be deployer anymore
+        var isDeployer = isManager;
+        var i=0;
+        while(!isDeployer && i < appEnvironments.environments.length) {
+          isDeployer = authService.hasResourceRole(appEnvironments.environments[i], 'DEPLOYMENT_MANAGER');
+          i++;
+        }
+        onDeployerChanged();
       };
 
       appEnvironments.addEnvironment = function(environment) {
         appEnvironments.environments.push(environment);
         registerEnvironment(environment);
-        updateRuntimeDisabled();
+        onDeployerChanged();
       };
 
       appEnvironments.updateEnvironment = function(environment) {
         // replace the environment with the one given as a parameter.
-        var envIndex = null;
-        for (i = 0; i < appEnvironments.environments.length && envIndex === null; i++) {
-          if (appEnvironments.environments[i].id === environment.id) {
-            envIndex = i;
-          }
-        }
-        if (envIndex !== null) {
+        var envIndex = _.findIndex(appEnvironments.environments, 'id', environment.id);
+        if (envIndex !== -1) { // note registration does not change
           appEnvironments.environments.splice(envIndex, 1, environment);
         }
-        envIndex = null;
-        for (i = 0; i < appEnvironments.deployEnvironments.length && envIndex === null; i++) {
-          if (appEnvironments.deployEnvironments[i].id === environment.id) {
-            envIndex = i;
-          }
-        }
-        if (envIndex !== null) {
+        envIndex = _.findIndex(appEnvironments.deployEnvironments, 'id', environment.id);
+        if (envIndex !== -1) {
           appEnvironments.deployEnvironments.splice(envIndex, 1, environment);
         }
       };
-      //
+
       appEnvironments.select = function(environmentId, envChangedCallback, force) {
         if(_.defined(appEnvironments.selected)){
           if(appEnvironments.selected.id === environmentId && !force) {
@@ -246,15 +248,9 @@ define(function (require) {
       // for every environement register for deployment status update for enrichment.
       for (var i = 0; i < appEnvironments.environments.length; i++) {
         var environment = appEnvironments.environments[i];
-        var registration = environmentEventServicesFactory(application.id, environment, callback);
-        appEnvironments.eventRegistrations.push(registration);
-        var isEnvDeployer = authService.hasResourceRole(environment, 'DEPLOYMENT_MANAGER');
-        if (isManager || isEnvDeployer) {
-          appEnvironments.deployEnvironments.push(environment);
-        }
-        isDeployer = isDeployer || isEnvDeployer;
+        registerEnvironment(environment);
       }
-      updateRuntimeDisabled();
+      onDeployerChanged();
       // get environments
       $scope.envs = appEnvironments.environments;
 
@@ -264,13 +260,6 @@ define(function (require) {
           appEnvironments.eventRegistrations[i].close();
         }
       });
-
-      $scope.onItemClick = function($event, menuItem) {
-        if (menuItem.disabled) {
-          $event.preventDefault();
-          $event.stopPropagation();
-        }
-      };
 
       $scope.isMapEmpty = _.isNotEmpty;
 

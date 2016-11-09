@@ -20,7 +20,12 @@ import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.google.common.collect.Lists;
@@ -47,10 +52,7 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.ApplicationEnvironmentRole;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
@@ -74,13 +76,9 @@ public class RuntimeController {
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Inject
-    private IToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Resource
     private ConstraintPropertyService constraintPropertyService;
-    @Resource
-    private TopologyService topologyService;
-    @Resource
-    private TopologyServiceCore topologyServiceCore;
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
     @Inject
@@ -102,9 +100,7 @@ public class RuntimeController {
         Application application = applicationService.getOrFail(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId,
                 operationRequest.getApplicationEnvironmentId());
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
 
         Topology topology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(operationRequest.getApplicationEnvironmentId());
         // validate the operation request
@@ -166,15 +162,13 @@ public class RuntimeController {
             @ApiParam(value = "Id of the application for which to get deployed topology.", required = true) @PathVariable String applicationId,
             @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String applicationEnvironmentId) {
 
-        Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         if (!environment.getApplicationId().equals(applicationId)) {
             throw new NotFoundException("Unable to find environment with id <" + applicationEnvironmentId + "> for application <" + applicationId + ">");
         }
         // Security check user must be authorized to deploy the environment (or be application manager)
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(applicationService.getOrFail(applicationId), environment);
+
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(environment.getId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTOBuilder.buidTopologyDTO(deploymentTopology)).build();
@@ -183,7 +177,7 @@ public class RuntimeController {
     private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {
         NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operationRequest.getNodeTemplateName(),
                 TopologyServiceCore.getNodeTemplates(topology));
-        NodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
+        NodeType indexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
 
         Map<String, Interface> interfaces = IndexedModelUtils.mergeInterfaces(indexedNodeType.getInterfaces(), nodeTemplate.getInterfaces());
 
@@ -248,9 +242,7 @@ public class RuntimeController {
     public RestResponse<Map<String, NodeTemplate>> getNonNativesNodes(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.getOrFail(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
 
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(environment.getId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());

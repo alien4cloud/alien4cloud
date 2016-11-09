@@ -36,6 +36,16 @@ public class EditorRepositoryService {
     }
 
     /**
+     * Update the archive zip from expended content.
+     * 
+     * @param archiveName The name of the archive to update.
+     * @param archiveVersion The version of the archive to update.
+     */
+    public void updateArchiveZip(String archiveName, String archiveVersion) {
+        csarRepositry.updateFromExpanded(archiveName, archiveVersion);
+    }
+
+    /**
      * Create a local git repository for the given topology.
      *
      * @param csar The archive for which to ensure the git repository is initialized.
@@ -134,5 +144,10 @@ public class EditorRepositoryService {
     public void pull(Csar csar, String username, String password, String remoteBranch) {
         Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         RepositoryManager.pull(archiveGitPath, username, password, remoteBranch);
+    }
+
+    public void clean(Csar csar) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+        RepositoryManager.clean(archiveGitPath);
     }
 }

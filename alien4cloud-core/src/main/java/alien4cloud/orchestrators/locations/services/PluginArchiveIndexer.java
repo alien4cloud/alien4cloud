@@ -1,13 +1,16 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
-import org.alien4cloud.tosca.catalog.index.ICsarService;
-import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -55,15 +58,13 @@ public class PluginArchiveIndexer {
     @Inject
     private OrchestratorPluginService orchestratorPluginService;
     @Inject
-    private ICsarService csarService;
+    private CsarService csarService;
     @Inject
     private ArchiveIndexer archiveIndexer;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
     private ApplicationContext applicationContext;
-    @Inject
-    private IToscaTypeIndexerService csarRepositoryIndexerService;
 
     /**
      * Ensure that location archives are indexed.

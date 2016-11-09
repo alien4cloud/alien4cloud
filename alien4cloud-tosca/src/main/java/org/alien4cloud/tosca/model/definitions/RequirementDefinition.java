@@ -28,12 +28,15 @@ public class RequirementDefinition implements LowerBoundedDefinition, UpperBound
      * Identifies the type of the requirement.
      * </p>
      * <p>
-     * This must be a qualified name: Either namespace:type, either type only if the {@link capability type} is defined in the same namespace as the
+     * This must be a qualified name: Either namespace:type, either type only if the {@link CapabilityType} is defined in the same namespace as the
      * {@link RequirementDefinition definition}.
      * </p>
      */
     @FormSuggestion(fromClass = CapabilityType.class, path = "elementId")
     private String type;
+    /** Restriction to the node type that can fullfill the requirement. */
+    private String nodeType;
+
     private String description;
     /** Specifies the default relationship type to be used for the relationship. This can be overriden by user but should be used as default. */
     private String relationshipType;
@@ -55,6 +58,11 @@ public class RequirementDefinition implements LowerBoundedDefinition, UpperBound
     @ObjectField(enabled = false)
     /** Constraints to specify on the target capability or node's properties. */
     private NodeFilter nodeFilter;
+
+    /** Constructor for single line parsing definition based on type. */
+    public RequirementDefinition(String type) {
+        this.type = type;
+    }
 
     /**
      * Quick constructor to create a requirement definition from id and type.

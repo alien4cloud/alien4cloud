@@ -102,6 +102,11 @@ public class RepositoryService {
         return null;
     }
 
+    public String getRepositoryUrl(Repository repository) {
+        IConfigurableArtifactResolver resolver = registeredResolvers.get(repository.getId());
+        return resolver.getConfigurationUrl();
+    }
+
     public boolean canResolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials) {
         for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
             ValidationResult validationResult = configurableArtifactResolver.canHandleArtifact(artifactReference, repositoryURL, repositoryType, credentials);

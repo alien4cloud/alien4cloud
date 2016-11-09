@@ -14,6 +14,13 @@ define(function (require) {
       $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10, false);
       $scope.searchService.filtered(true);
       
+      //watch the bound data
+      $scope.$watch('refresh', function (refreshData) {
+        if (refreshData) {
+          $scope.doSearch(true);
+        }
+      });
+      
       var badges = $scope.badges || [];
       // abstract badge is always displayed
       badges.push({

@@ -36,6 +36,9 @@ define(function (require) {
           /* Handle properties inputs */
           $scope.updateInputValue = function (definition, inputValue, inputId) {
             // No update if it's the same value
+            if(_.get($scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId], 'value') === inputValue){
+              return;
+            }
             var updatedProperties = {};
             updatedProperties[inputId] = inputValue;
             return deploymentTopologyServices.updateInputProperties({

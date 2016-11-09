@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
-import org.alien4cloud.tosca.catalog.index.ICsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
@@ -25,26 +25,16 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.ReleaseReferencingSnapshotException;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 
 public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
-
     @Resource(name = "alien-es-dao")
     protected IGenericSearchDAO alienDAO;
-
-    @Inject
-    private TopologyServiceCore topologyServiceCore;
-
-    @Inject
-    private WorkflowsBuilderService workflowBuilderService;
-
     @Inject
     private ArchiveIndexer archiveIndexer;
     @Inject
-    private ICsarService csarService;
+    private CsarService csarService;
 
     protected abstract V buildVersionImplem();
 

@@ -22,7 +22,7 @@ public class SubstitutionMappingPostProcessor implements IPostProcessor<Substitu
             // no substitution mapping.
             return;
         }
-        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getSubstitutionType().getElementId(), NodeType.class));
+        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getSubstitutionType(), instance.getSubstitutionType().getElementId(), NodeType.class));
         NodeType nodeType = ToscaContext.get(NodeType.class, instance.getSubstitutionType().getElementId());
         instance.setSubstitutionType(nodeType);
 

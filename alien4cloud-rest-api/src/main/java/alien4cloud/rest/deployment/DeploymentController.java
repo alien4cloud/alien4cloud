@@ -9,14 +9,17 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.google.common.collect.Maps;
@@ -55,8 +58,6 @@ public class DeploymentController {
     private DeploymentService deploymentService;
     @Resource
     private ApplicationService applicationService;
-    @Resource
-    private ICsarService csarService;
     @Inject
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject

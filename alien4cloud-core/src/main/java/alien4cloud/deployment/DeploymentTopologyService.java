@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -52,6 +52,7 @@ import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintTechnicalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -269,33 +270,41 @@ public class DeploymentTopologyService {
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
+        try {
+            ToscaContext.init(deploymentTopology.getDependencies());
         // It is not allowed to override a value from an original node or from a location resource.
-        NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
-        if (substitutedNode == null) {
-            throw new NotFoundException(
-                    "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
-        }
-        String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
-        if (substitutionId == null) {
-            throw new NotFoundException("The node <" + nodeTemplateId + "> from deployment topology <" + deploymentTopology.getId() + "> is not substituted");
-        }
-        LocationResourceTemplate locationResourceTemplate = deploymentConfiguration.getAvailableSubstitutions().getSubstitutionsTemplates().get(substitutionId);
-        PropertyDefinition propertyDefinition = deploymentConfiguration.getAvailableSubstitutions().getSubstitutionTypes().getNodeTypes()
-                .get(locationResourceTemplate.getTemplate().getType()).getProperties().get(propertyName);
-        if (propertyDefinition == null) {
-            throw new NotFoundException("No property of name <" + propertyName + "> can be found on the node template <" + nodeTemplateId + "> of type <"
-                    + locationResourceTemplate.getTemplate().getType() + ">");
-        }
+            NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
+            if (substitutedNode == null) {
+                throw new NotFoundException(
+                        "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
+            }
+            String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
+            if (substitutionId == null) {
+                throw new NotFoundException(
+                        "The node <" + nodeTemplateId + "> from deployment topology <" + deploymentTopology.getId() + "> is not substituted");
+            }
+            LocationResourceTemplate locationResourceTemplate = deploymentConfiguration.getAvailableSubstitutions().getSubstitutionsTemplates()
+                    .get(substitutionId);
+            PropertyDefinition propertyDefinition = deploymentConfiguration.getAvailableSubstitutions().getSubstitutionTypes().getNodeTypes()
+                    .get(locationResourceTemplate.getTemplate().getType()).getProperties().get(propertyName);
+            if (propertyDefinition == null) {
+                throw new NotFoundException("No property of name <" + propertyName + "> can be found on the node template <" + nodeTemplateId + "> of type <"
+                        + locationResourceTemplate.getTemplate().getType() + ">");
+            }
 
-        AbstractPropertyValue locationResourcePropertyValue = locationResourceTemplate.getTemplate().getProperties().get(propertyName);
-        buildConstaintException(locationResourcePropertyValue, propertyDefinition, "by the admin in the Location Resource Template", propertyName,
-                propertyValue);
-        NodeTemplate originalNode = deploymentTopology.getOriginalNodes().get(nodeTemplateId);
-        buildConstaintException(originalNode.getProperties().get(propertyName), propertyDefinition, "in the portable topology", propertyName, propertyValue);
+            AbstractPropertyValue locationResourcePropertyValue = locationResourceTemplate.getTemplate().getProperties().get(propertyName);
+            buildConstaintException(locationResourcePropertyValue, propertyDefinition, "by the admin in the Location Resource Template", propertyName,
+                    propertyValue);
+            NodeTemplate originalNode = deploymentTopology.getOriginalNodes().get(nodeTemplateId);
+            buildConstaintException(originalNode.getProperties().get(propertyName), propertyDefinition, "in the portable topology", propertyName,
+                    propertyValue);
 
-        // Set the value and check constraints
-        propertyService.setPropertyValue(substitutedNode, propertyDefinition, propertyName, propertyValue);
-        alienDAO.save(deploymentTopology);
+            // Set the value and check constraints
+            propertyService.setPropertyValue(substitutedNode, propertyDefinition, propertyName, propertyValue);
+            alienDAO.save(deploymentTopology);
+        } finally {
+            ToscaContext.destroy();
+        }
     }
 
     public void updateCapabilityProperty(String environmentId, String nodeTemplateId, String capabilityName, String propertyName, Object propertyValue)
@@ -303,42 +312,49 @@ public class DeploymentTopologyService {
         DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
 
-        // It is not allowed to override a value from an original node or from a location resource.
-        NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
-        if (substitutedNode == null) {
-            throw new NotFoundException(
-                    "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
-        }
-        String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
-        if (substitutionId == null) {
-            throw new NotFoundException("The node <" + nodeTemplateId + "> from deployment topology <" + deploymentTopology.getId() + "> is not substituted");
-        }
+        try {
+            ToscaContext.init(deploymentTopology.getDependencies());
+            // It is not allowed to override a value from an original node or from a location resource.
+            NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
+            if (substitutedNode == null) {
+                throw new NotFoundException(
+                        "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
+            }
+            String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
+            if (substitutionId == null) {
+                throw new NotFoundException(
+                        "The node <" + nodeTemplateId + "> from deployment topology <" + deploymentTopology.getId() + "> is not substituted");
+            }
 
-        LocationResourceTemplate locationResourceTemplate = deploymentConfiguration.getAvailableSubstitutions().getSubstitutionsTemplates().get(substitutionId);
-        Capability locationResourceCapability = locationResourceTemplate.getTemplate().getCapabilities().get(capabilityName);
-        if (locationResourceCapability == null) {
-            throw new NotFoundException("The capability <" + capabilityName + "> cannot be found on node template <" + nodeTemplateId + "> of type <"
-                    + locationResourceTemplate.getTemplate().getType() + ">");
-        }
-        CapabilityType capabilityType = deploymentConfiguration.getAvailableSubstitutions().getSubstitutionTypes().getCapabilityTypes()
-                .get(locationResourceCapability.getType());
-        PropertyDefinition propertyDefinition = capabilityType.getProperties().get(propertyName);
-        if (propertyDefinition == null) {
-            throw new NotFoundException("No property with name <" + propertyName + "> can be found on capability <" + capabilityName + "> of type <"
-                    + locationResourceCapability.getType() + ">");
-        }
+            LocationResourceTemplate locationResourceTemplate = deploymentConfiguration.getAvailableSubstitutions().getSubstitutionsTemplates()
+                    .get(substitutionId);
+            Capability locationResourceCapability = locationResourceTemplate.getTemplate().getCapabilities().get(capabilityName);
+            if (locationResourceCapability == null) {
+                throw new NotFoundException("The capability <" + capabilityName + "> cannot be found on node template <" + nodeTemplateId + "> of type <"
+                        + locationResourceTemplate.getTemplate().getType() + ">");
+            }
+            CapabilityType capabilityType = deploymentConfiguration.getAvailableSubstitutions().getSubstitutionTypes().getCapabilityTypes()
+                    .get(locationResourceCapability.getType());
+            PropertyDefinition propertyDefinition = capabilityType.getProperties().get(propertyName);
+            if (propertyDefinition == null) {
+                throw new NotFoundException("No property with name <" + propertyName + "> can be found on capability <" + capabilityName + "> of type <"
+                        + locationResourceCapability.getType() + ">");
+            }
 
-        AbstractPropertyValue locationResourcePropertyValue = locationResourceTemplate.getTemplate().getCapabilities().get(capabilityName).getProperties()
-                .get(propertyName);
-        buildConstaintException(locationResourcePropertyValue, propertyDefinition, "by the admin in the Location Resource Template", propertyName,
-                propertyValue);
-        AbstractPropertyValue originalNodePropertyValue = deploymentTopology.getOriginalNodes().get(nodeTemplateId).getCapabilities().get(capabilityName)
-                .getProperties().get(propertyName);
-        buildConstaintException(originalNodePropertyValue, propertyDefinition, "in the portable topology", propertyName, propertyValue);
+            AbstractPropertyValue locationResourcePropertyValue = locationResourceTemplate.getTemplate().getCapabilities().get(capabilityName).getProperties()
+                    .get(propertyName);
+            buildConstaintException(locationResourcePropertyValue, propertyDefinition, "by the admin in the Location Resource Template", propertyName,
+                    propertyValue);
+            AbstractPropertyValue originalNodePropertyValue = deploymentTopology.getOriginalNodes().get(nodeTemplateId).getCapabilities().get(capabilityName)
+                    .getProperties().get(propertyName);
+            buildConstaintException(originalNodePropertyValue, propertyDefinition, "in the portable topology", propertyName, propertyValue);
 
-        // Set the value and check constraints
-        propertyService.setCapabilityPropertyValue(substitutedNode.getCapabilities().get(capabilityName), propertyDefinition, propertyName, propertyValue);
-        alienDAO.save(deploymentTopology);
+            // Set the value and check constraints
+            propertyService.setCapabilityPropertyValue(substitutedNode.getCapabilities().get(capabilityName), propertyDefinition, propertyName, propertyValue);
+            alienDAO.save(deploymentTopology);
+        } finally {
+            ToscaContext.destroy();
+        }
     }
 
     /**

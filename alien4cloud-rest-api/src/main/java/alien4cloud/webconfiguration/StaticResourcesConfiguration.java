@@ -7,16 +7,13 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.exception.InitializationException;
-import alien4cloud.exception.NotFoundException;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
 
-import org.alien4cloud.tosca.editor.EditorService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
-import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -24,8 +21,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.resource.ResourceResolver;
 import org.springframework.web.servlet.resource.ResourceResolverChain;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
+import alien4cloud.exception.InitializationException;
+import alien4cloud.exception.NotFoundException;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
@@ -33,7 +32,10 @@ public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
     public final static String PLUGIN_STATIC_ENDPOINT = "/static/plugins/";
 
     @Setter
-    private EditorService editorService = null;
+    private ICsarAuthorizationFilter csarAuthorizationFilter = null;
+    @Setter
+    private CsarService csarService = null;
+
     @Value("${directories.alien}/${directories.csar_repository}/")
     private String toscaRepo;
     @Value("${directories.alien}/work/plugins/ui/")
@@ -48,7 +50,8 @@ public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
 
         log.info("Serving {} as tosca repo content.", absToscaRepo);
         log.info("Serving {} as plugin ui content.", absPluginUi);
-        registry.addResourceHandler("/static/tosca/{csarId:.+}/**").addResourceLocations(absToscaRepo).resourceChain(false)
+
+        registry.addResourceHandler("/static/tosca/{csarName:.+}/{csarVersion:.+}/**").addResourceLocations(absToscaRepo).resourceChain(false)
                 .addResolver(new ResourceResolver() {
                     @Override
                     public Resource resolveResource(HttpServletRequest request, String requestPath, List<? extends Resource> locations,
@@ -57,17 +60,16 @@ public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
                         // check security for the requested topology file.
                         ServletWebRequest webRequest = new ServletWebRequest(request);
                         Map uriTemplateVars = (Map) webRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, 0);
-                        String csarId = (String) uriTemplateVars.get("csarId");
-                        if (editorService == null) {
+                        String csarName = (String) uriTemplateVars.get("csarName");
+                        String csarVersion = (String) uriTemplateVars.get("csarVersion");
+                        if (csarAuthorizationFilter == null || csarService == null) {
                             // not initialized as master
                             throw new NotFoundException("Only master nodes can provide editor static resources.");
                         } else {
-                            // FIXME browser role is good enough
-                            editorService.checkAuthorization(csarId);
+                            csarAuthorizationFilter.checkReadAccess(csarService.getOrFail(csarName, csarVersion));
                         }
                         // let the usual resolving
-                        String[] splitted = csarId.split(":"); // id is name:version:workspace but it is stored as workspace/name/version
-                        return chain.resolveResource(request, splitted[0] + "/" + splitted[1] + "/" + requestPath, locations);
+                        return chain.resolveResource(request, csarName + "/" + csarVersion + "/" + requestPath, locations);
                     }
 
                     @Override

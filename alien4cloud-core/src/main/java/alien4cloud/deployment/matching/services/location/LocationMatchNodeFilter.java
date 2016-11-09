@@ -26,7 +26,7 @@ import lombok.Getter;
 @Component
 public class LocationMatchNodeFilter extends AbstractLocationMatchFilterWithElector {
     @Resource
-    private IToscaTypeSearchService csarSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Resource
     private OrchestratorService orchestratorService;
     @Inject
@@ -82,7 +82,7 @@ public class LocationMatchNodeFilter extends AbstractLocationMatchFilterWithElec
                 }
             }
 
-            T element = csarSearchService.getRequiredElementInDependencies(elementClass, elementId, topology.getDependencies());
+            T element = toscaTypeSearchService.getRequiredElementInDependencies(elementClass, elementId, topology.getDependencies());
             typeElements.put(elementId, element);
             return element;
         }

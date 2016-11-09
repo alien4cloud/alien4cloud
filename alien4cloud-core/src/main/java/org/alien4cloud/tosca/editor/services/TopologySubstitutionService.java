@@ -8,8 +8,8 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
-import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TopologySubstitutionService {
 
     @Resource
-    private ICsarService csarService;
+    private CsarService csarService;
     @Resource
     private IToscaTypeIndexerService indexerService;
     @Resource

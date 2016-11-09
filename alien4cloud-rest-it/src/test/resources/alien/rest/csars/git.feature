@@ -136,7 +136,7 @@ Feature: GIT repository usage
         | 1.0.0    |         |
      And I get the GIT repo with url "https://github.com/a"
     When I import the GIT repository
-    Then I should receive a RestResponse with an error code 615
+    Then I should receive a RestResponse with an error code 680
 
   @reset
   Scenario: Import a private csargit with wrong credentials
@@ -145,7 +145,7 @@ Feature: GIT repository usage
         | master   | mongoDB |
      And I get the GIT repo with url "https://fastconnect.org/gitlab/alien-tosca-recipes/recipes"
     When I import the GIT repository
-    Then I should receive a RestResponse with an error code 615
+    Then I should receive a RestResponse with an error code 680
 
   @reset
   Scenario: Import a CSAR from Gitlab

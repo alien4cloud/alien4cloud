@@ -8,21 +8,21 @@ import java.util.Objects;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.Node;
-
-import com.google.common.collect.Maps;
-
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.Node;
+
+import com.google.common.collect.Maps;
+
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -37,7 +37,9 @@ public class RelationshipPostProcessor {
     @Resource
     private PropertyValueChecker propertyValueChecker;
     @Resource
-    private ArtifactPostProcessor artifactPostProcessor;
+    private TemplateDeploymentArtifactPostProcessor templateDeploymentArtifactPostProcessor;
+    @Resource
+    private ImplementationArtifactPostProcessor implementationArtifactPostProcessor;
 
     public void process(NodeType nodeTemplateType, Map.Entry<String, RelationshipTemplate> instance) {
         RelationshipTemplate relationshipTemplate = instance.getValue();
@@ -61,7 +63,7 @@ public class RelationshipPostProcessor {
             // if the relationship type has not been defined on the requirement assignment it may be defined on the requirement definition.
             relationshipTemplate.setType(rd.getRelationshipType());
         }
-        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(relationshipTemplate.getType(), RelationshipType.class));
+        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(relationshipTemplate, relationshipTemplate.getType(), RelationshipType.class));
         relationshipTemplate.setRequirementType(rd.getType());
 
         ArchiveRoot archiveRoot = (ArchiveRoot) ParsingContextExecution.getRoot().getWrappedInstance();
@@ -112,7 +114,7 @@ public class RelationshipPostProcessor {
         relationshipTemplate.setAttributes(indexedRelationshipType.getAttributes());
 
         // FIXME we should check that the artifact is defined at the type level.
-        safe(instance.getValue().getArtifacts()).values().forEach(artifactPostProcessor);
+        safe(instance.getValue().getArtifacts()).values().forEach(templateDeploymentArtifactPostProcessor);
         Map<String, DeploymentArtifact> mergedArtifacts = instance.getValue().getArtifacts();
         if (mergedArtifacts == null) {
             mergedArtifacts = new HashMap<>();
@@ -123,7 +125,7 @@ public class RelationshipPostProcessor {
         // TODO Manage interfaces inputs to copy them to all operations.
         for (Interface anInterface : safe(instance.getValue().getInterfaces()).values()) {
             safe(anInterface.getOperations()).values().stream().map(Operation::getImplementationArtifact).filter(Objects::nonNull)
-                    .forEach(artifactPostProcessor);
+                    .forEach(implementationArtifactPostProcessor);
         }
     }
 

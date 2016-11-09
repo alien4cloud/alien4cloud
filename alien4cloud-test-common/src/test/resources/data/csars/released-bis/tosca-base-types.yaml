@@ -4,6 +4,10 @@ template_name: released-test
 template_version: 1.0
 template_author: Alien
 
+capability_types:
+  tosca.capabilities.Feature:
+    description: a capability type
+
 node_types:
   tosca.nodes.Root:
     abstract: true

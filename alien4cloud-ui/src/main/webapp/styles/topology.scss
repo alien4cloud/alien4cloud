@@ -25,6 +25,10 @@
   width: 100%;
 }
 
+.topology-padding-top {
+  padding-top: 20px;
+}
+
 .topology-column {
   display: table-cell;
   height: inherit;
@@ -238,12 +242,4 @@ h4 .editable-error {
 // info button column
 .topology-props-td-inf {
   width: 35px;
-}
-
-.splitter-icon {
-  height: 20px;
-  position: absolute;
-  top: 50%;
-  left: 0%;
-  right: 0%;
 }

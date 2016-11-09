@@ -6,7 +6,13 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +24,6 @@ import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
@@ -28,11 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class BlockStorageEventHandler extends DeploymentEventHandler {
-
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
-    @Resource
-    private TopologyServiceCore topologyServiceCore;
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
     @Resource

@@ -77,4 +77,8 @@ public class EditionContext {
         this.toscaContext = new ToscaContext.Context(topology.getDependencies());
         this.archiveContentTree = DirectoryJSonWalker.getDirectoryTree(this.localGitPath);
     }
+
+    public void refreshContentTree() throws IOException {
+        this.archiveContentTree = DirectoryJSonWalker.getDirectoryTree(this.localGitPath);
+    }
 }

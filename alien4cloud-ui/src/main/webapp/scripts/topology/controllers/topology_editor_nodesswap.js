@@ -19,11 +19,12 @@ define(function (require) {
 
         getPossibleReplacements: function() {
           var self = this;
+          self.scope.suggestedReplacements = [];
           nodeTemplateReplacementHelperResource.get({
             topologyId: self.scope.topology.topology.id,
             nodeTemplateName: self.scope.selectedNodeTemplate.name
           }, function(result) {
-            self.scope.currentInputCandidatesForCapabilityProperty = result.data;
+            self.scope.suggestedReplacements = result.data;
           });
         },
 

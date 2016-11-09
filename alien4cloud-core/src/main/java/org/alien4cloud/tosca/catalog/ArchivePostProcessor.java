@@ -9,9 +9,11 @@ import java.nio.file.Path;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingResult;
 
 @Component
-public class ArchivePostProcessor extends AbstractArchivePostProcessor {
+public class ArchivePostProcessor extends AbstractArchivePostProcessor implements IArchivePostProcessor {
 
     private abstract class AbstractArchivePathResolver implements ArchivePathChecker {
         @Override
@@ -75,4 +77,8 @@ public class ArchivePostProcessor extends AbstractArchivePostProcessor {
         }
     }
 
+    @Override
+    public ParsingResult<ArchiveRoot> process(Path archive, ParsingResult<ArchiveRoot> parsedArchive, String workspace) {
+        return doProcess(archive, parsedArchive, workspace);
+    }
 }

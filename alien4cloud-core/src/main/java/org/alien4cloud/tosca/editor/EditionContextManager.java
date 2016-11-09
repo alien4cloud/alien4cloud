@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.events.BeforeArchivePromoted;
-import org.alien4cloud.tosca.catalog.index.ICsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.model.Csar;
@@ -25,7 +25,6 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
 import alien4cloud.component.repository.IFileRepository;
-import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import lombok.SneakyThrows;
@@ -39,13 +38,10 @@ import lombok.extern.slf4j.Slf4j;
 public class EditionContextManager {
     /** Holds the topology context */
     private final static ThreadLocal<EditionContext> contextThreadLocal = new ThreadLocal<>();
-
     @Inject
-    private ICsarService csarService;
+    private CsarService csarService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
-    @Inject
-    private TopologyService topologyService;
     @Inject
     private EditorRepositoryService repositoryService;
     @Inject

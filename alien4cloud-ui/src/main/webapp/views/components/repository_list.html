@@ -11,6 +11,7 @@
                             page-size="10"
                             max-page-count="10"
                             filter-prefix="REPOSITORY."
+                            facet-id-converter="facetIdConverter"
                             on-search="onSearch(searchConfig)">
         </facet-search-panel>
     </div>
@@ -19,8 +20,8 @@
             <table class="table table-hover">
                 <thead>
                 <tr>
-                    <th>{{'REPOSITORY.NAME' | translate}}</th>
-                    <th>{{'REPOSITORY.TYPE' | translate}}</th>
+                    <th>{{'COMMON.NAME' | translate}}</th>
+                    <th>{{'COMMON.TYPE' | translate}}</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -45,7 +46,7 @@
         </div>
 
         <empty-place-holder
-                for="'REPOSITORY.TITLE'"
+                for="'NAVBAR.MENU_REPOSITORIES'"
                 data="searchConfig.result.data">
         </empty-place-holder>
 

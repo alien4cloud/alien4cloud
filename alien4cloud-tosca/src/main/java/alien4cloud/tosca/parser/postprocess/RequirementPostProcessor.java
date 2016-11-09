@@ -33,11 +33,11 @@ public class RequirementPostProcessor implements IPostProcessor<Map.Entry<String
         case "tosca_simple_yaml_1_0_0_wd03":
         case "alien_dsl_1_1_0":
         case "alien_dsl_1_2_0":
-            capabilityOrNodeReferencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getValue().getType()));
+            capabilityOrNodeReferencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance, instance.getValue().getType()));
             break;
         default:
             // In latest versions we process the capability only.
-            capabilityReferencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getValue().getType()));
+            capabilityReferencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance, instance.getValue().getType()));
             break;
         }
         CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, instance.getValue().getType());

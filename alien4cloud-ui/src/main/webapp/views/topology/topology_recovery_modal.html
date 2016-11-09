@@ -3,7 +3,7 @@
     <h3>{{'APPLICATIONS.TOPOLOGY.RECOVERY.TITLE' | translate}}</h3>
   </div>
   <div class="modal-body">
-    <div>
+    <div ng-if="!errors">
       {{'APPLICATIONS.TOPOLOGY.RECOVERY.DESCRIPTION' | translate}}
         <div class=" radio row">
           <div class="col-md-12">
@@ -37,9 +37,19 @@
           </div>
         </div>
     </div>
+    <div ng-if="errors">
+      <div class="alert alert-danger" role="alert">
+        <span>{{'APPLICATIONS.TOPOLOGY.RECOVERY.ERRORS_TITLE' | translate}}</span>
+      </div>
+      <ul>
+        <li ng-repeat="error in errors">
+          <span>{{'APPLICATIONS.TOPOLOGY.RECOVERY.ERRORS.' + error | translate}}</span>
+        </li>
+      </ul>
+    </div>
   </div>
   <div class="modal-footer">
-    <button id="btn-ok" class="btn btn-primary" ng-disabled="topologyRecoveryChoice.$invalid"
+    <button id="btn-ok" class="btn btn-primary" ng-disabled="topologyRecoveryChoice.$invalid"  ng-if="!errors"
       confirm-title="{{'CONFIRM' | translate }}"
       confirm="{{'CONFIRM_MESSAGE' | translate }}"
       confirm-placement="left"

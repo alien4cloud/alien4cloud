@@ -4,6 +4,8 @@ Feature: Create / Delete operations on application environment
     Given I am authenticated with "ADMIN" role
     And There are these users in the system
       | frodon |
+      | golum  |
+      | sauron |
     And I add a role "APPLICATIONS_MANAGER" to user "frodon"
     And I am authenticated with user named "frodon"
 
@@ -58,3 +60,23 @@ Feature: Create / Delete operations on application environment
     Then I should receive a RestResponse with no error
     When I delete the registered application environment named "watchmiddleearth-env-mock-3" from its id
     Then I should receive a RestResponse with no error
+    And I should receive a RestResponse with a boolean data "true"
+
+  @reset
+  Scenario: APPLICATION_MANAGER should be able to create/ delete an environment, others can't
+    Given I create a new application with name "watchmiddleearth" and description "..." without errors
+    And I add a role "APPLICATION_MANAGER" to user "golum" on the resource type "APPLICATION" named "watchmiddleearth"
+    And I add a role "APPLICATION_DEVOPS" to user "sauron" on the resource type "APPLICATION" named "watchmiddleearth"
+    And I am authenticated with user named "golum"
+    When I create an application environment of type "OTHER" with name "other" and description "" for the newly created application
+    Then I should receive a RestResponse with no error
+    When I am authenticated with user named "sauron"
+    And I create an application environment of type "OTHER" with name "SHOULD_FAIL" and description "" for the newly created application
+    Then I should receive a RestResponse with an error code 102
+    When I delete the registered application environment named "other" from its id
+    Then I should receive a RestResponse with an error code 102
+    When I am authenticated with user named "golum"
+    When I delete the registered application environment named "other" from its id
+    Then I should receive a RestResponse with no error
+
+

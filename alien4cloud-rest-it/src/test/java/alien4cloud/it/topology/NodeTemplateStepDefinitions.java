@@ -31,7 +31,7 @@ public class NodeTemplateStepDefinitions {
     public void I_ask_for_replacements_for_the_node(String nodeTemplateName) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().get("/rest/v1/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/replace"));
+                Context.getRestClientInstance().get("/rest/latest/editor/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/replacementhelper"));
     }
 
     @Then("^the possible replacements nodes types should be$")

@@ -105,11 +105,11 @@ define(function (require) {
           $scope.defaultFilters.workspace =  $scope.workspaces;
         }
       };
-      
+
       var refresh = function(selectedNodeTemplate) {
 
         $scope.initializeWorkspacesFilters();
-        
+
         if(_.undefined($scope.groupCollapsed)) { // we perform this only at init time.
           $scope.groupCollapsed = {};
           _.each($scope.topology.topology.groups, function(value, key) {
@@ -207,7 +207,7 @@ define(function (require) {
         addRelationship: function(sourceId, requirementName, requirementType, targetId, capabilityName, relationship) {
           if(_.defined(relationship)) {
             // generate relationship name
-            var name = toscaService.generateRelationshipName(relationship.elementId, targetId);
+            var name = toscaService.generateRelationshipName(relationship.elementId, targetId, capabilityName);
             // add the relationship
             $scope.relationships.doAddRelationship(sourceId, {
               name: name,

@@ -100,8 +100,12 @@
         "CHANGE_VERSION" : {
           "TITLE": "Change version",
           "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology."
+        },
+        "INCOMPATIBLE_VERSIONS": {
+          "TITLE": "Dependency version conflict",
+          "CONTENT": "The topology has already a dependency to the archive <{{archiveName}}> version <{{archiveVersion}}>. You can not use a component from the same archive with a different version. Please upgrade or downgrade the topology dependency if you want to use a different version."
         }
-      },      
+      },
       "DESC_TEMPLATE" : "Topology template description",
       "GROUPS" : {
         "ADD" : "Add a group",
@@ -123,6 +127,10 @@
       "PROPERTIES_OUTPUTS" : "Output properties",
       "RECOVERY": {
         "TITLE": "Topology recevory",
+        "ERRORS_TITLE": "There are errors which prevent the topology from being recovered",
+        "ERRORS": {
+          "RELEASED": "A SNAPSHOT dependency of your topology has changed, but your topology has been released and cannot be changed. The changes in a SNAPSHOT dependency may generate issues in your current topology, that Alien4Cloud won’t be able to handle. Current version of alien4cloud does not authorise you to upload a released version having dependencies on snapshot archives. You may have to either delete the current topology (and re-upload it after fixing issues out of alien) or try to keep working with it (with the risk that this may fail later due to changes in the snapshot dependencies)."
+        },
         "DISMISS": "Dismiss",
         "DESCRIPTION": "The following topology's dependencies have been updated:",
         "CHOICE_ASK": "What would you like to do with the topology ?",
@@ -313,6 +321,7 @@
   "CANCEL" : "Cancel",
   "CANCELLED" : "Cancelled",
   "CLOSE" : "Close",
+  "SELECT": "Select",
   "OK": "OK",
   "CLOUDS" : {
     "ADMINISTRATION" : {
@@ -429,6 +438,7 @@
       "ALIEN_MAPPING_ERROR" : "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
       "CSAR_ALREADY_INDEXED": "The CSAR has already been indexed in Alien with the same content",
       "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "An archive with the same name and version already exists in Alien repository in another workspace.",
+      "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "The dependency [ {{note}} ] is not visible from the target workspace",
       "CSAR_ALREADY_EXISTS": "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive, if not used in a deployed topology.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien doesn't allow the overriding.",
       "DUPLICATED_ELEMENT_DECLARATION" : "The element [ {{note}} ] has already be defined in this definition file.",
@@ -442,6 +452,7 @@
       "INVALID_YAML" : "The File does not respect YAML format.",
       "LABEL" : "Errors",
       "MISSING_DEPENDENCY" : "Dependency [{{note}}] cannot be found in Alien repository.",
+      "SNAPSHOT_DEPENDENCY" : "Snapshot dependency [{{note}}] is not allowed in released archive.",
       "MISSING_FILE" : "Reference file {{note}} cannot be found within the archive.",
       "MISSING_TOPOLOGY_INPUT" : "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
       "MISSING_TOSCA_VERSION" : "Tosca version is not specified and is required.",
@@ -623,6 +634,22 @@
       "CURRENT_TOPOLOGY": "Current topology",
       "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology does not have changed.",
       "LAST_SAVED_TOPOLOGY": "Last saved topology"
+    },
+    "ARTIFACTS":{
+      "SELECT": "Select artifact",
+      "REPOSITORY": "Repository",
+      "REPOS" : {
+        "LOCAL": "Local",
+        "REMOTE": "Remote",
+        "ARCHIVE_REPOSITORIES": "Archive Repositories",
+        "GLOBAL_REPOSITORIES": "Global repositories",
+        "NEW_REPOSITORY": "New repository",
+        "ID": "Repository ID",
+        "MUST_BE_UNIQUE": "Repository ID must be unique for this archive",
+        "URL": "URL",
+        "TYPE": "Type",
+        "FILE": "File"
+      }
     }
   },
   "END_DATE" : "End date",
@@ -662,7 +689,7 @@
       "MESSAGE": "Can not perform the action because the resource is still used by some objects",
       "TITLE" : "Resource used"
     },
-    "509": "Unsupported operation",
+    "509" : "Unsupported operation",
     "601" : "Application failed to deploy",
     "602" : "Application failed to undeploy",
     "604" : "An application must necessarily have at least one environment",
@@ -674,15 +701,16 @@
     "611" : "An application environment must necessarily have an application version.",
     "612" : "Cloud of an application environment cannot be updated when it's deployed.",
     "613" : "Conflict detected on the generated deployment PaaS Id. Check your applications names. (see <a target='_blank' href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a> for specific details) ",
-    "615" : "The Git repository url doesn't exists or isn't a correct one.",
+    "615" : "The archive name is already used.",
     "616" : "You are not authorized to clone this Git repository. Please check your credentials.",
     "617" : "No modification have been detected since the last import process",
     "618" : "A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.",
     "619" : "Invalid application name.",
-    "620" : "The Git repository needs to be merged manually.",
-    "621" : "The Git repository is not in a safe state, please fix it manually.",
     "650" : "At least two of your Compute have a conflict name.",
     "651" : "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
+    "680" : "The Git repository url doesn't exists or isn't a correct one.",
+    "681" : "The Git repository needs to be merged manually.",
+    "682" : "The Git repository is not in a safe state, please fix it manually.",
     "750" : "Concurrency in edition process",
     "800" : {
       "equal" : "Value is constant equals to {{reference}}",
@@ -798,7 +826,7 @@
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS Git Integration",
     "MENU_TOPOLOGY_TEMPLATE" : "Topology templates",
-    "MENU_REPOSITORIES": "Repositories"
+    "MENU_REPOSITORIES": "Artifacts repositories"
   },
   "OPTIONAL" : "Optional",
   "ORCHESTRATORS" : {
@@ -994,12 +1022,12 @@
   },
   "REPOSITORY": {
     "ACTIVE_FILTERS" : "Active filters",
-    "TITLE": "Repositories",
     "ADD": "New repository",
-    "NAME": "Name",
-    "TYPE": "Type",
     "PLUGINS_NOT_FOUND": "No resolver plugins found",
     "CONFIGURATION": "Configuration",
     "REPOSITORYTYPE": "Type"
+  },
+  "PAGINATION": {
+    "OVERFLOW": "The number of results exceeds the maximum number supported by Alien4Cloud, please use the search box."
   }
 }

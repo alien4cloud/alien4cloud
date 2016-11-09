@@ -1,0 +1,8 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Test for released archive with snapshot dependency
+template_name: bad-released-archive
+template_version: 1.0
+template_author: Alien
+
+imports:
+  - snapshot-archive:1.0-SNAPSHOT

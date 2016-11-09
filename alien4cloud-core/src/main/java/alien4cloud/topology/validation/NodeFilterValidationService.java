@@ -7,7 +7,15 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.FilterDefinition;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.NodeFilter;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -23,9 +31,9 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.task.NodeFilterConstraintViolation;
 import alien4cloud.topology.task.NodeFilterToSatisfy;
+import alien4cloud.topology.task.NodeFilterToSatisfy.Violations;
 import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.TaskCode;
-import alien4cloud.topology.task.NodeFilterToSatisfy.Violations;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -37,7 +45,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 @Component
 public class NodeFilterValidationService {
     @Inject
-    private IToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
 
@@ -70,7 +78,7 @@ public class NodeFilterValidationService {
             if (relationshipsMap == null || relationshipsMap.isEmpty()) {
                 continue;
             }
-            NodeType sourceNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTempEntry.getValue().getType(),
+            NodeType sourceNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTempEntry.getValue().getType(),
                     topology.getDependencies());
             if (sourceNodeType.isAbstract()) {
                 continue;
@@ -92,7 +100,7 @@ public class NodeFilterValidationService {
     }
 
     private void validateFiltersForNode(NodeType sourceNodeType, Map<String, RelationshipTemplate> relationshipsMap, Topology topology,
-                                        Map<String, NodeType> nodeTypes, Map<String, CapabilityType> capabilityTypes, NodeFiltersTask task, boolean skipInputs) {
+            Map<String, NodeType> nodeTypes, Map<String, CapabilityType> capabilityTypes, NodeFiltersTask task, boolean skipInputs) {
         Map<String, RequirementDefinition> requirementDefinitionMap = getRequirementsAsMap(sourceNodeType);
         for (Map.Entry<String, RelationshipTemplate> relationshipEntry : relationshipsMap.entrySet()) {
             RequirementDefinition requirementDefinition = requirementDefinitionMap.get(relationshipEntry.getValue().getRequirementName());
@@ -115,7 +123,7 @@ public class NodeFilterValidationService {
     }
 
     private void validateNodeFilter(NodeFilter nodeFilter, NodeTemplate target, NodeType targetType, Map<String, CapabilityType> capabilityTypes,
-                                    NodeFilterToSatisfy nodeFilterToSatisfy, boolean skipInputs) {
+            NodeFilterToSatisfy nodeFilterToSatisfy, boolean skipInputs) {
         List<Violations> violations = validateNodeFilterProperties(nodeFilter, target, targetType, skipInputs);
         nodeFilterToSatisfy.setViolations(violations);
 
@@ -181,8 +189,8 @@ public class NodeFilterValidationService {
         return violations;
     }
 
-    private void validateNodeFilterCapabilities(NodeFilter nodeFilter, NodeTemplate target, NodeType targetType,
-                                                Map<String, CapabilityType> capabilityTypes, NodeFilterToSatisfy nodeFilterToSatisfy, boolean skipInputs) {
+    private void validateNodeFilterCapabilities(NodeFilter nodeFilter, NodeTemplate target, NodeType targetType, Map<String, CapabilityType> capabilityTypes,
+            NodeFilterToSatisfy nodeFilterToSatisfy, boolean skipInputs) {
         nodeFilterToSatisfy.setMissingCapabilities(Lists.<String> newArrayList());
         if (nodeFilter.getCapabilities() == null || nodeFilter.getCapabilities().isEmpty()) {
             return;

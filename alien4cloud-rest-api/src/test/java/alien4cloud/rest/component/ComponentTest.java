@@ -134,13 +134,6 @@ public class ComponentTest {
         tmpIndexedNodeType = dao.findById(NodeType.class, indexedNodeType.getId());
 
         assertTrue("Tag <" + TAG_2 + "> does not exist anymore", !tmpIndexedNodeType.getTags().contains(TAG_2));
-
-        // Remove internal tag "icon"
-        response = componentController.deleteTag(indexedNodeType.getId(), INTERNAL_TAG.getName());
-        assertNotNull("Tag <" + INTERNAL_TAG + "> is internal and cannot be removed", response.getError());
-        assertEquals("Should have <" + RestErrorCode.COMPONENT_INTERNALTAG_ERROR.getCode() + "> error code returned", response.getError().getCode(),
-                RestErrorCode.COMPONENT_INTERNALTAG_ERROR.getCode());
-
     }
 
     @Test

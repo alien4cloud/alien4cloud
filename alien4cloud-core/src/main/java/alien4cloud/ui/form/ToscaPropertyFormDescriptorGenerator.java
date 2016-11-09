@@ -15,24 +15,24 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Component;
-
-import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.exception.InvalidArgumentException;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.PrimitiveDataType;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import alien4cloud.tosca.normative.ToscaType;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.tosca.normative.ToscaType;
 
 @Component
 public class ToscaPropertyFormDescriptorGenerator {
 
     @Resource
-    private ICSARRepositorySearchService searchService;
+    private ICSARRepositorySearchService csarRepositorySearchService;
 
     public Map<String, Object> generateDescriptor(PropertyDefinition propertyDefinition, Set<CSARDependency> dependencies) {
         return doGenerateDescriptor(Sets.<String> newHashSet(), propertyDefinition, dependencies);
@@ -54,7 +54,7 @@ public class ToscaPropertyFormDescriptorGenerator {
             }
             return generateDescriptorForMapType(processedDataTypes, entryDefinition, dependencies);
         } else {
-            DataType dataType = searchService.getElementInDependencies(DataType.class, propertyDefinition.getType(), dependencies);
+            DataType dataType = csarRepositorySearchService.getElementInDependencies(DataType.class, propertyDefinition.getType(), dependencies);
             if (dataType == null) {
                 throw new InvalidArgumentException("Data type <" + propertyDefinition.getType() + "> do not exist in dependencies " + dependencies);
             }

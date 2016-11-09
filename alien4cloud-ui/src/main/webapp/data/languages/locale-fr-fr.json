@@ -87,7 +87,7 @@
       "ADD_RELATIONSHIP" : "Ajouter une relation",
       "ARTIFACTS" : {
         "ADDINPUT" : "Définir l'artefact comme entrée",
-        "INPUTS" : "Artefacts en entrée",
+        "INPUTS" : "Artefacts d'entrée",
         "TITLE" : "Artefacts"
       },
       "CAPABILITY_CARDINALITIES_TOOLTIP" : "maximum (restant)",
@@ -97,6 +97,10 @@
         "CHANGE_VERSION" : {
           "TITLE": "Modifier la version",
           "CONFIRM" : "Confirmez-vous le changement de version de la dépendance ? Cette opération peut affecter certains nodes et/ou relations dans la topologie."
+        },
+        "INCOMPATIBLE_VERSIONS": {
+          "TITLE": "Conflit de version de dépendances",
+          "CONTENT": "La topologie a déjà une dépendance vers l'archive <{{archiveName}}> version <{{archiveVersion}}>. Vous ne pouvez pas utiliser un composant provenant de cette même archive avec une version différente. Vous pouvez changer la version de la dépendance si vous souhaitez utiliser une version différente."
         }
       },
       "DESC_TEMPLATE" : "Description du modèle",
@@ -141,6 +145,10 @@
       },
       "RECOVERY": {
         "TITLE": "Dépendences de topologie modifées",
+        "ERRORS_TITLE": "Des erreurs empêche la réconcilliation de la topologie",
+        "ERRORS": {
+          "RELEASED": "Une ou plusieurs dépendances snapshots de la topologie ont été changées, par contre votre topologie a été déjà releasée. Les changements des dépendances SNAPSHOT pourraient générer des conflits dans la topologie actuelle, que Alien4Cloud ne pourrait pas résoudre automatiquement. La version actuelle interdit l'upload des archives releasés qui ont des dépendances SNAPSHOT. Vous devez soit supprimer la topologie actuelle (et le ré-uploader après l'avoir corrigé en dehors de Alien4Cloud) ou continuer de travailler avec (avec le risque que le déploiement de la topologie va échouer dû aux changements dans les dépendences SNAPSHOT)"
+        },
         "DISMISS": "Abandonner",
         "DESCRIPTION": "Les dépendences suivantes de la topologie ont été modifiées:",
         "CHOICE_ASK": "Que souhaitez vous faire de la topologie ?",
@@ -300,6 +308,7 @@
   "CANCELLED" : "Annulé",
   "CLOSE" : "Fermer",
   "OK": "OK",
+  "SELECT": "Selectionner",
   "CLOUDS" : {
     "ADMINISTRATION" : {
       "DRIVER" : {
@@ -408,6 +417,9 @@
       "300" : "Erreur inattendue lors de l'écriture du plugin.",
       "353" : "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml.",
       "ALIEN_MAPPING_ERROR" : "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
+      "CSAR_ALREADY_INDEXED": "Le CSAR a été déjà indexé dans Alien avec le même contenu.",
+      "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "Un CSAR avec le même nom et la même version existe déjà dans Alien.",
+      "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "La dépendance [ {{note}} ] n'est pas visible depuis le workspace cible",
       "CSAR_ALREADY_EXISTS" : "Une archive releasé ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "Une topologie ayant une dépendence vers une archive de ce nom et cette version est déployée. Afin de garantir la stabilité des déploiements, cette archive ne peut être modifiée.",
       "DUPLICATED_ELEMENT_DECLARATION" : "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
@@ -421,6 +433,7 @@
       "INVALID_YAML" : "Le fichier reférencé n'est pas conforme au format YAML.",
       "LABEL" : "Erreurs",
       "MISSING_DEPENDENCY" : "La dépendance [{{note}}] est introuvable dans le repository Alien4Cloud.",
+      "SNAPSHOT_DEPENDENCY" : "Dépendence snapshot [{{note}}] n'est pas autorisée dans une archive releasée.",
       "MISSING_FILE" : "Le fichier référencé {{note}} n'existe pas dans l'archive.",
       "MISSING_TOPOLOGY_INPUT" : "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs",
       "MISSING_TOSCA_VERSION" : "La version de TOSCA n'est pas spécifiée et est obligatoire.",
@@ -599,6 +612,22 @@
       "CURRENT_TOPOLOGY": "Topologie courante",
       "CURRENT_TOPOLOGY_NO_OPERATIONS": "La topologie actuelle n'a pas changé.",
       "LAST_SAVED_TOPOLOGY": "Dernière topologie enregistrée"
+    },
+    "ARTIFACTS":{
+      "SELECT": "Selectionner un artefact",
+      "REPOSITORY": "Dépôt",
+      "REPOS" : {
+        "LOCAL": "Local",
+        "REMOTE": "Distant",
+        "ARCHIVE_REPOSITORIES": "Dépôt d'archive",
+        "GLOBAL_REPOSITORIES": "Dépôt global",
+        "NEW_REPOSITORY": "Nouveau dépôt",
+        "ID": "Identifiant",
+        "MUST_BE_UNIQUE": "L'identifiant de repository doit être unique pour cette archive",
+        "URL": "URL",
+        "TYPE": "Type",
+        "FILE": "Fichier"
+      }
     }
   },
   "END_DATE" : "Date de fin",
@@ -650,15 +679,16 @@
     "611" : "Un environment d'application doit nécéssairement avoir une version d'applivation.",
     "612" : "Le cloud d'un environnement ne peut pas être modifié lorsqu'il est déployé.",
     "613" : "Conflit détecté sur l'Id PaaS généré. Vérifiez les noms de vos applications. (Voir <a target='_blank'href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a>, pour plus de details)",
-    "615" : "Le repository Git n'existe pas ou n'est pas valide.",
+    "615" : "Une archive avec le même nom existe déjà.",
     "616" : "Vous n'êtes pas autorisé à cloner ce dépôt Git. Veuillez vérifier vos identifiants.",
     "617" : "Aucune modification a été détecté depuis le dernier import, celui-ci n'a pas été réalisé.",
     "618" : "Le nom d'un node ne doit contenir que des caractères alpha-numérique de l'alphabet latin classique et le underscrore.",
     "619" : "Le nom de l'application est invalide.",
-    "620" : "Le repository Git requiert un fusionnement manuel.",
-    "621" : "Le repository Git n'est pas dans un status 'SAFE', Veuillez corriger son état manuellement.",
     "650" : "Au moins deux de vos Compute ont un conflit de nom.",
     "651" : "Un BlockStorage ne peut pas avoir un volumeId lorsque le cloud a l'option 'deletable' d'activée.",
+    "680" : "Le repository Git n'existe pas ou n'est pas valide.",
+    "681" : "Le repository Git requiert un fusionnement manuel.",
+    "682" : "Le repository Git n'est pas dans un status 'SAFE', Veuillez corriger son état manuellement.",
     "750" : "Concurrence dans le processus d'édition",
     "800" : {
       "equal" : "Valeur constante égale à {{reference}}",
@@ -773,6 +803,7 @@
     "MENU_COMPONENTS" : "Composants",
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS importés depuis Git",
+    "MENU_REPOSITORIES": "Dépôts d'artefacts",
     "MENU_TOPOLOGY_TEMPLATE" : "Modèles de topologie"
   },
   "OPTIONAL" : "Optionnel",
@@ -844,6 +875,13 @@
       "USE": "Utiliser ",
       "USE_YOUR_VALUE" : " et l'ajouter aux valeur de suggestion"
     }
+  },
+  "REPOSITORY": {
+    "ACTIVE_FILTERS" : "Filtres actifs",
+    "ADD": "Nouveau dépôt",
+    "PLUGINS_NOT_FOUND": "Aucun plugin résolveur trouvé",
+    "CONFIGURATION": "Configuration",
+    "REPOSITORYTYPE": "Type"
   },
   "REQUIRED" : "Obligatoire",
   "ROLE_TABS" : {
@@ -966,5 +1004,8 @@
       "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "La valeur par défaut n'est pas valide par rapport aux contraintes déclarées dans le type",
       "DUPLICATED_CONSTRAINT": "Contraintes de même type ont été détectées dans la propriété"
     }
+  },
+  "PAGINATION": {
+    "OVERFLOW": "Le nombre de résultat dépasse le nombre maxium supporté par Alien4Cloud, merci d'utiliser le champs de recherche."
   }
 }

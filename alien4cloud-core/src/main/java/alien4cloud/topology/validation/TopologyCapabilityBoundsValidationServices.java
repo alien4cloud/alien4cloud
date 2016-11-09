@@ -25,7 +25,7 @@ import alien4cloud.topology.TopologyServiceCore;
 @Component
 public class TopologyCapabilityBoundsValidationServices {
     @Resource
-    private IToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
 
@@ -33,7 +33,7 @@ public class TopologyCapabilityBoundsValidationServices {
     public boolean isCapabilityUpperBoundReachedForTarget(String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates, String capabilityName,
             Set<CSARDependency> dependencies) {
         NodeTemplate nodeTemplate = nodeTemplates.get(nodeTemplateName);
-        NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), dependencies);
+        NodeType relatedIndexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), dependencies);
         chekCapability(nodeTemplateName, capabilityName, nodeTemplate);
 
         CapabilityDefinition capabilityDefinition = getCapabilityDefinition(relatedIndexedNodeType.getCapabilities(), capabilityName);

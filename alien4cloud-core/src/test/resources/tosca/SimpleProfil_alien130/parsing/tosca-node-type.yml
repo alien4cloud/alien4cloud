@@ -52,12 +52,15 @@ node_types:
         type: integer
         description: application port number
     requirements:
-      - host: tosca.nodes.Compute
-        relationship_type: tosca.relationships.HostedOn
-        capability: host
-        occurrences: [1, 1]
-      - other: tosca.capabilities.Endpoint
-        occurrences: [0, unbounded]
+      - host:
+          capability: mytypes.mycapabilities.MyCapabilityTypeName
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          capability_name: host
+          occurrences: [1, 1]
+      - other:
+          capability: tosca.capabilities.Endpoint
+          occurrences: [0, unbounded]
     interfaces: [ Standard ]
 
 capability_types:

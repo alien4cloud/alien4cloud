@@ -14,6 +14,8 @@ define(function (require) {
 
           var connectorDrag = d3.behavior.drag()
             .on('dragstart', function(element) {
+              // reinit the target selection
+              selectedTarget = null;
               relationshipMatchingService.getTargets(element.node.id, element.template, element.id, topologySvg.topology.topology.nodeTemplates,
                 topologySvg.topology.nodeTypes, topologySvg.topology.relationshipTypes, topologySvg.topology.capabilityTypes, topologySvg.topology.topology.dependencies).then(function(result) {
                 var connectTargets = [];
