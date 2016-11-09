@@ -66,7 +66,7 @@ public class IAASStepDefinitions {
     @And("^I should not have a volume on AWS with id defined in runtime property \"([^\"]*)\" of the node \"([^\"]*)\"$")
     public void I_should_not_have_a_volume_on_AWS_with_id_defined_in_runtime_property_of_the_node(String propertyName, String nodeName) throws Throwable {
         String externalId = Context.getInstance().getCurrentExternalId();
-        Assert.assertNotNull(Context.getInstance().getAwsClient().getVolume(externalId));
+        Assert.assertNull(Context.getInstance().getAwsClient().getVolume(externalId));
     }
 
     @And("^I should have volumes on OpenStack with ids defined in property \"([^\"]*)\" of the node \"([^\"]*)\" for \"([^\"]*)\"$")

@@ -156,7 +156,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     @Test
     public void testImportDependency() throws FileNotFoundException, ParsingException {
         Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
-        // Mockito.when(csarRepositorySearchService.getArchive(csar.getId())).thenReturn(csar);
+        Mockito.when(csarRepositorySearchService.getArchive(csar.getName(), csar.getVersion())).thenReturn(csar);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-import-dependency.yml"));
 
@@ -173,7 +173,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     @Test
     public void testImportDependencyMissing() throws FileNotFoundException, ParsingException {
         Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
-        // Mockito.when(csarRepositorySearchService.getArchive(csar.getId())).thenReturn(null);
+        Mockito.when(csarRepositorySearchService.getArchive(csar.getName(), csar.getVersion())).thenReturn(null);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-import-dependency.yml"));
 
@@ -183,7 +183,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
         ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertNotNull(archiveRoot.getArchive().getDependencies());
-        Assert.assertEquals(1, archiveRoot.getArchive().getDependencies().size());
+        Assert.assertEquals(0, archiveRoot.getArchive().getDependencies().size());
     }
 
     @SuppressWarnings("unchecked")
