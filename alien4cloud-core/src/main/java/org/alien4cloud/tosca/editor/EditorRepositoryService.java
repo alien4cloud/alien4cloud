@@ -32,7 +32,7 @@ public class EditorRepositoryService {
     public Path resolveArtifact(String csarId, String artifactReference) {
         // let just split archiveName, archiveVersion, archiveWorkspace
         String[] splittedId = csarId.split(":");
-        return csarRepositry.getExpandedCSAR(splittedId[0], splittedId[1]);
+        return csarRepositry.getExpandedCSAR(splittedId[0], splittedId[1]).resolve(artifactReference);
     }
 
     /**
