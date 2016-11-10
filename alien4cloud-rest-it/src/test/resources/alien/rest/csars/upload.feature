@@ -64,7 +64,7 @@ Feature: CSAR upload
     Then I should receive a RestResponse with an error code 502
 
   @reset
-  Scenario: Upload CSAR that already exist in the repository
+  Scenario: Upload released CSAR that depends on snapshot csar
     Given I upload the archive "snapshot dependency"
     Then I should receive a RestResponse with no error
     Given I upload the archive "released dependency"

@@ -6,8 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import junitx.framework.FileAssert;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 
@@ -16,8 +14,17 @@ import alien4cloud.it.provider.util.AttributeUtil;
 import alien4cloud.it.provider.util.SSHUtil;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import junitx.framework.FileAssert;
 
 public class ScpStepsDefinitions {
+
+    @When("^I upload the local file \"([^\"]*)\" to the node \"([^\"]*)\"'s remote path \"([^\"]*)\" with the keypair defined in environment variable \"([^\"]*)\" and user \"([^\"]*)\"$")
+    public void iUploadTheLocalFileToTheNodeSRemotePathWithTheKeypairDefinedInEnvironmentVariableAndUser(String localFile, String nodeName, String remotePath,
+                                                                                                         String keyPathEnv, String user) throws Throwable {
+        String keypair = System.getenv(keyPathEnv);
+        Assert.assertTrue(keyPathEnv + " must be defined as environment variable", StringUtils.isNotBlank(keypair));
+        I_upload_the_local_file_to_the_node_s_remote_path_with_the_keypair_and_user(localFile, nodeName, remotePath, keypair, user);
+    }
 
     @When("^I upload the local file \"([^\"]*)\" to the node \"([^\"]*)\"'s remote path \"([^\"]*)\" with the keypair \"([^\"]*)\" and user \"([^\"]*)\"$")
     public void I_upload_the_local_file_to_the_node_s_remote_path_with_the_keypair_and_user(String localFile, String nodeName, String remotePath,

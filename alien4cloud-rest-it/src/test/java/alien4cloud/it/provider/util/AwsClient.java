@@ -11,12 +11,13 @@ import org.jclouds.ec2.domain.Volume;
 import org.jclouds.ec2.features.ElasticBlockStoreApi;
 import org.jclouds.ec2.features.InstanceApi;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
+import org.jclouds.rest.ResourceNotFoundException;
 import org.jclouds.sshj.config.SshjSshClientModule;
-
-import alien4cloud.exception.NotFoundException;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
+
+import alien4cloud.exception.NotFoundException;
 
 public class AwsClient {
 
@@ -47,10 +48,14 @@ public class AwsClient {
     }
 
     public Volume getVolume(String id) {
-        Set<Volume> volumes = blockStoreApi.describeVolumesInRegion(null, id);
-        if (!volumes.isEmpty()) {
-            return volumes.iterator().next();
-        } else {
+        try {
+            Set<Volume> volumes = blockStoreApi.describeVolumesInRegion(null, id);
+            if (!volumes.isEmpty()) {
+                return volumes.iterator().next();
+            } else {
+                return null;
+            }
+        } catch (ResourceNotFoundException e) {
             return null;
         }
     }
