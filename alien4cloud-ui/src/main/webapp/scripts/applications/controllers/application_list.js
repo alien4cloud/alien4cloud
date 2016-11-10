@@ -76,8 +76,8 @@ define(function (require) {
   ];
 
   modules.get('a4c-applications').controller('ApplicationListCtrl',
-    ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster', 'searchServiceFactory', 'pieChartService',
-      function ($scope, $modal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory, pieChartService) {
+    ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster', 'searchServiceFactory', 'pieChartService', 'applicationEnvironmentServices',
+      function ($scope, $modal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory, pieChartService, applicationEnvironmentServices) {
         $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
         $scope.applicationStatuses = [];
         $scope.onlyShowDeployedApplications = undefined;
@@ -169,6 +169,23 @@ define(function (require) {
                 }
                 $scope.applicationStatuses[app.name] = data;
                 pieChartService.render(app.id, data);
+
+                _.each(data, function(item){
+                  if(authService.hasResourceRole(app, 'APPLICATION_MANAGER') ){
+                    item.canDeploy = true;
+                  }else {
+                    applicationEnvironmentServices.get({
+                      applicationId: app.id,
+                      applicationEnvironmentId: item.id
+                    }, function (result) {
+                      if (_.undefined(result.error) ) {
+                        item.canDeploy = authService.hasResourceRole(result.data, 'DEPLOYMENT_MANAGER');
+                      }
+                    });
+                  }
+                });
+
+
               });
             });
           }
@@ -194,10 +211,9 @@ define(function (require) {
           });
         };
 
-        $scope.openDeploymentPage = function (applicationId, environmentId) {
-          $scope.openApplication(applicationId);
+        $scope.openDeploymentPage = function (application, environmentId) {
           $state.go('applications.detail.deployment', {
-            id: applicationId,
+            id: application.id,
             openOnEnvironment: environmentId
           });
         };

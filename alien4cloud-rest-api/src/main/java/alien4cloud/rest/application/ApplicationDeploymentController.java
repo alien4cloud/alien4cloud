@@ -201,6 +201,7 @@ public class ApplicationDeploymentController {
                         log.debug("Getting status for the environment <" + env.getId()
                                 + "> failed because the associated orchestrator seems disabled. Returned status is UNKNOWN.", e);
                     }
+                    // TODO: include environment roles in the DTO to help display on ui
                     environmentStatuses.put(env.getId(), new EnvironmentStatusDTO(env.getName(), status));
                 }
             }
