@@ -304,6 +304,7 @@ public class SuggestionService {
         Class<? extends AbstractInheritableToscaType> targetClass = (Class<? extends AbstractInheritableToscaType>) alienDAO.getTypesToClasses()
                 .get(suggestionEntry.getEsType());
 
+        // FIXME what if targetClass is null ?
         Object array = toscaTypeSearchService.findAll(targetClass, suggestionEntry.getTargetElementId());
         if (array != null) {
             int length = Array.getLength(array);
