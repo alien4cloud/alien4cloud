@@ -704,6 +704,7 @@
       "pattern" : "La valeur doit respecter le modèle {{reference}}",
       "validValues" : "La valeur doit être comprise dans [ {{reference}} ]"
     },
+    "803" : "Conflit de version",
     "804" : "{{value}} n'est pas du type {{type}}",
     "805" : {
       "MESSAGE" : "Un ou plusieurs paramètres sont obligatoires : {{value}}",

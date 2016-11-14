@@ -726,6 +726,7 @@
       "pattern" : "Value must match the pattern {{reference}}",
       "validValues" : "Value must be in values [ {{reference}} ]"
     },
+    "803" : "Version conflict",
     "804" : "{{value}} type is not {{type}}",
     "805" : {
       "MESSAGE" : "One or several parameters are required : {{value}}",
