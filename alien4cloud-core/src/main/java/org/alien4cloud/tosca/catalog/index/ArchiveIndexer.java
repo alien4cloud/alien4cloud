@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.events.AfterArchiveIndexed;
@@ -17,12 +18,13 @@ import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.*;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
+import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.components.CSARSource;
@@ -51,6 +53,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class ArchiveIndexer {
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
     @Inject
     private ApplicationEventPublisher publisher;
     @Inject
@@ -140,11 +144,12 @@ public class ArchiveIndexer {
      * @throws CSARUsedInActiveDeployment
      */
     public synchronized void importArchive(final ArchiveRoot archiveRoot, CSARSource source, Path archivePath, List<ParsingError> parsingErrors)
-            throws CSARUsedInActiveDeployment {
+            throws CSARUsedInActiveDeployment, ToscaTypeAlreadyDefinedInOtherCSAR {
         archiveIndexerAuthorizationFilter.checkAuthorization(archiveRoot);
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
         Csar currentIndexedArchive = csarService.get(archiveName, archiveVersion);
+
         if (currentIndexedArchive != null) {
             if (Objects.equals(currentIndexedArchive.getWorkspace(), archiveRoot.getArchive().getWorkspace())) {
                 if (currentIndexedArchive.getHash() != null && currentIndexedArchive.getHash().equals(archiveRoot.getArchive().getHash())) {
@@ -173,6 +178,8 @@ public class ArchiveIndexer {
         // FIXME If the archive already exists but can be indexed we should actually call an editor operation to keep git tracking, or should we just prevent
         // that ?
 
+        checkIfToscaTypesAreDefinedInOtherArchive(archiveRoot);
+
         // save the archive (before we index and save other data so we can cleanup if anything goes wrong).
         if (source == null) {
             source = CSARSource.OTHER;
@@ -193,6 +200,40 @@ public class ArchiveIndexer {
 
         publisher.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
     }
+
+    /**
+     * Fail if at least one tosca type defined in the archive is already define in an other archive.
+     *
+     * @param archiveRoot
+     * @throws ToscaTypeAlreadyDefinedInOtherCSAR
+     */
+    private void checkIfToscaTypesAreDefinedInOtherArchive(final ArchiveRoot archiveRoot) throws ToscaTypeAlreadyDefinedInOtherCSAR {
+        failIfOneToscaTypesIsDefinedInOtherArchive(archiveRoot.getNodeTypes());
+        failIfOneToscaTypesIsDefinedInOtherArchive(archiveRoot.getRelationshipTypes());
+        failIfOneToscaTypesIsDefinedInOtherArchive(archiveRoot.getCapabilityTypes());
+        failIfOneToscaTypesIsDefinedInOtherArchive(archiveRoot.getArtifactTypes());
+        failIfOneToscaTypesIsDefinedInOtherArchive(archiveRoot.getDataTypes());
+    }
+
+    private void failIfOneToscaTypesIsDefinedInOtherArchive(Map<String, ? extends AbstractToscaType> toscaTypes) throws ToscaTypeAlreadyDefinedInOtherCSAR {
+        if (toscaTypes == null) {
+            return;
+        }
+        for (AbstractToscaType toscaType : toscaTypes.values()) {
+            failIfToscaTypeIsDefinedInOtherArchive(toscaType);
+        }
+    }
+
+    private void failIfToscaTypeIsDefinedInOtherArchive(AbstractToscaType toscaType) throws ToscaTypeAlreadyDefinedInOtherCSAR {
+        if (toscaType == null) {
+            return;
+        }
+        AbstractToscaType indexedNodeType = alienDAO.findById(AbstractToscaType.class, toscaType.getId());
+        if  (indexedNodeType != null && !toscaType.getArchiveName().equals(indexedNodeType.getArchiveName())) {
+            throw new ToscaTypeAlreadyDefinedInOtherCSAR("Tosca type: " + toscaType.getElementId() + ", version: " + toscaType.getArchiveVersion());
+        }
+    }
+
 
     private void indexTopology(final ArchiveRoot archiveRoot, List<ParsingError> parsingErrors, String archiveName, String archiveVersion) {
         Topology topology = archiveRoot.getTopology();

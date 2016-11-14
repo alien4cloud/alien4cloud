@@ -422,6 +422,7 @@
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "La dépendance [ {{note}} ] n'est pas visible depuis le workspace cible",
       "CSAR_ALREADY_EXISTS" : "Une archive releasé ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "Une topologie ayant une dépendence vers une archive de ce nom et cette version est déployée. Afin de garantir la stabilité des déploiements, cette archive ne peut être modifiée.",
+      "TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR": "Une archive ne peut pas écraser un type Tosca issue d'une autre archive : {{problem}}",
       "DUPLICATED_ELEMENT_DECLARATION" : "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
       "ENTRY_DEFINITION_NOT_FOUND" : "Le fichier de définitions n'a pas été trouvé. Le fichier de définitions yaml doit se trouver à la racine de l'archive",
       "ERRONEOUS_ARCHIVE_FILE" : "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",

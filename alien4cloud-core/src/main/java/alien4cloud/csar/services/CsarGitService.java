@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -170,6 +171,9 @@ public class CsarGitService {
         } catch (AlreadyExistException e) {
             return parsingResult;
         } catch (CSARUsedInActiveDeployment e) {
+            // TODO Actually add a parsing result with error.
+            return parsingResult;
+        } catch (ToscaTypeAlreadyDefinedInOtherCSAR e) {
             // TODO Actually add a parsing result with error.
             return parsingResult;
         }

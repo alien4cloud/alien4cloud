@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -103,6 +104,8 @@ public class InitialLoader {
                             archive.toString(), e);
                 } catch (ParsingException e) {
                     log.error("Initial upload of archive <{}> has failed.", archive.toString(), e);
+                } catch (ToscaTypeAlreadyDefinedInOtherCSAR e) {
+                    log.debug("Skipping initial upload of archive <{}>, it's archive contain's a tosca type already defined in an other archive." + e.getMessage(), archive.toString(), e);
                 }
             }
         } catch (IOException e) {

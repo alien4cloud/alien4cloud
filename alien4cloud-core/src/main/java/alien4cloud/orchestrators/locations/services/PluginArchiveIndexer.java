@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -120,9 +121,11 @@ public class PluginArchiveIndexer {
                         Lists.<ParsingError> newArrayList());
                 publishLocationTypeIndexedEvent(pluginArchive.getArchive().getNodeTypes().values(), orchestratorFactory, null);
             } catch (AlreadyExistException e) {
-                log.info("Skipping orchestrator archive import as the released version already exists in the repository. " + e.getMessage());
+                log.debug("Skipping orchestrator archive import as the released version already exists in the repository. " + e.getMessage());
             } catch (CSARUsedInActiveDeployment e) {
-                log.info("Skipping orchestrator archive import as it is used in an active deployment. " + e.getMessage());
+                log.debug("Skipping orchestrator archive import as it is used in an active deployment. " + e.getMessage());
+            } catch (ToscaTypeAlreadyDefinedInOtherCSAR e) {
+                log.debug("Skipping orchestrator archive import, it's archive contain's a tosca type already defined in an other archive." + e.getMessage());
             }
         }
     }
@@ -141,9 +144,11 @@ public class PluginArchiveIndexer {
         try {
             archiveIndexer.importArchive(archive, CSARSource.ORCHESTRATOR, pluginArchive.getArchiveFilePath(), parsingErrors);
         } catch (AlreadyExistException e) {
-            log.info("Skipping location archive import as the released version already exists in the repository.");
+            log.debug("Skipping location archive import as the released version already exists in the repository.");
         } catch (CSARUsedInActiveDeployment e) {
-            log.info("Skipping orchestrator archive import as it is used in an active deployment. " + e.getMessage());
+            log.debug("Skipping orchestrator archive import as it is used in an active deployment. " + e.getMessage());
+        } catch (ToscaTypeAlreadyDefinedInOtherCSAR e) {
+            log.debug("Skipping orchestrator archive import, it's archive contain's a tosca type already defined in an other archive." + e.getMessage());
         }
 
         // Publish event to allow plugins to post-process elements (portability plugin for example).
