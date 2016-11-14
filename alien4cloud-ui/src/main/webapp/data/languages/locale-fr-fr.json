@@ -920,7 +920,7 @@
     },
     "DUPLICATE": "Dupliquer la topology",
     "NEW" : "Nouveau Modèle",
-    "REMOVE_TITLE": "Comment supprimer un modèle de topologie ?",
+    "REMOVE_TITLE": "Supprimer le template",
     "REMOVE_CONTENT": "Tous les modèles de topologie sont liés à une archive. En la supprimant vous supprimerai les deux."
   },
   "TRUE" : "Vrai",
