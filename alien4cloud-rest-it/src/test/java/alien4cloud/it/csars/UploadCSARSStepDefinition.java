@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import org.alien4cloud.test.setup.TestDataRegistry;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
@@ -34,10 +35,13 @@ public class UploadCSARSStepDefinition {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/csars", "file", Files.newInputStream(csarTargetPath)));
     }
 
-    @And("^I upload the local archive \"([^\"]*)\"$")
-    public void I_upload_the_local_archive(String archive) throws Throwable {
+    @And("^I (successfully\\s)?upload the local archive \"([^\"]*)\"$")
+    public void I_upload_the_local_archive(String successfully, String archive) throws Throwable {
         Path archivePath = Context.LOCAL_TEST_DATA_PATH.resolve(archive);
         uploadArchive(archivePath);
+        if (StringUtils.isNotBlank(successfully)) {
+            this.COMMON_STEP_DEFINITIONS.I_should_receive_a_RestResponse_with_no_error();
+        }
     }
 
     @Given("^I upload the archive \"([^\"]*)\"$")

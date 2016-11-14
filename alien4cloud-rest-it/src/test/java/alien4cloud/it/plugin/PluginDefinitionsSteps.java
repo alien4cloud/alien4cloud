@@ -13,6 +13,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.junit.Assert;
 
@@ -36,6 +37,8 @@ import cucumber.api.java.en.When;
 
 @Slf4j
 public class PluginDefinitionsSteps {
+    private static final CommonStepDefinitions COMMON_STEP_DEFINITIONS = new CommonStepDefinitions();
+
     private static final Map<String, Path> conditionToPath = Maps.newHashMap();
     private static final Path PLUGIN_PATH = Paths.get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-1.0-"
             + Context.VERSION + ".zip");
@@ -204,12 +207,15 @@ public class PluginDefinitionsSteps {
         assertNotEquals(prevPluginConfigStr, pluginConfigStr);
     }
 
-    @And("^I upload a plugin from \"([^\"]*)\"$")
-    public void I_upload_a_plugin_from(String pluginPathText) throws Throwable {
+    @And("^I (successfully\\s)?upload a plugin from \"([^\"]*)\"$")
+    public void I_sucesssfully_upload_a_plugin_from(String successfully, String pluginPathText) throws Throwable {
         Path pluginDirPath = Paths.get(pluginPathText);
         String pluginName = pluginDirPath.getFileName().toString();
         Path pluginPath = pluginDirPath.resolve("target").resolve(pluginName + "-" + Context.VERSION + ".zip");
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/v1/plugins", "file", Files.newInputStream(pluginPath)));
+        if (StringUtils.isNotBlank(successfully)) {
+            this.COMMON_STEP_DEFINITIONS.I_should_receive_a_RestResponse_with_no_error();
+        }
     }
 
     @And("^I upload a plugin \"([^\"]*)\" from \"([^\"]*)\"$")
