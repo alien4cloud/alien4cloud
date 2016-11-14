@@ -51,9 +51,9 @@
               <span id="pieChart-{{application.id}}" class="pull-right" style="margin-top: -18px;"></span>
             </div>
           </div>
-          <div class="row clickable-media" collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationStatuses[application.name] | orderBy: '-indexToOrder'"  >
+          <div class="row" ng-class="{'clickable-media': environment.canDeploy}" collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationStatuses[application.name] | orderBy: '-indexToOrder'"  >
             <div class="col-span-12" style="border-width: 1px 0px 0px; border-style: solid; border-color: #DDD; padding: 8px;"
-                 ng-click="openDeploymentPage(application.id, environment.id)" >
+                 ng-click="environment.canDeploy && openDeploymentPage(application, environment.id)" >
               <div class="row">
                 <div>
                   <div class="col-md-1"> </div>

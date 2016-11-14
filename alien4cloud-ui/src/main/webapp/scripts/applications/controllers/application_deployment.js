@@ -90,7 +90,8 @@ define(function(require) {
           var deploymentContextResult = {
             selectedEnvironment: appEnvironments.selected
           };
-          return refreshDeploymentContext(deploymentContextResult, application.data, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu);
+          return deploymentContextResult;
+          //return refreshDeploymentContext(deploymentContextResult, application.data, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu);
         }
       ]
     },

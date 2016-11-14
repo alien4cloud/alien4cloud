@@ -138,6 +138,7 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
     }
 
     protected Class<?>[] getRequestedTypes(Class<?> clazz) {
+        // FIXME clazz might be null
         if (Modifier.isAbstract(clazz.getModifiers())) {
             List<Class<?>> classes = Lists.newArrayList();
             for (Class<?> registeredClass : this.getTypesToClasses().values()) {
