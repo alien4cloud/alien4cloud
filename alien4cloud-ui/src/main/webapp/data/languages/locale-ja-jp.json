@@ -397,6 +397,12 @@
       "MESSAGE" : "コンポーネント[ {{componentId}} ]は、デフォルトとして設定されています。機能名： [ {{capability}} ]. 上書きしますか？",
       "OK" : "上書き"
     },
+    "CSAR" : {
+      "TITLE": "CSARS",
+      "ACTIVE_FILTERS": "Active filters",
+      "TEMPLATEAUTHOR": "Author",
+      "WORKSPACE": "Workspace"
+    },
     "DEFAULTCAPABILITIES" : "デフォルト機能",
     "DERIVEDFROM" : "派生元",
     "DRAG_DROP_UPLOAD" : "アップロードするファイルをここにドロップ",

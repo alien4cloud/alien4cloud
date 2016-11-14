@@ -399,6 +399,12 @@
       "MESSAGE" : "Un composant [ {{componentId}} ] a déjà été défini comme défaut pour la capacité [ {{capability}} ]. Voulez-vous le remplacer?",
       "OK" : "Remplacer"
     },
+    "CSAR" : {
+      "TITLE": "CSARS",
+      "ACTIVE_FILTERS": "Filtre actifs",
+      "TEMPLATEAUTHOR": "Auteur",
+      "WORKSPACE": "Workspace"
+    },
     "DEFAULTCAPABILITIES" : "Capacités défaut",
     "DERIVEDFROM" : "Héritage",
     "DRAG_DROP_UPLOAD" : "Déposer les archives à uploader ici",

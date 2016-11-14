@@ -414,6 +414,7 @@
       "OK" : "Overwrite"
     },
     "CSAR" : {
+      "TITLE": "CSARS",
       "ACTIVE_FILTERS": "Active filters",
       "TEMPLATEAUTHOR": "Author",
       "WORKSPACE": "Workspace"
