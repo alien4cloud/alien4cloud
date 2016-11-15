@@ -90,3 +90,10 @@ Feature: CSAR upload
     And I should have a CSAR with id "tosca-base-types:1.0-SNAPSHOT"
     When I try to get a component with id "tosca.nodes.Compute:1.0-SNAPSHOT"
     Then I should have last update date greater than creation date
+
+  @reset
+  Scenario: Upload invalid CSAR : a node type is already defined in an other archive
+    Given I upload the archive "tosca base types 1.0"
+    Then I should receive a RestResponse with no error
+    When I upload the archive "compute-1.0"
+    Then I should receive a RestResponse with an error code 200

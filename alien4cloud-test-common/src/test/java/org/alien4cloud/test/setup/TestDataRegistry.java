@@ -140,6 +140,9 @@ public class TestDataRegistry {
         addConditionFolder("artifact java types 1.0 wrong type", "src/test/resources/data/csars/artifact/java-types-1.0-artifact-wrong-type");
         addConditionFolder("artifact java types 1.0 wrong path", "src/test/resources/data/csars/artifact/java-types-1.0-artifact-wrong-path");
 
+        // Node type
+        addConditionFolder("compute-1.0", "src/test/resources/data/csars/node_type");
+
         // Runtime archive
         addConditionFolder("custom-interface-mock-types", "src/test/resources/data/csars/custom-interface-mock-types");
 

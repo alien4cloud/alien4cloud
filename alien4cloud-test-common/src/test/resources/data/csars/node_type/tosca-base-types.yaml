@@ -1,0 +1,24 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: compute-type
+template_version: 1.0
+description: Contains a new tosca.nodes.Compute
+template_author: FastConnect
+
+node_types:
+  tosca.nodes.Compute:
+    derived_from: tosca.nodes.Root
+    description: >
+      Represents a real or virtual machine or ‘server’. Informations specified on the Compute
+      node will be used to find the machine that fits the given requirements in the cloud
+      available machines. If no sizing informations are specified the cloud’s provider default
+      machine will be used. It is strongly recommended to specify the required cpus and memory
+      at least.
+    tags:
+      icon: /images/compute.png
+    properties:
+      disk_size:
+        type: scalar-unit.size
+        required: false
+        default: 20 B
+        constraints:
+          - greater_than: 0 B
