@@ -937,6 +937,7 @@
     },
     "DUPLICATE": "Duplicate the topology",
     "NEW" : "New Template",
+    "REMOVE_TOOLTIP": "Delete template",
     "REMOVE_TITLE": "How to delete a topology template ?",
     "REMOVE_CONTENT": "All topology templates are linked to an archive. Delete the associate archive to remove both of them."
   },
