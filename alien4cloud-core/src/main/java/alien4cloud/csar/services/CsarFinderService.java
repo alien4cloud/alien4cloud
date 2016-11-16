@@ -1,11 +1,14 @@
 package alien4cloud.csar.services;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import com.google.common.collect.Sets;
 import alien4cloud.exception.GitException;
 import alien4cloud.tosca.parser.ToscaArchiveParser;
 import alien4cloud.utils.FileUtil;
+import lombok.SneakyThrows;
 
 /**
  * This service detects TOSCA cloud service archives in a given folder and return an ordered list of archives path to import.
@@ -60,9 +64,7 @@ public class CsarFinderService {
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            // TODO check that the file has the tosca_definitions_version header.
-            Path fileName = file.getFileName();
-            if (fileName.toString().endsWith(".yaml") || fileName.toString().endsWith(".yml")) {
+            if (isToscaFile(file)) {
                 addToscaArchive(file.getParent());
                 return FileVisitResult.SKIP_SIBLINGS;
             }
@@ -84,6 +86,25 @@ public class CsarFinderService {
             } catch (IOException e) {
                 throw new GitException("Failed to zip archives in order to import them.", e);
             }
+        }
+
+        @SneakyThrows
+        private boolean isToscaFile(Path path) {
+            if (isYamlFile(path.getFileName())) {
+                List<String> lines = Files.readAllLines(path, Charset.defaultCharset());
+                if (lines.size() > 0 && lines.get(0).contains("tosca_definitions_version")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean isYamlFile(Path fileName) {
+            File file = new File(fileName.toString());
+            if (file.isFile() && fileName.toString().endsWith(".yaml") || fileName.toString().endsWith(".yml")) {
+                return true;
+            }
+            return false;
         }
     }
 }
