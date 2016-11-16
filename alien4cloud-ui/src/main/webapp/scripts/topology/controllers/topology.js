@@ -131,7 +131,7 @@ define(function (require) {
         }
 
         if(_.defined(selectedNodeTemplate)) {
-          reselectNodeTemplate(selectedNodeTemplate);
+          reselectNodeTemplate(selectedNodeTemplate.name);
         } else if(_.defined($scope.selectedNodeTemplate)) {
           reselectNodeTemplate($scope.selectedNodeTemplate.name);
         } else {

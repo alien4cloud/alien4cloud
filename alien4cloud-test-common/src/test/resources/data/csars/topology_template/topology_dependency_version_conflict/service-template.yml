@@ -1,0 +1,16 @@
+tosca_definitions_version: alien_dsl_1_3_0
+description: Template to test dependency version conflict
+template_name: dependencey-version-conflict
+template_version: 1.0.0-SNAPSHOT
+template_author: Alien4cloud
+
+imports:
+  - "tosca-base-types:2.0"
+  - "apacheLB:0.2"
+
+topology_template:
+  node_templates:
+    compute1:
+      type: tosca.nodes.Compute
+    apache:
+      type: fastconnect.nodes.apacheLB
