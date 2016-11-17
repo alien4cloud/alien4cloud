@@ -1,7 +1,6 @@
 package alien4cloud.csar.services;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -91,8 +90,7 @@ public class CsarFinderService {
         @SneakyThrows
         private boolean isToscaFile(Path path) {
             if (isYamlFile(path.getFileName())) {
-                List<String> lines = Files.readAllLines(path, Charset.defaultCharset());
-                if (lines.size() > 0 && lines.get(0).contains("tosca_definitions_version")) {
+                if (readFirstLine(path).startsWith("tosca_definitions_version")) {
                     return true;
                 }
             }
@@ -105,6 +103,28 @@ public class CsarFinderService {
                 return true;
             }
             return false;
+        }
+
+        /**
+         * Read the first non-empty line of the file
+         *
+         * @param path to the file
+         * @return the first non-empty line of the file or an empty string
+         * @throws IOException
+         */
+        private static String readFirstLine(Path path) throws IOException {
+            InputStreamReader stream = new InputStreamReader(Files.newInputStream(path), Charset.defaultCharset());
+            try (BufferedReader reader = new BufferedReader(stream)) {
+                String line = reader.readLine();
+                while (line != null) {
+                    line = line.trim();
+                    if (line.length() > 0) {
+                        return line;
+                    }
+                    line = reader.readLine();
+                }
+            }
+            return "";
         }
     }
 }
