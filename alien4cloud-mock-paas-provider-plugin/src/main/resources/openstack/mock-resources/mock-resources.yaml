@@ -7,7 +7,7 @@ template_version: ${project.version}
 description: "Defines resources for the mock plugin, mocking openstack configuration."
 
 imports:
-  - tosca-normative-types:1.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN12
 
 node_types:
   alien.nodes.mock.Compute:
