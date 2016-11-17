@@ -45,6 +45,8 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
             }
         }
         CSARDependency newDependency = new CSARDependency(operation.getDependencyName(), operation.getDependencyVersion());
+        topologyService.checkTransitiveDependenciesChange(newDependency, topologyDependencies);
+
         topologyDependencies.add(newDependency);
         topology.setDependencies(topologyDependencies);
 
