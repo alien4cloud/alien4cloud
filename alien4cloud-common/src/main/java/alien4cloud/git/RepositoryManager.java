@@ -153,7 +153,8 @@ public class RepositoryManager {
             if (Files.exists(targetPath)) {
                 try {
                     repository = Git.open(targetPath.toFile());
-                    checkoutRepository(repository, branch, username, password);
+                    fetch(repository, username, password);
+                    checkoutRepository(repository, branch);
                 } catch (RepositoryNotFoundException e) {
                     // TODO delete the folder
                     FileUtil.delete(targetPath);
@@ -169,22 +170,29 @@ public class RepositoryManager {
         }
     }
 
-    private static void checkoutRepository(Git repository, String branch, String username, String password) {
+    /**
+     * Get the branch reference with the valid prefix from repository references (like 'origin' for master or 'tags' for the tag 1.2.0)
+     *
+     * @param repository the Git repository
+     * @param branch the branch name
+     * @return the full branch reference
+     */
+    private static String getFullBranchReference(Git repository, String branch) {
+        Map<String, Ref> refs = repository.getRepository().getAllRefs();
+        for (String refId : refs.keySet()) {
+            String[] segments = refId.split("/");
+            if (segments.length > 1 && branch.equals(segments[segments.length - 1])) {
+                return segments[segments.length - 2] + "/" + segments[segments.length - 1];
+            }
+        }
+        return branch;
+    }
+
+    private static void checkoutRepository(Git repository, String branch) {
         try {
             CheckoutCommand checkoutCommand = repository.checkout();
-            // had to add "origin/" to fix an error when trying to checkout a branch
-            checkoutCommand.setName("origin/" + branch);
-            Ref ref = checkoutCommand.call();
-            if (ref == null || branch.equals(ref.getName())) {
-                // failed to checkout the branch, let's fetch it
-                // TODO: this part seems useless. check it out
-                FetchCommand fetchCommand = repository.fetch();
-                setCredentials(fetchCommand, username, password);
-                fetchCommand.call();
-                checkoutCommand = repository.checkout();
-                checkoutCommand.setName("origin/" + branch);
-                checkoutCommand.call();
-            }
+            checkoutCommand.setName(getFullBranchReference(repository, branch));
+            checkoutCommand.call();
         } catch (GitAPIException e) {
             throw new GitException("Failed to pull git repository", e);
         }
@@ -470,25 +478,6 @@ public class RepositoryManager {
             }
         }
         return true;
-    }
-
-    /**
-     * Fetch a git repository.
-     *
-     * @param repositoryDirectory The directory in which the git repo exists.
-     * @param username The username to use for the repository connection.
-     * @param password The password to use for the repository connection.
-     */
-    public static void fetch(Path repositoryDirectory, String username, String password) {
-        Git repository = null;
-        try {
-            repository = Git.open(repositoryDirectory.resolve(".git").toFile());
-            fetch(repository, username, password);
-        } catch (IOException e) {
-            throw new GitException("Unable to open the remote repository", e);
-        } finally {
-            close(repository);
-        }
     }
 
     /**
