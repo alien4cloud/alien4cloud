@@ -7,6 +7,7 @@ import alien4cloud.repository.model.AvailableTopologyRepositories;
 import alien4cloud.repository.model.AvailableTopologyRepository;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
@@ -39,6 +40,7 @@ import java.util.Set;
 @Slf4j
 @RestController
 @RequestMapping({ "/rest/topologies", "/rest/v1/topologies", "/rest/latest/topologies" })
+@Api
 public class TopologyController {
     @Resource
     private TopologyService topologyService;

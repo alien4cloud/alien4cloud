@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import io.swagger.annotations.Api;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = { "/rest/csarsgit", "/rest/v1/csarsgit", "/rest/latest/csarsgit" })
+@Api(value = "", description = "Operations on CSAR Git")
 public class CsarGitController {
     @Inject
     private CsarGitService csarGitService;

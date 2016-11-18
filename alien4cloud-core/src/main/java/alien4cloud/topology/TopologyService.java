@@ -1,17 +1,14 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.model.common.IWorkspaceResource;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
@@ -36,7 +33,6 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
 import alien4cloud.security.AuthorizationUtil;
@@ -69,6 +65,60 @@ public class TopologyService {
 
     public static final Pattern NODE_NAME_PATTERN = Pattern.compile("^\\w+$");
     public static final Pattern NODE_NAME_REPLACE_PATTERN = Pattern.compile("\\W");
+
+    /**
+     * Checks if the dependency we want to change is either a transitive dependency of the topology or
+     * if it itself has transitive dependencies that will conflict with the topology's dependencies.
+     * If so, throws an unchecked exception.
+     *
+     * @param newDependency The new dependency CSAR
+     * @param topologyDependencies The topology's dependencies, the new dependency excluded
+     * @param topology The topology undergoing the change
+     */
+    public void checkTransitiveDependenciesChange(CSARDependency newDependency, Set<CSARDependency> topologyDependencies, Topology topology) {
+        // Remaining transitives dependencies in the topology excluding the archive about to change
+        final Set<CSARDependency> transitiveDependencies = topologyDependencies
+                .stream()
+                .map(dependency -> csarDependencyLoader.getDependencies(dependency.getName(), dependency.getVersion()))
+                .reduce(Sets::union)
+                .orElse(Collections.emptySet());
+
+        // If the new dependency is used as a transitive dependency by another CSAR, then the change is not allowed
+        if (transitiveDependencies.stream().anyMatch(someTransitiveDependency -> someTransitiveDependency.getName().equals(newDependency.getName()))) {
+            throw new VersionConflictException("Dependency [" + newDependency.getName() + "]'s version can’t be changed due to version conflict with other transitive dependencies.");
+        }
+
+        // If the new dependency has transitives dependencies, and if those are already used in the topology, then they must be of the same version
+        final Set<CSARDependency> newTransitivesDependencies = csarDependencyLoader.getDependencies(newDependency.getName(), newDependency.getVersion());
+        if (!newTransitivesDependencies.isEmpty()) {
+            // Issue : a new dependency changes the version of a transitive dependency which only affects itself should be accepted
+            // Compute direct dependencies in the topology
+            Set<CSARDependency> directDependencies =  Sets.union(
+                topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false, true)
+                    .values()
+                    .stream()
+                    .map(type -> new CSARDependency(type.getArchiveName(), type.getArchiveVersion()))
+                    .distinct()
+                    .collect(Collectors.toSet()),
+                topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, true)
+                    .values()
+                    .stream()
+                    .map(type -> new CSARDependency(type.getArchiveName(), type.getArchiveVersion()))
+                    .distinct()
+                    .collect(Collectors.toSet())
+            );
+
+            // If a transitive dependency induced by the changed is also a dependency in the topology, then they should be of the same version.
+            newTransitivesDependencies.forEach(newTransitiveDependency -> {
+                if (Sets.union(directDependencies, transitiveDependencies).stream()
+                        .anyMatch(
+                                topologyDep -> topologyDep.getName().equals(newTransitiveDependency.getName()) &&
+                                !topologyDep.getVersion().equals(newTransitiveDependency.getVersion()))
+                        )
+                    throw new VersionConflictException("Dependency [" + newDependency.getName() + "]'s version can’t be changed due to version conflict with other transitive dependencies.");
+            });
+        }
+    }
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology, boolean failOnTypeNotFound) {
         // FIXME we should use ToscaContext here, and why not allowing the caller to pass ona Context?

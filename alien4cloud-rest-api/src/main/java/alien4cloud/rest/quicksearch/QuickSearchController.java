@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import io.swagger.annotations.Api;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.http.MediaType;
@@ -36,6 +37,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @RestController
 @RequestMapping({"/rest/quicksearch", "/rest/v1/quicksearch", "/rest/latest/quicksearch"})
+@Api
 public class QuickSearchController {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;

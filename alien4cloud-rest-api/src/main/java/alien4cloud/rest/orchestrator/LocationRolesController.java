@@ -3,6 +3,7 @@ package alien4cloud.rest.orchestrator;
 import javax.annotation.Resource;
 
 import alien4cloud.model.orchestrators.Orchestrator;
+import io.swagger.annotations.Api;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping({"/rest/orchestrators/{orchestratorId}/locations/{locationId}/roles/", "/rest/v1/orchestrators/{orchestratorId}/locations/{locationId}/roles/", "/rest/latest/orchestrators/{orchestratorId}/locations/{locationId}/roles/"})
+@Api(value = "", description = "Operations on orchestrator location roles")
 public class LocationRolesController {
     @Resource
     private LocationService locationsService;

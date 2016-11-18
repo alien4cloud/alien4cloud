@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -41,6 +42,7 @@ import io.swagger.annotations.Authorization;
 @ApiIgnore
 @RestController
 @RequestMapping(value = {"/rest/orchestrators/{orchestratorId}", "/rest/v1/orchestrators/{orchestratorId}", "/rest/latest/orchestrators/{orchestratorId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Api(value = "", description = "Operations on deployment properties")
 public class OrchestratorDeploymentPropertiesController {
     @Inject
     private OrchestratorDeploymentService orchestratorDeploymentService;

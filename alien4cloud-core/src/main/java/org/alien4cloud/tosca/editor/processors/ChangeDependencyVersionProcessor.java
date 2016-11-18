@@ -44,7 +44,10 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
                 topologyDependencyIterator.remove();
             }
         }
+
         CSARDependency newDependency = new CSARDependency(operation.getDependencyName(), operation.getDependencyVersion());
+        topologyService.checkTransitiveDependenciesChange(newDependency, topologyDependencies, topology);
+
         topologyDependencies.add(newDependency);
         topology.setDependencies(topologyDependencies);
 
@@ -58,6 +61,7 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
         recoveryHelperService.processRecoveryOperations(topology, recoveringOperations);
 
         // TODO passing to this function the processRecoveryOperations ToscaContext should help reducing ES requests
+        // FIXME : This induce side effects as it is called AFTER the topology types has been updated
         topologyService.rebuildDependencies(topology);
     }
 

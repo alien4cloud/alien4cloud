@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.swagger.annotations.Api;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,7 @@ import io.swagger.annotations.ApiParam;
  */
 @RestController
 @RequestMapping({ "/rest/v2/editor/{topologyId}/inputhelper", "/rest/latest/editor/{topologyId}/inputhelper" })
+@Api
 public class EditorInputHelperController {
     @Inject
     private EditorInputHelperService editorService;

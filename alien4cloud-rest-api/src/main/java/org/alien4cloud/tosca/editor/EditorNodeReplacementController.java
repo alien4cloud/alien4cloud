@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor;
 
 import javax.inject.Inject;
 
+import io.swagger.annotations.Api;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import io.swagger.annotations.ApiParam;
  */
 @RestController
 @RequestMapping({ "/rest/v2/editor/{topologyId}/nodetemplates/{nodeTemplateName}/replacementhelper", "/rest/latest/editor/{topologyId}/nodetemplates/{nodeTemplateName}/replacementhelper" })
+@Api(value = "", description = "Node replacement helper")
 public class EditorNodeReplacementController {
 
     @Inject
@@ -27,7 +29,7 @@ public class EditorNodeReplacementController {
     /**
      * Get the possible replacement indexedNodeTypes for a node template.
      */
-    @ApiOperation(value = "Get the possible inputs candidates to be associated with this property.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @ApiOperation(value = "Get the possible type candidates to replace this node.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<NodeType[]> getReplacementForNode(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
