@@ -209,7 +209,7 @@ define(function (require) {
         }
       });
 
-      $scope.isMapEmpty = _.isNotEmpty;
+      $scope.isNotEmpty = _.isNotEmpty;
 
       // TOPOLOGY INFO CONCERNS
       // verify the topology validity
