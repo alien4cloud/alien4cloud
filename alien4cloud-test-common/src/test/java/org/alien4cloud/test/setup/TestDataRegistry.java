@@ -167,6 +167,8 @@ public class TestDataRegistry {
         addConditionFolder("complex properties types", "src/test/resources/data/csars/data_type/data_type_types");
         addConditionFolder("complex properties template", "src/test/resources/data/csars/data_type/data_type_topology");
 
+        addConditionFolder("dependency version conflict", "src/test/resources/data/csars/topology_template/topology_dependency_version_conflict");
+
         // We put all artifacts to a4c root project dir
         // test uploading an unzipped file (do not zip it)
         TEST_ARTIFACTS.put("unzipped", BASE_DIR.resolve("src/test/resources/alien/rest/csars/upload.feature"));

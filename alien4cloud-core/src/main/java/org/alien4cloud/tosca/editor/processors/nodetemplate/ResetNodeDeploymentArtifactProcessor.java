@@ -33,7 +33,8 @@ public class ResetNodeDeploymentArtifactProcessor implements IEditorOperationPro
         NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
         DeploymentArtifact currentArtifact = nodeTemplate.getArtifacts() == null ? null : nodeTemplate.getArtifacts().get(operation.getArtifactName());
         if (currentArtifact == null) {
-            throw new NotFoundException("Artifact with key [" + operation.getArtifactName() + "] do not exist in node template");
+            throw new NotFoundException(
+                    "Artifact with key [" + operation.getArtifactName() + "] do not exist in node template [" + nodeTemplate.getName() + "].");
         }
 
         // Get the node type's artifact
@@ -41,7 +42,7 @@ public class ResetNodeDeploymentArtifactProcessor implements IEditorOperationPro
         NodeType nodeType = nodeTypes.get(nodeTemplate.getType());
         DeploymentArtifact artifactFromNodeType = nodeType.getArtifacts() == null ? null : nodeType.getArtifacts().get(operation.getArtifactName());
         if (artifactFromNodeType == null) {
-            throw new NotFoundException("Artifact with key [" + operation.getArtifactName() + "] do not exist in node type");
+            throw new NotFoundException("Artifact with key [" + operation.getArtifactName() + "] do not exist in node type [" + nodeType.getId() + "].");
         }
 
         currentArtifact.setArtifactRef(artifactFromNodeType.getArtifactRef());

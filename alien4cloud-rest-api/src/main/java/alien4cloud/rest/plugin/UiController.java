@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @ApiIgnore
 @RestController
 @RequestMapping({"/rest/modules", "/rest/v1/modules", "/rest/latest/modules"})
+@Api(value = "", description = "Operations on UI modules")
 public class UiController {
     @Resource
     private PluginManager pluginManager;

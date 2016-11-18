@@ -97,3 +97,12 @@ Feature: CSAR upload
     Then I should receive a RestResponse with no error
     When I upload the archive "compute-1.0"
     Then I should receive a RestResponse with an error code 200
+
+  @reset
+  Scenario: Upload an archive with conflict between transitive and direct dependency
+    Given I have uploaded the archive "tosca base types 1.0"
+    And I have uploaded the archive "tosca base types 2.0"
+    And I have uploaded the archive "sample apache lb types 0.2"
+    When I upload the archive "dependency version conflict"
+    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
+    And  I there should be a parsing error level "ERROR" and code "DEPENDENCY_VERSION_CONFLICT"

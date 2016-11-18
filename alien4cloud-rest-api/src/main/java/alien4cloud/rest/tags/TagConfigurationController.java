@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
+import io.swagger.annotations.Api;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping({ "/rest/metaproperties", "/rest/v1/metaproperties", "/rest/latest/metaproperties" })
+@Api
 public class TagConfigurationController {
 
     @Resource

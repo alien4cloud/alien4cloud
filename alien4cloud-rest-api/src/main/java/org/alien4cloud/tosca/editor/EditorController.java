@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.springframework.core.io.InputStreamResource;
@@ -32,6 +33,7 @@ import springfox.documentation.annotations.ApiIgnore;
  */
 @RestController
 @RequestMapping({ "/rest/v2/editor", "/rest/latest/editor" })
+@Api
 public class EditorController {
     @Inject
     private EditorService editorService;

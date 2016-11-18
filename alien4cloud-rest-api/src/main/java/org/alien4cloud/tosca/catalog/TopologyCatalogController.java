@@ -7,6 +7,7 @@ import alien4cloud.rest.application.model.CreateTopologyRequest;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.index.ITopologyCatalogService;
@@ -31,6 +32,7 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 @Slf4j
 @RestController
 @RequestMapping({ "/rest/catalog/topologies", "/rest/v1/catalog/topologies", "/rest/latest/catalog/topologies" })
+@Api
 public class TopologyCatalogController {
 
     @Inject

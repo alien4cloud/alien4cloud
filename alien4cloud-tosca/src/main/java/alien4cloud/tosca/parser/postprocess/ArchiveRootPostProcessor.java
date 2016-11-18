@@ -3,9 +3,13 @@ package alien4cloud.tosca.parser.postprocess;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
@@ -19,6 +23,9 @@ import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.NormativeCredentialConstant;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.PropertyUtil;
 
 /**
@@ -70,12 +77,41 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
     private void doProcess(ArchiveRoot archiveRoot) {
         // Note: no post processing has to be done on repositories
 
+        // check dependencies / imports
+        processImports(archiveRoot);
+
         // Post process all types from the archive and update their list of parent as well as merge them with their parent types.
         processTypes(archiveRoot);
 
         // Then process the topology
         topologyPostProcessor.process(archiveRoot.getTopology());
         processRepositoriesDefinitions(archiveRoot.getRepositories());
+    }
+
+    private void processImports(ArchiveRoot archiveRoot) {
+        if (archiveRoot.getArchive().getDependencies() == null) {
+            return;
+        }
+        Set<CSARDependency> dependencies = archiveRoot.getArchive().getDependencies();
+
+        // add a parsing error if there is a version conflict between a transitive and a direct dependency
+        for (CSARDependency dependency : dependencies) {
+            Node node = ParsingContextExecution.getObjectToNodeMap().get(dependency);
+            Csar csar = ToscaContext.get().getArchive(dependency.getName(), dependency.getVersion());
+            if (csar != null && csar.getDependencies() != null) {
+                csar.getDependencies().forEach(transitiveDependency -> {
+                    dependencies.stream()
+                            .filter(directDependency -> Objects.equals(directDependency.getName(), transitiveDependency.getName())
+                                    && !Objects.equals(directDependency.getVersion(), transitiveDependency.getVersion()))
+                            .findFirst().ifPresent(currentDependency -> {
+                                ParsingContextExecution.getParsingErrors()
+                                        .add(new ParsingError(ErrorCode.DEPENDENCY_VERSION_CONFLICT, csar.getId(), node.getStartMark(),
+                                                AlienUtils.prefixWith(":", transitiveDependency.getVersion(), transitiveDependency.getName()),
+                                                node.getEndMark(), AlienUtils.prefixWith(":", currentDependency.getVersion(), currentDependency.getName())));
+                            });
+                });
+            }
+        }
     }
 
     private void processRepositoriesDefinitions(Map<String, RepositoryDefinition> repositories) {
