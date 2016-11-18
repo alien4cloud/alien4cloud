@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.security.model.User;
+import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -134,16 +135,18 @@ public class EditorRepositoryService {
     }
 
     /**
-     * Pull modifications from the git repository.
+     * Pull modifications from the git repository to a temp dir.
      *
+     * @param path the temp path
      * @param csar The concerned archive.
      * @param username The username of the git repository, null if none.
      * @param password The password of the git repository, null if none.
      * @param remoteBranch The name of the remote branch to pull from.
      */
-    public void pull(Csar csar, String username, String password, String remoteBranch) {
+    public void pull(Path path, Csar csar, String username, String password, String remoteBranch) throws IOException {
         Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
-        RepositoryManager.pull(archiveGitPath, username, password, remoteBranch);
+        FileUtil.copy(archiveGitPath, path);
+        RepositoryManager.pull(path, username, password, remoteBranch);
     }
 
     public void clean(Csar csar) {

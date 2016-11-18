@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,11 @@ import com.google.common.collect.Maps;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.topology.*;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -331,14 +336,41 @@ public class EditorService {
     /**
      * Performs a git pull.
      */
-    public void pull(String topologyId, String username, String password, String remoteBranch) {
+    public TopologyDTO pull(String topologyId, String username, String password, String remoteBranch) {
+        Path tempPath = null;
         try {
             editionContextManager.init(topologyId);
             if (EditionContextManager.get().getLastSavedOperationIndex() == -1) {
                 repositoryService.clean(EditionContextManager.getCsar());
             }
-            repositoryService.pull(EditionContextManager.getCsar(), username, password, remoteBranch);
+            Path topologyPath = EditionContextManager.get().getLocalGitPath();
+            tempPath = Files.createTempDirectory(Paths.get(tempUploadDir), "");
+            repositoryService.pull(tempPath, EditionContextManager.getCsar(), username, password, remoteBranch);
+            topologyUploadService.processTopologyDir(tempPath, EditionContextManager.get().getTopology().getWorkspace());
+            try {
+                FileUtil.delete(topologyPath);
+            } catch (IOException e) {
+                // Ignored
+            }
+            FileUtil.copy(tempPath, topologyPath);
+            repositoryService.updateArchiveZip(EditionContextManager.getCsar().getName(), EditionContextManager.getCsar().getVersion());
+            // and finally save and commit
+            Topology topology = EditionContextManager.getTopology();
+            topologyServiceCore.save(topology);
+            // Topology has changed means that dependencies might have changed, must update the dependencies
+            csarService.setDependencies(topology.getId(), topology.getDependencies());
+            topologySubstitutionServive.updateSubstitutionType(topology, EditionContextManager.getCsar());
+            return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
+        } catch (IOException e) {
+            throw new EditorIOException("Error while pulling remote branch into local repository for " + topologyId + " for user " + username, e);
         } finally {
+            if (tempPath != null) {
+                try {
+                    FileUtil.delete(tempPath);
+                } catch (IOException e) {
+                    // Ignored
+                }
+            }
             editionContextManager.destroy();
         }
     }
