@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import alien4cloud.common.TagService;
+import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.catalog.CatalogVersionResult;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -43,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping({ "/rest/components", "/rest/v1/components", "/rest/latest/components" })
+@Api(value = "", description = "Operations on Components")
 public class ComponentController {
 
     @Resource(name = "alien-es-dao")

@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
+import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.IArchiveIndexerAuthorizationFilter;
@@ -60,6 +61,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping({ "/rest/csars", "/rest/v1/csars", "/rest/latest/csars" })
+@Api(value = "", description = "Operations on CSARs")
 @Slf4j
 public class CloudServiceArchiveController {
     @Resource

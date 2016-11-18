@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
@@ -41,6 +42,7 @@ import springfox.documentation.annotations.ApiIgnore;
  */
 @RestController
 @RequestMapping({ "/rest/suggest", "/rest/v1/suggest", "/rest/latest/suggest" })
+@Api
 public class SuggestionController {
     private static final int SUGGESTION_COUNT = 10;
     private static final String TAG_FIELD = "tags";

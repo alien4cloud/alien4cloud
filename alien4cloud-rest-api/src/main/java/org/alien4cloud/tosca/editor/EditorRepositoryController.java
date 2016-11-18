@@ -12,6 +12,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
@@ -37,6 +38,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping({ "/rest/v2/editor/{topologyId}/availableRepositories", "/rest/latest/editor/{topologyId}/availableRepositories" })
+@Api
 public class EditorRepositoryController {
 
     @Inject

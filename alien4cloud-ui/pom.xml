@@ -118,6 +118,91 @@
           </filesets>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>io.github.swagger2markup</groupId>
+        <artifactId>swagger2markup-maven-plugin</artifactId>
+        <version>1.1.0</version>
+        <configuration>
+          <swaggerInput>${project.basedir}/generated/swagger-ui/swagger.json</swaggerInput>
+          <outputDir>${project.build.directory}/asciidoc</outputDir>
+          <config>
+            <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
+          </config>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.kongchen</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <version>3.1.4</version>
+        <configuration>
+          <apiSources>
+            <apiSource>
+              <springmvc>true</springmvc>
+              <locations>alien4cloud,org.alien4cloud</locations>
+              <info>
+                <title>ALIEN4Cloud REST API Documentation</title>
+                <version>latest API version powered by ${project.version}</version>
+                <description>
+                  The Rest API is versionned from now on. So, you should specify a version in the url when accessing resources.
+                  However, there is an exception with the alien4cloud 1.1.0 API, which do not need a version.
+                  Also note that you can use the keyword latest in place of version (example: /rest/latest/applications), you will be then consuming the latest API version. Though, we do not recommend this.
+                </description>
+              </info>
+              <swaggerDirectory>${project.basedir}/target/apidocs-rest/swagger</swaggerDirectory>
+            </apiSource>
+          </apiSources>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.redowlanalytics</groupId>
+        <artifactId>swagger2markup-maven-plugin</artifactId>
+        <version>0.7.1</version>
+        <executions>
+          <execution>
+            <id>gen-asciidoc</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>process-swagger</goal>
+            </goals>
+            <configuration>
+              <inputDirectory>${project.basedir}/target/apidocs-rest/swagger</inputDirectory>
+              <outputDirectory>${project.basedir}/target/apidocs-rest/asciidoc</outputDirectory>
+              <markupLanguage>asciidoc</markupLanguage>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.asciidoctor</groupId>
+        <artifactId>asciidoctor-maven-plugin</artifactId>
+        <version>1.5.2</version>
+        <executions>
+          <execution>
+            <id>generate-docs</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>process-asciidoc</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>${project.basedir}/src/main/resources/docs</sourceDirectory>
+              <sourceDocumentName>index.adoc</sourceDocumentName>
+              <outputDirectory>${project.basedir}/target/alien4cloud-ui-war/static-api-docs</outputDirectory>
+              <backend>html5</backend>
+              <attributes>
+                <generated>${project.basedir}/target/apidocs-rest/asciidoc</generated>
+              </attributes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>      
     </plugins>
     <pluginManagement>
       <plugins>
