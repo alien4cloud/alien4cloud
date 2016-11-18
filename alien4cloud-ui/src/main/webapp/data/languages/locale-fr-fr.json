@@ -166,6 +166,7 @@
         "CREATE_TOPOLOGY_MESSAGE" : "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds",
         "EMPTY_TOPOLOGY_MESSAGE" : "La topologie actuelle est vide. Ajoutez y des noeuds",
         "ERRORS_LABEL" : "Erreurs",
+        "GO_TO_VALIDATION": "Aller sur la page de validation de topology",
         "IMPLEMENT" : "Implémenter les noeuds",
         "IMPLEMENT_LABEL" : "A implémenter",
         "LABEL" : "La topologie n'est pas valide :",

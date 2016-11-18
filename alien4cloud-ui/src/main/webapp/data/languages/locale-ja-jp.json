@@ -166,6 +166,7 @@
         "CREATE_TOPOLOGY_MESSAGE" : "トポロジが見つかりません。 ノードタイプを使った新しいトポロジを作成してください。",
         "EMPTY_TOPOLOGY_MESSAGE" : "現在のトポロジは空です。 ノードテンプレートを追加してください。",
         "ERRORS_LABEL" : "エラー",
+        "GO_TO_VALIDATION": "Go to topology validation",
         "IMPLEMENT" : "ノードの実装",
         "IMPLEMENT_LABEL" : "実装",
         "LABEL" : "The topology is not valid:",

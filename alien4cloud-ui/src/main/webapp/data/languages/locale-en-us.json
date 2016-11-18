@@ -169,6 +169,7 @@
         "CREATE_TOPOLOGY_MESSAGE" : "No topology found! Create a new topology and fill it with node templates",
         "EMPTY_TOPOLOGY_MESSAGE" : "The current topology is empty. Add node templates",
         "ERRORS_LABEL" : "Errors",
+        "GO_TO_VALIDATION": "Go to topology validation",
         "IMPLEMENT" : "Implement the node",
         "IMPLEMENT_LABEL" : "To implement",
         "LABEL" : "The topology is not valid :",

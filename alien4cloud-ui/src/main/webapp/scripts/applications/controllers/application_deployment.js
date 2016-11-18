@@ -282,6 +282,10 @@ define(function(require) {
           $scope.stopEvent();
         });
 
+        $scope.goToTopologyValidation = function(){
+          $state.go('applications.detail.topology.validation');
+        };
+
       }
     ]); //controller
 }); //Define
