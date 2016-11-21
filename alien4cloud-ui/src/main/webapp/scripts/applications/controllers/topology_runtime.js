@@ -85,16 +85,17 @@ define(function (require) {
               $scope.selectedEnvironment = appEnvironments.selected;
             }
           });
-        } else if (_.defined(appEnvironments.selected) && appEnvironments.selected.status !== 'UNDEPLOYED') {
+        } else if (_.defined(appEnvironments.selected) && appEnvironments.deployEnvironments.indexOf(appEnvironments.selected) > 0 && appEnvironments.selected.status !== 'UNDEPLOYED') {
           // select current environment
           $scope.selectedEnvironment = appEnvironments.selected;
+
         } else {
           //otherwise, just select the first deployed envionment
           for (var i = 0; i < appEnvironments.deployEnvironments.length && _.undefined($scope.selectedEnvironment); i++) {
             if (appEnvironments.deployEnvironments[i].status !== 'UNDEPLOYED') {
               $scope.selectedEnvironment = appEnvironments.deployEnvironments[i];
             }
-            appEnvironments.select($scope.selectedEnvironment);
+            appEnvironments.select($scope.selectedEnvironment.id);
           }
         }
       };

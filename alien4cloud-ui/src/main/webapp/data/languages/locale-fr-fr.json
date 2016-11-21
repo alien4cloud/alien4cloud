@@ -166,6 +166,7 @@
         "CREATE_TOPOLOGY_MESSAGE" : "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds",
         "EMPTY_TOPOLOGY_MESSAGE" : "La topologie actuelle est vide. Ajoutez y des noeuds",
         "ERRORS_LABEL" : "Erreurs",
+        "GO_TO_VALIDATION": "Aller sur la page de validation de topology",
         "IMPLEMENT" : "Implémenter les noeuds",
         "IMPLEMENT_LABEL" : "A implémenter",
         "LABEL" : "La topologie n'est pas valide :",
@@ -399,6 +400,12 @@
       "MESSAGE" : "Un composant [ {{componentId}} ] a déjà été défini comme défaut pour la capacité [ {{capability}} ]. Voulez-vous le remplacer?",
       "OK" : "Remplacer"
     },
+    "CSAR" : {
+      "TITLE": "CSARS",
+      "ACTIVE_FILTERS": "Filtre actifs",
+      "TEMPLATEAUTHOR": "Auteur",
+      "WORKSPACE": "Workspace"
+    },
     "DEFAULTCAPABILITIES" : "Capacités défaut",
     "DERIVEDFROM" : "Héritage",
     "DRAG_DROP_UPLOAD" : "Déposer les archives à uploader ici",
@@ -417,11 +424,13 @@
       "300" : "Erreur inattendue lors de l'écriture du plugin.",
       "353" : "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml.",
       "ALIEN_MAPPING_ERROR" : "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
-      "CSAR_ALREADY_INDEXED": "Le CSAR a été déjà indexé dans Alien avec le même contenu.",
+      "CSAR_ALREADY_INDEXED": "Une archive a déjà été indexé dans Alien4Cloud avec le même contenu.",
       "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "Un CSAR avec le même nom et la même version existe déjà dans Alien.",
+      "DEPENDENCY_VERSION_CONFLICT": "La dépendence transitive {{problem}} de {{context}} est en conflit avec la dépendence directe {{note}}.",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "La dépendance [ {{note}} ] n'est pas visible depuis le workspace cible",
-      "CSAR_ALREADY_EXISTS" : "Une archive releasé ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
+      "CSAR_ALREADY_EXISTS" : "Une archive releasée ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "Une topologie ayant une dépendence vers une archive de ce nom et cette version est déployée. Afin de garantir la stabilité des déploiements, cette archive ne peut être modifiée.",
+      "TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR": "Une archive ne peut pas écraser un type Tosca issue d'une autre archive : {{problem}}",
       "DUPLICATED_ELEMENT_DECLARATION" : "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
       "ENTRY_DEFINITION_NOT_FOUND" : "Le fichier de définitions n'a pas été trouvé. Le fichier de définitions yaml doit se trouver à la racine de l'archive",
       "ERRONEOUS_ARCHIVE_FILE" : "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",
@@ -433,11 +442,11 @@
       "INVALID_YAML" : "Le fichier reférencé n'est pas conforme au format YAML.",
       "LABEL" : "Erreurs",
       "MISSING_DEPENDENCY" : "La dépendance [{{note}}] est introuvable dans le repository Alien4Cloud.",
-      "SNAPSHOT_DEPENDENCY" : "Dépendence snapshot [{{note}}] n'est pas autorisée dans une archive releasée.",
+      "SNAPSHOT_DEPENDENCY" : "Une dépendence snapshot [{{note}}] n'est pas autorisée dans une archive releasée.",
       "MISSING_FILE" : "Le fichier référencé {{note}} n'existe pas dans l'archive.",
       "MISSING_TOPOLOGY_INPUT" : "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs",
       "MISSING_TOSCA_VERSION" : "La version de TOSCA n'est pas spécifiée et est obligatoire.",
-      "UNKNOWN_TOSCA_VERSION": "La version de TOSCA spécifiée n'est pas reconnue par Alien 4 Cloud",
+      "UNKNOWN_TOSCA_VERSION": "La version de TOSCA spécifiée n'est pas reconnue par Alien4Cloud",
       "TOSCA_VERSION_NOT_FIRST": "La version de TOSCA doit-être la première ligne du document TOSCA.",
       "NotNull" : "La propriété [ {{path}} ] n'est pas nullable",
       "OUTPUTS_BAD_PARAMS_COUNT" : "Le nombre d'arguments pour la fonction est incorrect",
@@ -447,7 +456,7 @@
       "REQUIREMENT_NOT_FOUND" : "La définition du requirement [{{note}}] est introuvable.",
       "REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED" : "Le nom du node_template est requis pour la définition d'un requirement, il doit être définit en tant que valeur d'un noeud 'node'.",
       "REQUIREMENT_TARGET_NOT_FOUND" : "La cible du requirement [{{note}}] n'exite pas.",
-      "SINGLE_DEFINITION_SUPPORTED" : "Alien 4 Cloud ne supporte actuellement qu'un unique fichier de definitions.",
+      "SINGLE_DEFINITION_SUPPORTED" : "Alien4Cloud ne supporte actuellement qu'un unique fichier de definitions.",
       "SYNTAX_ERROR" : "Erreur de syntaxe. La définition Yaml pour le type {{note}} ne correspond pas à la spécification.",
       "Size" : "La taille de la propriété [ {{path}} ] ne statisfait pas la contrainte (vide)",
       "TOPOLOGY_DETECTED" : "Un modèle de topologie à été détecté dans l'archive et créé avec le nom : {{note}}",
@@ -687,7 +696,7 @@
     "650" : "Au moins deux de vos Compute ont un conflit de nom.",
     "651" : "Un BlockStorage ne peut pas avoir un volumeId lorsque le cloud a l'option 'deletable' d'activée.",
     "680" : "Le repository Git n'existe pas ou n'est pas valide.",
-    "681" : "Le repository Git requiert un fusionnement manuel.",
+    "681" : "Le repository Git requiert un merge manuel.",
     "682" : "Le repository Git n'est pas dans un status 'SAFE', Veuillez corriger son état manuellement.",
     "750" : "Concurrence dans le processus d'édition",
     "800" : {
@@ -703,6 +712,7 @@
       "pattern" : "La valeur doit respecter le modèle {{reference}}",
       "validValues" : "La valeur doit être comprise dans [ {{reference}} ]"
     },
+    "803" : "Conflit de version",
     "804" : "{{value}} n'est pas du type {{type}}",
     "805" : {
       "MESSAGE" : "Un ou plusieurs paramètres sont obligatoires : {{value}}",
@@ -754,7 +764,7 @@
   },
   "HOME" : {
     "ADMIN" : {
-      "TOUR" : "Apprendre à configurer Alien 4 Cloud, les utilisateurs et leurs rôles, les clouds etc."
+      "TOUR" : "Apprendre à configurer Alien4Cloud, les utilisateurs et leurs rôles, les clouds etc."
     }
   },
   "HOPSCOTCH_MISSING" : {
@@ -763,7 +773,7 @@
   },
   "INSTANCE" : "Instance",
   "MAIN" : {
-    "CONTACT" : "Veuillez contacter votre administrateur Alien 4 Cloud.",
+    "CONTACT" : "Veuillez contacter votre administrateur Alien4Cloud.",
     "RESTRICTED_END" : "pour accéder à cette ressource.",
     "RESTRICTED_START" : "Vous n'êtes pas assez",
     "WELCOME" : "Bienvenue sur"
@@ -813,7 +823,7 @@
     },
     "CONFIGURATION" : {
       "LOCK_LOCATION_ROLE" : "Ce rôle a été configuré dans les paramètres de sécurité de l'orchestrateur et est appliqué à l'ensemble de ses locations.",
-      "UNLOCK-BTN-CONTENT" : "Attention, la modification de la configuration de l'orchestrateur pourrait avoir des conséquences sur la communication entre Alien et celui-ci.",
+      "UNLOCK-BTN-CONTENT" : "Attention, la modification de la configuration de l'orchestrateur pourrait avoir des conséquences sur la communication entre Alien4Cloud et celui-ci.",
       "UNLOCK-BTN-TITLE" : "Déverrouiller"
     },
     "LOCATIONS" : {
@@ -919,7 +929,8 @@
     },
     "DUPLICATE": "Dupliquer la topology",
     "NEW" : "Nouveau Modèle",
-    "REMOVE_TITLE": "Comment supprimer un modèle de topologie ?",
+    "REMOVE_TOOLTIP": "Supprimer le modèle",
+    "REMOVE_TITLE": "Comment supprimer le modèle de topologie ?",
     "REMOVE_CONTENT": "Tous les modèles de topologie sont liés à une archive. En la supprimant vous supprimerai les deux."
   },
   "TRUE" : "Vrai",
@@ -993,7 +1004,7 @@
       "title" : "Métriques de la JVM"
     },
     "refresh.button" : "Rafraichir",
-    "title" : "Métriques d'Alien 4 Cloud"
+    "title" : "Métriques d'Alien4Cloud"
   },
   "operations" : "Opérations",
   "CONSTRAINTS": {

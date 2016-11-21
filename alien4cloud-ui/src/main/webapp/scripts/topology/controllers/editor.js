@@ -264,6 +264,7 @@ define(function (require) {
           var gitPullResource= $alresource('rest/latest/editor/:topologyId/git/pull');
           gitPullResource.update({topologyId: $scope.topologyId, remoteBranch: gitPushPullForm.remoteBranch}, angular.toJson(gitPushPullForm.credentials), function(response) {
             if(_.undefined(response.error)){
+              $scope.refreshTopology(response.data);
               toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PULL.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PULL.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
             }
             console.debug('pulled');

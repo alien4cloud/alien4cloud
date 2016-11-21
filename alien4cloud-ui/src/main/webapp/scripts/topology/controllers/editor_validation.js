@@ -11,7 +11,15 @@ define(function (require) {
 
       var editorIsTopologyValid = $alresource('rest/latest/editor/:topologyId/isvalid');
       var isCurrentTopologyValid = function() {
-        if($scope.topology.operations && $scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex===-1) {
+        if (_.undefined($scope.topology)) {
+          topologyServices.dao.get({
+            topologyId: $scope.topologyId
+          }, function(successResult) {
+            if (_.undefined(successResult.error)){
+              $scope.refreshTopology(successResult.data);
+            }
+          });
+        } else if($scope.topology.operations && $scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex===-1) {
           // nothing to check
           return;
         }
@@ -27,7 +35,7 @@ define(function (require) {
       isCurrentTopologyValid();
 
       $scope.currentTopologyHasNoChanges = function(){
-        return $scope.topology.operations && $scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex===-1;
+        return !_.undefined($scope.topology) && ($scope.topology.operations && $scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex===-1);
       };
 
       var isTopologyValid = function isTopologyValid() {

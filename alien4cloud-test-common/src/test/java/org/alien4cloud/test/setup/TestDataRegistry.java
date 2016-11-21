@@ -140,6 +140,9 @@ public class TestDataRegistry {
         addConditionFolder("artifact java types 1.0 wrong type", "src/test/resources/data/csars/artifact/java-types-1.0-artifact-wrong-type");
         addConditionFolder("artifact java types 1.0 wrong path", "src/test/resources/data/csars/artifact/java-types-1.0-artifact-wrong-path");
 
+        // Node type
+        addConditionFolder("compute-1.0", "src/test/resources/data/csars/node_type");
+
         // Runtime archive
         addConditionFolder("custom-interface-mock-types", "src/test/resources/data/csars/custom-interface-mock-types");
 
@@ -163,6 +166,8 @@ public class TestDataRegistry {
         addConditionFolder("es schema free bug template", "src/test/resources/data/csars/es-bug/topology");
         addConditionFolder("complex properties types", "src/test/resources/data/csars/data_type/data_type_types");
         addConditionFolder("complex properties template", "src/test/resources/data/csars/data_type/data_type_topology");
+
+        addConditionFolder("dependency version conflict", "src/test/resources/data/csars/topology_template/topology_dependency_version_conflict");
 
         // We put all artifacts to a4c root project dir
         // test uploading an unzipped file (do not zip it)

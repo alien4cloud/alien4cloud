@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import io.swagger.annotations.Api;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -51,6 +52,7 @@ import io.swagger.annotations.Authorization;
 
 @RestController
 @RequestMapping({ "/rest/deployments", "/rest/v1/deployments", "/rest/latest/deployments" })
+@Api(value = "", description = "Operations on Deployments")
 public class DeploymentController {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;

@@ -2,6 +2,7 @@ package alien4cloud.rest.application;
 
 import javax.annotation.Resource;
 
+import io.swagger.annotations.Api;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping({"/rest/applications/{applicationId:.+}/tags", "/rest/v1/applications/{applicationId:.+}/tags", "/rest/latest/applications/{applicationId:.+}/tags"})
+@Api(value = "", description = "Operations on application's tags")
 public class ApplicationTagsController {
     @Resource
     private ApplicationService applicationService;

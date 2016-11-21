@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.annotation.Resource;
 
+import io.swagger.annotations.Api;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping({ "/rest/v1/suggestions", "/rest/latest/suggestions" })
+@Api
 public class GenericSuggestionController {
 
     @Resource

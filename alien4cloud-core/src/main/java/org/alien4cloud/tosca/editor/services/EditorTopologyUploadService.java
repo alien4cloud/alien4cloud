@@ -32,6 +32,17 @@ public class EditorTopologyUploadService {
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
 
+    public void processTopologyDir(Path archivePath, String workspace) {
+        // parse the archive.
+        try {
+            ParsingResult<ArchiveRoot> parsingResult = toscaArchiveParser.parseDir(archivePath);
+            processTopologyParseResult(archivePath, parsingResult, workspace);
+        } catch (ParsingException e) {
+            // Manage parsing error and dispatch them in the right editor exception
+            throw new EditorToscaYamlUpdateException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.");
+        }
+    }
+
     /**
      * Process the import of a topology archive or yaml in the context of the editor.
      *
@@ -40,53 +51,59 @@ public class EditorTopologyUploadService {
     public void processTopology(Path archivePath, String workspace) {
         // parse the archive.
         try {
-            ParsingResult<ArchiveRoot> parsingResult = postProcessor.process(archivePath, toscaArchiveParser.parse(archivePath, true), workspace);
-
-            // check if any blocker error has been found during parsing process.
-            if (parsingResult.hasError(ParsingErrorLevel.ERROR)) {
-                // do not save anything if any blocker error has been found during import.
-
-                throw new EditorToscaYamlUpdateException("Uploaded yaml files is not a valid tosca template", parsingResult.getContext().getParsingErrors());
-            }
-            if (parsingResult.getResult().hasToscaTypes()) {
-                throw new EditorToscaYamlUpdateException("Tosca types are currently not supported in the topology editor context.");
-            }
-            if (!parsingResult.getResult().hasToscaTopologyTemplate()) {
-                throw new EditorToscaYamlUpdateException("A topology template is required in the topology edition context.");
-            }
-
-            Topology currentTopology = EditionContextManager.getTopology();
-            Topology parsedTopology = parsingResult.getResult().getTopology();
-
-            if (!currentTopology.getArchiveName().equals(parsedTopology.getArchiveName()) || !currentTopology.getArchiveVersion().equals(parsedTopology.getArchiveVersion())) {
-                throw new EditorToscaYamlUpdateException("Template name and version cannot be updated in the topology edition context.");
-            }
-
-            // Copy static elements from the topology
-            parsedTopology.setId(currentTopology.getId());
-            // Update editor tosca context
-            ToscaContext.get().updateDependencies(parsedTopology.getDependencies());
-
-            // init the workflows for the topology based on the yaml
-            WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
-                    .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
-                        @Override
-                        public Topology getTopology() {
-                            return parsedTopology;
-                        }
-
-                        @Override
-                        public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
-                            return ToscaContext.get(clazz, id);
-                        }
-                    });
-            workflowBuilderService.initWorkflows(topologyContext);
-
-            // update the topology in the edition context with the new one
-            EditionContextManager.get().setTopology(parsingResult.getResult().getTopology());
+            ParsingResult<ArchiveRoot> parsingResult = toscaArchiveParser.parse(archivePath, true);
+            processTopologyParseResult(archivePath, parsingResult, workspace);
         } catch (ParsingException e) {
             // Manage parsing error and dispatch them in the right editor exception
             throw new EditorToscaYamlUpdateException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.");
         }
+    }
+
+    private void processTopologyParseResult(Path archivePath, ParsingResult<ArchiveRoot> parsingResult, String workspace) {
+        // parse the archive.
+        parsingResult = postProcessor.process(archivePath, parsingResult, workspace);
+        // check if any blocker error has been found during parsing process.
+        if (parsingResult.hasError(ParsingErrorLevel.ERROR)) {
+            // do not save anything if any blocker error has been found during import.
+
+            throw new EditorToscaYamlUpdateException("Uploaded yaml files is not a valid tosca template", parsingResult.getContext().getParsingErrors());
+        }
+        if (parsingResult.getResult().hasToscaTypes()) {
+            throw new EditorToscaYamlUpdateException("Tosca types are currently not supported in the topology editor context.");
+        }
+        if (!parsingResult.getResult().hasToscaTopologyTemplate()) {
+            throw new EditorToscaYamlUpdateException("A topology template is required in the topology edition context.");
+        }
+
+        Topology currentTopology = EditionContextManager.getTopology();
+        Topology parsedTopology = parsingResult.getResult().getTopology();
+
+        if (!currentTopology.getArchiveName().equals(parsedTopology.getArchiveName())
+                || !currentTopology.getArchiveVersion().equals(parsedTopology.getArchiveVersion())) {
+            throw new EditorToscaYamlUpdateException("Template name and version cannot be updated in the topology edition context.");
+        }
+
+        // Copy static elements from the topology
+        parsedTopology.setId(currentTopology.getId());
+        // Update editor tosca context
+        ToscaContext.get().updateDependencies(parsedTopology.getDependencies());
+
+        // init the workflows for the topology based on the yaml
+        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
+                .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
+                    @Override
+                    public Topology getTopology() {
+                        return parsedTopology;
+                    }
+
+                    @Override
+                    public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
+                        return ToscaContext.get(clazz, id);
+                    }
+                });
+        workflowBuilderService.initWorkflows(topologyContext);
+
+        // update the topology in the edition context with the new one
+        EditionContextManager.get().setTopology(parsingResult.getResult().getTopology());
     }
 }

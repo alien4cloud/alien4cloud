@@ -43,11 +43,7 @@ define(function (require) {
             type: 'org.alien4cloud.tosca.editor.operations.ChangeDependencyVersionOperation',
             dependencyName: dependencyName,
             dependencyVersion: newVersion
-          }, function(result) {
-            if (!result.error) {
-              callback();
-            }
-          });          
+          });
         }
 
       };

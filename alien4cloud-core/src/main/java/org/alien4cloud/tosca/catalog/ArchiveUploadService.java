@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -47,7 +48,7 @@ public class ArchiveUploadService {
      * @throws CSARUsedInActiveDeployment
      */
     @ToscaContextual
-    public ParsingResult<Csar> upload(Path path, CSARSource csarSource, String workspace) throws ParsingException, CSARUsedInActiveDeployment {
+    public ParsingResult<Csar> upload(Path path, CSARSource csarSource, String workspace) throws ParsingException, CSARUsedInActiveDeployment, ToscaTypeAlreadyDefinedInOtherCSAR {
         // parse the archive.
         ParsingResult<ArchiveRoot> parsingResult = parser.parseWithExistingContext(path, workspace);
 

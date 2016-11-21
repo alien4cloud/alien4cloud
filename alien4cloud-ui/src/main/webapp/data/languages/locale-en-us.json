@@ -169,6 +169,7 @@
         "CREATE_TOPOLOGY_MESSAGE" : "No topology found! Create a new topology and fill it with node templates",
         "EMPTY_TOPOLOGY_MESSAGE" : "The current topology is empty. Add node templates",
         "ERRORS_LABEL" : "Errors",
+        "GO_TO_VALIDATION": "Go to topology validation",
         "IMPLEMENT" : "Implement the node",
         "IMPLEMENT_LABEL" : "To implement",
         "LABEL" : "The topology is not valid :",
@@ -414,6 +415,7 @@
       "OK" : "Overwrite"
     },
     "CSAR" : {
+      "TITLE": "CSARS",
       "ACTIVE_FILTERS": "Active filters",
       "TEMPLATEAUTHOR": "Author",
       "WORKSPACE": "Workspace"
@@ -436,11 +438,13 @@
       "300" : "Unexpected IO error on plugin upload.",
       "353" : "The META-INF/plugin.yml file is missing in your plugin.",
       "ALIEN_MAPPING_ERROR" : "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
-      "CSAR_ALREADY_INDEXED": "The CSAR has already been indexed in Alien with the same content",
-      "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "An archive with the same name and version already exists in Alien repository in another workspace.",
+      "CSAR_ALREADY_INDEXED": "The CSAR has already been indexed in Alien4Cloud with the same content",
+      "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "An archive with the same name and version already exists in Alien4Cloud repository in another workspace.",
+      "DEPENDENCY_VERSION_CONFLICT": "The transitive dependency [{{problem}}] of [{{context}}] is in conflict with the direct dependency [{{note}}].",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "The dependency [ {{note}} ] is not visible from the target workspace",
-      "CSAR_ALREADY_EXISTS": "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive, if not used in a deployed topology.",
-      "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien doesn't allow the overriding.",
+      "CSAR_ALREADY_EXISTS": "A released archive with the same name and version already exists in Alien4Cloud repository. In order to ensure stability for user using it, Alien4Cloud doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive, if not used in a deployed topology.",
+      "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien4Cloud doesn't allow the overriding.",
+      "TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR": "An archive cannot override a node type of an other archive : {{problem}}",
       "DUPLICATED_ELEMENT_DECLARATION" : "The element [ {{note}} ] has already be defined in this definition file.",
       "ENTRY_DEFINITION_NOT_FOUND" : "Entry definition file has not been found. Please put a valid definition file at the root of the archive.",
       "ERRONEOUS_ARCHIVE_FILE" : "Cannot load the archive file. Please check that the file is a valid zip.",
@@ -451,12 +455,12 @@
       "INVALID_SCALAR_UNIT" : "Expected type was a TOSCA scalar unit, both unit and value are required.",
       "INVALID_YAML" : "The File does not respect YAML format.",
       "LABEL" : "Errors",
-      "MISSING_DEPENDENCY" : "Dependency [{{note}}] cannot be found in Alien repository.",
+      "MISSING_DEPENDENCY" : "Dependency [{{note}}] cannot be found in Alien4Cloud repository.",
       "SNAPSHOT_DEPENDENCY" : "Snapshot dependency [{{note}}] is not allowed in released archive.",
       "MISSING_FILE" : "Reference file {{note}} cannot be found within the archive.",
       "MISSING_TOPOLOGY_INPUT" : "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
       "MISSING_TOSCA_VERSION" : "Tosca version is not specified and is required.",
-      "UNKNOWN_TOSCA_VERSION" : "Tosca version is unknown and not recognized by Alien 4 Cloud.",
+      "UNKNOWN_TOSCA_VERSION" : "Tosca version is unknown and not recognized by Alien4Cloud .",
       "TOSCA_VERSION_NOT_FIRST": "Tosca version must be the first line of the service template.",
       "NotNull" : "The property [ {{path}} ] cannot be null",
       "OUTPUTS_BAD_PARAMS_COUNT" : "Function arguments count is incorrect",
@@ -466,7 +470,7 @@
       "REQUIREMENT_NOT_FOUND" : "Requirement definition for [{{note}}] was not found.",
       "REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED" : "Node template name is required for the requirement definition, it should be defined as the value of a node 'node'.",
       "REQUIREMENT_TARGET_NOT_FOUND" : "The requirement's target for [{{note}}] doesn't exists.",
-      "SINGLE_DEFINITION_SUPPORTED" : "Alien 4 Cloud currently supports a single definition file within an archive.",
+      "SINGLE_DEFINITION_SUPPORTED" : "Alien4Cloud  currently supports a single definition file within an archive.",
       "SYNTAX_ERROR" : "Syntax error: Yaml definition for the type {{note}} doesn't follow the TOSCA specification.",
       "Size" : "The property [ {{path}} ]'s size does not satisfy constraint (empty)",
       "TOPOLOGY_DETECTED" : "A topology template has been detected in the archive and created with name: {{note}}",
@@ -725,6 +729,7 @@
       "pattern" : "Value must match the pattern {{reference}}",
       "validValues" : "Value must be in values [ {{reference}} ]"
     },
+    "803" : "Version conflict",
     "804" : "{{value}} type is not {{type}}",
     "805" : {
       "MESSAGE" : "One or several parameters are required : {{value}}",
@@ -776,7 +781,7 @@
   },
   "HOME" : {
     "ADMIN" : {
-      "TOUR" : "Learn how to configure Alien 4 Cloud, users and roles, clouds etc."
+      "TOUR" : "Learn how to configure Alien4Cloud , users and roles, clouds etc."
     }
   },
   "HOPSCOTCH_MISSING" : {
@@ -785,7 +790,7 @@
   },
   "INSTANCE" : "Instance",
   "MAIN" : {
-    "CONTACT" : "Please contact your Alien 4 Cloud administrator.",
+    "CONTACT" : "Please contact your Alien4Cloud  administrator.",
     "RESTRICTED_END" : "to access to this resource.",
     "RESTRICTED_START" : "You are not enough",
     "WELCOME" : "Welcome on"
@@ -934,6 +939,7 @@
     },
     "DUPLICATE": "Duplicate the topology",
     "NEW" : "New Template",
+    "REMOVE_TOOLTIP": "Delete template",
     "REMOVE_TITLE": "How to delete a topology template ?",
     "REMOVE_CONTENT": "All topology templates are linked to an archive. Delete the associate archive to remove both of them."
   },
@@ -1008,7 +1014,7 @@
       "title" : "JVM Metrics"
     },
     "refresh.button" : "Refresh",
-    "title" : "Alien 4 Cloud's Metrics"
+    "title" : "Alien4Cloud 's Metrics"
   },
   "operations" : "Operations",
   "CONSTRAINTS": {

@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.springframework.core.io.InputStreamResource;
@@ -15,7 +16,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.component.repository.IFileRepository;
@@ -32,6 +38,7 @@ import springfox.documentation.annotations.ApiIgnore;
  */
 @RestController
 @RequestMapping({ "/rest/v2/editor", "/rest/latest/editor" })
+@Api
 public class EditorController {
     @Inject
     private EditorService editorService;
@@ -40,8 +47,6 @@ public class EditorController {
     /** We use the artifact repository to store temporary files from the edition context. */
     @Resource
     private IFileRepository artifactRepository;
-
-
 
     /**
      * Execute an operation on a topology.
@@ -59,7 +64,7 @@ public class EditorController {
 
     /**
      * Undo or redo operations.
-     * 
+     *
      * @param topologyId The id of the topology under edition on which to undo operations.
      * @param at The index in the operations array to reach (0 means no operations, 1 means first operation etc.).
      * @param lastOperationId The id of the last operation from editor client point of view (for optimistic locking).
@@ -80,7 +85,7 @@ public class EditorController {
 
     /**
      * Method exposed to REST to upload a file in an archive under edition.
-     * 
+     *
      * @param topologyId The id of the topology/archive under edition.
      * @param lastOperationId The id of the user last known operation (for optimistic locking edition).
      * @param path The path in which to save/override the file in the archive.
@@ -105,7 +110,7 @@ public class EditorController {
 
     /**
      * Download a temporary file which is not yet commited (uploaded or modified through an operation).
-     * 
+     *
      * @param topologyId The if of the topology.
      * @param artifactId The id of the temporary artifact.
      * @return The response entity with the input stream of the file.
@@ -208,7 +213,7 @@ public class EditorController {
 
     /**
      * Clear the edition cache.
-     * 
+     *
      * @param force
      * @return Void
      */
@@ -232,10 +237,10 @@ public class EditorController {
      */
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId:.+}/git/pull", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> pull(@PathVariable String topologyId, @RequestBody EditorGitUserDTO gitUser,
-            @RequestParam(name = "remoteBranch", defaultValue = "master", required = false)  String remoteBranch) {
-        editorService.pull(topologyId, gitUser.getUsername(), gitUser.getPassword(), remoteBranch);
-        return RestResponseBuilder.<Void> builder().build();
+    public RestResponse<TopologyDTO> pull(@PathVariable String topologyId, @RequestBody EditorGitUserDTO gitUser,
+            @RequestParam(name = "remoteBranch", defaultValue = "master", required = false) String remoteBranch) {
+        return RestResponseBuilder.<TopologyDTO> builder().data(editorService.pull(topologyId, gitUser.getUsername(), gitUser.getPassword(), remoteBranch))
+                .build();
     }
 
     /**
@@ -243,9 +248,9 @@ public class EditorController {
      *
      * If a conflict occurs when pushing the repository:
      * <ul>
-     *     <li>It will create push the current commits to a temporary branch.</li>
-     *     <li>Then will re-branch the local branch to the last commit of the remote branch.</li>
-     *     <li>Finally a runtime exception will be thrown asking the end user to manually revolve the merge.</li>
+     * <li>It will create push the current commits to a temporary branch.</li>
+     * <li>Then will re-branch the local branch to the last commit of the remote branch.</li>
+     * <li>Finally a runtime exception will be thrown asking the end user to manually revolve the merge.</li>
      * </ul>
      *
      * @param topologyId the id of the topology.

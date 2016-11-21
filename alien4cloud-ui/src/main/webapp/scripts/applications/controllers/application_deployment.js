@@ -90,7 +90,8 @@ define(function(require) {
           var deploymentContextResult = {
             selectedEnvironment: appEnvironments.selected
           };
-          return refreshDeploymentContext(deploymentContextResult, application.data, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu);
+          return deploymentContextResult;
+          //return refreshDeploymentContext(deploymentContextResult, application.data, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu);
         }
       ]
     },
@@ -280,6 +281,10 @@ define(function(require) {
         $scope.$on('$destroy', function() {
           $scope.stopEvent();
         });
+
+        $scope.goToTopologyValidation = function(){
+          $state.go('applications.detail.topology.validation');
+        };
 
       }
     ]); //controller

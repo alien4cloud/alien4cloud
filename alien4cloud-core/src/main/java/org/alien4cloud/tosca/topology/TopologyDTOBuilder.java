@@ -57,9 +57,11 @@ public class TopologyDTOBuilder {
     @ToscaContextual
     public <T extends Topology> TopologyDTO buidTopologyDTO(T topology) {
         TopologyDTO topologyDTO = new TopologyDTO();
-        buildAbstractTopologyDTO(topology, topologyDTO);
-        // This contains the value ouf output properties. This has nothing to do with capability somehow..
-        topologyDTO.setOutputCapabilityProperties(topology.getOutputCapabilityProperties());
+        if (topology != null) {
+            buildAbstractTopologyDTO(topology, topologyDTO);
+            // This contains the value ouf output properties. This has nothing to do with capability somehow..
+            topologyDTO.setOutputCapabilityProperties(topology.getOutputCapabilityProperties());
+        }
         return topologyDTO;
     }
 
@@ -91,18 +93,20 @@ public class TopologyDTOBuilder {
         Map<String, CapabilityType> types = Maps.newHashMap();
         Map<String, NodeType> delayedNodeTypeAddMap = Maps.newHashMap();
         for (NodeType nodeType : topologyDTO.getNodeTypes().values()) {
-            for (CapabilityDefinition capabilityDefinition : nodeType.getCapabilities()) {
-                types.put(capabilityDefinition.getType(), ToscaContext.get(CapabilityType.class, capabilityDefinition.getType()));
-            }
-            for (RequirementDefinition requirementDefinition : nodeType.getRequirements()) {
-                CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, requirementDefinition.getType());
-                if (capabilityType != null) {
-                    types.put(requirementDefinition.getType(), capabilityType);
-                } else {
-                    // requirements are authorized to be a node type rather than a capability type TODO is it still possible in TOSCA ?
-                    NodeType indexedNodeType = ToscaContext.get(NodeType.class, requirementDefinition.getType());
-                    // add it to the actual node types map
-                    delayedNodeTypeAddMap.put(requirementDefinition.getType(), indexedNodeType);
+            if (nodeType != null) {
+                for (CapabilityDefinition capabilityDefinition : nodeType.getCapabilities()) {
+                    types.put(capabilityDefinition.getType(), ToscaContext.get(CapabilityType.class, capabilityDefinition.getType()));
+                }
+                for (RequirementDefinition requirementDefinition : nodeType.getRequirements()) {
+                    CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, requirementDefinition.getType());
+                    if (capabilityType != null) {
+                        types.put(requirementDefinition.getType(), capabilityType);
+                    } else {
+                        // requirements are authorized to be a node type rather than a capability type TODO is it still possible in TOSCA ?
+                        NodeType indexedNodeType = ToscaContext.get(NodeType.class, requirementDefinition.getType());
+                        // add it to the actual node types map
+                        delayedNodeTypeAddMap.put(requirementDefinition.getType(), indexedNodeType);
+                    }
                 }
             }
         }

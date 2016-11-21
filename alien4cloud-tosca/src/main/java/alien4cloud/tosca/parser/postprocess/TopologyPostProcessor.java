@@ -4,17 +4,26 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.Node;
-
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.paas.wf.*;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.Node;
+
+import com.google.common.collect.Sets;
+
+import alien4cloud.paas.wf.AbstractActivity;
+import alien4cloud.paas.wf.AbstractStep;
+import alien4cloud.paas.wf.NodeActivityStep;
+import alien4cloud.paas.wf.Workflow;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
@@ -50,11 +59,10 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
             return;
         }
         ArchiveRoot archiveRoot = ParsingContextExecution.getRootObj();
-        if (archiveRoot.getArchive().getDependencies() != null) {
-            instance.setDependencies(archiveRoot.getArchive().getDependencies());
-        }
-
         Node node = ParsingContextExecution.getObjectToNodeMap().get(instance); // The yaml node for the topology
+
+        setDependencies(instance, archiveRoot);
+
         if (instance.isEmpty()) {
             // if the topology doesn't contains any node template it won't be imported so add a warning.
             ParsingContextExecution.getParsingErrors()
@@ -95,6 +103,21 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                     }
                 });
         finalizeParsedWorkflows(topologyContext, node);
+    }
+
+    private void setDependencies(Topology instance, ArchiveRoot archiveRoot) {
+        if (archiveRoot.getArchive().getDependencies() == null) {
+            return;
+        }
+        Set<CSARDependency> allDependencies = Sets.newHashSet(archiveRoot.getArchive().getDependencies());
+        //also add transitives dependencies
+        for (CSARDependency dependency : archiveRoot.getArchive().getDependencies()) {
+            Csar csar = ToscaContext.get().getArchive(dependency.getName(), dependency.getVersion());
+            if (csar != null && csar.getDependencies() != null) {
+                allDependencies.addAll(csar.getDependencies());
+            }
+        }
+        instance.setDependencies(allDependencies);
     }
 
     /**

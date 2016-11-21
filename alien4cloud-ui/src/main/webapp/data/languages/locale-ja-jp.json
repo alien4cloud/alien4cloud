@@ -166,6 +166,7 @@
         "CREATE_TOPOLOGY_MESSAGE" : "トポロジが見つかりません。 ノードタイプを使った新しいトポロジを作成してください。",
         "EMPTY_TOPOLOGY_MESSAGE" : "現在のトポロジは空です。 ノードテンプレートを追加してください。",
         "ERRORS_LABEL" : "エラー",
+        "GO_TO_VALIDATION": "Go to topology validation",
         "IMPLEMENT" : "ノードの実装",
         "IMPLEMENT_LABEL" : "実装",
         "LABEL" : "The topology is not valid:",
@@ -397,6 +398,12 @@
       "MESSAGE" : "コンポーネント[ {{componentId}} ]は、デフォルトとして設定されています。機能名： [ {{capability}} ]. 上書きしますか？",
       "OK" : "上書き"
     },
+    "CSAR" : {
+      "TITLE": "CSARS",
+      "ACTIVE_FILTERS": "Active filters",
+      "TEMPLATEAUTHOR": "Author",
+      "WORKSPACE": "Workspace"
+    },
     "DEFAULTCAPABILITIES" : "デフォルト機能",
     "DERIVEDFROM" : "派生元",
     "DRAG_DROP_UPLOAD" : "アップロードするファイルをここにドロップ",
@@ -417,9 +424,11 @@
       "ALIEN_MAPPING_ERROR" : "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
       "CSAR_ALREADY_INDEXED": "The CSAR has already been indexed in Alien with the same content",
       "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "An archive with the same name and version already exists in Alien repository in another workspace.",
+      "DEPENDENCY_VERSION_CONFLICT": "The transitive dependency {{problem}} of {{context}} is in conflict with the direct dependency {{note}}.",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "The dependency [ {{note}} ] is not visible from the target workspace",
       "CSAR_ALREADY_EXISTS" : "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien doesn't allow the overriding.",
+      "TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR": "An archive cannot override a node type of an other archive : {{problem}}",
       "DUPLICATED_ELEMENT_DECLARATION" : "The element [ {{note}} ] has already be defined in this definition file.",
       "ENTRY_DEFINITION_NOT_FOUND" : "Entry definition file has not been found. Please put a valid definition file at the root of the archive.",
       "ERRONEOUS_ARCHIVE_FILE" : "Cannot load the archive file. Please check that the file is a valid zip.",
@@ -701,6 +710,7 @@
       "pattern" : "Value must match the pattern {{reference}}",
       "validValues" : "Value must be in values [ {{reference}} ]"
     },
+    "803" : "Version conflict",
     "804" : "{{value}} type is not {{type}}",
     "805" : {
       "MESSAGE" : "One or several parameters are required : {{value}}",
@@ -909,6 +919,7 @@
     },
     "DUPLICATE": "Duplicate the topology",
     "NEW" : "新規テンプレート",
+    "REMOVE_TOOLTIP": "Delete template",
     "REMOVE_TITLE": "How to delete a topology template ?",
     "REMOVE_CONTENT": "All topology templates are linked to an archive. Delete the associate archive to remove both of them."
   },

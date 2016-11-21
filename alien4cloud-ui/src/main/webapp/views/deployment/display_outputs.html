@@ -1,10 +1,10 @@
 <div class="row">
   <div class="col-md-12">
-    <span ng-if="!isMapEmpty(outputPropertiesValue) && !isMapEmpty(outputAttributesValue)">
+    <span ng-if="!isNotEmpty(outputPropertiesValue) && !isNotEmpty(outputAttributesValue)">
       <strong>{{'APPLICATIONS.TOPOLOGY.NO_OUTPUTS' | translate}}</strong>
     </span>
     <table class="table table-condensed" id="outputPropertiesTable">
-      <span ng-if="isMapEmpty(outputPropertiesValue) || isMapEmpty(outputAttributesValue)">
+      <span ng-if="isNotEmpty(outputPropertiesValue) || isNotEmpty(outputAttributesValue)">
         <i class="fa fa-sign-out padding-right"> </i>
         <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
       </span>
