@@ -76,7 +76,7 @@ define(function (require) {
       $scope.selectedEnvironment = null;
       $scope.triggerTopologyRefresh = null;
 
-      var updateSelectedEnvionment = function() {
+      var updateSelectedEnvironment = function() {
         $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
         //maybe the state request was made to open the view on a specific environment
         if(_.defined($state.params.openOnEnvironment) && appEnvironments.selected.id !== $state.params.openOnEnvironment){
@@ -94,14 +94,15 @@ define(function (require) {
           for (var i = 0; i < appEnvironments.deployEnvironments.length && _.undefined($scope.selectedEnvironment); i++) {
             if (appEnvironments.deployEnvironments[i].status !== 'UNDEPLOYED') {
               $scope.selectedEnvironment = appEnvironments.deployEnvironments[i];
+              appEnvironments.select($scope.selectedEnvironment.id);
+              return;
             }
-            appEnvironments.select($scope.selectedEnvironment.id);
           }
         }
       };
 
       //update the selectedEnvironment
-      updateSelectedEnvionment();
+      updateSelectedEnvironment();
 
       // get the related cloud to display informations.
       var refreshOrchestratorInfo = function() {
