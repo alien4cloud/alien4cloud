@@ -171,6 +171,24 @@ public class RepositoryManager {
     }
 
     /**
+     * Check if a given branchId is a tag
+     *
+     * @param repository the Git repository
+     * @param branch the branchId
+     * @return <code>true</code> if the branchId refer to a tag, <code>false</code> otherwise.
+     */
+    public static boolean isATag(Git repository, String branch) {
+        Map<String, Ref> refs = repository.getRepository().getAllRefs();
+        for (String refId : refs.keySet()) {
+            String[] segments = refId.split("/");
+            if (segments.length > 1 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[segments.length - 2])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get the branch reference with the valid prefix from repository references (like 'origin' for master or 'tags' for the tag 1.2.0)
      *
      * @param repository the Git repository
@@ -188,13 +206,25 @@ public class RepositoryManager {
         return branch;
     }
 
+    private static  boolean branchExistsLocally(Git git, String remoteBranch) throws GitAPIException {
+        List<Ref> branches = git.branchList().call();
+        for (Ref branch : branches) {
+            if (branch.getName().equals("refs/heads/" + remoteBranch)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static void checkoutRepository(Git repository, String branch) {
         try {
+            String fullBranchReference = getFullBranchReference(repository, branch);
             CheckoutCommand checkoutCommand = repository.checkout();
-            checkoutCommand.setName(getFullBranchReference(repository, branch));
+            checkoutCommand.setCreateBranch(!branchExistsLocally(repository, fullBranchReference));
+            checkoutCommand.setName(fullBranchReference).setStartPoint(fullBranchReference);
             checkoutCommand.call();
         } catch (GitAPIException e) {
-            throw new GitException("Failed to pull git repository", e);
+            throw new GitException("Failed to checkout git repository", e);
         }
     }
 
