@@ -17,7 +17,7 @@
     <module>alien4cloud-core</module>
     <module>alien4cloud-mock-paas-provider-plugin</module>
     <module>alien4cloud-rest-api</module>
-    <!--<module>alien4cloud-rest-it</module>-->
+    <module>alien4cloud-rest-it</module>
     <module>alien4cloud-ui</module>
   </modules>
 
@@ -524,7 +524,7 @@
       <id>jcenter-releases</id>
       <name>jcenter</name>
       <url>http://jcenter.bintray.com</url>
-    </pluginRepository>    
+    </pluginRepository>
   </pluginRepositories>
 
   <distributionManagement>
