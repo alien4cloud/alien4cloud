@@ -27,38 +27,22 @@
 
   <div class="col-md-10" id="rel-search-result-panel">
     <ul class="list-group">
-      <li class="list-group-item clickable-media"
+      <li class="list-group-item clickable-media overflowmedia"
           ng-repeat="component in searchResult.data">
         <div class="media" ng-mouseover="setComponent(component)"
              id="li_{{component.id}}" ng-click="handleItemSelection(component)">
           <div class="media-body">
             <h4 class="media-heading">
               <span>{{component.elementId}}</span>
-              <div class="pull-right center">
-                <div>
-                  <div class="btn-group btn-group-xs">
-                    <span type="button" class="btn btn-default disabled">
-                      <i class="fa fa-archive"></i> {{component.archiveName}}
-                    </span>
-                    <div class="btn-group btn-group-xs">
-                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  id="{{component.id}}_versions">
-                        {{component.selectedVersion || component.archiveVersion}}
-                        <span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                        <li class="option-selected"><a id="{{component.id}}_version_{{component.archiveVersion}}" ng-click="$event.stopPropagation()">{{component.archiveVersion}}</a></li>
-                        <li ng-repeat="olderVersion in component.olderVersions"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, $index, $event)">{{olderVersion}}</a></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ng-include
+                src="'views/components/search_component_result_dislay.html'">
+              </ng-include>
               <div style="margin-top: 20px;">
-                <p class="small" ng-show="component.validSources" id="component-source">{{
+                <p class="small" ng-if="component.validSources" id="component-source">{{
                   'COMMON.SOURCE' | translate }} : {{component.validSources}}</p>
-                <p class="small" ng-show="component.validTargets" id="component-target">{{
+                <p class="small" ng-if="component.validTargets" id="component-target">{{
                   'COMMON.TARGET' | translate }} : {{component.validTargets}}</p>
-                <p class="small" ng-show="component.description">{{component.description}}</p>
+                <p class="small" ng-if="component.description">{{component.description}}</p>
               </div>
             </h4>
           </div>

@@ -636,7 +636,7 @@
     },
     "VALIDATION" :{
       "CURRENT_TOPOLOGY": "Current topology",
-      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology does not have changed.",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology haven't changed.",
       "LAST_SAVED_TOPOLOGY": "Last saved topology"
     },
     "ARTIFACTS":{
