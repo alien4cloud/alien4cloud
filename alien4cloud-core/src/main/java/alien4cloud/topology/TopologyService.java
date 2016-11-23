@@ -98,13 +98,11 @@ public class TopologyService {
                     .values()
                     .stream()
                     .map(type -> new CSARDependency(type.getArchiveName(), type.getArchiveVersion()))
-                    .distinct()
                     .collect(Collectors.toSet()),
                 topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, true)
                     .values()
                     .stream()
                     .map(type -> new CSARDependency(type.getArchiveName(), type.getArchiveVersion()))
-                    .distinct()
                     .collect(Collectors.toSet())
             );
 
