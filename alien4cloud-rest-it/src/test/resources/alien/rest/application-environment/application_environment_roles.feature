@@ -4,7 +4,7 @@ Feature: Roles managements on application environment
     Given I am authenticated with "ADMIN" role
     And There are these users in the system
       | frodon |
-    And I create a new group with name "hobbits" in the system
+    And There is a "hobbits" group in the system
     And I create a new application with name "LAMP" and description "LAMP Stack application..." without errors
 
   @reset
@@ -18,11 +18,15 @@ Feature: Roles managements on application environment
   @reset
   Scenario: Add then remove role to user
     Given I add a role "DEPLOYMENT_MANAGER" to user "frodon" on the resource type "ENVIRONMENT" named "Environment"
+    When I search for "LAMP" application
+    And The application should have a user "frodon" having "APPLICATION_USER" role
     When I remove a role "DEPLOYMENT_MANAGER" to user "frodon" on the resource type "ENVIRONMENT" named "Environment"
     Then I should receive a RestResponse with no error
     When I get the application environment named "Environment"
     And I register the rest response data as SPEL context of type "alien4cloud.model.application.ApplicationEnvironment"
     And The SPEL boolean expression "userRoles['frodon'] == null" should return true
+    When I search for "LAMP" application
+    And The application should have a user "frodon" not having "APPLICATION_USER" role
 
   @reset
   Scenario: Add role to group
@@ -35,11 +39,15 @@ Feature: Roles managements on application environment
   @reset
   Scenario: Add then remove role to group
     Given I add a role "DEPLOYMENT_MANAGER" to group "hobbits" on the resource type "ENVIRONMENT" named "Environment"
+    When I search for "LAMP" application
+    Then The application should have the group "hobbits" having "APPLICATION_USER" role
     When I remove a role "DEPLOYMENT_MANAGER" to group "hobbits" on the resource type "ENVIRONMENT" named "Environment"
     Then I should receive a RestResponse with no error
     When I get the application environment named "Environment"
     And I register the rest response data as SPEL context of type "alien4cloud.model.application.ApplicationEnvironment"
     And The SPEL boolean expression "groupRoles == null" should return true
+    When I search for "LAMP" application
+    Then The application should have the group "hobbits" not having "APPLICATION_USER" role
 
   @reset
   Scenario: Only APPLICATION_MANAGER can edit roles, others can't
@@ -71,6 +79,3 @@ Feature: Roles managements on application environment
     Then I should receive a RestResponse with no error
     When I remove a role "APPLICATION_USER" to group "hobbits" on the resource type "ENVIRONMENT" named "Environment"
     Then I should receive a RestResponse with no error
-
-
-
