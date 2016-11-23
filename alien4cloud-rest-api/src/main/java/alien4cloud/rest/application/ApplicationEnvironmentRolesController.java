@@ -1,5 +1,11 @@
 package alien4cloud.rest.application;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.annotation.Resource;
 
 import org.springframework.http.MediaType;
@@ -16,17 +22,17 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.users.UserService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping({"/rest/applications/{applicationId:.+}/environments/{applicationEnvironmentId:.+}/roles", "/rest/v1/applications/{applicationId:.+}/environments/{applicationEnvironmentId:.+}/roles", "/rest/latest/applications/{applicationId:.+}/environments/{applicationEnvironmentId:.+}/roles"})
+@RequestMapping({ "/rest/applications/{applicationId:.+}/environments/{applicationEnvironmentId:.+}/roles",
+        "/rest/v1/applications/{applicationId:.+}/environments/{applicationEnvironmentId:.+}/roles",
+        "/rest/latest/applications/{applicationId:.+}/environments/{applicationEnvironmentId:.+}/roles" })
 @Api(value = "", description = "Manages application's environments")
 public class ApplicationEnvironmentRolesController {
     @Resource
@@ -138,12 +144,35 @@ public class ApplicationEnvironmentRolesController {
      */
     private void handleRemoveUserRoleOnApplication(String applicationId, String username) {
         Application application = applicationService.getOrFail(applicationId);
-        boolean isApplicationUserOnly = AuthorizationUtil.hasUniqueUserRoleOnResource(userService.retrieveUser(username), application,
-                ApplicationRole.APPLICATION_USER);
-        // check this condition > remove the role only if it is not the only role
-        if (!isApplicationUserOnly) {
+        // Check if user has at least one role on the application or the environments
+        Set<String> applicationRoles = application.getUserRoles() != null ? application.getUserRoles().get(username) : new HashSet<>();
+        List<Set<String>> environmentRoles = Arrays.stream(applicationEnvironmentService.getByApplicationId(applicationId))
+                .map(applicationEnvironment -> (applicationEnvironment.getUserRoles() != null ? applicationEnvironment.getUserRoles().get(username) : null))
+                .filter(roles -> roles != null).collect(Collectors.toList());
+        if (mustRemoveApplicationUserRole(applicationRoles, environmentRoles)) {
+            // If we are here, it means that we must take out the APPLICATION_USER role for application as user does not have any other role than that
             resourceRoleService.removeUserRole(application, username, ApplicationRole.APPLICATION_USER.toString());
         }
+    }
+
+    private boolean mustRemoveApplicationUserRole(Set<String> applicationRoles, List<Set<String>> allEnvironmentRoles) {
+        if (applicationRoles == null || applicationRoles.isEmpty()) {
+            // User has no role on the application, nothing to do
+            return false;
+        }
+        // Not take into account application user role it-self
+        int appUserCount = applicationRoles.contains(ApplicationRole.APPLICATION_USER.toString()) ? 1 : 0;
+        if (applicationRoles.size() > appUserCount) {
+            // Has other role than APPLICATION_USER, then APPLICATION_USER role is necessary
+            return false;
+        }
+        for (Set<String> environmentRoles : allEnvironmentRoles) {
+            if (environmentRoles != null && environmentRoles.size() > 0) {
+                // An environment role imply an application user role
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -166,8 +195,13 @@ public class ApplicationEnvironmentRolesController {
      */
     private void handleRemoveGrpRoleOnApplication(String applicationId, String groupId) {
         Application application = applicationService.getOrFail(applicationId);
-        boolean isApplicationGroupOnly = AuthorizationUtil.hasUniqueGroupRoleOnResource(groupId, application, ApplicationRole.APPLICATION_USER);
-        if (!isApplicationGroupOnly) {
+        // Check if group has at least one role on the application or the environments
+        Set<String> applicationRoles = application.getGroupRoles() != null ? application.getGroupRoles().get(groupId) : new HashSet<>();
+        List<Set<String>> environmentRoles = Arrays.stream(applicationEnvironmentService.getByApplicationId(applicationId))
+                .map(applicationEnvironment -> (applicationEnvironment.getGroupRoles() != null ? applicationEnvironment.getGroupRoles().get(groupId) : null))
+                .filter(roles -> roles != null).collect(Collectors.toList());
+        if (mustRemoveApplicationUserRole(applicationRoles, environmentRoles)) {
+            // If we are here, it means that we must take out the APPLICATION_USER role for application as group does not have any other role than that
             resourceRoleService.removeGroupRole(application, groupId, ApplicationRole.APPLICATION_USER.toString());
         }
     }
