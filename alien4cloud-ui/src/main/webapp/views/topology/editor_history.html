@@ -51,10 +51,10 @@
         <div style="overflow: auto" ng-if="gitCommits">
           <table class="table table-striped table-hover" style="background-color: white;">
             <thead>
-              <th>date</th>
-              <th>name</th>
-              <th>email</th>
-              <th>message</th>
+              <th>{{'COMMON.DATE' | translate}}</th>
+              <th>{{'COMMON.NAME' | translate}}</th>
+              <th>{{'COMMON.EMAIL' | translate}}</th>
+              <th>{{'COMMON.MESSAGE' | translate}}</th>
             </thead>
             <tbody>
               <tr ng-repeat="commit in gitCommits">
