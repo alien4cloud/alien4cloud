@@ -7,7 +7,7 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditNodes', ['toscaService', '$filter', '$modal', '$translate', 
+  modules.get('a4c-topology-editor').factory('topoEditNodes', ['toscaService', '$filter', '$modal', '$translate',
     function(toscaService, $filter, $modal, $translate) {
       var nodeNamePattern = '^\\w+$';
 
@@ -22,42 +22,43 @@ define(function (require) {
         /** Method triggered as a result of a on-drag (see drag and drop directive and node type search directive). */
         onDragged: function(e) {
           var nodeType = angular.fromJson(e.source);
-          // compare the type version with the existing version if exist
-          // if different, display a popup to notify the user
-          var versionDiffers = false;
-          var dependencyVersion = undefined;
-          for (var i = 0; i < this.scope.topology.topology.dependencies.length && !versionDiffers; i++) {
-            var dep = this.scope.topology.topology.dependencies[i];
-            if (dep.name === nodeType.archiveName && dep.version !== nodeType.archiveVersion) {
-              versionDiffers = true;
-              dependencyVersion = dep.version;
-            }
-          }
-          if (versionDiffers) {
-            var ModalInstanceCtrl = ['$scope', '$modalInstance', 'title', 'content', function($scope, $modalInstance, title, content) {
-              $scope.title = title;
-              $scope.content = content;
-              $scope.close = function() {
-                $modalInstance.dismiss('close');
-              };
-            }];
-            $modal.open({
-              templateUrl: 'views/common/simple_modal.html',
-              controller: ModalInstanceCtrl,
-              resolve: {
-                title: function() {
-                  return $translate.instant('APPLICATIONS.TOPOLOGY.DEPENDENCIES.INCOMPATIBLE_VERSIONS.TITLE');
-                },
-                content: function() {
-                  return $translate.instant('APPLICATIONS.TOPOLOGY.DEPENDENCIES.INCOMPATIBLE_VERSIONS.CONTENT', {
-                    archiveName : nodeType.archiveName,
-                    archiveVersion : dependencyVersion
-                  });
-                }
-              }
-            });
-            return;
-          }
+
+          // // compare the type version with the existing version if exist
+          // // if different, display a popup to notify the user
+          // var versionDiffers = false;
+          // var dependencyVersion = undefined;
+          // for (var i = 0; i < this.scope.topology.topology.dependencies.length && !versionDiffers; i++) {
+          //   var dep = this.scope.topology.topology.dependencies[i];
+          //   if (dep.name === nodeType.archiveName && dep.version !== nodeType.archiveVersion) {
+          //     versionDiffers = true;
+          //     dependencyVersion = dep.version;
+          //   }
+          // }
+          // if (versionDiffers) {
+          //   var ModalInstanceCtrl = ['$scope', '$modalInstance', 'title', 'content', function($scope, $modalInstance, title, content) {
+          //     $scope.title = title;
+          //     $scope.content = content;
+          //     $scope.close = function() {
+          //       $modalInstance.dismiss('close');
+          //     };
+          //   }];
+          //   $modal.open({
+          //     templateUrl: 'views/common/simple_modal.html',
+          //     controller: ModalInstanceCtrl,
+          //     resolve: {
+          //       title: function() {
+          //         return $translate.instant('APPLICATIONS.TOPOLOGY.DEPENDENCIES.INCOMPATIBLE_VERSIONS.TITLE');
+          //       },
+          //       content: function() {
+          //         return $translate.instant('APPLICATIONS.TOPOLOGY.DEPENDENCIES.INCOMPATIBLE_VERSIONS.CONTENT', {
+          //           archiveName : nodeType.archiveName,
+          //           archiveVersion : dependencyVersion
+          //         });
+          //       }
+          //     }
+          //   });
+          //   return;
+          // }
           // find if the node type has been dragged on another node template (so we can generate hosted on relationship).
           var evt = e.event;
           var hostNodeName = null;

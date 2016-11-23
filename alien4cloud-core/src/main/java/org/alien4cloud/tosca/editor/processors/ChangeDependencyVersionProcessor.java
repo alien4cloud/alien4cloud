@@ -36,6 +36,7 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
     public void process(ChangeDependencyVersionOperation operation) {
         Topology topology = EditionContextManager.getTopology();
 
+        // FIXME remove transitives also, then add it later
         Set<CSARDependency> topologyDependencies = Sets.newHashSet(topology.getDependencies());
         Iterator<CSARDependency> topologyDependencyIterator = topologyDependencies.iterator();
         while (topologyDependencyIterator.hasNext()) {
@@ -46,8 +47,9 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
         }
 
         CSARDependency newDependency = new CSARDependency(operation.getDependencyName(), operation.getDependencyVersion());
-        topologyService.checkTransitiveDependenciesChange(newDependency, topologyDependencies, topology);
+        topologyService.checkDependenciesConflict(newDependency, topologyDependencies, topology);
 
+        // FIXME add transitives also, if removed before
         topologyDependencies.add(newDependency);
         topology.setDependencies(topologyDependencies);
 
