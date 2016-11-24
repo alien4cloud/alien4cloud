@@ -1,14 +1,14 @@
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
   var states = require('states');
-  
+
   require('scripts/components/services/csar');
   require('scripts/components/controllers/csar_details');
   require('scripts/common/directives/pagination');
   require('scripts/authentication/services/authservices');
-  
+
   states.state('components.csars', {
     url: '/csars',
     template: '<ui-view/>',
@@ -28,7 +28,7 @@ define(function (require) {
     controller: 'CsarListCtrl'
   });
   states.forward('components.csars', 'components.csars.list');
-  
+
   /* Main CSAR search controller */
   modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', '$translate', 'toaster', 'authService',
     function ($scope, $modal, $state, csarService, $translate, toaster, authService) {
@@ -43,15 +43,15 @@ define(function (require) {
           }
         });
       }
-      
+
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
       };
-      
+
       $scope.openCsar = function (csarId) {
         $state.go('components.csars.csardetail', {csarId: csarId});
       };
-      
+
       // remove a csar
       $scope.remove = function (csarId) {
         csarService.getAndDeleteCsar.remove({

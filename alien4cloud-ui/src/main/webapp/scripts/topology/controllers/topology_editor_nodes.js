@@ -75,7 +75,7 @@ define(function (require) {
           var scope = this.scope;
           scope.execute({
               type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation',
-              nodeName: nodeTemplName,
+              nodeName: nodeTemplName
             },
             function(){ scope.display.displayOnly(['topology']); }
           );

@@ -52,7 +52,6 @@ public class UninstallWorkflowBuilder extends StandardWorflowBuilder {
             WorkflowUtils.linkSteps(deletedSourceStep, targetStep);
         } else if (WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.CONNECTS_TO)) {
             // in case of "Volume attached to Compute", we need to delete the compute before eventually delete the volume
-            String volumeId = nodeId;
             NodeActivityStep targetStep = WorkflowUtils.getStateStepByNode(wf, targetId, ToscaNodeLifecycleConstants.STOPPING);
             NodeActivityStep sourceStep = WorkflowUtils.getStateStepByNode(wf, nodeId, ToscaNodeLifecycleConstants.STOPPED);
             WorkflowUtils.linkSteps(sourceStep, targetStep);
