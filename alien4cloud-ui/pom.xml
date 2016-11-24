@@ -138,7 +138,10 @@
           <apiSources>
             <apiSource>
               <springmvc>true</springmvc>
-              <locations>alien4cloud,org.alien4cloud</locations>
+              <locations>
+	        <location>alien4cloud</location>
+                <location>org.alien4cloud</location>
+              </locations>
               <info>
                 <title>ALIEN4Cloud REST API Documentation</title>
                 <version>latest API version powered by ${project.version}</version>
