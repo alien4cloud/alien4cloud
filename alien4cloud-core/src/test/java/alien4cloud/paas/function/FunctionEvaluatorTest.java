@@ -12,6 +12,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.tosca.parser.AbstractToscaParserSimpleProfileTest;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.model.Csar;
@@ -27,6 +28,7 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +60,10 @@ import alien4cloud.utils.services.ApplicationUtil;
 @ContextConfiguration("classpath:function-application-context-test.xml")
 public class FunctionEvaluatorTest {
     private static boolean INITIALIZED = false;
+
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
+
     @Resource
     private ArchiveUploadService archiveUploadService;
 
@@ -86,12 +92,13 @@ public class FunctionEvaluatorTest {
             }
             SecurityTestUtils.setTestAuthentication(Role.ADMIN);
 
+            alienDAO.delete(Csar.class, QueryBuilders.matchAllQuery());
             String normativeLocalName = "tosca-normative-types";
-            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "master", normativeLocalName);
+            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "1.2.0", normativeLocalName);
             String sampleLocalName = "samples";
             repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/samples.git", "master", sampleLocalName);
             String extendedLocalName = "alien-extended-types";
-            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master", extendedLocalName);
+            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "1.2.0", extendedLocalName);
 
             Path typesPath = artifactsDirectory.resolve(normativeLocalName);
             Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
