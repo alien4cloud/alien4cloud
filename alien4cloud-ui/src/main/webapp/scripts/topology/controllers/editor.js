@@ -24,7 +24,8 @@ define(function (require) {
 
   // manage websockets for topology editor
   require('scripts/topology/services/topology_editor_events_services');
-
+  require('scripts/common/directives/parsing_errors');
+  
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
     ['$scope', 'menu', 'layoutService', 'context', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
     'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster', '$state',
@@ -247,6 +248,27 @@ define(function (require) {
           });
         });
       };
+      
+      $scope.showParsingErrors = function (response) {
+        $modal.open({
+          templateUrl: 'views/topology/topology_parsing_error.html',
+          controller: ['$scope', '$modalInstance', 'uploadInfo',
+            function ($scope, $modalInstance, uploadInfo) {
+              $scope.uploadInfo = uploadInfo;
+              $scope.close = function () {
+                $modalInstance.dismiss('close');
+              };
+            }],
+          resolve: {
+            uploadInfo: function() {
+              return {
+                errors: response.data.errors,
+                infoType: 'danger'
+              };
+            }
+          }
+        });
+      };
 
       // GIT PULL FUNCTION
       //
@@ -267,8 +289,9 @@ define(function (require) {
             if(_.undefined(response.error)){
               $scope.refreshTopology(response.data);
               toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PULL.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PULL.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
+            } else {
+              $scope.showParsingErrors(response);
             }
-            console.debug('pulled');
           });
         });
       };

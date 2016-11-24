@@ -160,6 +160,10 @@ define(function (require) {
         type: 'org.alien4cloud.tosca.editor.operations.UpdateFileContentOperation',
         path: $scope.aceFilePath,
         content: aceEditor.getSession().getDocument().getValue()
+      }, function (response) {
+        if(_.defined(response.error)){
+          $scope.showParsingErrors(response);
+        }
       });
     };
   }]);
