@@ -106,7 +106,7 @@ define(function (require) {
         }
       };
 
-      var refresh = function(selectedNodeTemplate) {
+      var refresh = function(selectedNodeTemplateName) {
 
         $scope.initializeWorkspacesFilters();
 
@@ -130,8 +130,8 @@ define(function (require) {
           }
         }
 
-        if(_.defined(selectedNodeTemplate)) {
-          reselectNodeTemplate(selectedNodeTemplate.name);
+        if(_.defined(selectedNodeTemplateName)) {
+          reselectNodeTemplate(selectedNodeTemplateName);
         } else if(_.defined($scope.selectedNodeTemplate)) {
           reselectNodeTemplate($scope.selectedNodeTemplate.name);
         } else {
@@ -151,8 +151,8 @@ define(function (require) {
       };
 
       $scope.$on('topologyRefreshedEvent', function(event, param) {
-        var selectedNodeTemplate = param.selectedNodeTemplate;
-        refresh(selectedNodeTemplate);
+        var selectedNodeTemplateName = param.selectedNodeTemplateName;
+        refresh(selectedNodeTemplateName);
       });
 
       if(_.defined($scope.topology)) {

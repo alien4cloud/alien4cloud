@@ -55,7 +55,7 @@ define(function (require) {
       * refreshTopology has to be triggered when the topology is updated.
       * Added to the scope as right now every operation returns the full and update topology.
       */
-      $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate, initial) {
+      $scope.refreshTopology = function(topologyDTO, selectedNodeTemplateName, initial) {
         $scope.topology = topologyDTO;
         if(topologyDTO.topology.workspace === 'ALIEN_GLOBAL_WORKSPACE') {
           $scope.workspaces = ['ALIEN_GLOBAL_WORKSPACE'];
@@ -78,7 +78,7 @@ define(function (require) {
         // trigger refresh event so child scope can update what they need. Initial flag allows to know if this is the initial loading of the topology.
         $scope.$broadcast('topologyRefreshedEvent', {
           initial: initial,
-          selectedNodeTemplate: selectedNodeTemplate
+          selectedNodeTemplateName: selectedNodeTemplateName
         });
       };
 
@@ -90,7 +90,7 @@ define(function (require) {
       };
 
       var editorResource = $alresource('rest/latest/editor/:topologyId/execute');
-      $scope.execute = function(operation, successCallback, errorCallback, selectedNodeTemplate, isPropertyEdit) {
+      $scope.execute = function(operation, successCallback, errorCallback, selectedNodeTemplateName, isPropertyEdit) {
         operation.previousOperationId = $scope.getLastOperationId();
         // execute operations, create is a post
         return editorResource.create({
@@ -100,7 +100,7 @@ define(function (require) {
             // Topology recovery
             topologyRecoveryServices.handleTopologyRecovery(result.data, $scope.topologyId, $scope.getLastOperationId(true)).then(function(recoveryResult) {
               if(_.definedPath(recoveryResult, 'data')) {
-                $scope.refreshTopology(recoveryResult.data, selectedNodeTemplate);
+                $scope.refreshTopology(recoveryResult.data, selectedNodeTemplateName);
                 if(_.defined(successCallback)) {
                   successCallback(recoveryResult);
                 }
@@ -116,7 +116,7 @@ define(function (require) {
               $scope.topology.operations = result.data.operations;
               $scope.topology.lastOperationIndex = result.data.lastOperationIndex;
             } else {
-              $scope.refreshTopology(result.data, selectedNodeTemplate);
+              $scope.refreshTopology(result.data, selectedNodeTemplateName);
             }
           }
           if(_.defined(successCallback)) {

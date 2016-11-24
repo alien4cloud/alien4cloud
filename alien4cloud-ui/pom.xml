@@ -139,7 +139,7 @@
             <apiSource>
               <springmvc>true</springmvc>
               <locations>
-	        <location>alien4cloud</location>
+                <location>alien4cloud</location>
                 <location>org.alien4cloud</location>
               </locations>
               <info>
