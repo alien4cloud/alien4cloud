@@ -83,6 +83,7 @@
     },
     "SHOW_DEPLOYED_APP" : "Only show deployed applications.",
     "TOPOLOGY" : {
+      "PARSING_ERROR": "Topology is not valid",
       "ADD_NODETEMPLATE" : "ノードテンプレートの追加",
       "ADD_RELATIONSHIP" : "他ノードとの関連追加",
       "ARTIFACTS" : {

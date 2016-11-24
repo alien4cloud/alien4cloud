@@ -84,6 +84,7 @@
     "SHOW_DEPLOYED_APP" : "Only show deployed applications.",
     "TOPOLOGY" : {
       "EDITOR": "Visual Editor",
+      "PARSING_ERROR": "Topology is not valid",
       "YAML": "Yaml",
       "FILES": "Archive content browser",
       "ADD_NODETEMPLATE" : "Add Node Template",
