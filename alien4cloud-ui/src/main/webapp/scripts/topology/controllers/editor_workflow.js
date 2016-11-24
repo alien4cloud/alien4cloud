@@ -21,7 +21,7 @@ define(function (require) {
     ['$scope', '$http', 'explorerService', '$stateParams', 'topoEditDisplay', 'topoEditWf',
     function($scope, $http, explorerService, $stateParams, topoEditDisplay, topoEditWf) {
     $scope.displays = {
-      workflows: { active: true, size: 400, selector: '#workflow-menu-box', only: ['workflows'] },
+      workflows: { active: true, size: 400, selector: '#workflow-menu-box', only: ['workflows'] }
     };
     topoEditDisplay($scope, '#workflow-graph');
     topoEditWf($scope);
@@ -29,11 +29,6 @@ define(function (require) {
     $scope.workflows.setCurrentWorkflowName('install');
 
     // Load archive content file
-    $scope.$on('topologyRefreshedEvent', function() {
-
-    });
-    if(_.defined($scope.topology)) {
-
-    }
+    $scope.$on('topologyRefreshedEvent', function() {});
   }]);
 });

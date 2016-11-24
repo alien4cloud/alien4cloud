@@ -44,7 +44,8 @@ define(function (require) {
           var sourceNodeTemplate = scope.topology.topology.nodeTemplates[sourceNodeTemplateName];
           var requirement = sourceNodeTemplate.requirementsMap[requirementName].value;
           if (!requirement.canAddRel.yes) {
-            return; // TODO we must display an error message...
+            // TODO we must display an error message...
+            return;
           }
 
           scope.sourceElement = sourceNodeTemplate;
@@ -91,7 +92,7 @@ define(function (require) {
             }, function(){
               scope.relNameObj[oldName] = oldName;
             });
-          } // if end
+          }
         },
 
         updateRelationshipProperty: function(propertyDefinition, propertyName, propertyValue, relationshipType, relationshipName) {
@@ -119,7 +120,7 @@ define(function (require) {
           scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation',
             nodeName: selectedNodeTemplate.name,
-            relationshipName: relationshipName,
+            relationshipName: relationshipName
           }, null, null, selectedNodeTemplate.name);
         }
       };

@@ -36,7 +36,8 @@ define(function (require) {
       // Manage topology version selection (version is provided as parameter from the template or application)
       $scope.topologyVersions = archiveVersions.data;
       $scope.versionContext = context;
-      $scope.released = false; // this allow to avoid file edition in the ui-ace.
+      // this allow to avoid file edition in the ui-ace.
+      $scope.released = false;
       topoEditVersions($scope);
 
       /**
@@ -93,7 +94,7 @@ define(function (require) {
         operation.previousOperationId = $scope.getLastOperationId();
         // execute operations, create is a post
         return editorResource.create({
-          topologyId: $scope.topologyId,
+          topologyId: $scope.topologyId
         }, angular.toJson(operation), function(result) {
           if(_.defined(result.error) && result.error.code === 860) {
             // Topology recovery

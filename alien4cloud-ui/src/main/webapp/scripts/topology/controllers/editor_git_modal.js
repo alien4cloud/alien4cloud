@@ -27,7 +27,7 @@ define(function (require) {
         var form = {
           'credentials': {
             'username': $scope.gitPushPullForm.credentials.username,
-            'password': $scope.gitPushPullForm.credentials.password,
+            'password': $scope.gitPushPullForm.credentials.password
           },
           'remoteBranch': $scope.gitPushPullForm.remoteBranch
         };
@@ -38,7 +38,7 @@ define(function (require) {
         var form = {
           'credentials': {
             'username': $scope.gitPushPullForm.credentials.username,
-            'password': $scope.gitPushPullForm.credentials.password,
+            'password': $scope.gitPushPullForm.credentials.password
           },
           'remoteBranch': $scope.gitPushPullForm.remoteBranch
         };

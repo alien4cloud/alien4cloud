@@ -263,7 +263,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public RestResponse<Void> versionConflictHandler(VersionConflictException e) {
-        log.error("Version conflict", e);
+        log.debug("Version conflict", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.VERSION_CONFLICT_ERROR).message(e.getMessage()).build())
                 .build();
     }
