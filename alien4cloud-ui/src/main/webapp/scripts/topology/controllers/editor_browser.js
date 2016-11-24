@@ -15,7 +15,7 @@ define(function (require) {
     var openOnFile = $stateParams.file;
 
     $scope.displays = {
-      tree: { active: true, size: 400, selector: '#tree-box', only: [] },
+      tree: { active: true, size: 400, selector: '#tree-box', only: [] }
     };
     topoEditDisplay($scope, '#editor-explorer');
 
@@ -160,6 +160,10 @@ define(function (require) {
         type: 'org.alien4cloud.tosca.editor.operations.UpdateFileContentOperation',
         path: $scope.aceFilePath,
         content: aceEditor.getSession().getDocument().getValue()
+      }, function (response) {
+        if(_.defined(response.error)){
+          $scope.showParsingErrors(response);
+        }
       });
     };
   }]);

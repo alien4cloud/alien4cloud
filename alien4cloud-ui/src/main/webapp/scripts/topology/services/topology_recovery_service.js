@@ -3,7 +3,7 @@ define(function (require) {
   'use strict';
   var modules = require('modules');
   var _ = require('lodash');
-  
+
   var RecoveryChoiceCtrl = ['$scope', '$modalInstance', 'recoveryOperation', 'errors',
     function ($scope, $modalInstance, recoveryOperation, errors) {
       $scope.choice = {};
@@ -12,18 +12,18 @@ define(function (require) {
       $scope.choose = function (action) {
         $modalInstance.close(action);
       };
-      
+
       $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
       };
     }];
-  
+
   modules.get('a4c-topology-editor', ['ngResource']).factory('topologyRecoveryServices', ['$alresource', '$modal', '$q', 'toaster', '$translate', '$state',
     function ($alresource, $modal, $q, toaster, $translate, $state) {
-      
+
       var editorRecoverResource = $alresource('rest/latest/editor/:topologyId/recover');
       var editorResetResource = $alresource('rest/latest/editor/:topologyId/reset');
-      
+
       var handleRecoveryChoice = function (choice, topologyId, lastOperationId) {
         switch (choice) {
           case 1:
@@ -43,9 +43,9 @@ define(function (require) {
           default:
             return null;
         }
-        
+
       };
-      
+
       /** handle Modal form for recovery choices */
       var openRecoveryChoiceModal = function (recoveryOperation, errors) {
         var deferred = $q.defer();
@@ -70,7 +70,7 @@ define(function (require) {
         });
         return deferred.promise;
       };
-      
+
       var isReleasedTopology = function (topologyId) {
         var indexOfTwoPoint = topologyId.indexOf(':');
         if (indexOfTwoPoint >= 0) {
@@ -80,20 +80,20 @@ define(function (require) {
           return false;
         }
       };
-      
+
       var handleTopologyRecovery = function (recoveryOperation, topologyId, lastOperationId) {
         var errors;
         if (isReleasedTopology(topologyId)) {
           errors = ['RELEASED'];
         }
         var updatedDependencies = recoveryOperation.updatedDependencies;
-        
+
         //if no updated dependencies, then do nothing
         //should never happen
         if (_.isEmpty(updatedDependencies)) {
           return null;
         }
-        
+
         return openRecoveryChoiceModal(recoveryOperation, errors).then(function (choice) {
           var result = handleRecoveryChoice(choice, topologyId, lastOperationId);
           if (result !== null) {
@@ -108,7 +108,7 @@ define(function (require) {
           }
         });
       };
-      
+
       return {
         'handleTopologyRecovery': handleTopologyRecovery
       };

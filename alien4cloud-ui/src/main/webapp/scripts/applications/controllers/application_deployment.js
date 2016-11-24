@@ -91,7 +91,6 @@ define(function(require) {
             selectedEnvironment: appEnvironments.selected
           };
           return deploymentContextResult;
-          //return refreshDeploymentContext(deploymentContextResult, application.data, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu);
         }
       ]
     },

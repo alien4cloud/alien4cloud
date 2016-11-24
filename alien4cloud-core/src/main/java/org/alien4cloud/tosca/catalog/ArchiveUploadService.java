@@ -7,7 +7,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -17,6 +16,7 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.suggestions.services.SuggestionService;
@@ -48,7 +48,8 @@ public class ArchiveUploadService {
      * @throws CSARUsedInActiveDeployment
      */
     @ToscaContextual
-    public ParsingResult<Csar> upload(Path path, CSARSource csarSource, String workspace) throws ParsingException, CSARUsedInActiveDeployment, ToscaTypeAlreadyDefinedInOtherCSAR {
+    public ParsingResult<Csar> upload(Path path, CSARSource csarSource, String workspace)
+            throws ParsingException, CSARUsedInActiveDeployment, ToscaTypeAlreadyDefinedInOtherCSAR {
         // parse the archive.
         ParsingResult<ArchiveRoot> parsingResult = parser.parseWithExistingContext(path, workspace);
 
@@ -57,7 +58,7 @@ public class ArchiveUploadService {
         // check if any blocker error has been found during parsing process.
         if (parsingResult.hasError(ParsingErrorLevel.ERROR)) {
             // do not save anything if any blocker error has been found during import.
-            return toSimpleResult(parsingResult);
+            return ArchiveParserUtil.toSimpleResult(parsingResult);
         }
 
         archiveIndexer.importArchive(archiveRoot, csarSource, path, parsingResult.getContext().getParsingErrors());
@@ -68,7 +69,7 @@ public class ArchiveUploadService {
             log.error("Could not post process suggestion for the archive <" + archiveRoot.getArchive().getName() + "/" + archiveRoot.getArchive().getVersion()
                     + ">", e);
         }
-        return toSimpleResult(parsingResult);
+        return ArchiveParserUtil.toSimpleResult(parsingResult);
     }
 
     @ToscaContextual
@@ -93,22 +94,5 @@ public class ArchiveUploadService {
             }
         }
         return csarDependenciesBeans;
-    }
-
-    /**
-     * Create a simple result without all the parsed data but just the {@link Csar} object as well as the eventual errors.
-     * 
-     * @return The simple result out of the complex parsing result.
-     */
-    private ParsingResult<Csar> toSimpleResult(ParsingResult<ArchiveRoot> parsingResult) {
-        ParsingResult<Csar> simpleResult = this.<Csar> cleanup(parsingResult);
-        simpleResult.setResult(parsingResult.getResult().getArchive());
-        return simpleResult;
-    }
-
-    private <T> ParsingResult<T> cleanup(ParsingResult<?> result) {
-        ParsingContext context = new ParsingContext(result.getContext().getFileName());
-        context.getParsingErrors().addAll(result.getContext().getParsingErrors());
-        return new ParsingResult<T>(null, context);
     }
 }

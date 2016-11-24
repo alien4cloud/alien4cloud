@@ -25,7 +25,6 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.users.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -41,8 +40,6 @@ public class ApplicationEnvironmentRolesController {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private ApplicationService applicationService;
-    @Resource
-    private UserService userService;
 
     /**
      * Add a role to a user on a specific application environment
@@ -167,7 +164,7 @@ public class ApplicationEnvironmentRolesController {
             return false;
         }
         for (Set<String> environmentRoles : allEnvironmentRoles) {
-            if (environmentRoles != null && environmentRoles.size() > 0) {
+            if (environmentRoles != null && !environmentRoles.isEmpty()) {
                 // An environment role imply an application user role
                 return false;
             }

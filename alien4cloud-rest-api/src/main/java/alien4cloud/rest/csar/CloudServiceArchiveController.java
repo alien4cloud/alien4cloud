@@ -9,8 +9,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
-import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.IArchiveIndexerAuthorizationFilter;
@@ -38,6 +36,7 @@ import com.google.common.collect.Lists;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -56,6 +55,7 @@ import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
@@ -102,7 +102,7 @@ public class CloudServiceArchiveController {
             if (result.hasError(ParsingErrorLevel.ERROR)) {
                 error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
             }
-            return RestResponseBuilder.<CsarUploadResult> builder().error(error).data(toUploadResult(result)).build();
+            return RestResponseBuilder.<CsarUploadResult> builder().error(error).data(CsarUploadUtil.toUploadResult(result)).build();
         } catch (ParsingException e) {
             log.error("Error happened while parsing csar file <" + e.getFileName() + ">", e);
             String fileName = e.getFileName() == null ? csar.getOriginalFilename() : e.getFileName();
@@ -128,8 +128,8 @@ public class CloudServiceArchiveController {
         } catch (ToscaTypeAlreadyDefinedInOtherCSAR e) {
             log.error("Skipping archive import, it's archive contain's a tosca type already defined in an other archive." + e.getMessage());
             CsarUploadResult uploadResult = new CsarUploadResult();
-            uploadResult.getErrors().put(csar.getOriginalFilename(), Lists.newArrayList(new ParsingError(ErrorCode.TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR, "Tosca type conflict",
-                    null, e.getMessage(), null, null)));
+            uploadResult.getErrors().put(csar.getOriginalFilename(), Lists.newArrayList(
+                    new ParsingError(ErrorCode.TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR, "Tosca type conflict", null, e.getMessage(), null, null)));
             return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).build())
                     .data(uploadResult).build();
         } finally {
@@ -142,15 +142,6 @@ public class CloudServiceArchiveController {
                 }
             }
         }
-    }
-
-    private CsarUploadResult toUploadResult(ParsingResult<Csar> result) {
-        CsarUploadResult uploadResult = new CsarUploadResult();
-        uploadResult.setCsar(result.getResult());
-        if (result.getContext().getParsingErrors() != null && !result.getContext().getParsingErrors().isEmpty()) {
-            uploadResult.getErrors().put(result.getContext().getFileName(), result.getContext().getParsingErrors());
-        }
-        return uploadResult;
     }
 
     @ApiOperation(value = "Add dependency to the csar with given id.")
