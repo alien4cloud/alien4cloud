@@ -5,9 +5,12 @@ import java.nio.file.Path;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.ArchiveParserUtil;
 import org.alien4cloud.tosca.catalog.IArchivePostProcessor;
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.exception.EditorToscaYamlUpdateException;
+import org.alien4cloud.tosca.editor.exception.EditorToscaYamlInvalidException;
+import org.alien4cloud.tosca.editor.exception.EditorToscaYamlNotSupportedException;
+import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.springframework.stereotype.Component;
@@ -39,7 +42,7 @@ public class EditorTopologyUploadService {
             processTopologyParseResult(archivePath, parsingResult, workspace);
         } catch (ParsingException e) {
             // Manage parsing error and dispatch them in the right editor exception
-            throw new EditorToscaYamlUpdateException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.");
+            throw new EditorToscaYamlInvalidException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.");
         }
     }
 
@@ -55,7 +58,7 @@ public class EditorTopologyUploadService {
             processTopologyParseResult(archivePath, parsingResult, workspace);
         } catch (ParsingException e) {
             // Manage parsing error and dispatch them in the right editor exception
-            throw new EditorToscaYamlUpdateException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.");
+            throw new EditorToscaYamlParsingException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.");
         }
     }
 
@@ -65,14 +68,13 @@ public class EditorTopologyUploadService {
         // check if any blocker error has been found during parsing process.
         if (parsingResult.hasError(ParsingErrorLevel.ERROR)) {
             // do not save anything if any blocker error has been found during import.
-
-            throw new EditorToscaYamlUpdateException("Uploaded yaml files is not a valid tosca template", parsingResult.getContext().getParsingErrors());
+            throw new EditorToscaYamlParsingException("Uploaded yaml files is not a valid tosca template", ArchiveParserUtil.toSimpleResult(parsingResult));
         }
         if (parsingResult.getResult().hasToscaTypes()) {
-            throw new EditorToscaYamlUpdateException("Tosca types are currently not supported in the topology editor context.");
+            throw new EditorToscaYamlNotSupportedException("Tosca types are currently not supported in the topology editor context.");
         }
         if (!parsingResult.getResult().hasToscaTopologyTemplate()) {
-            throw new EditorToscaYamlUpdateException("A topology template is required in the topology edition context.");
+            throw new EditorToscaYamlNotSupportedException("A topology template is required in the topology edition context.");
         }
 
         Topology currentTopology = EditionContextManager.getTopology();
@@ -80,7 +82,9 @@ public class EditorTopologyUploadService {
 
         if (!currentTopology.getArchiveName().equals(parsedTopology.getArchiveName())
                 || !currentTopology.getArchiveVersion().equals(parsedTopology.getArchiveVersion())) {
-            throw new EditorToscaYamlUpdateException("Template name and version cannot be updated in the topology edition context.");
+            throw new EditorToscaYamlNotSupportedException(
+                    "Template name and version must be set to [" + currentTopology.getArchiveName() + ":" + currentTopology.getArchiveVersion()
+                            + "] and cannot be updated to [" + parsedTopology.getArchiveName() + ":" + parsedTopology.getArchiveVersion() + "]");
         }
 
         // Copy static elements from the topology
