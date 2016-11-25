@@ -251,8 +251,6 @@ public class DeploymentTopologyService {
      * @param deploymentTopology the the deployment topology
      */
     public void updateDeploymentTopologyInputsAndSave(DeploymentTopology deploymentTopology) {
-        ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
-        Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         deploymentInputService.processInputProperties(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         save(deploymentTopology);

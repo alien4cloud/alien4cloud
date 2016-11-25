@@ -1,4 +1,5 @@
-<a>
-  <img ng-src="img?id={{match.model.icon || match.model.imageId }}&quality=QUALITY_32" />&nbsp;
+<a ng-init="icon = match.model.icon || match.model.imageId">
+  <img ng-if="icon" ng-src="img?id={{match.model.icon || match.model.imageId }}&quality=QUALITY_32" />&nbsp;
+  <i ng-if="!icon" class="fa fa-desktop fa-2x"></i>
   <span>{{match.label}}</span>
 </a>

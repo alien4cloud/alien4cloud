@@ -69,6 +69,9 @@ define(function (require) {
       environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor, toscaService, $translate, toaster) {
 
       var application = applicationResult.data;
+      if (!_.has(application.userRoles, authService.currentStatus.data.username)) {
+        application.userRoles[authService.currentStatus.data.username] = [];
+      }
       $scope.application = application;
 
       $controller('ResourceLayoutCtrl', {$scope: $scope, menu: menu, resourceLayoutService: resourceLayoutService, resource: application});

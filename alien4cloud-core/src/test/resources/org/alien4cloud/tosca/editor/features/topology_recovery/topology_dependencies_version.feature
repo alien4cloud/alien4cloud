@@ -101,7 +101,7 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.ChangeDependencyVersionOperation |
       | dependencyName    | test-topo-dependencies-trans-types                                       |
-      | dependencyVersion | 0.1-SNAPSHOT                                                             |
+      | dependencyVersion | 0.2-SNAPSHOT                                                             |
     Then an exception of type "alien4cloud.exception.VersionConflictException" should be thrown
     And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-types'].version" should return "0.5-SNAPSHOT"
     And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-trans-types'].version" should return "0.1-SNAPSHOT"

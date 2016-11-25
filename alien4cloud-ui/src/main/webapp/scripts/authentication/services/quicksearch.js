@@ -18,7 +18,7 @@ define(function (require) {
       });
 
       var openItem = {};
-      openItem.indexednodetype = function(componentId){
+      openItem.nodetype = function(componentId){
         $state.go('components.detail', { id: componentId });
       };
       openItem.application = function(applicationId){

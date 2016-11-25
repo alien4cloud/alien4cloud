@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
+import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
 import org.alien4cloud.tosca.editor.exception.PropertyValueException;
 import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
 import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
@@ -57,6 +58,8 @@ import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.exception.PaaSDeploymentIOException;
 import alien4cloud.paas.exception.PaaSUndeploymentException;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
+import alien4cloud.rest.csar.CsarUploadResult;
+import alien4cloud.rest.csar.CsarUploadUtil;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -263,7 +266,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public RestResponse<Void> versionConflictHandler(VersionConflictException e) {
-        log.error("Version conflict", e);
+        log.debug("Version conflict", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.VERSION_CONFLICT_ERROR).message(e.getMessage()).build())
                 .build();
     }
@@ -505,5 +508,14 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_OPERATION_ERROR).message("Operation not supported: " + e.getMessage()).build())
                 .build();
+    }
+
+    @ExceptionHandler(value = EditorToscaYamlParsingException.class)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public RestResponse<CsarUploadResult> editorToscaYamlUpdateException(EditorToscaYamlParsingException e) {
+        log.error("Error in topology tosca yaml detected", e);
+        return RestResponseBuilder.<CsarUploadResult> builder().data(CsarUploadUtil.toUploadResult(e.getParsingResult()))
+                .error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build()).build();
     }
 }

@@ -5,7 +5,7 @@ template_author: Alien4Cloud
 template_version: 1.0-SNAPSHOT
 
 imports:
-  - tosca-normative-types:1.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN12
   - alien-base-types:1.2.0-SNAPSHOT
 
 data_types:

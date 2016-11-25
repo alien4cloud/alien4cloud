@@ -121,7 +121,7 @@ public class CsarGitService {
             git = RepositoryManager.cloneOrCheckout(tempDirPath, csarGitRepository.getRepositoryUrl(), csarGitRepository.getUsername(),
                     csarGitRepository.getPassword(), csarGitCheckoutLocation.getBranchId(), csarGitRepository.getId());
             // if the repository is persistent we also have to pull to get the latest version
-            if (csarGitRepository.isStoredLocally()) {
+            if (csarGitRepository.isStoredLocally() && !RepositoryManager.isATag(git, csarGitCheckoutLocation.getBranchId())) {
                 // try to pull
                 RepositoryManager.pull(git, csarGitRepository.getUsername(), csarGitRepository.getPassword());
             }

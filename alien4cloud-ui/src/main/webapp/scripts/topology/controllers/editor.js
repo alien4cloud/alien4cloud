@@ -24,7 +24,8 @@ define(function (require) {
 
   // manage websockets for topology editor
   require('scripts/topology/services/topology_editor_events_services');
-
+  require('scripts/common/directives/parsing_errors');
+  
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
     ['$scope', 'menu', 'layoutService', 'context', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
     'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster', '$state',
@@ -36,7 +37,8 @@ define(function (require) {
       // Manage topology version selection (version is provided as parameter from the template or application)
       $scope.topologyVersions = archiveVersions.data;
       $scope.versionContext = context;
-      $scope.released = false; // this allow to avoid file edition in the ui-ace.
+      // this allow to avoid file edition in the ui-ace.
+      $scope.released = false;
       topoEditVersions($scope);
 
       /**
@@ -54,7 +56,7 @@ define(function (require) {
       * refreshTopology has to be triggered when the topology is updated.
       * Added to the scope as right now every operation returns the full and update topology.
       */
-      $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate, initial) {
+      $scope.refreshTopology = function(topologyDTO, selectedNodeTemplateName, initial) {
         $scope.topology = topologyDTO;
         if(topologyDTO.topology.workspace === 'ALIEN_GLOBAL_WORKSPACE') {
           $scope.workspaces = ['ALIEN_GLOBAL_WORKSPACE'];
@@ -77,7 +79,7 @@ define(function (require) {
         // trigger refresh event so child scope can update what they need. Initial flag allows to know if this is the initial loading of the topology.
         $scope.$broadcast('topologyRefreshedEvent', {
           initial: initial,
-          selectedNodeTemplate: selectedNodeTemplate
+          selectedNodeTemplateName: selectedNodeTemplateName
         });
       };
 
@@ -89,17 +91,17 @@ define(function (require) {
       };
 
       var editorResource = $alresource('rest/latest/editor/:topologyId/execute');
-      $scope.execute = function(operation, successCallback, errorCallback, selectedNodeTemplate, isPropertyEdit) {
+      $scope.execute = function(operation, successCallback, errorCallback, selectedNodeTemplateName, isPropertyEdit) {
         operation.previousOperationId = $scope.getLastOperationId();
         // execute operations, create is a post
         return editorResource.create({
-          topologyId: $scope.topologyId,
+          topologyId: $scope.topologyId
         }, angular.toJson(operation), function(result) {
           if(_.defined(result.error) && result.error.code === 860) {
             // Topology recovery
             topologyRecoveryServices.handleTopologyRecovery(result.data, $scope.topologyId, $scope.getLastOperationId(true)).then(function(recoveryResult) {
               if(_.definedPath(recoveryResult, 'data')) {
-                $scope.refreshTopology(recoveryResult.data, selectedNodeTemplate);
+                $scope.refreshTopology(recoveryResult.data, selectedNodeTemplateName);
                 if(_.defined(successCallback)) {
                   successCallback(recoveryResult);
                 }
@@ -115,7 +117,7 @@ define(function (require) {
               $scope.topology.operations = result.data.operations;
               $scope.topology.lastOperationIndex = result.data.lastOperationIndex;
             } else {
-              $scope.refreshTopology(result.data, selectedNodeTemplate);
+              $scope.refreshTopology(result.data, selectedNodeTemplateName);
             }
           }
           if(_.defined(successCallback)) {
@@ -246,6 +248,27 @@ define(function (require) {
           });
         });
       };
+      
+      $scope.showParsingErrors = function (response) {
+        $modal.open({
+          templateUrl: 'views/topology/topology_parsing_error.html',
+          controller: ['$scope', '$modalInstance', 'uploadInfo',
+            function ($scope, $modalInstance, uploadInfo) {
+              $scope.uploadInfo = uploadInfo;
+              $scope.close = function () {
+                $modalInstance.dismiss('close');
+              };
+            }],
+          resolve: {
+            uploadInfo: function() {
+              return {
+                errors: response.data.errors,
+                infoType: 'danger'
+              };
+            }
+          }
+        });
+      };
 
       // GIT PULL FUNCTION
       //
@@ -266,8 +289,9 @@ define(function (require) {
             if(_.undefined(response.error)){
               $scope.refreshTopology(response.data);
               toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PULL.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PULL.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
+            } else {
+              $scope.showParsingErrors(response);
             }
-            console.debug('pulled');
           });
         });
       };

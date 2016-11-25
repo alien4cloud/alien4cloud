@@ -24,25 +24,9 @@
           <small ng-if="!globalContext">
             <a class=" btn btn-default btn-xs" id="btn-{{component.elementId}}" ng-href="#/components/details/{{component.elementId}}:{{component.archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
           </small>
-          <div class="pull-right center">
-            <div class="btn-group-vertical btn-group-xs">
-              <span class="btn btn-default disabled">
-                <i class="fa fa-archive"></i> {{component.archiveName}}
-              </span>
-              <div class="btn-group btn-group-xs">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="{{component.id}}_vfetch"
-                  ng-click="fetchElementVersion(component)">
-                  {{component.selectedVersion}} <i class="fa fa-caret-down"></i>
-                </button>
-                <ul ng-if="!component.olderVersions" class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
-                  <li class="option-selected"><i class="fa fa-spin fa-spinner"></i> Loading</li>
-                </ul>
-                <ul ng-if="component.olderVersions" class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
-                  <li ng-repeat="olderVersion in component.olderVersions" class="option-selected"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion.version}}</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <ng-include
+            src="'views/components/search_component_result_dislay.html'">
+          </ng-include>
           <p ng-if="globalContext" class="small">{{component.description}}</p>
         </h4>
       </div>

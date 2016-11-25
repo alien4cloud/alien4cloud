@@ -91,7 +91,7 @@ define(function(require) {
               }
             },
             null,
-            scope.selectedNodeTemplate,
+            scope.selectedNodeTemplate.name,
             true
           );
         }

@@ -83,6 +83,7 @@
     },
     "SHOW_DEPLOYED_APP" : "Afficher seulement les applications déployées.",
     "TOPOLOGY" : {
+      "PARSING_ERROR": "La topologie n'est pas valide",
       "ADD_NODETEMPLATE" : "Ajouter un Noeud",
       "ADD_RELATIONSHIP" : "Ajouter une relation",
       "ARTIFACTS" : {
@@ -355,6 +356,7 @@
     "AUTHOR" : "Auteur",
     "CAPABILITIES" : "Capacités",
     "DATA": "Données",
+    "DATE": "Date",
     "DESCRIPTION" : "Description",
     "EMAIL" : "Email",
     "EMAIL_INVALID" : "Email non valide.",
@@ -365,6 +367,7 @@
     "ID" : "Id",
     "INFO": "Information",
     "INFOS": "Informations",
+    "MESSAGE": "Message",
     "NAME" : "Nom",
     "NO" : "Non",
     "NODE" : "Noeud",

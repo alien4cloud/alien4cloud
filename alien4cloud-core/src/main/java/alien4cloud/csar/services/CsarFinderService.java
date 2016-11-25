@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -89,10 +88,8 @@ public class CsarFinderService {
 
         @SneakyThrows
         private boolean isToscaFile(Path path) {
-            if (isYamlFile(path.getFileName())) {
-                if (readFirstLine(path).startsWith("tosca_definitions_version")) {
-                    return true;
-                }
+            if (isYamlFile(path.getFileName()) && readFirstLine(path).startsWith("tosca_definitions_version")) {
+                return true;
             }
             return false;
         }
