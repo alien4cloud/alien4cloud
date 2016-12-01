@@ -1,0 +1,69 @@
+@startuml
+note left of FeatureSecurityConfiguration {
+  The security configuration of a feature.
+  It contains the identity of the REST method to secure and the required role to access to the feature.
+  This security configuration can be dynamic or statically configured by default on the REST method.
+  The design can be similar to what has been done on Audit
+}
+class FeatureSecurityConfiguration {
+    - name: String
+    - restEndpoint: String
+    - restMethod: String
+    - requiredRole: Role
+}
+class Role {
+    - permissions: List<Permission>
+}
+note right of Role::permissions {
+  A Role is a collection of permissions.
+  APPLICATION_MANAGER has read and write permission on the Application, APPLICATION_USER has read access only.
+  APPLICATION_DEPLOYER has execute permission on the Environment, the location and read permission on the matched location's resources
+}
+class User {
+}
+class Group {
+    - parent: Group
+}
+note right of Group {
+  A group is a collection of users and eventually other groups
+}
+class Permission {
+    - name: String
+    - sourceId: String
+    - sourceType: String
+}
+note right of Permission::name {
+  Name of the permission, it could be Read, Write, Execute ...
+  A read permission on an application gives user access to all application's details
+  A write permission on an application gives user the privilege to modify the details
+  A execute permission on an environment or location gives user the privilege to launch deployment on the environment
+}
+note left of Permission::sourceId {
+  If the permission is linked to an ISecuredResource then this field contains the id of the object
+}
+note left of Permission::sourceType {
+  If the permission is linked to an ISecuredResource then this field contains the type of the object
+}
+interface ISecuredResource {
+    + ISecuredResource getParent()
+}
+note left of ISecuredResource {
+  A secured resource might have a parent if it's contained by a global secured resource
+}
+
+User "0..n" o-- "0..n" Group : "Member of"
+
+Group "0..1" *-- "0..n" Group: "Contains"
+
+User "0..n" o-- "0..n" Role : "Has role"
+
+Group "0..n" o-- "0..n" Role : "Has role"
+
+Role "1..n" o-- "1..n" Permission : "Contains"
+
+FeatureSecurityConfiguration "1..n" o-- "0..1" Role : "Requires"
+
+Permission "1..n" o-- "0..1" ISecuredResource : "Linked To"
+
+ISecuredResource "0..1" *-- "0..n" ISecuredResource : "Contains"
+@enduml
