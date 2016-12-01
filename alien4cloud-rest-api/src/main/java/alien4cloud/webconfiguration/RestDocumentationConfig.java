@@ -137,7 +137,7 @@ public class RestDocumentationConfig {
     public Docket workspacesApiDocket() {
         Predicate predicate = PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "/workspaces.*");
         predicates.add(predicate);
-        return new Docket(DocumentationType.SWAGGER_2).groupName("catalog-api").select().paths(predicate).build().apiInfo(apiInfo());
+        return new Docket(DocumentationType.SWAGGER_2).groupName("workspaces-api").select().paths(predicate).build().apiInfo(apiInfo());
     }
 
     @Bean
