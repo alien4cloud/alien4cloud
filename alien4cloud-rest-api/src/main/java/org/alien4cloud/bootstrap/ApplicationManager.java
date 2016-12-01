@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.audit.rest.AuditController;
+import alien4cloud.webconfiguration.RestDocumentationHandlerProvider;
+import alien4cloud.webconfiguration.RestDocumentationPluginsBootstrapper;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.ApplicationContext;
@@ -56,6 +58,12 @@ public class ApplicationManager implements ApplicationListener<HALeaderElectionE
                 mapper = new RequestMappingHandlerMapping();
                 mapper.setApplicationContext(fullApplicationContext);
                 mapper.afterPropertiesSet();
+
+                RestDocumentationHandlerProvider restDocumentationHandlerProvider = fullApplicationContext.getBean(RestDocumentationHandlerProvider.class);
+                restDocumentationHandlerProvider.register(mapper);
+                RestDocumentationPluginsBootstrapper documentationPluginsBootstrapper = fullApplicationContext
+                        .getBean(RestDocumentationPluginsBootstrapper.class);
+                documentationPluginsBootstrapper.refresh();
 
                 AuditController auditController = fullApplicationContext.getBean(AuditController.class);
                 auditController.register(mapper);
