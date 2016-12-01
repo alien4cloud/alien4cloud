@@ -6,16 +6,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Ref;
@@ -23,13 +18,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.FetchResult;
-import org.eclipse.jgit.transport.PushResult;
-import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.transport.RemoteConfig;
-import org.eclipse.jgit.transport.RemoteRefUpdate;
-import org.eclipse.jgit.transport.URIish;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.transport.*;
 
 import com.google.common.collect.Lists;
 
@@ -178,50 +167,44 @@ public class RepositoryManager {
      * @return <code>true</code> if the branchId refer to a tag, <code>false</code> otherwise.
      */
     public static boolean isATag(Git repository, String branch) {
-        Map<String, Ref> refs = repository.getRepository().getAllRefs();
-        for (String refId : refs.keySet()) {
-            String[] segments = refId.split("/");
-            if (segments.length > 1 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[segments.length - 2])) {
-                return true;
-            }
+        String fullBranchReference = getFullReference(repository, branch);
+        String[] segments = fullBranchReference.split("/");
+        if (segments.length > 2 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[segments.length - 2])) {
+            return true;
         }
         return false;
     }
 
-    /**
-     * Get the branch reference with the valid prefix from repository references (like 'origin' for master or 'tags' for the tag 1.2.0)
-     *
-     * @param repository the Git repository
-     * @param branch the branch name
-     * @return the full branch reference
-     */
-    private static String getFullBranchReference(Git repository, String branch) {
+    private static String addPrefixOnTag(Git repository, String branch) {
+        if (isATag(repository, branch)) {
+            return "tags/" + branch;
+        }
+        return branch;
+    }
+
+    private static  boolean branchExistsLocally(Git git, String branch) throws GitAPIException {
+        return  git.branchList().call().stream().anyMatch(ref -> ref.getName().replace("refs/heads/", "").equals(branch));
+    }
+
+    private static String getFullReference(Git repository, String branch) {
         Map<String, Ref> refs = repository.getRepository().getAllRefs();
         for (String refId : refs.keySet()) {
             String[] segments = refId.split("/");
             if (segments.length > 1 && branch.equals(segments[segments.length - 1])) {
-                return segments[segments.length - 2] + "/" + segments[segments.length - 1];
+                return refId;
             }
         }
         return branch;
     }
 
-    private static  boolean branchExistsLocally(Git git, String remoteBranch) throws GitAPIException {
-        List<Ref> branches = git.branchList().call();
-        for (Ref branch : branches) {
-            if (branch.getName().equals("refs/heads/" + remoteBranch)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static void checkoutRepository(Git repository, String branch) {
         try {
-            String fullBranchReference = getFullBranchReference(repository, branch);
+            String fullBranchReference = addPrefixOnTag(repository, branch);
             CheckoutCommand checkoutCommand = repository.checkout();
-            checkoutCommand.setCreateBranch(!branchExistsLocally(repository, fullBranchReference));
-            checkoutCommand.setName(fullBranchReference).setStartPoint(fullBranchReference);
+            checkoutCommand.setName(fullBranchReference);
+            if (!branchExistsLocally(repository, fullBranchReference)) {
+                checkoutCommand.setCreateBranch(true).setStartPoint(getFullReference(repository, branch));
+            }
             checkoutCommand.call();
         } catch (GitAPIException e) {
             throw new GitException("Failed to checkout git repository", e);
