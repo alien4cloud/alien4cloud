@@ -6,7 +6,7 @@ template_version: 1.0-SNAPSHOT
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
-  - alien-base-types:1.2.0-SNAPSHOT
+  - alien-base-types:1.3.0
 
 data_types:
   alien.nodes.test.ComplexDataType:

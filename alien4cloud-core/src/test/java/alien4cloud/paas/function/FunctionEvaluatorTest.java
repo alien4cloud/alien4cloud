@@ -98,7 +98,7 @@ public class FunctionEvaluatorTest {
             String sampleLocalName = "samples";
             repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/samples.git", "master", sampleLocalName);
             String extendedLocalName = "alien-extended-types";
-            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "1.2.0", extendedLocalName);
+            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "1.3.0", extendedLocalName);
 
             Path typesPath = artifactsDirectory.resolve(normativeLocalName);
             Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
