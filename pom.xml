@@ -517,14 +517,6 @@
       <id>repo.opensource.fastconnect.org</id>
       <url>https://fastconnect.org/maven/content/repositories/opensource</url>
     </pluginRepository>
-    <pluginRepository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>jcenter-releases</id>
-      <name>jcenter</name>
-      <url>http://jcenter.bintray.com</url>
-    </pluginRepository>
   </pluginRepositories>
 
   <distributionManagement>

@@ -16,6 +16,8 @@ import alien4cloud.FullApplicationConfiguration;
 import alien4cloud.audit.rest.AuditController;
 import alien4cloud.events.AlienEvent;
 import alien4cloud.events.HALeaderElectionEvent;
+import alien4cloud.webconfiguration.RestDocumentationHandlerProvider;
+import alien4cloud.webconfiguration.RestDocumentationPluginsBootstrapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -87,6 +89,12 @@ public class ApplicationManager implements ApplicationListener<AlienEvent>, Hand
                 mapper = new RequestMappingHandlerMapping();
                 mapper.setApplicationContext(fullApplicationContext);
                 mapper.afterPropertiesSet();
+
+                RestDocumentationHandlerProvider restDocumentationHandlerProvider = fullApplicationContext.getBean(RestDocumentationHandlerProvider.class);
+                restDocumentationHandlerProvider.register(mapper);
+                RestDocumentationPluginsBootstrapper documentationPluginsBootstrapper = fullApplicationContext
+                        .getBean(RestDocumentationPluginsBootstrapper.class);
+                documentationPluginsBootstrapper.refresh();
 
                 AuditController auditController = fullApplicationContext.getBean(AuditController.class);
                 auditController.register(mapper);
