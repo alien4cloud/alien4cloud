@@ -10,11 +10,18 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -29,8 +36,6 @@ import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
 import alien4cloud.security.users.UserService;
-
-import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiOperation;
 
 /**
@@ -142,7 +147,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> deleteUser(@PathVariable String username, HttpServletResponse servletResponse) throws IOException, ClassNotFoundException {
-        if (username == null || username.isEmpty()) {
+        if (StringUtils.isBlank(username)) {
             return RestResponseBuilder.<Void> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("username cannot be null or empty").build()).build();
         } else if (alienUserDao.find(username) == null) {
@@ -154,10 +159,7 @@ public class UserController {
                     .build();
         }
 
-        resourceRoleService.deleteUserRoles(username);
-        groupService.removeUserFromAllGroup(username);
-
-        alienUserDao.delete(username);
+        userService.deleteUser(username);
         return RestResponseBuilder.<Void> builder().build();
     }
 

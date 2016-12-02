@@ -18,8 +18,13 @@ Feature: Manage group's authorizations on location
   Scenario: Add / Remove rights to a group on a location with ADMIN role
     Given I add a role "DEPLOYER" to group "lordOfRing" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error
+    When I get the location "Mount doom orchestrator"/"middle_earth"
+    Then The SPEL int expression "location.groupRoles.size()" should return 1
     When I remove a role "DEPLOYER" to group "lordOfRing" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error
+    When I get the location "Mount doom orchestrator"/"middle_earth"
+    Then The SPEL expression "location.groupRoles" should return "null"
+
 
   @reset
   Scenario: Remove group right on location when i ve no sufficent rights

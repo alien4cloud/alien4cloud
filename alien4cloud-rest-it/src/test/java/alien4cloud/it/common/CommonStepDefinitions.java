@@ -1,5 +1,7 @@
 package alien4cloud.it.common;
 
+import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpression;
+
 import java.nio.file.Files;
 import java.util.List;
 
@@ -13,10 +15,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import alien4cloud.audit.AuditESDAO;
 import alien4cloud.dao.ElasticSearchDAO;
@@ -199,30 +197,19 @@ public class CommonStepDefinitions {
         Assert.assertEquals(expectedResponseStr, restResponse.getData());
     }
 
-    @Then("^The SPEL boolean expression \"([^\"]*)\" should return true$")
-    public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression) {
-        Boolean result = (Boolean) evaluateExpression(spelExpression);
-        Assert.assertTrue(String.format("The SPEL expression [%s] should return true as a result", spelExpression), result.booleanValue());
-    }
-
-    private Object evaluateExpression(String spelExpression) {
-        EvaluationContext context = Context.getInstance().getSpelEvaluationContext();
-        ExpressionParser parser = new SpelExpressionParser();
-        Expression exp = parser.parseExpression(spelExpression);
-        return exp.getValue(context);
+    @Then("^The SPEL boolean expression \"([^\"]*)\" should return (true|false)$")
+    public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression, Boolean expected) {
+        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
     }
 
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentContext(String spelExpression, String expected) {
-        String result = evaluateExpression(spelExpression).toString();
-        Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
-        Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result);
+        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
     }
 
     @Then("^The SPEL int expression \"([^\"]*)\" should return (\\d+)$")
     public void The_SPEL_int_expression_should_return(String spelExpression, int expected) throws Throwable {
-        Integer actual = (Integer) evaluateExpression(spelExpression);
-        Assert.assertEquals(String.format("The SPEL expression [%s] should return [%d]", spelExpression, expected), expected, actual.intValue());
+        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
     }
 
     @When("^I register the rest response data as SPEL context of type \"([^\"]*)\"$")

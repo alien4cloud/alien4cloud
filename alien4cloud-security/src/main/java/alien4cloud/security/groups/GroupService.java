@@ -1,32 +1,40 @@
 package alien4cloud.security.groups;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
-
-import alien4cloud.security.groups.rest.UpdateGroupRequest;
-import alien4cloud.security.model.Group;
-import lombok.extern.slf4j.Slf4j;
+import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Service;
-
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.security.model.Role;
-import alien4cloud.security.model.User;
-import alien4cloud.security.users.UserService;
-import alien4cloud.utils.ReflectionUtil;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.security.ResourceRoleService;
+import alien4cloud.security.event.GroupDeletedEvent;
+import alien4cloud.security.event.UserDeletedEvent;
+import alien4cloud.security.groups.rest.UpdateGroupRequest;
+import alien4cloud.security.model.Group;
+import alien4cloud.security.model.Role;
+import alien4cloud.security.model.User;
+import alien4cloud.security.users.UserService;
+import alien4cloud.utils.ReflectionUtil;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
-@Service
+@Component
 public class GroupService {
 
     @Resource
@@ -34,6 +42,12 @@ public class GroupService {
 
     @Resource
     private UserService userService;
+
+    @Inject
+    private ApplicationEventPublisher publisher;
+
+    @Resource
+    private ResourceRoleService resourceRoleService;
 
     public void updateGroup(String groupId, UpdateGroupRequest groupUpdateRequest) {
         Group group = retrieveGroup(groupId);
@@ -45,19 +59,15 @@ public class GroupService {
         // Check with precedent value
         if (!currentGroupName.equals(group.getName())) {
             // If group name has changed, must check unicity
-            checkGroupNameUnicity(group.getName());
+            checkGroupNameUniqueness(group.getName());
         }
         alienGroupDao.save(group);
     }
 
-    public void deleteGroup(String groupId) {
+    public void deleteGroup(String groupId) throws IOException, ClassNotFoundException {
         Group group = retrieveGroup(groupId);
-        if (CollectionUtils.isNotEmpty(group.getUsers())) {
-            for (String username : group.getUsers()) {
-                userService.removeGroupFromUser(username, group);
-            }
-        }
         alienGroupDao.delete(groupId);
+        publisher.publishEvent(new GroupDeletedEvent(this, group));
     }
 
     public User addUserToGroup(String username, String groupId) {
@@ -91,20 +101,8 @@ public class GroupService {
         return user;
     }
 
-    public User removeUserFromAllGroup(String username) {
-        User user = userService.retrieveUser(username);
-        Set<String> userGroups = user.getGroups();
-        if (userGroups != null && userGroups.size() > 0) {
-            for (String group : userGroups) {
-                removeUserFromGroup(username, group);
-            }
-        }
-
-        return user;
-    }
-
     public String createGroup(String name, String email, String description, Set<String> roles, Set<String> users) throws AlreadyExistException {
-        checkGroupNameUnicity(name);
+        checkGroupNameUniqueness(name);
         Group group = new Group(name);
         group.setId(UUID.randomUUID().toString());
         group.setDescription(description);
@@ -187,13 +185,30 @@ public class GroupService {
      * 
      * @param groupName
      */
-    private void checkGroupNameUnicity(String groupName) throws AlreadyExistException {
+    private void checkGroupNameUniqueness(String groupName) throws AlreadyExistException {
         if (alienGroupDao.isGroupWithNameExist(groupName)) {
             log.debug("Create group <{}> impossible (already exists)", groupName);
             // a group already exist with the given id.
             throw new AlreadyExistException("A Group with the given id <" + groupName + "> already exists.");
         } else {
             log.debug("Create group <{}>", groupName);
+        }
+    }
+
+    /**
+     * Listener for user deleted. Removes the user from all groups where he was
+     * 
+     * @param event
+     */
+    @EventListener
+    public void userDeletedEventListener(UserDeletedEvent event) {
+        User user = event.getUser();
+        for (String groupId : safe(user.getGroups())) {
+            Group group = retrieveGroup(groupId);
+            if (safe(group.getUsers()).contains(user.getUsername())) {
+                group.getUsers().remove(user.getUsername());
+                alienGroupDao.save(group);
+            }
         }
     }
 

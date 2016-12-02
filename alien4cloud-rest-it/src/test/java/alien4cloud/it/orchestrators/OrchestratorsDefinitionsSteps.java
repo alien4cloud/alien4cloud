@@ -100,6 +100,13 @@ public class OrchestratorsDefinitionsSteps {
     public void I_get_the_orchestrator_named(String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/orchestrators/" + orchestratorId));
+
+        // build eval context if possible
+        String restResponse = Context.getInstance().getRestResponse();
+        RestResponse<Orchestrator> response = JsonUtil.read(restResponse, Orchestrator.class, Context.getJsonMapper());
+        if (response.getError() == null) {
+            Context.getInstance().buildEvaluationContext(response.getData());
+        }
     }
 
     @Then("^Response should contains the orchestrator with name \"([^\"]*)\" and state enabled \"([^\"]*)\"$")

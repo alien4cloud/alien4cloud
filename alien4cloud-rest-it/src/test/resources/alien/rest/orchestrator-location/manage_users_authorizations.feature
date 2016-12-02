@@ -14,11 +14,15 @@ Feature: Manage user's authorizations on an location
   Scenario: Add / Remove rights to a user on a location with ADMIN role
     Given I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error
+    When I get the location "Mount doom orchestrator"/"middle_earth"
+    Then The SPEL boolean expression "location.userRoles['frodon'].size() == 1 and location.userRoles['frodon'][0] == 'DEPLOYER'" should return true
     When I remove a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error
+    When I get the location "Mount doom orchestrator"/"middle_earth"
+    Then The SPEL expression "location.userRoles" should return "null"
 
   @reset
-  Scenario: Remove user right on location when i ve no sufficent rights
+  Scenario: Remove user right on location when i have no sufficent rights
     Given I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error
     When I am authenticated with "USER" role

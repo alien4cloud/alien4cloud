@@ -10,7 +10,7 @@ public class SecuredResourceStepDefinition {
 
     // Allowed resource types
     private enum RESOURCE_TYPE {
-        APPLICATION, ENVIRONMENT, LOCATION;
+        APPLICATION, ENVIRONMENT, LOCATION, ORCHESTRATOR;
     }
 
     @When("^I add a role \"([^\"]*)\" to group \"([^\"]*)\" on the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
@@ -52,6 +52,7 @@ public class SecuredResourceStepDefinition {
 
     private String getResourceRequest(String resourceTypeId, String resourceName) throws Throwable {
         String request = null;
+        String orchestratorName = LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME;
         switch (RESOURCE_TYPE.valueOf(resourceTypeId)) {
         case APPLICATION:
             request = "/rest/v1/applications/" + Context.getInstance().getApplicationId(resourceName);
@@ -62,9 +63,12 @@ public class SecuredResourceStepDefinition {
                     + Context.getInstance().getApplicationEnvironmentId(application.getName(), resourceName);
             break;
         case LOCATION:
-            String orchestratorName = LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME;
+
             request = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
                     + LocationsDefinitionsSteps.getLocationIdFromName(orchestratorName, resourceName);
+            break;
+        case ORCHESTRATOR:
+            request = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName);
             break;
         default:
         }

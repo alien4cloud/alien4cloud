@@ -1,5 +1,7 @@
 package alien4cloud.security.users;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,23 +11,28 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.security.event.GroupDeletedEvent;
+import alien4cloud.security.event.UserDeletedEvent;
 import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.model.Group;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
 import alien4cloud.security.users.rest.UpdateUserRequest;
 import alien4cloud.utils.ReflectionUtil;
-
-import com.google.common.collect.Sets;
 
 @Component
 public class UserService {
@@ -46,6 +53,9 @@ public class UserService {
 
     @Value("${alien_security.admin.email}")
     private String email;
+
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     /** Ensure that there is at least one user with admin role. */
     @PostConstruct
@@ -256,4 +266,27 @@ public class UserService {
         return roles.contains("ADMIN");
     }
 
+    /**
+     * Delete a user, and publish an event
+     *
+     * @param username The username of the user to delete
+     */
+    public void deleteUser(String username) {
+        User user = retrieveUser(username);
+        alienUserDao.delete(username);
+        publisher.publishEvent(new UserDeletedEvent(this, user));
+    }
+
+    /**
+     * Listener for group deleted. Removes the group (and related roles) from all users members
+     *
+     * @param event
+     */
+    @EventListener
+    public void groupDeletedEventListener(GroupDeletedEvent event) {
+        Group group = event.getGroup();
+        for (String username : safe(group.getUsers())) {
+            removeGroupFromUser(username, group);
+        }
+    }
 }

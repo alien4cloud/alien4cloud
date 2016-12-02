@@ -1,8 +1,17 @@
 package alien4cloud.plugin.aop;
 
-import alien4cloud.events.AlienEvent;
-import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.annotation.Resource;
+
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
@@ -21,16 +30,10 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
-import javax.annotation.Resource;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import com.google.common.collect.Maps;
+
+import alien4cloud.events.AlienEvent;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manage inter context proxies : thanks to it, we can define aspects upon main context beans in child contexts. Also broadcast {@link AlienEvent}s to child
@@ -210,6 +213,8 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
     private void onAlienEvent(AlienEvent e) {
         // Alien events are published to child contexts
         // we can't publish directly into child context because it will re-publish to it's parent causing a stack overflow !
+        // TODO In fact we should do it, so that child contexts can use @EventListener annotation. Use a boolean in AlienEvent.forwarded to check wether the
+        // event has already been forwarded to child contexts
         for (Entry<String, GenericApplicationListenerAdapter[]> childListenersEntry : childApplicationListeners.entrySet()) {
             ApplicationContext ctx = childContexts.get(childListenersEntry.getKey());
             if (ctx != null) {

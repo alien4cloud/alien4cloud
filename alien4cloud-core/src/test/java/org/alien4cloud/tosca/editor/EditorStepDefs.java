@@ -1,5 +1,7 @@
 package org.alien4cloud.tosca.editor;
 
+import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpression;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,8 +35,6 @@ import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -164,8 +164,7 @@ public class EditorStepDefs {
 
     @Then("^The csar SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void the_Csar_SPEL_Expression_Should_Return(String spelExpression, String expected) throws Throwable {
-        Object result = evaluateExpression(csarEvaluationContext, spelExpression);
-        assertSpelResult(expected, result, spelExpression);
+        evaluateAndAssertExpression(csarEvaluationContext, spelExpression, expected);
     }
 
     @And("^I delete the archive \"([^\"]*)\" \"([^\"]*)\" if any$")
@@ -349,73 +348,50 @@ public class EditorStepDefs {
         doExecuteOperation(operation, topologyIds.getLast());
     }
 
-    private Object evaluateExpression(EvaluationContext context, String spelExpression) {
-        ExpressionParser parser = new SpelExpressionParser();
-        Expression exp = parser.parseExpression(spelExpression);
-        return exp.getValue(context);
-    }
 
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, String expected) {
-        Object result = evaluateExpression(topologyEvaluationContext, spelExpression);
-        assertSpelResult(expected, result, spelExpression);
+        evaluateAndAssertExpression(topologyEvaluationContext, spelExpression, expected);
     }
 
     @Then("^The SPEL expression \"([^\"]*)\" should return (true|false)$")
     public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, Boolean expected) {
-        Object result = evaluateExpression(topologyEvaluationContext, spelExpression);
-        assertSpelResult(expected, result, spelExpression);
+        evaluateAndAssertExpression(topologyEvaluationContext, spelExpression, expected);
     }
 
     @Then("^The SPEL expression \"([^\"]*)\" should return (\\d+)$")
     public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, Integer expected) {
-        Object result = evaluateExpression(topologyEvaluationContext, spelExpression);
-        assertSpelResult(expected, result, spelExpression);
+        evaluateAndAssertExpression(topologyEvaluationContext, spelExpression, expected);
     }
 
     @Then("^The dto SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentDTOContext(String spelExpression, String expected) {
-        Object result = evaluateExpression(dtoEvaluationContext, spelExpression);
-        assertSpelResult(expected, result, spelExpression);
+        evaluateAndAssertExpression(dtoEvaluationContext, spelExpression, expected);
     }
 
     @Then("^The dto SPEL expression \"([^\"]*)\" should return (true|false)$")
     public void evaluateSpelExpressionUsingCurrentDTOContext(String spelExpression, Boolean expected) {
-        Object result = evaluateExpression(dtoEvaluationContext, spelExpression);
-        assertSpelResult(expected, result, spelExpression);
+        evaluateAndAssertExpression(dtoEvaluationContext, spelExpression, expected);
     }
 
     @Then("^The dto SPEL expression \"([^\"]*)\" should return (\\d+)$")
     public void evaluateSpelExpressionUsingCurrentDTOContext(String spelExpression, Integer expected) {
-        Object result = evaluateExpression(dtoEvaluationContext, spelExpression);
-        assertSpelResult(expected, result, spelExpression);
+        evaluateAndAssertExpression(dtoEvaluationContext, spelExpression, expected);
     }
 
     @Then("^The exception SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentExceptionContext(String spelExpression, String expected) {
-        Object result = evaluateExpression(exceptionEvaluationContext, spelExpression);
-        assertSpelResult(expected, result, spelExpression);
+        evaluateAndAssertExpression(exceptionEvaluationContext, spelExpression, expected);
     }
 
     @Then("^The exception SPEL expression \"([^\"]*)\" should return (true|false)$")
     public void evaluateSpelExpressionUsingCurrentExceptionContext(String spelExpression, Boolean expected) {
-        Object result = evaluateExpression(exceptionEvaluationContext, spelExpression);
-        assertSpelResult(expected, result, spelExpression);
+        evaluateAndAssertExpression(exceptionEvaluationContext, spelExpression, expected);
     }
 
     @Then("^The exception SPEL expression \"([^\"]*)\" should return (\\d+)$")
     public void evaluateSpelExpressionUsingCurrentExceptionContext(String spelExpression, Integer expected) {
-        Object result = evaluateExpression(exceptionEvaluationContext, spelExpression);
-        assertSpelResult(expected, result, spelExpression);
-    }
-
-    private void assertSpelResult(Object expected, Object result, String spelExpression) {
-        if ("null".equals(expected)) {
-            Assert.assertNull(String.format("The SPEL expression [%s] result should be null", spelExpression), result);
-        } else {
-            Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
-            Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result);
-        }
+        evaluateAndAssertExpression(exceptionEvaluationContext, spelExpression, expected);
     }
 
     @Then("^No exception should be thrown$")

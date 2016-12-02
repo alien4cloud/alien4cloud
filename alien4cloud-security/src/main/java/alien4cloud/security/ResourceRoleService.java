@@ -8,16 +8,18 @@ import javax.annotation.Resource;
 
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.security.ISecuredResource;
+import alien4cloud.security.event.GroupDeletedEvent;
+import alien4cloud.security.event.UserDeletedEvent;
 import alien4cloud.utils.TypeScanner;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Handle groups roles CRUD on any resource implementing {@link ISecuredResource}
@@ -187,13 +189,13 @@ public class ResourceRoleService {
     }
 
     /**
-     * Delete a groupRoles entry (groupId) in an ISecuredResource object
+     * Delete a groupRoles entry (groupId) in all ISecuredResource object
      *
      * @param groupId group id to remove in groupRoles
      * @throws ClassNotFoundException
      * @throws IOException
      */
-    public void deleteGroupRoles(String groupId) throws ClassNotFoundException, IOException {
+    private void deleteGroupRoles(String groupId) throws ClassNotFoundException, IOException {
         FilterBuilder resourceFilter = FilterBuilders.nestedFilter("groupRoles", FilterBuilders.termFilter("groupRoles.key", groupId));
         deleteRoles(resourceFilter, groupId, new DeleteRoleVisitor() {
             @Override
@@ -204,13 +206,13 @@ public class ResourceRoleService {
     }
 
     /**
-     * Delete a userRoles entry (userId) in an ISecuredResource object
+     * Delete a userRoles entry (userId) in all ISecuredResource object
      *
      * @param userId user id (username) to remove in userRoles
      * @throws ClassNotFoundException
      * @throws IOException
      */
-    public void deleteUserRoles(String userId) throws ClassNotFoundException, IOException {
+    private void deleteUserRoles(String userId) throws ClassNotFoundException, IOException {
         FilterBuilder resourceFilter = FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", userId));
         deleteRoles(resourceFilter, userId, new DeleteRoleVisitor() {
             @Override
@@ -269,5 +271,15 @@ public class ResourceRoleService {
     private static interface DeleteRoleVisitor {
 
         void deleteRoleOfOwner(Object[] securedResources, String owner);
+    }
+
+    @EventListener
+    public void userDeletedEventListener(UserDeletedEvent event) throws IOException, ClassNotFoundException {
+        deleteUserRoles(event.getUser().getUsername());
+    }
+
+    @EventListener
+    public void groupDeletedEventListener(GroupDeletedEvent event) throws IOException, ClassNotFoundException {
+        deleteGroupRoles(event.getGroup().getId());
     }
 }
