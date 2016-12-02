@@ -18,6 +18,7 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.utils.MapUtil;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -280,7 +281,8 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
 
                 if (deployment.getSourceName().equals(BLOCKSTORAGE_APPLICATION) && cloned.getState().equalsIgnoreCase("created")) {
                     PaaSInstancePersistentResourceMonitorEvent prme = new PaaSInstancePersistentResourceMonitorEvent(nodeId, instanceId.toString(),
-                            NormativeBlockStorageConstants.VOLUME_ID, UUID.randomUUID().toString());
+                            MapUtil.newHashMap(new String[] { NormativeBlockStorageConstants.VOLUME_ID }, new Object[] { UUID.randomUUID().toString() }));
+                    prme.setDeploymentId(deployment.getId());
                     toBeDeliveredEvents.add(prme);
                 }
 

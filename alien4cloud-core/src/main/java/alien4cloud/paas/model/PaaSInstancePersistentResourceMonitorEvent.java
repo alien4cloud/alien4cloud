@@ -4,6 +4,8 @@ import lombok.*;
 
 import org.elasticsearch.annotation.ESObject;
 
+import java.util.Map;
+
 /**
  * This event allows the PaaS Provider to update the deployment topology of an application so that persistent resources created at deployment time will be
  */
@@ -18,7 +20,6 @@ public class PaaSInstancePersistentResourceMonitorEvent extends AbstractMonitorE
     private String nodeTemplateId;
     /** Id of the instance within the node template group (for scalability purpose) */
     private String instanceId;
-    private String propertyName;
-    /** The volumeId created / related to this instance **/
-    private Object propertyValue;
+    /** Map of persistent properties related to this instance */
+    Map<String, Object> persistentProperties;
 }
