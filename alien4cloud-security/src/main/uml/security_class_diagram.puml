@@ -17,12 +17,14 @@ class Role {
 note right of Role::permissions {
   A Role is a collection of permissions.
   APPLICATION_MANAGER has read and write permission on the Application, APPLICATION_USER has read access only.
-  APPLICATION_DEPLOYER has execute permission on the Environment, execute permission on the matched location's resources
+  APPLICATION_DEPLOYER has execute permission on the Environment, execute permission on the matched location's resources.
+  Alien4Cloud has an ADMIN role which bypass every security filter and has access to every features and every resources.
+  Each resource has an 'ADMIN' role which bypass every security filter on the resource (APPLICATION_MANAGER on an application ...).
 }
 class User {
 }
 class Group {
-    - parent: Group
+    - parentId: String
 }
 note right of Group {
   A group is a collection of users and eventually other groups.
@@ -35,15 +37,15 @@ class Permission {
 }
 note right of Permission::name {
   Name of the permission, it could be Read, Write, Execute ...
-  A read permission on an application gives user access to all application's details
-  A write permission on an application gives user the privilege to modify the details
-  A execute permission on an environment or location gives user the privilege to launch deployment on the environment
+  A read permission on an application gives user access to all application's details.
+  A write permission on an application gives user the privilege to modify the details, delete ...
+  A execute permission on an environment or location gives user the privilege to launch deployment on the environment.
 }
 note left of Permission::sourceId {
-  If the permission is linked to an SecuredResource then this field contains the id of the object
+  If the permission is linked to an SecuredResource then this field contains the id of the object.
 }
 note left of Permission::sourceType {
-  If the permission is linked to an SecuredResource then this field contains the type of the object
+  If the permission is linked to an SecuredResource then this field contains the type of the object.
 }
 class SecuredResource {
     - parentId: String
@@ -52,7 +54,7 @@ class SecuredResource {
 }
 note left of SecuredResource {
   A secured resource might have a parent if it's contained by a global secured resource.
-  If it can contains other objects, the their types must be present in componentTypes, this way from the parent we can query the children and vice versa.
+  If it can contains other objects, then their types must be present in componentTypes, this way from the parent we can query the children and vice versa.
 }
 
 User "0..n" o-- "0..n" Group : "Member of"

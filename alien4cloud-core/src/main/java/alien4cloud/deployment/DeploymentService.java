@@ -1,18 +1,5 @@
 package alien4cloud.deployment;
 
-import java.util.*;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.stereotype.Service;
-
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
@@ -20,8 +7,22 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
-
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Manage deployment operations on a cloud.
@@ -87,7 +88,7 @@ public class DeploymentService {
 
     /**
      * Get an active Deployment for a given environment or throw a NotFoundException if no active deployment can be found for this environment.
-     * 
+     *
      * @param environmentId Id of the application environment.
      * @return The active deployment for this environment
      */
@@ -172,7 +173,7 @@ public class DeploymentService {
 
     /**
      * Check if there is an active deployment on a given orchestrator with the given orchestrator deployment id.
-     * 
+     *
      * @param orchestratorId The if of the orchestrator for which to check if there is a deployment with the given orchestratorDeploymentId.
      * @param orchestratorDeploymentId Unique if of the deployment for a given orchestrator
      * @return True if there is an active deployment for theses ids, false if not.
@@ -201,7 +202,7 @@ public class DeploymentService {
     private Deployment[] getOrchestratorActiveDeployments(String orchestratorId) {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
                 new String[][] { new String[] { orchestratorId }, new String[] { null } });
-        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
+        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, Integer.MAX_VALUE);
         return dataResult.getData();
     }
 
@@ -223,7 +224,7 @@ public class DeploymentService {
 
     /**
      * Switch a deployment to undeployed.
-     * 
+     *
      * @param deployment the deployment to switch.
      */
     public void markUndeployed(Deployment deployment) {
