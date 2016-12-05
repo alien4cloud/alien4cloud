@@ -22,7 +22,6 @@ import com.google.common.collect.Sets;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.event.GroupDeletedEvent;
 import alien4cloud.security.event.UserDeletedEvent;
 import alien4cloud.security.groups.rest.UpdateGroupRequest;
@@ -45,9 +44,6 @@ public class GroupService {
 
     @Inject
     private ApplicationEventPublisher publisher;
-
-    @Resource
-    private ResourceRoleService resourceRoleService;
 
     public void updateGroup(String groupId, UpdateGroupRequest groupUpdateRequest) {
         Group group = retrieveGroup(groupId);
