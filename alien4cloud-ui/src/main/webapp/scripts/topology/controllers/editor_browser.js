@@ -26,7 +26,7 @@ define(function (require) {
     };
 
     var selected = null;
-    if(_.defined(openOnFile)) {
+    if (_.defined(openOnFile)) {
       selected = {fullPath: openOnFile};
       $scope.selected = selected;
     }
@@ -109,6 +109,7 @@ define(function (require) {
         $scope.filePath += file.name;
       }
       uploadService.doUpload(file, {file: file, url: url, data: {lastOperationId: $scope.getLastOperationId(), path: $scope.filePath}});
+      $scope.filePath = '';
     };
 
     $scope.deleteFile = function() {
