@@ -167,7 +167,28 @@ public class TestDataRegistry {
         addConditionFolder("complex properties types", "src/test/resources/data/csars/data_type/data_type_types");
         addConditionFolder("complex properties template", "src/test/resources/data/csars/data_type/data_type_topology");
 
+        // FIXME IS THIS ARCHIVE STILL VALID ?
         addConditionFolder("dependency version conflict", "src/test/resources/data/csars/topology_template/topology_dependency_version_conflict");
+
+        // Archives for dependencies tests.
+        addConditionFolder("dependencies a_v1", "src/test/resources/data/csars/dependencies/a_v1");
+        addConditionFolder("dependencies b_v1", "src/test/resources/data/csars/dependencies/b_v1");
+        addConditionFolder("dependencies b_v2", "src/test/resources/data/csars/dependencies/b_v2");
+        addConditionFolder("dependencies b_v3", "src/test/resources/data/csars/dependencies/b_v3");
+        addConditionFolder("dependencies b_v4", "src/test/resources/data/csars/dependencies/b_v4");
+        addConditionFolder("dependencies c_v1", "src/test/resources/data/csars/dependencies/c_v1");
+        addConditionFolder("dependencies c_v2", "src/test/resources/data/csars/dependencies/c_v2");
+        addConditionFolder("dependencies c_v2", "src/test/resources/data/csars/dependencies/c_v3");
+        addConditionFolder("dependencies c_v2", "src/test/resources/data/csars/dependencies/c_v4");
+        addConditionFolder("dependencies d_v2", "src/test/resources/data/csars/dependencies/d_v1");
+        addConditionFolder("dependencies d_v2", "src/test/resources/data/csars/dependencies/d_v2");
+        addConditionFolder("dependencies d_v2", "src/test/resources/data/csars/dependencies/d_v3");
+        addConditionFolder("dependencies d_v2", "src/test/resources/data/csars/dependencies/d_v4");
+        addConditionFolder("dependencies scenario_1", "src/test/resources/data/csars/dependencies/scenario_1");
+        addConditionFolder("dependencies scenario_1", "src/test/resources/data/csars/dependencies/scenario_2");
+        addConditionFolder("dependencies scenario_1", "src/test/resources/data/csars/dependencies/scenario_3");
+        addConditionFolder("dependencies scenario_1", "src/test/resources/data/csars/dependencies/scenario_4");
+        addConditionFolder("dependencies scenario_1", "src/test/resources/data/csars/dependencies/scenario_5");
 
         // We put all artifacts to a4c root project dir
         // test uploading an unzipped file (do not zip it)
