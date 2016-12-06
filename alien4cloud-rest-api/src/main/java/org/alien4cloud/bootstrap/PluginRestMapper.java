@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExecutionChain;
@@ -33,9 +34,9 @@ public class PluginRestMapper implements IPluginLoadingCallback, HandlerMapping,
 
     @Inject
     private AuditController auditController;
-    @Inject
+    @Autowired(required = false)
     private RestDocumentationHandlerProvider restDocumentationHandlerProvider;
-    @Inject
+    @Autowired(required = false)
     private RestDocumentationPluginsBootstrapper documentationPluginsBootstrapper;
 
     @Override
@@ -47,15 +48,14 @@ public class PluginRestMapper implements IPluginLoadingCallback, HandlerMapping,
     public synchronized void onPluginClosed(ManagedPlugin managedPlugin) {
         RequestMappingHandlerMapping mapping = this.pluginMappings.remove(managedPlugin.getPlugin().getDescriptor().getId());
         auditController.unRegister(mapping);
-        restDocumentationHandlerProvider.unregister(mapping);
         for (int i = 0; i < this.handlerMappings.size(); i++) {
             // identity check and remove if this is the mapping associated with the plugin to close.
             if (this.handlerMappings.get(i) == mapping) {
                 this.handlerMappings.remove(i);
-                return;
+                break;
             }
         }
-        documentationPluginsBootstrapper.refresh();
+        unregisterDocumentation(mapping);
     }
 
     private void mapContext(ManagedPlugin managedPlugin) {
@@ -64,11 +64,10 @@ public class PluginRestMapper implements IPluginLoadingCallback, HandlerMapping,
         mapper.setApplicationContext(managedPlugin.getPluginContext());
         mapper.afterPropertiesSet();
         auditController.register(mapper);
-        restDocumentationHandlerProvider.register(mapper);
         this.handlerMappings.add(mapper);
         this.pluginMappings.put(managedPlugin.getPlugin().getDescriptor().getId(), mapper);
 
-        documentationPluginsBootstrapper.refresh();
+        registerDocumentation(mapper);
     }
 
     @Override
@@ -88,5 +87,19 @@ public class PluginRestMapper implements IPluginLoadingCallback, HandlerMapping,
     @Override
     public int getOrder() {
         return PriorityOrdered.HIGHEST_PRECEDENCE + 1;
+    }
+
+    private void registerDocumentation(RequestMappingHandlerMapping mapper) {
+        if (restDocumentationHandlerProvider != null && documentationPluginsBootstrapper != null) {
+            restDocumentationHandlerProvider.register(mapper);
+            documentationPluginsBootstrapper.refresh();
+        }
+    }
+
+    private void unregisterDocumentation(RequestMappingHandlerMapping mapping) {
+        if (restDocumentationHandlerProvider != null && documentationPluginsBootstrapper != null) {
+            restDocumentationHandlerProvider.unregister(mapping);
+            documentationPluginsBootstrapper.refresh();
+        }
     }
 }

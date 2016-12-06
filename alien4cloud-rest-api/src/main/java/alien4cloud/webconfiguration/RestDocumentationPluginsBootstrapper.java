@@ -10,11 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.classmate.TypeResolver;
 
+import alien4cloud.common.AlienConstants;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.DocumentationPlugin;
 import springfox.documentation.spi.service.contexts.Defaults;
@@ -30,6 +32,7 @@ import springfox.documentation.spring.web.scanners.ApiDocumentationScanner;
  * Override rest documentation bootstrapper from swagger so we can load plugins and .
  */
 @Component
+@Profile(AlienConstants.API_DOC_PROFILE_FILTER)
 public class RestDocumentationPluginsBootstrapper implements ApplicationListener<ContextRefreshedEvent> {
     private static final Logger log = LoggerFactory.getLogger(RestDocumentationPluginsBootstrapper.class);
     private final DocumentationPluginsManager documentationPluginsManager;

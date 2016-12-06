@@ -8,12 +8,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
+import org.springframework.plugin.core.config.EnablePluginRegistries;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 
-import org.springframework.plugin.core.config.EnablePluginRegistries;
+import alien4cloud.common.AlienConstants;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.schema.configuration.ModelsConfiguration;
 import springfox.documentation.service.ApiInfo;
@@ -48,7 +49,7 @@ import springfox.documentation.swagger2.configuration.Swagger2JacksonModule;
 @EnablePluginRegistries({ DocumentationPlugin.class, ApiListingBuilderPlugin.class, OperationBuilderPlugin.class, ParameterBuilderPlugin.class,
         ExpandedParameterBuilderPlugin.class, ResourceGroupingStrategy.class, OperationModelsProviderPlugin.class, DefaultsProviderPlugin.class,
         PathDecorator.class })
-@Profile("!noApiDoc")
+@Profile(AlienConstants.API_DOC_PROFILE_FILTER)
 public class RestDocumentationConfig {
 
     private static final String CURRENT_API_VERSION = "1";
