@@ -25,7 +25,7 @@ define(function (require) {
   // manage websockets for topology editor
   require('scripts/topology/services/topology_editor_events_services');
   require('scripts/common/directives/parsing_errors');
-  
+
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
     ['$scope', 'menu', 'layoutService', 'context', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
     'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster', '$state',
@@ -40,6 +40,28 @@ define(function (require) {
       // this allow to avoid file edition in the ui-ace.
       $scope.released = false;
       topoEditVersions($scope);
+
+      // Initial load of the topology
+      topologyServices.dao.get({ topologyId: $scope.topologyId },
+        function(result) {
+          if (_.undefined(result.error)) {
+            $scope.refreshTopology(result.data, null, true);
+            return;
+          }
+          // case there actually is an error
+          var lastOperationId = 'null';
+          if (_.undefined($scope.topology) && _.defined(result.data.lastOperationId)) {
+            lastOperationId = result.data.lastOperationId;
+          } else {
+            lastOperationId = $scope.getLastOperationId(true);
+          }
+          topologyRecoveryServices.handleTopologyRecovery(result.data, $scope.topologyId, lastOperationId).then(function(recoveryResult){
+            if (_.definedPath(recoveryResult, 'data')) {
+              $scope.refreshTopology(recoveryResult.data, null, true);
+              return;
+            }
+          });
+        });
 
       /**
       * Add bounds information to the requirements and capabilities in the topology based on relationships.
@@ -248,7 +270,7 @@ define(function (require) {
           });
         });
       };
-      
+
       $scope.showParsingErrors = function (response) {
         $modal.open({
           templateUrl: 'views/topology/topology_parsing_error.html',
@@ -334,22 +356,6 @@ define(function (require) {
               e.returnValue = false;
             }
           }
-        });
-
-      // Initial load of the topology
-      topologyServices.dao.get({ topologyId: $scope.topologyId },
-        function(result) {
-          if(_.undefined(result.error)){
-            $scope.refreshTopology(result.data, null, true);
-            return;
-          }
-          //case there actually is an error
-          topologyRecoveryServices.handleTopologyRecovery(result.data, $scope.topologyId, $scope.getLastOperationId(true)).then(function(recoveryResult){
-            if(_.definedPath(recoveryResult, 'data')){
-              $scope.refreshTopology(recoveryResult.data, null, true);
-              return;
-            }
-          });
         });
 
       var AskSaveTopologyController = ['$scope', '$modalInstance',

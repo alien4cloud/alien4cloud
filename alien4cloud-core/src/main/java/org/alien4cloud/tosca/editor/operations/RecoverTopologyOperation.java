@@ -30,6 +30,8 @@ public class RecoverTopologyOperation extends AbstractEditorOperation {
      */
     List<AbstractEditorOperation> recoveringOperations;
 
+    private String lastOperationId;
+
 
     @Override
     @JsonProperty(value = "resume", access = JsonProperty.Access.READ_ONLY)
