@@ -56,7 +56,7 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
      * Performs data migration for 1.3.1 version where plugin ids are not generated using the version anymore.
      */
     private void migration() {
-        log.info("Initializing plugin id migrations");
+        log.debug("Initializing plugin id migrations");
         int count = 0;
         // This code updates the ids of plugin configurations and plugins in elasticsearch to remove the version reference.
         GetMultipleDataResult<Plugin> pluginResult = alienDAO.buildQuery(Plugin.class).prepareSearch().search(0, Integer.MAX_VALUE);
@@ -73,7 +73,9 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
                 count++;
             }
         }
-        log.info("{} plugins migrated", count);
+        if (count > 0) {
+            log.info("{} plugins migrated", count);
+        }
         count = 0;
 
         // This code updates the plugin id in the orchestrators.
@@ -85,7 +87,10 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
                 count++;
             }
         }
-        log.info("Orchestrator migrated: {}. Done.", count);
+        if (count > 0) {
+            log.info("Orchestrator migrated: {}.", count);
+        }
+        log.debug("plugin id migration done.");
     }
 
     /**

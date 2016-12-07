@@ -339,8 +339,7 @@ public class PluginManager {
 
     private void loadPlugin(Plugin plugin) throws PluginLoadingException {
         if (pluginContexts.containsKey(plugin.getId())) {
-            // FIXME put that in debug level.
-            log.info("Do not load plugin {} as it is already loaded.", plugin.getId());
+            log.debug("Do not load plugin {} as it is already loaded.", plugin.getId());
         }
         try {
             Path pluginPath = getPluginPath(plugin.getPluginPathId());
