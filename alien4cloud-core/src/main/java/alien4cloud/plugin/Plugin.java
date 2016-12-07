@@ -1,39 +1,48 @@
 package alien4cloud.plugin;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.plugin.model.PluginDescriptor;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.plugin.model.PluginDescriptor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Describe a plugin for Alien 4 Cloud
  *
  * @author luc boutier
  */
-@Getter
-@Setter
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ESObject
 public class Plugin {
+    @Getter
+    @Setter
     private PluginDescriptor descriptor;
+    @Getter
+    @Setter
     private String pluginPathId;
+    @Getter
+    @Setter
     @TermFilter
     private boolean enabled;
+    @Getter
+    @Setter
     private boolean configurable;
+
+    /** Do not use that */
+    @Deprecated
+    private String esId;
 
     @Id
     @TermFilter
@@ -45,14 +54,22 @@ public class Plugin {
         if (descriptor.getId() == null) {
             throw new IndexingServiceException("Plugin id is mandatory");
         }
-        if (descriptor.getVersion() == null) {
-            throw new IndexingServiceException("Plugin version is mandatory");
-        }
-        return descriptor.getId() + ":" + descriptor.getVersion();
+        return descriptor.getId();
     }
 
     public void setId(String id) {
-        // Not authorized to set id as it's auto-generated
+        // This is used to keep track of the id in elasticsearch for 1.3.1 migration (no more version in id) See ApplicationBootstrap for more details.
+        this.esId = id;
+    }
+
+    /**
+     * Method to get the id as saved in elasticsearch.
+     * 
+     * @return Returns the plugin id as saved in elasticsearch.
+     */
+    @Deprecated
+    public String getEsId() {
+        return esId;
     }
 
     /**
