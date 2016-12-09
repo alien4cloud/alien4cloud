@@ -71,5 +71,8 @@ public enum ErrorCode {
     /** Invalid node template name (contains dot, dash or accent) **/
     INVALID_NODE_TEMPLATE_NAME,
     /** A node type a defined in other Csar **/
-    TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR;
+    TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR,
+    /** Same dependency name with different version **/
+    TRANSITIVE_DEPENDENCY_VERSION_CONFLICT,
+    DEPENDENCY_VERSION_CONFLICT;
 }
