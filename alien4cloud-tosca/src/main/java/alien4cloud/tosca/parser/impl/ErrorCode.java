@@ -72,7 +72,8 @@ public enum ErrorCode {
     INVALID_NODE_TEMPLATE_NAME,
     /** A node type a defined in other Csar **/
     TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR,
-    /** Same dependency name with different version **/
+    /** version conflict between a transitive and a direct dependency **/
     TRANSITIVE_DEPENDENCY_VERSION_CONFLICT,
+    /** Same dependency name with different version **/
     DEPENDENCY_VERSION_CONFLICT;
 }

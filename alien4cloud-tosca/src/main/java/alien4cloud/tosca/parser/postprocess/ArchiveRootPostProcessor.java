@@ -6,6 +6,12 @@ import java.util.*;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.AlienUtils;
+import alien4cloud.utils.VersionUtil;
+import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -17,18 +23,11 @@ import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import com.google.common.collect.Sets;
-
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.NormativeCredentialConstant;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.PropertyUtil;
-import alien4cloud.utils.VersionUtil;
 
 /**
  * Performs validation and post processing of a TOSCA archive.
