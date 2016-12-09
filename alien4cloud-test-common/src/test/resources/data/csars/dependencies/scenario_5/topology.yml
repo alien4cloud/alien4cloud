@@ -1,6 +1,6 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
-template_name: alien-tests-dependencies-scenario1
+template_name: alien-tests-dependencies-scenario5
 template_author: Alien 4 Cloud
 template_version: 1.0.0
 
@@ -19,6 +19,6 @@ topology_template:
     node_b:
       type: alien.tests.dependencies.nodes.B
       requirements:
-        - depends_on_A:
+        - requires_c:
             node: node_a
-            capability: c_capability
+            capability: alien.tests.dependencies.capabilities.C

@@ -19,6 +19,7 @@ topology_template:
     node_b:
       type: alien.tests.dependencies.nodes.B
       requirements:
-        - depends_on_A:
+        - requires_c:
             node: node_a
-            capability: c_capability
+            capability: alien.tests.dependencies.capabilities.C
+            relationship: alien.tests.dependencies.relationships.DDependsOnC
