@@ -126,20 +126,9 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
                 .orElse(Collections.emptySet())
         );
 
-        // 2. Resolve all transitive vs. direct dependencies conflicts with foreach side-effects using the direct dependency's version
-        transitiveDependencies.forEach(transitiveDependency -> dependencies.stream()
-                .filter(directDep -> Objects.equals(directDep.getName(), transitiveDependency.getName())
-                        && !Objects.equals(directDep.getVersion(), transitiveDependency.getVersion()))
-                .findFirst() // Has we resolved direct dependencies conflicts earlier, there can only be one direct dependency that conflicts
-                .ifPresent(conflictingDependency -> {
-                    ParsingContextExecution.getParsingErrors()
-                            .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.TRANSITIVE_DEPENDENCY_VERSION_CONFLICT,
-                                    AlienUtils.prefixWith(":", conflictingDependency.getVersion(), conflictingDependency.getName()), null,
-                                    AlienUtils.prefixWith(":", transitiveDependency.getVersion(), transitiveDependency.getName()),
-                                    null, conflictingDependency.getVersion()));
-                    // Resolve conflict by using the direct dependency version
-                    transitiveDependency.setVersion(conflictingDependency.getVersion());
-                })
+        // 2. Resolve all transitive vs. direct dependencies conflicts using the direct dependency's version
+        transitiveDependencies.removeIf(transitiveDependency ->
+                dependencyConflictsWithDirect(transitiveDependency, dependencies)
         );
 
         // 3. Resolve all transitive dependencies conflicts using latest version
@@ -153,6 +142,32 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
 
         // Update Tosca context with the complete dependency set
         ToscaContext.get().updateDependencies(mergedDependencies);
+    }
+
+    /**
+     * Check for dependency conflicts between a transitive and a set of direct dependencies.
+     *
+     * @param transitiveDependency The dependency to check
+     * @param dependencies The set of dependency to validate it against - assuming those are direct dependencies.
+     * @return <code>true</code> if the given dependency is present in the Set in a different version.
+     */
+    private boolean dependencyConflictsWithDirect(CSARDependency transitiveDependency, Set<CSARDependency> dependencies) {
+        return dependencies.stream()
+                .filter(directDep -> Objects.equals(directDep.getName(), transitiveDependency.getName())
+                        && !Objects.equals(directDep.getVersion(), transitiveDependency.getVersion()))
+                .findFirst() // As we resolved direct dependencies conflicts earlier, there can only be one direct dependency that conflicts
+                .map(conflictingDependency -> {
+                    // Log the dependency conflict as a warning.
+                    ParsingContextExecution.getParsingErrors().add(
+                            new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.TRANSITIVE_DEPENDENCY_VERSION_CONFLICT,
+                                AlienUtils.prefixWith(":", conflictingDependency.getVersion(), conflictingDependency.getName()), null,
+                                AlienUtils.prefixWith(":", transitiveDependency.getVersion(), transitiveDependency.getName()),
+                                null, conflictingDependency.getVersion()
+                            )
+                    );
+                    // Resolve conflict by using the direct dependency version - delete the transitive dependency
+                    return true;
+                }).orElse(false);
     }
 
     /**
