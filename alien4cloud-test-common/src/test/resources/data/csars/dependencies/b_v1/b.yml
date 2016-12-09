@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0
+tosca_definitions_version: alien_dsl_1_3_0
 
 template_name: alien-tests-dependencies-b
 template_author: Alien 4 Cloud
