@@ -14,9 +14,10 @@ node_types:
     derived_from: tosca.nodes.Root
     requirements:
       - requires_c:
-          capability: alien.tests.dependencies.capabilities.C
+          capability: alien.tests.dependencies.capabilities.CCapability
           relationship: alien.tests.dependencies.relationships.DDependsOnC
           occurrences: [ 0, UNBOUNDED ]
 
 relationship_types:
-  alien.tests.dependencies.relationships.DDependsOnC
+  alien.tests.dependencies.relationships.DDependsOnC:
+    derived_from: tosca.relationships.Root

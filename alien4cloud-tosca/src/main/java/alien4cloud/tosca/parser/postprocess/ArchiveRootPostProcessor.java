@@ -2,12 +2,16 @@ package alien4cloud.tosca.parser.postprocess;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.AlienUtils;
+import alien4cloud.utils.VersionUtil;
+import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -23,9 +27,6 @@ import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.NormativeCredentialConstant;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.PropertyUtil;
 
 /**
@@ -76,10 +77,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
 
     private void doProcess(ArchiveRoot archiveRoot) {
         // Note: no post processing has to be done on repositories
-
-        // check dependencies / imports
         processImports(archiveRoot);
-
         // Post process all types from the archive and update their list of parent as well as merge them with their parent types.
         processTypes(archiveRoot);
 
@@ -88,30 +86,95 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         processRepositoriesDefinitions(archiveRoot.getRepositories());
     }
 
+    /**
+     * Process imports within the archive and compute its complete dependency set.
+     * Resolve all dependency version conflicts using the following rules:
+     * <ul>
+     *     <li>If two direct dependencies conflict with each other, use the latest version</li>
+     *     <li>If a transitive dependency conflicts with a direct dependency, use the direct dependency version</li>
+     *     <li>If two transitive dependency conflict with each other, use the latest version.</li>
+     * </ul>
+     *
+     * @param archiveRoot The archive to process.
+     */
     private void processImports(ArchiveRoot archiveRoot) {
-        if (archiveRoot.getArchive().getDependencies() == null) {
+        if (archiveRoot.getArchive().getDependencies() == null || archiveRoot.getArchive().getDependencies().isEmpty()) {
             return;
         }
+        // Dependencies defined in the import section only
+        // These should override transitive deps regardless of type of conflict ?
         Set<CSARDependency> dependencies = archiveRoot.getArchive().getDependencies();
 
-        // add a parsing error if there is a version conflict between a transitive and a direct dependency
-        for (CSARDependency dependency : dependencies) {
-            Node node = ParsingContextExecution.getObjectToNodeMap().get(dependency);
-            Csar csar = ToscaContext.get().getArchive(dependency.getName(), dependency.getVersion());
-            if (csar != null && csar.getDependencies() != null) {
-                csar.getDependencies().forEach(transitiveDependency -> {
-                    dependencies.stream()
-                            .filter(directDependency -> Objects.equals(directDependency.getName(), transitiveDependency.getName())
-                                    && !Objects.equals(directDependency.getVersion(), transitiveDependency.getVersion()))
-                            .findFirst().ifPresent(currentDependency -> {
-                                ParsingContextExecution.getParsingErrors()
-                                        .add(new ParsingError(ErrorCode.DEPENDENCY_VERSION_CONFLICT, csar.getId(), node.getStartMark(),
-                                                AlienUtils.prefixWith(":", transitiveDependency.getVersion(), transitiveDependency.getName()),
-                                                node.getEndMark(), AlienUtils.prefixWith(":", currentDependency.getVersion(), currentDependency.getName())));
-                            });
+        /* Three types of conflicts :
+          - A transitive dep has a different version than a direct dependency => Force transitive to direct version
+          - Transitive dependencies with the same name and different version are used => Use latest
+          - Direct dependencies with the same name and different version are used => Error or use latest ?
+        */
+
+        // 1. Resolve all direct dependencies using latest version
+        dependencies.removeIf(dependency ->
+                dependencyConflictsWithLatest(dependency, dependencies)
+        );
+
+        // Compute all distinct transitives dependencies
+        final Set<CSARDependency> transitiveDependencies = new HashSet<>(
+                dependencies.stream()
+                .map(csarDependency -> ToscaContext.get().getArchive(csarDependency.getName(), csarDependency.getVersion()))
+                .map(Csar::getDependencies)
+                .filter(c -> c != null)
+                .reduce(Sets::union)
+                .orElse(Collections.emptySet())
+        );
+
+        // 2. Resolve all transitive vs. direct dependencies conflicts with foreach side-effects using the direct dependency's version
+        transitiveDependencies.forEach(transitiveDependency -> dependencies.stream()
+                .filter(directDep -> Objects.equals(directDep.getName(), transitiveDependency.getName())
+                        && !Objects.equals(directDep.getVersion(), transitiveDependency.getVersion()))
+                .findFirst() // Has we resolved direct dependencies conflicts earlier, there can only be one direct dependency that conflicts
+                .ifPresent(conflictingDependency -> {
+                    ParsingContextExecution.getParsingErrors()
+                            .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.TRANSITIVE_DEPENDENCY_VERSION_CONFLICT,
+                                    AlienUtils.prefixWith(":", conflictingDependency.getVersion(), conflictingDependency.getName()), null,
+                                    AlienUtils.prefixWith(":", transitiveDependency.getVersion(), transitiveDependency.getName()),
+                                    null, conflictingDependency.getVersion()));
+                    // Resolve conflict by using the direct dependency version
+                    transitiveDependency.setVersion(conflictingDependency.getVersion());
+                })
+        );
+
+        // 3. Resolve all transitive dependencies conflicts using latest version
+        transitiveDependencies.removeIf(transitiveDependency ->
+                dependencyConflictsWithLatest(transitiveDependency, transitiveDependencies)
+        );
+
+        // Merge all dependencies (direct + transitives)
+        final Set<CSARDependency> mergedDependencies = Sets.union(dependencies, transitiveDependencies).immutableCopy();
+        archiveRoot.getArchive().setDependencies(mergedDependencies);
+
+        // Update Tosca context with the complete dependency set
+        ToscaContext.get().updateDependencies(mergedDependencies);
+    }
+
+    /**
+     * Check dependencies for version conflicts, and add a warning if one is found.
+     *
+     * @param dependency The dependency to verify.
+     * @param dependencies The set of dependencies it belongs to.
+     * @return <code>true</code> if the given dependency is present in the Set in a newer version.
+     */
+    private boolean dependencyConflictsWithLatest(CSARDependency dependency, Set<CSARDependency> dependencies) {
+        return dependencies.stream()
+                .anyMatch(csarDependency -> {
+                    if (Objects.equals(dependency.getName(), csarDependency.getName())
+                            && VersionUtil.compare(dependency.getVersion(), csarDependency.getVersion()) < 0) {
+                        ParsingContextExecution.getParsingErrors()
+                                .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.DEPENDENCY_VERSION_CONFLICT,
+                                        AlienUtils.prefixWith(":", dependency.getVersion(), dependency.getName()), null,
+                                        AlienUtils.prefixWith(":", csarDependency.getVersion(), csarDependency.getName()),
+                                        null, null));
+                        return true;
+                    } else return false;
                 });
-            }
-        }
     }
 
     private void processRepositoriesDefinitions(Map<String, RepositoryDefinition> repositories) {

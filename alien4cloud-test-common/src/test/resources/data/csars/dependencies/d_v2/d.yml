@@ -19,4 +19,5 @@ node_types:
           occurrences: [ 0, UNBOUNDED ]
 
 relationship_types:
-  alien.tests.dependencies.relationships.DDependsOnC
+  alien.tests.dependencies.relationships.DDependsOnC:
+    derived_from: tosca.relationships.Root
