@@ -109,15 +109,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         if (archiveRoot.getArchive().getDependencies() == null) {
             return;
         }
-        Set<CSARDependency> allDependencies = Sets.newHashSet(archiveRoot.getArchive().getDependencies());
-        //also add transitives dependencies
-        for (CSARDependency dependency : archiveRoot.getArchive().getDependencies()) {
-            Csar csar = ToscaContext.get().getArchive(dependency.getName(), dependency.getVersion());
-            if (csar != null && csar.getDependencies() != null) {
-                allDependencies.addAll(csar.getDependencies());
-            }
-        }
-        instance.setDependencies(allDependencies);
+        instance.setDependencies(Sets.newHashSet(archiveRoot.getArchive().getDependencies()));
     }
 
     /**
