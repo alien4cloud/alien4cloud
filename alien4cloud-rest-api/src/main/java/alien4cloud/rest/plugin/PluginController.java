@@ -7,11 +7,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -38,7 +33,6 @@ import alien4cloud.plugin.exception.PluginConfigurationException;
 import alien4cloud.plugin.exception.PluginLoadingException;
 import alien4cloud.plugin.model.PluginConfiguration;
 import alien4cloud.plugin.model.PluginUsage;
-import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -47,8 +41,11 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
-
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controller for plugins.
@@ -80,6 +77,7 @@ public class PluginController {
             // upload the plugin archive
             Plugin plugin = pluginManager.uploadPlugin(pluginPath);
             // if the plugin is configurable, then try reuse if existing a previous version
+            // TODO as we do not manage many version of a same plugin, is this still relevant ?
             if (plugin.isConfigurable()) {
                 tryReusePreviousVersionConf(plugin);
             }

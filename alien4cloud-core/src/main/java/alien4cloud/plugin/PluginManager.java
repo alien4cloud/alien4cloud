@@ -13,9 +13,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -204,9 +204,9 @@ public class PluginManager {
             String pluginPathId = getPluginPathId();
             Plugin plugin = new Plugin(descriptor, pluginPathId);
 
-            // check plugin already exists
+            // check plugin already exists and is enabled
             if (pluginContexts.get(plugin.getId()) != null) {
-                log.warn("Uploading Plugin <{}> impossible (already exists)", plugin.getId());
+                log.warn("Uploading Plugin <{}> impossible (already exists and enabled)", plugin.getId());
                 throw new AlreadyExistException("A plugin with the given id already exists and is enabled.");
             }
 

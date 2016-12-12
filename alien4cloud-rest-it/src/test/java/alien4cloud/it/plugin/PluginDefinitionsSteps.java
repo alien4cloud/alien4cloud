@@ -11,11 +11,13 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.junit.Assert;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
@@ -24,16 +26,12 @@ import alien4cloud.model.common.Tag;
 import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
-
 import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PluginDefinitionsSteps {
@@ -45,8 +43,8 @@ public class PluginDefinitionsSteps {
 
     private static final Path INVALID_PLUGIN_PATH = Paths.get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-invalid-"
             + Context.VERSION + ".zip");
-    private static final String PLUGIN_ID = "alien4cloud-mock-paas-provider:1.0";
-    private static final String NEXT_VERSION_PLUGIN_ID = "alien4cloud-mock-paas-provider:1.1";
+    private static final String PLUGIN_ID = "alien4cloud-mock-paas-provider";
+    private static final String NEXT_VERSION_PLUGIN_ID = "alien4cloud-mock-paas-provider";
     private final ObjectMapper mapper = new ObjectMapper();
 
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
@@ -184,6 +182,7 @@ public class PluginDefinitionsSteps {
     }
 
     @Then("^the new plugin configuration should be the same as for the previous version$")
+    @Deprecated
     public void the_new_plugin_configuration_should_be_the_same_as_for_the_previous_version() throws Throwable {
         String prevPluginResp = Context.getRestClientInstance().get("/rest/v1/plugins/" + PLUGIN_ID + "/config");
         String pluginResp = Context.getRestClientInstance().get("/rest/v1/plugins/" + NEXT_VERSION_PLUGIN_ID + "/config");
@@ -196,6 +195,7 @@ public class PluginDefinitionsSteps {
     }
 
     @Then("^the new plugin configuration should not be the same as for the previous version$")
+    @Deprecated
     public void the_new_plugin_configuration_should_not_be_the_same_as_for_the_previous_version() throws Throwable {
         String prevPluginResp = Context.getRestClientInstance().get("/rest/v1/plugins/" + PLUGIN_ID + "/config");
         String pluginResp = Context.getRestClientInstance().get("/rest/v1/plugins/" + NEXT_VERSION_PLUGIN_ID + "/config");

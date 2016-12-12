@@ -15,5 +15,5 @@
   "pluginPathId" : "eab8c56e-3d94-4e69-8c3f-1dafdc30d5e0",
   "enabled" : true,
   "configurable" : true,
-  "id" : "alien4cloud-mock-paas-provider:1.0"
+  "id" : "alien4cloud-mock-paas-provider"
 } ]

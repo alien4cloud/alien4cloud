@@ -3,7 +3,7 @@ Feature: Check if topology with properties defined as as input on location meta 
   Background:
     Given I am authenticated with "ADMIN" role
     And I upload a plugin
-    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"
     And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
     And I upload the archive "tosca base types 1.0"
