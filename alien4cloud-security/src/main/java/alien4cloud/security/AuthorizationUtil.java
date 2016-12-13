@@ -9,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
@@ -431,7 +433,7 @@ public final class AuthorizationUtil {
      * @param httpSecurity The http security object to configure.
      * @throws Exception see httpSecurity.authorizeRequests()
      */
-    public static void configure(HttpSecurity httpSecurity) throws Exception {
+    public static void configure(HttpSecurity httpSecurity, LogoutSuccessHandler successLogoutHandler) throws Exception {
         // authorizations
         httpSecurity.authorizeRequests().antMatchers("/*").permitAll();
         httpSecurity.authorizeRequests().antMatchers("/static/tosca/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
@@ -450,8 +452,12 @@ public final class AuthorizationUtil {
 
         // login
         httpSecurity.formLogin().defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed").loginProcessingUrl("/login")
-                .usernameParameter("username").passwordParameter("password").permitAll().and().logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID");
-        httpSecurity.logout().logoutSuccessUrl("/");
+                .usernameParameter("username").passwordParameter("password").permitAll();
+        if (successLogoutHandler == null) {
+            httpSecurity.logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID");
+        } else {
+            httpSecurity.getConfigurer(LogoutConfigurer.class).logoutSuccessHandler(successLogoutHandler);
+        }
 
         // handle non authenticated request
         httpSecurity.exceptionHandling().accessDeniedHandler(accessDeniedHandler);

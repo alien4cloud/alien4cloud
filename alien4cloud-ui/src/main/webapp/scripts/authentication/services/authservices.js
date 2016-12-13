@@ -5,8 +5,8 @@ define(function(require) {
   var states = require('states');
   var _ = require('lodash');
 
-  modules.get('a4c-auth', ['ngResource']).factory('authService', ['$resource', '$state', '$http',
-    function($resource, $state, $http) {
+  modules.get('a4c-auth', ['ngResource']).factory('authService', ['$resource', '$location', '$state', '$http',
+    function($resource, $location, $state, $http) {
       var userStatusResource = $resource('rest/latest/auth/status', {}, {
         'query': {
           method: 'GET',
@@ -134,13 +134,8 @@ define(function(require) {
          * LogOut and redirect to home.
          */
         logOut: function() {
-          var self = this;
-          $http.post('logout').success(function() {
-            self.currentStatus = userStatusResource.query();
-            $state.go('home', {}, {
-              reload: true
-            });
-          });
+          this.currentStatus = null;
+          window.location.href = '/logout';
         },
         /**
          * Login and redirect to target

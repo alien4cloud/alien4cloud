@@ -88,7 +88,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         // configure the HttpSecurity
-        AuthorizationUtil.configure(http);
+        AuthorizationUtil.configure(http, null);
 
         if (env.acceptsProfiles("github-auth")) {
             log.info("GitHub profile is active - enabling Spring Social features");

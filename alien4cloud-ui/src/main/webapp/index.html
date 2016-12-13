@@ -59,6 +59,12 @@
     <script src="bower_components/requirejs/require.js"></script>
     <script src="scripts/require.config.js"></script>
     <script>
+      window.onpageshow = function(event) {
+        // prevent browser to display the page based on back-forward cache as this may lead to wrong state display
+          if (event.persisted) {
+              window.location.reload()
+          }
+      };
       window.alienLoadingBar = document.getElementById("alien-loading-bar");
       window.alienLoadingCount = 1;
       window.alienLoadingExpected = 35; // Number of files in the packaged version (plus 1 as we don't start at 0).
