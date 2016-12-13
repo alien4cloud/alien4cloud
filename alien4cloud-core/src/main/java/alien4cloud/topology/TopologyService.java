@@ -6,14 +6,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.editor.EditionContext;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -22,6 +25,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -354,6 +358,27 @@ public class TopologyService {
             throw new AlreadyExistException(
                     "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topology.getId() + ".");
         }
+    }
+
+    /**
+     * Check for missing types in the Topology's EditionContext context.
+     * @param context The EditionContext
+     * @throws NotFoundException if the Type is used in the topology and not found in its context.
+     */
+    public void checkForMissingTypes(EditionContext context) {
+        TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(context);
+        topologyDTO.getNodeTypes().forEach(throwTypeNotFound());
+        topologyDTO.getRelationshipTypes().forEach(throwTypeNotFound());
+        topologyDTO.getCapabilityTypes().forEach(throwTypeNotFound());
+        topologyDTO.getDataTypes().forEach(throwTypeNotFound());
+    }
+
+    private BiConsumer<String, AbstractToscaType> throwTypeNotFound() {
+        return (s, type) -> {
+            if (type == null) {
+                throw new NotFoundException(s);
+            }
+        };
     }
 
     public void rebuildDependencies(Topology topology) {

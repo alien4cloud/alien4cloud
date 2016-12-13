@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor.processors;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.VersionConflictException;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.context.ToscaContext;
 
@@ -35,25 +38,36 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
     @Override
     public void process(ChangeDependencyVersionOperation operation) {
         Topology topology = EditionContextManager.getTopology();
+        CSARDependency newDependency = new CSARDependency(operation.getDependencyName(), operation.getDependencyVersion());
 
         // FIXME remove transitives also, then add it later
         Set<CSARDependency> topologyDependencies = Sets.newHashSet(topology.getDependencies());
         Iterator<CSARDependency> topologyDependencyIterator = topologyDependencies.iterator();
+        Optional<CSARDependency> oldDependency = Optional.empty();
         while (topologyDependencyIterator.hasNext()) {
             CSARDependency dependency = topologyDependencyIterator.next();
             if (dependency.getName().equals(operation.getDependencyName())) {
+                oldDependency = Optional.of(dependency);
                 topologyDependencyIterator.remove();
             }
         }
 
-        CSARDependency newDependency = new CSARDependency(operation.getDependencyName(), operation.getDependencyVersion());
+        // make sure we sync the dependencies and the cached types
+        ToscaContext.get().updateDependency(newDependency);
+
+        try {
+            topologyService.checkForMissingTypes(EditionContextManager.get());
+        } catch (NotFoundException e) {
+            // Revert changes made to ToscaContext then throw.
+            if (oldDependency.isPresent()) ToscaContext.get().updateDependency(oldDependency.get());
+            else ToscaContext.get().removeDependency(newDependency);
+            throw new VersionConflictException("Changing the dependency ["+ newDependency.getName() + "] to version ["
+                    + newDependency.getVersion() + "] induces missing types in the topology. Not found : [" + e.getMessage() + "].", e);
+        }
 
         // FIXME add transitives also, if removed before
         topologyDependencies.add(newDependency);
         topology.setDependencies(topologyDependencies);
-
-        // make sure we also synch the dependencies and the caches types
-        ToscaContext.get().updateDependency(newDependency);
 
         Set<CSARDependency> dependencies = Sets.newHashSet(newDependency);
         List<AbstractEditorOperation> recoveringOperations = recoveryHelperService.buildRecoveryOperations(topology, dependencies);
