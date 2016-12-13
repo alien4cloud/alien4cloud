@@ -97,9 +97,14 @@ public class Alien4CloudAuthenticationProvider implements AuthenticationProvider
             Authentication providerAuth = wrappedProvider.authenticate(authentication);
 
             // create a user in local store
-            User user = new User();
-            user.setUsername(providerAuth.getName());
-            userFromPrincipal(user, providerAuth.getPrincipal());
+            User user;
+            if (providerAuth.getPrincipal() != null && providerAuth.getPrincipal() instanceof User) {
+                user = (User) providerAuth.getPrincipal();
+                user.setUsername(providerAuth.getName());
+                userFromPrincipal(user, providerAuth.getPrincipal());
+            } else {
+                user = new User();
+            }
             setUserAuthorities(user, providerAuth.getAuthorities());
 
             alienUserDao.save(user);
