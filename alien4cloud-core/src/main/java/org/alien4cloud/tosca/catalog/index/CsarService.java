@@ -156,17 +156,7 @@ public class CsarService {
         save(csar);
     }
 
-    public Map<String, Csar> findByIds(String fetchContext, String... ids) {
-        Map<String, Csar> csarMap = Maps.newHashMap();
-        List<Csar> csars = csarDAO.findByIdsWithContext(Csar.class, fetchContext, ids);
-        for (Csar csar : csars) {
-            csarMap.put(csar.getId(), csar);
-        }
-        return csarMap;
-    }
-
     /**
-     *
      * Get a cloud service archive, or fail if not found
      *
      * @param id The id of the archive to retrieve
