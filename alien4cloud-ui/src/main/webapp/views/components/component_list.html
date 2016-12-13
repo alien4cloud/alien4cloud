@@ -1,10 +1,12 @@
 <div>
-  <div id="upload-csar" class="row" ng-if="isComponentManager">
-    <upload-directive
+  <div id="upload-csar" ng-if="isComponentManager" class="row">
+    <div class="col-md-12">
+      <upload-directive
       target-url="'rest/v1/csars'"
       drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
       button-message="'COMPONENTS.UPLOAD'"
       upload-success-callback="uploadSuccessCallback(data)" />
+    </div>
   </div>
   <div class="row">
     <alien-search-node-type
