@@ -47,7 +47,6 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
         }
 
         CSARDependency newDependency = new CSARDependency(operation.getDependencyName(), operation.getDependencyVersion());
-        topologyService.checkDependenciesConflict(newDependency, topologyDependencies, topology);
 
         // FIXME add transitives also, if removed before
         topologyDependencies.add(newDependency);
@@ -63,7 +62,6 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
         recoveryHelperService.processRecoveryOperations(topology, recoveringOperations);
 
         // TODO passing to this function the processRecoveryOperations ToscaContext should help reducing ES requests
-        // FIXME : This induce side effects as it is called AFTER the topology types has been updated
         topologyService.rebuildDependencies(topology);
     }
 
