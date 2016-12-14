@@ -40,43 +40,14 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
         Topology topology = EditionContextManager.getTopology();
         CSARDependency newDependency = new CSARDependency(operation.getDependencyName(), operation.getDependencyVersion());
 
-        // FIXME remove transitives also, then add it later
-        Set<CSARDependency> topologyDependencies = Sets.newHashSet(topology.getDependencies());
-        Iterator<CSARDependency> topologyDependencyIterator = topologyDependencies.iterator();
-        Optional<CSARDependency> oldDependency = Optional.empty();
-        while (topologyDependencyIterator.hasNext()) {
-            CSARDependency dependency = topologyDependencyIterator.next();
-            if (dependency.getName().equals(operation.getDependencyName())) {
-                oldDependency = Optional.of(dependency);
-                topologyDependencyIterator.remove();
-            }
-        }
-
-        // make sure we sync the dependencies and the cached types
-        ToscaContext.get().updateDependency(newDependency);
-
-        try {
-            topologyService.checkForMissingTypes(EditionContextManager.get());
-        } catch (NotFoundException e) {
-            // Revert changes made to ToscaContext then throw.
-            if (oldDependency.isPresent()) ToscaContext.get().updateDependency(oldDependency.get());
-            else ToscaContext.get().removeDependency(newDependency);
-            throw new VersionConflictException("Changing the dependency ["+ newDependency.getName() + "] to version ["
-                    + newDependency.getVersion() + "] induces missing types in the topology. Not found : [" + e.getMessage() + "].", e);
-        }
-
-        // FIXME add transitives also, if removed before
-        topologyDependencies.add(newDependency);
-        topology.setDependencies(topologyDependencies);
+        // Check for missing type and update the topology's dependencies
+        topologyService.updateDependencies(EditionContextManager.get(), newDependency);
 
         Set<CSARDependency> dependencies = Sets.newHashSet(newDependency);
         List<AbstractEditorOperation> recoveringOperations = recoveryHelperService.buildRecoveryOperations(topology, dependencies);
 
         // process every recovery operation
         recoveryHelperService.processRecoveryOperations(topology, recoveringOperations);
-
-        // TODO passing to this function the processRecoveryOperations ToscaContext should help reducing ES requests
-        topologyService.rebuildDependencies(topology);
     }
 
 }

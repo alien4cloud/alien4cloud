@@ -1,18 +1,14 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
@@ -39,6 +35,8 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
@@ -284,15 +282,6 @@ public class TopologyService {
         return topologyServiceCore.buildNodeTemplate(dependencies, indexedNodeType, templateToMerge);
     }
 
-    private CSARDependency getDependencyWithName(Topology topology, String archiveName) {
-        for (CSARDependency dependency : topology.getDependencies()) {
-            if (dependency.getName().equals(archiveName)) {
-                return dependency;
-            }
-        }
-        return null;
-    }
-
     /**
      * Load a type into the topology (add dependency for this new type, upgrade if necessary ...)
      *
@@ -360,12 +349,35 @@ public class TopologyService {
         }
     }
 
+    public void updateDependencies(EditionContext context, CSARDependency newDependency) {
+        final Set<CSARDependency> oldDependencies = new HashSet<>(context.getTopology().getDependencies());
+        final Set<CSARDependency> newDependencies = csarDependencyLoader.getDependencies(newDependency.getName(), newDependency.getVersion());
+        newDependencies.add(newDependency);
+
+        // Update context with the new dependencies.
+        newDependencies.forEach(csarDependency -> context.getToscaContext().updateDependency(csarDependency));
+
+        // Validate that the dependency change does not induce missing types.
+        try {
+            this.checkForMissingTypes(context);
+        } catch (NotFoundException e) {
+            // Revert changes made to the Context then throw.
+            context.getToscaContext().updateDependencies(oldDependencies);
+            context.getTopology().setDependencies(oldDependencies);
+            throw new VersionConflictException("Changing the dependency ["+ newDependency.getName() + "] to version ["
+                    + newDependency.getVersion() + "] induces missing types in the topology. Not found : [" + e.getMessage() + "].", e);
+        }
+
+        // Perform the dependency update on the topology.
+        context.getTopology().setDependencies(new HashSet<>(context.getToscaContext().getDependencies()));
+    }
+
     /**
-     * Check for missing types in the Topology's EditionContext context.
-     * @param context The EditionContext
+     * Check for missing types in the Topology
+     * @param context
      * @throws NotFoundException if the Type is used in the topology and not found in its context.
      */
-    public void checkForMissingTypes(EditionContext context) {
+    private void checkForMissingTypes(EditionContext context) {
         TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(context);
         topologyDTO.getNodeTypes().forEach(throwTypeNotFound());
         topologyDTO.getRelationshipTypes().forEach(throwTypeNotFound());
@@ -384,10 +396,6 @@ public class TopologyService {
     public void rebuildDependencies(Topology topology) {
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);
         topology.setDependencies(typeLoader.getLoadedDependencies());
-    }
-
-    private String toString(CSARDependency dependency) {
-        return dependency.getName() + ":" + dependency.getVersion();
     }
 
 }

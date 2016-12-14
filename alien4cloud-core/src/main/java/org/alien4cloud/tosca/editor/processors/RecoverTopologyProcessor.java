@@ -41,7 +41,6 @@ public class RecoverTopologyProcessor implements IEditorOperationProcessor<Recov
         for (CSARDependency updatedDependency : AlienUtils.safe(operation.getUpdatedDependencies())) {
             ToscaContext.get().updateDependency(updatedDependency);
         }
-
         // TODO passing to this function the processRecoveryOperations ToscaContext should help reducing ES requests
         topologyService.rebuildDependencies(topology);
     }

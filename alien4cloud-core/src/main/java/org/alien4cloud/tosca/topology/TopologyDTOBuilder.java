@@ -55,7 +55,7 @@ public class TopologyDTOBuilder {
      * @return An instance of TopologyDTO (FIXME Should return an Abstract Topology DTO and renamed as not abstract)
      */
     @ToscaContextual
-    public <T extends Topology> TopologyDTO buidTopologyDTO(T topology) {
+    public <T extends Topology> TopologyDTO buildTopologyDTO(T topology) {
         TopologyDTO topologyDTO = new TopologyDTO();
         if (topology != null) {
             buildAbstractTopologyDTO(topology, topologyDTO);
