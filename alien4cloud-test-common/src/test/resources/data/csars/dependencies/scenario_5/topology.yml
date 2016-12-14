@@ -21,4 +21,4 @@ topology_template:
       requirements:
         - requires_c:
             node: node_a
-            capability: alien.tests.dependencies.capabilities.C
+            capability: alien.tests.dependencies.capabilities.CMissing
