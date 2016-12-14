@@ -29,6 +29,10 @@ define(function (require) {
       var root = archiveContentTree.children[0];
       $scope.treedata.children = root.children;
 
+      $scope.isRemoteArtifact = function(classifier) {
+        return classifier === 'archive' || classifier === 'global' || classifier === 'new';
+      };
+
       $scope.save = function(valid) {
         if (valid) {
           $modalInstance.close($scope.artifact);
@@ -75,7 +79,7 @@ define(function (require) {
           }
         }
         return true;
-      };        
+      };
       $scope.setActiveTab = function(tab) {
         $scope.activeTab = tab;
       };
