@@ -102,6 +102,13 @@
         "INCOMPATIBLE_VERSIONS": {
           "TITLE": "Conflit de version de dépendances",
           "CONTENT": "La topologie a déjà une dépendance vers l'archive <{{archiveName}}> version <{{archiveVersion}}>. Vous ne pouvez pas utiliser un composant provenant de cette même archive avec une version différente. Vous pouvez changer la version de la dépendance si vous souhaitez utiliser une version différente."
+        },
+        "CONFLICTS" : {
+          "TITLE" : "Conflits de dépendances transitives :",
+          "SOURCE": "Source",
+          "DEPENDENCY": "Dépendance",
+          "ACTUAL": "Version actuelle",
+          "MESSAGE": "Les conflits de dépendances transitives peuvent entrainer des incompatibilités."
         }
       },
       "DESC_TEMPLATE" : "Description du modèle",
