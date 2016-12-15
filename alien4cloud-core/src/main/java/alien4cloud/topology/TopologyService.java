@@ -378,6 +378,9 @@ public class TopologyService {
      * @throws NotFoundException if the Type is used in the topology and not found in its context.
      */
     private void checkForMissingTypes(EditionContext context) {
+        /* TODO: Cache the result or do not use TopologyDTOBuilder
+         * because it is then called again at the end of the operation execution (EditorController.execute)
+         */
         TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(context);
         topologyDTO.getNodeTypes().forEach(throwTypeNotFound());
         topologyDTO.getRelationshipTypes().forEach(throwTypeNotFound());

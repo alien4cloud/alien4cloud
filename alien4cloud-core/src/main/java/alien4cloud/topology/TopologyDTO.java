@@ -27,6 +27,7 @@ public class TopologyDTO extends AbstractTopologyDTO<Topology> {
     private int lastOperationIndex;
     private List<AbstractEditorOperation> operations;
     private String delegateType;
+    private List<DependencyConflictDTO> dependencyConflicts;
 
     public TopologyDTO(Topology topology, Map<String, NodeType> nodeTypes, Map<String, RelationshipType> relationshipTypes,
             Map<String, CapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties, Map<String, DataType> dataTypes) {
