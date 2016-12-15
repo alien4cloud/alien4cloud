@@ -1,8 +1,6 @@
 package org.alien4cloud.tosca.editor.processors;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -17,10 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.exception.VersionConflictException;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.tosca.context.ToscaContext;
 
 /**
  * Process {@link ChangeDependencyVersionOperation}.
