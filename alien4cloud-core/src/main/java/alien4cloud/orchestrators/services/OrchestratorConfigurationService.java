@@ -113,7 +113,7 @@ public class OrchestratorConfigurationService {
         Object oldConfiguration = configuration.getConfiguration();
         Object oldConfigurationObj = configurationAsValidObject(id, oldConfiguration);
         // merge the config so that old values are preserved
-        ReflectionUtil.mergeObject(newConfiguration, oldConfigurationObj);
+        ReflectionUtil.mergeObject(newConfiguration, oldConfigurationObj, false);
         configuration.setConfiguration(oldConfigurationObj);
 
         // Trigger update of the orchestrator's configuration if enabled.

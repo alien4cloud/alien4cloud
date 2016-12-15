@@ -181,9 +181,10 @@ public final class ReflectionUtil {
      * 
      * @param from source of the update
      * @param to target of the update
+     * @param ignoreNullValue indicate if we should merge null value
      * @param ignores properties names that should be ignored
      */
-    public static void mergeObject(Object from, Object to, String... ignores) {
+    public static void mergeObject(Object from, Object to, boolean ignoreNullValue, String... ignores) {
         Set<String> ignoredProps = Sets.newHashSet(ignores);
         try {
             Map<String, Object> settablePropertiesMap = Maps.newHashMap();
@@ -193,7 +194,7 @@ public final class ReflectionUtil {
                     continue;
                 }
                 Object value = property.getReadMethod().invoke(from);
-                if (value != null && !ignoredProps.contains(property.getName())) {
+                if ((value != null || !ignoreNullValue) && !ignoredProps.contains(property.getName())) {
                     settablePropertiesMap.put(property.getName(), value);
                 }
             }
@@ -209,12 +210,23 @@ public final class ReflectionUtil {
     }
 
     /**
-     * Get property's value of an object
-     * 
-     * @param object the object to get property from
-     * @param property the name of the property
-     * @return the value of the property
+     * Merge object from an object to another. Failsafe : resist to invalid property.
+     *
+     * @param from source of the update
+     * @param to target of the update
+     * @param ignores properties names that should be ignored
      */
+    public static void mergeObject(Object from, Object to, String... ignores) {
+        mergeObject(from, to, true, ignores);
+    }
+
+        /**
+         * Get property's value of an object
+         *
+         * @param object the object to get property from
+         * @param property the name of the property
+         * @return the value of the property
+         */
     public static Object getPropertyValue(Object object, String property) {
         BeanWrapper wrapper = new BeanWrapperImpl(object);
         return wrapper.getPropertyValue(property);
