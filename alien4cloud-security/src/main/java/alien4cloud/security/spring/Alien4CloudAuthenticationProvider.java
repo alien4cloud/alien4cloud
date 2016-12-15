@@ -7,8 +7,6 @@ import java.util.Map.Entry;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -23,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Alien4CloudAuthenticationProvider implements AuthenticationProvider {
@@ -100,11 +99,11 @@ public class Alien4CloudAuthenticationProvider implements AuthenticationProvider
             User user;
             if (providerAuth.getPrincipal() != null && providerAuth.getPrincipal() instanceof User) {
                 user = (User) providerAuth.getPrincipal();
-                user.setUsername(providerAuth.getName());
-                userFromPrincipal(user, providerAuth.getPrincipal());
             } else {
                 user = new User();
             }
+            user.setUsername(providerAuth.getName());
+            userFromPrincipal(user, providerAuth.getPrincipal());
             setUserAuthorities(user, providerAuth.getAuthorities());
 
             alienUserDao.save(user);
