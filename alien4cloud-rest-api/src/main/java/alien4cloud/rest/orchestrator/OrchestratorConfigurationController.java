@@ -1,6 +1,7 @@
 package alien4cloud.rest.orchestrator;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -53,8 +54,7 @@ public class OrchestratorConfigurationController {
             @ApiParam(value = "Id of the orchestrator for which to update the configuration.", required = true) @PathVariable String id,
             @ApiParam(value = "The configuration object for the orchestrator - Type depends of the selected orchestrator.", required = true) @RequestBody Object configuration) {
         try {
-            Object configurationObject = orchestratorConfigurationService.configurationAsValidObject(id, configuration);
-            orchestratorConfigurationService.updateConfiguration(id, configurationObject);
+            orchestratorConfigurationService.updateConfiguration(id, configuration);
         } catch (IOException e) {
             log.error("Failed to update cloud configuration. Specified json cannot be processed.", e);
             return RestResponseBuilder.<Void> builder().error(

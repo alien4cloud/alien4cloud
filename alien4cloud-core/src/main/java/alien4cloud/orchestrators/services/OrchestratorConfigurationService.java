@@ -1,11 +1,15 @@
 package alien4cloud.orchestrators.services;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.utils.ReflectionUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -98,6 +102,17 @@ public class OrchestratorConfigurationService {
         return JsonUtil.readObject(JsonUtil.toString(configurationAsMap), configurationType);
     }
 
+    // We have the value to update, so we need to ignore the other properties during the merge
+    private Set<String> getPropertiesNameToIgnore(Set<String> objectToMerge, Set<String> fullObject) {
+        Set<String> propertiesNames = new HashSet<>();
+        for (String propertyName : fullObject) {
+            if (!objectToMerge.contains(propertyName)) {
+                propertiesNames.add(propertyName);
+            }
+        }
+        return propertiesNames;
+    }
+
     /**
      * Update the configuration for the given cloud.
      *
@@ -110,10 +125,17 @@ public class OrchestratorConfigurationService {
             throw new NotFoundException("No configuration exists for cloud [" + id + "].");
         }
 
+        Object newConfigurationObj = configurationAsValidObject(id, newConfiguration);
+
         Object oldConfiguration = configuration.getConfiguration();
         Object oldConfigurationObj = configurationAsValidObject(id, oldConfiguration);
+
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String,Object> mappedObject = mapper.convertValue(newConfigurationObj, Map.class);
+        Set<String> propertiesNameToIgnored = getPropertiesNameToIgnore(((Map<String, Object>)newConfiguration).keySet(), mappedObject.keySet());
+
         // merge the config so that old values are preserved
-        ReflectionUtil.mergeObject(newConfiguration, oldConfigurationObj, false);
+        ReflectionUtil.mergeObject(configurationAsValidObject(id, newConfiguration), oldConfigurationObj, false, propertiesNameToIgnored);
         configuration.setConfiguration(oldConfigurationObj);
 
         // Trigger update of the orchestrator's configuration if enabled.
