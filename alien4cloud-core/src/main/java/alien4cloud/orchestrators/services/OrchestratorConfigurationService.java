@@ -8,9 +8,9 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.utils.ReflectionUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
@@ -21,6 +21,7 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.ReflectionUtil;
 
 /**
  * Manages orchestrator configuration
@@ -130,12 +131,11 @@ public class OrchestratorConfigurationService {
         Object oldConfiguration = configuration.getConfiguration();
         Object oldConfigurationObj = configurationAsValidObject(id, oldConfiguration);
 
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String,Object> mappedObject = mapper.convertValue(oldConfigurationObj, Map.class);
-        Set<String> propertiesNameToIgnored = getPropertiesNameToIgnore(((Map<String, Object>)newConfiguration).keySet(), mappedObject.keySet());
+        Map<String, Object> oldConfAsMap = JsonUtil.toMap(JsonUtil.toString(oldConfigurationObj));
+        Map<String, Object> newConfAsMap = (Map<String, Object>) newConfiguration;
 
         // merge the config so that old values are preserved
-        ReflectionUtil.mergeObject(newConfigurationObj, oldConfigurationObj, false, propertiesNameToIgnored);
+        ReflectionUtil.mergeObject(newConfigurationObj, oldConfigurationObj, false, Sets.difference(oldConfAsMap.keySet(), newConfAsMap.keySet()));
         configuration.setConfiguration(oldConfigurationObj);
 
         // Trigger update of the orchestrator's configuration if enabled.
