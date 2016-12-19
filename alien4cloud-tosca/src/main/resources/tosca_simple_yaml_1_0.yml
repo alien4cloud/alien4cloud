@@ -210,21 +210,14 @@
     node_is_value: false
 
 - requirement_definition: org.alien4cloud.tosca.model.definitions.RequirementDefinition
-  __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
-    key: id # map the key of the first mapping
-    value: # map the value as a capability_type_reference
-      reference: type
-      type: scalar
+  capability: type
+  node: nodeType
   description: description
   occurrences:
     reference: void
     type: occurrences
-  type: relationshipType
   relationship: relationshipType
-  capability: capabilityName
-  node_filter:
-    reference: nodeFilter
-    type: node_filter_type
+  capability_name: capabilityName
 
 - tosca_function: org.alien4cloud.tosca.model.definitions.FunctionPropertyValue
   __0:
@@ -385,14 +378,12 @@
 
 - relationship_type: org.alien4cloud.tosca.model.types.RelationshipType
   description: description
-  abstract: abstract
   tags:
     reference: tags
     type: tag
   derived_from:
     reference: derivedFrom
     type: string_list
-  description: description
   properties:
     map: properties
     type: property_definition
@@ -402,10 +393,6 @@
   interfaces:
     reference: interfaces
     type: interfaces
-  artifacts:
-    sequence_to_map: artifacts
-    node_is_value: false
-    type: deployment_artifact
   valid_target_types:
     list: validTargets
     type: scalar
