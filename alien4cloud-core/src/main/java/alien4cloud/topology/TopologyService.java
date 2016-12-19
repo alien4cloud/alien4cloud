@@ -362,7 +362,7 @@ public class TopologyService {
             this.checkForMissingTypes(context);
         } catch (NotFoundException e) {
             // Revert changes made to the Context then throw.
-            context.getToscaContext().updateDependencies(oldDependencies);
+            context.getToscaContext().resetDependencies(oldDependencies);
             context.getTopology().setDependencies(oldDependencies);
             throw new VersionConflictException("Changing the dependency ["+ newDependency.getName() + "] to version ["
                     + newDependency.getVersion() + "] induces missing types in the topology. Not found : [" + e.getMessage() + "].", e);

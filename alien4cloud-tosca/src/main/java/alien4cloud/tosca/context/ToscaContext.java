@@ -115,7 +115,7 @@ public class ToscaContext {
          *
          * @param newDependencies The new list of dependencies for this context.
          */
-        public void updateDependencies(Set<CSARDependency> newDependencies) {
+        public void resetDependencies(Set<CSARDependency> newDependencies) {
             Map<String, CSARDependency> dependenciesByName = Maps.newHashMap();
             for (CSARDependency dependency : dependencies) {
                 dependenciesByName.put(dependency.getName(), dependency);
