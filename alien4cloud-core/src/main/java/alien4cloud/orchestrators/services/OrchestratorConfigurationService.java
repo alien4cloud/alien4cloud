@@ -1,9 +1,7 @@
 package alien4cloud.orchestrators.services;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -101,17 +99,6 @@ public class OrchestratorConfigurationService {
         }
 
         return JsonUtil.readObject(JsonUtil.toString(configurationAsMap), configurationType);
-    }
-
-    // We have the value to update, so we need to ignore the other properties during the merge
-    private Set<String> getPropertiesNameToIgnore(Set<String> objectToMerge, Set<String> fullObject) {
-        Set<String> propertiesNames = new HashSet<>();
-        for (String propertyName : fullObject) {
-            if (!objectToMerge.contains(propertyName)) {
-                propertiesNames.add(propertyName);
-            }
-        }
-        return propertiesNames;
     }
 
     /**
