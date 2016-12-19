@@ -131,11 +131,11 @@ public class OrchestratorConfigurationService {
         Object oldConfigurationObj = configurationAsValidObject(id, oldConfiguration);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String,Object> mappedObject = mapper.convertValue(newConfigurationObj, Map.class);
+        Map<String,Object> mappedObject = mapper.convertValue(oldConfigurationObj, Map.class);
         Set<String> propertiesNameToIgnored = getPropertiesNameToIgnore(((Map<String, Object>)newConfiguration).keySet(), mappedObject.keySet());
 
         // merge the config so that old values are preserved
-        ReflectionUtil.mergeObject(configurationAsValidObject(id, newConfiguration), oldConfigurationObj, false, propertiesNameToIgnored);
+        ReflectionUtil.mergeObject(newConfigurationObj, oldConfigurationObj, false, propertiesNameToIgnored);
         configuration.setConfiguration(oldConfigurationObj);
 
         // Trigger update of the orchestrator's configuration if enabled.
