@@ -105,10 +105,10 @@
         },
         "CONFLICTS" : {
           "TITLE" : "Conflits de dépendances transitives :",
-          "SOURCE": "Source",
-          "DEPENDENCY": "Dépendance",
-          "ACTUAL": "Version actuelle",
-          "MESSAGE": "Les conflits de dépendances transitives peuvent entrainer des incompatibilités."
+          "MESSAGE_FROM": "depuis ",
+          "MESSAGE_VERSION": " en version ",
+          "RESOLVED": "résolu en ",
+          "WARNING": "Les conflits de dépendances transitives peuvent entrainer des incompatibilités."
         }
       },
       "DESC_TEMPLATE" : "Description du modèle",

@@ -108,10 +108,10 @@
         },
         "CONFLICTS" : {
           "TITLE" : "Transitive dependency conflicts",
-          "SOURCE": "Source",
-          "DEPENDENCY": "Dependency",
-          "ACTUAL": "Actual version",
-          "MESSAGE": "Transitive dependency conflicts may cause incompatibility issues."
+          "MESSAGE_FROM": "from ",
+          "MESSAGE_VERSION": " in version ",
+          "RESOLVED": "resolved to ",
+          "WARNING": "Transitive dependency conflicts may cause incompatibility issues."
         }
       },
       "DESC_TEMPLATE" : "Topology template description",

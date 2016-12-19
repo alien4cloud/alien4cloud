@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Represents a dependency conflict for a source CSAR in a topology.
+ * DTO for dependency conflicts : source depends on dependency, which resolved to resolvedVersion.
  */
 @Getter
 @Setter
@@ -14,7 +14,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DependencyConflictDTO {
 
+    /** <strong>Source</strong> is the dependency <code>archiveName:archiveVersion</code>
+     * that depends, directly or transitively, on <strong>dependency</strong>. */
     private String source;
-    private String expected;
-    private String actualVersion;
+    /** <strong>Dependency</strong> is the <code>archiveName:archiveVersion</code> that causes a dependency conflict. */
+    private String dependency;
+    /** Version of the dependency as actually resolved in the topology. */
+    private String resolvedVersion;
 }
