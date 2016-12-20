@@ -698,7 +698,7 @@
           </tbody>
           </table>
           <div style="margin: 0 10px" ng-show="topology.dependencyConflicts">
-            <h5><i class="fa fa-exclamation-triangle"></i>&nbsp;{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.TITLE' | translate }}</h5>
+            <h5 class="text-warning"><i class="fa fa-exclamation-triangle"></i>&nbsp;{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.TITLE' | translate }}</h5>
             <div class="list-group">
               <div class="list-group-item" ng-repeat="(key, values) in dependencies.renderedConflicts">
                 <strong class="list-group-item-heading">{{ key }}</strong>
@@ -983,7 +983,7 @@
         </li>
         <li ng-show="!displays.dependencies.active">
           <span id="topology-dependencies" ng-click="display.toggle('dependencies')">
-            <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}} <i ng-show="topology.dependencyConflicts" class="fa fa-exclamation-triangle"></i>
+            <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}} <i ng-show="topology.dependencyConflicts" class="fa fa-exclamation-triangle text-warning"></i>
           </span>
         </li>
         <li ng-show="!displays.inputs.active">
