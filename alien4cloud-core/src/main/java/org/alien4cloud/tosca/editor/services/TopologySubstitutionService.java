@@ -158,18 +158,18 @@ public class TopologySubstitutionService {
                     PropertyDefinition pd = nodeTemplateType.getProperties().get(propertyName);
                     // FIXME we have an issue here : if several nodes have the same attribute name, or if an attribute and a property have the same name, there
                     // is a conflict
-                    if (ToscaType.isSimple(pd.getType())) {
-                        AttributeDefinition attributeDefinition = new AttributeDefinition();
-                        attributeDefinition.setType(pd.getType());
-                        attributeDefinition.setDescription(pd.getDescription());
-                        // FIXME known issue we don't support complex attributes right now.
-                        if (pd.getDefault() != null && pd.getDefault() instanceof ScalarPropertyValue) {
-                            attributeDefinition.setDefault(((ScalarPropertyValue) pd.getDefault()).getValue());
-                        }
-                        if (pd != null && !attributes.containsKey(propertyName)) {
-                            attributes.put(propertyName, pd);
-                        }
-                    } // FIXME else: known issue we don't support complex attributes right now.
+                    if (pd != null && !attributes.containsKey(propertyName)) {
+                        if (ToscaType.isSimple(pd.getType())) {
+                            AttributeDefinition attributeDefinition = new AttributeDefinition();
+                            attributeDefinition.setType(pd.getType());
+                            attributeDefinition.setDescription(pd.getDescription());
+                            // FIXME known issue we don't support complex attributes right now.
+                            if (pd.getDefault() != null && pd.getDefault() instanceof ScalarPropertyValue) {
+                                attributeDefinition.setDefault(((ScalarPropertyValue) pd.getDefault()).getValue());
+                            }
+                            attributes.put(propertyName, attributeDefinition);
+                        } // FIXME else: known issue we don't support complex attributes right now.
+                    }
                 }
             }
         }
