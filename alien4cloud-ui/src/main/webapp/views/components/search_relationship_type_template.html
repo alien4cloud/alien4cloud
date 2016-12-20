@@ -26,25 +26,22 @@
   </div>
 
   <div class="col-md-10" id="rel-search-result-panel">
-    <ul class="list-group">
-      <li class="list-group-item clickable-media overflowmedia"
-          ng-repeat="component in searchResult.data">
-        <div class="media" ng-mouseover="setComponent(component)"
-             id="li_{{component.id}}" ng-click="handleItemSelection(component)">
-          <div class="media-body">
-            <h4 class="media-heading">
-              <span>{{component.elementId}}</span>
-              <ng-include
-                src="'views/components/search_component_result_dislay.html'">
-              </ng-include>
-              <div style="margin-top: 20px;">
-                <p class="small" ng-if="component.validSources" id="component-source">{{
-                  'COMMON.SOURCE' | translate }} : {{component.validSources}}</p>
-                <p class="small" ng-if="component.validTargets" id="component-target">{{
-                  'COMMON.TARGET' | translate }} : {{component.validTargets}}</p>
-                <p class="small" ng-if="component.description">{{component.description}}</p>
-              </div>
-            </h4>
+    <ul class="list-group ">
+      <li class="list-group-item overflowmedia"
+          ng-repeat="component in searchResult.data" ng-mouseover="setComponent(component)"
+          id="li_{{component.id}}" ng-click="handleItemSelection(component)">
+        <div class="media clickable-media">
+          <div class="media-body" >
+            <ng-include src="'views/components/search_component_result_dislay.html'">
+            </ng-include>
+            <h4 class="media-heading">{{component.elementId}}</h4>
+            <div class="h4">
+              <p class="small" ng-if="component.validSources" id="component-source">{{
+                'COMMON.SOURCE' | translate }} : {{component.validSources}}</p>
+              <p class="small" ng-if="component.validTargets" id="component-target">{{
+                'COMMON.TARGET' | translate }} : {{component.validTargets}}</p>
+              <p class="small" ng-if="component.description">{{component.description}}</p>
+            </div>
           </div>
         </div>
       </li>

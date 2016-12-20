@@ -15,7 +15,7 @@
 }
 
 .overflowmedia .media, .overflowmedia .media-body {
-  height: 66px;
+  min-height: 66px;
   overflow: visible;
 }
 
@@ -24,7 +24,6 @@
 }
 
 #comp-search-result-panel .media p.small, #rel-search-result-panel .media p.small {
-  overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 3;
