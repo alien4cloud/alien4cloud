@@ -1,14 +1,10 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -16,6 +12,7 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.editor.EditionContext;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -24,6 +21,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -37,6 +35,7 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
 import alien4cloud.security.AuthorizationUtil;
@@ -66,71 +65,11 @@ public class TopologyService {
     private TopologyServiceCore topologyServiceCore;
     @Inject
     private ApplicationService appService;
+    @Inject
+    private TopologyDTOBuilder topologyDTOBuilder;
 
     public static final Pattern NODE_NAME_PATTERN = Pattern.compile("^\\w+$");
     public static final Pattern NODE_NAME_REPLACE_PATTERN = Pattern.compile("\\W");
-
-    /**
-     * Checks if a dependency or its transitives will conflicts with the topology's dependencies.
-     * If so, throws an unchecked exception.
-     *
-     * @param newDependency The new dependency CSAR fo witch to check the conflict
-     * @param initialDependencies The dependencies within which to check the conflict
-     * @param topology The topology undergoing the change
-     */
-    public void checkDependenciesConflict(CSARDependency newDependency, Set<CSARDependency> initialDependencies, Topology topology) {
-
-        // Well... if the given dependency already exists in a different version in the given set, then no need to proceed further!
-        initialDependencies.stream().filter(dep -> dep.getName().equals(newDependency.getName()) && !dep.getVersion().equals(newDependency.getVersion()))
-                .findFirst().ifPresent(dependency -> {
-                    throw new VersionConflictException(
-                            "Dependency conflict between [" + toString(newDependency) + "] and another dependency [" + toString(dependency) + "].");
-                });
-
-        // All transitives dependencies of the given set
-        final Set<CSARDependency> transitiveDependencies = initialDependencies
-                .stream()
-                .map(dependency -> csarDependencyLoader.getDependencies(dependency.getName(), dependency.getVersion()))
-                .reduce(Sets::union)
-                .orElse(Collections.emptySet());
-
-        // If the new dependency is used as a transitive dependency by another CSAR, then the change is not allowed
-        transitiveDependencies.stream().filter(someTransitiveDependency -> someTransitiveDependency.getName().equals(newDependency.getName())
-                && !someTransitiveDependency.getVersion().equals(newDependency.getVersion())).findFirst().ifPresent(dependency -> {
-                    throw new VersionConflictException(
-                            "Dependency conflict between [" + toString(newDependency) + "] and another transitive dependency [" + toString(dependency) + "].");
-                });
-
-        // If the new dependency has transitives dependencies, and if those are already used in the topology, then they must be of the same version
-        final Set<CSARDependency> newTransitivesDependencies = csarDependencyLoader.getDependencies(newDependency.getName(), newDependency.getVersion());
-        if (!newTransitivesDependencies.isEmpty()) {
-            // Issue : a new dependency changes the version of a transitive dependency which only affects itself should be accepted
-            // Compute direct dependencies in the topology
-            Set<CSARDependency> directDependencies =  Sets.union(
-                topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false, true)
-                    .values()
-                    .stream()
-                    .map(type -> new CSARDependency(type.getArchiveName(), type.getArchiveVersion()))
-                    .collect(Collectors.toSet()),
-                topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, true)
-                    .values()
-                    .stream()
-                    .map(type -> new CSARDependency(type.getArchiveName(), type.getArchiveVersion()))
-                    .collect(Collectors.toSet())
-            );
-
-            // If a transitive dependency induced by the changed is also a dependency in the topology, then they should be of the same version.
-            newTransitivesDependencies.forEach(newTransitiveDependency -> {
-                Sets.union(directDependencies, transitiveDependencies).stream()
-                        .filter(topologyDep -> topologyDep.getName().equals(newTransitiveDependency.getName())
-                                && !topologyDep.getVersion().equals(newTransitiveDependency.getVersion()))
-                        .findFirst().ifPresent(dependency -> {
-                            throw new VersionConflictException("Conflict between a transitive dependency of [" + toString(newDependency) + "] >> ["
-                                    + toString(newTransitiveDependency) + "] and another dependency [" + toString(dependency) + "]");
-                        });
-            });
-        }
-    }
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology, boolean failOnTypeNotFound) {
         // FIXME we should use ToscaContext here, and why not allowing the caller to pass ona Context?
@@ -343,15 +282,6 @@ public class TopologyService {
         return topologyServiceCore.buildNodeTemplate(dependencies, indexedNodeType, templateToMerge);
     }
 
-    private CSARDependency getDependencyWithName(Topology topology, String archiveName) {
-        for (CSARDependency dependency : topology.getDependencies()) {
-            if (dependency.getName().equals(archiveName)) {
-                return dependency;
-            }
-        }
-        return null;
-    }
-
     /**
      * Load a type into the topology (add dependency for this new type, upgrade if necessary ...)
      *
@@ -366,11 +296,6 @@ public class TopologyService {
         String archiveName = element.getArchiveName();
         String archiveVersion = element.getArchiveVersion();
         CSARDependency toLoadDependency = csarDependencyLoader.buildDependencyBean(archiveName, archiveVersion);
-
-        // if the dependency is not yet in the topology, then check there is no conflict with the others
-        if (!topology.getDependencies().contains(toLoadDependency)) {
-            this.checkDependenciesConflict(toLoadDependency, topology.getDependencies(), topology);
-        }
 
         // FIXME Transitive dependencies could change here and thus types be affected ?
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);
@@ -424,13 +349,56 @@ public class TopologyService {
         }
     }
 
+    public void updateDependencies(EditionContext context, CSARDependency newDependency) {
+        final Set<CSARDependency> oldDependencies = new HashSet<>(context.getTopology().getDependencies());
+        final Set<CSARDependency> newDependencies = csarDependencyLoader.getDependencies(newDependency.getName(), newDependency.getVersion());
+        newDependencies.add(newDependency);
+
+        // Update context with the new dependencies.
+        newDependencies.forEach(csarDependency -> context.getToscaContext().updateDependency(csarDependency));
+
+        // Validate that the dependency change does not induce missing types.
+        try {
+            this.checkForMissingTypes(context);
+        } catch (NotFoundException e) {
+            // Revert changes made to the Context then throw.
+            context.getToscaContext().resetDependencies(oldDependencies);
+            context.getTopology().setDependencies(oldDependencies);
+            throw new VersionConflictException("Changing the dependency ["+ newDependency.getName() + "] to version ["
+                    + newDependency.getVersion() + "] induces missing types in the topology. Not found : [" + e.getMessage() + "].", e);
+        }
+
+        // Perform the dependency update on the topology.
+        context.getTopology().setDependencies(new HashSet<>(context.getToscaContext().getDependencies()));
+    }
+
+    /**
+     * Check for missing types in the Topology
+     * @param context
+     * @throws NotFoundException if the Type is used in the topology and not found in its context.
+     */
+    private void checkForMissingTypes(EditionContext context) {
+        /* TODO: Cache the result or do not use TopologyDTOBuilder
+         * because it is then called again at the end of the operation execution (EditorController.execute)
+         */
+        TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(context);
+        topologyDTO.getNodeTypes().forEach(throwTypeNotFound());
+        topologyDTO.getRelationshipTypes().forEach(throwTypeNotFound());
+        topologyDTO.getCapabilityTypes().forEach(throwTypeNotFound());
+        topologyDTO.getDataTypes().forEach(throwTypeNotFound());
+    }
+
+    private BiConsumer<String, AbstractToscaType> throwTypeNotFound() {
+        return (s, type) -> {
+            if (type == null) {
+                throw new NotFoundException(s);
+            }
+        };
+    }
+
     public void rebuildDependencies(Topology topology) {
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);
         topology.setDependencies(typeLoader.getLoadedDependencies());
-    }
-
-    private String toString(CSARDependency dependency) {
-        return dependency.getName() + ":" + dependency.getVersion();
     }
 
 }

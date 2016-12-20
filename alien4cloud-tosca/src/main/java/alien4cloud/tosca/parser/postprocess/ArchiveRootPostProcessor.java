@@ -146,7 +146,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         archiveRoot.getArchive().setDependencies(mergedDependencies);
 
         // Update Tosca context with the complete dependency set
-        ToscaContext.get().updateDependencies(mergedDependencies);
+        ToscaContext.get().resetDependencies(mergedDependencies);
     }
 
     /**

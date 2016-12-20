@@ -90,7 +90,7 @@ public class EditorTopologyUploadService {
         // Copy static elements from the topology
         parsedTopology.setId(currentTopology.getId());
         // Update editor tosca context
-        ToscaContext.get().updateDependencies(parsedTopology.getDependencies());
+        ToscaContext.get().resetDependencies(parsedTopology.getDependencies());
 
         // init the workflows for the topology based on the yaml
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService

@@ -41,6 +41,7 @@ alien4cloud.log
 /data/
 /target/
 /.idea/
+alien4cloud-ui/.idea/
 *.iml
 alien4cloud-rest-api/data/
 alien4cloud-security/.gitignore

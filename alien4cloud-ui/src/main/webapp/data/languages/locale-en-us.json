@@ -105,6 +105,13 @@
         "INCOMPATIBLE_VERSIONS": {
           "TITLE": "Dependency version conflict",
           "CONTENT": "The topology has already a dependency to the archive <{{archiveName}}> version <{{archiveVersion}}>. You can not use a component from the same archive with a different version. Please upgrade or downgrade the topology dependency if you want to use a different version."
+        },
+        "CONFLICTS" : {
+          "TITLE" : "Transitive dependency conflicts",
+          "MESSAGE_FROM": "from ",
+          "MESSAGE_VERSION": " in version ",
+          "RESOLVED": "resolved to ",
+          "WARNING": "Transitive dependency conflicts may cause incompatibility issues."
         }
       },
       "DESC_TEMPLATE" : "Topology template description",
