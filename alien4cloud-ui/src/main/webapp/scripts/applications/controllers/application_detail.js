@@ -70,6 +70,7 @@ define(function (require) {
 
       var application = applicationResult.data;
       if (!_.has(application.userRoles, authService.currentStatus.data.username)) {
+        application.userRoles = application.userRoles || {};
         application.userRoles[authService.currentStatus.data.username] = [];
       }
       $scope.application = application;

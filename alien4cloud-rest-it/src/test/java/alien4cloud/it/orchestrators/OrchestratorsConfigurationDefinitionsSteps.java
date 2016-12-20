@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import cucumber.api.java.en.Then;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 
@@ -29,6 +30,14 @@ public class OrchestratorsConfigurationDefinitionsSteps {
                 OrchestratorConfiguration.class);
         Map<String, Object> configuration = (Map<String, Object>) orchestratorConfigurationResponse.getData().getConfiguration();
         Context.getInstance().setOrchestratorConfiguration(configuration);
+    }
+
+    @Then("^The orchestrator configuration should contains the property \"([^\"]*)\" with value \"([^\"]*)\"$")
+    public void The_orchestrator_configuration_should_contains_the_property_with_value(String propertyName, String propertyValue) throws Throwable {
+        Map<String, Object> configuration = Context.getInstance().getOrchestratorConfiguration();
+        Assert.assertTrue(configuration.containsKey(propertyName));
+        String savedPropertyValue = (String) configuration.get(propertyName);
+        Assert.assertTrue(configuration.get(propertyName).equals(savedPropertyValue));
     }
 
     @And("^I update cloudify (\\d+) manager's url to \"([^\"]*)\" with login \"([^\"]*)\" and password \"([^\"]*)\" for orchestrator with name \"([^\"]*)\"$")
@@ -74,9 +83,11 @@ public class OrchestratorsConfigurationDefinitionsSteps {
     public void I_update_orchestrator_configuration_property_to(String orchestratorName, String configurationProperty, String value) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
+        config = (config == null) ? Maps.newConcurrentMap() : config;
         config.put(configurationProperty, value);
         String restResponse = Context.getRestClientInstance().putJSon("/rest/v1/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config));
         Context.getInstance().registerRestResponse(restResponse);
+        I_get_configuration_for_orchestrator(orchestratorName);
     }
 
     @When("^I update orchestrator \"([^\"]*)\"'s configuration property \"([^\"]*)\" to the value defined in environment variable \"([^\"]*)\"$")

@@ -159,6 +159,6 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
 
     @Override
     protected String getAggregationField() {
-        return "elementId";
+        return "rawElementId";
     }
 }

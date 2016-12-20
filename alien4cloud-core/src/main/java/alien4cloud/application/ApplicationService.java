@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Resource;
 
 import org.elasticsearch.common.lang3.ArrayUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -19,6 +20,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.events.BeforeApplicationDeletedEvent;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidApplicationNameException;
 import alien4cloud.exception.NotFoundException;
@@ -43,6 +45,8 @@ public class ApplicationService {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private ApplicationVersionService applicationVersionService;
+    @Resource
+    private ApplicationEventPublisher publisher;
 
     private static final String APPLICATION_NAME_REGEX = "[^/\\\\\\\\]+";
 
@@ -173,10 +177,11 @@ public class ApplicationService {
         if (alienDAO.count(Deployment.class, null, fromKeyValueCouples("sourceId", applicationId, "endDate", null)) > 0) {
             return false;
         }
-
         // delete the application
         applicationVersionService.deleteByApplication(applicationId);
         applicationEnvironmentService.deleteByApplication(applicationId);
+        // Clean up other resources
+        publisher.publishEvent(new BeforeApplicationDeletedEvent(this, applicationId));
         alienDAO.delete(Application.class, applicationId);
         return true;
     }

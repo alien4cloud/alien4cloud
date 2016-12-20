@@ -28,48 +28,48 @@
             <option disabled>── {{'EDITOR.ARTIFACTS.REPOS.ARCHIVE_REPOSITORIES' | translate}} ──</option>
             <option ng-repeat="repository in repositories | filter: { classifier: 'archive' }" value="{{repository.idx}}" ng-selected="repository.id === initialRepositoryName">
             {{repository.id}}
-            </option>          
+            </option>
             <option disabled>── {{'EDITOR.ARTIFACTS.REPOS.GLOBAL_REPOSITORIES' | translate}} ──</option>
             <option ng-repeat="repository in repositories | filter: { classifier: 'global' }" value="{{repository.idx}}">
             {{repository.id}}
-            </option>          
+            </option>
             <option disabled>── {{'EDITOR.ARTIFACTS.REPOS.NEW_REPOSITORY' | translate}} ──</option>
             <option ng-repeat="repository in repositories | filter: { classifier: 'new' }" value="{{repository.idx}}">
             {{'EDITOR.ARTIFACTS.REPOS.NEW_REPOSITORY' | translate}}
-            </option>           
-          </select>    
-      </div>    
+            </option>
+          </select>
+      </div>
       <div class="modal-body">
         <div class="form-group" ng-class="{'has-error': !isRepositoryUnique() }">
           <label for="repository_id" class="col-lg-3 control-label">{{'EDITOR.ARTIFACTS.REPOS.ID' | translate}}</label>
           <div class="col-lg-9">
-            <input type="text" class="form-control" id="repository_id" ng-model="selectedRepository.id" value="{{ selectedRepository.id }}" required ng-disabled="selectedRepository.classifier == 'archive'" placeholder="{{'EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE' | translate}}">
+            <input type="text" class="form-control" id="repository_id" ng-model="selectedRepository.id" value="{{ selectedRepository.id }}" required ng-disabled="!isRemoteArtifact(selectedRepository.classifier)" placeholder="{{'EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE' | translate}}">
             </input>
           </div>
         </div>
         <div class="form-group">
           <label for="repository_url" class="col-lg-3 control-label">{{'EDITOR.ARTIFACTS.REPOS.URL' | translate}}</label>
           <div class="col-lg-9">
-          <input type="text" class="form-control" id="repository_url" ng-model="selectedRepository.url" value="{{ selectedRepository.url }}" required ng-disabled="selectedRepository.classifier != 'new'">
+          <input type="text" class="form-control" id="repository_url" ng-model="selectedRepository.url" value="{{ selectedRepository.url }}" required ng-disabled="selectedRepository.classifier !== 'new'">
           </input>
           </div>
         </div>
         <div class="form-group">
           <label for="repository_type" class="col-lg-3 control-label">{{'EDITOR.ARTIFACTS.REPOS.TYPE' | translate}}</label>
           <div class="col-lg-9">
-          <select class="form-control" id="repository_type" ng-model="selectedRepository.type" required ng-disabled="selectedRepository.classifier != 'new'" ng-if="selectedRepository.classifier == 'new'">
+          <select class="form-control" id="repository_type" ng-model="selectedRepository.type" required ng-disabled="selectedRepository.classifier !== 'new'" ng-if="selectedRepository.classifier === 'new'">
             <option ng-repeat="type in repositoryTypes" value="{{type}}">
             {{type}}
-            </option>           
-          </select>  
-          <input type="text" class="form-control" id="repository_type" value="{{ selectedRepository.type }}" required disabled="true" ng-if="selectedRepository.classifier != 'new'">
-          </input>       
+            </option>
+          </select>
+          <input type="text" class="form-control" id="repository_type" value="{{ selectedRepository.type }}" required ng-disabled="true" ng-if="selectedRepository.classifier !== 'new'">
+          </input>
           </div>
         </div>
         <div class="form-group">
           <label for="repository_file" class="col-lg-3 control-label">{{'EDITOR.ARTIFACTS.REPOS.FILE' | translate}}</label>
           <div class="col-lg-9">
-            <input type="text" class="form-control" id="repository_file" ng-model="selectedRepository.file" value="{{ selectedRepository.file }}" required >
+            <input type="text" class="form-control" id="repository_file" ng-model="selectedRepository.file" value="{{ selectedRepository.file }}" required ng-disabled="!isRemoteArtifact(selectedRepository.classifier)">
             </input>
           </div>
         </div>
@@ -82,7 +82,6 @@
           {{'SELECT' | translate}}
         </button>
       </div>
-    </form>  
+    </form>
   </tab>
 </tabset>
-

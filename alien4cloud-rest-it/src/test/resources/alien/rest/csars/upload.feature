@@ -99,10 +99,172 @@ Feature: CSAR upload
     Then I should receive a RestResponse with an error code 200
 
   @reset
+  Scenario: Upload an archive with no conflicts
+    Given I am authenticated with "ADMIN" role
+    And I upload the archive "tosca base types 1.0"
+    When I upload the archive "dependencies c_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:1.0.0"
+    When I upload the archive "dependencies d_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-d:1.0.0"
+    When I upload the archive "dependencies b_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-b:1.0.0"
+    When I upload the archive "dependencies a_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-a:1.0.0"
+    When I upload the archive "dependencies scenario_1"
+    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
+    And  I there should be a parsing error level "INFO" and code "TOPOLOGY_DETECTED"
+    And I should have a CSAR with id "alien-tests-dependencies-scenario1:1.0.0-SNAPSHOT"
+    And I have the CSAR "alien-tests-dependencies-scenario1" version "1.0.0" to contain a dependency to "alien-tests-dependencies-c" version "1.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario1" version "1.0.0" to contain a dependency to "alien-tests-dependencies-d" version "1.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario1" version "1.0.0" to contain a dependency to "alien-tests-dependencies-b" version "1.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario1" version "1.0.0" to contain a dependency to "alien-tests-dependencies-a" version "1.0.0"
+
+  @reset
+  Scenario: Upload an archive with conflict between two transitive dependencies
+    Given I am authenticated with "ADMIN" role
+    And I upload the archive "tosca base types 1.0"
+    When I upload the archive "dependencies c_v2"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:2.0.0"
+    When I upload the archive "dependencies c_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:1.0.0"
+    When I upload the archive "dependencies d_v2"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-d:2.0.0"
+    And I upload the archive "dependencies b_v2"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-b:2.0.0"
+    When I upload the archive "dependencies a_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-a:1.0.0"
+    When I upload the archive "dependencies scenario_2"
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+    And  I there should be a parsing error level "WARNING" and code "DEPENDENCY_VERSION_CONFLICT"
+    And  I there should be a parsing error level "INFO" and code "TOPOLOGY_DETECTED"
+    And I should have a CSAR with id "alien-tests-dependencies-scenario2:1.0.0-SNAPSHOT"
+    And I have the CSAR "alien-tests-dependencies-scenario2" version "1.0.0" to contain a dependency to "alien-tests-dependencies-c" version "2.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario2" version "1.0.0" to contain a dependency to "alien-tests-dependencies-d" version "2.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario2" version "1.0.0" to contain a dependency to "alien-tests-dependencies-b" version "2.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario2" version "1.0.0" to contain a dependency to "alien-tests-dependencies-a" version "1.0.0"
+    And The CSAR "alien-tests-dependencies-scenario2" version "1.0.0-SNAPSHOT" does not have a dependency to "alien-tests-dependencies-c" version "1.0.0"
+
+  @reset
   Scenario: Upload an archive with conflict between transitive and direct dependency
-    Given I have uploaded the archive "tosca base types 1.0"
-    And I have uploaded the archive "tosca base types 2.0"
-    And I have uploaded the archive "sample apache lb types 0.2"
-    When I upload the archive "dependency version conflict"
-    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
-    And  I there should be a parsing error level "ERROR" and code "DEPENDENCY_VERSION_CONFLICT"
+    Given I am authenticated with "ADMIN" role
+    And I upload the archive "tosca base types 1.0"
+    When I upload the archive "dependencies c_v2"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:2.0.0"
+    When I upload the archive "dependencies c_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:1.0.0"
+    When I upload the archive "dependencies d_v2"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-d:2.0.0"
+    When I upload the archive "dependencies b_v2"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-b:2.0.0"
+    When I upload the archive "dependencies a_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-a:1.0.0"
+    When I upload the archive "dependencies scenario_3"
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+    And  I there should be a parsing error level "WARNING" and code "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT"
+    And  I there should be a parsing error level "INFO" and code "TOPOLOGY_DETECTED"
+    And I should have a CSAR with id "alien-tests-dependencies-scenario3:1.0.0-SNAPSHOT"
+    And I have the CSAR "alien-tests-dependencies-scenario3" version "1.0.0" to contain a dependency to "alien-tests-dependencies-c" version "1.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario3" version "1.0.0" to contain a dependency to "alien-tests-dependencies-d" version "2.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario3" version "1.0.0" to contain a dependency to "alien-tests-dependencies-b" version "2.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario3" version "1.0.0" to contain a dependency to "alien-tests-dependencies-a" version "1.0.0"
+    And The CSAR "alien-tests-dependencies-scenario3" version "1.0.0-SNAPSHOT" does not have a dependency to "alien-tests-dependencies-c" version "2.0.0"
+
+  @reset
+  Scenario: Upload an archive with conflict between transitive and direct dependency resulting in a missing type (that could be resolved)
+    Given I am authenticated with "ADMIN" role
+    And I upload the archive "tosca base types 1.0"
+    When I upload the archive "dependencies c_v3"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:3.0.0"
+    When I upload the archive "dependencies c_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:1.0.0"
+    When I upload the archive "dependencies d_v3"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-d:3.0.0"
+    When I upload the archive "dependencies b_v3"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-b:3.0.0"
+    When I upload the archive "dependencies a_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-a:1.0.0"
+    When I upload the archive "dependencies scenario_4"
+    Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
+    And  I there should be a parsing error level "WARNING" and code "DEPENDENCY_VERSION_CONFLICT"
+    And  I there should be a parsing error level "ERROR" and code "REQUIREMENT_CAPABILITY_NOT_FOUND"
+
+  @reset
+  Scenario: Upload an archive with conflict between transitive and direct dependency resulting in a missing type (that could not be resolved)
+    Given I am authenticated with "ADMIN" role
+    And I upload the archive "tosca base types 1.0"
+    When I upload the archive "dependencies c_v4"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:4.0.0"
+    When I upload the archive "dependencies c_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:1.0.0"
+    When I upload the archive "dependencies d_v4"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-d:4.0.0"
+    When I upload the archive "dependencies b_v4"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-b:4.0.0"
+    When I upload the archive "dependencies a_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-a:1.0.0"
+    When I upload the archive "dependencies scenario_5"
+    Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
+    And  I there should be a parsing error level "WARNING" and code "DEPENDENCY_VERSION_CONFLICT"
+    And  I there should be a parsing error level "ERROR" and code "REQUIREMENT_CAPABILITY_NOT_FOUND"
+
+  @reset
+  Scenario: Upload an archive with conflict between two direct dependencies and two transitive dependency
+    Given I am authenticated with "ADMIN" role
+    And I upload the archive "tosca base types 1.0"
+    When I upload the archive "dependencies c_v2"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:2.0.0"
+    When I upload the archive "dependencies c_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-c:1.0.0"
+    When I upload the archive "dependencies d_v2"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-d:2.0.0"
+    When I upload the archive "dependencies d_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-d:1.0.0"
+    When I upload the archive "dependencies b_v2"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-b:2.0.0"
+    When I upload the archive "dependencies b_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-b:1.0.0"
+    When I upload the archive "dependencies a_v1"
+    Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "alien-tests-dependencies-a:1.0.0"
+    When I upload the archive "dependencies scenario_6"
+    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
+    And I there should be a parsing error level "WARNING" and code "DEPENDENCY_VERSION_CONFLICT"
+    And I there should be a parsing error level "INFO" and code "TOPOLOGY_DETECTED"
+    And I should have a CSAR with id "alien-tests-dependencies-scenario6:1.0.0-SNAPSHOT"
+    And I have the CSAR "alien-tests-dependencies-scenario6" version "1.0.0" to contain a dependency to "alien-tests-dependencies-c" version "2.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario6" version "1.0.0" to contain a dependency to "alien-tests-dependencies-d" version "2.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario6" version "1.0.0" to contain a dependency to "alien-tests-dependencies-b" version "2.0.0"
+    And I have the CSAR "alien-tests-dependencies-scenario6" version "1.0.0" to contain a dependency to "alien-tests-dependencies-a" version "1.0.0"
+    And The CSAR "alien-tests-dependencies-scenario6" version "1.0.0-SNAPSHOT" does not have a dependency to "alien-tests-dependencies-c" version "1.0.0"
+    And The CSAR "alien-tests-dependencies-scenario6" version "1.0.0-SNAPSHOT" does not have a dependency to "alien-tests-dependencies-d" version "1.0.0"
+    And The CSAR "alien-tests-dependencies-scenario6" version "1.0.0-SNAPSHOT" does not have a dependency to "alien-tests-dependencies-b" version "1.0.0"

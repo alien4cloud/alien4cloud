@@ -1,0 +1,16 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: alien-tests-dependencies-c
+template_author: Alien 4 Cloud
+template_version: 1.0.0
+
+description: This definition document contains sample types and topology to illustrate dependencies versions resolution in a TOSCA template.
+
+imports:
+  - tosca-base-types:1.0
+
+capability_types:
+  alien.tests.dependencies.capabilities.C:
+    derived_from: tosca.capabilities.Root
+  alien.tests.dependencies.capabilities.COther:
+    derived_from: tosca.capabilities.Root

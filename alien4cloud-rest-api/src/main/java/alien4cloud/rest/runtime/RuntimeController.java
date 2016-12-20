@@ -173,7 +173,7 @@ public class RuntimeController {
 
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(environment.getId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTOBuilder.buidTopologyDTO(deploymentTopology)).build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTOBuilder.buildTopologyDTO(deploymentTopology)).build();
     }
 
     private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {

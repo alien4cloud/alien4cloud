@@ -1,0 +1,24 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: alien-tests-dependencies-scenario2
+template_author: Alien 4 Cloud
+template_version: 1.0.0-SNAPSHOT
+
+description: >
+  Transitive dependencies versions resolution scenario 2:
+  Conflict on C dependency, resolves to 2.0.0
+
+imports:
+  - alien-tests-dependencies-a:1.0.0
+  - alien-tests-dependencies-b:2.0.0
+
+topology_template:
+  node_templates:
+    node_a:
+      type: alien.tests.dependencies.nodes.A
+    node_b:
+      type: alien.tests.dependencies.nodes.B
+      requirements:
+        - requires_c:
+            node: node_a
+            capability: alien.tests.dependencies.capabilities.C

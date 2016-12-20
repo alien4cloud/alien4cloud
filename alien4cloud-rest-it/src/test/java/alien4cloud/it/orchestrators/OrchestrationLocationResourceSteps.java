@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 
+import com.google.common.collect.Lists;
+
 import alien4cloud.it.Context;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.rest.model.RestResponse;
@@ -14,9 +16,6 @@ import alien4cloud.rest.orchestrator.model.CreateLocationResourceTemplateRequest
 import alien4cloud.rest.orchestrator.model.LocationDTO;
 import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
-
-import com.google.common.collect.Lists;
-
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -46,6 +45,13 @@ public class OrchestrationLocationResourceSteps {
         String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s", orchestratorId, locationId);
         String resp = Context.getRestClientInstance().get(restUrl);
         Context.getInstance().registerRestResponse(resp);
+
+        // build the eval context if possible
+        String restResponse = Context.getInstance().getRestResponse();
+        RestResponse<LocationDTO> response = JsonUtil.read(restResponse, LocationDTO.class, Context.getJsonMapper());
+        if (response.getError() == null) {
+            Context.getInstance().buildEvaluationContext(response.getData());
+        }
     }
 
     @Then("^The location should contains a resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")

@@ -17,7 +17,7 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
 
     # Mock cloud
     And I upload a plugin
-    And I create a cloud with name "Mock Cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
+    And I create a cloud with name "Mock Cloud" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-paas-provider"
     And I enable the cloud "Mock Cloud"
     And I add the cloud image "Ubuntu Trusty" to the cloud "Mock Cloud" and match it to paaS image "UBUNTU"
     And I add the flavor with name "small", number of CPUs 2, disk size 34359738368 and memory size 2147483648 to the cloud "Mock Cloud" and match it to paaS flavor "SMALL"

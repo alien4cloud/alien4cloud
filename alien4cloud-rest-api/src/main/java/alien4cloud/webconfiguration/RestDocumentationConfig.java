@@ -3,29 +3,84 @@ package alien4cloud.webconfiguration;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
+import org.springframework.plugin.core.config.EnablePluginRegistries;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 
+import alien4cloud.common.AlienConstants;
 import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.schema.configuration.ModelsConfiguration;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.PathDecorator;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.ApiListingBuilderPlugin;
+import springfox.documentation.spi.service.DefaultsProviderPlugin;
+import springfox.documentation.spi.service.DocumentationPlugin;
+import springfox.documentation.spi.service.ExpandedParameterBuilderPlugin;
+import springfox.documentation.spi.service.OperationBuilderPlugin;
+import springfox.documentation.spi.service.OperationModelsProviderPlugin;
+import springfox.documentation.spi.service.ParameterBuilderPlugin;
+import springfox.documentation.spi.service.ResourceGroupingStrategy;
+import springfox.documentation.spi.service.contexts.Defaults;
+import springfox.documentation.spring.web.DocumentationCache;
+import springfox.documentation.spring.web.ObjectMapperConfigurer;
+import springfox.documentation.spring.web.json.JacksonModuleRegistrar;
+import springfox.documentation.spring.web.json.JsonSerializer;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.spring.web.plugins.DocumentationPluginsBootstrapper;
+import springfox.documentation.swagger.configuration.SwaggerCommonConfiguration;
 import springfox.documentation.swagger.web.UiConfiguration;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.documentation.swagger2.configuration.Swagger2JacksonModule;
 
 @Configuration
-@EnableSwagger2
-@Profile("!noApiDoc")
+@Import({ ModelsConfiguration.class, SwaggerCommonConfiguration.class })
+@ComponentScan(basePackages = { "springfox.documentation.swagger2.readers.parameter", "springfox.documentation.swagger2.web",
+        "springfox.documentation.swagger2.mappers", "springfox.documentation.spring.web.scanners", "springfox.documentation.spring.web.readers.operation",
+        "springfox.documentation.spring.web.readers.parameter", "springfox.documentation.spring.web.plugins",
+        "springfox.documentation.spring.web.paths" }, excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = DocumentationPluginsBootstrapper.class) })
+@EnablePluginRegistries({ DocumentationPlugin.class, ApiListingBuilderPlugin.class, OperationBuilderPlugin.class, ParameterBuilderPlugin.class,
+        ExpandedParameterBuilderPlugin.class, ResourceGroupingStrategy.class, OperationModelsProviderPlugin.class, DefaultsProviderPlugin.class,
+        PathDecorator.class })
+@Profile(AlienConstants.API_DOC_PROFILE_FILTER)
 public class RestDocumentationConfig {
 
     private static final String CURRENT_API_VERSION = "1";
     private static final String PREFIXED_CURRENT_API_VERSION = "v" + CURRENT_API_VERSION;
 
     private List<Predicate<String>> predicates = Lists.newArrayList();
+
+    @Bean
+    public JacksonModuleRegistrar swagger2Module() {
+        return new Swagger2JacksonModule();
+    }
+
+    @Bean
+    public Defaults defaults() {
+        return new Defaults();
+    }
+
+    @Bean
+    public DocumentationCache resourceGroupCache() {
+        return new DocumentationCache();
+    }
+
+    @Bean
+    public static ObjectMapperConfigurer objectMapperConfigurer() {
+        return new ObjectMapperConfigurer();
+    }
+
+    @Bean
+    public JsonSerializer jsonSerializer(List<JacksonModuleRegistrar> moduleRegistrars) {
+        return new JsonSerializer(moduleRegistrars);
+    }
 
     @Bean
     public Docket adminApiDocket() {
@@ -71,18 +126,19 @@ public class RestDocumentationConfig {
     }
 
     @Bean
-    public Docket componentsApiDocket() {
-        Predicate predicate = Predicates.or(PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "/components.*"),
-                PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "csars.*"));
+    public Docket catalogApiDocket() {
+        Predicate predicate = Predicates.or(PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "/catalog.*"),
+                PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "/components.*"),
+                PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "/csars.*"));
         predicates.add(predicate);
-        return new Docket(DocumentationType.SWAGGER_2).groupName("components-api").select().paths(predicate).build().apiInfo(apiInfo());
+        return new Docket(DocumentationType.SWAGGER_2).groupName("catalog-api").select().paths(predicate).build().apiInfo(apiInfo());
     }
 
     @Bean
-    public Docket topologyTemplatesApiDocket() {
-        Predicate predicate = PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "/templates.*");
+    public Docket workspacesApiDocket() {
+        Predicate predicate = PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "/workspaces.*");
         predicates.add(predicate);
-        return new Docket(DocumentationType.SWAGGER_2).groupName("topology-templates-api").select().paths(predicate).build().apiInfo(apiInfo());
+        return new Docket(DocumentationType.SWAGGER_2).groupName("workspaces-api").select().paths(predicate).build().apiInfo(apiInfo());
     }
 
     @Bean
@@ -90,6 +146,14 @@ public class RestDocumentationConfig {
         Predicate predicate = PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "/applications.*");
         predicates.add(predicate);
         return new Docket(DocumentationType.SWAGGER_2).groupName("applications-api").select().paths(predicate).build().apiInfo(apiInfo());
+    }
+
+    @Bean
+    public Docket deploymentApiDocket() {
+        Predicate predicate = Predicates.or(PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "/deployments.*"),
+                PathSelectors.regex("/rest/" + PREFIXED_CURRENT_API_VERSION + "/runtime.*"));
+        predicates.add(predicate);
+        return new Docket(DocumentationType.SWAGGER_2).groupName("applications-deployment-api").select().paths(predicate).build().apiInfo(apiInfo());
     }
 
     @Bean
@@ -114,7 +178,7 @@ public class RestDocumentationConfig {
 
     private ApiInfo apiInfo() {
         ApiInfo apiInfo = new ApiInfo("ALIEN 4 Cloud API", "Welcome on the live configuration of ALIEN 4 Cloud Rest API.", CURRENT_API_VERSION, "",
-                "Join us on slack! http://localhost:4000/community/index.html", "Licensed under the Apache License, Version 2.0",
+                "Need help? Join us on slack! https://alien4cloud.github.io/community/index.html", "Licensed under the Apache License, Version 2.0",
                 "http://www.apache.org/licenses/LICENSE-2.0");
         return apiInfo;
     }

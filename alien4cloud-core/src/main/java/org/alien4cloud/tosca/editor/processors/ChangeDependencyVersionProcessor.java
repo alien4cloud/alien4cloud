@@ -1,6 +1,5 @@
 package org.alien4cloud.tosca.editor.processors;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 
 import alien4cloud.topology.TopologyService;
-import alien4cloud.tosca.context.ToscaContext;
 
 /**
  * Process {@link ChangeDependencyVersionOperation}.
@@ -35,36 +33,16 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
     @Override
     public void process(ChangeDependencyVersionOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-
-        // FIXME remove transitives also, then add it later
-        Set<CSARDependency> topologyDependencies = Sets.newHashSet(topology.getDependencies());
-        Iterator<CSARDependency> topologyDependencyIterator = topologyDependencies.iterator();
-        while (topologyDependencyIterator.hasNext()) {
-            CSARDependency dependency = topologyDependencyIterator.next();
-            if (dependency.getName().equals(operation.getDependencyName())) {
-                topologyDependencyIterator.remove();
-            }
-        }
-
         CSARDependency newDependency = new CSARDependency(operation.getDependencyName(), operation.getDependencyVersion());
-        topologyService.checkDependenciesConflict(newDependency, topologyDependencies, topology);
 
-        // FIXME add transitives also, if removed before
-        topologyDependencies.add(newDependency);
-        topology.setDependencies(topologyDependencies);
-
-        // make sure we also synch the dependencies and the caches types
-        ToscaContext.get().updateDependency(newDependency);
+        // Check for missing type and update the topology's dependencies
+        topologyService.updateDependencies(EditionContextManager.get(), newDependency);
 
         Set<CSARDependency> dependencies = Sets.newHashSet(newDependency);
         List<AbstractEditorOperation> recoveringOperations = recoveryHelperService.buildRecoveryOperations(topology, dependencies);
 
         // process every recovery operation
         recoveryHelperService.processRecoveryOperations(topology, recoveringOperations);
-
-        // TODO passing to this function the processRecoveryOperations ToscaContext should help reducing ES requests
-        // FIXME : This induce side effects as it is called AFTER the topology types has been updated
-        topologyService.rebuildDependencies(topology);
     }
 
 }

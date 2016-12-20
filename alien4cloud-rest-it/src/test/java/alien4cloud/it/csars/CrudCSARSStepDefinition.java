@@ -73,6 +73,14 @@ public class CrudCSARSStepDefinition {
         Assert.assertTrue(csar.getCsar().getDependencies().contains(new CSARDependency(dependencyName, dependencyVersion)));
     }
 
+    @Then("^The CSAR \"([^\"]*)\" version \"([^\"]*)\" does not have a dependency to \"([^\"]*)\" version \"([^\"]*)\"$")
+    public void The_csar_version_does_not_depend_on_csar_version(String csarName, String csarVersion, String dependencyName, String dependencyVersion)
+            throws Throwable {
+        String response = Context.getRestClientInstance().get("/rest/v1/csars/" + csarName + ":" + csarVersion);
+        CsarInfoDTO csar = JsonUtil.read(response, CsarInfoDTO.class).getData();
+        Assert.assertFalse(csar.getCsar().getDependencies().contains(new CSARDependency(dependencyName, dependencyVersion)));
+    }
+
     @Then("^I should have a delete csar response with \"([^\"]*)\" related resources$")
     public void I_should_have_a_delete_csar_response_with_related_resources(String resourceCount) throws Throwable {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());

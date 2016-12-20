@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
@@ -78,6 +79,11 @@ public class EditorTopologyRecoveryHelperService {
         Set<CSARDependency> updatedDependencies = getUpdatedDependencies(topology);
         operation.setUpdatedDependencies(updatedDependencies);
         operation.setRecoveringOperations(buildRecoveryOperations(topology, updatedDependencies));
+        if (EditionContextManager.get().getOperations() != null && EditionContextManager.get().getLastOperationIndex() > -1) {
+            operation.setLastOperationId(EditionContextManager.get().getOperations().get(EditionContextManager.get().getLastOperationIndex()).getId());
+        } else {
+            operation.setLastOperationId("null");
+        }
     }
 
     /**

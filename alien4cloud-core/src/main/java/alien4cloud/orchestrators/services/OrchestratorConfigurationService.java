@@ -1,12 +1,14 @@
 package alien4cloud.orchestrators.services;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.utils.ReflectionUtil;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
@@ -17,6 +19,7 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.ReflectionUtil;
 
 /**
  * Manages orchestrator configuration
@@ -110,10 +113,16 @@ public class OrchestratorConfigurationService {
             throw new NotFoundException("No configuration exists for cloud [" + id + "].");
         }
 
+        Object newConfigurationObj = configurationAsValidObject(id, newConfiguration);
+
         Object oldConfiguration = configuration.getConfiguration();
         Object oldConfigurationObj = configurationAsValidObject(id, oldConfiguration);
+
+        Map<String, Object> oldConfAsMap = JsonUtil.toMap(JsonUtil.toString(oldConfigurationObj));
+        Map<String, Object> newConfAsMap = (Map<String, Object>) newConfiguration;
+
         // merge the config so that old values are preserved
-        ReflectionUtil.mergeObject(newConfiguration, oldConfigurationObj);
+        ReflectionUtil.mergeObject(newConfigurationObj, oldConfigurationObj, false, Sets.difference(oldConfAsMap.keySet(), newConfAsMap.keySet()));
         configuration.setConfiguration(oldConfigurationObj);
 
         // Trigger update of the orchestrator's configuration if enabled.

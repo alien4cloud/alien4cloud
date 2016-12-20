@@ -1,0 +1,23 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: alien-tests-dependencies-c
+template_author: Alien 4 Cloud
+template_version: 4.0.0
+
+description: >
+  This definition document contains sample types and topology to illustrate dependencies versions resolution in a TOSCA template.
+  In this version the capability has been renamed. This is usually not a good practice and may trigger some compatility issues when multiple versions are resolved (missing types).
+
+imports:
+  - tosca-base-types:1.0
+
+capability_types:
+  alien.tests.dependencies.capabilities.CCapability:
+    derived_from: tosca.capabilities.Root
+    properties:
+      c_property:
+        type: string
+        description: A dummy property for c capability.
+        required: false
+  alien.tests.dependencies.capabilities.COther:
+    derived_from: tosca.capabilities.Root

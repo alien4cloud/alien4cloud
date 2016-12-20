@@ -8,15 +8,19 @@ define(function (require) {
     ['$translate', 'toaster', '$alresource', 'searchServiceFactory', 
     function($translate, toaster, $alresource, searchServiceFactory) {
       var TopologyEditorMixin = function(scope) {
-        this.scope = scope;
+        var self = this;
+        self.scope = scope;
+        self.scope.$on('topologyRefreshedEvent', function(event, param) {
+          self.renderDependencyConflicts(scope.topology.dependencyConflicts);
+        });
       };
 
-      var dependencieQueryProvider = {
+      var dependenciesQueryProvider = {
         query: '',
         onSearchCompleted: undefined
       };
 
-      var searchService = searchServiceFactory('rest/latest/csars/search', false, dependencieQueryProvider, 20, 10);
+      var searchService = searchServiceFactory('rest/latest/csars/search', false, dependenciesQueryProvider, 20, 10);
       searchService.filtered(true);
 
       TopologyEditorMixin.prototype = {
@@ -24,8 +28,8 @@ define(function (require) {
 
         getVersionsForDependency: function(dependency) {
           var self = this;
-          dependencieQueryProvider.filters = { "name": [dependency] };
-          dependencieQueryProvider.onSearchCompleted = function (searchResult) {
+          dependenciesQueryProvider.filters = { "name": [dependency] };
+          dependenciesQueryProvider.onSearchCompleted = function (searchResult) {
             if (_.undefined(searchResult.error)) {
               self.scope.currentVersionCandidatesForDependency = [];
               _.forEach(searchResult.data.data, function(csar) { self.scope.currentVersionCandidatesForDependency.push(csar.version); });
@@ -44,13 +48,23 @@ define(function (require) {
             dependencyName: dependencyName,
             dependencyVersion: newVersion
           });
-        }
+        },
+
+        renderDependencyConflicts: function(conflicts) {
+          var self = this;
+          if (conflicts) {
+            self.renderedConflicts = _.groupBy(conflicts, function(item) {
+              return item.dependency.split(':')[0];
+            });
+          }
+        },
+
+        renderedConflicts: {}
 
       };
 
       return function(scope) {
-        var instance = new TopologyEditorMixin(scope);
-        scope.dependencies = instance;
+        scope.dependencies = new TopologyEditorMixin(scope);
       };
     }
   ]); // modules

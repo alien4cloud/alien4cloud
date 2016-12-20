@@ -7,7 +7,7 @@ Feature: Orchestrator management
 
   @reset
   Scenario: Create an orchestrator
-    When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     Then I should receive a RestResponse with no error
     When I list orchestrators
     Then I should receive a RestResponse with no error
@@ -16,8 +16,8 @@ Feature: Orchestrator management
 
   @reset
   Scenario: Create an orchestrator with existing name should fail
-    When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
-    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
+    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     Then I should receive a RestResponse with an error code 502
     When I list orchestrators
     Then I should receive a RestResponse with no error
@@ -27,12 +27,12 @@ Feature: Orchestrator management
   @reset
   Scenario: Create an orchestrator on disable plugin should fail
     When I disable the plugin
-    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     Then I should receive a RestResponse with an error code 500
 
   @reset
   Scenario: Delete an orchestrator
-    When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     Then I should receive a RestResponse with no error
     When I delete an orchestrator with name "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
@@ -42,7 +42,7 @@ Feature: Orchestrator management
 
   @reset
   Scenario: Delete an enabled orchestrator should fail
-    When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     When I enable the orchestrator "Mount doom orchestrator"
       Then I should receive a RestResponse with no error
     When I delete an orchestrator with name "Mount doom orchestrator"
@@ -51,9 +51,9 @@ Feature: Orchestrator management
   @reset
   Scenario: Delete an orchestrator when there is another one disabled should not fail
     When I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
-    When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     Then I should receive a RestResponse with no error
-    When I create an orchestrator named "Mount doom orchestrator 2" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    When I create an orchestrator named "Mount doom orchestrator 2" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     Then I should receive a RestResponse with no error
     When I enable the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error

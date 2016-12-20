@@ -77,6 +77,10 @@ define(function (require) {
             }
           });
         },
+        displayAndUpdateVisualDimensions: function(displays, keepDisplays) {
+          this.displayOnly(displays, keepDisplays);
+          this.updateVisualDimensions();
+        },
         set: function(displayName, active) {
           if (this.scope.displays[displayName].active !== active) {
             this.toggle(displayName);

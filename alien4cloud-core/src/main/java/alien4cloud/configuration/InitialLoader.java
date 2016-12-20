@@ -11,7 +11,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +23,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.plugin.PluginManager;
@@ -105,7 +105,8 @@ public class InitialLoader {
                 } catch (ParsingException e) {
                     log.error("Initial upload of archive <{}> has failed.", archive.toString(), e);
                 } catch (ToscaTypeAlreadyDefinedInOtherCSAR e) {
-                    log.debug("Skipping initial upload of archive <{}>, it's archive contain's a tosca type already defined in an other archive." + e.getMessage(), archive.toString(), e);
+                    log.debug("Skipping initial upload of archive <{}>, it's archive contain's a tosca type already defined in an other archive."
+                            + e.getMessage(), archive.toString(), e);
                 }
             }
         } catch (IOException e) {
@@ -117,7 +118,7 @@ public class InitialLoader {
     }
 
     /**
-     * Load plugins from the initialiaztion plugins folder.
+     * Load plugins from the initialization plugins folder.
      */
     public void loadPlugins() {
         if (alienInitDirectory == null || alienInitDirectory.isEmpty() || alienPluginsInitPath == null) {

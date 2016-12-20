@@ -4,7 +4,7 @@ Feature: Location management
     Given I am authenticated with "ADMIN" role
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload a plugin
-    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"
 
   @reset
@@ -39,7 +39,7 @@ Feature: Location management
       And Response should contains 0 location
 
   # Scenario: Delete a location used by an application should fail
-  #  When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+  #  When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
   #  When I enable the orchestrator "Mount doom orchestrator"
   #    Then I should receive a RestResponse with no error
   #  When I delete an orchestrator with name "Mount doom orchestrator"

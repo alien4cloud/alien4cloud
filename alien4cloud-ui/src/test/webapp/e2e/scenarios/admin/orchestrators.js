@@ -30,7 +30,7 @@ describe('Orchestrators management', function() {
       var pluginIdEl = common.element(by.binding('orchestrator.pluginId'), newRowElement);
       expect(stateEl.isPresent()).toBe(true);
       expect(nameEl.getText()).toBe('orc');
-      expect(pluginIdEl.getText()).toBe('alien4cloud-mock-paas-provider:1.0');
+      expect(pluginIdEl.getText()).toBe('alien4cloud-mock-paas-provider');
     });
   });
 

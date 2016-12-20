@@ -77,7 +77,7 @@ define(function (require) {
               type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation',
               nodeName: nodeTemplName
             },
-            function(){ scope.display.displayOnly(['topology']); }
+            function(){ scope.display.displayAndUpdateVisualDimensions(['topology']); }
           );
         },
         /* Update properties of a node template */

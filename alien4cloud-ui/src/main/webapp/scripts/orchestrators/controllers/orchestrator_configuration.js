@@ -44,10 +44,20 @@ define(function (require) {
         $scope.configurationDefinition = result.data;
       });
 
+      // if a key of configuration object is remove from scope by generic form, we re-add this key with a null value
+      var formatNewConfiguration = function(newConfiguration) {
+        for (var property in $scope.configurationDefinition._propertyType) {
+          if (_.undefined(newConfiguration[property])) {
+            newConfiguration[property] = null;
+          }
+        }
+      };
+
       $scope.saveConfiguration = function(newConfiguration) {
         if (orchestrator.state === 'CONNECTED') {
           $scope.toggleLock();
         }
+        formatNewConfiguration(newConfiguration);
         return orchestratorConfigurationService.update({
           orchestratorId: orchestrator.id
         }, angular.toJson(newConfiguration), function success(response) {

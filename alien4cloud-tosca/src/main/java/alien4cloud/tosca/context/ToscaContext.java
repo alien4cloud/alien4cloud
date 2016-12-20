@@ -4,6 +4,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -87,6 +88,8 @@ public class ToscaContext {
      * Tosca context allows to cache TOSCA elements
      */
     public static class Context {
+
+        @Getter
         /** Current context dependencies. */
         private final Set<CSARDependency> dependencies;
         /** Context archives. */
@@ -112,7 +115,7 @@ public class ToscaContext {
          *
          * @param newDependencies The new list of dependencies for this context.
          */
-        public void updateDependencies(Set<CSARDependency> newDependencies) {
+        public void resetDependencies(Set<CSARDependency> newDependencies) {
             Map<String, CSARDependency> dependenciesByName = Maps.newHashMap();
             for (CSARDependency dependency : dependencies) {
                 dependenciesByName.put(dependency.getName(), dependency);

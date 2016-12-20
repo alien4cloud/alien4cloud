@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.utils.services.ConstraintPropertyService;
 import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.types.CapabilityType;
@@ -20,7 +21,6 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Requirement;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -153,7 +153,6 @@ public class NodeTemplateBuilder {
         fillProperties(properties, propertiesDefinitions, originalProperties, true);
     }
 
-    @SneakyThrows
     public static void fillProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertiesDefinitions,
             Map<String, AbstractPropertyValue> originalProperties, boolean adaptToType) {
         if (propertiesDefinitions == null || properties == null) {
@@ -164,12 +163,14 @@ public class NodeTemplateBuilder {
             if (originalValue == null) {
                 AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(entry.getValue());
                 properties.put(entry.getKey(), pv);
+            } else if (originalValue instanceof FunctionPropertyValue) {
+                properties.put(entry.getKey(), originalValue);
             } else {
                 // we check the property type before accepting it
                 try {
                     ConstraintPropertyService.checkPropertyConstraint(entry.getKey(), originalValue, entry.getValue());
                     properties.put(entry.getKey(), originalValue);
-                } catch(Exception e) {
+                } catch(ConstraintFunctionalException e) {
                     log.debug("Not able to merge property <" + entry.getKey() + "> value due to a type check exception", e);
                 }
             }

@@ -15,6 +15,7 @@
 - sustitution_mapping_parser: alien4cloud.tosca.parser.impl.advanced.SustitutionMappingParser
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
 - abstract_property_value: alien4cloud.tosca.parser.impl.advanced.AbstractPropertyValueParser
+- meta_data: alien4cloud.tosca.parser.impl.advanced.MetaDataParser
 - fail_get_artifact: alien4cloud.tosca.parser.impl.advanced.FailGetArtifactParser
 - string_list: alien4cloud.tosca.parser.impl.advanced.StringListParser
 - relationship_template: alien4cloud.tosca.parser.impl.advanced.RelationshipTemplateParser
@@ -22,6 +23,9 @@
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
   tosca_definitions_version: archive.toscaDefinitionsVersion
+  metadata:
+    reference: archive
+    type: meta_data
   tosca_default_namespace: archive.toscaDefaultNamespace
   template_name: archive.name
   template_author: archive.templateAuthor

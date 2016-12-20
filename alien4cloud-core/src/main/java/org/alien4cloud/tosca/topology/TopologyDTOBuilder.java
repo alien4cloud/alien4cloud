@@ -1,25 +1,23 @@
 package org.alien4cloud.tosca.topology;
 
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.editor.EditionContext;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.PrimitiveDataType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.types.*;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
 import alien4cloud.topology.AbstractTopologyDTO;
+import alien4cloud.topology.DependencyConflictDTO;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
@@ -43,8 +41,38 @@ public class TopologyDTOBuilder {
         topologyDTO.setLastOperationIndex(context.getLastOperationIndex());
         topologyDTO.setOperations(context.getOperations());
         topologyDTO.setDelegateType(context.getCsar().getDelegateType());
+
+        topologyDTO.setDependencyConflicts(getDependencyConflictDTOs(context));
+
         // FIXME add validation information
         return topologyDTO;
+    }
+
+    /**
+     * Compute a list of transitive dependency conflicts from the Context.
+     * @param context the EditionContext of the Topology being built.
+     * @return a list of dependency conflicts.
+     */
+    private List<DependencyConflictDTO> getDependencyConflictDTOs(EditionContext context) {
+        // Generate a map with all transitive dependency conflict for each dependency in the context.
+        final Set<CSARDependency> dependencies = context.getToscaContext().getDependencies();
+        Map<CSARDependency, Set<CSARDependency>> dependencyConflictMap = new HashMap<>();
+        dependencies.forEach(source -> {
+            final Set<CSARDependency> transitives =
+                    Optional.ofNullable(ToscaContext.get().getArchive(source.getName(), source.getVersion()).getDependencies())
+                            .orElse(Collections.emptySet())
+                            .stream().filter((o) -> !dependencies.contains(o)).collect(Collectors.toSet());
+            if (!transitives.isEmpty()) dependencyConflictMap.put(source, transitives);
+        });
+
+        final ArrayList<DependencyConflictDTO> dependencyConflicts = new ArrayList<>();
+        dependencyConflictMap.forEach((source, conflicts) ->
+            conflicts.forEach(conflict -> {
+                String actualVersion = dependencies.stream().filter(d -> d.getName().equals(conflict.getName())).findFirst().map(CSARDependency::getVersion).orElse("");
+                dependencyConflicts.add(new DependencyConflictDTO(source.getName(), conflict.getName() + ":" + conflict.getVersion(), actualVersion));
+            })
+        );
+        return dependencyConflicts;
     }
 
     /**
@@ -55,7 +83,7 @@ public class TopologyDTOBuilder {
      * @return An instance of TopologyDTO (FIXME Should return an Abstract Topology DTO and renamed as not abstract)
      */
     @ToscaContextual
-    public <T extends Topology> TopologyDTO buidTopologyDTO(T topology) {
+    public <T extends Topology> TopologyDTO buildTopologyDTO(T topology) {
         TopologyDTO topologyDTO = new TopologyDTO();
         if (topology != null) {
             buildAbstractTopologyDTO(topology, topologyDTO);

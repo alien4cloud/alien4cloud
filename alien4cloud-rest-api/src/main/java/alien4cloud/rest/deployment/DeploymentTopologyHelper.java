@@ -15,7 +15,6 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
 import alien4cloud.utils.ReflectionUtil;
 
 @Component
@@ -31,7 +30,7 @@ public class DeploymentTopologyHelper implements IDeploymentTopologyHelper {
     @Override
     public DeploymentTopologyDTO buildDeploymentTopologyDTO(DeploymentConfiguration deploymentConfiguration) {
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        TopologyDTO topologyDTO = topologyDTOBuilder.buidTopologyDTO(deploymentTopology);
+        TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(deploymentTopology);
         DeploymentTopologyDTO deploymentTopologyDTO = new DeploymentTopologyDTO();
         ReflectionUtil.mergeObject(topologyDTO, deploymentTopologyDTO);
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);

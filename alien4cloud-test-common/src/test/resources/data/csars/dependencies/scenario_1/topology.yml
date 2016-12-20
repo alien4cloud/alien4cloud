@@ -1,0 +1,25 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: alien-tests-dependencies-scenario1
+template_author: Alien 4 Cloud
+template_version: 1.0.0-SNAPSHOT
+
+description: >
+  Transitive dependencies versions resolution scenario 1:
+  All archive versions are in line, no conflicts should be found.
+
+imports:
+  - alien-tests-dependencies-a:1.0.0
+  - alien-tests-dependencies-b:1.0.0
+
+topology_template:
+  node_templates:
+    node_a:
+      type: alien.tests.dependencies.nodes.A
+    node_b:
+      type: alien.tests.dependencies.nodes.B
+      requirements:
+        - requires_c:
+            node: node_a
+            capability: alien.tests.dependencies.capabilities.C
+            relationship: alien.tests.dependencies.relationships.DDependsOnC

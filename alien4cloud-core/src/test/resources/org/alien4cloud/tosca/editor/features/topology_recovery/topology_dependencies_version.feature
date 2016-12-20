@@ -21,13 +21,7 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
       | type              | org.alien4cloud.tosca.editor.operations.ChangeDependencyVersionOperation |
       | dependencyName    | test-topo-dependencies-types                                             |
       | dependencyVersion | 0.2-SNAPSHOT                                                             |
-    Then No exception should be thrown
-    And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-types'].version" should return "0.2-SNAPSHOT"
-    And The SPEL expression "nodeTemplates.size()" should return 2
-    And The SPEL expression "nodeTemplates['TestComponent']" should return "null"
-    And The SPEL expression "nodeTemplates['TestComponentSource'].properties['component_version'].value" should return "777"
-    And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.size()" should return 1
-    And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.values()[0].target" should return "Compute"
+    Then an exception of type "alien4cloud.exception.VersionConflictException" should be thrown
 
   Scenario: The requirement has been removed from the source node
     When I execute the operation
@@ -48,13 +42,7 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
       | type              | org.alien4cloud.tosca.editor.operations.ChangeDependencyVersionOperation |
       | dependencyName    | test-topo-dependencies-types                                             |
       | dependencyVersion | 0.4-SNAPSHOT                                                             |
-    Then No exception should be thrown
-    And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-types'].version" should return "0.4-SNAPSHOT"
-    And The SPEL expression "nodeTemplates.size()" should return 3
-    And The SPEL expression "nodeTemplates['TestComponent'].name" should return "TestComponent"
-    And The SPEL expression "nodeTemplates['TestComponentSource'].properties['component_version'].value" should return "777"
-    And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.size()" should return 1
-    And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.values()[0].target" should return "Compute"
+    Then an exception of type "alien4cloud.exception.VersionConflictException" should be thrown
 
   Scenario: The archive has a new dependency
     When I execute the operation
@@ -102,9 +90,9 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
       | type              | org.alien4cloud.tosca.editor.operations.ChangeDependencyVersionOperation |
       | dependencyName    | test-topo-dependencies-trans-types                                       |
       | dependencyVersion | 0.2-SNAPSHOT                                                             |
-    Then an exception of type "alien4cloud.exception.VersionConflictException" should be thrown
+    Then No exception should be thrown
     And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-types'].version" should return "0.5-SNAPSHOT"
-    And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-trans-types'].version" should return "0.1-SNAPSHOT"
+    And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-trans-types'].version" should return "0.2-SNAPSHOT"
 
   Scenario: The updated archive has a dependency that conflicts with one of the topology
     Given I execute the operation
@@ -119,6 +107,6 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
       | type              | org.alien4cloud.tosca.editor.operations.ChangeDependencyVersionOperation |
       | dependencyName    | test-topo-dependencies-types                                             |
       | dependencyVersion | 0.5-SNAPSHOT                                                             |
-    Then an exception of type "alien4cloud.exception.VersionConflictException" should be thrown
-    And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-types'].version" should return "0.6-SNAPSHOT"
-    And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-trans-types'].version" should return "0.2-SNAPSHOT"
+    Then No exception should be thrown
+    And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-types'].version" should return "0.5-SNAPSHOT"
+    And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-trans-types'].version" should return "0.1-SNAPSHOT"

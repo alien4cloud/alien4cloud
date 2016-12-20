@@ -102,6 +102,13 @@
         "INCOMPATIBLE_VERSIONS": {
           "TITLE": "Dependency version conflict",
           "CONTENT": "The topology has already a dependency to the archive <{{archiveName}}> version <{{archiveVersion}}>. You can not use a component from the same archive with a different version. Please upgrade or downgrade the topology dependency if you want to use a different version."
+        },
+        "CONFLICTS" : {
+          "TITLE" : "Transitive dependency conflicts",
+          "MESSAGE_FROM": "from ",
+          "MESSAGE_VERSION": " in version ",
+          "RESOLVED": "resolved to ",
+          "WARNING": "Transitive dependency conflicts may cause incompatibility issues."
         }
       },
       "DESC_TEMPLATE" : "トポロジテンプレートの説明",
@@ -427,7 +434,8 @@
       "ALIEN_MAPPING_ERROR" : "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
       "CSAR_ALREADY_INDEXED": "The CSAR has already been indexed in Alien with the same content",
       "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "An archive with the same name and version already exists in Alien repository in another workspace.",
-      "DEPENDENCY_VERSION_CONFLICT": "The transitive dependency {{problem}} of {{context}} is in conflict with the direct dependency {{note}}.",
+      "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT": "The transitive dependency [{{problem}}] is in conflict with the direct dependency [{{context}}]. The conflict has been resolved by using the direct dependency version: [{{note}}].",
+      "DEPENDENCY_VERSION_CONFLICT": "The dependency [{{problem}}] is in conflict with the dependency [{{context}}]. The conflict has been resolved by using the latest version.",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "The dependency [ {{note}} ] is not visible from the target workspace",
       "CSAR_ALREADY_EXISTS" : "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien doesn't allow the overriding.",

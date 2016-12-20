@@ -17,11 +17,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.apache.commons.collections4.MapUtils;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
@@ -33,6 +33,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -47,12 +48,10 @@ import alien4cloud.plugin.model.PluginDescriptor;
 import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.utils.ClassLoaderUtil;
 import alien4cloud.utils.FileUtil;
-import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.SpringUtils;
 import alien4cloud.utils.YamlParserUtil;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -79,13 +78,22 @@ public class PluginManager {
     @Resource
     private ApplicationContext alienContext;
     private Map<String, ManagedPlugin> pluginContexts = Maps.newHashMap();
-    @Getter
-    private List<PluginLinker> linkers = null;
 
+    private List<PluginLinker> linkers = Lists.newArrayList();;
+
+    @Inject
+    public void setLinkers(List<IPluginLinker> pluginLinkers) {
+        for (IPluginLinker pluginLinker : pluginLinkers) {
+            linkers.add(new PluginLinker(pluginLinker, getLinkedType(pluginLinker)));
+        }
+    }
+
+    /**
+     * Unload all plugins from alien4cloud.
+     */
     public void unloadAllPlugins() {
         log.info("Unloading plugins");
-        GetMultipleDataResult<Plugin> results = alienDAO.find(Plugin.class, MapUtil.newHashMap(new String[] { "enabled" }, new String[][] { { "true" } }),
-                Integer.MAX_VALUE);
+        GetMultipleDataResult<Plugin> results = alienDAO.find(Plugin.class, FilterUtil.fromKeyValueCouples("enabled", "true"), Integer.MAX_VALUE);
         for (Plugin plugin : results.getData()) {
             unloadPlugin(plugin.getId(), false, false);
         }
@@ -93,36 +101,33 @@ public class PluginManager {
     }
 
     /**
-     * Initialize the plugins for alien.
+     * Initialize the plugin manager and create directories.
      *
-     * @throws IOException In case we fail to iterate over the plugin directory.
+     * @throws IOException In case we fail to create the plugin directory.
      */
-    public void initialize() throws IOException {
-        // Initialize alien's plugin linkers.
-        if (linkers == null) {
-            linkers = Lists.newArrayList();
-            for (IPluginLinker linker : SpringUtils.getBeansOfType(alienContext, IPluginLinker.class)) {
-                linkers.add(new PluginLinker(linker, getLinkedType(linker)));
-            }
-        }
-
+    @PostConstruct
+    public void postConstruct() throws IOException {
         // Ensure plugin directory exists.
         Path path = FileSystems.getDefault().getPath(pluginsWorkDirectory);
         if (!Files.exists(path)) {
             Files.createDirectories(path);
             log.info("Plugin work directory created at <" + path.toAbsolutePath().toString() + ">");
         }
+    }
 
+    /**
+     * Load all enabled plugins in alien4cloud.
+     */
+    public void initialize() {
         log.info("Initializing plugins");
         // Load enabled plugins in alien, query using max value as anyway we must be able to load all plugins in memory.
-        GetMultipleDataResult<Plugin> results = alienDAO.find(Plugin.class, MapUtil.newHashMap(new String[] { "enabled" }, new String[][] { { "true" } }),
-                Integer.MAX_VALUE);
+        GetMultipleDataResult<Plugin> results = alienDAO.find(Plugin.class, FilterUtil.fromKeyValueCouples("enabled", "true"), Integer.MAX_VALUE);
         loadPlugins(results.getData());
         log.info("{} Plugins initialized.", results.getData().length);
     }
 
     /**
-     * Load all the plugins that have their dependencies fullfilled by loaded plugin.
+     * Load all the plugins that have their dependencies fulfilled by loaded plugin.
      *
      * @param plugins the plugins to load.
      */
@@ -184,7 +189,7 @@ public class PluginManager {
     public Plugin uploadPlugin(Path uploadedPluginPath) throws PluginLoadingException, IOException, MissingPlugingDescriptorFileException {
         // load the plugin descriptor
         FileSystem fs = FileSystems.newFileSystem(uploadedPluginPath, null);
-        PluginDescriptor descriptor = null;
+        PluginDescriptor descriptor;
         try {
             try {
                 descriptor = YamlParserUtil.parseFromUTF8File(fs.getPath(PLUGIN_DESCRIPTOR_FILE), PluginDescriptor.class);
@@ -199,11 +204,16 @@ public class PluginManager {
             String pluginPathId = getPluginPathId();
             Plugin plugin = new Plugin(descriptor, pluginPathId);
 
-            // check plugin already exists
-            long count = alienDAO.count(Plugin.class, QueryBuilders.idsQuery(MappingBuilder.indexTypeFromClass(Plugin.class)).ids(plugin.getId()));
-            if (count > 0) {
-                log.warn("Uploading Plugin <{}> impossible (already exists)", plugin.getId());
-                throw new AlreadyExistException("A plugin with the given id and version already exists.");
+            // check plugin already exists and is enabled
+            if (pluginContexts.get(plugin.getId()) != null) {
+                log.warn("Uploading Plugin <{}> impossible (already exists and enabled)", plugin.getId());
+                throw new AlreadyExistException("A plugin with the given id already exists and is enabled.");
+            }
+
+            Plugin oldPlugin = alienDAO.findById(Plugin.class, plugin.getId());
+            if (oldPlugin != null) {
+                // remove all files for the old plugin but keep configuration.
+                removePlugin(plugin.getId(), false);
             }
 
             Path pluginPath = getPluginPath(pluginPathId);
@@ -228,8 +238,7 @@ public class PluginManager {
 
     private void unloadPlugin(String pluginId, boolean disable, boolean remove) {
         ManagedPlugin managedPlugin = pluginContexts.get(pluginId);
-        Path pluginPath;
-        Path pluginUiPath;
+
         if (managedPlugin != null) {
             // send events to plugin loading callbacks
             for (IPluginLoadingCallback callback : SpringUtils.getBeansOfType(alienContext, IPluginLoadingCallback.class)) {
@@ -239,12 +248,6 @@ public class PluginManager {
             managedPlugin.getPluginContext().stop();
             // destroy the plugin context
             managedPlugin.getPluginContext().destroy();
-            pluginPath = managedPlugin.getPluginPath();
-            pluginUiPath = managedPlugin.getPluginUiPath();
-        } else {
-            Plugin plugin = alienDAO.findById(Plugin.class, pluginId);
-            pluginPath = getPluginPath(plugin.getPluginPathId());
-            pluginUiPath = getPluginUiPath(plugin.getPluginPathId());
         }
 
         // unlink the plugin
@@ -254,21 +257,31 @@ public class PluginManager {
 
         // eventually remove it from elastic search and disk.
         if (remove) {
-            alienDAO.delete(Plugin.class, pluginId);
-            // remove also the configuration
-            alienDAO.delete(PluginConfiguration.class, pluginId);
-            // try to delete the plugin dir in the repo
-            try {
-                FileUtil.delete(pluginPath);
-                FileUtil.delete(getPluginZipFilePath(pluginId));
-                FileUtil.delete(pluginUiPath);
-            } catch (IOException e) {
-                log.error("Failed to delete the plugin <" + pluginId + "> in the repository. You'll have to do it manually", e);
-            }
+            removePlugin(pluginId, true);
         } else if (disable) {
             disablePlugin(pluginId);
         }
         pluginContexts.remove(pluginId);
+    }
+
+    private void removePlugin(String pluginId, boolean deleteConfig) {
+        Plugin plugin = alienDAO.findById(Plugin.class, pluginId);
+        Path pluginPath = getPluginPath(plugin.getPluginPathId());
+        Path pluginUiPath = getPluginUiPath(plugin.getPluginPathId());
+
+        alienDAO.delete(Plugin.class, pluginId);
+        // remove also the configuration
+        if (deleteConfig) {
+            alienDAO.delete(PluginConfiguration.class, pluginId);
+        }
+        // try to delete the plugin dir in the repo
+        try {
+            FileUtil.delete(pluginPath);
+            FileUtil.delete(getPluginZipFilePath(pluginId));
+            FileUtil.delete(pluginUiPath);
+        } catch (IOException e) {
+            log.error("Failed to delete the plugin <" + pluginId + "> in the repository. You'll have to do it manually", e);
+        }
     }
 
     /**
@@ -325,6 +338,9 @@ public class PluginManager {
     }
 
     private void loadPlugin(Plugin plugin) throws PluginLoadingException {
+        if (pluginContexts.containsKey(plugin.getId())) {
+            log.debug("Do not load plugin {} as it is already loaded.", plugin.getId());
+        }
         try {
             Path pluginPath = getPluginPath(plugin.getPluginPathId());
             Path pluginUiPath = getPluginUiPath(plugin.getPluginPathId());

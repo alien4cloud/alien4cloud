@@ -696,7 +696,20 @@
               <td>{{dependency.version}}</td>
             </tr>
           </tbody>
-        </table>
+          </table>
+          <div style="margin: 0 10px" ng-show="topology.dependencyConflicts">
+            <h5><i class="fa fa-exclamation-triangle"></i>&nbsp;{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.TITLE' | translate }}</h5>
+            <div class="list-group">
+              <div class="list-group-item" ng-repeat="(key, values) in dependencies.renderedConflicts">
+                <strong class="list-group-item-heading">{{ key }}</strong>
+                <p class="list-group-item-text" ng-repeat-start="conflict in values" style="margin-left:5px" >
+                {{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.MESSAGE_FROM' | translate }}<em>{{ conflict.source }}</em>{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.MESSAGE_VERSION' | translate }}<em>{{ conflict.dependency.split(':')[1] }}</em>
+                </p>
+                <strong ng-repeat-end ng-if="$last">{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.RESOLVED' | translate }}<em>{{ conflict.resolvedVersion }}</em></strong>
+              </div>
+            </div>
+            <p style="margin: 10px 5px"><em>{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.WARNING' | translate }}</em></p>
+          </div>
         </div>
       </div>
     </div>
@@ -970,7 +983,7 @@
         </li>
         <li ng-show="!displays.dependencies.active">
           <span id="topology-dependencies" ng-click="display.toggle('dependencies')">
-            <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}
+            <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}} <i ng-show="topology.dependencyConflicts" class="fa fa-exclamation-triangle"></i>
           </span>
         </li>
         <li ng-show="!displays.inputs.active">

@@ -8,7 +8,7 @@ var authentication = require('../../authentication/authentication');
 var genericForm = require('../../generic_form/generic_form');
 var plugins = require('../../admin/plugins');
 
-var pluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
+var pluginId = 'plugin_alien4cloud-mock-paas-provider';
 var newPluginId = 'plugin_alien4cloud-mock-paas-provider:1.1';
 var pluginName = 'alien4cloud-mock-paas-provider';
 
@@ -110,7 +110,7 @@ describe('Upload and handle paas plugins', function() {
   });
 
   it('should be able to cancel the plugin deletion', function() {
-    var mockPluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
+    var mockPluginId = 'plugin_alien4cloud-mock-paas-provider';
     var mockPluginLine = element(by.id(mockPluginId));
     common.deleteWithConfirm('delete-' + mockPluginId, false);
     expect(mockPluginLine.isPresent()).toBe(true);

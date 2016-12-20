@@ -25,10 +25,10 @@ public class UninstallWorkflowBuilder extends StandardWorflowBuilder {
             AbstractStep lastStep = null;
             // TODO: look for children ?
             lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STOPPING);
-            lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STOP, toscaTypeFinder, false);
+            lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STOP, toscaTypeFinder, true);
             lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STOPPED);
             lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.DELETING);
-            lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.DELETE, toscaTypeFinder, false);
+            lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.DELETE, toscaTypeFinder, true);
             lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.DELETED);
         }
     }

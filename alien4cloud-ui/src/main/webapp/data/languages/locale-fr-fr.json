@@ -102,6 +102,13 @@
         "INCOMPATIBLE_VERSIONS": {
           "TITLE": "Conflit de version de dépendances",
           "CONTENT": "La topologie a déjà une dépendance vers l'archive <{{archiveName}}> version <{{archiveVersion}}>. Vous ne pouvez pas utiliser un composant provenant de cette même archive avec une version différente. Vous pouvez changer la version de la dépendance si vous souhaitez utiliser une version différente."
+        },
+        "CONFLICTS" : {
+          "TITLE" : "Conflits de dépendances transitives :",
+          "MESSAGE_FROM": "depuis ",
+          "MESSAGE_VERSION": " en version ",
+          "RESOLVED": "résolu en ",
+          "WARNING": "Les conflits de dépendances transitives peuvent entrainer des incompatibilités."
         }
       },
       "DESC_TEMPLATE" : "Description du modèle",
@@ -429,7 +436,8 @@
       "ALIEN_MAPPING_ERROR" : "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
       "CSAR_ALREADY_INDEXED": "Une archive a déjà été indexé dans Alien4Cloud avec le même contenu.",
       "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "Un CSAR avec le même nom et la même version existe déjà dans Alien.",
-      "DEPENDENCY_VERSION_CONFLICT": "La dépendence transitive {{problem}} de {{context}} est en conflit avec la dépendence directe {{note}}.",
+      "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT": "La dépendance transitive [{{problem}}] est en conflit avec la dépendance directe [{{context}}]. Le conflit a été résolu en utilisant la version [{{note}}] de la dépendance directe.",
+      "DEPENDENCY_VERSION_CONFLICT": "La dependence [{{problem}}] est en conflit avec la dépendance [{{context}}]. Le conflit a été résolu en utilisant la version la plus récente.",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "La dépendance [ {{note}} ] n'est pas visible depuis le workspace cible",
       "CSAR_ALREADY_EXISTS" : "Une archive releasée ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "Une topologie ayant une dépendence vers une archive de ce nom et cette version est déployée. Afin de garantir la stabilité des déploiements, cette archive ne peut être modifiée.",

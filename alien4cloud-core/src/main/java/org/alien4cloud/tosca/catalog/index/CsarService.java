@@ -141,20 +141,6 @@ public class CsarService {
     public void save(Csar csar) {
         // save the csar import date
         csar.setImportDate(new Date());
-        // fill in transitive dependencies.
-        Set<CSARDependency> mergedDependencies = null;
-        if (csar.getDependencies() != null) {
-            mergedDependencies = Sets.newHashSet(csar.getDependencies());
-            for (CSARDependency dependency : csar.getDependencies()) {
-                Csar dependencyCsar = get(dependency.getName(), dependency.getVersion());
-                if (dependencyCsar != null && dependencyCsar.getDependencies() != null) {
-                    // FIXME rebuild the dependency bean, as it (the hash) might ave changed since the archive was first imported
-                    // use this.buildDependencyBean instead
-                    mergedDependencies.addAll(dependencyCsar.getDependencies());
-                }
-            }
-        }
-        csar.setDependencies(mergedDependencies);
         this.csarDAO.save(csar);
     }
 
@@ -170,17 +156,7 @@ public class CsarService {
         save(csar);
     }
 
-    public Map<String, Csar> findByIds(String fetchContext, String... ids) {
-        Map<String, Csar> csarMap = Maps.newHashMap();
-        List<Csar> csars = csarDAO.findByIdsWithContext(Csar.class, fetchContext, ids);
-        for (Csar csar : csars) {
-            csarMap.put(csar.getId(), csar);
-        }
-        return csarMap;
-    }
-
     /**
-     *
      * Get a cloud service archive, or fail if not found
      *
      * @param id The id of the archive to retrieve
