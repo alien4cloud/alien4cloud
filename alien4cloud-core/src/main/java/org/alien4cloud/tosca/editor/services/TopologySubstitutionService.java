@@ -7,15 +7,18 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.normative.ToscaType;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.IValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -120,7 +123,6 @@ public class TopologySubstitutionService {
     }
 
     private void fillAttributesFromOutputCapabilitiesProperties(Topology topology, NodeType substituteNodeType) {
-        Map<String, IValue> attributes = substituteNodeType.getAttributes();
         Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
         if (outputCapabilityProperties != null) {
             for (Map.Entry<String, Map<String, Set<String>>> ocpe : outputCapabilityProperties.entrySet()) {
@@ -132,11 +134,8 @@ public class TopologySubstitutionService {
                     CapabilityType capabilityType = ToscaContext.getOrFail(CapabilityType.class, capabilityTypeName);
                     for (String propertyName : cpe.getValue()) {
                         PropertyDefinition pd = capabilityType.getProperties().get(propertyName);
-                        // FIXME we have an issue here : if several nodes have the same attribute name, or if an attribute and a property have the same name,
                         // there is a conflict
-                        if (pd != null && !attributes.containsKey(propertyName)) {
-                            attributes.put(propertyName, pd);
-                        }
+                        addAttributeFromPropertyDefinition(pd, propertyName, substituteNodeType);
                     }
                 }
             }
@@ -144,7 +143,6 @@ public class TopologySubstitutionService {
     }
 
     private void fillSubstituteAttributesFromOutputProperties(Topology topology, NodeType substituteNodeType) {
-        Map<String, IValue> attributes = substituteNodeType.getAttributes();
         Map<String, Set<String>> outputProperties = topology.getOutputProperties();
         if (outputProperties != null) {
             for (Map.Entry<String, Set<String>> ope : outputProperties.entrySet()) {
@@ -153,13 +151,27 @@ public class TopologySubstitutionService {
                 NodeType nodeTemplateType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
                 for (String propertyName : ope.getValue()) {
                     PropertyDefinition pd = nodeTemplateType.getProperties().get(propertyName);
-                    // FIXME we have an issue here : if several nodes have the same attribute name, or if an attribute and a property have the same name, there
                     // is a conflict
-                    if (pd != null && !attributes.containsKey(propertyName)) {
-                        attributes.put(propertyName, pd);
-                    }
+                    addAttributeFromPropertyDefinition(pd, propertyName, substituteNodeType);
                 }
             }
+        }
+    }
+
+    private void addAttributeFromPropertyDefinition(PropertyDefinition pd, String propertyName, NodeType substituteNodeType) {
+        // FIXME we have an issue here : if several nodes have the same attribute name, or if an attribute and a property have the same name,
+        Map<String, IValue> attributes = substituteNodeType.getAttributes();
+        if (pd != null && !attributes.containsKey(propertyName)) {
+            if (ToscaType.isSimple(pd.getType())) {
+                AttributeDefinition attributeDefinition = new AttributeDefinition();
+                attributeDefinition.setType(pd.getType());
+                attributeDefinition.setDescription(pd.getDescription());
+                // FIXME known issue we don't support complex attributes right now.
+                if (pd.getDefault() != null && pd.getDefault() instanceof ScalarPropertyValue) {
+                    attributeDefinition.setDefault(((ScalarPropertyValue) pd.getDefault()).getValue());
+                }
+                attributes.put(propertyName, attributeDefinition);
+            } // FIXME else: known issue we don't support complex attributes right now.
         }
     }
 
