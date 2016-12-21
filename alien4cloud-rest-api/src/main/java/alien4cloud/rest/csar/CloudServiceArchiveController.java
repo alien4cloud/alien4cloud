@@ -185,7 +185,7 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<CsarInfoDTO> read(@PathVariable String csarId) {
-        Csar csar = csarService.get(csarId);
+        Csar csar = csarService.getOrFail(csarId);
         csarAuthorizationFilter.checkReadAccess(csar);
         List<Usage> relatedResourceList = csarService.getCsarRelatedResourceList(csar);
         CsarInfoDTO csarInfo = new CsarInfoDTO(csar, relatedResourceList);

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -19,13 +20,13 @@ import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
@@ -37,6 +38,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.utils.AlienUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -152,8 +154,21 @@ public class CsarService {
      */
     public void setDependencies(String csarId, Set<CSARDependency> dependencies) {
         Csar csar = getOrFail(csarId);
-        csar.setDependencies(dependencies);
+        csar.setDependencies(remove(csar, dependencies));
         save(csar);
+    }
+
+    /**
+     * remove a csar from a set of dependencies
+     * 
+     * @param csar
+     * @param from
+     * @return
+     */
+    private Set<CSARDependency> remove(Csar csar, Set<CSARDependency> from) {
+        CSARDependency toRemove = new CSARDependency(csar.getName(), csar.getVersion());
+        return from == null ? null
+                : AlienUtils.safe(from).stream().filter(csarDependency -> !Objects.equals(toRemove, csarDependency)).collect(Collectors.toSet());
     }
 
     /**
@@ -291,7 +306,7 @@ public class CsarService {
                     Collections.singletonList(new Usage(csar.getDelegateId(), Application.class.getSimpleName().toLowerCase(), csar.getDelegateId(), null)));
         }
         Csar[] relatedCsars = getDependantCsars(csar.getName(), csar.getVersion());
-        if (relatedCsars != null && relatedCsars.length > 0) {
+        if (ArrayUtils.isNotEmpty(relatedCsars)) {
             relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
         }
 
