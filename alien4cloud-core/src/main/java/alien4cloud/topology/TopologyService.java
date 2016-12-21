@@ -300,9 +300,7 @@ public class TopologyService {
         // FIXME Transitive dependencies could change here and thus types be affected ?
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);
         typeLoader.loadType(type, toLoadDependency);
-        for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
-            ToscaContext.get().updateDependency(updatedDependency);
-        }
+        ToscaContext.get().resetDependencies(typeLoader.getLoadedDependencies());
         // TODO update csar dependencies also ?
         topology.setDependencies(typeLoader.getLoadedDependencies());
         return element;
@@ -314,10 +312,7 @@ public class TopologyService {
         for (String type : types) {
             typeLoader.unloadType(type);
         }
-        // FIXME if a dependency is just removed don't add it back
-        for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
-            ToscaContext.get().updateDependency(updatedDependency);
-        }
+        ToscaContext.get().resetDependencies(typeLoader.getLoadedDependencies());
         // TODO update csar dependencies also ?
         topology.setDependencies(typeLoader.getLoadedDependencies());
     }
