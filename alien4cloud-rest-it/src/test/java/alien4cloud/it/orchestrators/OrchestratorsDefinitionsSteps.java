@@ -34,7 +34,7 @@ public class OrchestratorsDefinitionsSteps {
 
     @When("^I create an orchestrator named \"([^\"]*)\" and plugin name \"([^\"]*)\" and bean name \"([^\"]*)\"$")
     public void I_create_an_orchestrator_named_and_plugin_name_and_bean_name(String name, String pluginName, String pluginBean) throws Throwable {
-        I_create_an_orchestrator_named_and_plugin_id_and_bean_name(name, pluginName + ":" + Context.VERSION, pluginBean);
+        I_create_an_orchestrator_named_and_plugin_id_and_bean_name(name, pluginName, pluginBean);
     }
 
     @When("^I list orchestrators$")
