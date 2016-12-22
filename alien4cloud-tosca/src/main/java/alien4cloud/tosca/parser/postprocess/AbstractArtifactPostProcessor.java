@@ -2,14 +2,13 @@ package alien4cloud.tosca.parser.postprocess;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
+import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
+import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
-import org.alien4cloud.tosca.model.types.ArtifactType;
-import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -31,7 +30,6 @@ public abstract class AbstractArtifactPostProcessor implements IPostProcessor<Ab
     public void process(AbstractArtifact instance) {
         Node node = ParsingContextExecution.getObjectToNodeMap().get(instance);
 
-
         postProcessArtifactRef(node, instance.getArtifactRef());
 
         ArchiveRoot archiveRoot = ParsingContextExecution.getRootObj();
@@ -48,12 +46,15 @@ public abstract class AbstractArtifactPostProcessor implements IPostProcessor<Ab
             // check the type reference
             referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance, instance.getArtifactType(), ArtifactType.class));
         }
-        if (instance.getArtifactRepository() != null) {
-            RepositoryDefinition repositoryDefinition = archiveRoot.getRepositories() != null
-                    ? archiveRoot.getRepositories().get(instance.getArtifactRepository()) : null;
+        if (instance.getRepositoryName() != null) {
+            RepositoryDefinition repositoryDefinition = archiveRoot.getRepositories() != null ? archiveRoot.getRepositories().get(instance.getRepositoryName())
+                    : null;
             if (repositoryDefinition == null) {
-                ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_REPOSITORY, "Implementation artifact", node.getStartMark(),
-                        "Repository definition not found", node.getEndMark(), instance.getArtifactRepository()));
+                // Sometimes the information about repository has already been filled in the parent type
+                if (instance.getRepositoryURL() == null) {
+                    ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_REPOSITORY, "Implementation artifact",
+                            node.getStartMark(), "Repository definition not found", node.getEndMark(), instance.getArtifactRepository()));
+                }
             } else {
                 instance.setRepositoryURL(repositoryDefinition.getUrl());
                 instance.setRepositoryCredential(repositoryDefinition.getCredential() != null ? repositoryDefinition.getCredential().getValue() : null);
