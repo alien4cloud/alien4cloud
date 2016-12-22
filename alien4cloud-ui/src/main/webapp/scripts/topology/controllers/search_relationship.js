@@ -48,8 +48,10 @@ define(function (require) {
 
       // filter on valid targets
       if(capabilityName) {
-        // TODO should we manage inheritance here ?
+        // TODO should we manage inheritance here ? -> Whe should add all the capabilities that inherits from capability name
+        // Relationships can have CapabilityTypes and NodeTypes as valid_target_types
         var validTargets = [$scope.topology.topology.nodeTemplates[targetName].capabilitiesMap[capabilityName].value.type];
+        validTargets.push($scope.topology.topology.nodeTemplates[targetName].type);
         $scope.relationshipHiddenFilters = [{
           term: 'validTargets',
           facet: validTargets
