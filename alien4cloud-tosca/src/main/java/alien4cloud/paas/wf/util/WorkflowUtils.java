@@ -1,14 +1,17 @@
 package alien4cloud.paas.wf.util;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+
+import alien4cloud.exception.InvalidNameException;
 import alien4cloud.paas.wf.AbstractStep;
 import alien4cloud.paas.wf.DelegateWorkflowActivity;
 import alien4cloud.paas.wf.NodeActivityStep;
@@ -20,6 +23,8 @@ import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.NormativeRelationshipConstants;
 
 public class WorkflowUtils {
+
+    public static final Pattern WORKFLOW_NAME_PATTERN = Pattern.compile("^\\w+$");
 
     private static final String NETWORK_TYPE = "tosca.nodes.Network";
 
@@ -312,6 +317,13 @@ public class WorkflowUtils {
             return true;
         }
         return false;
+    }
+
+    public static void validateName(String name) {
+        if (!WORKFLOW_NAME_PATTERN.matcher(name).matches()) {
+            throw new InvalidNameException("workflowName", name, "name <" + name
+                    + "> is not valid. It should only contains alphanumeric character from the basic Latin alphabet, underscores(_) and dash(-).");
+        }
     }
 
 }
