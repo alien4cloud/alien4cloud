@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Requirement;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.apache.commons.lang3.StringUtils;
@@ -13,10 +17,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.common.AlienConstants;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Requirement;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.paas.model.InstanceInformation;
@@ -324,18 +324,18 @@ public final class FunctionEvaluator {
             } else {
                 // Complex
                 PropertyDefinition propertyDefinition = propertyDefinitions.get(propertyName);
+                AbstractPropertyValue rawValue;
                 if (propertyDefinition == null) {
                     return null;
                 } else if (ToscaType.isSimple(propertyDefinition.getType())) {
                     // It's a complex path (with '.') but the type in definition is finally simple
                     return null;
-                } else if (properties != null) {
-                    AbstractPropertyValue rawValue = properties.get(propertyName);
+                } else if (properties != null && (rawValue = properties.get(propertyName)) != null) {
                     if (!(rawValue instanceof PropertyValue)) {
                         throw new NotSupportedException("Only support static value in a get_property");
                     }
                     Object value = MapUtil.get(((PropertyValue) rawValue).getValue(), propertyAccessPath.substring(propertyName.length() + 1));
-                    return serializeComplexPropertyValue(value);
+                    return value == null ? null : serializeComplexPropertyValue(value);
                 } else {
                     return null;
                 }
