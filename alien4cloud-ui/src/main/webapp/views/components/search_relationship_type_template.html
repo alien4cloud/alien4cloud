@@ -27,10 +27,10 @@
 
   <div class="col-md-10" id="rel-search-result-panel">
     <ul class="list-group ">
-      <li class="list-group-item overflowmedia"
+      <li class="list-group-item overflowmedia clickable-media"
           ng-repeat="component in searchResult.data" ng-mouseover="setComponent(component)"
           id="li_{{component.id}}" ng-click="handleItemSelection(component)">
-        <div class="media clickable-media">
+        <div class="media">
           <div class="media-body" >
             <ng-include src="'views/components/search_component_result_dislay.html'">
             </ng-include>
