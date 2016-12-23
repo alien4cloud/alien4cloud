@@ -39,7 +39,7 @@ public class WorkflowUtils {
         } else {
             if (nodeTemplate.getRelationships() != null) {
                 for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                    RelationshipType relationshipType = (RelationshipType) topologyContext.findElement(RelationshipType.class, relationshipTemplate.getType());
+                    RelationshipType relationshipType = topologyContext.findElement(RelationshipType.class, relationshipTemplate.getType());
                     if (isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
                         return getRootHostNode(relationshipTemplate.getTarget(), topologyContext);
                     }
