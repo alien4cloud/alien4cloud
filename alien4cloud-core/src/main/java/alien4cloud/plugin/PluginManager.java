@@ -79,7 +79,7 @@ public class PluginManager {
     private ApplicationContext alienContext;
     private Map<String, ManagedPlugin> pluginContexts = Maps.newHashMap();
 
-    private List<PluginLinker> linkers = Lists.newArrayList();;
+    private List<PluginLinker> linkers = Lists.newArrayList();
 
     @Inject
     public void setLinkers(List<IPluginLinker> pluginLinkers) {

@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
@@ -23,7 +22,6 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import alien4cloud.servlet.ImageServlet;
 import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
-import springfox.documentation.spring.web.plugins.DocumentationPluginsBootstrapper;
 
 @Configuration("bootstrap-config")
 @EnableAutoConfiguration(exclude = { HypermediaAutoConfiguration.class })

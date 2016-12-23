@@ -6,6 +6,8 @@ import alien4cloud.tosca.parser.ParsingResult;
 
 public class CsarUploadUtil {
 
+    private CsarUploadUtil(){};
+
     public static CsarUploadResult toUploadResult(ParsingResult<Csar> result) {
         CsarUploadResult uploadResult = new CsarUploadResult();
         uploadResult.setCsar(result.getResult());

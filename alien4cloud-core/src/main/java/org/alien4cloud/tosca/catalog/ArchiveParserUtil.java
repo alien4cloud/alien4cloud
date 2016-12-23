@@ -8,6 +8,8 @@ import alien4cloud.tosca.parser.ParsingResult;
 
 public class ArchiveParserUtil {
 
+    private ArchiveParserUtil(){};
+
     /**
      * Create a simple result without all the parsed data but just the {@link Csar} object as well as the eventual errors.
      *

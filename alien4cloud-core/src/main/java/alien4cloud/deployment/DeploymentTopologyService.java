@@ -220,7 +220,6 @@ public class DeploymentTopologyService {
      * @param deploymentTopology the deployment topology to update
      */
     public void updateDeploymentTopology(DeploymentTopology deploymentTopology) {
-        ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         doUpdateDeploymentTopology(deploymentTopology, topology);
     }

@@ -87,12 +87,13 @@ public class Location implements ISecuredResource, IMetaProperties, IDatableReso
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private Map<String, Set<String>> groupRoles;
 
+    private Date creationDate;
+
+    private Date lastUpdateDate = new Date();
+
     @Override
     public Class<DeployerRole> roleEnum() {
         return DeployerRole.class;
     }
 
-    private Date creationDate;
-
-    private Date lastUpdateDate = new Date();
 }

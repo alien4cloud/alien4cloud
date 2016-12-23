@@ -6,7 +6,7 @@ define(function (require) {
   var angular = require('angular');
   require('angular-file-upload');
   require('scripts/common/directives/parsing_errors');
-  
+
   modules.get('a4c-common').directive('uploadDirective', function() {
     return {
       templateUrl : 'views/common/upload_template.html',

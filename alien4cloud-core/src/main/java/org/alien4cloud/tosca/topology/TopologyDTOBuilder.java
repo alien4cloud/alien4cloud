@@ -61,7 +61,7 @@ public class TopologyDTOBuilder {
             final Set<CSARDependency> transitives =
                     Optional.ofNullable(ToscaContext.get().getArchive(source.getName(), source.getVersion()).getDependencies())
                             .orElse(Collections.emptySet())
-                            .stream().filter((o) -> !dependencies.contains(o)).collect(Collectors.toSet());
+                            .stream().filter(o -> !dependencies.contains(o)).collect(Collectors.toSet());
             if (!transitives.isEmpty()) {
                 dependencyConflictMap.put(source, transitives);
             }

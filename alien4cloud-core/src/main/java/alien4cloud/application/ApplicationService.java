@@ -27,7 +27,6 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.topology.TopologyUtils;
