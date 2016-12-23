@@ -652,4 +652,49 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
 
         assertNoBlocker(parsingResult);
     }
+
+    @Test
+    public void testParseTopologyWirhWorkflows() throws FileNotFoundException, ParsingException {
+        Csar csar = new Csar("tosca-normative-types", "1.0.0.wd03-SNAPSHOT");
+        // Mockito.when(csarRepositorySearchService.getArchive(csar.getId())).thenReturn(csar);
+
+        NodeType mockedSoftware = Mockito.mock(NodeType.class);
+        CapabilityType mockedContainer = Mockito.mock(CapabilityType.class);
+        RequirementDefinition hostRequirement = new RequirementDefinition("host", "tosca.capabilities.Container", null, "", "tosca.relationships.HostedOn",
+                "host", 1, Integer.MAX_VALUE, null);
+        Mockito.when(mockedSoftware.getRequirements()).thenReturn(Lists.<RequirementDefinition> newArrayList(hostRequirement));
+        Mockito.when(mockedSoftware.getElementId()).thenReturn("tosca.nodes.SoftwareComponent");
+
+        NodeType mockedCompute = Mockito.mock(NodeType.class);
+        CapabilityDefinition capabilityDefinition = new CapabilityDefinition("host", "tosca.capabilities.Container", Integer.MAX_VALUE);
+        Mockito.when(mockedCompute.getCapabilities()).thenReturn(Lists.newArrayList(capabilityDefinition));
+        Mockito.when(mockedCompute.getElementId()).thenReturn("tosca.nodes.Compute");
+
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                Mockito.any(Set.class))).thenReturn(mockedSoftware);
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Container"),
+                Mockito.any(Set.class))).thenReturn(mockedContainer);
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                .thenReturn(mockedCompute);
+        RelationshipType hostedOn = Mockito.mock(RelationshipType.class);
+        Mockito.when(hostedOn.getElementId()).thenReturn("tosca.relationships.HostedOn");
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                Mockito.any(Set.class))).thenReturn(hostedOn);
+        Mockito.when(repositorySearchService.getArchive(csar.getName(), csar.getVersion())).thenReturn(csar);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-workflows.yml"));
+
+        Mockito.verify(repositorySearchService).getArchive(csar.getName(), csar.getVersion());
+
+        assertNoBlocker(parsingResult);
+
+        Assert.assertEquals(3, parsingResult.getContext().getParsingErrors().size());
+        Assert.assertNotNull(parsingResult.getResult().getTopology());
+        Assert.assertEquals(5, parsingResult.getResult().getTopology().getWorkflows().size());
+
+        // check invalid names were renamed
+        Assert.assertTrue(parsingResult.getResult().getTopology().getWorkflows().containsKey("invalidName_"));
+        Assert.assertTrue(parsingResult.getResult().getTopology().getWorkflows().containsKey("invalid_Name"));
+        Assert.assertTrue(parsingResult.getResult().getTopology().getWorkflows().containsKey("invalid_Name_1"));
+    }
 }

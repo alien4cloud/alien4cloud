@@ -14,6 +14,8 @@ import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -31,6 +33,7 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.NameValidationUtils;
 
 /**
  * Post process a topology.
@@ -116,9 +119,10 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
      * Called after yaml parsing.
      */
     private void finalizeParsedWorkflows(WorkflowsBuilderService.TopologyContext topologyContext, Node node) {
-        if (topologyContext.getTopology().getWorkflows() == null || topologyContext.getTopology().getWorkflows().isEmpty()) {
+        if (MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
             return;
         }
+        normalizeNames(topologyContext.getTopology().getWorkflows());
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             wf.setStandard(WorkflowUtils.isStandardWorkflow(wf));
             if (wf.getSteps() != null) {
@@ -152,6 +156,27 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
             if (errorCount > 0) {
                 ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.WORKFLOW_HAS_ERRORS, null,
                         node.getStartMark(), null, node.getEndMark(), wf.getName()));
+            }
+        }
+    }
+
+    private void normalizeNames(Map<String, Workflow> workflows) {
+        for (String oldName : Sets.newHashSet(workflows.keySet())) {
+            if (!NameValidationUtils.isValid(oldName)) {
+                String newName = StringUtils.stripAccents(oldName);
+                newName = NameValidationUtils.DEFAULT_NAME_REPLACE_PATTERN.matcher(newName).replaceAll("_");
+                String toAppend = "";
+                int i = 1;
+                while (workflows.containsKey(newName + toAppend)) {
+                    toAppend = "_" + i++;
+                }
+                newName = newName.concat(toAppend);
+                Workflow wf = workflows.remove(oldName);
+                wf.setName(newName);
+                workflows.put(newName, wf);
+                Node node = ParsingContextExecution.getObjectToNodeMap().get(oldName);
+                ParsingContextExecution.getParsingErrors().add(
+                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NAME, oldName, node.getStartMark(), oldName, node.getEndMark(), newName));
             }
         }
     }
