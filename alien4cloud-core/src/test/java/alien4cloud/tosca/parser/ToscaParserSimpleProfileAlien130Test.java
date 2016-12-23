@@ -2,7 +2,6 @@ package alien4cloud.tosca.parser;
 
 import java.nio.file.Paths;
 
-import alien4cloud.tosca.parser.impl.ErrorCode;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.ImplementationArtifact;
 import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
@@ -19,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.NormativeCredentialConstant;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:tosca/parser-application-context.xml")
@@ -40,21 +40,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals(ErrorCode.TYPE_NOT_FOUND, parsingResult.getContext().getParsingErrors().get(0).getErrorCode());
     }
 
-    @Test
-    public void testParseImplementationArtifactWithRepository() throws ParsingException {
-        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "implementation_artifact.yml"));
-        ArchiveParserTest.displayErrors(parsingResult);
-        Assert.assertTrue(parsingResult.getContext().getParsingErrors().isEmpty());
-        ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
-        Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
-        Assert.assertEquals(1, archiveRoot.getArtifactTypes().size());
-        Assert.assertEquals(2, archiveRoot.getNodeTypes().size());
-        Assert.assertEquals(3, archiveRoot.getRepositories().size());
-        Assert.assertEquals(1, archiveRoot.getRelationshipTypes().size());
-
-        NodeType httpComponent = archiveRoot.getNodeTypes().get("my.http.component");
-
+    private void validateHttpArtifact(NodeType httpComponent) {
         ImplementationArtifact httpComponentCreateArtifact = getImplementationArtifact(httpComponent, "create");
         Assert.assertEquals("https://otherCompany/script/short_notation.sh", httpComponentCreateArtifact.getArtifactRef());
         Assert.assertEquals("tosca.artifacts.Implementation.Bash", httpComponentCreateArtifact.getArtifactType());
@@ -73,6 +59,26 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals("script_repo", httpComponentStartArtifact.getRepositoryName());
         Assert.assertNull(httpComponentStartArtifact.getArtifactRepository());
         Assert.assertEquals("https://myCompany/script", httpComponentStartArtifact.getRepositoryURL());
+    }
+
+    @Test
+    public void testParseImplementationArtifactWithRepository() throws ParsingException {
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "implementation_artifact.yml"));
+        ArchiveParserTest.displayErrors(parsingResult);
+        Assert.assertTrue(parsingResult.getContext().getParsingErrors().isEmpty());
+        ArchiveRoot archiveRoot = parsingResult.getResult();
+        Assert.assertNotNull(archiveRoot.getArchive());
+        Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
+        Assert.assertEquals(1, archiveRoot.getArtifactTypes().size());
+        Assert.assertEquals(3, archiveRoot.getNodeTypes().size());
+        Assert.assertEquals(3, archiveRoot.getRepositories().size());
+        Assert.assertEquals(2, archiveRoot.getRelationshipTypes().size());
+
+        NodeType httpComponent = archiveRoot.getNodeTypes().get("my.http.component");
+        validateHttpArtifact(httpComponent);
+
+        NodeType httpComponentExtended = archiveRoot.getNodeTypes().get("my.http.component.extended");
+        validateHttpArtifact(httpComponentExtended);
 
         NodeType gitComponent = archiveRoot.getNodeTypes().get("my.git.component");
         ImplementationArtifact gitComponentCreateArtifact = getImplementationArtifact(gitComponent, "create");
@@ -104,6 +110,34 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals("https://myCompany/script", httpRelationshipStartArtifact.getRepositoryURL());
     }
 
+    private void validateSimpleWar(DeploymentArtifact artifact) {
+        Assert.assertEquals("binary/myWar.war", artifact.getArtifactRef());
+        Assert.assertEquals("tosca.artifacts.Deployment.War", artifact.getArtifactType());
+        Assert.assertNull(artifact.getRepositoryCredential());
+        Assert.assertNull(artifact.getRepositoryName());
+        Assert.assertNull(artifact.getArtifactRepository());
+        Assert.assertNull(artifact.getRepositoryURL());
+    }
+
+    private void validateRemoteWar(DeploymentArtifact repositoryArtifact) {
+        Assert.assertEquals("alien4cloud:alien4cloud-ui:1.3.0-SM3", repositoryArtifact.getArtifactRef());
+        Assert.assertEquals("tosca.artifacts.Deployment.War", repositoryArtifact.getArtifactType());
+        Assert.assertEquals(
+                ImmutableMap.<String, Object> builder().put(NormativeCredentialConstant.USER_KEY, "good_user")
+                        .put(NormativeCredentialConstant.TOKEN_KEY, "real_secured_password").put(NormativeCredentialConstant.TOKEN_TYPE, "password").build(),
+                repositoryArtifact.getRepositoryCredential());
+        Assert.assertEquals("maven_repo", repositoryArtifact.getRepositoryName());
+        Assert.assertEquals("maven", repositoryArtifact.getArtifactRepository());
+        Assert.assertEquals("https://fastconnect.org/maven/content/repositories/fastconnect", repositoryArtifact.getRepositoryURL());
+    }
+
+    private void validateMavenDeploymentArtifact(NodeType mavenComponent) {
+        DeploymentArtifact artifact = getDeploymentArtifact(mavenComponent, "simple_war");
+        validateSimpleWar(artifact);
+        DeploymentArtifact repositoryArtifact = getDeploymentArtifact(mavenComponent, "remote_war");
+        validateRemoteWar(repositoryArtifact);
+    }
+
     @Test
     public void testParseDeploymentArtifactWithRepository() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "deployment_artifact.yml"));
@@ -114,48 +148,21 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getRepositories().size());
         Assert.assertEquals(1, archiveRoot.getArtifactTypes().size());
-        Assert.assertEquals(1, archiveRoot.getNodeTypes().size());
-        Assert.assertEquals(1, archiveRoot.getNodeTypes().size());
-        Assert.assertEquals(1, archiveRoot.getRelationshipTypes().size());
+        Assert.assertEquals(2, archiveRoot.getNodeTypes().size());
+        Assert.assertEquals(2, archiveRoot.getNodeTypes().size());
+        Assert.assertEquals(2, archiveRoot.getRelationshipTypes().size());
 
         NodeType mavenComponent = archiveRoot.getNodeTypes().get("my.maven.component");
-        DeploymentArtifact artifact = getDeploymentArtifact(mavenComponent, "simple_war");
-        Assert.assertEquals("binary/myWar.war", artifact.getArtifactRef());
-        Assert.assertEquals("tosca.artifacts.Deployment.War", artifact.getArtifactType());
-        Assert.assertNull(artifact.getRepositoryCredential());
-        Assert.assertNull(artifact.getRepositoryName());
-        Assert.assertNull(artifact.getArtifactRepository());
-        Assert.assertNull(artifact.getRepositoryURL());
+        validateMavenDeploymentArtifact(mavenComponent);
 
-        DeploymentArtifact repositoryArtifact = getDeploymentArtifact(mavenComponent, "remote_war");
-        Assert.assertEquals("alien4cloud:alien4cloud-ui:1.3.0-SM3", repositoryArtifact.getArtifactRef());
-        Assert.assertEquals("tosca.artifacts.Deployment.War", repositoryArtifact.getArtifactType());
-        Assert.assertEquals(
-                ImmutableMap.<String, Object> builder().put(NormativeCredentialConstant.USER_KEY, "good_user")
-                        .put(NormativeCredentialConstant.TOKEN_KEY, "real_secured_password").put(NormativeCredentialConstant.TOKEN_TYPE, "password").build(),
-                repositoryArtifact.getRepositoryCredential());
-        Assert.assertEquals("maven_repo", repositoryArtifact.getRepositoryName());
-        Assert.assertEquals("maven", repositoryArtifact.getArtifactRepository());
-        Assert.assertEquals("https://fastconnect.org/maven/content/repositories/fastconnect", repositoryArtifact.getRepositoryURL());
+        NodeType mavenExtendedComponent = archiveRoot.getNodeTypes().get("my.maven.component.extended");
+        validateMavenDeploymentArtifact(mavenExtendedComponent);
 
-        artifact = archiveRoot.getTopology().getInputArtifacts().get("simple_war");
-        Assert.assertEquals("binary/myWar.war", artifact.getArtifactRef());
-        Assert.assertEquals("tosca.artifacts.Deployment.War", artifact.getArtifactType());
-        Assert.assertNull(artifact.getRepositoryCredential());
-        Assert.assertNull(artifact.getRepositoryName());
-        Assert.assertNull(artifact.getArtifactRepository());
-        Assert.assertNull(artifact.getRepositoryURL());
+        DeploymentArtifact artifact = archiveRoot.getTopology().getInputArtifacts().get("simple_war");
+        validateSimpleWar(artifact);
 
-        repositoryArtifact = archiveRoot.getTopology().getInputArtifacts().get("remote_war");
-        Assert.assertEquals("alien4cloud:alien4cloud-ui:1.3.0-SM3", repositoryArtifact.getArtifactRef());
-        Assert.assertEquals("tosca.artifacts.Deployment.War", repositoryArtifact.getArtifactType());
-        Assert.assertEquals(
-                ImmutableMap.<String, Object> builder().put(NormativeCredentialConstant.USER_KEY, "good_user")
-                        .put(NormativeCredentialConstant.TOKEN_KEY, "real_secured_password").put(NormativeCredentialConstant.TOKEN_TYPE, "password").build(),
-                repositoryArtifact.getRepositoryCredential());
-        Assert.assertEquals("maven_repo", repositoryArtifact.getRepositoryName());
-        Assert.assertEquals("maven", repositoryArtifact.getArtifactRepository());
-        Assert.assertEquals("https://fastconnect.org/maven/content/repositories/fastconnect", repositoryArtifact.getRepositoryURL());
+        DeploymentArtifact repositoryArtifact = archiveRoot.getTopology().getInputArtifacts().get("remote_war");
+        validateRemoteWar(repositoryArtifact);
 
         artifact = archiveRoot.getTopology().getNodeTemplates().get("my_node").getArtifacts().get("simple_war");
         Assert.assertEquals("binary/myWar.war", artifact.getArtifactRef());

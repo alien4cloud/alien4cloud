@@ -2,12 +2,12 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -83,7 +83,7 @@ public abstract class ArtifactParser<T extends AbstractArtifact> implements INod
                     artifact.setArtifactRef(value);
                     break;
                 case "repository":
-                    artifact.setArtifactRepository(value);
+                    artifact.setRepositoryName(value);
                     break;
                 case "type":
                     artifact.setArtifactType(value);
