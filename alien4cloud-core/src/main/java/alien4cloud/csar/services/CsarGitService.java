@@ -153,12 +153,11 @@ public class CsarGitService {
             Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = uploadService.preParsing(archivePaths, parsingResult);
             List<CsarDependenciesBean> sorted = sort(csarDependenciesBeans);
             for (CsarDependenciesBean csarBean : sorted) {
-                if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(gitHash)) {
-                    if (csarService.get(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
+                if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(gitHash)
+                    && csarService.get(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
                         // no commit since last import and the archive still exist in the repo, so do not import
                         // TODO notify the user that the archive has already been imported
                         continue;
-                    }
                 }
                 // FIXME Add possibility to choose an workspace
                 ParsingResult<Csar> result = uploadService.upload(csarBean.getPath(), CSARSource.GIT, AlienConstants.GLOBAL_WORKSPACE_ID);
@@ -168,12 +167,7 @@ public class CsarGitService {
         } catch (ParsingException e) {
             // TODO Actually add a parsing result with error.
             throw new GitException("Failed to import archive from git as it cannot be parsed", e);
-        } catch (AlreadyExistException e) {
-            return parsingResult;
-        } catch (CSARUsedInActiveDeployment e) {
-            // TODO Actually add a parsing result with error.
-            return parsingResult;
-        } catch (ToscaTypeAlreadyDefinedInOtherCSAR e) {
+        } catch (AlreadyExistException | ToscaTypeAlreadyDefinedInOtherCSAR | CSARUsedInActiveDeployment e) {
             // TODO Actually add a parsing result with error.
             return parsingResult;
         }
@@ -209,7 +203,7 @@ public class CsarGitService {
             }
         }
 
-        while (independents.size() > 0) {
+        while (!independents.isEmpty()) {
             CsarDependenciesBean independent = independents.remove(0);
             elements.remove(independent.getSelf()); // remove from the elements
             sortedCsars.add(independent); // element has no more dependencies

@@ -170,9 +170,8 @@ public class ApplicationService {
      *
      * @param applicationId The id of the application to remove.
      * @return True if the application has been removed, false if not.
-     * @throws alien4cloud.paas.exception.OrchestratorDisabledException
      */
-    public boolean delete(String applicationId) throws OrchestratorDisabledException {
+    public boolean delete(String applicationId) {
         // ensure that there is no active deployment(s).
         if (alienDAO.count(Deployment.class, null, fromKeyValueCouples("sourceId", applicationId, "endDate", null)) > 0) {
             return false;

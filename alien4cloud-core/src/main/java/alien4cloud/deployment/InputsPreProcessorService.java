@@ -108,30 +108,27 @@ public class InputsPreProcessorService {
 
     private Map<String, AbstractPropertyValue> getInitialRelationshipProperties(String relationShipName, NodeTemplate nodeTemplate) {
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
-        if (nodeTemplate.getRelationships() != null && nodeTemplate.getRelationships().get(relationShipName) != null) {
-            if (nodeTemplate.getRelationships().get(relationShipName).getProperties() != null) {
+        if (nodeTemplate.getRelationships() != null && nodeTemplate.getRelationships().get(relationShipName) != null
+            && nodeTemplate.getRelationships().get(relationShipName).getProperties() != null) {
                 properties = nodeTemplate.getRelationships().get(relationShipName).getProperties();
-            }
         }
         return properties;
     }
 
     private Map<String, AbstractPropertyValue> getInitialCapabilityProperties(String capabilityName, NodeTemplate nodeTemplate) {
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
-        if (nodeTemplate.getCapabilities() != null && nodeTemplate.getCapabilities().get(capabilityName) != null) {
-            if (nodeTemplate.getCapabilities().get(capabilityName).getProperties() != null) {
+        if (nodeTemplate.getCapabilities() != null && nodeTemplate.getCapabilities().get(capabilityName) != null
+            && nodeTemplate.getCapabilities().get(capabilityName).getProperties() != null) {
                 properties = nodeTemplate.getCapabilities().get(capabilityName).getProperties();
-            }
         }
         return properties;
     }
 
     private Map<String, AbstractPropertyValue> getInitialRequirementProperties(String requirementName, NodeTemplate nodeTemplate) {
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
-        if (nodeTemplate.getRequirements() != null && nodeTemplate.getRequirements().get(requirementName) != null) {
-            if (nodeTemplate.getRequirements().get(requirementName).getProperties() != null) {
+        if (nodeTemplate.getRequirements() != null && nodeTemplate.getRequirements().get(requirementName) != null
+            && nodeTemplate.getRequirements().get(requirementName).getProperties() != null) {
                 properties = nodeTemplate.getRequirements().get(requirementName).getProperties();
-            }
         }
         return properties;
     }
@@ -221,7 +218,8 @@ public class InputsPreProcessorService {
     private void prefixAndAddContextInput(DeploymentTopology deploymentTopology, Map<String, PropertyValue> inputs, String prefix,
             Map<String, String> contextInputs, boolean isMeta) {
         if (contextInputs == null || contextInputs.isEmpty()) {
-            return; // no inputs to add.
+            // no inputs to add.
+            return;
         }
         if (isMeta) {
             String[] ids = new String[contextInputs.size()];

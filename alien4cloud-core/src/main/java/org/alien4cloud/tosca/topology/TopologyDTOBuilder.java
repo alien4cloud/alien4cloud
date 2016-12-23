@@ -62,7 +62,9 @@ public class TopologyDTOBuilder {
                     Optional.ofNullable(ToscaContext.get().getArchive(source.getName(), source.getVersion()).getDependencies())
                             .orElse(Collections.emptySet())
                             .stream().filter((o) -> !dependencies.contains(o)).collect(Collectors.toSet());
-            if (!transitives.isEmpty()) dependencyConflictMap.put(source, transitives);
+            if (!transitives.isEmpty()) {
+                dependencyConflictMap.put(source, transitives);
+            }
         });
 
         final ArrayList<DependencyConflictDTO> dependencyConflicts = new ArrayList<>();

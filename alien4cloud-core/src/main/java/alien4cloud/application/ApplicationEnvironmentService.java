@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -143,9 +144,8 @@ public class ApplicationEnvironmentService {
      * Delete all environments related to an application
      *
      * @param applicationId The application id
-     * @throws alien4cloud.paas.exception.OrchestratorDisabledException
      */
-    public void deleteByApplication(String applicationId) throws OrchestratorDisabledException {
+    public void deleteByApplication(String applicationId) {
         List<String> deployedEnvironments = Lists.newArrayList();
         ApplicationEnvironment[] environments = getByApplicationId(applicationId);
         for (ApplicationEnvironment environment : environments) {
@@ -157,7 +157,7 @@ public class ApplicationEnvironmentService {
             }
         }
         // couln't delete deployed environment
-        if (deployedEnvironments.size() > 0) {
+        if (!deployedEnvironments.isEmpty()) {
             // error could not deployed all app environment for this applcation
             log.error("Cannot delete these deployed environments : {}", deployedEnvironments.toString());
         }
@@ -241,7 +241,7 @@ public class ApplicationEnvironmentService {
      * @return {@link DeploymentStatus}
      * @throws alien4cloud.paas.exception.OrchestratorDisabledException
      */
-    public DeploymentStatus getStatus(ApplicationEnvironment environment) throws Exception {
+    public DeploymentStatus getStatus(ApplicationEnvironment environment) throws ExecutionException, InterruptedException {
         final Deployment deployment = getActiveDeployment(environment.getId());
         if (deployment == null) {
             return DeploymentStatus.UNDEPLOYED;

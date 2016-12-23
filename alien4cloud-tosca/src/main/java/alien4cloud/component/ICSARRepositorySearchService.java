@@ -1,12 +1,12 @@
 package alien4cloud.component;
 
-import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+
+import alien4cloud.exception.NotFoundException;
 
 /**
  * Service interface to search elements in CSARs.

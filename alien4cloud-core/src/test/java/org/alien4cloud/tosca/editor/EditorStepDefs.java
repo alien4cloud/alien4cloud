@@ -128,11 +128,7 @@ public class EditorStepDefs {
 
         GetMultipleDataResult<Application> apps = alienDAO.search(Application.class, "", null, 100);
         for (Application application : apps.getData()) {
-            try {
-                applicationService.delete(application.getId());
-            } catch (Throwable e) {
-
-            }
+            applicationService.delete(application.getId());
         }
 
         FacetedSearchResult<Topology> searchResult = catalogService.search(Topology.class, "", 100, null);

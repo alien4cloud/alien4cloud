@@ -4,12 +4,9 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -19,11 +16,7 @@ import org.yaml.snakeyaml.nodes.Node;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.paas.wf.AbstractActivity;
-import alien4cloud.paas.wf.AbstractStep;
-import alien4cloud.paas.wf.NodeActivityStep;
-import alien4cloud.paas.wf.Workflow;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.*;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
