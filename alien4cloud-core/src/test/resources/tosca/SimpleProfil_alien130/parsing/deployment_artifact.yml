@@ -58,6 +58,8 @@ node_types:
           file: alien4cloud:alien4cloud-ui:1.3.0-SM3
           type: tosca.artifacts.Deployment.War
           repository: maven_repo
+  my.maven.component.extended:
+    derived_from: my.maven.component
 
 relationship_types:
 
@@ -68,6 +70,8 @@ relationship_types:
           file: alien4cloud:alien4cloud-ui:1.3.0-SM3
           type: tosca.artifacts.Deployment.War
           repository: maven_repo
+  my.maven.relationship.extended:
+    derived_from: my.maven.relationship
 
 topology_template:
 
