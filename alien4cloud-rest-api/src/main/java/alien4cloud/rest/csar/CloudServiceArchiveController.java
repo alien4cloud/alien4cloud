@@ -34,7 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.collect.Lists;
 
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -53,6 +52,7 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
 import io.swagger.annotations.Api;

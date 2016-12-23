@@ -11,7 +11,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -24,8 +23,8 @@ import org.springframework.util.FileSystemUtils;
 
 import com.google.common.collect.Lists;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.GitException;
@@ -36,6 +35,7 @@ import alien4cloud.model.git.CsarGitCheckoutLocation;
 import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 

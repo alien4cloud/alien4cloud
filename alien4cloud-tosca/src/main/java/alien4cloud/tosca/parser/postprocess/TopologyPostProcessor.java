@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.paas.wf.*;
 import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -65,6 +66,10 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                     .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.EMPTY_TOPOLOGY, null, node.getStartMark(), null, node.getEndMark(), ""));
         }
 
+        // archive name and version
+        instance.setArchiveName(archiveRoot.getArchive().getName());
+        instance.setArchiveVersion(archiveRoot.getArchive().getVersion());
+
         // Inputs validation
         safe(instance.getInputs()).entrySet().stream().forEach(propertyDefinitionPostProcessor);
         safe(instance.getInputArtifacts()).values().stream().forEach(typeDeploymentArtifactPostProcessor);
@@ -84,6 +89,9 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         safe(instance.getNodeTemplates()).values().stream().forEach(nodeTemplateRelationshipPostProcessor);
 
         substitutionMappingPostProcessor.process(instance.getSubstitutionMapping());
+
+        // first validate names
+        TopologyUtils.normalizeAllNodeTemplateName(instance, ParsingContextExecution.getParsingErrors(), ParsingContextExecution.getObjectToNodeMap());
 
         // Workflow validation if any are defined
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
@@ -115,7 +123,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         if (MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
             return;
         }
-        normalizeNames(topologyContext.getTopology().getWorkflows());
+        normalizeWorkflowNames(topologyContext.getTopology().getWorkflows());
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             wf.setStandard(WorkflowUtils.isStandardWorkflow(wf));
             if (wf.getSteps() != null) {
@@ -153,7 +161,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         }
     }
 
-    private void normalizeNames(Map<String, Workflow> workflows) {
+    private void normalizeWorkflowNames(Map<String, Workflow> workflows) {
         for (String oldName : Sets.newHashSet(workflows.keySet())) {
             if (!NameValidationUtils.isValid(oldName)) {
                 String newName = StringUtils.stripAccents(oldName);
@@ -169,7 +177,8 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                 workflows.put(newName, wf);
                 Node node = ParsingContextExecution.getObjectToNodeMap().get(oldName);
                 ParsingContextExecution.getParsingErrors().add(
-                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NAME, oldName, node.getStartMark(), oldName, node.getEndMark(), newName));
+                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NAME, "Workflow", node.getStartMark(), oldName, node.getEndMark(),
+                                newName));
             }
         }
     }

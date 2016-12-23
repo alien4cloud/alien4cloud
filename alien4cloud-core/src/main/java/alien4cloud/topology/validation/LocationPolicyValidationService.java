@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.deployment.exceptions.LocationRequiredException;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -25,6 +24,7 @@ import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.task.LocationPolicyTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.UnavailableLocationTask;
+import alien4cloud.utils.AlienConstants;
 
 /**
  * Performs validation by checking location policies.

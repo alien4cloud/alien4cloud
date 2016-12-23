@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.model.components.CSARSource;
@@ -26,6 +25,7 @@ import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.utils.AlienConstants;
 import lombok.extern.slf4j.Slf4j;
 
 @Component

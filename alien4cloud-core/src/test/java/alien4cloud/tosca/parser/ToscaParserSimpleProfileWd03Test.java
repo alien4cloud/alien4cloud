@@ -45,13 +45,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.MapUtil;
 
 /**

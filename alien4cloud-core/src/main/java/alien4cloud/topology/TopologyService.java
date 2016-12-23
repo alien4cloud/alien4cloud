@@ -1,10 +1,13 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -67,9 +70,6 @@ public class TopologyService {
     private ApplicationService appService;
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
-
-    public static final Pattern NODE_NAME_PATTERN = Pattern.compile("^\\w+$");
-    public static final Pattern NODE_NAME_REPLACE_PATTERN = Pattern.compile("\\W");
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology, boolean failOnTypeNotFound) {
         // FIXME we should use ToscaContext here, and why not allowing the caller to pass ona Context?

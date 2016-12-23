@@ -30,7 +30,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
-import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.DeleteReferencedObjectException;
@@ -38,6 +37,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.AlienUtils;
 import lombok.extern.slf4j.Slf4j;
 

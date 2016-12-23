@@ -2,29 +2,38 @@ package alien4cloud.topology;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.model.templates.*;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
-import alien4cloud.paas.function.FunctionEvaluator;
-import alien4cloud.tosca.ToscaUtils;
-import alien4cloud.tosca.normative.NormativeComputeConstants;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.ScalingPolicy;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.yaml.snakeyaml.error.Mark;
+import org.yaml.snakeyaml.nodes.Node;
 
 import com.google.common.collect.Maps;
+
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.tosca.ToscaNormativeUtil;
+import alien4cloud.tosca.normative.NormativeComputeConstants;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.NameValidationUtils;
+import alien4cloud.utils.PropertyUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TopologyUtils {
@@ -88,7 +97,7 @@ public class TopologyUtils {
 
     public static void setNullScalingPolicy(NodeTemplate nodeTemplate, NodeType resourceType) {
         // FIXME Workaround to remove default scalable properties from compute
-        if (ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, resourceType)) {
+        if (ToscaNormativeUtil.isFromType(NormativeComputeConstants.COMPUTE_TYPE, resourceType)) {
             if (nodeTemplate.getCapabilities() != null) {
                 Capability scalableCapability = nodeTemplate.getCapabilities().get(NormativeComputeConstants.SCALABLE);
                 if (scalableCapability != null && scalableCapability.getProperties() != null) {
@@ -119,7 +128,7 @@ public class TopologyUtils {
         // default value is 1
         int propertyValue = 1;
 
-        String rawPropertyValue = FunctionEvaluator.getScalarValue(capability.getProperties().get(propertyName));
+        String rawPropertyValue = PropertyUtil.getScalarValue(capability.getProperties().get(propertyName));
         if (StringUtils.isNotBlank(rawPropertyValue)) {
             propertyValue = Integer.parseInt(rawPropertyValue);
         }
@@ -328,8 +337,8 @@ public class TopologyUtils {
      * @param newNodeTemplateName
      */
     public static void renameNodeTemplate(Topology topology, String nodeTemplateName, String newNodeTemplateName) {
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
 
         nodeTemplate.setName(newNodeTemplateName);
         nodeTemplates.put(newNodeTemplateName, nodeTemplate);
@@ -339,25 +348,23 @@ public class TopologyUtils {
         updateGroupMembers(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
     }
 
-    public static boolean isValidNodeName(String name) {
-        return TopologyService.NODE_NAME_PATTERN.matcher(name).matches();
-    }
 
     /**
      * In alien 4 Cloud we try
      * Rename the node template with an invalid name on the topology.
      * 
      * @param topology
-     * @param parsedArchive
+     * @param parsingErrors
+     * @param objectToNodeMap
      */
-    public static void normalizeAllNodeTemplateName(Topology topology, ParsingResult<ArchiveRoot> parsedArchive) {
+    public static void normalizeAllNodeTemplateName(Topology topology, List<ParsingError> parsingErrors, Map<Object, Node> objectToNodeMap) {
         if (topology.getNodeTemplates() != null && !topology.getNodeTemplates().isEmpty()) {
             Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap(topology.getNodeTemplates());
             for (Map.Entry<String, NodeTemplate> nodeEntry : nodeTemplates.entrySet()) {
                 String nodeName = nodeEntry.getKey();
-                if (!isValidNodeName(nodeName)) {
+                if (!NameValidationUtils.isValid(nodeName)) {
                     String newName = StringUtils.stripAccents(nodeName);
-                    newName = TopologyService.NODE_NAME_REPLACE_PATTERN.matcher(newName).replaceAll("_");
+                    newName = NameValidationUtils.DEFAULT_NAME_REPLACE_PATTERN.matcher(newName).replaceAll("_");
                     if (topology.getNodeTemplates().containsKey(newName)) {
                         int i = 1;
                         while (topology.getNodeTemplates().containsKey(newName + i)) {
@@ -366,12 +373,61 @@ public class TopologyUtils {
                         newName = newName + i;
                     }
                     renameNodeTemplate(topology, nodeName, newName);
-                    if (parsedArchive != null) {
-                        parsedArchive.getContext().getParsingErrors().add(
-                                new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NODE_TEMPLATE_NAME, nodeName, null, nodeName, null, newName));
+                    if (parsingErrors != null) {
+                        Node node = (Node) MapUtil.get(objectToNodeMap, nodeName);
+                        Mark startMark = null;
+                        Mark endMark = null;
+                        if (node != null) {
+                            startMark = node.getStartMark();
+                            endMark = node.getEndMark();
+                        }
+                        parsingErrors.add(
+                                new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NAME, "NodeTemplate", startMark, nodeName, endMark, newName));
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Get the Map of {@link NodeTemplate} from a topology
+     *
+     * @param topology the topology
+     * @return this topology's node templates
+     */
+    public static Map<String, NodeTemplate> getNodeTemplates(Topology topology) {
+        Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
+        if (nodeTemplates == null) {
+            throw new NotFoundException("Topology [" + topology.getId() + "] do not have any node template");
+        }
+        return nodeTemplates;
+    }
+
+    /**
+     * Get a {@link NodeTemplate} given its name from a map
+     *
+     * @param topologyId the topology's id
+     * @param nodeTemplateName the name of the node template
+     * @param nodeTemplates the topology's node templates
+     * @return the found node template, throws NotFoundException if not found
+     */
+    public static NodeTemplate getNodeTemplate(String topologyId, String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
+        NodeTemplate nodeTemplate = nodeTemplates.get(nodeTemplateName);
+        if (nodeTemplate == null) {
+            throw new NotFoundException("Topology [" + topologyId + "] do not have node template with name [" + nodeTemplateName + "]");
+        }
+        return nodeTemplate;
+    }
+
+    /**
+     * Get a {@link NodeTemplate} given its name from a topology
+     *
+     * @param topology the topology
+     * @param nodeTemplateId the name of the node template
+     * @return the found node template, throws NotFoundException if not found
+     */
+    public static NodeTemplate getNodeTemplate(Topology topology, String nodeTemplateId) {
+        Map<String, NodeTemplate> nodeTemplates = getNodeTemplates(topology);
+        return getNodeTemplate(topology.getId(), nodeTemplateId, nodeTemplates);
     }
 }

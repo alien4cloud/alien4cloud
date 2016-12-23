@@ -14,7 +14,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 
-import alien4cloud.common.AlienConstants;
+import alien4cloud.utils.AlienConstants;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.schema.configuration.ModelsConfiguration;
 import springfox.documentation.service.ApiInfo;

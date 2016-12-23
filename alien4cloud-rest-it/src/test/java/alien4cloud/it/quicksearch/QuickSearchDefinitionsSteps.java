@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -28,6 +27,7 @@ import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.AlienConstants;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;

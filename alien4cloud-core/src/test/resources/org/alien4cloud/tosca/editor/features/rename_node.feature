@@ -45,6 +45,6 @@ Feature: Topology editor: rename node
       | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.RenameNodeOperation |
       | nodeName | Template1                                                                |
       | newName  | Template1!!!                                                             |
-    Then an exception of type "alien4cloud.exception.InvalidNodeNameException" should be thrown
+    Then an exception of type "alien4cloud.exception.InvalidNameException" should be thrown
     And The SPEL expression "nodeTemplates.size()" should return 1
     And The SPEL expression "nodeTemplates['Template1'].type" should return "tosca.nodes.Compute"

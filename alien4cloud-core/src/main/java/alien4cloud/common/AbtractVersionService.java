@@ -1,6 +1,6 @@
 package alien4cloud.common;
 
-import static alien4cloud.common.AlienConstants.APP_WORKSPACE_PREFIX;
+import static alien4cloud.utils.AlienConstants.APP_WORKSPACE_PREFIX;
 
 import java.util.Collections;
 import java.util.Comparator;

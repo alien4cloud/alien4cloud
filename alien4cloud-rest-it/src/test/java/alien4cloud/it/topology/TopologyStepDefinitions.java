@@ -1,7 +1,12 @@
 package alien4cloud.it.topology;
 
 import static alien4cloud.it.utils.TestUtils.getFullId;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +24,11 @@ import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.ScalingPolicy;
-import org.alien4cloud.tosca.model.types.*;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.collect.Maps;
@@ -29,19 +38,23 @@ import org.junit.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
-import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.topology.TopologyValidationResult;
-import alien4cloud.topology.task.*;
+import alien4cloud.topology.task.AbstractTask;
+import alien4cloud.topology.task.ArtifactTask;
+import alien4cloud.topology.task.RequirementToSatisfy;
+import alien4cloud.topology.task.TaskCode;
+import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.PropertyUtil;
 import cucumber.api.DataTable;
 import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
@@ -189,7 +202,7 @@ public class TopologyStepDefinitions {
         if (propertyValue != null) {
             assertNotNull(nodeTemp.getProperties().get(propertyName));
         }
-        assertEquals(propertyValue, FunctionEvaluator.getScalarValue(nodeTemp.getProperties().get(propertyName)));
+        assertEquals(propertyValue, PropertyUtil.getScalarValue(nodeTemp.getProperties().get(propertyName)));
     }
 
     @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with property \"([^\"]*)\" set to null$")

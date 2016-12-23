@@ -3,7 +3,15 @@ package alien4cloud.paas.function;
 import java.util.List;
 import java.util.Map;
 
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Requirement;
@@ -16,7 +24,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.paas.model.InstanceInformation;
@@ -24,9 +31,10 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.ToscaUtils;
+import alien4cloud.tosca.ToscaNormativeUtil;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
@@ -179,7 +187,7 @@ public final class FunctionEvaluator {
                 } else {
                     outputs = runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes();
                 }
-                String formatedOutputName = ToscaUtils.formatedOperationOutputName(nodeName, function.getInterfaceName(), function.getOperationName(),
+                String formatedOutputName = ToscaNormativeUtil.formatedOperationOutputName(nodeName, function.getInterfaceName(), function.getOperationName(),
                         function.getElementNameToFetch());
                 if (outputs.containsKey(formatedOutputName)) {
                     return outputs.get(formatedOutputName);
@@ -207,7 +215,7 @@ public final class FunctionEvaluator {
             if (template != null && template.getProperties() != null) {
                 propertyOrAttributeValue = template.getProperties().get(propertyOrAttributeName);
                 if (propertyOrAttributeValue != null) {
-                    return getScalarValue(propertyOrAttributeValue);
+                    return PropertyUtil.getScalarValue(propertyOrAttributeValue);
                 }
             }
         }
@@ -347,7 +355,7 @@ public final class FunctionEvaluator {
             } else if (!(abstractPropertyValue instanceof PropertyValue)) {
                 throw new NotSupportedException("Not a property value " + abstractPropertyValue);
             } else if (abstractPropertyValue instanceof ScalarPropertyValue) {
-                return getScalarValue(properties.get(propertyAccessPath));
+                return PropertyUtil.getScalarValue(properties.get(propertyAccessPath));
             } else {
                 try {
                     return JsonUtil.toString(((PropertyValue) abstractPropertyValue).getValue());
@@ -399,7 +407,7 @@ public final class FunctionEvaluator {
             if (propertyValue instanceof ComplexPropertyValue) {
                 return serializeComplexPropertyValue(((ComplexPropertyValue) propertyValue).getValue());
             } else {
-                return getScalarValue(propertyValue);
+                return PropertyUtil.getScalarValue(propertyValue);
             }
         }
 
@@ -455,30 +463,13 @@ public final class FunctionEvaluator {
         return toReturn;
     }
 
-    /**
-     * Get the scalar value
-     *
-     * @param propertyValue the property value
-     * @throws alien4cloud.paas.exception.NotSupportedException if called on a non ScalarPropertyValue
-     * @return the value or null if the propertyValue is null
-     */
-    public static String getScalarValue(AbstractPropertyValue propertyValue) {
-        if (propertyValue == null) {
-            return null;
-        } else if (propertyValue instanceof ScalarPropertyValue) {
-            return ((ScalarPropertyValue) propertyValue).getValue();
-        } else {
-            throw new NotSupportedException("Property value is not of type scalar");
-        }
-    }
-
     public static Map<String, String> getScalarValues(Map<String, AbstractPropertyValue> propertyValues) {
         if (propertyValues == null) {
             return null;
         }
         Map<String, String> properties = Maps.newHashMap();
         for (Map.Entry<String, AbstractPropertyValue> propertyValueEntry : propertyValues.entrySet()) {
-            properties.put(propertyValueEntry.getKey(), getScalarValue(propertyValueEntry.getValue()));
+            properties.put(propertyValueEntry.getKey(), PropertyUtil.getScalarValue(propertyValueEntry.getValue()));
         }
         return properties;
     }

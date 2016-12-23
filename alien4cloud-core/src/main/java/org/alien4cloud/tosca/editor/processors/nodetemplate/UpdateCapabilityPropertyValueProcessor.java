@@ -15,7 +15,8 @@ import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.topology.TopologyServiceCore;
+
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.utils.services.PropertyService;
@@ -38,8 +39,8 @@ public class UpdateCapabilityPropertyValueProcessor implements IEditorOperationP
 
         String propertyName = operation.getPropertyName();
         Object propertyValue = operation.getPropertyValue();
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
         Capability capability = nodeTemplate.getCapabilities().get(operation.getCapabilityName());
 
         CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capability.getType());

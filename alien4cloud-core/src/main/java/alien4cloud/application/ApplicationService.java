@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -22,14 +21,13 @@ import com.google.common.collect.Sets;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.events.BeforeApplicationDeletedEvent;
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.InvalidApplicationNameException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.topology.TopologyUtils;
+import alien4cloud.utils.NameValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -46,8 +44,6 @@ public class ApplicationService {
     private ApplicationVersionService applicationVersionService;
     @Resource
     private ApplicationEventPublisher publisher;
-
-    private static final String APPLICATION_NAME_REGEX = "[^/\\\\\\\\]+";
 
     /**
      * Create a new application and return it's id
@@ -81,10 +77,8 @@ public class ApplicationService {
 
     private void checkApplicationId(String applicationId) {
         // Check that it matches the required pattern
-        if (!TopologyUtils.isValidNodeName(applicationId)) {
-            // FIXME throw another exception ?
-            throw new InvalidApplicationNameException("Application id <" + applicationId + "> is not valid. It must not contains any special characters.");
-        }
+        NameValidationUtils.validateApplicationId(applicationId);
+
         // Check that it doesn't already exists
         if (alienDAO.findById(Application.class, applicationId) != null) {
             throw new AlreadyExistException("An application with the given id already exists.");
@@ -92,13 +86,11 @@ public class ApplicationService {
     }
 
     private void checkApplicationName(String name) {
+        NameValidationUtils.validateApplicationName(name);
+
         if (alienDAO.buildQuery(Application.class).setFilters(singleKeyFilter("name", name)).count() > 0) {
             log.debug("Application name <{}> already exists.", name);
             throw new AlreadyExistException("An application with the given name already exists.");
-        }
-        if (!Pattern.matches(APPLICATION_NAME_REGEX, name)) {
-            log.debug("Application name <{}> contains forbidden character.", name);
-            throw new InvalidApplicationNameException("Application name <" + name + "> contains forbidden character.");
         }
     }
 

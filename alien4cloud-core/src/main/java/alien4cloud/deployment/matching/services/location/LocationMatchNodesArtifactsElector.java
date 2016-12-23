@@ -11,7 +11,9 @@ import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import alien4cloud.tosca.ToscaUtils;
+
+import alien4cloud.tosca.ToscaNormativeUtil;
+
 import org.springframework.stereotype.Component;
 
 /**
@@ -80,7 +82,7 @@ public class LocationMatchNodesArtifactsElector {
 
     private boolean isFromOneOfTypes(String[] supportedArtifacts, ArtifactType artifactType) {
         for (String supportedArtifact : supportedArtifacts) {
-            if (ToscaUtils.isFromType(supportedArtifact, artifactType)) {
+            if (ToscaNormativeUtil.isFromType(supportedArtifact, artifactType)) {
                 return true;
             }
         }

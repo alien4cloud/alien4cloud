@@ -15,9 +15,9 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import alien4cloud.FullApplicationConfiguration;
 import alien4cloud.audit.rest.AuditController;
-import alien4cloud.common.AlienConstants;
 import alien4cloud.events.AlienEvent;
 import alien4cloud.events.HALeaderElectionEvent;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.webconfiguration.RestDocumentationHandlerProvider;
 import alien4cloud.webconfiguration.RestDocumentationPluginsBootstrapper;
 import lombok.extern.slf4j.Slf4j;

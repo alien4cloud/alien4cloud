@@ -7,8 +7,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import alien4cloud.common.TagService;
-import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.catalog.CatalogVersionResult;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -22,19 +20,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.collect.Lists;
-
-import alien4cloud.Constants;
 import alien4cloud.audit.annotation.Audit;
+import alien4cloud.common.TagService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.model.common.Tag;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.utils.AlienConstants;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
@@ -267,7 +264,7 @@ public class ComponentController {
 
     private NodeType getDefaultNodeForCapability(String capability) {
         Map<String, String[]> filters = new HashMap<>();
-        filters.put(Constants.DEFAULT_CAPABILITY_FIELD_NAME, new String[] { capability.toLowerCase() });
+        filters.put(AlienConstants.DEFAULT_CAPABILITY_FIELD_NAME, new String[] { capability.toLowerCase() });
         GetMultipleDataResult result = dao.find(NodeType.class, filters, 1);
         if (result == null || result.getData() == null || result.getData().length == 0) {
             return null;

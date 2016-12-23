@@ -1,6 +1,8 @@
 package alien4cloud.it.components;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -15,7 +17,6 @@ import org.elasticsearch.mapping.MappingBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.exception.IndexingServiceException;
@@ -23,6 +24,7 @@ import alien4cloud.it.Context;
 import alien4cloud.model.common.Tag;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.AlienConstants;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;

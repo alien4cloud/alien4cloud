@@ -15,7 +15,8 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.topology.TopologyServiceCore;
+
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.utils.services.PropertyService;
@@ -34,8 +35,8 @@ public class UpdateNodePropertyValueProcessor implements IEditorOperationProcess
     public void process(UpdateNodePropertyValueOperation operation) {
         Topology topology = EditionContextManager.getTopology();
 
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemp = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
+        NodeTemplate nodeTemp = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
         String propertyName = operation.getPropertyName();
         Object propertyValue = operation.getPropertyValue();
 

@@ -15,11 +15,10 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.exception.CyclicReferenceException;
-import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyUtils;
+import alien4cloud.utils.NameValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -41,10 +40,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
     public void process(AddNodeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
 
-        if (!TopologyUtils.isValidNodeName(operation.getNodeName())) {
-            throw new InvalidNodeNameException("A name should only contains alphanumeric character from the basic Latin alphabet and the underscore.");
-        }
-
+        NameValidationUtils.validateNodeName(operation.getNodeName());
         topologyService.isUniqueNodeTemplateName(topology, operation.getNodeName());
 
         String[] splittedId = operation.getIndexedNodeTypeId().split(":");

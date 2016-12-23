@@ -7,10 +7,10 @@ import org.jclouds.openstack.cinder.v1.domain.Volume;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
-import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.deployment.DeploymentTopologyDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.PropertyUtil;
 import cucumber.api.java.en.And;
 
 public class IAASStepDefinitions {
@@ -20,7 +20,7 @@ public class IAASStepDefinitions {
                 "/rest/v1/applications/" + Context.getInstance().getApplicationId(appName) + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(appName) + "/deployment-topology");
         RestResponse<DeploymentTopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, DeploymentTopologyDTO.class, Context.getJsonMapper());
-        String volumeId = FunctionEvaluator.getScalarValue(topologyResponse.getData().getTopology().getNodeTemplates().get(nodeName).getProperties()
+        String volumeId = PropertyUtil.getScalarValue(topologyResponse.getData().getTopology().getNodeTemplates().get(nodeName).getProperties()
                 .get(propertyName));
         Assert.assertNotNull(volumeId);
         int indexOfEndRegion = volumeId.indexOf('/');

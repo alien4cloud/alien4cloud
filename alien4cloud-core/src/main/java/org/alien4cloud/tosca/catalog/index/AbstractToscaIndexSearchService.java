@@ -20,12 +20,12 @@ import org.elasticsearch.search.sort.SortOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IAggregationQueryManager;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.FetchContext;
+import alien4cloud.utils.AlienConstants;
 import lombok.SneakyThrows;
 
 /**

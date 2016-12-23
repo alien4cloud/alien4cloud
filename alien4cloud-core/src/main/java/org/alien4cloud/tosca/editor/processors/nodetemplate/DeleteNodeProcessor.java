@@ -21,7 +21,6 @@ import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +40,7 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
     @Override
     protected void processNodeOperation(DeleteNodeOperation operation, NodeTemplate template) {
         Topology topology = EditionContextManager.getTopology();
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
 
         // FIXME cleanup files on the github repository / This way we can commit or revert if not saved.
         // FIXME we SHOULD we delegate all this processing to the save operation as we don't support undo on disk.

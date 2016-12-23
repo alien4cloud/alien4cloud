@@ -32,12 +32,12 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.paas.exception.NotSupportedException;
-import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.ScalableTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
+import alien4cloud.utils.PropertyUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -208,7 +208,7 @@ public class TopologyPropertiesValidationService {
             Set<String> errorProperties) {
         String rawValue = null;
         try {
-            rawValue = FunctionEvaluator.getScalarValue(scalableProperties.get(propertyToVerify));
+            rawValue = PropertyUtil.getScalarValue(scalableProperties.get(propertyToVerify));
         } catch (NotSupportedException e1) {
             // the value is a function (get_input normally), this means the input is not yet filled.
         }

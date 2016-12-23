@@ -13,7 +13,8 @@ import alien4cloud.exception.InvalidNameException;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.topology.TopologyServiceCore;
+
+import alien4cloud.topology.TopologyUtils;
 
 /**
  * Rename a group in the topology under edition.
@@ -41,7 +42,7 @@ public class RenameGroupProcessor implements IEditorOperationProcessor<RenameGro
             throw new NotFoundException("Group with name [" + operation.getGroupName() + "] does not exists and cannot be renamed.");
         }
         nodeGroup.setName(operation.getNewGroupName());
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
         for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
             if (nodeTemplate.getGroups() != null) {
                 if (nodeTemplate.getGroups().remove(operation.getGroupName())) {

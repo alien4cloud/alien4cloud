@@ -3,16 +3,14 @@ package alien4cloud.security.groups;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Component;
 
-import alien4cloud.Constants;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.security.groups.GroupService;
-import alien4cloud.security.model.Role;
-
 import com.google.common.collect.Sets;
+
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.security.model.Role;
+import alien4cloud.utils.AlienConstants;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default internal settings about security (groups/users)
@@ -29,13 +27,13 @@ public class DefaultGroup {
     @PostConstruct
     public void createDefaultAllGroup() {
         try {
-            String createdGroupId = groupService.createGroup(Constants.GROUP_NAME_ALL_USERS, null, DESCRIPTION,
+            String createdGroupId = groupService.createGroup(AlienConstants.GROUP_NAME_ALL_USERS, null, DESCRIPTION,
                     Sets.newHashSet(Role.COMPONENTS_BROWSER.toString()), null);
             if (createdGroupId != null) {
-                log.info("Default group <{}> created in your system with id <{}>", Constants.GROUP_NAME_ALL_USERS, createdGroupId);
+                log.info("Default group <{}> created in your system with id <{}>", AlienConstants.GROUP_NAME_ALL_USERS, createdGroupId);
             }
         } catch (AlreadyExistException e) {
-            log.info("Default group <{}> already exists in your system", Constants.GROUP_NAME_ALL_USERS);
+            log.info("Default group <{}> already exists in your system", AlienConstants.GROUP_NAME_ALL_USERS);
         }
     }
 }

@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.Constants;
 import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
@@ -29,6 +28,7 @@ import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
 import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
 import alien4cloud.security.spring.FailureAuthenticationEntryPoint;
+import alien4cloud.utils.AlienConstants;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -363,9 +363,9 @@ public final class AuthorizationUtil {
      * @return
      */
     private static Group getAllUsersGroup() {
-        Group group = alienGroupDao.findByName(Constants.GROUP_NAME_ALL_USERS);
+        Group group = alienGroupDao.findByName(AlienConstants.GROUP_NAME_ALL_USERS);
         if (group == null) {
-            log.warn("Default all users group <{}> not found", Constants.GROUP_NAME_ALL_USERS);
+            log.warn("Default all users group <{}> not found", AlienConstants.GROUP_NAME_ALL_USERS);
             return null;
         }
         return group;

@@ -8,21 +8,10 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.junit.Assert;
 import org.junit.Test;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.topology.TopologyUtils;
+import alien4cloud.utils.AlienConstants;
 
 public class TopologyServiceTest {
-
-    @Test
-    public void isValidNodeName() {
-        Assert.assertTrue(TopologyUtils.isValidNodeName("Compute"));
-        Assert.assertTrue(TopologyUtils.isValidNodeName("Compute_2"));
-
-        Assert.assertFalse(TopologyUtils.isValidNodeName("Computé"));
-        Assert.assertFalse(TopologyUtils.isValidNodeName("Compute-2"));
-        Assert.assertFalse(TopologyUtils.isValidNodeName("Compute.unix"));
-        Assert.assertFalse(TopologyUtils.isValidNodeName("Compute 2"));
-    }
 
     @Test
     public void normalizeAllNodeTemplateName() {
@@ -37,7 +26,7 @@ public class TopologyServiceTest {
         nodeTemplates.put("Compute 2", new NodeTemplate());
         topology.setNodeTemplates(nodeTemplates);
 
-        TopologyUtils.normalizeAllNodeTemplateName(topology, null);
+        TopologyUtils.normalizeAllNodeTemplateName(topology, null, null);
         Assert.assertTrue(topology.getNodeTemplates().containsKey("Compute"));
         Assert.assertTrue(topology.getNodeTemplates().containsKey("Compute_2"));
         Assert.assertTrue(topology.getNodeTemplates().containsKey("Compute_21"));

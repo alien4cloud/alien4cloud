@@ -12,8 +12,6 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.tosca.parser.AbstractToscaParserSimpleProfileTest;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -38,7 +36,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.paas.IPaaSTemplate;
@@ -50,8 +48,9 @@ import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.security.model.Role;
 import alien4cloud.test.utils.SecurityTestUtils;
-import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.AbstractToscaParserSimpleProfileTest;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.services.ApplicationUtil;

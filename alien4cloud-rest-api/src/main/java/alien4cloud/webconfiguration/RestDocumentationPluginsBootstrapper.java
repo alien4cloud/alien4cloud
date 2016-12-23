@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.classmate.TypeResolver;
 
-import alien4cloud.common.AlienConstants;
+import alien4cloud.utils.AlienConstants;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.DocumentationPlugin;
 import springfox.documentation.spi.service.contexts.Defaults;

@@ -4,7 +4,9 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
-import alien4cloud.common.AlienConstants;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,13 +14,10 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.Constants;
 import alien4cloud.component.NodeTypeScoreService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.MapUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -82,7 +81,7 @@ public class NodeTypeScoreServiceTest {
         scoreService.run();
 
         // check that order on query is correct
-        GetMultipleDataResult data = dao.search(NodeType.class, "", null, Constants.DEFAULT_ES_SEARCH_SIZE);
+        GetMultipleDataResult data = dao.search(NodeType.class, "", null, AlienConstants.DEFAULT_ES_SEARCH_SIZE);
         Assert.assertEquals(4, data.getData().length);
         Assert.assertEquals(isengard100Id, ((NodeType) data.getData()[0]).getId());
         Assert.assertEquals(1011, ((NodeType) data.getData()[0]).getAlienScore());
