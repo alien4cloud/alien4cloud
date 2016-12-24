@@ -86,6 +86,7 @@
       "PARSING_ERROR": "Topology is not valid",
       "ADD_NODETEMPLATE" : "ノードテンプレートの追加",
       "ADD_RELATIONSHIP" : "他ノードとの関連追加",
+      "CHANGE_RELATIONSHIP": "Change an existing relationship",
       "ARTIFACTS" : {
         "ADDINPUT" : "アーティファクト入力の定義",
         "INPUTS" : "アーティファクトの入力",

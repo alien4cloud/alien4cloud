@@ -86,6 +86,7 @@
       "PARSING_ERROR": "La topologie n'est pas valide",
       "ADD_NODETEMPLATE" : "Ajouter un Noeud",
       "ADD_RELATIONSHIP" : "Ajouter une relation",
+      "CHANGE_RELATIONSHIP": "Changer une relation existante",
       "ARTIFACTS" : {
         "ADDINPUT" : "Définir l'artefact comme entrée",
         "INPUTS" : "Artefacts d'entrée",

@@ -37,13 +37,15 @@ define(function (require) {
         },
 
         openSearchRelationshipModal: function(sourceNodeTemplateName, requirementName, targetNodeTemplateName,
-          targetedCapability) {
+          targetedCapability, previousRelationshipName) {
           var scope = this.scope;
           var instance = this;
 
           var sourceNodeTemplate = scope.topology.topology.nodeTemplates[sourceNodeTemplateName];
           var requirement = sourceNodeTemplate.requirementsMap[requirementName].value;
-          if (!requirement.canAddRel.yes) {
+          instance.createNewRelationship = previousRelationshipName ? false : true;
+
+          if (instance.createNewRelationship && !requirement.canAddRel.yes) {
             // TODO we must display an error message...
             return;
           }
@@ -59,11 +61,22 @@ define(function (require) {
             templateUrl: 'views/topology/search_relationship_modal.html',
             controller: 'SearchRelationshipCtrl',
             windowClass: 'searchModal',
-            scope: scope
+            scope: scope,
+            resolve: {
+              useProvidedDefault: function() { return instance.createNewRelationship; }
+            }
           });
 
           modalInstance.result.then(function(relationshipResult) {
-            instance.doAddRelationship(sourceNodeTemplateName, relationshipResult, requirementName, requirement.type);
+            if (instance.createNewRelationship) {
+              instance.doAddRelationship(sourceNodeTemplateName, relationshipResult, requirementName, requirement.type);
+              return;
+            }
+            // This is a relationship change - remove the previous relationship then add the new one.
+            // FIXME: If a relationship with the same name than the new one exists, the change fails (OK) and the previous relationship is lost
+            instance.remove(previousRelationshipName, sourceNodeTemplate, function (result) {
+              instance.doAddRelationship(sourceNodeTemplateName, relationshipResult, requirementName, requirement.type);
+            });
           });
         },
 
@@ -115,13 +128,13 @@ define(function (require) {
           );
         },
 
-        remove: function(relationshipName, selectedNodeTemplate) {
+        remove: function(relationshipName, selectedNodeTemplate, callback) {
           var scope = this.scope;
           scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation',
             nodeName: selectedNodeTemplate.name,
             relationshipName: relationshipName
-          }, null, null, selectedNodeTemplate.name);
+          }, callback, null, selectedNodeTemplate.name);
         }
       };
 

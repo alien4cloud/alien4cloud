@@ -89,6 +89,7 @@
       "FILES": "Archive content browser",
       "ADD_NODETEMPLATE" : "Add Node Template",
       "ADD_RELATIONSHIP" : "Add relationship to another node",
+      "CHANGE_RELATIONSHIP": "Change an existing relationship",
       "ARTIFACTS" : {
         "ADDINPUT" : "Define artifact as input",
         "INPUTS" : "Input artifacts",
