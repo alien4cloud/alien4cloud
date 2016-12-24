@@ -122,7 +122,7 @@
         "ADD": "Ajouter aux Propriétés d'entrée",
         "CONSTRAINT": "Contrainte"
       },
-      "INVALID_NODE_NAME": "Nom invalide.",
+      "INVALID_NAME": "Nom invalide.",
       "LOCATION_UNAUTHORIZED_MESSAGE": "Vous n'avez plus l'authorisation de déployer sur la location précédament selectionnée pour cet environement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
       "NODE_INFO": "Noeud sélectionné",
       "NO_OUTPUTS": "Aucune propriété ou attribut en sortie",

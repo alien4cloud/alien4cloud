@@ -33,9 +33,11 @@ define(function (require) {
   var NewApplicationCtrl = ['$scope', '$modalInstance', 'topologyServices',
     function ($scope, $modalInstance, topologyServices) {
       $scope.app = {};
+      $scope.namePattern=new RegExp('^[^\/\\\\]+$');
+      $scope.archiveNamePattern=new RegExp('^\\w+$');
       var autoGenArchiveName = true;
       $scope.nameChange = function () {
-        if (autoGenArchiveName) {
+        if (autoGenArchiveName && $scope.app.name) {
           $scope.app.archiveName = _.capitalize(_.camelCase($scope.app.name));
         }
       };

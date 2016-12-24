@@ -122,7 +122,7 @@
         "ADD": "入力の追加",
         "CONSTRAINT": "制約"
       },
-      "INVALID_NODE_NAME": "Invalid node name.",
+      "INVALID_NAME": "Invalid node name.",
       "LOCATION_UNAUTHORIZED_MESSAGE": "You do not have the rights to deploy on the previously selected location: <{{locationName}}>, orchestrator: <{{orchestratorName}}>. \n Contact your admin for more explanations.",
       "NODE_INFO": "選択ノード",
       "NO_OUTPUTS": "プロパティ、属性の出力なし",

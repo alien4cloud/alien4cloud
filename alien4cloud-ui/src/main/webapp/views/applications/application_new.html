@@ -10,14 +10,16 @@
       <div ng-if="selectedTopologyError" class="alert alert-danger" role="alert">
         <span class="fa fa-warning" aria-hidden="true"></span> {{'ERRORS.' + selectedTopologyError | translate}}
       </div>
-      <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}">
-        <label for="nameid" class="col-lg-2 control-label">{{'COMMON.NAME' | translate}}</label>
-        <div class="col-lg-4">
-          <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}" ng-change="nameChange()">
+      <div class="form-group">
+        <label for="nameid" class="col-lg-2 control-label" ng-class="{'has-error': newApplication.name.$invalid}">{{'COMMON.NAME' | translate}}</label>
+        <div class="col-lg-4" ng-class="{'has-error': newApplication.name.$invalid}">
+          <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}" ng-change="nameChange()"
+          ng-pattern='namePattern'>
         </div>
-        <label for="archiveNameId" class="col-lg-2 control-label">{{'APPLICATIONS.ARCHIVE_NAME' | translate}}</label>
-        <div class="col-lg-4">
-          <input type="text" class="form-control" id="archiveNameId" ng-model="app.archiveName" name="archiveName" required="" placeholder="{{'COMMON.NAME' | translate}}" ng-change="archiveNameChange()">
+        <label for="archiveNameId" class="col-lg-2 control-label" ng-class="{'has-error': newApplication.archiveName.$invalid}">{{'APPLICATIONS.ARCHIVE_NAME' | translate}}</label>
+        <div class="col-lg-4" ng-class="{'has-error': newApplication.archiveName.$invalid}">
+          <input type="text" class="form-control" id="archiveNameId" ng-model="app.archiveName" name="archiveName" required="" placeholder="{{'COMMON.NAME' | translate}}" ng-change="archiveNameChange()"
+          ng-pattern='archiveNamePattern'>
         </div>
       </div>
       <div class="form-group">
@@ -38,7 +40,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button id="btn-create" ng-disabled="selectedTopologyError || (newApplication.name.$invalid && newApplication.archiveName.$invalid)" class="btn btn-primary">{{'CREATE' | translate}}</button>
+      <button id="btn-create" ng-disabled="selectedTopologyError || newApplication.name.$invalid || newApplication.archiveName.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
       <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
     </div>
   </form>

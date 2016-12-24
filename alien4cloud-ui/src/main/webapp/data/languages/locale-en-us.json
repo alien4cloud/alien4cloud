@@ -125,7 +125,7 @@
         "ADD": "Add To Input",
         "CONSTRAINT": "Constraint"
       },
-      "INVALID_NODE_NAME": "Invalid node name.",
+      "INVALID_NAME": "Invalid name.",
       "LOCATION_UNAUTHORIZED_MESSAGE": "You do not have the rights to deploy on the previously selected location: <{{locationName}}>, orchestrator: <{{orchestratorName}}>. \n Contact your admin for more explanations.",
       "NODE_INFO": "Selected node",
       "NO_OUTPUTS": "No output properties or attributes",

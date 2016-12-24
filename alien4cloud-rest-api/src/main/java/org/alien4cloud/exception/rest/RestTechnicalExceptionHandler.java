@@ -138,7 +138,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public RestResponse<?> invalidNameExceptionHandler(InvalidNameException e) {
-        return RestResponseBuilder.builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_NAME).message(e.getMessage()).build()).data(e.getNameKey())
+        return RestResponseBuilder.builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_NAME).message(e.getMessage()).build())
                 .build();
     }
 

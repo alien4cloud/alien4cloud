@@ -18,7 +18,7 @@ Feature: Create topology template
   @reset
   Scenario: Create an empty topology template with an invalid name should fail
     When I create a new topology template with name "topology_template///name1" and description "My topology template description1"
-    Then I should receive a RestResponse with an error code 500
+    Then I should receive a RestResponse with an error code 618
 
   @reset
   Scenario: Delete an existing topology template
