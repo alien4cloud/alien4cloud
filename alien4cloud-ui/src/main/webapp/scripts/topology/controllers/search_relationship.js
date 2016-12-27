@@ -10,8 +10,8 @@ define(function (require) {
   require('scripts/components/directives/search_relationship_type');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'toaster', 'pascalprecht.translate', 'a4c-tosca']).controller('SearchRelationshipCtrl',
-    ['$scope', '$modalInstance', 'useProvidedDefault', 'relationshipMatchingService', 'toscaService',
-    function($scope, $modalInstance, useProvidedDefault, relationshipMatchingService, toscaService) {
+    ['$scope', '$modalInstance', 'existingRelationshipName', 'relationshipMatchingService', 'toscaService',
+    function($scope, $modalInstance, existingRelationshipName, relationshipMatchingService, toscaService) {
     $scope.totalStep = 3;
     $scope.step = 0;
 
@@ -38,8 +38,8 @@ define(function (require) {
 
     $scope.onSelectedRelationship = function(relationship) {
       $scope.relationshipModalData.relationship = relationship;
-      $scope.relationshipModalData.name = toscaService.generateRelationshipName($scope.relationshipModalData.relationship.elementId,
-          $scope.relationshipModalData.target, $scope.relationshipModalData.targetedCapabilityName);
+      $scope.relationshipModalData.name = existingRelationshipName || toscaService.generateRelationshipName($scope.relationshipModalData.relationship.elementId,
+              $scope.relationshipModalData.target, $scope.relationshipModalData.targetedCapabilityName);
       $scope.next();
     };
 
@@ -70,7 +70,7 @@ define(function (require) {
 
       $scope.next();
       // if a relationship has already been provided skip the relationship search.
-      if(useProvidedDefault && $scope.relationshipModalData.relationship) {
+      if(!existingRelationshipName && $scope.relationshipModalData.relationship) {
         $scope.next();
         $scope.relationshipModalData.name = toscaService.generateRelationshipName($scope.relationshipModalData.relationship.elementId,
             $scope.relationshipModalData.target, $scope.relationshipModalData.targetedCapabilityName);

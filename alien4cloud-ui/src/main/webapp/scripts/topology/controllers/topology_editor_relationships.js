@@ -43,9 +43,9 @@ define(function (require) {
 
           var sourceNodeTemplate = scope.topology.topology.nodeTemplates[sourceNodeTemplateName];
           var requirement = sourceNodeTemplate.requirementsMap[requirementName].value;
-          instance.createNewRelationship = previousRelationshipName ? false : true;
+          instance.previousRelationshipName = previousRelationshipName;
 
-          if (instance.createNewRelationship && !requirement.canAddRel.yes) {
+          if (!instance.previousRelationshipName && !requirement.canAddRel.yes) {
             // TODO we must display an error message...
             return;
           }
@@ -63,20 +63,19 @@ define(function (require) {
             windowClass: 'searchModal',
             scope: scope,
             resolve: {
-              useProvidedDefault: function() { return instance.createNewRelationship; }
+              existingRelationshipName: function() { return instance.previousRelationshipName; }
             }
           });
 
           modalInstance.result.then(function(relationshipResult) {
-            if (instance.createNewRelationship) {
-              instance.doAddRelationship(sourceNodeTemplateName, relationshipResult, requirementName, requirement.type);
+            if (instance.previousRelationshipName) {
+              // This is a relationship change - remove the previous relationship then add the new one.
+              instance.remove(previousRelationshipName, sourceNodeTemplate, function (result) {
+                instance.doAddRelationship(sourceNodeTemplateName, relationshipResult, requirementName, requirement.type);
+              });
               return;
             }
-            // This is a relationship change - remove the previous relationship then add the new one.
-            // FIXME: If a relationship with the same name than the new one exists, the change fails (OK) and the previous relationship is lost
-            instance.remove(previousRelationshipName, sourceNodeTemplate, function (result) {
-              instance.doAddRelationship(sourceNodeTemplateName, relationshipResult, requirementName, requirement.type);
-            });
+            instance.doAddRelationship(sourceNodeTemplateName, relationshipResult, requirementName, requirement.type);
           });
         },
 
