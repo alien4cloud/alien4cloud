@@ -49,19 +49,10 @@ define(function (require) {
 
       // filter on valid targets
       if(capabilityName) {
-        const targetedNodeTemplate = $scope.topology.topology.nodeTemplates[targetName];
-        const targetedCapabilityType = targetedNodeTemplate.capabilitiesMap[capabilityName].value.type;
-
-        // all the capabilities that inherits from selected capability are valid target types
-        var childrenCapabilityTypes = [];
-        _.forIn($scope.topology.capabilityTypes, function(value, key) {
-          if (_.has(value, 'derivedFrom') && _.includes(value.derivedFrom, targetedCapabilityType))
-            childrenCapabilityTypes.push(key);
-        });
-
-        // Relationships can have CapabilityTypes and NodeTypes as valid_target_types - we also select relationships that target the chosen node template type
-        var validTargets = [targetedNodeTemplate.type, targetedCapabilityType].concat(childrenCapabilityTypes);
-
+        // TODO should we manage inheritance here ?
+        var validTargets = [$scope.topology.topology.nodeTemplates[targetName].capabilitiesMap[capabilityName].value.type];
+        // Relationships can have CapabilityTypes and NodeTypes as valid_target_types
+        validTargets.push($scope.topology.topology.nodeTemplates[targetName].type);
         $scope.relationshipHiddenFilters = [{
           term: 'validTargets',
           facet: validTargets
