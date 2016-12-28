@@ -84,12 +84,13 @@
     "SHOW_DEPLOYED_APP": "Only show deployed applications.",
     "TOPOLOGY": {
       "PARSING_ERROR": "Topology is not valid",
-      "ADD_NODETEMPLATE": "ノードテンプレートの追加",
-      "ADD_RELATIONSHIP": "他ノードとの関連追加",
-      "ARTIFACTS": {
-        "ADDINPUT": "アーティファクト入力の定義",
-        "INPUTS": "アーティファクトの入力",
-        "TITLE": "アーティファクト"
+      "ADD_NODETEMPLATE" : "ノードテンプレートの追加",
+      "ADD_RELATIONSHIP" : "他ノードとの関連追加",
+      "CHANGE_RELATIONSHIP": "Change an existing relationship",
+      "ARTIFACTS" : {
+        "ADDINPUT" : "アーティファクト入力の定義",
+        "INPUTS" : "アーティファクトの入力",
+        "TITLE" : "アーティファクト"
       },
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",

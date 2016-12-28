@@ -10,10 +10,10 @@ define(function (require) {
   require('scripts/components/directives/search_relationship_type');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'toaster', 'pascalprecht.translate', 'a4c-tosca']).controller('SearchRelationshipCtrl',
-    ['$scope', '$modalInstance', 'relationshipMatchingService', 'toscaService',
-    function($scope, $modalInstance, relationshipMatchingService, toscaService) {
+    ['$scope', '$modalInstance', 'existingRelationshipName', 'relationshipMatchingService', 'toscaService',
+    function($scope, $modalInstance, existingRelationshipName, relationshipMatchingService, toscaService) {
     $scope.totalStep = 3;
-    $scope.step = 1;
+    $scope.step = 0;
 
     $scope.relationshipModalData = {};
 
@@ -30,6 +30,7 @@ define(function (require) {
         preferedTarget).then(function(result) {
       $scope.targets = result.targets;
       $scope.relationshipModalData.relationship = result.relationshipType;
+      $scope.next();
       if (result.preferedMatch !== null) {
         $scope.onSelectedTarget(result.preferedMatch.node, result.preferedMatch.capability);
       }
@@ -37,8 +38,8 @@ define(function (require) {
 
     $scope.onSelectedRelationship = function(relationship) {
       $scope.relationshipModalData.relationship = relationship;
-      $scope.relationshipModalData.name = toscaService.generateRelationshipName($scope.relationshipModalData.relationship.elementId,
-          $scope.relationshipModalData.target, $scope.relationshipModalData.targetedCapabilityName);
+      $scope.relationshipModalData.name = existingRelationshipName || toscaService.generateRelationshipName($scope.relationshipModalData.relationship.elementId,
+              $scope.relationshipModalData.target, $scope.relationshipModalData.targetedCapabilityName);
       $scope.next();
     };
 
@@ -50,6 +51,8 @@ define(function (require) {
       if(capabilityName) {
         // TODO should we manage inheritance here ?
         var validTargets = [$scope.topology.topology.nodeTemplates[targetName].capabilitiesMap[capabilityName].value.type];
+        // Relationships can have CapabilityTypes and NodeTypes as valid_target_types
+        validTargets.push($scope.topology.topology.nodeTemplates[targetName].type);
         $scope.relationshipHiddenFilters = [{
           term: 'validTargets',
           facet: validTargets
@@ -58,7 +61,7 @@ define(function (require) {
 
       $scope.next();
       // if a relationship has already been provided skip the relationship search.
-      if($scope.relationshipModalData.relationship) {
+      if(!existingRelationshipName && $scope.relationshipModalData.relationship) {
         $scope.next();
         $scope.relationshipModalData.name = toscaService.generateRelationshipName($scope.relationshipModalData.relationship.elementId,
             $scope.relationshipModalData.target, $scope.relationshipModalData.targetedCapabilityName);

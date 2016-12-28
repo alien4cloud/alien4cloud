@@ -87,12 +87,13 @@
       "PARSING_ERROR": "Topology is not valid",
       "YAML": "Yaml",
       "FILES": "Archive content browser",
-      "ADD_NODETEMPLATE": "Add Node Template",
-      "ADD_RELATIONSHIP": "Add relationship to another node",
-      "ARTIFACTS": {
-        "ADDINPUT": "Define artifact as input",
-        "INPUTS": "Input artifacts",
-        "TITLE": "Artifacts"
+      "ADD_NODETEMPLATE" : "Add Node Template",
+      "ADD_RELATIONSHIP" : "Add relationship to another node",
+      "CHANGE_RELATIONSHIP": "Change an existing relationship",
+      "ARTIFACTS" : {
+        "ADDINPUT" : "Define artifact as input",
+        "INPUTS" : "Input artifacts",
+        "TITLE" : "Artifacts"
       },
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",

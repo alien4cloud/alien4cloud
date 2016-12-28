@@ -84,12 +84,13 @@
     "SHOW_DEPLOYED_APP": "Afficher seulement les applications déployées.",
     "TOPOLOGY": {
       "PARSING_ERROR": "La topologie n'est pas valide",
-      "ADD_NODETEMPLATE": "Ajouter un Noeud",
-      "ADD_RELATIONSHIP": "Ajouter une relation",
-      "ARTIFACTS": {
-        "ADDINPUT": "Définir l'artefact comme entrée",
-        "INPUTS": "Artefacts d'entrée",
-        "TITLE": "Artefacts"
+      "ADD_NODETEMPLATE" : "Ajouter un Noeud",
+      "ADD_RELATIONSHIP" : "Ajouter une relation",
+      "CHANGE_RELATIONSHIP": "Changer une relation existante",
+      "ARTIFACTS" : {
+        "ADDINPUT" : "Définir l'artefact comme entrée",
+        "INPUTS" : "Artefacts d'entrée",
+        "TITLE" : "Artefacts"
       },
       "CAPABILITY_CARDINALITIES_TOOLTIP": "maximum (restant)",
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
