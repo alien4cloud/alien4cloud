@@ -141,15 +141,13 @@ define(function(require) {
             $scope.validTopologyDTOLoaded = true;
           });
 
-          var processTopologyInfoResult = $scope.processTopologyInformations($scope.topologyId);
-
-          // when the selected environment is deployed => refresh output properties
-          processTopologyInfoResult.$promise.then(function() {
-            if ($scope.deploymentContext.selectedEnvironment.status === 'DEPLOYED') {
-              $scope.refreshInstancesStatuses($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, pageStateId);
-            }
+          $scope.processTopologyInformations($scope.topologyId).$promise.then(function() {
+            $scope.processDeploymentTopologyInformation().$promise.then(function() {
+              if ($scope.deploymentContext.selectedEnvironment.status === 'DEPLOYED') {
+                $scope.refreshInstancesStatuses($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, pageStateId);
+              }
+            });
           });
-
         };
 
         //register the checking topo function for others states to use it
@@ -251,7 +249,9 @@ define(function(require) {
             $scope.stopEvent();
             $scope.setTopologyId($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, checkTopology).$promise.then(function(result) {
               $scope.processTopologyInformations(result.data).$promise.then(function() {
-                $scope.refreshInstancesStatuses($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, pageStateId);
+                $scope.processDeploymentTopologyInformation().$promise.then(function() {
+                  $scope.refreshInstancesStatuses($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, pageStateId);
+                });
               });
             });
           }

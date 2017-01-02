@@ -90,6 +90,9 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
         if (topology.getOutputAttributes() != null) {
             topology.getOutputAttributes().remove(nodeTemplateName);
         }
+        if (topology.getOutputCapabilityProperties() != null) {
+            topology.getOutputCapabilityProperties().remove(nodeTemplateName);
+        }
     }
 
     private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {

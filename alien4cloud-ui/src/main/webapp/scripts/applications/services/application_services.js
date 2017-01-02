@@ -18,6 +18,8 @@ define(function (require) {
       });
 
       var applicationActiveDeploymentDAO = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/active-deployment');
+  
+      var applicationRuntimeTopologyDAO = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/runtime-topology');
 
       var applicationDeploymentDAO = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/deployment', {}, {
         'undeploy': {
@@ -162,6 +164,7 @@ define(function (require) {
         'remove': applicationDAO.remove,
         'update': applicationDAO.update,
         'getActiveDeployment': applicationActiveDeploymentDAO,
+        'getRuntimeTopology': applicationRuntimeTopologyDAO,
         'deployment': applicationDeploymentDAO,
         'deployApplication': applicationDeployment,
         'runtime': applicationRuntimeDAO,
