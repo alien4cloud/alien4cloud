@@ -68,6 +68,7 @@ define(function (require) {
 
             // there might be warnings. display them
             if (_.defined(data.data) && _.defined(data.data.errors) && _.size(data.data.errors) >0) {
+              self.scope.uploadInfos[index].isErrorBlocCollapsed = false;
               self.scope.uploadInfos[index].errors = data.data.errors;
             }
           } else {
