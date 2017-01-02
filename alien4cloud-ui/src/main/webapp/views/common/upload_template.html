@@ -16,12 +16,12 @@
   <div class="upload-infos-bloc" ng-repeat="uploadInfo in uploadInfos">
     <alert type="uploadInfo.infoType" close="uploadCtrl.closeUploadInfos($index)" style="margin-top: 15px;">
       <div class="col-md-5 upload-file-infos">
-        <div class=" show-error-link col-md-2"
+        <span class=" show-error-link"
            ng-click="uploadInfo.isErrorBlocCollapsed = !uploadInfo.isErrorBlocCollapsed"
            ng-show="uploadInfo.errors || uploadInfo.otherError">
            <i ng-class="{'fa fa-angle-double-down fa-lg' : uploadInfo.isErrorBlocCollapsed,  'fa fa-angle-double-up fa-lg' : !uploadInfo.isErrorBlocCollapsed }"></i>
            <i class="fa fa-exclamation-triangle"></i>
-        </div>
+        </span>
         <span><strong>{{uploadInfo.name}}</strong></span>
       </div>
       <progressbar class="progress-striped active"

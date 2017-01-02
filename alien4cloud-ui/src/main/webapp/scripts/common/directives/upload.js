@@ -30,19 +30,30 @@ define(function (require) {
       this.scope.uploadCtrl = {};
     };
 
+    function setInfoType(uploadInfos, errors, statesToClasses) {
+        if(_.defined(_.find(_.flatten(_.values(errors)), {'errorLevel': 'WARNING'}))){
+            //change the displayed class into warning if there is a warning
+            uploadInfos.infoType = statesToClasses.warn;
+        }else{
+            uploadInfos.infoType = statesToClasses.success;
+        }
+    }
+
     FileUploadManager.prototype = {
       constructor: FileUploadManager,
       statesToClasses: {
         'error': 'danger',
         'success': 'success',
-        'progress': 'info'
+        'progress': 'info',
+        'warn': 'warning'
       },
       handleUploadErrors: function(index, data) {
         if (_.undefined(data.data)) {
-          this.scope.uploadInfos[index].otherError = {};
-          this.scope.uploadInfos[index].otherError.code = data.error.code;
-          this.scope.uploadInfos[index].otherError.message = data.error.message;
-        } else if (_.defined(data.data.errors) && _.size(data.data.errors) > 0) {
+          this.scope.uploadInfos[index].otherError = {
+            code: data.error.code,
+            message: data.error.message
+          };
+        } else if (_.isNotEmpty(data.data.errors)) {
           this.scope.uploadInfos[index].errors = data.data.errors;
         }
       },
@@ -61,15 +72,16 @@ define(function (require) {
         }).success(function(data) {
           // file is uploaded successfully and the server respond without error
           if (data.error === null) {
-            self.scope.uploadInfos[index].infoType = self.statesToClasses.success;
             if (self.scope.uploadSuccessCallback) {
               self.scope.uploadSuccessCallback(data);
             }
 
+            var errors = _.get(data, 'data.errors');
+            setInfoType(self.scope.uploadInfos[index], errors, self.statesToClasses);
             // there might be warnings. display them
-            if (_.defined(data.data) && _.defined(data.data.errors) && _.size(data.data.errors) >0) {
+            if (_.isNotEmpty(errors)) {
               self.scope.uploadInfos[index].isErrorBlocCollapsed = false;
-              self.scope.uploadInfos[index].errors = data.data.errors;
+              self.scope.uploadInfos[index].errors = errors;
             }
           } else {
             self.scope.uploadInfos[index].infoType = self.statesToClasses.error;
@@ -77,9 +89,10 @@ define(function (require) {
           }
         }).error(function(data, status) {
           self.scope.uploadInfos[index].infoType = self.statesToClasses.error;
-          self.scope.uploadInfos[index].error = {};
-          self.scope.uploadInfos[index].error.code = status;
-          self.scope.uploadInfos[index].error.message = 'An Error has occurred on the server!';
+          self.scope.uploadInfos[index].error = {
+            code: status,
+            message: 'An Error has occurred on the server!'
+          };
         });
       }
     };
