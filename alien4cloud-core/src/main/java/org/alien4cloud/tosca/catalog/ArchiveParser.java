@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.CsarDependenciesBean;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.tosca.model.ArchiveRoot;
@@ -58,5 +59,16 @@ public class ArchiveParser {
      */
     public ParsingResult<ArchiveRoot> parseDir(Path archiveDir, String workspace) throws ParsingException {
         return postProcessor.process(archiveDir, toscaArchiveParser.parseDir(archiveDir), workspace);
+    }
+
+    /**
+     * Parse only imports and of an archive file from a zip .
+     *
+     * @param archiveFile The archive file currently zipped.
+     * @return A parsing result that contains the resulting {@link CsarDependenciesBean} and eventual errors and/or warnings.
+     * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
+     */
+    public ParsingResult<CsarDependenciesBean> parseImports(Path archiveFile) throws ParsingException {
+        return toscaArchiveParser.parseImports(archiveFile);
     }
 }

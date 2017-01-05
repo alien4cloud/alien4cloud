@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.CsarDependenciesBean;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
@@ -17,7 +18,6 @@ import com.google.common.collect.Maps;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.model.components.CSARSource;
-import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.suggestions.services.SuggestionService;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.model.ArchiveRoot;
@@ -25,7 +25,6 @@ import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.utils.AlienConstants;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -78,13 +77,9 @@ public class ArchiveUploadService {
         for (Path path : paths) {
             try {
                 // FIXME cleanup git import archives
-                ParsingResult<ArchiveRoot> parsingResult = parser.parse(path, AlienConstants.GLOBAL_WORKSPACE_ID);
-                CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();
-                csarDepContainer.setPath(path);
-                csarDepContainer
-                        .setSelf(new CSARDependency(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive().getVersion()));
-                csarDepContainer.setDependencies(parsingResult.getResult().getArchive().getDependencies());
-                csarDependenciesBeans.put(csarDepContainer.getSelf(), csarDepContainer);
+                ParsingResult<CsarDependenciesBean> parsingResult = parser.parseImports(path);
+                parsingResult.getResult().setPath(path);
+                csarDependenciesBeans.put(parsingResult.getResult().getSelf(), parsingResult.getResult());
             } catch (ParsingException e) {
                 ParsingResult<Csar> failedResult = new ParsingResult<>();
                 failedResult.setContext(new ParsingContext(path.getFileName().toString()));

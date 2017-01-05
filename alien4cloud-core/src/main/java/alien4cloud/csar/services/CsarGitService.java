@@ -15,6 +15,7 @@ import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.CsarDependenciesBean;
 import org.eclipse.jgit.api.Git;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +31,6 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.GitException;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.CSARSource;
-import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
 import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.tosca.parser.ParsingException;
@@ -113,7 +113,6 @@ public class CsarGitService {
 
         return results;
     }
-
     private List<ParsingResult<Csar>> doImport(CsarGitRepository csarGitRepository, CsarGitCheckoutLocation csarGitCheckoutLocation) {
         Git git = null;
         try {
@@ -147,7 +146,6 @@ public class CsarGitService {
         Path archiveGitRoot = tempDirPath.resolve(csarGitRepository.getId());
         Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot, csarGitCheckoutLocation.getSubPath());
 
-        // TODO code review has to be completed to further cleanup below processing.
         List<ParsingResult<Csar>> parsingResult = Lists.newArrayList();
         try {
             Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = uploadService.preParsing(archivePaths, parsingResult);
@@ -185,13 +183,13 @@ public class CsarGitService {
             } else {
                 // complete the list of dependent elements
                 List<CSARDependency> toClears = Lists.newArrayList();
-                for (CSARDependency dependent : csar.getDependencies()) {
-                    CsarDependenciesBean providedDependency = elements.get(dependent);
+                for (CSARDependency dependency : csar.getDependencies()) {
+                    CsarDependenciesBean providedDependency = elements.get(dependency);
                     if (providedDependency == null) {
                         // remove the dependency as it may be in the alien repo
-                        toClears.add(dependent);
+                        toClears.add(dependency);
                     } else {
-                        providedDependency.getDependents().add(entry.getValue());
+                        providedDependency.getDependents().add(csar);
                     }
                 }
                 for (CSARDependency toClear : toClears) {

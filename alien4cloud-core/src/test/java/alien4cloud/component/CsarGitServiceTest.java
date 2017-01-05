@@ -1,16 +1,17 @@
 package alien4cloud.component;
 
+import static alien4cloud.tosca.ArchiveParserTest.displayErrors;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.annotation.Resource;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.git.CsarGitCheckoutLocation;
-import alien4cloud.model.git.CsarGitRepository;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.utils.FileUtil;
 import org.alien4cloud.tosca.model.Csar;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,14 +22,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.csar.services.CsarGitRepositoryService;
 import alien4cloud.csar.services.CsarGitService;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.model.git.CsarGitCheckoutLocation;
+import alien4cloud.model.git.CsarGitRepository;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
@@ -111,6 +111,53 @@ public class CsarGitServiceTest {
         // now we re-import
         result = csarGitService.importFromGitRepository(repoId);
         Assert.assertEquals(0, result.size());
+    }
+
+    @Test
+    public void importArchiveInProperOrder() {
+        CsarGitCheckoutLocation normativeTypesMasterLocation = new CsarGitCheckoutLocation();
+        normativeTypesMasterLocation.setBranchId("master");
+        List<CsarGitCheckoutLocation> importLocations = new LinkedList<>();
+        importLocations.add(normativeTypesMasterLocation);
+        String repoId = csarGitRepositoryService.create("https://github.com/alien4cloud/tosca-normative-types.git", "", "", importLocations, false);
+
+        List<ParsingResult<Csar>> result = csarGitService.importFromGitRepository(repoId);
+        displayErrors(result.get(0));
+        Assert.assertFalse(result.get(0).hasError(ParsingErrorLevel.ERROR));
+
+        CsarGitCheckoutLocation testArchiveLocation = new CsarGitCheckoutLocation();
+        testArchiveLocation.setBranchId("test-order-import");
+        importLocations.clear();
+        importLocations.add(testArchiveLocation);
+        repoId = csarGitRepositoryService.create("https://github.com/alien4cloud/samples.git", "", "", importLocations, false);
+        List<ParsingResult<Csar>> sampleResult = csarGitService.importFromGitRepository(repoId);
+
+        Assert.assertEquals(3, sampleResult.size());
+        log.warn("========================================================");
+        log.warn("========================================================");
+        log.warn("========================================================");
+        log.warn("========================================================");
+        log.warn("========================================================");
+        log.warn("========================================================");
+
+        for (ParsingResult<Csar> csarParsingResult : sampleResult) {
+            displayErrors(csarParsingResult);
+        }
+
+        log.warn("========================================================");
+        log.warn("========================================================");
+        log.warn("========================================================");
+        log.warn("========================================================");
+        log.warn("========================================================");
+        log.warn("========================================================");
+        for (ParsingResult<Csar> csarParsingResult : sampleResult) {
+            Assert.assertFalse(csarParsingResult.hasError(ParsingErrorLevel.ERROR));
+        }
+
+        Assert.assertEquals("test-archive-1", sampleResult.get(0).getResult().getName());
+        Assert.assertEquals("test-archive-3", sampleResult.get(1).getResult().getName());
+        Assert.assertEquals("test-archive-2", sampleResult.get(2).getResult().getName());
+
     }
 
 }
