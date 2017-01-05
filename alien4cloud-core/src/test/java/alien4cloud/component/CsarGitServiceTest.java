@@ -114,7 +114,7 @@ public class CsarGitServiceTest {
     @Test
     public void importArchiveInProperOrder() {
         CsarGitCheckoutLocation normativeTypesMasterLocation = new CsarGitCheckoutLocation();
-        normativeTypesMasterLocation.setBranchId("master");
+        normativeTypesMasterLocation.setBranchId("1.0.0-ALIEN12");
         List<CsarGitCheckoutLocation> importLocations = new LinkedList<>();
         importLocations.add(normativeTypesMasterLocation);
         String repoId = csarGitRepositoryService.create("https://github.com/alien4cloud/tosca-normative-types.git", "", "", importLocations, false);
