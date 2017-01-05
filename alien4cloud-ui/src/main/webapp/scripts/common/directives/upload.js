@@ -80,7 +80,6 @@ define(function (require) {
             setInfoType(self.scope.uploadInfos[index], errors, self.statesToClasses);
             // there might be warnings. display them
             if (_.isNotEmpty(errors)) {
-              self.scope.uploadInfos[index].isErrorBlocCollapsed = false;
               self.scope.uploadInfos[index].errors = errors;
             }
           } else {
