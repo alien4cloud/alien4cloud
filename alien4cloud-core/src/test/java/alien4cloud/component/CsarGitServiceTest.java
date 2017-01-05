@@ -1,7 +1,5 @@
 package alien4cloud.component;
 
-import static alien4cloud.tosca.ArchiveParserTest.displayErrors;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -122,7 +120,6 @@ public class CsarGitServiceTest {
         String repoId = csarGitRepositoryService.create("https://github.com/alien4cloud/tosca-normative-types.git", "", "", importLocations, false);
 
         List<ParsingResult<Csar>> result = csarGitService.importFromGitRepository(repoId);
-        displayErrors(result.get(0));
         Assert.assertFalse(result.get(0).hasError(ParsingErrorLevel.ERROR));
 
         CsarGitCheckoutLocation testArchiveLocation = new CsarGitCheckoutLocation();
@@ -133,23 +130,7 @@ public class CsarGitServiceTest {
         List<ParsingResult<Csar>> sampleResult = csarGitService.importFromGitRepository(repoId);
 
         Assert.assertEquals(3, sampleResult.size());
-        log.warn("========================================================");
-        log.warn("========================================================");
-        log.warn("========================================================");
-        log.warn("========================================================");
-        log.warn("========================================================");
-        log.warn("========================================================");
 
-        for (ParsingResult<Csar> csarParsingResult : sampleResult) {
-            displayErrors(csarParsingResult);
-        }
-
-        log.warn("========================================================");
-        log.warn("========================================================");
-        log.warn("========================================================");
-        log.warn("========================================================");
-        log.warn("========================================================");
-        log.warn("========================================================");
         for (ParsingResult<Csar> csarParsingResult : sampleResult) {
             Assert.assertFalse(csarParsingResult.hasError(ParsingErrorLevel.ERROR));
         }
