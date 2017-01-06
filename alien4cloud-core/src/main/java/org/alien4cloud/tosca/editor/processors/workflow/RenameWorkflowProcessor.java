@@ -1,12 +1,13 @@
 package org.alien4cloud.tosca.editor.processors.workflow;
 
-import alien4cloud.exception.AlreadyExistException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.RenameWorkflowOperation;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
-import org.alien4cloud.tosca.model.templates.Topology;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.paas.wf.Workflow;
+import alien4cloud.paas.wf.util.WorkflowUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -21,6 +22,7 @@ public class RenameWorkflowProcessor extends AbstractWorkflowProcessor<RenameWor
     protected void processWorkflowOperation(RenameWorkflowOperation operation, Workflow workflow) {
         Topology topology = EditionContextManager.getTopology();
         ensureNotStandard(workflow, "standard workflow <" + workflow.getName() + "> can not be renamed");
+        WorkflowUtils.validateName(operation.getNewName());
         ensureUniqueness(topology, operation.getNewName());
         log.debug("renaming workflow <{}> to <{}> from topology <{}>", workflow.getName(), operation.getNewName(), topology.getId());
         topology.getWorkflows().remove(workflow.getName());

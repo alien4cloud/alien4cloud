@@ -71,22 +71,6 @@ public abstract class AbstractWorkflowBuilder {
         }
     }
 
-    // private Set<String> getAllChildrenHierarchy(PaaSNodeTemplate paaSNodeTemplate) {
-    // Set<String> nodeIds = new HashSet<String>();
-    // recursivelyPopulateChildrenHierarchy(paaSNodeTemplate, nodeIds);
-    // return nodeIds;
-    // }
-    //
-    // private void recursivelyPopulateChildrenHierarchy(PaaSNodeTemplate paaSNodeTemplate, Set<String> nodeIds) {
-    // nodeIds.add(paaSNodeTemplate.getId());
-    // List<PaaSNodeTemplate> children = paaSNodeTemplate.getChildren();
-    // if (children != null) {
-    // for (PaaSNodeTemplate child : children) {
-    // recursivelyPopulateChildrenHierarchy(child, nodeIds);
-    // }
-    // }
-    // }
-
     protected AbstractStep eventuallyAddStdOperationStep(Workflow wf, AbstractStep lastStep, String nodeId, String operationName,
             TopologyContext topologyContext, boolean forceOperation) {
         NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);

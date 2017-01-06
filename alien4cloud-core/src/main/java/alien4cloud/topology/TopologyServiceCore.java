@@ -1,6 +1,5 @@
 package alien4cloud.topology;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,36 +35,6 @@ public class TopologyServiceCore {
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
 
-    /**
-     * Get the Map of {@link NodeTemplate} from a topology
-     *
-     * @param topology the topology
-     * @return this topology's node templates
-     */
-    public static Map<String, NodeTemplate> getNodeTemplates(Topology topology) {
-        Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
-        if (nodeTemplates == null) {
-            throw new NotFoundException("Topology [" + topology.getId() + "] do not have any node template");
-        }
-        return nodeTemplates;
-    }
-
-    /**
-     * Get a {@link NodeTemplate} given its name from a map
-     *
-     * @param topologyId the topology's id
-     * @param nodeTemplateName the name of the node template
-     * @param nodeTemplates the topology's node templates
-     * @return the found node template, throws NotFoundException if not found
-     */
-    public static NodeTemplate getNodeTemplate(String topologyId, String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
-        NodeTemplate nodeTemplate = nodeTemplates.get(nodeTemplateName);
-        if (nodeTemplate == null) {
-            throw new NotFoundException("Topology [" + topologyId + "] do not have node template with name [" + nodeTemplateName + "]");
-        }
-        return nodeTemplate;
-    }
-
     public Topology getTopology(String topologyId) {
         return alienDAO.findById(Topology.class, topologyId);
     }
@@ -82,18 +51,6 @@ public class TopologyServiceCore {
             throw new NotFoundException("Topology [" + topologyId + "] cannot be found");
         }
         return topology;
-    }
-
-    /**
-     * Get a {@link NodeTemplate} given its name from a topology
-     *
-     * @param topology the topology
-     * @param nodeTemplateId the name of the node template
-     * @return the found node template, throws NotFoundException if not found
-     */
-    public static NodeTemplate getNodeTemplate(Topology topology, String nodeTemplateId) {
-        Map<String, NodeTemplate> nodeTemplates = getNodeTemplates(topology);
-        return getNodeTemplate(topology.getId(), nodeTemplateId, nodeTemplates);
     }
 
     /**

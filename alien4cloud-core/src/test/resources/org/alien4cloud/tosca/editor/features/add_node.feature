@@ -25,7 +25,7 @@ Feature: Topology editor: add node template
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template1!!!!                                                         |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
-    Then an exception of type "alien4cloud.exception.InvalidNodeNameException" should be thrown
+    Then an exception of type "alien4cloud.exception.InvalidNameException" should be thrown
 
   Scenario: Add a node with an existing name should fail
     Given I execute the operation

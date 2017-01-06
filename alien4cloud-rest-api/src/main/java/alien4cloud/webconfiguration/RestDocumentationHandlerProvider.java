@@ -15,7 +15,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
 
-import alien4cloud.common.AlienConstants;
+import alien4cloud.utils.AlienConstants;
 import springfox.documentation.RequestHandler;
 import springfox.documentation.builders.BuilderDefaults;
 import springfox.documentation.spi.service.RequestHandlerProvider;

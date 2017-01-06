@@ -13,11 +13,10 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.topology.TopologyUtils;
+import alien4cloud.utils.AlienConstants;
+import alien4cloud.utils.NameValidationUtils;
 import alien4cloud.utils.VersionUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,10 +31,7 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
 
     @Override
     public Topology createTopologyAsTemplate(String name, String description, String version, String workspace, String fromTopologyId) {
-        if (!TopologyUtils.isValidNodeName(name)) {
-            throw new InvalidNameException("topologyTemplateName", name,
-                    "Topology template name <" + name + "> is not valid. It must not contains any special characters.");
-        }
+        NameValidationUtils.validate("topologyTemplateName", name);
         // Every version of a topology template has a Cloud Service Archive
         Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
         csar.setWorkspace(workspace);

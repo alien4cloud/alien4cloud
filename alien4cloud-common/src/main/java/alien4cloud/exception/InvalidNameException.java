@@ -1,10 +1,13 @@
 package alien4cloud.exception;
 
+import lombok.Getter;
+
 /**
  * Generic exception to throw when the name is invalid.
  */
 public class InvalidNameException extends TechnicalException {
     private static final long serialVersionUID = -6151150122897145634L;
+    @Getter
     private String nameKey;
     private String nameValue;
 

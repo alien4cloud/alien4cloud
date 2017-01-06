@@ -47,3 +47,22 @@ Feature: Workflow editor: rename workflow
     Then an exception of type "alien4cloud.paas.wf.exception.BadWorkflowOperationException" should be thrown
     When I get the edited topology
     Then The SPEL expression "workflows['uninstall'].name" should return "uninstall"
+
+  Scenario: Renaming a workflow with a name containing special chars other than _ should fail
+    Given I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.workflow.CreateWorkflowOperation |
+      | workflowName | wf1                                                                      |
+    When I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.workflow.RenameWorkflowOperation |
+      | workflowName | wf1                                                                      |
+      | newName      | should fail                                                              |
+    Then an exception of type "alien4cloud.exception.InvalidNameException" should be thrown
+    When I get the edited topology
+    Then The SPEL expression "workflows['wf1'].name" should return "wf1"
+    When I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.workflow.RenameWorkflowOperation |
+      | workflowName | wf1                                                                      |
+      | newName      | should*fail££                                                            |
+    Then an exception of type "alien4cloud.exception.InvalidNameException" should be thrown
+    When I get the edited topology
+    Then The SPEL expression "workflows['wf1'].name" should return "wf1"

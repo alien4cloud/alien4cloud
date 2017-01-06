@@ -57,7 +57,7 @@
 }
 
 .upload-infos-bloc {
-  width: 80%;
+  // width: 80%;
   margin: auto;
   margin-bottom: 15px;
   padding-bottom: 0;
@@ -67,13 +67,18 @@
   margin-bottom: 0;
 }
 
+.upload-infos-bloc table tr.info {
+  cursor: inherit;
+}
+
 .upload-file-infos {
-  text-align: center;
+  padding-left: 0px;
 }
 
 .upload-file-infos .show-error-link {
   cursor: pointer;
   text-align: left;
+  margin-right: 15px;
 }
 
 .progress {

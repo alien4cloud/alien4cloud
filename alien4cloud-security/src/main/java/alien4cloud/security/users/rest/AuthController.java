@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -18,14 +17,24 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import springfox.documentation.annotations.ApiIgnore;
-import alien4cloud.Constants;
-import alien4cloud.rest.model.*;
-import alien4cloud.security.groups.IAlienGroupDao;
-import alien4cloud.security.model.*;
-
 import com.google.common.collect.Lists;
+
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.model.UserStatus;
+import alien4cloud.security.groups.IAlienGroupDao;
+import alien4cloud.security.model.ApplicationEnvironmentRole;
+import alien4cloud.security.model.ApplicationRole;
+import alien4cloud.security.model.CloudRole;
+import alien4cloud.security.model.DeployerRole;
+import alien4cloud.security.model.Group;
+import alien4cloud.security.model.Role;
+import alien4cloud.security.model.User;
+import alien4cloud.utils.AlienConstants;
 import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Authentication service manages security related operations including Authentication and Authorization management.
@@ -123,7 +132,7 @@ public class AuthController {
     @ApiIgnore
     @RequestMapping(value = "/groups/allusers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Group> getAllUsersGroup() {
-        Group group = alienGroupDao.findByName(Constants.GROUP_NAME_ALL_USERS);
+        Group group = alienGroupDao.findByName(AlienConstants.GROUP_NAME_ALL_USERS);
         return RestResponseBuilder.<Group> builder().data(group).build();
     }
 

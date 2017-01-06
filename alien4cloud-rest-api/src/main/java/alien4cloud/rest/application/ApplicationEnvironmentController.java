@@ -2,6 +2,7 @@ package alien4cloud.rest.application;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Resource;
 
@@ -126,8 +127,7 @@ public class ApplicationEnvironmentController {
     @ApiOperation(value = "Get an application environment from its id", notes = "Returns the application environment. Application role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}/status", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentStatus> getApplicationEnvironmentStatus(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
-            throws Exception {
+    public RestResponse<DeploymentStatus> getApplicationEnvironmentStatus(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) throws ExecutionException, InterruptedException {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.values());

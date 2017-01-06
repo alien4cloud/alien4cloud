@@ -1,15 +1,10 @@
 package org.alien4cloud.tosca.catalog;
 
-import alien4cloud.audit.annotation.Audit;
-import alien4cloud.common.AlienConstants;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.rest.application.model.CreateTopologyRequest;
-import alien4cloud.rest.model.FilteredSearchRequest;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+
 import org.alien4cloud.tosca.catalog.index.ITopologyCatalogService;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -21,10 +16,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
-
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import alien4cloud.audit.annotation.Audit;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.rest.application.model.CreateTopologyRequest;
+import alien4cloud.rest.model.FilteredSearchRequest;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.utils.AlienConstants;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controller to access topology catalog features.

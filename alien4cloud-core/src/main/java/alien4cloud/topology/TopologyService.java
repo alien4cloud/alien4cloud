@@ -1,10 +1,13 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -67,9 +70,6 @@ public class TopologyService {
     private ApplicationService appService;
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
-
-    public static final Pattern NODE_NAME_PATTERN = Pattern.compile("^\\w+$");
-    public static final Pattern NODE_NAME_REPLACE_PATTERN = Pattern.compile("\\W");
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology, boolean failOnTypeNotFound) {
         // FIXME we should use ToscaContext here, and why not allowing the caller to pass ona Context?
@@ -300,9 +300,7 @@ public class TopologyService {
         // FIXME Transitive dependencies could change here and thus types be affected ?
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);
         typeLoader.loadType(type, toLoadDependency);
-        for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
-            ToscaContext.get().updateDependency(updatedDependency);
-        }
+        ToscaContext.get().resetDependencies(typeLoader.getLoadedDependencies());
         // TODO update csar dependencies also ?
         topology.setDependencies(typeLoader.getLoadedDependencies());
         return element;
@@ -314,10 +312,7 @@ public class TopologyService {
         for (String type : types) {
             typeLoader.unloadType(type);
         }
-        // FIXME if a dependency is just removed don't add it back
-        for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
-            ToscaContext.get().updateDependency(updatedDependency);
-        }
+        ToscaContext.get().resetDependencies(typeLoader.getLoadedDependencies());
         // TODO update csar dependencies also ?
         topology.setDependencies(typeLoader.getLoadedDependencies());
     }

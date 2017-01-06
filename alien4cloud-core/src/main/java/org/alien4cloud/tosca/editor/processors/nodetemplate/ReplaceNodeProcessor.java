@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -38,8 +38,8 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
     public void process(ReplaceNodeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
         // Retrieve existing node template
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate oldNodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
+        NodeTemplate oldNodeTemplate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
 
         String[] splittedId = operation.getNewTypeId().split(":");
         NodeType newType = toscaTypeSearchService.find(NodeType.class, splittedId[0], splittedId[1]);

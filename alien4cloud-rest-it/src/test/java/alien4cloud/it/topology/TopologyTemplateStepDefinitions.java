@@ -60,6 +60,7 @@ public class TopologyTemplateStepDefinitions {
 
         // register the retrieved topology as SPEL context
         Topology topology = JsonUtil.read(Context.getInstance().getRestResponse(), Topology.class, Context.getJsonMapper()).getData();
+        Context.getInstance().registerTopologyId(topologyId);
         Context.getInstance().buildEvaluationContext(topology);
     }
 
@@ -72,6 +73,7 @@ public class TopologyTemplateStepDefinitions {
 
         // register the retrieved topology as SPEL context
         Topology topology = JsonUtil.read(Context.getInstance().getRestResponse(), Topology.class, Context.getJsonMapper()).getData();
+        Context.getInstance().registerTopologyId(topology.getId());
         Context.getInstance().buildEvaluationContext(topology);
     }
 

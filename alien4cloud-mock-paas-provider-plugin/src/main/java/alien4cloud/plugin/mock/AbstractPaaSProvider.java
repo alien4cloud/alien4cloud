@@ -107,19 +107,6 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
         // fill instance informations based on the topology
         for (Entry<String, NodeTemplate> nodeTempalteEntry : topology.getNodeTemplates().entrySet()) {
             Map<String, InstanceInformation> nodeInstanceInfos = Maps.newHashMap();
-            // get the current number of instances
-            int currentPlannedInstances = getPlannedInstancesCount(nodeTempalteEntry.getKey(), topology);
-            for (int i = 1; i <= currentPlannedInstances; i++) {
-                // Map<String, AbstractPropertyValue> properties = nodeTempalteEntry.getValue().getProperties() == null ? null
-                // : Maps.newHashMap(nodeTempalteEntry.getValue().getProperties());
-                // Map<String, String> attributes = nodeTempalteEntry.getValue().getAttributes() == null ? null
-                // : Maps.newHashMap(nodeTempalteEntry.getValue().getAttributes());
-                // Map<String, String> runtimeProperties = Maps.newHashMap();
-                // TODO remove thoses infos
-                // InstanceInformation instanceInfo = new InstanceInformation(ToscaNodeLifecycleConstants.INITIAL, InstanceStatus.PROCESSING, properties,
-                // attributes, null);
-                // nodeInstanceInfos.put(String.valueOf(i), instanceInfo);
-            }
             instanceInformations.put(nodeTempalteEntry.getKey(), nodeInstanceInfos);
         }
         return instanceInformations;

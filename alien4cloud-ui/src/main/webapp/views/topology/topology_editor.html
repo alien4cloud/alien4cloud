@@ -441,19 +441,27 @@
                      id="relationship_{{relationshipEntry.key}}">
                   <i class=" fa"
                      ng-class="{'fa-caret-down' : !isRelationshipCollapsed, 'fa-caret-right': isRelationshipCollapsed}"></i>
-                <span
-                  ng-init="relNameObj[relationshipEntry.key] = relationshipEntry.key"
-                  editable-text="relNameObj[relationshipEntry.key]" buttons="no" e-required onbeforesave="relationships.updateRelationshipName(relationshipEntry.key, $data)"
-                  blur="submit" ng-click="$event.stopPropagation();"
-                  tooltip="{{relationshipEntry.key}}" tooltip-append-to-body="true">
-                  {{relationshipEntry.key | truncate:25}}
-                  <i class="fa fa-pencil-square-o"></i>
-                </span>
-                <span class="pull-right">
-                  <delete-confirm id="btn-delete-rl-{{relationshipEntry.key}}" func="relationships.remove(relationshipEntry.key, selectedNodeTemplate)"
-                                  position="left" bssize="btn-xs" fastyle="fa-unlink">
-                  </delete-confirm>
-                </span>
+                  <span
+                    ng-init="relNameObj[relationshipEntry.key] = relationshipEntry.key"
+                    editable-text="relNameObj[relationshipEntry.key]" buttons="no" e-required onbeforesave="relationships.updateRelationshipName(relationshipEntry.key, $data)"
+                    blur="submit" ng-click="$event.stopPropagation();"
+                    tooltip="{{relationshipEntry.key}}" tooltip-append-to-body="true">
+                    {{relationshipEntry.key | truncate:25}}
+                    <i class="fa fa-pencil-square-o"></i>
+                  </span>
+                  <span class="pull-right">
+                    <delete-confirm id="btn-delete-rl-{{relationshipEntry.key}}" func="relationships.remove(relationshipEntry.key, selectedNodeTemplate)"
+                                    position="left" bssize="btn-xs" fastyle="fa-unlink">
+                    </delete-confirm>
+                  </span>
+                  <span class="pull-right">
+                    <button tooltip="{{'APPLICATIONS.TOPOLOGY.CHANGE_RELATIONSHIP' | translate}}"
+                            tooltip-append-to-body="true" class="btn btn-default btn-xs"
+                            ng-click="relationships.openSearchRelationshipModal(selectedNodeTemplate.name, relationshipEntry.value.requirementName, relationshipEntry.value.target, relationshipEntry.value.targetedCapabilityName, relationshipEntry.key); $event.stopPropagation();"
+                            id="btn-chg-relationship-{{requirementEntry.key}}">
+                          <i class="fa fa-link"></i>
+                    </button>
+                  </span>
                 </div>
                 <div class="topology-level" collapse="isRelationshipCollapsed">
                   <div class="row">
@@ -698,7 +706,7 @@
           </tbody>
           </table>
           <div style="margin: 0 10px" ng-show="topology.dependencyConflicts">
-            <h5><i class="fa fa-exclamation-triangle"></i>&nbsp;{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.TITLE' | translate }}</h5>
+            <h5 class="text-warning"><i class="fa fa-exclamation-triangle"></i>&nbsp;{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.TITLE' | translate }}</h5>
             <div class="list-group">
               <div class="list-group-item" ng-repeat="(key, values) in dependencies.renderedConflicts">
                 <strong class="list-group-item-heading">{{ key }}</strong>
@@ -983,7 +991,7 @@
         </li>
         <li ng-show="!displays.dependencies.active">
           <span id="topology-dependencies" ng-click="display.toggle('dependencies')">
-            <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}} <i ng-show="topology.dependencyConflicts" class="fa fa-exclamation-triangle"></i>
+            <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}} <i ng-show="topology.dependencyConflicts" class="fa fa-exclamation-triangle text-warning"></i>
           </span>
         </li>
         <li ng-show="!displays.inputs.active">

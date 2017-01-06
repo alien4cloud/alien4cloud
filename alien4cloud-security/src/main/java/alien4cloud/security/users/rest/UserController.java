@@ -15,11 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.collect.Sets;
 
@@ -30,8 +26,6 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.security.ResourceRoleService;
-import alien4cloud.security.groups.GroupService;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
@@ -51,10 +45,6 @@ public class UserController {
     private IAlienUserDao alienUserDao;
     @Resource
     private UserService userService;
-    @Resource
-    private GroupService groupService;
-    @Resource
-    private ResourceRoleService resourceRoleService;
 
     /**
      * Create a new user in the system.

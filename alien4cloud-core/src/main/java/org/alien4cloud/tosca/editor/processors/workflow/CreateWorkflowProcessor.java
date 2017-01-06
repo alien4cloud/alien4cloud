@@ -1,15 +1,16 @@
 package org.alien4cloud.tosca.editor.processors.workflow;
 
-import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.paas.wf.Workflow;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import lombok.extern.slf4j.Slf4j;
+import javax.inject.Inject;
+
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.CreateWorkflowOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.util.WorkflowUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Process the {@link CreateWorkflowOperation} operation.
@@ -27,7 +28,8 @@ public class CreateWorkflowProcessor implements IEditorOperationProcessor<Create
         if (log.isDebugEnabled()) {
             log.debug("creating new workflow <{}> in topology <{}>", operation.getWorkflowName(), topology.getId());
         }
-        Workflow wf = workflowsBuilderService.ceateWorkflow(topology, operation.getWorkflowName());
+        WorkflowUtils.validateName(operation.getWorkflowName());
+        workflowsBuilderService.ceateWorkflow(topology, operation.getWorkflowName());
     }
 
 }

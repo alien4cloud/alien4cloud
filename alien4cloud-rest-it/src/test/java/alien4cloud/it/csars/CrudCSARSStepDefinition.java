@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
+import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.model.common.Usage;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.csar.CsarInfoDTO;
@@ -25,6 +26,7 @@ public class CrudCSARSStepDefinition {
 
     private String CURRENT_CSAR_NAME;
     private String CURRENT_CSAR_VERSION;
+    private CommonStepDefinitions commonStepDefinitions = new CommonStepDefinitions();
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
     @Given("^I have CSAR name \"([^\"]*)\" and version \"([^\"]*)\"$")
@@ -41,20 +43,18 @@ public class CrudCSARSStepDefinition {
     }
 
     @Then("^I should have a CSAR with id \"([^\"]*)\"$")
-    public boolean I_have_CSAR_created_with_id(String csarId) throws Throwable {
+    public void I_have_CSAR_created_with_id(String csarId) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/csars/" + csarId));
+        commonStepDefinitions.I_should_receive_a_RestResponse_with_no_error();
         CsarInfoDTO csarInfoDTO = JsonUtil.read(Context.getInstance().takeRestResponse(), CsarInfoDTO.class).getData();
-        if (csarInfoDTO == null || csarInfoDTO.getCsar() == null) {
-            return false;
-        }
         Assert.assertNotNull(csarInfoDTO);
         Assert.assertEquals(csarInfoDTO.getCsar().getId(), csarId);
-        return true;
     }
 
     @Then("^I have no CSAR created with id \"([^\"]*)\"$")
     public void I_have_no_CSAR_created_with_id(String csarId) throws Throwable {
-        Assert.assertTrue(!I_have_CSAR_created_with_id(csarId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/csars/" + csarId));
+        commonStepDefinitions.I_should_receive_a_RestResponse_with_an_error_code(504);
     }
 
     @When("^I add a dependency with name \"([^\"]*)\" version \"([^\"]*)\" to the CSAR with name \"([^\"]*)\" version \"([^\"]*)\"$")

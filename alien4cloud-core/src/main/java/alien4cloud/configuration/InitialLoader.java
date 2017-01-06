@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.exception.AlreadyExistException;
@@ -32,6 +31,7 @@ import alien4cloud.plugin.exception.PluginLoadingException;
 import alien4cloud.security.model.Role;
 import alien4cloud.tosca.context.ToscaContextInjector;
 import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 

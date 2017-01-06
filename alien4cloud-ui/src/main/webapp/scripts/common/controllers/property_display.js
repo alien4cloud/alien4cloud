@@ -124,6 +124,10 @@ define(function(require) {
           data = null;
         }
 
+        if (!_.isEmpty($scope.definitionObject) && typeof $scope.definitionObject.uiValue !== 'undefined' && $scope.definitionObject.uiValue === data) {
+          return;
+        }
+
         if (!_.isEmpty(data) && _.defined($scope.definitionObject.units)) {
           if (_.undefined(unit)) {
             unit = $scope.definitionObject.uiUnit;

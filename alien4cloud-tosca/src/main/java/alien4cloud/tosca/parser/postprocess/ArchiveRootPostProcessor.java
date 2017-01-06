@@ -193,7 +193,9 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
                                         AlienUtils.prefixWith(":", csarDependency.getVersion(), csarDependency.getName()),
                                         null, null));
                         return true;
-                    } else return false;
+                    } else     {
+                        return false;
+                    }
                 });
     }
 

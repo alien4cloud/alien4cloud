@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.classmate.TypeResolver;
 
-import alien4cloud.common.AlienConstants;
+import alien4cloud.utils.AlienConstants;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.DocumentationPlugin;
 import springfox.documentation.spi.service.contexts.Defaults;
@@ -34,7 +34,7 @@ import springfox.documentation.spring.web.scanners.ApiDocumentationScanner;
 @Component
 @Profile(AlienConstants.API_DOC_PROFILE_FILTER)
 public class RestDocumentationPluginsBootstrapper implements ApplicationListener<ContextRefreshedEvent> {
-    private static final Logger log = LoggerFactory.getLogger(RestDocumentationPluginsBootstrapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(RestDocumentationPluginsBootstrapper.class);
     private final DocumentationPluginsManager documentationPluginsManager;
     private final RestDocumentationHandlerProvider handlerProvider;
     private final DocumentationCache scanned;
@@ -63,7 +63,7 @@ public class RestDocumentationPluginsBootstrapper implements ApplicationListener
      */
     public void refresh() {
         List plugins = Orderings.pluginOrdering().sortedCopy(this.documentationPluginsManager.documentationPlugins());
-        log.info("Found {} custom documentation plugin(s)", Integer.valueOf(plugins.size()));
+        logger.info("Found {} custom documentation plugin(s)", Integer.valueOf(plugins.size()));
         Iterator var3 = plugins.iterator();
 
         while (var3.hasNext()) {
@@ -72,7 +72,7 @@ public class RestDocumentationPluginsBootstrapper implements ApplicationListener
             if (each.isEnabled()) {
                 this.scanDocumentation(this.buildContext(each));
             } else {
-                log.info("Skipping initializing disabled plugin bean {} v{}", documentationType.getName(), documentationType.getVersion());
+                logger.info("Skipping initializing disabled plugin bean {} v{}", documentationType.getName(), documentationType.getVersion());
             }
         }
     }

@@ -1,6 +1,8 @@
 package alien4cloud.it.application.deployment;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,11 +25,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
 import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
 import alien4cloud.rest.deployment.DeploymentTopologyDTO;
@@ -36,8 +36,10 @@ import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.task.InputArtifactTask;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.PropertyUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -227,7 +229,7 @@ public class DeploymentTopologyStepDefinitions {
     private void assertNodePropertyValueEquals(NodeTemplate node, String propertyName, String expectedPropertyValue) {
         assertNotNull(node);
         AbstractPropertyValue abstractProperty = MapUtils.getObject(node.getProperties(), propertyName);
-        assertEquals(expectedPropertyValue, FunctionEvaluator.getScalarValue(abstractProperty));
+        assertEquals(expectedPropertyValue, PropertyUtil.getScalarValue(abstractProperty));
     }
 
     private void assertCapabilityPropertyValueEquals(NodeTemplate node, String capabilityName, String propertyName, String expectedPropertyValue) {
@@ -235,7 +237,7 @@ public class DeploymentTopologyStepDefinitions {
         Capability capability = MapUtils.getObject(node.getCapabilities(), capabilityName);
         assertNotNull(capability);
         AbstractPropertyValue abstractProperty = MapUtils.getObject(capability.getProperties(), propertyName);
-        assertEquals(expectedPropertyValue, FunctionEvaluator.getScalarValue(abstractProperty));
+        assertEquals(expectedPropertyValue, PropertyUtil.getScalarValue(abstractProperty));
     }
 
     private void assertMapContains(Map<String, String> map, Map<String, String> expectedMap) {

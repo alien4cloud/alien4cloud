@@ -1,6 +1,6 @@
 package alien4cloud.rest.model;
 
-import alien4cloud.Constants;
+import alien4cloud.utils.AlienConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,9 +43,9 @@ public class BasicSearchRequest {
      */
     public void setSize(Integer size) {
         if (size == null) {
-            this.size = Constants.DEFAULT_ES_SEARCH_SIZE;
-        } else if (size > Constants.MAX_ES_SEARCH_SIZE) {
-            this.size = Constants.MAX_ES_SEARCH_SIZE;
+            this.size = AlienConstants.DEFAULT_ES_SEARCH_SIZE;
+        } else if (size > AlienConstants.MAX_ES_SEARCH_SIZE) {
+            this.size = AlienConstants.MAX_ES_SEARCH_SIZE;
         } else {
             this.size = size;
         }

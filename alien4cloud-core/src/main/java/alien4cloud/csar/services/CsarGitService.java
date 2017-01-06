@@ -11,11 +11,11 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.CsarDependenciesBean;
 import org.eclipse.jgit.api.Git;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,18 +24,18 @@ import org.springframework.util.FileSystemUtils;
 
 import com.google.common.collect.Lists;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.GitException;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.CSARSource;
-import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
 import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -113,7 +113,6 @@ public class CsarGitService {
 
         return results;
     }
-
     private List<ParsingResult<Csar>> doImport(CsarGitRepository csarGitRepository, CsarGitCheckoutLocation csarGitCheckoutLocation) {
         Git git = null;
         try {
@@ -147,18 +146,16 @@ public class CsarGitService {
         Path archiveGitRoot = tempDirPath.resolve(csarGitRepository.getId());
         Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot, csarGitCheckoutLocation.getSubPath());
 
-        // TODO code review has to be completed to further cleanup below processing.
         List<ParsingResult<Csar>> parsingResult = Lists.newArrayList();
         try {
             Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = uploadService.preParsing(archivePaths, parsingResult);
             List<CsarDependenciesBean> sorted = sort(csarDependenciesBeans);
             for (CsarDependenciesBean csarBean : sorted) {
-                if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(gitHash)) {
-                    if (csarService.get(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
+                if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(gitHash)
+                    && csarService.get(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
                         // no commit since last import and the archive still exist in the repo, so do not import
                         // TODO notify the user that the archive has already been imported
                         continue;
-                    }
                 }
                 // FIXME Add possibility to choose an workspace
                 ParsingResult<Csar> result = uploadService.upload(csarBean.getPath(), CSARSource.GIT, AlienConstants.GLOBAL_WORKSPACE_ID);
@@ -168,12 +165,7 @@ public class CsarGitService {
         } catch (ParsingException e) {
             // TODO Actually add a parsing result with error.
             throw new GitException("Failed to import archive from git as it cannot be parsed", e);
-        } catch (AlreadyExistException e) {
-            return parsingResult;
-        } catch (CSARUsedInActiveDeployment e) {
-            // TODO Actually add a parsing result with error.
-            return parsingResult;
-        } catch (ToscaTypeAlreadyDefinedInOtherCSAR e) {
+        } catch (AlreadyExistException | ToscaTypeAlreadyDefinedInOtherCSAR | CSARUsedInActiveDeployment e) {
             // TODO Actually add a parsing result with error.
             return parsingResult;
         }
@@ -191,13 +183,13 @@ public class CsarGitService {
             } else {
                 // complete the list of dependent elements
                 List<CSARDependency> toClears = Lists.newArrayList();
-                for (CSARDependency dependent : csar.getDependencies()) {
-                    CsarDependenciesBean providedDependency = elements.get(dependent);
+                for (CSARDependency dependency : csar.getDependencies()) {
+                    CsarDependenciesBean providedDependency = elements.get(dependency);
                     if (providedDependency == null) {
                         // remove the dependency as it may be in the alien repo
-                        toClears.add(dependent);
+                        toClears.add(dependency);
                     } else {
-                        providedDependency.getDependents().add(entry.getValue());
+                        providedDependency.getDependents().add(csar);
                     }
                 }
                 for (CSARDependency toClear : toClears) {
@@ -209,7 +201,7 @@ public class CsarGitService {
             }
         }
 
-        while (independents.size() > 0) {
+        while (!independents.isEmpty()) {
             CsarDependenciesBean independent = independents.remove(0);
             elements.remove(independent.getSelf()); // remove from the elements
             sortedCsars.add(independent); // element has no more dependencies

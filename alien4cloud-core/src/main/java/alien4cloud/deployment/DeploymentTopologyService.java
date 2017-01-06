@@ -1,13 +1,8 @@
 package alien4cloud.deployment;
 
 import java.beans.IntrospectionException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -17,12 +12,7 @@ import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
-import org.alien4cloud.tosca.model.templates.AbstractPolicy;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
-import org.alien4cloud.tosca.model.templates.NodeGroup;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.templates.*;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -36,7 +26,6 @@ import com.google.common.collect.Sets;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.TopologyCompositionService;
-import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.deployment.model.DeploymentConfiguration;
@@ -57,6 +46,7 @@ import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintTechnicalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.PropertyService;
 import lombok.extern.slf4j.Slf4j;
@@ -220,7 +210,7 @@ public class DeploymentTopologyService {
         deploymentTopology.setEnvironmentId(environment.getId());
         deploymentTopology.setInitialTopologyId(topology.getId());
         deploymentTopology.setId(id);
-        doUpdateDeploymentTopology(deploymentTopology, topology, environment);
+        doUpdateDeploymentTopology(deploymentTopology, topology);
         return deploymentTopology;
     }
 
@@ -230,12 +220,11 @@ public class DeploymentTopologyService {
      * @param deploymentTopology the deployment topology to update
      */
     public void updateDeploymentTopology(DeploymentTopology deploymentTopology) {
-        ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
-        doUpdateDeploymentTopology(deploymentTopology, topology, environment);
+        doUpdateDeploymentTopology(deploymentTopology, topology);
     }
 
-    private void doUpdateDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
+    private void doUpdateDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology) {
         Map<String, NodeTemplate> previousNodeTemplates = deploymentTopology.getNodeTemplates();
         ReflectionUtil.mergeObject(topology, deploymentTopology, "id");
         topologyCompositionService.processTopologyComposition(deploymentTopology);
@@ -291,10 +280,10 @@ public class DeploymentTopologyService {
             }
 
             AbstractPropertyValue locationResourcePropertyValue = locationResourceTemplate.getTemplate().getProperties().get(propertyName);
-            buildConstaintException(locationResourcePropertyValue, propertyDefinition, "by the admin in the Location Resource Template", propertyName,
+            buildConstaintException(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName,
                     propertyValue);
             NodeTemplate originalNode = deploymentTopology.getOriginalNodes().get(nodeTemplateId);
-            buildConstaintException(originalNode.getProperties().get(propertyName), propertyDefinition, "in the portable topology", propertyName,
+            buildConstaintException(originalNode.getProperties().get(propertyName), "in the portable topology", propertyName,
                     propertyValue);
 
             // Set the value and check constraints
@@ -341,11 +330,11 @@ public class DeploymentTopologyService {
 
             AbstractPropertyValue locationResourcePropertyValue = locationResourceTemplate.getTemplate().getCapabilities().get(capabilityName).getProperties()
                     .get(propertyName);
-            buildConstaintException(locationResourcePropertyValue, propertyDefinition, "by the admin in the Location Resource Template", propertyName,
+            buildConstaintException(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName,
                     propertyValue);
             AbstractPropertyValue originalNodePropertyValue = deploymentTopology.getOriginalNodes().get(nodeTemplateId).getCapabilities().get(capabilityName)
                     .getProperties().get(propertyName);
-            buildConstaintException(originalNodePropertyValue, propertyDefinition, "in the portable topology", propertyName, propertyValue);
+            buildConstaintException(originalNodePropertyValue, "in the portable topology", propertyName, propertyValue);
 
             // Set the value and check constraints
             propertyService.setCapabilityPropertyValue(substitutedNode.getCapabilities().get(capabilityName), propertyDefinition, propertyName, propertyValue);
@@ -361,7 +350,7 @@ public class DeploymentTopologyService {
      * @param sourcePropertyValue null or an already defined Property Value.
      * @param messageSource The named source to add in the exception message in case of failure.
      */
-    private void buildConstaintException(AbstractPropertyValue sourcePropertyValue, PropertyDefinition propertyDefinition, String messageSource,
+    private void buildConstaintException(AbstractPropertyValue sourcePropertyValue, String messageSource,
             String propertyName, Object propertyValue) throws ConstraintViolationException {
         if (sourcePropertyValue != null) {
             try {

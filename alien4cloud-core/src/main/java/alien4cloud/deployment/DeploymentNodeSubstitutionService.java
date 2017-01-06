@@ -1,32 +1,35 @@
 package alien4cloud.deployment;
 
-import alien4cloud.common.AlienConstants;
-import alien4cloud.deployment.matching.services.nodes.NodeMatcherService;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.types.NodeType;
-import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
-import org.alien4cloud.tosca.model.templates.NodeGroup;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import alien4cloud.orchestrators.locations.services.ILocationResourceService;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.utils.PropertyUtil;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.apache.commons.collections4.MapUtils;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
-import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import alien4cloud.deployment.matching.services.nodes.NodeMatcherService;
+import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.orchestrators.locations.services.ILocationResourceService;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.utils.AlienConstants;
+import alien4cloud.utils.PropertyUtil;
 
 @Service
 public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstitutionService {

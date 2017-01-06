@@ -2,12 +2,12 @@ package org.alien4cloud.tosca.editor;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import alien4cloud.topology.TopologyServiceCore;
 import org.springframework.stereotype.Service;
 
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyUtils;
 
 /**
  * Helper service for editor context that allows to get possible replacement indexedNodeTypes for a node template.
@@ -33,7 +33,7 @@ public class EditorNodeReplacementService {
             topologyService.checkEditionAuthorizations(EditionContextManager.getTopology());
             Topology topology = EditionContextManager.getTopology();
 
-            TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, TopologyServiceCore.getNodeTemplates(topology));
+            TopologyUtils.getNodeTemplate(topologyId, nodeTemplateName, TopologyUtils.getNodeTemplates(topology));
             return topologyService.findReplacementForNode(nodeTemplateName, topology);
         } finally {
             editionContextManager.destroy();

@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.topology.TopologyUtils;
 import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.IValue;
@@ -54,7 +55,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintRequiredParameterException;
@@ -177,8 +177,8 @@ public class RuntimeController {
     }
 
     private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operationRequest.getNodeTemplateName(),
-                TopologyServiceCore.getNodeTemplates(topology));
+        NodeTemplate nodeTemplate = TopologyUtils.getNodeTemplate(topology.getId(), operationRequest.getNodeTemplateName(),
+                TopologyUtils.getNodeTemplates(topology));
         NodeType indexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
 
         Map<String, Interface> interfaces = IndexedModelUtils.mergeInterfaces(indexedNodeType.getInterfaces(), nodeTemplate.getInterfaces());

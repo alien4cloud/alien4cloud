@@ -26,7 +26,7 @@ import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.topology.validation.TopologyCapabilityBoundsValidationServices;
 import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
@@ -66,9 +66,9 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         }
 
         Topology topology = EditionContextManager.getTopology();
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
         // ensure that the target node exists
-        TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getTarget(), nodeTemplates);
+        TopologyUtils.getNodeTemplate(topology.getId(), operation.getTarget(), nodeTemplates);
 
         // We don't use the tosca context as the relationship type may not be in dependencies yet (that's why we use the load type below).
         RelationshipType indexedRelationshipType = toscaTypeSearchService.find(RelationshipType.class, operation.getRelationshipType(),

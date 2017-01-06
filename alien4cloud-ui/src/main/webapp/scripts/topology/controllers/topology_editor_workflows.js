@@ -6,7 +6,9 @@ define(function (require) {
 
   modules.get('a4c-topology-editor').factory('topoEditWf', [ '$modal', '$interval', '$filter', 'listToMapService',
     function($modal, $interval, $filter, listToMapService) {
+      var wfNamePattern = '^\\w+$';
       var TopologyEditorMixin = function(scope) {
+
         this.scope = scope;
         // the current step that is displayed
         this.scope.previewWorkflowStep = undefined;
@@ -254,6 +256,12 @@ define(function (require) {
         },
         renameWorkflow: function(newName) {
           var scope = this.scope;
+          if(newName === scope.currentWorkflowName){
+            return;
+          }
+          if (!newName.match(wfNamePattern)) {
+            return $filter('translate')('APPLICATIONS.TOPOLOGY.INVALID_NAME');
+          }
           var instance = this;
           this.scope.execute({
               type: 'org.alien4cloud.tosca.editor.operations.workflow.RenameWorkflowOperation',
@@ -296,6 +304,9 @@ define(function (require) {
         // === actions on steps
         renameStep: function(stepId, newStepName) {
           var scope = this.scope;
+          if(newStepName === scope.pinnedWorkflowStep.name){
+            return;
+          }
           var instance = this;
           instance.unpinCurrent();
           this.scope.execute({

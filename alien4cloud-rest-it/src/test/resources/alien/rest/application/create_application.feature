@@ -14,7 +14,7 @@ Feature: Creating a new application
   @reset
   Scenario: Creating a new application with an invalid name should fail
     When I create a new application with name "watchmiddl///eearth" and description "Use my great eye to find frodo and the ring."
-    Then I should receive a RestResponse with an error code 619
+    Then I should receive a RestResponse with an error code 618
 
   @reset
   Scenario: Creating a new application when already exist should fail

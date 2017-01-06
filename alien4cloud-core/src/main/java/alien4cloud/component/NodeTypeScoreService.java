@@ -6,21 +6,20 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.Constants;
+import com.google.common.collect.Maps;
+
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.templates.Topology;
+import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.version.Version;
-
-import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Updates the scoring of node types based on their usage, version and default capabilities.
@@ -55,11 +54,11 @@ public class NodeTypeScoreService implements Runnable {
     public void run() {
         log.info("Updating node type scores.");
         // Go over all indexed node types.
-        GetMultipleDataResult<NodeType> getMultipleDataResult = alienESDAO.find(NodeType.class, null, 0, Constants.DEFAULT_ES_SEARCH_SIZE);
+        GetMultipleDataResult<NodeType> getMultipleDataResult = alienESDAO.find(NodeType.class, null, 0, AlienConstants.DEFAULT_ES_SEARCH_SIZE);
         int from = getMultipleDataResult.getTo() + 1;
         processNodeTypes(getMultipleDataResult.getData());
         while (getMultipleDataResult.getData().length > 0 && from < getMultipleDataResult.getTotalResults()) {
-            getMultipleDataResult = alienESDAO.find(NodeType.class, null, from, from + Constants.DEFAULT_ES_SEARCH_SIZE);
+            getMultipleDataResult = alienESDAO.find(NodeType.class, null, from, from + AlienConstants.DEFAULT_ES_SEARCH_SIZE);
             from = getMultipleDataResult.getTo() + 1;
             processNodeTypes(getMultipleDataResult.getData());
         }
@@ -89,7 +88,7 @@ public class NodeTypeScoreService implements Runnable {
         // TODO get a single element and order by version.
         Version nodeVersion = new Version(((NodeType) nodeType).getArchiveVersion());
 
-        for (Object otherVersionNodeType : alienESDAO.find(NodeType.class, filters, Constants.DEFAULT_ES_SEARCH_SIZE).getData()) {
+        for (Object otherVersionNodeType : alienESDAO.find(NodeType.class, filters, AlienConstants.DEFAULT_ES_SEARCH_SIZE).getData()) {
             Version otherVersion = new Version(((NodeType) otherVersionNodeType).getArchiveVersion());
             if (nodeVersion.compareTo(otherVersion) < 0) {
                 return false;

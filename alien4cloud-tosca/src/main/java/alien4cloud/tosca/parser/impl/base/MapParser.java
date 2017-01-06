@@ -16,9 +16,8 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -73,7 +72,14 @@ public class MapParser<T> implements INodeParser<Map<String, T>> {
                     BeanWrapper valueWrapper = new BeanWrapperImpl(value);
                     valueWrapper.setPropertyValue(keyPath, key);
                 }
-                map.put(key, value);
+                if (value == null) {
+                    ParsingError err = new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.SYNTAX_ERROR,
+                            "Invalid format for the value.", node.getStartMark(), "The value cannot be parsed", node.getEndMark(),
+                            key);
+                    context.getParsingErrors().add(err);
+                } else {
+                    map.put(key, value);
+                }
             }
         }
         return map;

@@ -13,12 +13,12 @@ import org.elasticsearch.mapping.MappingBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
 import alien4cloud.rest.component.RecommendationRequest;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.AlienConstants;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;

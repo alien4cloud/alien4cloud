@@ -51,7 +51,7 @@ import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.tosca.ToscaUtils;
+import alien4cloud.tosca.ToscaNormativeUtil;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
@@ -150,9 +150,9 @@ public class TopologyTreeBuilderService {
                 NodeTemplate template = templateEntry.getValue();
                 NodeType indexedToscaElement = getToscaType(template.getType(), cache, topology.getDependencies(), NodeType.class);
 
-                boolean isCompute = ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, indexedToscaElement);
-                boolean isNetwork = ToscaUtils.isFromType(NormativeNetworkConstants.NETWORK_TYPE, indexedToscaElement);
-                boolean isVolume = ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, indexedToscaElement);
+                boolean isCompute = ToscaNormativeUtil.isFromType(NormativeComputeConstants.COMPUTE_TYPE, indexedToscaElement);
+                boolean isNetwork = ToscaNormativeUtil.isFromType(NormativeNetworkConstants.NETWORK_TYPE, indexedToscaElement);
+                boolean isVolume = ToscaNormativeUtil.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, indexedToscaElement);
                 if (!isCompute && !isNetwork && !isVolume) {
                     nonNativesNode.put(templateEntry.getKey(), template);
                 }
@@ -211,9 +211,9 @@ public class TopologyTreeBuilderService {
         Map<String, List<PaaSNodeTemplate>> groups = Maps.newHashMap();
         for (Entry<String, PaaSNodeTemplate> entry : nodeTemplates.entrySet()) {
             PaaSNodeTemplate paaSNodeTemplate = entry.getValue();
-            boolean isCompute = ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedToscaElement());
-            boolean isNetwork = ToscaUtils.isFromType(NormativeNetworkConstants.NETWORK_TYPE, paaSNodeTemplate.getIndexedToscaElement());
-            boolean isVolume = ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedToscaElement());
+            boolean isCompute = ToscaNormativeUtil.isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedToscaElement());
+            boolean isNetwork = ToscaNormativeUtil.isFromType(NormativeNetworkConstants.NETWORK_TYPE, paaSNodeTemplate.getIndexedToscaElement());
+            boolean isVolume = ToscaNormativeUtil.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedToscaElement());
             if (isVolume) {
                 // manage block storage
                 processBlockStorage(paaSNodeTemplate, nodeTemplates);

@@ -45,7 +45,12 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
                         value = valueParser.parse(mappingNode.getValue().get(0).getValueNode(), context);
                         checkMappingNodeSingleProperty(mappingNode, context);
                     }
-                    if (allowDuplicate) {
+                    if (value == null) {
+                        ParsingError err = new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.SYNTAX_ERROR,
+                                "Invalid format for the value.", node.getStartMark(), "The value cannot be parsed", node.getEndMark(),
+                                key);
+                        context.getParsingErrors().add(err);
+                    } else if (allowDuplicate) {
                         sequenceMap.put(getUniqueKey(sequenceMap, key), value);
                     } else if (sequenceMap.containsKey(key)) {
                         ParsingError err = new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.DUPLICATED_ELEMENT_DECLARATION,

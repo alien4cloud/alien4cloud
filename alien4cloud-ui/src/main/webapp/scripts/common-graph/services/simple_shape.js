@@ -23,8 +23,7 @@ define(function (require) {
       Connector.prototype = {
         constructor: Connector,
         // Flag to know if the connector can be used to start a connection (drag from)
-        isDragable: true,
-        
+        isDragable: true
       };
 
       function SimpleShape () {

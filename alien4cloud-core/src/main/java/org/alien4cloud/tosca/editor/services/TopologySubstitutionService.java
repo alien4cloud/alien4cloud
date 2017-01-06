@@ -7,7 +7,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.normative.ToscaType;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
@@ -30,9 +29,10 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 
 import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
+import alien4cloud.tosca.normative.ToscaType;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -181,7 +181,7 @@ public class TopologySubstitutionService {
         if (outputAttributes != null) {
             for (Map.Entry<String, Set<String>> oae : outputAttributes.entrySet()) {
                 String nodeName = oae.getKey();
-                NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology, nodeName);
+                NodeTemplate nodeTemplate = TopologyUtils.getNodeTemplate(topology, nodeName);
                 NodeType nodeTemplateType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
                 for (String attributeName : oae.getValue()) {
                     IValue ivalue = nodeTemplateType.getAttributes().get(attributeName);

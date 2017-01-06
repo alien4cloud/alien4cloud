@@ -49,7 +49,7 @@ Feature: Update an application (image or tags)
   Scenario: Rename an application with an invalid application name should fail
     Given There is a "watchmiddleearth" application
     When I set the "name" of this application to "new\\\\\application"
-    Then I should receive a RestResponse with an error code 619
+    Then I should receive a RestResponse with an error code 618
     And The application can be found in ALIEN with its "name" set to "watchmiddleearth"
 
   @reset

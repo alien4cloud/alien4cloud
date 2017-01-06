@@ -12,6 +12,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.CsarDependenciesBean;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.tosca.context.ToscaContextual;
@@ -36,6 +38,8 @@ public class ToscaArchiveParser {
     private ToscaMetaMapping toscaMetaMapping;
     @Resource
     private ToscaParser toscaParser;
+    @Resource
+    private ToscaImportParser toscaImportParser;
 
     /**
      * Parse a TOSCA archive and reuse an existing TOSCA Context. Other methods will create an independent context for the parsing.
@@ -75,7 +79,7 @@ public class ToscaArchiveParser {
             if (Files.exists(csarFS.getPath(TOSCA_META_FILE_LOCATION))) {
                 return parseFromToscaMeta(csarFS);
             }
-            return parseFromRootDefinitions(csarFS);
+            return parseFromRootDefinitions(csarFS, toscaParser);
         } catch (IOException e) {
             log.error("Unable to read uploaded archive [" + archiveFile + "]", e);
             throw new ParsingException("Archive",
@@ -111,6 +115,34 @@ public class ToscaArchiveParser {
         return parseFromRootDefinitions(archiveDir);
     }
 
+    @ToscaContextual(requiresNew = true)
+    public ParsingResult<CsarDependenciesBean> parseImports(Path archiveFile) throws ParsingException {
+        try (FileSystem csarFS = FileSystems.newFileSystem(archiveFile, null)) {
+            if (Files.exists(csarFS.getPath(TOSCA_META_FILE_LOCATION))) {
+                YamlSimpleParser<ToscaMeta> parser = new YamlSimpleParser<ToscaMeta>(toscaMetaMapping.getParser());
+                ParsingResult<ToscaMeta> parsingResult = parser.parseFile(csarFS.getPath(TOSCA_META_FILE_LOCATION));
+                CsarDependenciesBean csarDependenciesBean = initDependencyBeanFromToscaMeta(parsingResult.getResult());
+                return parseFromToscaMeta(csarFS, parsingResult.getResult(), TOSCA_META_FILE_LOCATION, csarDependenciesBean, toscaImportParser);
+            }
+            return parseFromRootDefinitions(csarFS, toscaImportParser);
+        } catch (IOException e) {
+            log.error("Unable to read uploaded archive [" + archiveFile + "]", e);
+            throw new ParsingException("Archive",
+                    new ParsingError(ErrorCode.FAILED_TO_READ_FILE, "Problem happened while accessing file", null, null, null, archiveFile.toString()));
+        } catch (ProviderNotFoundException e) {
+
+            log.warn("Failed to import archive", e);
+            throw new ParsingException("Archive", new ParsingError(ErrorCode.ERRONEOUS_ARCHIVE_FILE, "File is not in good format, only zip file is supported ",
+                    null, e.getMessage(), null, null));
+        }
+    }
+
+    private CsarDependenciesBean initDependencyBeanFromToscaMeta(ToscaMeta toscaMeta) {
+        CsarDependenciesBean csarDependenciesBean = new CsarDependenciesBean();
+        csarDependenciesBean.setSelf(new CSARDependency(toscaMeta.getName(), toscaMeta.getVersion()));
+        return csarDependenciesBean;
+    }
+
     private ParsingResult<ArchiveRoot> parseFromToscaMeta(Path csarPath) throws ParsingException {
         YamlSimpleParser<ToscaMeta> parser = new YamlSimpleParser<ToscaMeta>(toscaMetaMapping.getParser());
         ParsingResult<ToscaMeta> parsingResult = parser.parseFile(csarPath.resolve(TOSCA_META_FILE_LOCATION));
@@ -123,7 +155,7 @@ public class ToscaArchiveParser {
         ParsingResult<ToscaMeta> parsingResult = parser.parseFile(csarFS.getPath(TOSCA_META_FILE_LOCATION));
         // FIXME shouldn't we check here if the meta parsing went well?
         ArchiveRoot archiveRoot = initFromToscaMeta(parsingResult);
-        return parseFromToscaMeta(csarFS, parsingResult.getResult(), TOSCA_META_FILE_LOCATION, archiveRoot);
+        return parseFromToscaMeta(csarFS, parsingResult.getResult(), TOSCA_META_FILE_LOCATION, archiveRoot, toscaParser);
     }
 
     private ArchiveRoot initFromToscaMeta(ParsingResult<ToscaMeta> toscaMeta) {
@@ -147,10 +179,10 @@ public class ToscaArchiveParser {
                 new ParsingError(ErrorCode.ENTRY_DEFINITION_NOT_FOUND, "No entry definitions found in the meta file.", null, null, null, null));
     }
 
-    private ParsingResult<ArchiveRoot> parseFromToscaMeta(FileSystem csarFS, ToscaMeta toscaMeta, String metaFileName, ArchiveRoot instance)
+    private <T> ParsingResult<T> parseFromToscaMeta(FileSystem csarFS, ToscaMeta toscaMeta, String metaFileName, T instance, YamlParser<T> parser)
             throws ParsingException {
         if (toscaMeta.getEntryDefinitions() != null) {
-            return toscaParser.parseFile(csarFS.getPath(toscaMeta.getEntryDefinitions()), instance);
+            return parser.parseFile(csarFS.getPath(toscaMeta.getEntryDefinitions()), instance);
         }
         throw new ParsingException(metaFileName,
                 new ParsingError(ErrorCode.ENTRY_DEFINITION_NOT_FOUND, "No entry definitions found in the meta file.", null, null, null, null));
@@ -170,13 +202,13 @@ public class ToscaArchiveParser {
         }
     }
 
-    private ParsingResult<ArchiveRoot> parseFromRootDefinitions(FileSystem csarFS) throws ParsingException {
+    private <T> ParsingResult<T> parseFromRootDefinitions(FileSystem csarFS, YamlParser<T> parser) throws ParsingException {
         // load definitions from the archive root
         try {
             DefinitionVisitor visitor = new DefinitionVisitor(csarFS);
             Files.walkFileTree(csarFS.getPath(csarFS.getSeparator()), EnumSet.noneOf(FileVisitOption.class), 1, visitor);
             if (visitor.getDefinitionFiles().size() == 1) {
-                return toscaParser.parseFile(visitor.getDefinitionFiles().get(0));
+                return parser.parseFile(visitor.getDefinitionFiles().get(0));
             }
             throw new ParsingException("Archive",
                     new ParsingError(ErrorCode.SINGLE_DEFINITION_SUPPORTED, "Alien only supports archives with a single root definition.", null, null, null,

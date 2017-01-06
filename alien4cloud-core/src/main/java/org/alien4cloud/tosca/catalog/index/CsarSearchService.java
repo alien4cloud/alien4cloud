@@ -7,10 +7,10 @@ import javax.annotation.Resource;
 import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.utils.AlienConstants;
 
 @Component
 public class CsarSearchService implements ICsarSearchService {

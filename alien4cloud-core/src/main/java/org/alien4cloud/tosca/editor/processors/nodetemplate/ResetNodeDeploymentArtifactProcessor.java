@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyUtils;
 
 /**
  * Process an {@link ResetNodeDeploymentArtifactOperation}.
@@ -29,8 +30,8 @@ public class ResetNodeDeploymentArtifactProcessor implements IEditorOperationPro
         Topology topology = EditionContextManager.getTopology();
 
         // Get the node template's artifacts to reset
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
         DeploymentArtifact currentArtifact = nodeTemplate.getArtifacts() == null ? null : nodeTemplate.getArtifacts().get(operation.getArtifactName());
         if (currentArtifact == null) {
             throw new NotFoundException(

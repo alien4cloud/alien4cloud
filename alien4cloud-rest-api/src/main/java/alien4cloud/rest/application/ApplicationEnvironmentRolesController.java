@@ -144,7 +144,7 @@ public class ApplicationEnvironmentRolesController {
         // Check if user has at least one role on the application or the environments
         Set<String> applicationRoles = application.getUserRoles() != null ? application.getUserRoles().get(username) : new HashSet<>();
         List<Set<String>> environmentRoles = Arrays.stream(applicationEnvironmentService.getByApplicationId(applicationId))
-                .map(applicationEnvironment -> (applicationEnvironment.getUserRoles() != null ? applicationEnvironment.getUserRoles().get(username) : null))
+                .map(applicationEnvironment -> applicationEnvironment.getUserRoles() != null ? applicationEnvironment.getUserRoles().get(username) : null)
                 .filter(roles -> roles != null).collect(Collectors.toList());
         if (mustRemoveApplicationUserRole(applicationRoles, environmentRoles)) {
             // If we are here, it means that we must take out the APPLICATION_USER role for application as user does not have any other role than that
@@ -195,7 +195,7 @@ public class ApplicationEnvironmentRolesController {
         // Check if group has at least one role on the application or the environments
         Set<String> applicationRoles = application.getGroupRoles() != null ? application.getGroupRoles().get(groupId) : new HashSet<>();
         List<Set<String>> environmentRoles = Arrays.stream(applicationEnvironmentService.getByApplicationId(applicationId))
-                .map(applicationEnvironment -> (applicationEnvironment.getGroupRoles() != null ? applicationEnvironment.getGroupRoles().get(groupId) : null))
+                .map(applicationEnvironment -> applicationEnvironment.getGroupRoles() != null ? applicationEnvironment.getGroupRoles().get(groupId) : null)
                 .filter(roles -> roles != null).collect(Collectors.toList());
         if (mustRemoveApplicationUserRole(applicationRoles, environmentRoles)) {
             // If we are here, it means that we must take out the APPLICATION_USER role for application as group does not have any other role than that

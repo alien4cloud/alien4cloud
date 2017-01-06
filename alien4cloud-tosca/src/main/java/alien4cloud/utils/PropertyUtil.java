@@ -3,13 +3,14 @@ package alien4cloud.utils;
 import java.util.Map;
 import java.util.Set;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.apache.commons.collections4.MapUtils;
 
 import com.google.common.collect.Maps;
 
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import alien4cloud.paas.exception.NotSupportedException;
 
 public final class PropertyUtil {
     private PropertyUtil() {
@@ -113,6 +114,23 @@ public final class PropertyUtil {
                     into.put(fromEntry.getKey(), fromEntry.getValue());
                 }
             }
+        }
+    }
+
+    /**
+     * Get the scalar value
+     *
+     * @param propertyValue the property value
+     * @throws alien4cloud.paas.exception.NotSupportedException if called on a non ScalarPropertyValue
+     * @return the value or null if the propertyValue is null
+     */
+    public static String getScalarValue(AbstractPropertyValue propertyValue) {
+        if (propertyValue == null) {
+            return null;
+        } else if (propertyValue instanceof ScalarPropertyValue) {
+            return ((ScalarPropertyValue) propertyValue).getValue();
+        } else {
+            throw new NotSupportedException("Property value is not of type scalar");
         }
     }
 }

@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DependencyConflictDTO {
 
-    /** <strong>Source</strong> is the dependency <code>archiveName:archiveVersion</code>
+    /** <strong>Source</strong> is the topology's dependency <code>archiveName</code>
      * that depends, directly or transitively, on <strong>dependency</strong>. */
     private String source;
     /** <strong>Dependency</strong> is the <code>archiveName:archiveVersion</code> that causes a dependency conflict. */

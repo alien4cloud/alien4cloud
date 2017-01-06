@@ -23,7 +23,6 @@ import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.apache.commons.lang.StringUtils;
 
 import alien4cloud.repository.services.RepositoryService;
-import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -90,7 +89,6 @@ public abstract class AbstractArchivePostProcessor {
             topology.setArchiveName(parsedArchive.getResult().getArchive().getName());
             topology.setArchiveVersion(parsedArchive.getResult().getArchive().getVersion());
             topology.setWorkspace(workspace);
-            TopologyUtils.normalizeAllNodeTemplateName(topology, parsedArchive);
         }
     }
 

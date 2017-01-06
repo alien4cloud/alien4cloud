@@ -14,9 +14,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import alien4cloud.common.AlienConstants;
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.ElasticSearchClient;
@@ -28,17 +27,16 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.Constants;
-import org.alien4cloud.tosca.model.types.NodeType;
-import alien4cloud.model.common.Tag;
+import com.google.common.collect.Lists;
+
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.common.Tag;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
-import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
-
-import com.google.common.collect.Lists;
+import alien4cloud.utils.AlienConstants;
+import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-search-test.xml")
@@ -150,7 +148,7 @@ public class ComponentTest {
         assertTrue(response.getData().getDefaultCapabilities().contains("jdni"));
 
         Map<String, String[]> filters = new HashMap<>();
-        filters.put(Constants.DEFAULT_CAPABILITY_FIELD_NAME, new String[] { "jdni" });
+        filters.put(AlienConstants.DEFAULT_CAPABILITY_FIELD_NAME, new String[] { "jdni" });
         GetMultipleDataResult result = dao.find(NodeType.class, filters, 1);
         NodeType component;
         if (result == null || result.getData() == null || result.getData().length == 0) {

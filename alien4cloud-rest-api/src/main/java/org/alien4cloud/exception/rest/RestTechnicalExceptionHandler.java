@@ -40,9 +40,8 @@ import alien4cloud.exception.GitException;
 import alien4cloud.exception.GitMergingStateException;
 import alien4cloud.exception.GitStateException;
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.exception.InvalidApplicationNameException;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.exception.InvalidNodeNameException;
+import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.MissingCSARDependenciesException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.ReleaseReferencingSnapshotException;
@@ -135,22 +134,14 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).message("The posted object already exist.").build()).build();
     }
 
-    @ExceptionHandler(InvalidNodeNameException.class)
+    @ExceptionHandler(InvalidNameException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public RestResponse<Void> invalidNodeName(InvalidNodeNameException e) {
-        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_NODE_NAME)
-                .message("A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.").build()).build();
-    }
-
-    @ExceptionHandler(InvalidApplicationNameException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public RestResponse<Void> invalidApplicationName(InvalidApplicationNameException e) {
-        return RestResponseBuilder.<Void> builder().error(
-                RestErrorBuilder.builder(RestErrorCode.INVALID_APPLICATION_NAME).message("An application name should not contains slash or backslash.").build())
+    public RestResponse<?> invalidNameExceptionHandler(InvalidNameException e) {
+        return RestResponseBuilder.builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_NAME).message(e.getMessage()).build())
                 .build();
     }
+
 
     @ExceptionHandler(DeleteReferencedObjectException.class)
     @ResponseStatus(HttpStatus.CONFLICT)

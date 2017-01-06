@@ -244,33 +244,13 @@ define(function (require) {
         }
         // process topology data
         $scope.inputs = result.data.topology.inputs;
-        $scope.outputProperties = result.data.topology.outputProperties;
-        $scope.outputCapabilityProperties = result.data.topology.outputCapabilityProperties;
-        $scope.outputAttributes = result.data.topology.outputAttributes;
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
-        $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
-        $scope.nodeTypes = $scope.topologyDTO.nodeTypes;
-        $scope.outputNodes = [];
+
         $scope.inputsSize = 0;
-        $scope.outputPropertiesSize = 0;
-        $scope.outputAttributesSize = 0;
         $scope.inputArtifactsSize = 0;
 
         if (angular.isDefined(result.data.topology.inputs)) {
           $scope.inputsSize = Object.keys(result.data.topology.inputs).length;
-        }
-        if (angular.isDefined($scope.outputProperties)) {
-          $scope.outputNodes = Object.keys($scope.outputProperties);
-          $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
-          refreshOutputProperties();
-        }
-        if (angular.isDefined($scope.outputCapabilityProperties)) {
-          $scope.outputNodes = _.union($scope.outputNodes, Object.keys($scope.outputCapabilityProperties));
-          refreshOutputProperties();
-        }
-        if (angular.isDefined($scope.outputAttributes)) {
-          $scope.outputNodes = _.union($scope.outputNodes, Object.keys($scope.outputAttributes));
-          $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
         }
         if (angular.isDefined(result.data.topology.inputArtifacts)) {
           $scope.inputArtifactsSize = Object.keys(result.data.topology.inputArtifacts).length;
@@ -291,7 +271,43 @@ define(function (require) {
           //TODO what should we do here? redirect to the editor view ? in that case make sure the user has the correct rights
 
         });
-
+      };
+  
+      $scope.processDeploymentTopologyInformation = function processDeploymentTopologyInformation() {
+        return applicationServices.getRuntimeTopology.get({
+          applicationId: application.id,
+          applicationEnvironmentId: appEnvironments.selected.id
+        }, function(result) {
+          topologyJsonProcessor.process(result.data);
+          $scope.outputProperties = result.data.topology.outputProperties;
+          $scope.outputCapabilityProperties = result.data.topology.outputCapabilityProperties;
+          $scope.outputAttributes = result.data.topology.outputAttributes;
+          $scope.nodeTemplates = result.data.topology.nodeTemplates;
+          $scope.outputNodes = [];
+          $scope.outputPropertiesSize = 0;
+          $scope.outputAttributesSize = 0;
+          if (angular.isDefined($scope.outputProperties)) {
+            $scope.outputNodes = Object.keys($scope.outputProperties);
+            $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
+            refreshOutputProperties();
+          }
+          if (angular.isDefined($scope.outputCapabilityProperties)) {
+            $scope.outputNodes = _.union($scope.outputNodes, Object.keys($scope.outputCapabilityProperties));
+            refreshOutputProperties();
+          }
+          if (angular.isDefined($scope.outputAttributes)) {
+            $scope.outputNodes = _.union($scope.outputNodes, Object.keys($scope.outputAttributes));
+            $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
+          }
+        }, function() {
+          delete $scope.outputProperties;
+          delete $scope.outputCapabilityProperties;
+          delete $scope.outputAttributes;
+          delete $scope.nodeTemplates;
+          delete $scope.outputNodes;
+          $scope.outputPropertiesSize = 0;
+          $scope.outputAttributesSize = 0;
+        });
       };
 
       // get a topologyId

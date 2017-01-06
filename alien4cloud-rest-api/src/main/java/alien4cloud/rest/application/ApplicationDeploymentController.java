@@ -7,6 +7,10 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,6 +57,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.DeployerRole;
+import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyValidationResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -83,6 +88,8 @@ public class ApplicationDeploymentController {
     private DeploymentRuntimeService deploymentRuntimeService;
     @Inject
     private WorkflowExecutionService workflowExecutionService;
+    @Inject
+    private TopologyDTOBuilder topologyDTOBuilder;
 
     /**
      * Trigger deployment of the application on the current configured PaaS.
@@ -179,6 +186,37 @@ public class ApplicationDeploymentController {
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();
+    }
+
+    /**
+     * Get runtime topology of an application on a specific environment or the current deployment topology if no deployment is active.
+     * This method is necessary for example to compute output properties / attributes on the client side.
+     *
+     * @param applicationId application id for which to get the topology
+     * @param applicationEnvironmentId application environment for which to get the topology
+     * @return {@link RestResponse}<{@link TopologyDTO}> containing the requested runtime {@link Topology} and the
+     *         {@link NodeType} related to its {@link NodeTemplate}s
+     */
+    @ApiOperation(value = "Get last runtime (deployed) topology of an application or else get the current deployment topology for the environment.")
+    @RequestMapping(value = "/{applicationId:.+?}/environments/{applicationEnvironmentId:.+?}/runtime-topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<TopologyDTO> getRuntimeTopology(
+            @ApiParam(value = "Id of the application for which to get deployed topology.", required = true) @PathVariable String applicationId,
+            @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String applicationEnvironmentId) {
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
+        if (!environment.getApplicationId().equals(applicationId)) {
+            throw new NotFoundException("Unable to find environment with id <" + applicationEnvironmentId + "> for application <" + applicationId + ">");
+        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(applicationService.getOrFail(applicationId), environment,
+                ApplicationEnvironmentRole.APPLICATION_USER);
+        Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
+        DeploymentTopology deploymentTopology;
+        if (deployment != null) {
+            deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
+        } else {
+            deploymentTopology = deploymentTopologyService.getDeploymentTopology(environment.getId());
+        }
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTOBuilder.buildTopologyDTO(deploymentTopology)).build();
     }
 
     @ApiOperation(value = "Get the deployment status for the environements that the current user is allowed to see for a given application.", notes = "Returns the current status of an application list from the PaaS it is deployed on for all environments.")

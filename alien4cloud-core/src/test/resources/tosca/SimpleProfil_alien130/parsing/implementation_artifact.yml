@@ -67,7 +67,8 @@ node_types:
             file: myScript.abc
             repository: script_repo
             type: tosca.artifacts.Implementation.Bash
-
+  my.http.component.extended:
+    derived_from: my.http.component
   my.git.component:
     interfaces:
       tosca.interfaces.node.lifecycle.Standard:
@@ -78,7 +79,6 @@ node_types:
             type: tosca.artifacts.Implementation.Bash
 
 relationship_types:
-
   my.http.relationship:
     interfaces:
       Configure:
@@ -91,3 +91,5 @@ relationship_types:
             file: myScript.abc
             repository: script_repo
             type: tosca.artifacts.Implementation.Bash
+  my.http.relationship.extended:
+    derived_from: my.http.relationship

@@ -78,7 +78,7 @@ public class AuditController {
             Method auditedMethod = auditService.getAuditedMethod(method);
             if (auditedMethod != null) {
                 Audit audit = method.getMethodAnnotation(Audit.class);
-                boolean enabledByDefault = (audit != null && audit.enabledByDefault());
+                boolean enabledByDefault = audit != null && audit.enabledByDefault();
                 allMethods.put(methodFactory.buildAuditedMethod(auditedMethod, method), enabledByDefault);
             }
         }

@@ -1,11 +1,11 @@
 define(function (require) {
   'use strict';
-  
+
   require('scripts/common/directives/facets');
-  
+
   var modules = require('modules');
   var _ = require('lodash');
-  
+
   modules.get('a4c-common', []).directive('facetSearchPanel', function () {
     return {
       restrict: 'E',
@@ -24,15 +24,15 @@ define(function (require) {
       }
     };
   });
-  
+
   modules.get('a4c-common', []).controller('FacetSearchPanelController', ['$scope', 'searchServiceFactory', function ($scope, searchServiceFactory) {
     $scope.facetFilters = [];
-    
+
     /*update a search*/
     function updateSearch(filters) {
       var objectFilters = {};
       filters.forEach(function (filter) {
-        
+
         filter = filter || {};
         if (!(filter.term in objectFilters)) {
           // First time the key is present set to the value in filter
@@ -45,7 +45,7 @@ define(function (require) {
       $scope.queryProvider.filters = objectFilters;
       $scope.searchService.search();
     }
-    
+
     /*trigger a new search, when params are changed*/
     $scope.doSearch = function () {
       updateSearch($scope.facetFilters);
@@ -72,12 +72,12 @@ define(function (require) {
         console.error('error when searching...', searchResult.error);
       }
     };
-    
+
     $scope.queryProvider = {
       query: '',
       onSearchCompleted: onSearchCompleted
     };
-    
+
     $scope.searchService = searchServiceFactory($scope.searchUrl, false, $scope.queryProvider, $scope.pageSize, $scope.maxPageCount, $scope.isPaginatedApi);
     $scope.searchService.filtered(true);
   }]);

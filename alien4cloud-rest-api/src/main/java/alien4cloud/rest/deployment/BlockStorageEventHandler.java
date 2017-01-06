@@ -23,6 +23,7 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,7 +82,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         // The deployment topology may have changed and the node removed, in such situations there is nothing to update as the block won't be reused.
         NodeTemplate nodeTemplate;
         try {
-            nodeTemplate = topoServiceCore.getNodeTemplate(deploymentTopology, persistentResourceEvent.getNodeTemplateId());
+            nodeTemplate = TopologyUtils.getNodeTemplate(deploymentTopology, persistentResourceEvent.getNodeTemplateId());
         } catch (NotFoundException e) {
             log.warn("Fail to update persistent resource for node {}", persistentResourceEvent.getNodeTemplateId(), e);
             return;
@@ -116,7 +117,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
 
     private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent,
             Map<String, Object> persistentProperties) {
-        NodeTemplate nodeTemplate = topoServiceCore.getNodeTemplate(runtimeTopo, persistentResourceEvent.getNodeTemplateId());
+        NodeTemplate nodeTemplate = TopologyUtils.getNodeTemplate(runtimeTopo, persistentResourceEvent.getNodeTemplateId());
         log.info("Updating Runtime topology: Storage NodeTemplate <{}.{}> to add a new volumeId", runtimeTopo.getId(),
                 persistentResourceEvent.getNodeTemplateId());
         for (String key : persistentProperties.keySet()) {
@@ -142,7 +143,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
     private Map<String, Object> getAggregatedVolumeIds(DeploymentTopology topology, String nodeTemplateId, Map<String, Object> persistentProperties) {
         NodeTemplate nodeTemplate;
         try {
-            nodeTemplate = topoServiceCore.getNodeTemplate(topology, nodeTemplateId);
+            nodeTemplate = TopologyUtils.getNodeTemplate(topology, nodeTemplateId);
         } catch (NotFoundException e) {
             log.warn("Fail to update volumeIds for node " + nodeTemplateId, e);
             return null;

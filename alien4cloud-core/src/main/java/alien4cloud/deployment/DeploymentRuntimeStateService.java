@@ -26,8 +26,6 @@ import alien4cloud.utils.MapUtil;
  */
 @Service
 public class DeploymentRuntimeStateService {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDao;
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
     @Inject
