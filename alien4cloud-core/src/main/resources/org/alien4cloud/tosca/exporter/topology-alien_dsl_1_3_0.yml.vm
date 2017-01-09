@@ -8,9 +8,10 @@
 ## BEGINNING OF DOCUMENT
 tosca_definitions_version: alien_dsl_1_3_0
 description: ${utils.renderDescription(${template_description}, "")}
-template_name: ${template_name}
-template_version: ${template_version}
-template_author: ${template_author}
+metadata:
+    template_name: ${template_name}
+    template_version: ${template_version}
+    template_author: ${template_author}
 #if($utils.collectionIsNotEmpty($topology.dependencies))
 
 imports:
