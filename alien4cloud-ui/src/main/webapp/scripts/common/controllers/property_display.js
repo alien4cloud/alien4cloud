@@ -22,7 +22,8 @@ define(function(require) {
       });
 
       $scope.save = function(value) {
-        $scope.propertySave(value);
+        // This method is called by the generic form only if something has indeed changed.
+        $scope.propertySave(value, undefined, true);
       };
 
       $scope.remove = function() {
@@ -116,7 +117,7 @@ define(function(require) {
         }
       };
 
-      $scope.propertySave = function(data, unit) {
+      $scope.propertySave = function(data, unit, force) {
         delete $scope.unitError;
         if (_.isBoolean(data)) {
           data = data.toString();
@@ -124,7 +125,7 @@ define(function(require) {
           data = null;
         }
 
-        if (!_.isEmpty($scope.definitionObject) && typeof $scope.definitionObject.uiValue !== 'undefined' && $scope.definitionObject.uiValue === data) {
+        if (!force && !_.isEmpty($scope.definitionObject) && _.eq($scope.definitionObject.uiValue, data)) {
           return;
         }
 
