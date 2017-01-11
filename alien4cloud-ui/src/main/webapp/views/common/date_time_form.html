@@ -3,14 +3,13 @@
         <input type="text" class="form-control" placeholder="{{fieldName | translate}} ({{dateFormat}})"
                ng-model="dateConfig.dateText"
                ng-change="dateChanged(dateConfig.dateText)"
-               tooltip="{{fieldName | translate}}" tooltip-append-to-body="true">
-        <span class="input-group-btn">
-            <button class="dropdown-toggle btn btn-default" type="button" data-toggle="dropdown"
-                    tooltip="{{fieldName | translate}}" tooltip-append-to-body="true" role="button">
+               uib-tooltip="{{fieldName | translate}}" tooltip-append-to-body="true">
+        <span class="input-group-btn" uib-dropdown>
+            <button class="btn btn-default" type="button" uib-dropdown-toggle
+                    uib-tooltip="{{fieldName | translate}}" tooltip-append-to-body="true" role="button">
                 <i class="fa fa-calendar"></i>
             </button>
-            <ul id="{{fieldNameFormatted}}DropDown" class="dropdown-menu" ng-class="{'dropdown-menu-right': position == 'right'}"
-                role="menu">
+            <ul id="{{fieldNameFormatted}}DropDown" class="dropdown-menu" uib-dropdown-menu ng-class="{'dropdown-menu-right': position == 'right'}" role="menu">
                 <datetimepicker data-ng-model="dateConfig.date" on-set-time="onSetTime(newDate)"/>
             </ul>
         </span>

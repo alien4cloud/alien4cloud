@@ -28,8 +28,8 @@
               <th ng-if="displayAll || displayEmail">{{ 'COMMON.EMAIL' | translate}}</th>
               <th>{{ 'COMMON.DESCRIPTION' | translate}}</th>
               <th ng-if="displayAll || displayRoles">{{ 'GROUPS.ROLES' | translate}}</th>
-              <th class="text-center"> <i ng-if="managedEnvRoleList" class="fa fa-desktop" tooltip="{{'APPLICATIONS.APPLICATION' | translate }}" tooltip-placement="top" tooltip-append-to-body="true"></i></th>
-              <th class="text-center" ng-if="managedEnvRoleList"><i class="fa fa-share-alt" tooltip="{{'APPLICATIONS.ENVIRONMENT.ENV' | translate }}" tooltip-placement="top" tooltip-append-to-body="true"></i></th>
+              <th class="text-center"> <i ng-if="managedEnvRoleList" class="fa fa-desktop" uib-tooltip="{{'APPLICATIONS.APPLICATION' | translate }}" tooltip-placement="top" tooltip-append-to-body="true"></i></th>
+              <th class="text-center" ng-if="managedEnvRoleList"><i class="fa fa-share-alt" uib-tooltip="{{'APPLICATIONS.ENVIRONMENT.ENV' | translate }}" tooltip-placement="top" tooltip-append-to-body="true"></i></th>
             </tr>
           </thead>
           <tbody>
@@ -65,9 +65,9 @@
                 <span ng-if="groupRolesEmpty">---</span>
               </td>
               <td class="text-center">
-                <div class="btn-group">
-                  <a id="edit-app-group-role-button" ng-if="!notEditableRoleList || notEditableRoleList.indexOf(group.id) < 0"  class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_RESOURCE' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
+                <div class="btn-group" uib-dropdown>
+                  <a id="edit-app-group-role-button" ng-if="!notEditableRoleList || notEditableRoleList.indexOf(group.id) < 0"  class="btn btn-sm btn-default" uib-dropdown-toggle uib-tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_RESOURCE' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'EDIT_RIGHTS.EDIT_ROLE_HEADER_RESOURCE' | translate }}</li>
                     <li ng-repeat="role in managedAppRoleList | orderBy:'toString()' ">
                       <a id="{{group.name}}_{{role}}" ng-class="{'checked_role':( roleChecked = checkIfAppRoleSelected(group, role))}" ng-click="onSelectAppRoleCallback({group:group, role:role})">
@@ -85,9 +85,9 @@
               <td class="text-center" ng-if="managedEnvRoleList">
 
                 <!-- Environment rights -->
-                <div class="btn-group">
-                  <a id="edit-env-group-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_ENV' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
+                <div class="btn-group" uib-dropdown>
+                  <a id="edit-env-group-role-button" class="btn btn-sm btn-default" uib-dropdown-toggle uib-tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_ENV' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'EDIT_RIGHTS.EDIT_ROLE_HEADER_ENV' | translate }}</li>
                     <li ng-repeat="role in managedEnvRoleList | orderBy:'toString()' ">
                       <a id="{{group.name}}_{{role}}" ng-class="{'checked_role':( roleChecked = checkIfEnvRoleSelected(group, role))}" ng-click="onSelectEnvRoleCallback({group:group, role:role})">

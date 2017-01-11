@@ -27,7 +27,7 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationInfosCtrl',
-    ['$scope', '$state', 'authService', '$upload', '$translate', 'applicationServices', 'suggestionServices', 'toaster', 'application', 'appEnvironments',
+    ['$scope', '$state', 'authService', 'Upload', '$translate', 'applicationServices', 'suggestionServices', 'toaster', 'application', 'appEnvironments',
     function($scope, $state, authService, $upload, $translate, applicationServices, suggestionServices,  toaster, applicationResult, appEnvironments) {
       $scope.applicationServices = applicationServices;
 

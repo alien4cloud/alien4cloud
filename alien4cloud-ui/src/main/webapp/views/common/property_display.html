@@ -1,10 +1,10 @@
 <div ng-class="{'row':condensed, 'form-group': !condensed}" ng-controller="PropertiesCtrl">
   <!-- Property Name -->
   <label ng-if="translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required && definitionObject.uiEmpty}"
-         tooltip="{{propertyName | translate}}" tooltip-append-to-body="true">
+         uib-tooltip="{{propertyName | translate}}" tooltip-append-to-body="true">
     {{propertyName | translate}}
   </label>
-  <label ng-if="!translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required && definitionObject.uiEmpty}" tooltip="{{propertyName}}" tooltip-append-to-body="true">
+  <label ng-if="!translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required && definitionObject.uiEmpty}" uib-tooltip="{{propertyName}}" tooltip-append-to-body="true">
     {{propertyName}}
   </label>
   <div ng-class="{'col-md-5': deletable, 'col-md-8': !deletable, 'form-editable': !condensed}"
@@ -18,7 +18,7 @@
               editable-text="definitionObject.uiValue" buttons="no"
               onbeforesave="propertySave($data)" blur="submit"
               onhide="switchLongTextChoice(false)"
-              e-typeahead="suggestion for suggestion in suggestion.get($viewValue)" class="typeahead"
+              e-uib-typeahead="suggestion for suggestion in suggestion.get($viewValue)" class="typeahead"
               e-typeahead-min-length="suggestion.minLength"
               e-typeahead-wait-ms="suggestion.waitBeforeRequest"
               e-typeahead-loading="searching">
@@ -30,7 +30,7 @@
               editable-textarea="definitionObject.uiValue" buttons="no"
               onbeforesave="propertySave($data)" blur="submit"
               onhide="switchLongTextChoice(false)"
-              e-typeahead="suggestion for suggestion in suggestion.get($viewValue)" class="typeahead"
+              e-uib-typeahead="suggestion for suggestion in suggestion.get($viewValue)" class="typeahead"
               e-typeahead-min-length="suggestion.minLength"
               e-typeahead-wait-ms="suggestion.waitBeforeRequest"
               e-typeahead-loading="searching">
@@ -45,12 +45,12 @@
               ng-click="scalarForm.$show()" class="editable editable-click">
           {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
         </span>
-        <div ng-if="definitionObject.units" class="btn-group btn-group-xs">
-          <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+        <div ng-if="definitionObject.units" class="btn-group btn-group-xs" uib-dropdown>
+          <button type="button" class="btn btn-default btn-xs" uib-dropdown-toggle>
             {{definitionObject.uiUnit}}
             <span class="caret"></span>
           </button>
-          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
             <li ng-repeat="unit in definitionObject.units" ng-class="{'option-selected selected': definitionObject.uiUnit === unit}">
               <a id="p_{{propertyName}}_unit_{{unit}}" ng-click="saveUnit(unit)">{{unit}}</a>
             </li>
@@ -68,10 +68,10 @@
       <em ng-if="definitionObject.uiPassword && !editable">{{ definitionObject.uiValue | password:'*' }}</em>
 
       <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
-      <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
+      <label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label>
       <!-- Reset button for any property definition -->
       <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs pull-right" ng-click="resetProperty();">
-        <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+        <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
       </span>
     </div>
     <div ng-if="!isStringDisplayType" ng-switch="definitionObject.uiName" ng-class="{'property-required' : definition.required}">
@@ -108,10 +108,10 @@
         <button type="button" class="btn btn-default btn-sm" ng-click="openComplexPropertyModal()"><i class="fa fa fa-pencil-square-o"></i></button>
       </span>
 
-      <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
+      <label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label>
       <!-- Reset button for any property definition -->
       <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs pull-right" ng-click="resetProperty();">
-        <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+        <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
       </span>
       <!-- TODO Should we have description here ? if so this should be in string too and removed from topology editor. -->
       <!-- <span class="pull-right">
@@ -120,7 +120,7 @@
     </div>
   </div>
   <div class="col-md-3" ng-if="deletable && editable">
-    <button type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
+    <button type="button" uib-tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
             ng-click="onDelete()">
       <i class="fa fa-trash-o"></i>
     </button>

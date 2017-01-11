@@ -25,8 +25,8 @@
       <hr class="separator-h">
     </div>
     <div class="col-md-12">
-      <tabset>
-        <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
+      <uib-tabset>
+        <uib-tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
           <alien-search-user
             crud-support="false"
             managed-app-role-list="orchestratorRoles"
@@ -34,8 +34,8 @@
             check-app-role-selected-callback="checkOrchestratorRoleSelectedForUser(user)"
             on-select-app-role-callback="handleRoleSelectionForUser(user, role)">
           </alien-search-user>
-        </tab>
-        <tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
+        </uib-tab>
+        <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
           <alien-search-group
             crud-support="false"
             managed-app-role-list="orchestratorRoles"
@@ -43,8 +43,8 @@
             check-app-role-selected-callback="checkOrchestratorRoleSelectedForGroup(group)"
             on-select-app-role-callback="handleRoleSelectionForGroup(group, role)">
           </alien-search-group>
-        </tab>
-      </tabset>
+        </uib-tab>
+      </uib-tabset>
     </div>
   </div>
 </div>

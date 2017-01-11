@@ -9,11 +9,11 @@
     </select>
   </div>
   <div class="col-md-3">
-    <button id="{{idPrefix + 'deletebutton'}}" type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
+    <button id="{{idPrefix + 'deletebutton'}}" type="button" uib-tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
             ng-click="deleteForm()" ng-if="isDeletable">
       <i class="fa fa-trash-o"></i>
     </button>
-    <button id="{{idPrefix + 'editbutton'}}" type="button" tooltip="{{ 'GENERIC_FORM.GOTO' | translate }}" class="btn btn-default btn-sm" ng-click="goTo()">
+    <button id="{{idPrefix + 'editbutton'}}" type="button" uib-tooltip="{{ 'GENERIC_FORM.GOTO' | translate }}" class="btn btn-default btn-sm" ng-click="goTo()">
       <i class="fa fa-pencil-square-o"></i>
     </button>
   </div>

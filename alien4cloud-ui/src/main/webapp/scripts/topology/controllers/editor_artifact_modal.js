@@ -3,8 +3,8 @@ define(function (require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('TopologyEditorArtifactModalCtrl', ['$scope', '$modalInstance', '$translate', 'explorerService','archiveContentTree', 'availableRepositories', 'artifact', 'toaster',
-    function($scope, $modalInstance, $translate, explorerService, archiveContentTree, availableRepositories, artifact, toaster) {
+  modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('TopologyEditorArtifactModalCtrl', ['$scope', '$uibModalInstance', '$translate', 'explorerService','archiveContentTree', 'availableRepositories', 'artifact', 'toaster',
+    function($scope, $uibModalInstance, $translate, explorerService, archiveContentTree, availableRepositories, artifact, toaster) {
       $scope.artifact = {};
 
       $scope.opts = explorerService.getOps(false);
@@ -35,12 +35,12 @@ define(function (require) {
 
       $scope.save = function(valid) {
         if (valid) {
-          $modalInstance.close($scope.artifact);
+          $uibModalInstance.close($scope.artifact);
         }
       };
 
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
 
       // remote tab
@@ -65,7 +65,7 @@ define(function (require) {
           artifact.reference = $scope.selectedRepository.file;
           artifact.repositoryUrl = $scope.selectedRepository.url;
           artifact.repositoryName = $scope.selectedRepository.id;
-          $modalInstance.close(artifact);
+          $uibModalInstance.close(artifact);
         }
       };
 

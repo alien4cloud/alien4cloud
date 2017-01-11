@@ -7,19 +7,17 @@ define(function (require) {
   var a4cCommonModule = modules.get('a4c-common', ['ui.bootstrap']);
 
   /* HTML tooltip */
-  var htmlTooltipConfirm = '<div class="popover {{placement}}" ng-class="{ in: isOpen(), fade: animation() }" data-toggle="popover">' +
-  '<div class="arrow"></div>' +
+  var htmlTooltipConfirm = '<div class="arrow"></div>' +
   '<div class="popover-inner">' +
-  '<h3 class="popover-title" ng-bind="title" ng-show="title"></h3>' +
+  '<h3 class="popover-title" ng-bind="uibTitle" ng-if="uibTitle"></h3>' +
   '<div class="popover-content" ng-bind="content"></div>' +
   '<div class="popover-content">' +
   '<div class="row" style="width: 250px;">' +
   '<div class="col-xs-6">' +
-  '<button class="btn-block btn btn-success" ng-click="$parent.confirm();$event.stopPropagation();">{{\'COMMON.YES\' | translate}}</button>' +
+  '<button class="btn-block btn btn-success" ng-click="confirm();$event.stopPropagation();">{{\'COMMON.YES\' | translate}}</button>' +
   '</div>' +
   '<div class="col-xs-6">' +
-  '<button class="btn-block btn btn-danger" ng-click="$parent.cancel();$event.stopPropagation();">{{\'COMMON.NO\' | translate}}</button>' +
-  '</div>' +
+  '<button class="btn-block btn btn-danger" ng-click="cancel();$event.stopPropagation();">{{\'COMMON.NO\' | translate}}</button>' +
   '</div>' +
   '</div>' +
   '</div>' +
@@ -28,21 +26,19 @@ define(function (require) {
   a4cCommonModule.directive('confirmPopup', function() {
     return {
       restrict: 'A',
-      replace: true,
-      scope: {
-        title: '@',
-        content: '@',
-        placement: '@',
-        animation: '&',
-        isOpen: '&'
-      },
-      template: htmlTooltipConfirm
+      scope: { uibTitle: '@', content: '@' },
+      template: htmlTooltipConfirm,
+      link: function(scope) {
+        scope.cancel = scope.$parent.$parent.origScope.cancel;
+        scope.confirm = scope.$parent.$parent.origScope.confirm;
+        scope.toto = scope.$parent.$parent.origScope.toto;
+      }
     };
   });
 
-  a4cCommonModule.directive('confirm', ['$tooltip',
-    function($tooltip) {
-      var tt = $tooltip('confirm', 'confirm', 'click');
+  a4cCommonModule.directive('confirm', ['$uibTooltip',
+    function($uibTooltip) {
+      var tt = $uibTooltip('confirm', 'confirm', 'click');
       tt.controller = 'ConfirmCtrl';
       return tt;
     }
@@ -75,22 +71,28 @@ define(function (require) {
         }
       };
 
+      var closeClick = function() {
+        $document.unbind('click', onClick);
+        $element.unbind('click', closeClick);
+      };
       // 2 : handle all click outside of the popover
-      var onButtonClick = function() {
+      var openClick = function() {
+        $element.bind('click', closeClick);
+        $element.unbind('click', openClick);
         $document.bind('click', onClick);
       };
 
       // 1 : add 'click' action on the first button action
-      $element.bind('click', onButtonClick);
+      $element.bind('click', openClick);
 
       // 4 : at close action unbind all actions
       $scope.close = function() {
-        $element.unbind('click', onButtonClick);
         $document.unbind('click', onClick);
+        $element.unbind('click', closeClick);
         // mandatory for $tooltip() $aply handler
         setTimeout(function() {
           $element.click();
-          $element.bind('click', onButtonClick);
+          $element.bind('click', openClick);
         }, 0);
       };
     }

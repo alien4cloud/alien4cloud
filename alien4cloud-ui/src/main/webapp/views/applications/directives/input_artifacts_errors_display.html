@@ -5,7 +5,7 @@
            ng-class="{'fa-caret-down' : !isInputArtifactsCollapsed , 'fa-caret-right': isInputArtifactsCollapsed }"></i>
         <span>{{'APPLICATIONS.TOPOLOGY.TASK.INPUT_ARTIFACT.LABEL' | translate}}</span>
     </h4>
-    <div collapse="isInputArtifactsCollapsed " class="topology-level">
+    <div uib-collapse="isInputArtifactsCollapsed " class="topology-level">
         <table class="table table-condensed">
             <tbody>
             <tr ng-repeat="task in tasks">

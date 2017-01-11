@@ -2,7 +2,7 @@
   <!-- Import result display -->
   <div class="row">
     <div class="upload-infos-bloc" ng-repeat="importInfo in importInfos">
-      <alert type="importInfo.infoType" close="closeUploadInfos($index)" style="margin-top: 15px;">
+      <div uib-alert ng-class="'alert-' + (importInfo.infoType || 'warning')" close="closeUploadInfos($index)" style="margin-top: 15px;">
         <div class="col-md-5 upload-file-infos">
           <span class=" show-error-link "
              ng-click="importInfo.isErrorBlocCollapsed = !importInfo.isErrorBlocCollapsed"
@@ -12,11 +12,11 @@
           </span>
           <span><strong>{{importInfo.name}}</strong></span>
         </div>
-        <progressbar class="progress-striped active"
-          value="importInfo.progress" type="{{importInfo.infoType}}">{{importInfo.progress}}% {{'UPLOAD.COMPLETE' | translate}}</progressbar>
-      </alert>
+        <uib-progressbar class="progress-striped active"
+          value="importInfo.progress" type="{{importInfo.infoType}}">{{importInfo.progress}}% {{'UPLOAD.COMPLETE' | translate}}</uib-progressbar>
+      </div>
       <!-- Error details -->
-      <div ng-if="importInfo.errors || importInfo.otherError" collapse="importInfo.isErrorBlocCollapsed">
+      <div ng-if="importInfo.errors || importInfo.otherError" uib-collapse="importInfo.isErrorBlocCollapsed">
         <div class="well well-sm">
           <div class="panel panel-default" ng-repeat="error in importInfo.errors">
             <div class="panel-heading">
@@ -98,10 +98,10 @@
                 <span style="display:block;"ng-repeat="location in gitRepository.importLocations"> {{location.branchId || '*'}}</span>
               </td>
               <td>
-                <button class=" btn-sm btn btn-default ng-binding" ng-disabled="importing[gitRepository.id]" tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="import_{{gitRepository.id}}" ng-click="triggerImport(gitRepository.id, gitRepository.repositoryUrl)">
+                <button class=" btn-sm btn btn-default ng-binding" ng-disabled="importing[gitRepository.id]" uib-tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="import_{{gitRepository.id}}" ng-click="triggerImport(gitRepository.id, gitRepository.repositoryUrl)">
                   <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !importing[gitRepository.id], 'fa-spinner fa-spin': importing[gitRepository.id]}"></i>
                 </button>
-                <button class=" btn-sm btn btn-default ng-binding"  ng-disabled="importing[gitRepository.id]" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="edit_{{gitRepository.id}}" ng-click="openCsarGit(gitRepository)">
+                <button class=" btn-sm btn btn-default ng-binding"  ng-disabled="importing[gitRepository.id]" ng bssize="btn-sm" uib-tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="edit_{{gitRepository.id}}" ng-click="openCsarGit(gitRepository)">
                   <i class="fa fa-pencil-square-o fa-lg" ></i>
                 </button>
                 <delete-confirm id="delete-{{gitRepository.id}}" disable="importing[gitRepository.id]" func="removeCsarGit(gitRepository.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>

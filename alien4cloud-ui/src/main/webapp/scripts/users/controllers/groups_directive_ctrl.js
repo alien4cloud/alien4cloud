@@ -9,18 +9,18 @@ define(function (require) {
   require('scripts/users/services/group_services');
   require('scripts/common/directives/pagination');
 
-  var NewGroupCtrl = ['$scope', '$modalInstance', 'userServices',
-    function($scope, $modalInstance, userServices) {
+  var NewGroupCtrl = ['$scope', '$uibModalInstance', 'userServices',
+    function($scope, $uibModalInstance, userServices) {
       $scope.group = {};
       $scope.alienRoles = userServices.getAlienRoles();
       $scope.create = function(valid) {
         if (valid) {
-          $modalInstance.close($scope.group);
+          $uibModalInstance.close($scope.group);
         }
       };
 
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
 
       $scope.handleGroupRoleSelection = function(group, role) {
@@ -38,8 +38,8 @@ define(function (require) {
     }
   ];
 
-  modules.get('a4c-security', ['a4c-search']).controller('GroupsDirectiveCtrl', ['$scope', '$rootScope', '$modal', 'groupServices', 'searchServiceFactory',
-    function($scope, $rootScope, $modal, groupServices, searchServiceFactory) {
+  modules.get('a4c-security', ['a4c-search']).controller('GroupsDirectiveCtrl', ['$scope', '$rootScope', '$uibModal', 'groupServices', 'searchServiceFactory',
+    function($scope, $rootScope, $uibModal, groupServices, searchServiceFactory) {
 
       $scope.query = '';
       $scope.ALL_USERS_GROUP = groupServices.ALL_USERS_GROUP;
@@ -51,7 +51,7 @@ define(function (require) {
 
       /** handle Modal form for group creation */
       $scope.openNewGroupModal = function() {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'views/users/new_group.html',
           controller: NewGroupCtrl
         });

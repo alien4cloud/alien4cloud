@@ -9,17 +9,17 @@ define(function (require) {
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
 
-  var NewUserCtrl = ['$scope', '$modalInstance', 'userServices', function($scope, $modalInstance, userServices) {
+  var NewUserCtrl = ['$scope', '$uibModalInstance', 'userServices', function($scope, $uibModalInstance, userServices) {
     $scope.user = {};
     $scope.alienRoles = userServices.getAlienRoles();
     $scope.create = function(valid) {
       if (valid) {
-        $modalInstance.close($scope.user);
+        $uibModalInstance.close($scope.user);
       }
     };
 
     $scope.cancel = function() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     };
 
     $scope.handleRoleSelection = function(user, role) {
@@ -31,8 +31,8 @@ define(function (require) {
     };
   }];
 
-  modules.get('a4c-security', ['a4c-search']).controller('UsersDirectiveCtrl', ['$scope', '$rootScope', '$modal', 'userServices', 'searchServiceFactory', 'groupServices',
-    function($scope, $rootScope, $modal, userServices, searchServiceFactory, groupServices) {
+  modules.get('a4c-security', ['a4c-search']).controller('UsersDirectiveCtrl', ['$scope', '$rootScope', '$uibModal', 'userServices', 'searchServiceFactory', 'groupServices',
+    function($scope, $rootScope, $uibModal, userServices, searchServiceFactory, groupServices) {
 
       $scope.query = '';
       $scope.onSearchCompleted = function(searchResult) {
@@ -47,7 +47,7 @@ define(function (require) {
 
       /** handle Modal form for user creation */
       $scope.openNewUserModal = function() {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'views/users/new_user.html',
           controller: NewUserCtrl
         });

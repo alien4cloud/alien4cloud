@@ -25,7 +25,7 @@
         <i class="pull-right fa"
            ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': !active || isFacetCollapsed}"></i>
     </div>
-    <div class="facet-option" collapse="isFacetCollapsed">
+    <div class="facet-option" uib-collapse="isFacetCollapsed">
         <ul class="nav facet-option">
             <li ng-repeat="facet in termFacets">
                 <a href="" ng-click="addFilter(term,facet.facetValue)">{{ toDisplay(term, facet.facetValue) || 'N/A' }}

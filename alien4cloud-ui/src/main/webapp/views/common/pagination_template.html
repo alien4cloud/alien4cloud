@@ -1,16 +1,20 @@
 <!-- pagination bar -->
-<div ng-show="paginationInfo.totalItems > paginationInfo.maxSearchSize" class="pagination-div">
+<div ng-if="paginationInfo.totalItems > paginationInfo.maxSearchSize" class="pagination-div">
   <div class="alert alert-warning" ng-if="paginationInfo.isOverflowed()" role="alert">
     <span class="fa fa-warning" aria-hidden="true"></span> {{'PAGINATION.OVERFLOW' | translate}}
   </div>
-  <pagination class="pagination-sm"
-              total-items="paginationInfo.totalItems"
-              page="paginationInfo.currentPage"
-              max-size="5"
-              items-per-page="paginationInfo.maxSearchSize"
-              boundary-links="true"
-              rotate="false"
-              num-pages="numPages"
-              on-select-page="paginationInfo.selectPage(page)">
-  </pagination>
+  <ul uib-pagination class="pagination-sm"
+    ng-model="paginationInfo.currentPage"
+    ng-change="paginationInfo.selectPage(paginationInfo.currentPage)"
+    total-items="paginationInfo.totalItems"
+    max-size="5"
+    items-per-page="paginationInfo.maxSearchSize"
+    boundary-links="true"
+    rotate="false"
+    num-pages="numPages"
+    next-text="Next"
+    last-text="Last"
+    previous-text="Previous"
+    first-text="First">
+  </ul>
 </div>

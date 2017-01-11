@@ -28,8 +28,8 @@ define(function (require) {
   require('scripts/components/controllers/csar_explorer');
 
   modules.get('a4c-components', ['ngResource', 'ui.bootstrap', 'ui.router', 'a4c-auth']).controller('ComponentInfoCtrl',
-    ['authService', '$scope', '$resource', '$state', '$stateParams', 'componentTagService', '$modal', 'suggestionServices', 'toscaService', 'component',
-    function(authService, $scope, $resource, $state, $stateParams, componentTagService, $modal, suggestionServices, toscaService, component) {
+    ['authService', '$scope', '$resource', '$state', '$stateParams', 'componentTagService', '$uibModal', 'suggestionServices', 'toscaService', 'component',
+    function(authService, $scope, $resource, $state, $stateParams, componentTagService, $uibModal, suggestionServices, toscaService, component) {
       var alienInternalTags = ['icon'];
       // users with role COMPONENTS_MANAGER are allowed to add archives.
       $scope.isManager = authService.hasRole('COMPONENTS_MANAGER');
@@ -70,16 +70,16 @@ define(function (require) {
       /**
        * Confirm modal
        */
-      var confirmRecommendationCtrl = ['$scope', '$modalInstance', 'confirmObject',
-        function($scope, $modalInstance, confirmObject) {
+      var confirmRecommendationCtrl = ['$scope', '$uibModalInstance', 'confirmObject',
+        function($scope, $uibModalInstance, confirmObject) {
           $scope.confirmObject = confirmObject;
 
           $scope.recommend = function() {
-            $modalInstance.close();
+            $uibModalInstance.close();
           };
 
           $scope.cancel = function() {
-            $modalInstance.dismiss('cancel');
+            $uibModalInstance.dismiss('cancel');
           };
         }
       ];
@@ -98,7 +98,7 @@ define(function (require) {
       };
 
       var openConfirmModal = function(confirmObject) {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'confirmChoice.html',
           controller: confirmRecommendationCtrl,
           resolve: {
@@ -270,7 +270,7 @@ define(function (require) {
 
       $scope.openArchiveModal = function(scriptReference) {
         var openOnFile = scriptReference ? scriptReference : null;
-        $modal.open({
+        $uibModal.open({
           templateUrl: 'views/components/csar_explorer.html',
           controller: 'CsarExplorerController',
           windowClass: 'searchModal',

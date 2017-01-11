@@ -1,5 +1,5 @@
-<tabset>
-  <tab heading="{{'NAVADMIN.MENU_USERS' | translate}}" id="users-tab" select="tabSelected('users')">
+<uib-tabset>
+  <uib-tab heading="{{'NAVADMIN.MENU_USERS' | translate}}" id="users-tab" select="tabSelected('users')">
     <alien-search-user
       crud-support="true"
       managed-app-role-list="alienRoles"
@@ -8,8 +8,8 @@
       on-select-app-group-callback="handleGroupSelection(invalid, user, groupId)"
       display-all="true">
     </alien-search-user>
-  </tab>
-  <tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
+  </uib-tab>
+  <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
     <alien-search-group
       crud-support="true"
       managed-app-role-list="alienRoles"
@@ -17,5 +17,5 @@
       on-select-app-role-callback="handleGroupRoleSelection(group, role)"
       display-all="true">
     </alien-search-group>
-  </tab>
-</tabset>
+  </uib-tab>
+</uib-tabset>

@@ -27,26 +27,26 @@ define(function (require) {
     }
   });
 
-  var NewApplicationVersionCtrl = ['$scope', '$modalInstance',
-  function($scope, $modalInstance) {
+  var NewApplicationVersionCtrl = ['$scope', '$uibModalInstance',
+  function($scope, $uibModalInstance) {
     $scope.appVersion = {};
 
     $scope.create = function(version, desc, fromTopologyId) {
       $scope.appVersion.version = version;
       $scope.appVersion.description = desc;
       $scope.appVersion.topologyId = fromTopologyId;
-      $modalInstance.close($scope.appVersion);
+      $uibModalInstance.close($scope.appVersion);
       $scope.searchService.search();
     };
 
     $scope.cancel = function() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     };
   }
   ];
 
-  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'authService', '$modal', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify',
-    function($scope, $state, $translate, toaster, authService, $modal, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify) {
+  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'authService', '$uibModal', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify',
+    function($scope, $state, $translate, toaster, authService, $uibModal, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify) {
       $scope.isManager = userCanModify;
       $scope.archiveVersions = archiveVersions.data;
       $scope.searchAppVersionResult = archiveVersions.data;
@@ -72,7 +72,7 @@ define(function (require) {
       };
 
       $scope.openNewAppVersion = function() {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'newApplicationVersion.html',
           controller: NewApplicationVersionCtrl,
           scope: $scope

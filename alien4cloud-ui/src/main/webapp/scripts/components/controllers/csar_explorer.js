@@ -9,7 +9,7 @@ define(function (require) {
   require('scripts/common/services/explorer_service');
 
   modules.get('a4c-components', ['a4c-common', 'ui.ace', 'treeControl']).controller(
-    'CsarExplorerController', ['$scope', '$modalInstance', '$http', 'explorerService', 'archiveName', 'archiveVersion', 'openOnFile', function($scope, $modalInstance, $http, explorerService, archiveName, archiveVersion, openOnFile) {
+    'CsarExplorerController', ['$scope', '$uibModalInstance', '$http', 'explorerService', 'archiveName', 'archiveVersion', 'openOnFile', function($scope, $uibModalInstance, $http, explorerService, archiveName, archiveVersion, openOnFile) {
 
     $scope.isImage = false;
     $scope.archiveName = archiveName;
@@ -58,7 +58,7 @@ define(function (require) {
       }
     });
     $scope.cancel = function() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     };
   }]);
 });

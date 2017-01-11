@@ -31,7 +31,7 @@
           <tbody>
             <tr ng-repeat="orchestrator in orchestrators" id='orchestrator_{{orchestrator.id}}' class="clickable" ng-click="openOrchestrator(orchestrator.id)">
               <td>
-                <i class="fa fa-2x ng-scope" tooltip="{{'ORCHESTRATORS.STATES.' + orchestrator.state | translate}}" ng-class="{
+                <i class="fa fa-2x ng-scope" uib-tooltip="{{'ORCHESTRATORS.STATES.' + orchestrator.state | translate}}" ng-class="{
                   'fa-circle text-success' : orchestrator.state == 'CONNECTED',
                   'fa-circle text-muted' : orchestrator.state == 'DISABLED',
                   'fa-question-circle text-danger' : orchestrator.state == 'DISCONNECTED',

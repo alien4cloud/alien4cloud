@@ -4,8 +4,8 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditWf', [ '$modal', '$interval', '$filter', 'listToMapService',
-    function($modal, $interval, $filter, listToMapService) {
+  modules.get('a4c-topology-editor').factory('topoEditWf', [ '$uibModal', '$interval', '$filter', 'listToMapService',
+    function($uibModal, $interval, $filter, listToMapService) {
       var wfNamePattern = '^\\w+$';
       var TopologyEditorMixin = function(scope) {
 
@@ -476,7 +476,7 @@ define(function (require) {
         addOperationActivity: function(stepId, before) {
           var scope = this.scope;
           var instance = this;
-          var modalInstance = $modal.open({
+          var modalInstance = $uibModal.open({
             templateUrl: 'views/topology/workflow_operation_selector.html',
             controller: 'WfOperationSelectorController',
             resolve: {
@@ -534,7 +534,7 @@ define(function (require) {
         addStateActivity: function(stepId, before) {
           var scope = this.scope;
           var instance = this;
-          var modalInstance = $modal.open({
+          var modalInstance = $uibModal.open({
             templateUrl: 'views/topology/workflow_state_selector.html',
             controller: 'WfStateSelectorController',
             resolve: {

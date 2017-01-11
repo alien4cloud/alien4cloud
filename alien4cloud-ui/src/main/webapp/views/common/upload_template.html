@@ -1,5 +1,5 @@
 <div ng-controller="UploadCtrl">
-  <div class="drop-box" ng-show="dropSupported" ng-file-drop="uploadCtrl.onFileSelect($files)">
+  <div class="drop-box" ng-show="dropSupported" ngf-drop="uploadCtrl.onFileSelect($files)">
     <i class="fa fa-file-text fa-2x"></i> {{ dragAndDropMessage | translate }}
   </div>
 
@@ -9,12 +9,12 @@
     </span>
     <input id="fileUpload" type="file"
       class="upload"
-      ng-file-drop-available="dropSupported=true"
-      ng-file-select="uploadCtrl.onFileSelect($files)"
+      ngf-drop-available="dropSupported=true"
+      ngf-select="uploadCtrl.onFileSelect($files)"
       multiple>
   </div>
   <div class="upload-infos-bloc" ng-repeat="uploadInfo in uploadInfos">
-    <alert type="uploadInfo.infoType" close="uploadCtrl.closeUploadInfos($index)" style="margin-top: 15px;">
+    <div uib-alert ng-class="'alert-' + (uploadInfo.infoType || 'warning')" close="uploadCtrl.closeUploadInfos($index)" style="margin-top: 15px;">
       <div class="col-md-5 upload-file-infos">
         <span class=" show-error-link"
            ng-click="uploadInfo.isErrorBlocCollapsed = !uploadInfo.isErrorBlocCollapsed"
@@ -24,9 +24,9 @@
         </span>
         <span><strong>{{uploadInfo.name}}</strong></span>
       </div>
-      <progressbar class="progress-striped active"
-        value="uploadInfo.progress" type="{{uploadInfo.infoType}}">{{uploadInfo.progress}}% {{'UPLOAD.COMPLETE' | translate}}</progressbar>
-    </alert>
+      <uib-progressbar class="progress-striped active"
+        value="uploadInfo.progress" type="{{uploadInfo.infoType}}">{{uploadInfo.progress}}% {{'UPLOAD.COMPLETE' | translate}}</uib-progressbar>
+    </div>
     <!-- Error details -->
     <parsing-errors upload-info="uploadInfo"></parsing-errors>
   </div>

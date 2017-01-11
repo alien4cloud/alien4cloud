@@ -4,11 +4,11 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-orchestrators', ['ui.bootstrap']).controller('NewOrchestratorController', ['$scope', '$modalInstance', '$http',
-    function($scope, $modalInstance, $http) {
+  modules.get('a4c-orchestrators', ['ui.bootstrap']).controller('NewOrchestratorController', ['$scope', '$uibModalInstance', '$http',
+    function($scope, $uibModalInstance, $http) {
       $scope.newOrchestrator = {};
       // get the list of orchestrator plugins
-      $http.get('rest/latest/plugincomponents?type=IOrchestratorPluginFactory').success(function(response) {
+      $http.get('rest/latest/plugincomponents?type=IOrchestratorPluginFactory').then(function(response) {
         if(_.defined(response.data)) {
           $scope.plugins = response.data;
           for (var i = 0; i < $scope.plugins.length; i++) {
@@ -19,12 +19,12 @@ define(function (require) {
 
       $scope.save = function(valid) {
         if (valid) {
-          $modalInstance.close($scope.newOrchestrator);
+          $uibModalInstance.close($scope.newOrchestrator);
         }
       };
 
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ]);

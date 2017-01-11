@@ -7,8 +7,8 @@ define(function (require) {
   require('angular-tree-control');
 
   modules.get('a4c-topology-editor').controller('WfOperationSelectorController', [
-    '$scope', '$modalInstance', 'topologyDTO',
-    function($scope, $modalInstance, topologyDTO) {
+    '$scope', '$uibModalInstance', 'topologyDTO',
+    function($scope, $uibModalInstance, topologyDTO) {
       $scope.topologyDTO = topologyDTO;
 
       $scope.selectedNodeTemplate = undefined;
@@ -71,11 +71,11 @@ define(function (require) {
       };
 
       $scope.submit = function() {
-        $modalInstance.close({node: $scope.selectedNodeTemplate, interface: $scope.selectedInterface, operation: $scope.selectedOperation});
+        $uibModalInstance.close({node: $scope.selectedNodeTemplate, interface: $scope.selectedInterface, operation: $scope.selectedOperation});
       };
 
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ]);

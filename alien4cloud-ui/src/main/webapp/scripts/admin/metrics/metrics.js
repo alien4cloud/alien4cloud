@@ -59,7 +59,7 @@ define(function (require) {
 
       $scope.refresh();
 
-      $scope.threadDump = function() {
+      $scope.doThreadDump = function() {
         threadDumpService.dump().then(function(data) {
           $scope.threadDump = data;
 

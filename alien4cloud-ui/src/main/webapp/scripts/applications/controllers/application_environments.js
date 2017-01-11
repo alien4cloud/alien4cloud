@@ -22,8 +22,8 @@ define(function (require) {
     }
   });
 
-  var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$state',
-    function($scope, $modalInstance, $resource, $state) {
+  var NewApplicationEnvironmentCtrl = ['$scope', '$uibModalInstance', '$resource', '$state',
+    function($scope, $uibModalInstance, $resource, $state) {
       $scope.environment = {};
       $scope.create = function(valid, envType, version) {
         if (valid) {
@@ -32,18 +32,18 @@ define(function (require) {
           $scope.environment.applicationId = applicationId;
           $scope.environment.environmentType = envType;
           $scope.environment.versionId = version;
-          $modalInstance.close($scope.environment);
+          $uibModalInstance.close($scope.environment);
         }
       };
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ];
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentsCtrl',
-    ['$scope', '$state', '$translate', 'toaster', 'authService', '$modal', 'applicationEnvironmentServices', 'applicationVersionServices', 'appEnvironments', 'archiveVersions',
-    function($scope, $state, $translate, toaster, authService, $modal, applicationEnvironmentServices, applicationVersionServices, appEnvironments, archiveVersions) {
+    ['$scope', '$state', '$translate', 'toaster', 'authService', '$uibModal', 'applicationEnvironmentServices', 'applicationVersionServices', 'appEnvironments', 'archiveVersions',
+    function($scope, $state, $translate, toaster, authService, $uibModal, applicationEnvironmentServices, applicationVersionServices, appEnvironments, archiveVersions) {
       $scope.archiveVersions = archiveVersions.data;
       $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
       $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function() {});
@@ -66,7 +66,7 @@ define(function (require) {
 
       // Modal to create an new application environment
       $scope.openNewAppEnv = function() {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'newApplicationEnvironment.html',
           controller: NewApplicationEnvironmentCtrl,
           scope: $scope

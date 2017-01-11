@@ -5,8 +5,8 @@ define(function (require) {
 
   require('scripts/topology/controllers/editor_artifact_modal');
 
-  modules.get('a4c-topology-editor').factory('topoEditArtifacts', [ '$modal', 'topologyServices',
-    function($modal, topologyServices) {
+  modules.get('a4c-topology-editor').factory('topoEditArtifacts', [ '$uibModal', 'topologyServices',
+    function($uibModal, topologyServices) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };
@@ -24,7 +24,7 @@ define(function (require) {
             }, 
             function(result) {
               scope.availableRepositories = result.data;
-              var modalInstance = $modal.open({
+              var modalInstance = $uibModal.open({
                 templateUrl: 'views/topology/editor_artifact_modal.html',
                 controller: 'TopologyEditorArtifactModalCtrl',
                 resolve: {

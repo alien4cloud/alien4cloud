@@ -25,7 +25,7 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentSetupCtrl',
-      ['$scope', '$upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices', '$state',
+      ['$scope', 'Upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices', '$state',
         function ($scope, $upload, applicationServices, $http, $filter, deploymentTopologyServices) {
 
           $scope._ = _;
@@ -85,7 +85,7 @@ define(function (require) {
           };
 
           $scope.refreshOrchestratorDeploymentPropertyDefinitions = function () {
-            return $http.get('rest/latest/orchestrators/' + $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId + '/deployment-property-definitions').success(function (result) {
+            return $http.get('rest/latest/orchestrators/' + $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId + '/deployment-property-definitions').then(function (result) {
               if (result.data) {
                 $scope.deploymentContext.orchestratorDeploymentPropertyDefinitions = result.data;
               }

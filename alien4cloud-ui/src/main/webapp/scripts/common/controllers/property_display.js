@@ -7,8 +7,8 @@ define(function(require) {
 
   require('scripts/common/services/properties_services');
 
-  var ComplexPropertyModalCtrl = ['$scope', '$modalInstance', 'formDescriptorServices',
-    function($scope, $modalInstance, formDescriptorServices) {
+  var ComplexPropertyModalCtrl = ['$scope', '$uibModalInstance', 'formDescriptorServices',
+    function($scope, $uibModalInstance, formDescriptorServices) {
       $scope.configuration = {
         dependencies: $scope.dependencies
       };
@@ -27,32 +27,32 @@ define(function(require) {
 
       $scope.remove = function() {
         $scope.propertySave(undefined);
-        $modalInstance.dismiss(undefined);
+        $uibModalInstance.dismiss(undefined);
       };
 
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ];
 
-  var PropertySuggestionModalCtrl = ['$scope', '$modalInstance',
-    function($scope, $modalInstance) {
+  var PropertySuggestionModalCtrl = ['$scope', '$uibModalInstance',
+    function($scope, $uibModalInstance) {
       $scope.result = '';
 
       $scope.create = function(result) {
-        $modalInstance.close(result);
+        $uibModalInstance.close(result);
       };
 
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ];
 
 
-  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout', 'propertySuggestionServices',
-    function($scope, propertiesServices, $translate, $modal, $timeout, propertySuggestionServices) {
+  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$uibModal', '$timeout', 'propertySuggestionServices',
+    function($scope, propertiesServices, $translate, $uibModal, $timeout, propertySuggestionServices) {
       if (_.undefined($scope.translated)) {
         $scope.translated = false;
       }
@@ -152,7 +152,7 @@ define(function(require) {
               propertyValue: data
             };
             if (suggestionResult.data.indexOf(data) < 0) {
-              var modalInstance = $modal.open({
+              var modalInstance = $uibModal.open({
                 templateUrl: 'propertySuggestionModal.html',
                 controller: PropertySuggestionModalCtrl,
                 scope: $scope
@@ -371,7 +371,7 @@ define(function(require) {
       };
 
       $scope.openComplexPropertyModal = function() {
-        $modal.open({
+        $uibModal.open({
           templateUrl: 'views/common/property_display_complex_modal.html',
           controller: ComplexPropertyModalCtrl,
           windowClass: 'searchModal',

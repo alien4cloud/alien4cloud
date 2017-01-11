@@ -2,13 +2,13 @@
   <div class="topology-row" style="height: {{dimensions.height}}px; padding-top: 20px;">
 
     <div class="col-md-12">
-      <tabset>
-        <tab id="current-topology-tab">
-          <tab-heading>
+      <uib-tabset>
+        <uib-tab id="current-topology-tab">
+          <uib-tab-heading>
             <i class="fa fa-exclamation-triangle" ng-if="!validCurrentTopologyDTO.valid && !currentTopologyHasNoChanges()"></i>
             <i class="fa fa fa-check" ng-if="validCurrentTopologyDTO.valid && !currentTopologyHasNoChanges()"></i>
             <span> {{'EDITOR.VALIDATION.CURRENT_TOPOLOGY' | translate}}</span>
-          </tab-heading>
+          </uib-tab-heading>
           <div class="row">
             <div class="col-md-12" ng-if="validCurrentTopologyDTO.valid && !currentTopologyHasNoChanges()">
               <h3 class="text-success"><i class="fa fa-check"></i> {{'APPLICATIONS.TOPOLOGY.TASK.VALIDATION_SUCCESS_CURRENT_TOPOLOGY' | translate}}</h3>
@@ -62,7 +62,7 @@
                     <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
                   </h4>
 
-                  <div collapse="isWorkflowsCollapsed" class="topology-level">
+                  <div uib-collapse="isWorkflowsCollapsed" class="topology-level">
                     <ul>
                       <li ng-repeat="wfTask in wfTasks">
                         {{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.HAS_ERROR' | translate:wfTask}}
@@ -75,13 +75,13 @@
             </div>
           </div>
 
-        </tab>
-        <tab id="last-topology-tab">
-          <tab-heading>
+        </uib-tab>
+        <uib-tab id="last-topology-tab">
+          <uib-tab-heading>
             <i class="fa fa-exclamation-triangle" ng-if="!validTopologyDTO.valid"></i>
             <i class="fa fa fa-check" ng-if="validTopologyDTO.valid"></i>
             <span> {{'EDITOR.VALIDATION.LAST_SAVED_TOPOLOGY' | translate}}</span>
-          </tab-heading>
+          </uib-tab-heading>
 
           <div class="row">
             <div class="col-md-12" ng-if="validTopologyDTO.valid">
@@ -133,7 +133,7 @@
                     <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
                   </h4>
 
-                  <div collapse="isWorkflowsCollapsed" class="topology-level">
+                  <div uib-collapse="isWorkflowsCollapsed" class="topology-level">
                     <ul>
                       <li ng-repeat="wfTask in wfTasks">
                         {{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.HAS_ERROR' | translate:wfTask}}
@@ -146,8 +146,8 @@
             </div>
           </div>
 
-        </tab>
-      </tabset>
+        </uib-tab>
+      </uib-tabset>
     </div>
 
   </div>

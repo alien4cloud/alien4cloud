@@ -28,8 +28,8 @@ define(function (require) {
 
   require('scripts/common/directives/pagination');
 
-  var ConfigPluginCtrl = ['$scope', '$modalInstance', '$resource', 'formDescriptorServices',
-    function($scope, $modalInstance, $resource, formDescriptorServices) {
+  var ConfigPluginCtrl = ['$scope', '$uibModalInstance', '$resource', 'formDescriptorServices',
+    function($scope, $uibModalInstance, $resource, formDescriptorServices) {
       //descriptor of the config
       formDescriptorServices.getForPluginConfig({
         pluginId: $scope.toConfigPluginId
@@ -38,18 +38,18 @@ define(function (require) {
       });
 
       $scope.saveConfiguration = function(pluginConfig) {
-        $modalInstance.close(pluginConfig);
+        $uibModalInstance.close(pluginConfig);
       };
 
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ];
 
   modules.get('a4c-plugins', ['ngResource', 'ui.bootstrap', 'pascalprecht.translate', 'toaster', 'a4c-search', 'a4c-common'])
-    .controller('PluginCtrl', ['$scope', '$resource', 'searchServiceFactory', '$modal', 'pluginServices', '$translate', 'toaster',
-    function($scope, $resource, searchServiceFactory, $modal, pluginServices, $translate, toaster) {
+    .controller('PluginCtrl', ['$scope', '$resource', 'searchServiceFactory', '$uibModal', 'pluginServices', '$translate', 'toaster',
+    function($scope, $resource, searchServiceFactory, $uibModal, pluginServices, $translate, toaster) {
       $scope.query = '';
       $scope.onSearchCompleted = function(searchResult) {
         $scope.data = searchResult.data;
@@ -137,7 +137,7 @@ define(function (require) {
         $scope.toConfigPluginId = pluginId;
 
         var doHandleModal = function() {
-          var modalInstance = $modal.open({
+          var modalInstance = $uibModal.open({
             templateUrl: 'views/plugins/plugin_configuration.html',
             controller: ConfigPluginCtrl,
             windowClass: 'searchModal',

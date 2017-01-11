@@ -146,7 +146,7 @@ define(function(require) {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded'
             }
-          }).success(function() {
+          }).then(function() {
             self.currentStatus = userStatusResource.query(function(loginResult) {
               // get the new status from server
               if (loginResult.data.isLogged === false) {
@@ -165,7 +165,7 @@ define(function(require) {
             });
 
             return self.currentStatus;
-          }).error(function() {
+          }).catch(function() {
             self.currentStatus = {
               'data': {
                 'isLogged': false
