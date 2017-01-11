@@ -9,8 +9,8 @@ define(function (require) {
       $scope.newOrchestrator = {};
       // get the list of orchestrator plugins
       $http.get('rest/latest/plugincomponents?type=IOrchestratorPluginFactory').then(function(response) {
-        if(_.defined(response.data)) {
-          $scope.plugins = response.data;
+        if(_.defined(response.data.data)) {
+          $scope.plugins = response.data.data;
           for (var i = 0; i < $scope.plugins.length; i++) {
             $scope.plugins[i].nameAndId = $scope.plugins[i].componentDescriptor.name + ' : ' + $scope.plugins[i].version;
           }
