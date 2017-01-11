@@ -86,8 +86,8 @@ define(function (require) {
 
           $scope.refreshOrchestratorDeploymentPropertyDefinitions = function () {
             return $http.get('rest/latest/orchestrators/' + $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId + '/deployment-property-definitions').then(function (result) {
-              if (result.data) {
-                $scope.deploymentContext.orchestratorDeploymentPropertyDefinitions = result.data;
+              if (result.data.data) {
+                $scope.deploymentContext.orchestratorDeploymentPropertyDefinitions = result.data.data;
               }
             });
           };

@@ -39,8 +39,8 @@ define(function(require) {
         // query to get the location support informations for the orchestrator.
 
         $http.get('rest/latest/orchestrators/' + orchestrator.id + '/locationsupport').then(function(response) {
-          if (_.defined(response.data)) {
-            locationSupport = response.data;
+          if (_.defined(response.data.data)) {
+            locationSupport = response.data.data;
             $scope.multipleLocations = locationSupport.multipleLocations;
             $scope.locationTypes = locationSupport.types;
           }
@@ -50,7 +50,7 @@ define(function(require) {
         function updateLocations() {
           locationService.get({orchestratorId: orchestrator.id}, function(result) {
             $scope.locationsDTOs = result.data;
-            if ($scope.locationsDTOs.length > 0 && _.isUndefined($scope.locationDTO)) {
+            if ($scope.locationsDTOs.length > 0) {
               // For the moment show only first location
               $scope.selectLocation($scope.locationsDTOs[0]);
               $state.go('admin.orchestrators.details.locations.config');

@@ -21,7 +21,7 @@ define(function(require) {
           var instance = this;
           $http.get('data/guides/' + tourName + '-' + $translate.use() + '.json')
             .then(function(data) {
-              instance.currentTour = data;
+              instance.currentTour = data.data;
               hopscotch.endTour(true);
               var clickTarget = null;
               var autoResume = false;
