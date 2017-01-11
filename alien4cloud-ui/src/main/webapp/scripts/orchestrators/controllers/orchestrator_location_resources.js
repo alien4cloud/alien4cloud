@@ -9,14 +9,22 @@ define(function(require) {
   require('scripts/orchestrators/directives/orchestrator_location_resource_template');
   require('scripts/orchestrators/services/location_resources_processor');
   require('scripts/tosca/services/node_template_service');
+  require('scripts/common/services/resize_services');
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationResourcesTemplateCtrl',
-    ['$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService', 'locationResourcesProcessor', 'nodeTemplateService', 'locationResourcesPortabilityService',
-      function($scope, locationResourcesService, locationResourcesPropertyService, locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService, locationResourcesPortabilityService) {
+    ['$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService', 'locationResourcesProcessor', 'nodeTemplateService', 'locationResourcesPortabilityService', 'resizeServices',
+      function($scope, locationResourcesService, locationResourcesPropertyService, locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService, locationResourcesPortabilityService, resizeServices) {
 
         var init = function(){
           if (_.isNotEmpty($scope.resourcesTypes)) {
             $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
+          }
+          if ($scope.showCatalog) {
+            $scope.dimensions = { width: 800, height: 600 }; // TODO GET HOW THIS WORKS ??
+            resizeServices.registerContainer(function (width, height) {
+              $scope.dimensions = { width: width, height: height };
+              $scope.$digest();
+            }, "#catalog");
           }
         };
 
