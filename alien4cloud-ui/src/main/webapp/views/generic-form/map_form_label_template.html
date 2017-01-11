@@ -1,16 +1,16 @@
 <div class="form-group" ng-class="{'form-item-selected': configuration.formStyle === 'window' && isActivePath}">
   <label class="col-md-4 control-label"
-         tooltip="{{labelName | translate}}"
+         uib-tooltip="{{labelName | translate}}"
          tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
     {{labelName | translate | truncate:configuration.labelSize}}
   </label>
 
   <div class="col-md-8">
-    <button id="{{idPrefix + 'editbutton'}}" type="button" tooltip="{{ 'GENERIC_FORM.GOTO' | translate }}"
+    <button id="{{idPrefix + 'editbutton'}}" type="button" uib-tooltip="{{ 'GENERIC_FORM.GOTO' | translate }}"
             class="btn btn-default btn-sm" ng-click="goTo()">
       <i class="fa fa-pencil-square-o"></i>
     </button>
-    <button id="{{idPrefix + 'deletebutton'}}" type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}"
+    <button id="{{idPrefix + 'deletebutton'}}" type="button" uib-tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}"
             class="btn btn-danger btn-sm"
             ng-click="deleteForm()" ng-if="isDeletable">
       <i class="fa fa-trash-o"></i>

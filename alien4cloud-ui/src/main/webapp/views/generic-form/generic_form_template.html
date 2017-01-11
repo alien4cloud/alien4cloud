@@ -3,7 +3,7 @@
     <div ng-if="formTitle" class="panel-heading">
       <h4 style="display: inline;">{{formTitle | translate}} </h4>
       <button id="deleteGenericFormButton" type="button" class="btn btn-danger btn-xs" ng-click="deleteData()"
-              ng-if="isRemovable && automaticSave" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}"><i
+              ng-if="isRemovable && automaticSave" uib-tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}"><i
           class="fa fa-trash-o"></i></button>
       <button id="closeGenericFormButton" type="button" class="close" ng-click="cancelForm()" aria-hidden="true"
               ng-if="isCancelable && automaticSave">&times;</button>
@@ -49,7 +49,7 @@
                   ng-click="activePathChangeTo(-1)">{{ rootName | translate }}</span>
               </div>
             </div>
-            <div collapse="isCollapsed">
+            <div uib-collapse="isCollapsed">
               <div class="form-tree-level treecontainer"></div>
             </div>
           </div>

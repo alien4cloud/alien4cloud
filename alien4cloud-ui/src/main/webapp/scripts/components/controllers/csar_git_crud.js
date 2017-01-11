@@ -4,16 +4,16 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-components', ['ui.bootstrap']).controller('CsarGitCrudController', ['$scope', '$modalInstance', 'gitRepository',
-    function($scope, $modalInstance, gitRepository) {
+  modules.get('a4c-components', ['ui.bootstrap']).controller('CsarGitCrudController', ['$scope', '$uibModalInstance', 'gitRepository',
+    function($scope, $uibModalInstance, gitRepository) {
       $scope.gitRepository = _.cloneDeep(gitRepository);
 
       $scope.create = function(gitRepo) {
-        $modalInstance.close(gitRepo);
+        $uibModalInstance.close(gitRepo);
       };
 
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
         $scope.id = 0;
         $scope.gitRepository = undefined;
       };

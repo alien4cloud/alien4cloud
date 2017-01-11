@@ -19,18 +19,18 @@
     </div>
     <div class="panel-body">
       <div class="">
-        <label class="ng-scope ng-binding" tooltip="{{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}" tooltip-trigger="mouseenter">
+        <label class="ng-scope ng-binding" uib-tooltip="{{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}" tooltip-trigger="mouseenter">
           {{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}
         </label>
         <simple-modal class="pull-right" title="{{ 'CLOUDS.ADMINISTRATION.HELP.TITLE' | translate}}" content="{{ 'CLOUDS.ADMINISTRATION.HELP.CONTENT' | translate}}" primary="true"> </simple-modal>
       </div>
       <div
-        ng-if="orchestrator.state === 'CONNECTED' && lock"  
+        ng-if="orchestrator.state === 'CONNECTED' && lock"
         id="deploymentNamePattern">
         {{orchestrator.deploymentNamePattern}}
       </div>
       <div
-        ng-if="orchestrator.state !== 'CONNECTED' || !lock" 
+        ng-if="orchestrator.state !== 'CONNECTED' || !lock"
         editable-text="orchestrator.deploymentNamePattern" id="deploymentNamePattern" buttons="no" e-style="width:90%;" e-required e-class="input-sm;" onBeforesave="updateDeploymentNamePattern($data)" blur="submit">
         {{orchestrator.deploymentNamePattern}} <i class="fa fa-edit"></i>
       </div>
@@ -53,7 +53,7 @@
       </generic-form>
     </div>
   </div>
-  
+
   <div ng-if="orchestrator.state === 'CONNECTED' && lock">
     <div ng-if="configuration && configurationDefinition">
       <generic-form root-object="configuration"

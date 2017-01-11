@@ -30,15 +30,15 @@ define(function(require) {
   });
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsCtrl',
-    ['$scope', '$modal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor', '$translate', '$state',
-      function($scope, $modal, $http, locationService, orchestrator, menu, locationResourcesProcessor, $translate, $state) {
+    ['$scope', '$uibModal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor', '$translate', '$state',
+      function($scope, $uibModal, $http, locationService, orchestrator, menu, locationResourcesProcessor, $translate, $state) {
         $scope.envTypes = ['OTHER', 'DEVELOPMENT', 'INTEGRATION_TESTS', 'USER_ACCEPTANCE_TESTS', 'PRE_PRODUCTION', 'PRODUCTION'];
         $scope.orchestrator = orchestrator;
         $scope.menu = menu;
         var locationSupport;
         // query to get the location support informations for the orchestrator.
 
-        $http.get('rest/latest/orchestrators/' + orchestrator.id + '/locationsupport').success(function(response) {
+        $http.get('rest/latest/orchestrators/' + orchestrator.id + '/locationsupport').then(function(response) {
           if (_.defined(response.data)) {
             locationSupport = response.data;
             $scope.multipleLocations = locationSupport.multipleLocations;
@@ -91,7 +91,7 @@ define(function(require) {
         };
 
         $scope.openNewModal = function() {
-          var modalInstance = $modal.open({
+          var modalInstance = $uibModal.open({
             templateUrl: 'views/orchestrators/orchestrator_location_new.html',
             controller: 'NewLocationController',
             resolve: {

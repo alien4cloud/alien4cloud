@@ -6,8 +6,8 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditRelationships', ['$modal', 'nodeTemplateService',
-    function($modal, nodeTemplateService) {
+  modules.get('a4c-topology-editor').factory('topoEditRelationships', ['$uibModal', 'nodeTemplateService',
+    function($uibModal, nodeTemplateService) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };
@@ -57,7 +57,7 @@ define(function (require) {
           scope.targetNodeTemplateName = targetNodeTemplateName;
           scope.targetedCapability = targetedCapability;
 
-          var modalInstance = $modal.open({
+          var modalInstance = $uibModal.open({
             templateUrl: 'views/topology/search_relationship_modal.html',
             controller: 'SearchRelationshipCtrl',
             windowClass: 'searchModal',

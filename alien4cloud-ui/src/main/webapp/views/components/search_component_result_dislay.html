@@ -3,15 +3,15 @@
     <span class="btn btn-default disabled">
       <i class="fa fa-archive"></i> {{component.archiveName}}
     </span>
-    <div class="btn-group btn-group-xs">
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="{{component.id}}_vfetch"
+    <div class="btn-group btn-group-xs" uib-dropdown>
+      <button type="button" class="btn btn-default" uib-dropdown-toggle id="{{component.id}}_vfetch"
         ng-click="fetchElementVersion(component)">
         {{component.selectedVersion}} <i class="fa fa-caret-down"></i>
       </button>
-      <ul ng-if="!component.olderVersions" class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
+      <ul ng-if="!component.olderVersions" class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" ng-init="itemIdex = $index">
         <li class="option-selected"><i class="fa fa-spin fa-spinner"></i> Loading...</li>
       </ul>
-      <ul ng-if="component.olderVersions" class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
+      <ul ng-if="component.olderVersions" class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" ng-init="itemIdex = $index">
         <li ng-repeat="olderVersion in component.olderVersions" class="option-selected"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion.version}}</a></li>
       </ul>
     </div>

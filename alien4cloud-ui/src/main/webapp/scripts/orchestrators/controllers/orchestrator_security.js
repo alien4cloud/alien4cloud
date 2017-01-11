@@ -23,8 +23,8 @@ define(function (require) {
   });
 
   modules.get('a4c-orchestrators').controller('OrchestratorSecurityCtrl',
-    ['$scope', '$modal', '$state', '$resource', 'orchestrator', 'orchestratorSecurityService', 'userServices', 'groupServices',
-    function($scope, $modal, $state, $resource, orchestrator, orchestratorSecurityService, userServices, groupServices) {
+    ['$scope', '$uibModal', '$state', '$resource', 'orchestrator', 'orchestratorSecurityService', 'userServices', 'groupServices',
+    function($scope, $uibModal, $state, $resource, orchestrator, orchestratorSecurityService, userServices, groupServices) {
       $scope.orchestrator = orchestrator;
 
       // // get all orchestrator assignable roles

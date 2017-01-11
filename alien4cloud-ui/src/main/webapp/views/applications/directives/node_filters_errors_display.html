@@ -5,14 +5,14 @@
     <span>{{'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.NODE_FILTER_INVALID' | translate}} :</span>
   </h4>
 
-  <div collapse="isToImplementNodesCollapsed" class="topology-level">
+  <div uib-collapse="isToImplementNodesCollapsed" class="topology-level">
     <div ng-repeat=" task in tasks">
       <span>{{task.nodeTemplateName}} :</span>
 
       <div ng-repeat=" nodeFilterToSatisfy in task.nodeFiltersToSatisfy">
         <span style="padding-left: 5px;">{{nodeFilterToSatisfy.relationshipName}} :</span>
         <!-- node_filters capabilities -->
-        <table class="table table-condensed" ng-if="nodeFilterToSatisfy.missingCapabilities">
+        <table class="table table-condensed" ng-if="_.isNotEmpty(nodeFilterToSatisfy.missingCapabilities)">
           <thead>
             <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.CAPABILITY_NAME' | translate}}</th>
             <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
@@ -29,7 +29,7 @@
           </tbody>
         </table>
         <!-- node_filters properties -->
-        <table class="table table-condensed" ng-if="nodeFilterToSatisfy.violations">
+        <table class="table table-condensed" ng-if="_.isNotEmpty(nodeFilterToSatisfy.violations)">
           <thead>
             <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.PROPERTY_NAME' | translate}}</th>
             <th ng-if="inputColumn">{{ 'APPLICATIONS.TOPOLOGY.TASK.RELATED_INPUT' | translate }}</th>

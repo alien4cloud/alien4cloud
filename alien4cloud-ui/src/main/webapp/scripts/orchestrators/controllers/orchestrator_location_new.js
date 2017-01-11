@@ -3,19 +3,19 @@ define(function (require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-orchestrators', ['ui.bootstrap']).controller('NewLocationController', ['$scope', '$modalInstance', 'locationTypes',
-    function($scope, $modalInstance, locationTypes) {
+  modules.get('a4c-orchestrators', ['ui.bootstrap']).controller('NewLocationController', ['$scope', '$uibModalInstance', 'locationTypes',
+    function($scope, $uibModalInstance, locationTypes) {
       $scope.newLocation = {};
       $scope.locationTypes = locationTypes;
 
       $scope.save = function(valid) {
         if (valid) {
-          $modalInstance.close($scope.newLocation);
+          $uibModalInstance.close($scope.newLocation);
         }
       };
 
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ]);

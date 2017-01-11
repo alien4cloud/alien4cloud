@@ -10,8 +10,8 @@ define(function (require) {
   require('scripts/components/directives/search_relationship_type');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'toaster', 'pascalprecht.translate', 'a4c-tosca']).controller('SearchRelationshipCtrl',
-    ['$scope', '$modalInstance', 'existingRelationshipName', 'relationshipMatchingService', 'toscaService',
-    function($scope, $modalInstance, existingRelationshipName, relationshipMatchingService, toscaService) {
+    ['$scope', '$uibModalInstance', 'existingRelationshipName', 'relationshipMatchingService', 'toscaService',
+    function($scope, $uibModalInstance, existingRelationshipName, relationshipMatchingService, toscaService) {
     $scope.totalStep = 3;
     $scope.step = 0;
 
@@ -69,7 +69,7 @@ define(function (require) {
     };
 
     $scope.finish = function() {
-      $modalInstance.close($scope.relationshipModalData);
+      $uibModalInstance.close($scope.relationshipModalData);
     };
 
     $scope.next = function() {
@@ -81,7 +81,7 @@ define(function (require) {
     };
 
     $scope.cancel = function() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     };
 
     $scope.mustDisableFinish = function() {

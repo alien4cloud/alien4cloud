@@ -6,14 +6,14 @@ define(function(require) {
 
   require('scripts/common/services/properties_services');
 
-  modules.get('a4c-common').controller('SimpleModalCtrl', ['$scope', '$translate', '$modal',
-    function($scope, $translate, $modal) {
+  modules.get('a4c-common').controller('SimpleModalCtrl', ['$scope', '$translate', '$uibModal',
+    function($scope, $translate, $uibModal) {
 
-      var ModalInstanceCtrl = ['$scope', '$modalInstance', 'title', 'content', function($scope, $modalInstance, title, content) {
+      var ModalInstanceCtrl = ['$scope', '$uibModalInstance', 'title', 'content', function($scope, $uibModalInstance, title, content) {
         $scope.title = title;
         $scope.content = content;
         $scope.close = function() {
-          $modalInstance.dismiss('close');
+          $uibModalInstance.dismiss('close');
         };
       }];
 
@@ -21,7 +21,7 @@ define(function(require) {
         if (_.defined(event)) {
           event.stopPropagation();
         }
-        $modal.open({
+        $uibModal.open({
           templateUrl: 'views/common/simple_modal.html',
           controller: ModalInstanceCtrl,
           resolve: {

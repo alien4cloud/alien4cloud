@@ -102,6 +102,7 @@ define(function(require) {
     alien4cloud.run(['$rootScope', '$state', 'editableOptions', 'editableThemes', 'authService',
       function($rootScope, $state, editableOptions, editableThemes, authService) {
         var statusFetched = false; // flag to know if we have fetched current user status (logged in and roles)
+        $rootScope._ = _;
         // check when the state is about to change
         $rootScope.$on('$stateChangeStart', function(event, toState, toParams) {
           if (!statusFetched && _.defined(event)) {

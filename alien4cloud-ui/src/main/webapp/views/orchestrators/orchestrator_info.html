@@ -39,13 +39,12 @@
     <delete-confirm ng-if="orchestrator.state === 'DISABLED'" id="btn-delete-app" func="removeOrchestrator()" position="left" fastyle="fa-trash-o" text="{{'DELETE' | translate}}"></delete-confirm>
   </div>
 </div>
-<div class="row" ng-if="orchestratorProperties">
+<div class="row" ng-if="_.isNotEmpty(orchestratorProperties)">
   <div class="col-md-12">
     <hr class="separator-h">
     <meta-properties-display
       properties="orchestratorProperties"
       target="orchestrator"
-
       collapsable="false">
     </meta-properties-display>
   </div>

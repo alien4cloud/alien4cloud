@@ -21,8 +21,8 @@ define(function (require) {
   });
 
   modules.get('a4c-orchestrators').controller('OrchestratorDeploymentsCtrl',
-    ['$scope', '$modal', '$state', 'deploymentServices', 'orchestrator',
-    function($scope, $modal, $state, deploymentServices, orchestrator) {
+    ['$scope', '$uibModal', '$state', 'deploymentServices', 'orchestrator',
+    function($scope, $uibModal, $state, deploymentServices, orchestrator) {
       $scope.orchestrator = orchestrator;
 
       function processDeployments(deployments){

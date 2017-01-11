@@ -3,19 +3,19 @@
     ng-show="isActivePath">
     <div class="form-group">
       <label class="col-md-4 control-label"
-             tooltip="{{labelName | translate}}"
+             uib-tooltip="{{labelName | translate}}"
              tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
         {{labelName | translate | truncate:configuration.labelSize}}
       </label>
 
       <div class="col-md-8">
-        <div tooltip="Add" style="display: inline-block;" tooltip-placement="top">
+        <div uib-tooltip="Add" style="display: inline-block;" tooltip-placement="top">
           <button id="{{idPrefix + 'addelementbutton'}}" type="button" class="btn btn-default btn-sm"
                   ng-click="addElementToArray()" ng-disabled="configuration.isReadOnly">
             <i class="fa fa-plus"></i>
           </button>
         </div>
-        <button type="button" tooltip="{{'GENERIC_FORM.DELETE' | translate}}" class="btn btn-danger btn-sm"
+        <button type="button" uib-tooltip="{{'GENERIC_FORM.DELETE' | translate}}" class="btn btn-danger btn-sm"
                 ng-click="deleteForm()" ng-if="isDeletable">
           <i class="fa fa-trash-o"></i>
         </button>

@@ -31,8 +31,8 @@ define(function (require) {
   });
   states.forward('components.repositories', 'components.repositories.list');
 
-  var NewRepositoryCtrl = ['$scope', '$modalInstance', 'repositoryPlugins', 'repositoryService', 'repositoryPluginConfigurationService',
-    function ($scope, $modalInstance, repositoryPlugins, repositoryService, repositoryPluginConfigurationService) {
+  var NewRepositoryCtrl = ['$scope', '$uibModalInstance', 'repositoryPlugins', 'repositoryService', 'repositoryPluginConfigurationService',
+    function ($scope, $uibModalInstance, repositoryPlugins, repositoryService, repositoryPluginConfigurationService) {
 
       $scope.repositoryPlugins = repositoryPlugins;
 
@@ -47,7 +47,7 @@ define(function (require) {
       $scope.maxStep = 2;
 
       $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
 
       var findPluginId = function (repositoryType) {
@@ -69,7 +69,7 @@ define(function (require) {
       };
 
       var closeModal = function () {
-        $modalInstance.close($scope.repository);
+        $uibModalInstance.close($scope.repository);
       };
 
       $scope.next = function (valid) {
@@ -83,14 +83,14 @@ define(function (require) {
       };
     }];
 
-  var UpdateRepositoryConfigurationController = ['$scope', '$modalInstance', 'repositoryService', 'configurationDefinition', 'repository',
-    function ($scope, $modalInstance, repositoryService, configurationDefinition, repository) {
+  var UpdateRepositoryConfigurationController = ['$scope', '$uibModalInstance', 'repositoryService', 'configurationDefinition', 'repository',
+    function ($scope, $uibModalInstance, repositoryService, configurationDefinition, repository) {
 
       $scope.configurationDefinition = configurationDefinition;
       $scope.repository = repository;
 
       var closeModal = function () {
-        $modalInstance.close();
+        $uibModalInstance.close();
       };
 
       $scope.save = function () {
@@ -98,13 +98,13 @@ define(function (require) {
       };
 
       $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ];
 
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('RepositoryListCtrl', ['$scope', '$modal', 'repositoryService', '$window', '$filter',
-    function ($scope, $modal, repositoryService, $window, $filter) {
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('RepositoryListCtrl', ['$scope', '$uibModal', 'repositoryService', '$window', '$filter',
+    function ($scope, $uibModal, repositoryService, $window, $filter) {
 
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
@@ -125,7 +125,7 @@ define(function (require) {
       };
 
       $scope.openCreateRepositoryModal = function () {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'views/components/repository_new.html',
           controller: NewRepositoryCtrl,
           resolve: {
@@ -142,7 +142,7 @@ define(function (require) {
       };
 
       $scope.openUpdateRepositoryConfigurationModal = function (repository) {
-        $modal.open({
+        $uibModal.open({
           templateUrl: 'views/components/repository_update.html',
           controller: UpdateRepositoryConfigurationController,
           resolve: {

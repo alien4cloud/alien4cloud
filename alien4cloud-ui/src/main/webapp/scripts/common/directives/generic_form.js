@@ -695,7 +695,7 @@ define(function(require) {
       templateUrl: 'views/generic-form/abstract_form_template.html',
       link: function(scope, element) {
         var listenToImplementationChange = function() {
-          scope.selectChangeListener = scope.$watch('propertyType._selectedImplementation.' + scope.propertyName, function(newValue) {
+          scope.selectChangeListener = scope.$watch('propertyType._selectedImplementation["' + scope.propertyName + '"]', function(newValue) {
             if (_.defined(newValue) && scope.implementationType !== scope.propertyType._implementationTypes[newValue]) {
               // When selection changed, we must suppress root object
               if (angular.isDefined(scope.implementationType)) {

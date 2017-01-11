@@ -18,7 +18,7 @@
         <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
       </h4>
 
-      <div collapse="isWorkflowsCollapsed" class="topology-level">
+      <div uib-collapse="isWorkflowsCollapsed" class="topology-level">
         <ul>
           <li ng-repeat="wfTask in wfTasks">
             {{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.HAS_ERROR' | translate:wfTask}}

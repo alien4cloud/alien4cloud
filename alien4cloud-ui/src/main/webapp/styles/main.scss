@@ -105,6 +105,11 @@ a {
   @extend .form-control;
 }
 
+// confirm popover
+[confirm-popup].popover {
+  display: block !important;
+}
+
 /*pagination*/
 .pagination-div {
   text-align: center;
