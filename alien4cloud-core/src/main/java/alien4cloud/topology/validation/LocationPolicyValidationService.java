@@ -19,8 +19,6 @@ import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.task.LocationPolicyTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.UnavailableLocationTask;
@@ -49,8 +47,9 @@ public class LocationPolicyValidationService {
             orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
 
             // if a location already exists, then check the rigths on it
-            AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
-
+            // AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
+            if (true)
+                throw new AccessDeniedException("To be implemented");
             // check the orchestrator is still enabled
 
             if (!Objects.equals(orchestrator.getState(), OrchestratorState.CONNECTED)) {

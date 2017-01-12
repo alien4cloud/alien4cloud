@@ -17,19 +17,11 @@ import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Sets;
 
 import alien4cloud.model.common.IDatableResource;
 import alien4cloud.model.common.IMetaProperties;
-import alien4cloud.security.ISecuredResource;
-import alien4cloud.security.model.DeployerRole;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-import alien4cloud.utils.jackson.ConditionalOnAttribute;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
-import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
+import alien4cloud.model.orchestrators.AbstractOrchestratorResource;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,7 +32,7 @@ import lombok.Setter;
 @ESObject
 @ApiModel(value = "Location", description = "A location represents a cloud, a region of a cloud, a set of machines and resources."
         + "basically any location on which alien will be allowed to perform deployment. Locations are managed by orchestrators.")
-public class Location implements ISecuredResource, IMetaProperties, IDatableResource {
+public class Location extends AbstractOrchestratorResource implements IMetaProperties, IDatableResource {
     @Id
     @FetchContext(contexts = SUMMARY, include = true)
     private String id;
@@ -71,29 +63,7 @@ public class Location implements ISecuredResource, IMetaProperties, IDatableReso
     @StringField(indexType = IndexType.analyzed, includeInAll = true)
     private Map<String, String> metaProperties;
 
-    @TermFilter(paths = { "key", "value" })
-    @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
-    @ConditionalOnAttribute(ConditionalAttributes.ES)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
-    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    @FetchContext(contexts = { SUMMARY }, include = { true })
-    private Map<String, Set<String>> userRoles;
-
-    @TermFilter(paths = { "key", "value" })
-    @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
-    @ConditionalOnAttribute(ConditionalAttributes.ES)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
-    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    @FetchContext(contexts = { SUMMARY }, include = { true })
-    private Map<String, Set<String>> groupRoles;
-
     private Date creationDate;
 
     private Date lastUpdateDate = new Date();
-
-    @Override
-    public Class<DeployerRole> roleEnum() {
-        return DeployerRole.class;
-    }
-
 }

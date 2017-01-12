@@ -1,8 +1,13 @@
 package alien4cloud.deployment;
 
 import java.beans.IntrospectionException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -12,11 +17,17 @@ import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
-import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.templates.AbstractPolicy;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -38,8 +49,6 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationService;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
@@ -259,7 +268,7 @@ public class DeploymentTopologyService {
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         try {
             ToscaContext.init(deploymentTopology.getDependencies());
-        // It is not allowed to override a value from an original node or from a location resource.
+            // It is not allowed to override a value from an original node or from a location resource.
             NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
             if (substitutedNode == null) {
                 throw new NotFoundException(
@@ -280,11 +289,9 @@ public class DeploymentTopologyService {
             }
 
             AbstractPropertyValue locationResourcePropertyValue = locationResourceTemplate.getTemplate().getProperties().get(propertyName);
-            buildConstaintException(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName,
-                    propertyValue);
+            buildConstaintException(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName, propertyValue);
             NodeTemplate originalNode = deploymentTopology.getOriginalNodes().get(nodeTemplateId);
-            buildConstaintException(originalNode.getProperties().get(propertyName), "in the portable topology", propertyName,
-                    propertyValue);
+            buildConstaintException(originalNode.getProperties().get(propertyName), "in the portable topology", propertyName, propertyValue);
 
             // Set the value and check constraints
             propertyService.setPropertyValue(substitutedNode, propertyDefinition, propertyName, propertyValue);
@@ -330,8 +337,7 @@ public class DeploymentTopologyService {
 
             AbstractPropertyValue locationResourcePropertyValue = locationResourceTemplate.getTemplate().getCapabilities().get(capabilityName).getProperties()
                     .get(propertyName);
-            buildConstaintException(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName,
-                    propertyValue);
+            buildConstaintException(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName, propertyValue);
             AbstractPropertyValue originalNodePropertyValue = deploymentTopology.getOriginalNodes().get(nodeTemplateId).getCapabilities().get(capabilityName)
                     .getProperties().get(propertyName);
             buildConstaintException(originalNodePropertyValue, "in the portable topology", propertyName, propertyValue);
@@ -350,8 +356,8 @@ public class DeploymentTopologyService {
      * @param sourcePropertyValue null or an already defined Property Value.
      * @param messageSource The named source to add in the exception message in case of failure.
      */
-    private void buildConstaintException(AbstractPropertyValue sourcePropertyValue, String messageSource,
-            String propertyName, Object propertyValue) throws ConstraintViolationException {
+    private void buildConstaintException(AbstractPropertyValue sourcePropertyValue, String messageSource, String propertyName, Object propertyValue)
+            throws ConstraintViolationException {
         if (sourcePropertyValue != null) {
             try {
                 EqualConstraint constraint = new EqualConstraint();
@@ -456,7 +462,9 @@ public class DeploymentTopologyService {
         for (Entry<String, String> matchEntry : groupsLocationsMapping.entrySet()) {
             String locationId = matchEntry.getValue();
             Location location = locationService.getOrFail(locationId);
-            AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
+            // AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
+            if (true)
+                throw new AccessDeniedException("To be implemented");
             deploymentTopology.getLocationDependencies().addAll(location.getDependencies());
             LocationPlacementPolicy locationPolicy = new LocationPlacementPolicy(locationId);
             locationPolicy.setName("Location policy");

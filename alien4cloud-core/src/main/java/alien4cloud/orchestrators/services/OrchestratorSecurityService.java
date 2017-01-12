@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -45,7 +46,9 @@ public class OrchestratorSecurityService {
             orchestrator.getAuthorizedUsers().add(username);
             List<Location> locations = locationService.getAll(orchestratorId);
             for (Location location : locations) {
-                resourceRoleService.addUserRole(location, username, role);
+                // resourceRoleService.addUserRole(location, username, role);
+                if (true)
+                    throw new AccessDeniedException("To be implemented");
             }
             alienDAO.save(orchestrator);
         }
@@ -64,7 +67,9 @@ public class OrchestratorSecurityService {
             orchestrator.getAuthorizedUsers().remove(username);
             List<Location> locations = locationService.getAll(orchestratorId);
             for (Location location : locations) {
-                resourceRoleService.removeUserRole(location, username, role);
+                // resourceRoleService.removeUserRole(location, username, role);
+                if (true)
+                    throw new AccessDeniedException("To be implemented");
             }
             alienDAO.save(orchestrator);
         }
@@ -84,7 +89,9 @@ public class OrchestratorSecurityService {
             orchestrator.getAuthorizedGroups().add(groupId);
             List<Location> locations = locationService.getAll(orchestratorId);
             for (Location location : locations) {
-                resourceRoleService.addGroupRole(location, groupId, role);
+                // resourceRoleService.addGroupRole(location, groupId, role);
+                if (true)
+                    throw new AccessDeniedException("To be implemented");
             }
             alienDAO.save(orchestrator);
         }
@@ -104,7 +111,9 @@ public class OrchestratorSecurityService {
             orchestrator.getAuthorizedGroups().remove(groupId);
             List<Location> locations = locationService.getAll(orchestratorId);
             for (Location location : locations) {
-                resourceRoleService.removeGroupRole(location, groupId, role);
+                // resourceRoleService.removeGroupRole(location, groupId, role);
+                if (true)
+                    throw new AccessDeniedException("To be implemented");
             }
             alienDAO.save(orchestrator);
         }

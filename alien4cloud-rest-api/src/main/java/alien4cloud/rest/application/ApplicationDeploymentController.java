@@ -13,6 +13,7 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,7 +57,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
-import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyValidationResult;
 import io.swagger.annotations.Api;
@@ -123,10 +123,11 @@ public class ApplicationDeploymentController {
         // Check authorization on the location
         // get the target locations of the deployment topology
         Map<String, Location> locationMap = deploymentTopologyService.getLocations(deploymentTopology);
-        for (Location location : locationMap.values()) {
-            AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
-        }
-
+        // for (Location location : locationMap.values()) {
+        // AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
+        // }
+        if (true)
+            throw new AccessDeniedException("To be implemented");
         // prepare the deployment
         TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);
 
