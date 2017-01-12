@@ -1,4 +1,4 @@
-<div ng-controller="OrchestratorLocationResourcesTemplateCtrl">
+<div ng-controller="OrchestratorLocationResourcesTemplateCtrl as ctrl">
   <div ng-if="!showCatalog" class="row" style="margin-top: 10px">
     <div class="col-md-12">
       <span>{{'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate}} </span>
@@ -26,7 +26,7 @@
               class="clickable"
               ng-class="{'warning': selectedResourceTemplate == template}"
               ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.elementId">
-            <td ng-init="nodeIcon = getIcon(template)">
+            <td ng-init="nodeIcon = getIcon(template.template.type)">
               <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
               <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
             </td>
@@ -58,26 +58,22 @@
           <uib-tab-heading>
             <i class="icon-star"></i> Favorites
           </uib-tab-heading>
-          <table class="table table-hover table-bordered">
-          <thead>
-          <tr>
-            <th class="text-center">{{'COMMON.TYPE' | translate}}</th>
-            <th class="text-center">{{'COMPONENTS.ARCHIVE' | translate}}</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr ng-repeat="template in resourcesTemplates | orderBy:'name'"
-              class="clickable"
-              ng-class="{'warning': selectedResourceTemplate == template}">
-            <!--<td ng-init="nodeIcon = getIcon(template)">-->
-              <!--<i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>-->
-              <!--<img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">-->
-            <!--</td>-->
-            <td>{{template.template.type}}</td>
-            <td>types:1.2.0-SNAPSHOT</td>
-          </tr>
-          </tbody>
-          </table>
+          <ul class="media-list" style="margin:0">
+            <li class="media"
+                ng-repeat="resource in ctrl.favorites | orderBy:'type'"
+                alien-draggable drag-enabled="true" drag-data="resource">
+              <div class="media-left" ng-init="nodeIcon = getIcon(resource.type)">
+                <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
+                <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_64">
+              </div>
+              <div class="media-body">
+                <h4 class="media-heading">{{ resource.type }}</h4>
+                <p>
+                  <b>{{'COMMON.SOURCE' | translate}}:</b> {{ resource.archiveId }}
+                </p>
+              </div>
+            </li>
+          </ul>
         </uib-tab>
         <uib-tab index="1">
           <uib-tab-heading>

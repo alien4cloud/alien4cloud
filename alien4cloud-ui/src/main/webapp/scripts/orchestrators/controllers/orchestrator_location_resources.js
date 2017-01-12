@@ -14,17 +14,30 @@ define(function(require) {
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationResourcesTemplateCtrl',
     ['$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService', 'locationResourcesProcessor', 'nodeTemplateService', 'locationResourcesPortabilityService', 'resizeServices',
       function($scope, locationResourcesService, locationResourcesPropertyService, locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService, locationResourcesPortabilityService, resizeServices) {
-
+        const vm = this;
         var init = function(){
           if (_.isNotEmpty($scope.resourcesTypes)) {
             $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
           }
+          // Only show catalog on custom on-demand resources tab
           if ($scope.showCatalog) {
             $scope.dimensions = { width: 800, height: 600 }; // TODO GET HOW THIS WORKS ??
             resizeServices.registerContainer(function (width, height) {
               $scope.dimensions = { width: width, height: height };
               $scope.$digest();
             }, "#catalog");
+
+            // Compute favorite resource types from the actual resource template list
+            vm.favorites = _.unique(
+              _.map($scope.resourcesTemplates, function(item) {
+                return {
+                  type: item.template.type,
+                  archive: 'mock-archive',//item.template.archive
+                  version: '1.0.0-MOCK',
+                  archiveId: 'mock-archive:1.0.0-MOCK' // item.template.version
+                }
+              }), 'archiveId'
+            );
           }
         };
 
@@ -64,8 +77,8 @@ define(function(require) {
           $scope.selectedResourceTemplate = template;
         };
 
-        $scope.getIcon = function(template) {
-          var templateType = $scope.resourcesTypesMap[template.template.type];
+        $scope.getIcon = function(resourceType) {
+          var templateType = $scope.resourcesTypesMap[resourceType];
           return nodeTemplateService.getNodeTypeIcon(templateType);
         };
 
