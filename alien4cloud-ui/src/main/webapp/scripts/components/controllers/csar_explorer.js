@@ -40,9 +40,10 @@ define(function (require) {
         } else {
           $scope.isImage = false;
           $http({method: 'GET',
+            transformResponse: function(d) { return d; },
             url: selectedUrl})
-            .success(function(data) {
-              $scope.editorContent = data;
+            .then(function(result) {
+              $scope.editorContent = result.data;
               $scope.mode = explorerService.getMode(node);
             });
         }
@@ -50,11 +51,13 @@ define(function (require) {
     };
 
     // Load archive content file
-    $http({method: 'GET', url: '/static/tosca/'+archiveName+'/'+archiveVersion+'/content.json'}).success(function(data) {
-      $scope.treedata.children = data.children[0].children;
+    $http({method: 'GET',
+      url: '/static/tosca/'+archiveName+'/'+archiveVersion+'/content.json'
+    }).then(function(result) {
+      $scope.treedata.children = result.data.children[0].children;
       if(selected !== null) {
         $scope.showSelected(selected);
-        explorerService.expand($scope.expandedNodes, $scope.selected.fullPath, data.children[0], false);
+        explorerService.expand($scope.expandedNodes, $scope.selected.fullPath, result.data.children[0], false);
       }
     });
     $scope.cancel = function() {

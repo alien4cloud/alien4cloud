@@ -34,8 +34,8 @@ define(function (require) {
             if(_.defined(relationshipType)) { // We have found a valid relationship type
               deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, relationshipType, preferedTarget));
             } else { // we didn't found the matching relationship type let's look for all.
-              componentService.getInArchives(requirementDefinition.relationshipType, 'RELATIONSHIP_TYPE', dependencies).success(function(result) {
-                deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, result.data, preferedTarget));
+              componentService.getInArchives(requirementDefinition.relationshipType, 'RELATIONSHIP_TYPE', dependencies).then(function(result) {
+                deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, result.data.data, preferedTarget));
               });
             }
           } else { // no relationship type specified
