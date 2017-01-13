@@ -104,7 +104,8 @@ define(function (require) {
       var importResult = {
         'name': url,
         'progress': 100,
-        'errors': []
+        'errors': [],
+        isErrorBlocCollapsed: true
       };
       // file is uploaded successfully and the server respond without error
       if (data.error === null) {
