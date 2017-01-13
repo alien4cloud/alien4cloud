@@ -92,8 +92,8 @@ public class PaaSProviderPollingMonitor implements Runnable {
         @Override
         public void onSuccess(AbstractMonitorEvent[] auditEvents) {
             synchronized (PaaSProviderPollingMonitor.this) {
-                if (log.isTraceEnabled()) {
-                    log.trace("Polled from date {}", lastPollingDate);
+                if (log.isDebugEnabled()) {
+                    log.debug("Polled from date {}", lastPollingDate);
                 }
                 if (log.isDebugEnabled() && auditEvents != null && auditEvents.length > 0) {
                     log.debug("Saving events for orchestrator {}", orchestratorId);
@@ -184,6 +184,9 @@ public class PaaSProviderPollingMonitor implements Runnable {
         }
         getEventsInProgress = true;
         if (hasDeployments) {
+            if (log.isDebugEnabled()) {
+                log.debug("Polling from date {}", lastPollingDate);
+            }
             paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS, paaSEventsCallback);
         } else {
             getEventsInProgress = false;
