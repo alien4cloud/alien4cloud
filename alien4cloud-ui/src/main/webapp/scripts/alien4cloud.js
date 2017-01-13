@@ -61,12 +61,14 @@ define(function(require) {
     // add requirements to alien4cloud
     modules.link(alien4cloud);
 
-    alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
-      function($stateProvider, $urlRouterProvider, $httpProvider) {
+    alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$locationProvider',
+      function($stateProvider, $urlRouterProvider, $httpProvider, $locationProvider) {
         $httpProvider.interceptors.push('restTechnicalErrorInterceptor');
         $httpProvider.defaults.headers.common['A4C-Agent'] = 'AngularJS_UI';
         $urlRouterProvider.otherwise('/');
         states.config($stateProvider);
+        $locationProvider.html5Mode(false);
+        $locationProvider.hashPrefix('');
       }
     ]);
 
@@ -102,6 +104,7 @@ define(function(require) {
     alien4cloud.run(['$rootScope', '$state', 'editableOptions', 'editableThemes', 'authService',
       function($rootScope, $state, editableOptions, editableThemes, authService) {
         var statusFetched = false; // flag to know if we have fetched current user status (logged in and roles)
+        $rootScope._ = _;
         // check when the state is about to change
         $rootScope.$on('$stateChangeStart', function(event, toState, toParams) {
           if (!statusFetched && _.defined(event)) {

@@ -13,9 +13,9 @@ define(function(require) {
   require('scripts/topology/services/workflow_render');
 
   modules.get('a4c-topology-editor', [ 'a4c-common', 'a4c-common-graph', 'ui.bootstrap', 'a4c-styles' ]).directive('topologyPlan',
-      ['$filter', '$http', '$modal', '$interval', '$translate', 'svgServiceFactory', 'runtimeColorsService', 'listToMapService',
+      ['$filter', '$http', '$uibModal', '$interval', '$translate', 'svgServiceFactory', 'runtimeColorsService', 'listToMapService',
       'workflowShapes', 'planRender',
-    function($filter, $http, $modal, $interval, $translate, svgServiceFactory,
+    function($filter, $http, $uibModal, $interval, $translate, svgServiceFactory,
         runtimeColorsService, listToMapService, workflowShapes, planRender) {
       return {
         restrict : 'E',

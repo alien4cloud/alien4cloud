@@ -22,7 +22,7 @@ define(function (require) {
     };
   });
 
-  modules.get('a4c-common').factory('uploadServiceFactory',['$upload',function($upload) {
+  modules.get('a4c-common').factory('uploadServiceFactory',['Upload',function($upload) {
     var FileUploadManager = function(scope) {
       this.scope = scope;
       this.scope.uploadInfos = [];
@@ -101,7 +101,7 @@ define(function (require) {
     };
   }]);
 
-  modules.get('a4c-common', ['angularFileUpload']).controller('UploadCtrl', [ '$scope', '$upload', '$q', 'uploadServiceFactory', function($scope, $upload, $q, uploadServiceFactory) {
+  modules.get('a4c-common', ['ngFileUpload']).controller('UploadCtrl', [ '$scope', 'Upload', '$q', 'uploadServiceFactory', function($scope, $upload, $q, uploadServiceFactory) {
     var uploadService = uploadServiceFactory($scope);
     //build the upload directive data
     function buildUploadData(file) {

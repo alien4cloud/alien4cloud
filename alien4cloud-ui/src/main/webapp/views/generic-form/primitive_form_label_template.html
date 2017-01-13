@@ -9,7 +9,7 @@
             buttons="no"
             onbeforesave="inputCheck($data)"
             onaftersave="inputChanged()"
-            e-typeahead="item for item in suggestion.get($viewValue)"
+            e-uib-typeahead="item for item in suggestion.get($viewValue)"
             typeahead-min-length="suggestion.minLength"
             blur="submit">
           {{input.value}}
@@ -28,7 +28,7 @@
 <div ng-if="!propertyType._isTitle && !validValues" ng-switch="propertyType._type">
   <div class="form-group" ng-class="{'has-error': !isInputValid && configuration.showErrors}"
        ng-switch-when="string">
-    <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
+    <label class="col-md-4 control-label" uib-tooltip="{{labelName | translate}}"
            tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
       {{labelName | translate | truncate:configuration.labelSize}} </label>
 
@@ -41,7 +41,7 @@
               buttons="no"
               onbeforesave="inputCheck($data)"
               onaftersave="inputChanged()"
-              e-typeahead="item for item in suggestion.get($viewValue)"
+              e-uib-typeahead="item for item in suggestion.get($viewValue)"
               typeahead-min-length="suggestion.minLength"
               blur="submit">
             {{input.value | truncate:30}}
@@ -56,7 +56,7 @@
                 buttons="no"
                 onbeforesave="inputCheck($data)"
                 onaftersave="inputChanged()"
-                e-typeahead="item for item in suggestion.get($viewValue)"
+                e-uib-typeahead="item for item in suggestion.get($viewValue)"
                 typeahead-min-length="suggestion.minLength"
                 blur="submit">
             {{input.value  | password:'*' | truncate:30}}
@@ -70,7 +70,7 @@
                ng-model="input.newValue"
                ng-change="inputCheckForNonXeditable(input.newValue)"
                ng-blur="inputChangedForNonXeditable()"
-               typeahead="item for item in suggestion.get($viewValue)">
+               uib-typeahead="item for item in suggestion.get($viewValue)">
                 <span ng-if="input.error && !configuration.useXeditable"
                       class="help-inline text-danger">{{input.error}}</span>
           <input ng-if="!configuration.useXeditable && propertyType._isPassword"
@@ -79,7 +79,7 @@
                  ng-model="input.newValue"
                  ng-change="inputCheckForNonXeditable(input.newValue)"
                  ng-blur="inputChangedForNonXeditable()"
-                 typeahead="item for item in suggestion.get($viewValue)">
+                 uib-typeahead="item for item in suggestion.get($viewValue)">
           <span ng-if="input.error && !configuration.useXeditable"
                 class="help-inline text-danger">{{input.error}}</span>
       </div>
@@ -92,7 +92,7 @@
       </div>
     </div>
     <div class="col-md-3" ng-if="isDeletable && !configuration.isReadOnly">
-      <button type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
+      <button type="button" uib-tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
               ng-click="deleteForm()">
         <i class="fa fa-trash-o"></i>
       </button>
@@ -100,7 +100,7 @@
   </div>
   <div class="form-group" ng-class="{'has-error': !isInputValid && configuration.showErrors}"
        ng-switch-when="text">
-    <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
+    <label class="col-md-4 control-label" uib-tooltip="{{labelName | translate}}"
            tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
       {{labelName | translate | truncate:configuration.labelSize}} </label>
 
@@ -113,7 +113,7 @@
               buttons="no"
               onbeforesave="inputCheck($data)"
               onaftersave="inputChanged()"
-              e-typeahead="item for item in suggestion.get($viewValue)"
+              e-uib-typeahead="item for item in suggestion.get($viewValue)"
               typeahead-min-length="suggestion.minLength"
               blur="submit">
             {{input.value | truncate:30}}
@@ -127,7 +127,7 @@
                ng-model="input.newValue"
                ng-change="inputCheckForNonXeditable(input.newValue)"
                ng-blur="inputChangedForNonXeditable()"
-               typeahead="item for item in suggestion.get($viewValue)"></textarea>
+               uib-typeahead="item for item in suggestion.get($viewValue)"></textarea>
                 <span ng-if="input.error && !configuration.useXeditable"
                       class="help-inline text-danger">{{input.error}}</span>
       </div>
@@ -140,7 +140,7 @@
       </div>
     </div>
     <div class="col-md-3" ng-if="isDeletable">
-      <button type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
+      <button type="button" uib-tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
               ng-click="deleteForm()">
         <i class="fa fa-trash-o"></i>
       </button>
@@ -148,7 +148,7 @@
   </div>
   <div class="form-group" ng-class="{'has-error': !isInputValid && configuration.showErrors}"
        ng-switch-when="boolean">
-    <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
+    <label class="col-md-4 control-label" uib-tooltip="{{labelName | translate}}"
            tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
       {{labelName | translate | truncate:configuration.labelSize}} </label>
 
@@ -180,14 +180,14 @@
       </div>
     </div>
     <div class="col-md-3" ng-if="isDeletable">
-      <button type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
+      <button type="button" uib-tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
               ng-click="deleteForm()">
         <i class="fa fa-trash-o"></i>
       </button>
     </div>
   </div>
   <div class="form-group" ng-class="{'has-error': !isInputValid && configuration.showErrors}" ng-switch-default>
-    <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
+    <label class="col-md-4 control-label" uib-tooltip="{{labelName | translate}}"
            tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
       {{labelName | translate | truncate:configuration.labelSize}} <span ng-if="propertyType._unit">({{propertyType._unit}})</span>
     </label>
@@ -201,7 +201,7 @@
               buttons="no"
               onbeforesave="inputCheck($data)"
               onaftersave="inputChanged()"
-              e-typeahead="item for item in suggestion.get($viewValue)"
+              e-uib-typeahead="item for item in suggestion.get($viewValue)"
               typeahead-min-length="suggestion.minLength"
               blur="submit"
               e-step="{{propertyType._step}}">
@@ -217,7 +217,7 @@
                ng-model="input.newValue"
                ng-change="inputCheckForNonXeditable(input.newValue)"
                ng-blur="inputChangedForNonXeditable()"
-               typeahead="item for item in suggestion.get($viewValue)">
+               uib-typeahead="item for item in suggestion.get($viewValue)">
                 <span ng-if="input.error && !configuration.useXeditable"
                       class="help-inline text-danger">{{input.error}}</span>
       </div>
@@ -231,7 +231,7 @@
       </div>
     </div>
     <div class="col-md-3" ng-if="isDeletable">
-      <button type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
+      <button type="button" uib-tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
               ng-click="deleteForm()">
         <i class="fa fa-trash-o"></i>
       </button>
@@ -240,7 +240,7 @@
 </div>
 <div ng-if="!propertyType._isTitle && validValues" class="form-group"
      ng-class="{'has-error': !isInputValid && configuration.showErrors}">
-  <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
+  <label class="col-md-4 control-label" uib-tooltip="{{labelName | translate}}"
          tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}"> {{labelName
     | translate | truncate:configuration.labelSize}} </label>
 
@@ -261,7 +261,7 @@
     </div>
   </div>
   <div class="col-md-3" ng-if="isDeletable">
-    <button type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
+    <button type="button" uib-tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
             ng-click="deleteForm()">
       <i class="fa fa-trash-o"></i>
     </button>

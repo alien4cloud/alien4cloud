@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>alien4cloud</groupId>
@@ -140,24 +141,28 @@
 
   </dependencies>
 
-  <build>
-    <plugins>
+  <!--<build>-->
+    <!--<plugins>-->
       <!--<plugin>-->
-      <!--<groupId>fr.fastconnect</groupId>-->
-      <!--<artifactId>plantuml-maven-plugin</artifactId>-->
-      <!--<version>1.0.0</version>-->
-      <!--<executions>-->
-      <!--<execution>-->
-      <!--<goals>-->
-      <!--<goal>plant</goal>-->
-      <!--</goals>-->
-      <!--<phase>prepare-package</phase>-->
-      <!--<configuration>-->
-      <!--<annotation>org.elasticsearch.annotation.ESObject</annotation>-->
-      <!--</configuration>-->
-      <!--</execution>-->
-      <!--</executions>-->
+        <!--<groupId>fr.fastconnect</groupId>-->
+        <!--<artifactId>plantuml-maven-plugin</artifactId>-->
+        <!--<version>1.1.0-SNAPSHOT</version>-->
+        <!--<executions>-->
+          <!--<execution>-->
+            <!--<goals>-->
+              <!--<goal>plant</goal>-->
+            <!--</goals>-->
+            <!--<phase>prepare-package</phase>-->
+            <!--<configuration>-->
+              <!--<annotation>org.elasticsearch.annotation.ESObject</annotation>-->
+              <!--<scannedPackages>-->
+                <!--<param>alien4cloud.model</param>-->
+                <!--<param>org.alien4cloud</param>-->
+              <!--</scannedPackages>-->
+            <!--</configuration>-->
+          <!--</execution>-->
+        <!--</executions>-->
       <!--</plugin>-->
-    </plugins>
-  </build>
+    <!--</plugins>-->
+  <!--</build>-->
 </project>

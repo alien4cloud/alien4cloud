@@ -30,27 +30,27 @@
             <td>{{topology.archiveName}}</td>
             <td>{{topology.description || '---' }}</td>
             <td>
-              <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-click="fetchVersions(topology)">
+              <div uib-dropdown>
+                <button class="btn btn-default" uib-dropdown-toggle ng-click="fetchVersions(topology)">
                    {{topology.archiveVersion}} <i class="fa fa-caret-down"></i>
                 </button>
-                <ul ng-if="!topology.allVersions" class="dropdown-menu" role="menu">
+                <ul ng-if="!topology.allVersions" class="dropdown-menu" uib-dropdown-menu role="menu">
                   <li class="option-selected"><i class="fa fa-spin fa-spinner"></i> Loading</li>
                 </ul>
-                <ul ng-if="topology.allVersions" class="dropdown-menu" role="menu" ng-init="itemIdex = $index">
+                <ul ng-if="topology.allVersions" class="dropdown-menu" uib-dropdown-menu role="menu" ng-init="itemIdex = $index">
                   <li ng-repeat="version in topology.allVersions" class="option-selected"><a ng-click="selectVersion(topology, version, itemIdex, $event)">{{version.version}}</a></li>
                 </ul>
               </div>
             </td>
             <td ng-if="archiveLink">
               <div class="pull-right">
-                <button class="btn btn-sm btn-success" ng-click="clone(topology, $event)" tooltip="{{'TEMPLATE.DUPLICATE' | translate}}">
+                <button class="btn btn-sm btn-success" ng-click="clone(topology, $event)" uib-tooltip="{{'TEMPLATE.DUPLICATE' | translate}}">
                   <i class="fa fa-copy"></i>
                 </button>
-                <button class="btn btn-sm btn-default" ng-click="openCsar(topology.id, $event)" tooltip="{{'COMPONENTS.ARCHIVE' | translate}}">
+                <button class="btn btn-sm btn-default" ng-click="openCsar(topology.id, $event)" uib-tooltip="{{'COMPONENTS.ARCHIVE' | translate}}">
                   <i class="fa fa-archive"></i>
                 </button>
-                <button class="btn btn-sm btn-default" ng-click="openDeleteTopologyTemplateModal(topology.id, $event)" tooltip="{{'TEMPLATE.REMOVE_TOOLTIP' | translate}}">
+                <button class="btn btn-sm btn-default" ng-click="openDeleteTopologyTemplateModal(topology.id, $event)" uib-tooltip="{{'TEMPLATE.REMOVE_TOOLTIP' | translate}}">
                   <i class="fa fa-trash-o"></i>
                 </button>
               </div>

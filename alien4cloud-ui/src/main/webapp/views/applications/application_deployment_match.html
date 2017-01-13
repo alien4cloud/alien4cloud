@@ -9,7 +9,7 @@
           <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
         </h4>
 
-        <div collapse="isToImplementNodesCollapsed" class="topology-level">
+        <div uib-collapse="isToImplementNodesCollapsed" class="topology-level">
           <table class="table table-condensed">
             <tbody>
               <tr ng-repeat=" toImplementNodeTask in tasks">
@@ -34,7 +34,7 @@
           <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
         </h4>
 
-        <div collapse="isToReplaceNodesCollapsed" class="topology-level">
+        <div uib-collapse="isToReplaceNodesCollapsed" class="topology-level">
           <table class="table table-condensed">
             <thead>
               <tr>
@@ -49,7 +49,7 @@
                   <span>({{toReplaceNodeTask.component.elementId}})</span>
                 </td>
                 <td>
-                  <ul class="td_list liste-no-style" ng-if="toReplaceNodeTask.suggestedNodeTypes">
+                  <ul class="td_list liste-no-style" ng-if="_.isNotEmpty(toReplaceNodeTask.suggestedNodeTypes)">
                     <li ng-repeat="nodeType in toReplaceNodeTask.suggestedNodeTypes">
                       {{nodeType.elementId}}
                     </li>
@@ -65,10 +65,10 @@
   </div>
   <div class="row" style="margin-top: 10px">
     <div class="col-md-6">
-      <accordion close-others="oneAtATime">
-        <accordion-group is-open="status.open"
+      <uib-accordion>
+        <div uib-accordion-group is-open="status.open"
                          ng-repeat="(nodeName, templates) in deploymentContext.deploymentTopologyDTO.availableSubstitutions.availableSubstitutions">
-          <accordion-heading ng-init="substitutedNode = getSubstitutedTemplate(nodeName); nodeIcon = getIcon(substitutedNode, nodeName)">
+          <uib-accordion-heading ng-init="substitutedNode = getSubstitutedTemplate(nodeName); nodeIcon = getIcon(substitutedNode, nodeName)">
             <div class="row">
               <div class="col-md-12">
                 <i ng-if="!nodeIcon" class="fa fa-cogs"></i>
@@ -77,7 +77,7 @@
                                 ng-class="{'fa-caret-down': status.open && substitutedNode, 'fa-caret-right': !status.open && substitutedNode, 'fa-exclamation-triangle text-danger': !substitutedNode}"></i>
               </div>
             </div>
-          </accordion-heading>
+          </uib-accordion-heading>
           <p ng-if="!substitutedNode">
             No substitution available for this node
           </p>
@@ -112,8 +112,8 @@
               </tr>
             </tbody>
           </table>
-        </accordion-group>
-      </accordion>
+        </div>
+      </uib-accordion>
     </div>
     <div class="col-md-6">
       <div ng-if="selectedResourceTemplate" class="well">

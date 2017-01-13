@@ -40,7 +40,7 @@
 </div>
 </div>
 <div class="col-md-4">
-  <b translate="metrics.jvm.threads.title">Threads</b> (Total: {{metrics.gauges['jvm.threads.count'].value}}) <a class="hand" ng-click="threadDump()" data-toggle="modal" data-target="#threadDump"><i class="fa fa-eye"></i></a>
+  <b translate="metrics.jvm.threads.title">Threads</b> (Total: {{metrics.gauges['jvm.threads.count'].value}}) <a class="hand" ng-click="doThreadDump()" data-toggle="modal" data-target="#threadDump"><i class="fa fa-eye"></i></a>
   <p>{{'metrics.jvm.threads.runnable' | translate}} {{metrics.gauges['jvm.threads.runnable.count'].value}}</p>
   <div class="progress progress-striped">
     <div class="progress-bar progress-bar-success" role="progressbar"

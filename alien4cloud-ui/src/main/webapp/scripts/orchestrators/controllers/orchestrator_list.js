@@ -29,8 +29,8 @@ define(function (require) {
   states.forward('admin.orchestrators', 'admin.orchestrators.list');
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap','a4c-common']).controller('OrchestratorListCtrl',
-    ['$scope', 'searchServiceFactory', '$modal', '$state', 'orchestratorService',
-    function($scope, searchServiceFactory, $modal, $state, orchestratorService) {
+    ['$scope', 'searchServiceFactory', '$uibModal', '$state', 'orchestratorService',
+    function($scope, searchServiceFactory, $uibModal, $state, orchestratorService) {
       $scope.query = '';
       // onSearchCompleted is used as a callaback for the searchServiceFactory and triggered when the search operation is completed.
       $scope.onSearchCompleted = function(searchResult) {
@@ -46,7 +46,7 @@ define(function (require) {
       };
 
       $scope.openNewModal = function() {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'views/orchestrators/orchestrator_new.html',
           controller: 'NewOrchestratorController'
         });

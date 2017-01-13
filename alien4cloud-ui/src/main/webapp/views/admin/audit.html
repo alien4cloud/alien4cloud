@@ -1,17 +1,13 @@
 <div class="search-row">
-
-
   <h2>
     {{ 'AUDIT.LOG' | translate }}
-    <a id="configureAuditButton" type="button" tooltip="{{'AUDIT.CONFIGURATION.LABEL' | translate}}" class="btn btn-default btn-xs" href="" ng-click="goToAuditConfiguration()">
+    <a id="configureAuditButton" type="button" uib-tooltip="{{'AUDIT.CONFIGURATION.LABEL' | translate}}" class="btn btn-default btn-xs" href="" ng-click="goToAuditConfiguration()">
       <i class="fa fa-wrench"></i>
     </a>
   </h2>
 
   <div class="row">
-
     <div id="audit-search-side-panel" class="search-columns search-filter-side">
-
       <!-- Search result column -->
       <div class="well">
         <div style="margin-bottom: 10px;">
@@ -27,8 +23,7 @@
             </div>
           </form>
         </div>
-
-        <!-- Displaying facetes -->
+        <!-- Displaying facets -->
         <div>
           <facets facet-filters="facetFilters"
                   facets="facets"
@@ -36,13 +31,10 @@
           </facets>
         </div>
         <!-- END : Displaying active filters -->
-
       </div>
     </div>
 
-
     <div class="search-columns" id="audit-search-result-panel">
-
       <table ng-table="auditTableParam" show-filter="true" template-pagination="custom/pager" class="table">
 
         <thead>
@@ -79,13 +71,9 @@
             {{trace[column.field]}}
           </td>
         </tr>
-
       </table>
-
     </div>
-
   </div>
-
 </div>
 
 <!-- custom pager -->

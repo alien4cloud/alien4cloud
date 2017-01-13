@@ -4,22 +4,22 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  var RecoveryChoiceCtrl = ['$scope', '$modalInstance', 'recoveryOperation', 'errors',
-    function ($scope, $modalInstance, recoveryOperation, errors) {
+  var RecoveryChoiceCtrl = ['$scope', '$uibModalInstance', 'recoveryOperation', 'errors',
+    function ($scope, $uibModalInstance, recoveryOperation, errors) {
       $scope.choice = {};
       $scope.recoveryOperation = recoveryOperation;
       $scope.errors = errors;
       $scope.choose = function (action) {
-        $modalInstance.close(action);
+        $uibModalInstance.close(action);
       };
 
       $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }];
 
-  modules.get('a4c-topology-editor', ['ngResource']).factory('topologyRecoveryServices', ['$alresource', '$modal', '$q', 'toaster', '$translate', '$state',
-    function ($alresource, $modal, $q, toaster, $translate, $state) {
+  modules.get('a4c-topology-editor', ['ngResource']).factory('topologyRecoveryServices', ['$alresource', '$uibModal', '$q', 'toaster', '$translate', '$state',
+    function ($alresource, $uibModal, $q, toaster, $translate, $state) {
 
       var editorRecoverResource = $alresource('rest/latest/editor/:topologyId/recover');
       var editorResetResource = $alresource('rest/latest/editor/:topologyId/reset');
@@ -49,7 +49,7 @@ define(function (require) {
       /** handle Modal form for recovery choices */
       var openRecoveryChoiceModal = function (recoveryOperation, errors) {
         var deferred = $q.defer();
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'views/topology/topology_recovery_modal.html',
           controller: RecoveryChoiceCtrl,
           resolve: {

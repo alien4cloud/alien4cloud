@@ -30,8 +30,8 @@ define(function (require) {
   });
   states.forward('applications', 'applications.list');
 
-  var NewApplicationCtrl = ['$scope', '$modalInstance', 'topologyServices',
-    function ($scope, $modalInstance, topologyServices) {
+  var NewApplicationCtrl = ['$scope', '$uibModalInstance', 'topologyServices',
+    function ($scope, $uibModalInstance, topologyServices) {
       $scope.app = {};
       $scope.namePattern=new RegExp('^[^\/\\\\]+$');
       $scope.archiveNamePattern=new RegExp('^\\w+$');
@@ -67,26 +67,26 @@ define(function (require) {
       };
       $scope.create = function (valid) {
         if (valid) {
-          $modalInstance.close($scope.app);
+          $uibModalInstance.close($scope.app);
         }
       };
 
       $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ];
 
   modules.get('a4c-applications').controller('ApplicationListCtrl',
-    ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster', 'searchServiceFactory', 'pieChartService', 'applicationEnvironmentServices',
-      function ($scope, $modal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory, pieChartService, applicationEnvironmentServices) {
+    ['$scope', '$uibModal', '$state', 'authService', 'applicationServices', '$translate', 'toaster', 'searchServiceFactory', 'pieChartService', 'applicationEnvironmentServices',
+      function ($scope, $uibModal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory, pieChartService, applicationEnvironmentServices) {
         $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
         $scope.applicationStatuses = [];
         $scope.onlyShowDeployedApplications = undefined;
         d3.selectAll('.d3-tip').remove();
 
         $scope.openNewApp = function () {
-          var modalInstance = $modal.open({
+          var modalInstance = $uibModal.open({
             templateUrl: 'views/applications/application_new.html',
             controller: NewApplicationCtrl,
             windowClass: 'new-app-modal'
