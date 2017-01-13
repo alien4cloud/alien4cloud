@@ -38,6 +38,9 @@
     </div>
     <div class="col-md-6" ng-if="selectedResourceTemplate">
       <div class="well">
+        <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="selectTemplate(null)">
+              <i class="fa fa-remove close-panel"></i>
+        </span>
         <orchestrator-location-resource-template resource-template="selectedResourceTemplate"
                                                  resource-type="resourcesTypesMap[selectedResourceTemplate.template.type]"
                                                  resource-capability-types="context.locationResources.capabilityTypes"
@@ -52,24 +55,24 @@
         </orchestrator-location-resource-template>
       </div>
     </div>
-    <div id="catalog" ng-if="showCatalog" class="col-md-6" style="overflow: auto; top: -40px;">
+    <div id="catalog" ng-if="showCatalog" ng-show="!selectedResourceTemplate" class="col-md-6" style="overflow: auto; top: -40px;">
       <uib-tabset justified="true">
         <uib-tab index="0">
           <uib-tab-heading>
             <i class="icon-star"></i> Favorites
           </uib-tab-heading>
-          <ul class="media-list" style="margin:0">
-            <li class="media"
-                ng-repeat="resource in ctrl.favorites | orderBy:'type'"
+          <ul class="list-group" style="margin:0">
+            <li class="list-group-item media clickable-media" style="margin: 0"
+                ng-repeat="resource in ctrl.favorites"
                 alien-draggable drag-enabled="true" drag-data="resource">
-              <div class="media-left" ng-init="nodeIcon = getIcon(resource.type)">
+              <div class="media-left" ng-init="nodeIcon = getIcon(resource.elementId)">
                 <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
                 <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_64">
               </div>
               <div class="media-body">
-                <h4 class="media-heading">{{ resource.type }}</h4>
+                <h4 class="media-heading">{{ resource.elementId }}</h4>
                 <p>
-                  <b>{{'COMMON.SOURCE' | translate}}:</b> {{ resource.archiveId }}
+                  <b>{{'COMMON.SOURCE' | translate}}:</b> {{ resource.archiveName }}:{{ resource.archiveVersion }}
                 </p>
               </div>
             </li>

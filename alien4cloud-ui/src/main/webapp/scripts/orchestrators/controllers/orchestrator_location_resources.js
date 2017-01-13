@@ -27,17 +27,25 @@ define(function(require) {
               $scope.$digest();
             }, "#catalog");
 
+            // pick all resource types from the orchestrator
+            const orchResourceTypes = _.map($scope.resourcesTypes, function (res) {
+                return _.pick(res, 'elementId', 'archiveName', 'archiveVersion');
+            });
+
             // Compute favorite resource types from the actual resource template list
-            vm.favorites = _.unique(
+            const usedResourceTypes= _.unique(
               _.map($scope.resourcesTemplates, function(item) {
                 return {
-                  type: item.template.type,
-                  archive: 'mock-archive',//item.template.archive
-                  version: '1.0.0-MOCK',
-                  archiveId: 'mock-archive:1.0.0-MOCK' // item.template.version
+                  elementId: item.template.type,
+                  archiveName: 'mock-archive',//item.template.archiveName
+                  archiveVersion: '1.0.0-MOCK',// item.template.archiveVersion
+                  archiveId: 'mock-archive:1.0.0-MOCK' // Convenient for the unique filtering
                 }
               }), 'archiveId'
             );
+
+            // join favorites types with types from the orchestrator definition
+            vm.favorites = _.union(orchResourceTypes, usedResourceTypes);
           }
         };
 
