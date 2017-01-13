@@ -61,12 +61,14 @@ define(function(require) {
     // add requirements to alien4cloud
     modules.link(alien4cloud);
 
-    alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
-      function($stateProvider, $urlRouterProvider, $httpProvider) {
+    alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$locationProvider',
+      function($stateProvider, $urlRouterProvider, $httpProvider, $locationProvider) {
         $httpProvider.interceptors.push('restTechnicalErrorInterceptor');
         $httpProvider.defaults.headers.common['A4C-Agent'] = 'AngularJS_UI';
         $urlRouterProvider.otherwise('/');
         states.config($stateProvider);
+        $locationProvider.html5Mode(false);
+        $locationProvider.hashPrefix('');
       }
     ]);
 
