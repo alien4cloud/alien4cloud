@@ -52,7 +52,7 @@
         },
         "STATUS": "Deployment status",
         "STORAGE": "Instance status(BlockStorage)",
-        "STORAGE_MESSAGE": "Instance {{nodeId}}/{{instanceId}} changed status to {{state}}. Volume ID is: < {{volumeId}} >"
+        "STORAGE_MESSAGE": "Instance {{nodeId}}/{{instanceId}} configured. \nVolume ID: {{volumeId}} \nZone: {{zone}}"
       },
       "EVENTS_TAB": "Events",
       "INFORMATIONS": {

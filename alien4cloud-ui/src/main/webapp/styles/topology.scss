@@ -243,3 +243,7 @@ h4 .editable-error {
 .topology-props-td-inf {
   width: 35px;
 }
+
+#runtime-events-box .runtime-events-table tbody tr td:last-child {
+  white-space: pre-wrap;
+}
