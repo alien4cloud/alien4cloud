@@ -855,6 +855,12 @@
       "UNLOCK-BTN-TITLE": "Unlock"
     },
     "LOCATIONS": {
+      "AUTHORIZATIONS": {
+        "USERS": {
+          "ADD": "Authorize user",
+          "REWOKE": "Rewoke authorization for selected users"
+        }
+      },
       "AUTO_CONFIG": "Auto-config",
       "CONFIGURATION_RESOURCES": "Configuration resources",
       "CONFIG_REQUIRES_CONNEXION": "Orchestrator must be connected so you can configure locations.",

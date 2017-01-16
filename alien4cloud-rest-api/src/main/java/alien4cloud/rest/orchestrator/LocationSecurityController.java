@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import javax.annotation.Resource;
 
+import org.elasticsearch.common.collect.Lists;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -90,7 +91,10 @@ public class LocationSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<User>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = getLocation(orchestratorId, locationId);
-        List<User> users = alienUserDao.find(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
+        List<User> users = Lists.newArrayList();
+        if (location.getUserPermissions() != null) {
+            users = alienUserDao.find(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
+        }
         return RestResponseBuilder.<List<User>> builder().data(users).build();
     }
 }

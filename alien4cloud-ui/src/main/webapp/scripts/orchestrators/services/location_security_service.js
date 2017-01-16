@@ -5,9 +5,22 @@ define(function (require) {
 
   modules.get('a4c-orchestrators').factory('locationSecurityService', ['$resource',
     function($resource) {
-      /* Users/groups roles on an clouds */
-      var manageLocationUserRoles = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/roles/users/:username/:role', {}, {
-        'addUserRole': {
+
+      var getLocationUsers = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/users', {}, {
+        'get': {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+          },
+          params: {
+            orchestratorId: '@orchestratorId',
+            locationId: '@locationId'
+          }
+        },
+      });
+
+      var manageLocationUserRoles = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/users/:username', {}, {
+        'authorize': {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json; charset=UTF-8'
@@ -15,11 +28,10 @@ define(function (require) {
           params: {
             orchestratorId: '@orchestratorId',
             locationId: '@locationId',
-            username: '@username',
-            role: '@role'
+            username: '@username'
           }
         },
-        'removeUserRole': {
+        'rewoke': {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json; charset=UTF-8'
@@ -27,8 +39,7 @@ define(function (require) {
           params: {
             orchestratorId: '@orchestratorId',
             locationId: '@locationId',
-            username: '@username',
-            role: '@role'
+            username: '@username'
           }
         }
       });
@@ -61,6 +72,7 @@ define(function (require) {
       });
 
       return {
+        'getLocationUsers': getLocationUsers.get,
         'userRoles': manageLocationUserRoles,
         'groupRoles': manageLocationGroupRoles
       };
