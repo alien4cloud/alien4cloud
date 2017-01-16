@@ -377,19 +377,27 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      *
      * @return an instance of IESQueryBuilderHelper for the given class.
      */
-    public <T> IESQueryBuilderHelper<T> buildQuery(Class<T> clazz);
+    <T> IESQueryBuilderHelper<T> buildQuery(Class<T> clazz);
 
     /**
      * Create a query builder for the given class.
      *
      * @return an instance of IESQueryBuilderHelper for the given class.
      */
-    public <T> IESQueryBuilderHelper<T> buildSearchQuery(Class<T> clazz, String searchQuery);
+    <T> IESQueryBuilderHelper<T> buildSearchQuery(Class<T> clazz, String searchQuery);
 
     /**
      * Create a query builder for the given class.
      *
      * @return an instance of IESQueryBuilderHelper for the given class.
      */
-    public <T> IESQueryBuilderHelper<T> buildSuggestionQuery(Class<T> clazz, String prefixField, String searchQuery);
+    <T> IESQueryBuilderHelper<T> buildSuggestionQuery(Class<T> clazz, String prefixField, String searchQuery);
+
+    /**
+     * Return a class from the given elastic search type.
+     *
+     * @param type The elastic search type.
+     * @return The class matching the given type if any, null if no class is matching the type.
+     */
+    Class<?> getClassFromType(String type);
 }

@@ -21,7 +21,7 @@ public interface ISecurityEnabledResource {
      * 
      * @return the subject's permissions
      */
-    Set<String> getPermissions(String subjectType, String subject);
+    Set<Permission> getPermissions(Subject subjectType, String subject);
 
     /**
      * Add permissions to a subject
@@ -30,7 +30,7 @@ public interface ISecurityEnabledResource {
      * @param subject the id of the subject
      * @param permissions list of permissions
      */
-    void addPermissions(String subjectType, String subject, Set<String> permissions);
+    void addPermissions(Subject subjectType, String subject, Set<Permission> permissions);
 
     /**
      * Revoke permissions of a subject
@@ -39,7 +39,7 @@ public interface ISecurityEnabledResource {
      * @param subject the id of the subject
      * @param permissions list of permissions
      */
-    void revokePermissions(String subjectType, String subject, Set<String> permissions);
+    void removePermissions(Subject subjectType, String subject, Set<Permission> permissions);
 
     /**
      * Revoke all permissions of a subject
@@ -47,5 +47,5 @@ public interface ISecurityEnabledResource {
      * @param subjectType the type of the subject
      * @param subject the id of the subject
      */
-    void revokeAllPermissions(String subjectType, String subject);
+    void revokeAllPermissions(Subject subjectType, String subject);
 }

@@ -236,6 +236,24 @@ public final class AuthorizationUtil {
     }
 
     /**
+     * Get user's groups
+     * 
+     * @param user the user to get groups
+     * @return all user's groups (group all included)
+     */
+    public static Set<String> getUserGroups(User user) {
+        if (user == null) {
+            return null;
+        }
+        Set<String> groups = user.getGroups();
+        Group allUserGroup = getAllUsersGroup();
+        if (allUserGroup != null) {
+            groups.add(allUserGroup.getId());
+        }
+        return groups;
+    }
+
+    /**
      * Return the role that the current user has over the given resource
      *
      * @param user the user to check for

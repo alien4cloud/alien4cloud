@@ -9,7 +9,6 @@ import javax.validation.Valid;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -72,7 +71,7 @@ public class LocationController {
 
     @ApiOperation(value = "Get all locations for a given orchestrator.")
     @RequestMapping(method = RequestMethod.GET)
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<LocationDTO>> getAll(
             @ApiParam(value = "Id of the orchestrator for which to get all locations.") @PathVariable String orchestratorId) {
         List<Location> locations = locationService.getAll(orchestratorId);
@@ -85,13 +84,10 @@ public class LocationController {
 
     @ApiOperation(value = "Get a location from it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<LocationDTO> get(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to get", required = true) @PathVariable String id) {
         Location location = locationService.getOrFail(id);
-        // AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
-        if (true)
-            throw new AccessDeniedException("To be implemented");
         return RestResponseBuilder.<LocationDTO> builder().data(buildLocationDTO(location)).build();
     }
 

@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import alien4cloud.security.ISecurityEnabledResource;
+import alien4cloud.security.Permission;
+import alien4cloud.security.Subject;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
@@ -25,7 +27,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AbstractOrchestratorResource implements ISecurityEnabledResource {
+public class AbstractSecuredOrchestratorResource implements ISecurityEnabledResource {
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
@@ -33,7 +35,7 @@ public class AbstractOrchestratorResource implements ISecurityEnabledResource {
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY }, include = { true })
-    private Map<String, Set<String>> userPermissions;
+    private Map<String, Set<Permission>> userPermissions;
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
@@ -41,7 +43,7 @@ public class AbstractOrchestratorResource implements ISecurityEnabledResource {
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY }, include = { true })
-    private Map<String, Set<String>> groupPermissions;
+    private Map<String, Set<Permission>> groupPermissions;
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
@@ -49,7 +51,7 @@ public class AbstractOrchestratorResource implements ISecurityEnabledResource {
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY }, include = { true })
-    private Map<String, Set<String>> applicationPermissions;
+    private Map<String, Set<Permission>> applicationPermissions;
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
@@ -57,9 +59,9 @@ public class AbstractOrchestratorResource implements ISecurityEnabledResource {
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY }, include = { true })
-    private Map<String, Set<String>> environmentPermissions;
+    private Map<String, Set<Permission>> environmentPermissions;
 
-    private Map<String, Set<String>> getPermissions(String subjectType) {
+    private Map<String, Set<Permission>> getPermissions(Subject subjectType) {
         switch (subjectType) {
         case USER:
             return userPermissions == null ? new HashMap<>() : getUserPermissions();
@@ -74,29 +76,33 @@ public class AbstractOrchestratorResource implements ISecurityEnabledResource {
         }
     }
 
-    private void setPermissions(String subjectType, Map<String, Set<String>> permissions) {
+    private void setPermissions(Subject subjectType, Map<String, Set<Permission>> permissions) {
         switch (subjectType) {
         case USER:
             setUserPermissions(permissions);
+            break;
         case GROUP:
             setGroupPermissions(permissions);
+            break;
         case APPLICATION:
             setApplicationPermissions(permissions);
+            break;
         case ENVIRONMENT:
             setEnvironmentPermissions(permissions);
+            break;
         }
     }
 
     @Override
-    public Set<String> getPermissions(String subjectType, String subject) {
-        Set<String> permissions = getPermissions(subjectType).get(subject);
+    public Set<Permission> getPermissions(Subject subjectType, String subject) {
+        Set<Permission> permissions = getPermissions(subjectType).get(subject);
         return permissions == null ? new HashSet<>() : permissions;
     }
 
     @Override
-    public void addPermissions(String subjectType, String subject, Set<String> permissions) {
-        Map<String, Set<String>> allPermissions = getPermissions(subjectType);
-        Set<String> newPermissions = allPermissions.get(subjectType);
+    public void addPermissions(Subject subjectType, String subject, Set<Permission> permissions) {
+        Map<String, Set<Permission>> allPermissions = getPermissions(subjectType);
+        Set<Permission> newPermissions = allPermissions.get(subject);
         if (newPermissions == null) {
             newPermissions = new HashSet<>();
         }
@@ -106,12 +112,27 @@ public class AbstractOrchestratorResource implements ISecurityEnabledResource {
     }
 
     @Override
-    public void revokePermissions(String subjectType, String subject, Set<String> permissions) {
-        getPermissions(subjectType, subject).removeAll(permissions);
+    public void removePermissions(Subject subjectType, String subject, Set<Permission> permissions) {
+        Map<String, Set<Permission>> allPermissions = getPermissions(subjectType);
+        if (allPermissions.isEmpty()) {
+            return;
+        }
+        Set<Permission> newPermissions = allPermissions.get(subject);
+        if (newPermissions == null) {
+            allPermissions.remove(subject);
+        } else {
+            newPermissions.removeAll(permissions);
+            if (newPermissions.isEmpty()) {
+                allPermissions.remove(subject);
+            } else {
+                allPermissions.put(subject, newPermissions);
+            }
+        }
+        setPermissions(subjectType, allPermissions);
     }
 
     @Override
-    public void revokeAllPermissions(String subjectType, String subject) {
+    public void revokeAllPermissions(Subject subjectType, String subject) {
         getPermissions(subjectType).remove(subject);
     }
 }
