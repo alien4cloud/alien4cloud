@@ -6,11 +6,12 @@ define(function (require) {
   var _ = require('lodash');
 
   require('scripts/users/services/user_services');
+  require('scripts/orchestrators/services/location_security_service');
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
 
-  var NewUserAuthorizationController = ['$scope', '$uibModalInstance', '$resource', '$state', 'locationSecurityService',
-    function($scope, $uibModalInstance, $resource, $state, locationSecurityService) {
+  var NewUserAuthorizationController = ['$scope', '$uibModalInstance', '$resource', '$state',
+    function($scope, $uibModalInstance, $resource, $state) {
       // $scope.create = function(valid, envType, version) {
       //   if (valid) {
       //     // prepare the good request
@@ -27,8 +28,8 @@ define(function (require) {
     }
   ];
 
-  modules.get('a4c-security', ['a4c-search']).controller('UsersAuthorizationDirectiveCtrl', ['$scope', '$rootScope', '$uibModal', 'userServices', 'searchServiceFactory', 'groupServices',
-    function($scope, $rootScope, $uibModal, userServices, searchServiceFactory, groupServices) {
+  modules.get('a4c-security', ['a4c-search']).controller('UsersAuthorizationDirectiveCtrl', ['$scope', '$rootScope', '$uibModal', 'userServices', 'searchServiceFactory', 'groupServices', 'locationSecurityService',
+    function($scope, $rootScope, $uibModal, userServices, searchServiceFactory, groupServices, locationSecurityService) {
 
       $scope.query = '';
       $scope.onSearchCompleted = function(searchResult) {
@@ -42,9 +43,19 @@ define(function (require) {
       $scope.searchService.search();
 
       $scope.searchAuthorizedUsers = function() {
-        $scope.authorizedUsers = locationSecurityService.getLocationUsers();
-      }
+        locationSecurityService.getLocationUsers([], {
+          orchestratorId: $scope.orchestrator.id,
+          locationId: $scope.location.id
+        }, function(data) {
+          $scope.authorizedUsers = data;
+        });
+      };
+      $scope.searchAuthorizedUsers();
 
+      $scope.hasAuthorisation = function(user) {
+        return true;
+        // return _.contains($scope.authorizedUsers, user);
+      };
 
       $scope.openNewUserAuthorizationModal = function() {
         var modalInstance = $uibModal.open({

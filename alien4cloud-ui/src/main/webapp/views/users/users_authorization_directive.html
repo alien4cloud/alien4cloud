@@ -34,7 +34,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="user in usersData.data | orderBy:'firstName'" id="user_{{user.username}}" ng-show="user.allRoles.ADMIN || user.allRoles.DEPLOYER">
+            <tr ng-repeat="user in usersData.data | orderBy:'firstName'" ng-if="hasAuthorisation(user)" id="user_{{user.username}}">
               <td>
                 <div class="btn-group" style="padding-right: 15px;">
                   <input type="checkbox" name="show_vscroll" id="show_vscroll">
@@ -92,7 +92,7 @@
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-12">
       <button class="pull-right btn btn-sm btn-danger" ng-click="openNewUserModal()">
-        <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.REWOKE' | translate}}
+        <i class="fa fa-minus-circle"></i>  {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.REWOKE' | translate}}
       </button>
     </div>
   </div>

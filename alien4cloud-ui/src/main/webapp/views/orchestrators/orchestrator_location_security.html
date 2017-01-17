@@ -4,6 +4,8 @@
       <uib-tabset>
         <uib-tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
           <alien-user-authorization
+            orchestrator="orchestrator"
+            location="context.location"
             crud-support="false"
             managed-app-role-list="locationRoles"
             managed-env-role-list="null"

@@ -9,6 +9,8 @@ define(function (require) {
       templateUrl: 'views/users/users_authorization_directive.html',
       restrict: 'E',
       scope: {
+        'orchestrator': '=',
+        'location': '=',
         'crudSupport': '=',
         'notList': '=',
         'onSelectAppRoleCallback': '&',
