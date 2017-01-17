@@ -45,7 +45,7 @@
         "INSTANCE_DELETED_MESSAGE": "Instance {{nodeId}}/{{instanceId}} has been removed",
         "INSTANCE_STATE_MESSAGE": "Instance {{nodeId}}/{{instanceId}} changed status to {{state}}",
         "MESSAGE": "Message",
-        "MESSAGES": "Message",
+        "MESSAGES": "Messages",
         "MESSAGE_EVENT": {
           "INSTANCE_STATE_CHANGED": "Instance changed status",
           "STATUS_DEPLOYMENT_CHANGED": "Status changed"
@@ -224,6 +224,12 @@
           }
         }
       },
+      "INIT_FROM": "Initialize topology from",
+      "INIT_FROM_SCRATCH": "Scratch",
+      "INIT_FROM_SCRATCH_TXT": "Creates a single new empty topology version.",
+      "INIT_FROM_VERSION": "Previous version",
+      "INIT_FROM_VERSION_TXT": "Creates a new version by making a copy of every topologies defined in the given version (with the same qualifiers but new version number).",
+      "INIT_FROM_TEMPLATE_TXT": "Creates a single topology based on the selected topology template.",
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_VERSION": "Template version",
       "TEMPLATE_SELECT": "-- Select a topology template --",
@@ -245,14 +251,22 @@
     },
     "UNDEPLOY": "Undeploy",
     "VERSION": {
-      "MODAL": {
-        "DESC": "Select an older version to duplicate its topology",
-        "PATTERN": "Invalid format version.",
-        "SELECT-TITLE": "Topology"
-      },
+      "LABEL": "Application version",
       "NEW": "Create a new version",
-      "TITLE": "New version",
-      "VERSION": "Version number"
+      "MODAL": {
+        "TITLE": "New version",
+        "VERSION": "Version number",
+        "PATTERN": "Invalid format version.",
+        "PREVIOUS_VERION": "Previous version",
+        "PREVIOUS_TOPO_VERSION": "Previous topology version",
+        "SELECT_PREVIOUS": "Select an older version to duplicate its topology"
+      },
+      "TOPOLOGY": {
+        "LABEL": "Topology version",
+        "NEW": "Create a new topology",
+        "TITLE": "New topology for application version",
+        "QUALIFIER": "Qualifier"
+      }
     },
     "WF": {
       "DelegateWorkflowActivity": "Delegate workflow",

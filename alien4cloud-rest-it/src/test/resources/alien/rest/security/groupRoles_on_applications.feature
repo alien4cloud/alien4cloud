@@ -12,7 +12,8 @@ Feature: Testing group roles on application
     And I add the user "sauron" to the group "lordOfRing"
     And I add the user "gandalf" to the group "hobbit"
     And I am authenticated with "APPLICATIONS_MANAGER" role
-    And I create a new application with name "mordor" and description "Bad region for hobbits." without errors
+    And I create an application with name "mordor", archive name "mordor", description "Bad region for hobbits." and topology template id "null"
+    And I should receive a RestResponse with no error
 
   @reset
   Scenario: I can't read an application if i have no application role on it

@@ -21,5 +21,5 @@ Feature: Creating a new application based on a topology template
       | NodeTemplateJava    | fastconnect.nodes.Java:1.0 |
     Then I should receive a RestResponse with no error
     Given I am authenticated with user named "sauron"
-    And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring." based on this created template
+    And I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "topology_template_java:0.1.0-SNAPSHOT"
     And The created application topology is the same as the one in the base topology template

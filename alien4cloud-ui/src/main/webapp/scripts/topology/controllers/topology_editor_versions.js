@@ -8,38 +8,45 @@ define(function (require) {
     function(topologyServices, topologyRecoveryServices) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
-
         // initialize the version to be used.
         if(_.defined(scope.versionContext.versionName)) {
-          this.setSelectedVersionByName(scope.versionContext.versionName);
+          for (var i = 0; i < this.scope.versionContext.versions.length; i++) {
+            if (this.scope.versionContext.versions[i].version === scope.versionContext.versionName) {
+              this.setSelectedVersion(this.scope.versionContext.versions[i]);
+              break;
+            }
+          }
         } else {
           // select the last version number (first in the array)
-          scope.selectedVersion = scope.topologyVersions[0];
-          scope.topologyId = scope.selectedVersion.id;
-          scope.versionContext.topologyId = scope.topologyId;
-          scope.versionContext.versionName = scope.selectedVersion.name;
+          this.setSelectedVersion(scope.versionContext.versions[0]);
         }
       };
 
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
 
-        setSelectedVersionByName: function(name) {
-          for (var i = 0; i < this.scope.topologyVersions.length; i++) {
-            if (this.scope.topologyVersions[i].version === name) {
-              this.scope.selectedVersionName = name;
-              this.scope.selectedVersion = this.scope.topologyVersions[i];
-              this.scope.topologyId = this.scope.selectedVersion.id;
-              this.scope.versionContext.topologyId = this.scope.topologyId;
-              this.scope.versionContext.versionName = this.scope.name;
-              break;
-            }
+        setSelectedVersion: function(version) {
+          this.scope.selectedVersion = version;
+          if(_.defined(version.topologyVersions)) {
+            // case there is topology versions pick the first one
+            this.scope.selectedTopologyVersion = _.findKey(version.topologyVersions, function(item) {return _.defined(item.archiveId);});
+            this.scope.topologyId = version.topologyVersions[this.scope.selectedTopologyVersion].archiveId;
+          } else {
+            this.scope.topologyId = this.scope.selectedVersion.id;
           }
         },
 
-        change: function(selectedVersion) {
+        change: function(version) {
+          this.setSelectedVersion(version);
+          this.refreshTopology();
+        },
+        changeTopologyVersion: function(selectedTopologyVersion) {
+          this.scope.selectedTopologyVersion = selectedTopologyVersion;
+          this.scope.topologyId = this.scope.selectedVersion.topologyVersions[this.scope.selectedTopologyVersion].archiveId;
+          this.refreshTopology();
+        },
+        refreshTopology() {
           var instance = this;
-          this.setSelectedVersionByName(selectedVersion.version);
           topologyServices.dao.get({
             topologyId: instance.scope.topologyId
           }, function(successResult) {
@@ -54,7 +61,6 @@ define(function (require) {
                 instance.scope.refreshTopology(recoveryResult.data);
               }
             });
-
           });
         }
       };
@@ -62,7 +68,6 @@ define(function (require) {
       return function(scope) {
         var instance = new TopologyEditorMixin(scope);
         scope.versions = instance;
-
       };
     }
   ]); // modules

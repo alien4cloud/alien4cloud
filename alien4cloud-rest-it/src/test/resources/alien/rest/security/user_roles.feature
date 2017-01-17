@@ -13,7 +13,7 @@ Feature: Test user roles management
     And I am authenticated with user named "trunk"
     When I upload the archive "tosca base types 1.0"
     Then I should receive a RestResponse with no error
-    When I create a new application with name "app of trunk" and description "This is the best app for trunk"
+    When I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with no error
 
     # Remove component manager
@@ -22,7 +22,7 @@ Feature: Test user roles management
     And I am authenticated with user named "trunk"
     When I upload the archive "tosca base types 1.0"
     Then I should receive a RestResponse with an error code 102
-    When I create a new application with name "app of trunk v2" and description "This is the best app for trunk v2"
+    When I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with no error
 
     # Remove application manager
@@ -31,5 +31,5 @@ Feature: Test user roles management
     And I am authenticated with user named "trunk"
     When I upload the archive "tosca base types 1.0"
     Then I should receive a RestResponse with an error code 102
-    When I create a new application with name "app of trunk v3" and description "This is the best app for trunk v3"
+    When I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with an error code 102

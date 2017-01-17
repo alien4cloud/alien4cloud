@@ -5,19 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import io.swagger.annotations.ApiModelProperty;
-
 /**
- * DTO to update a new application version
- *
+ * Created by lucboutier on 16/01/2017.
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(suppressConstructorProperties = true)
-public class ApplicationVersionRequest {
-    @ApiModelProperty(required = true)
+public class UpdateApplicationVersionRequest {
     private String version;
     private String description;
-    private String topologyId;
 }

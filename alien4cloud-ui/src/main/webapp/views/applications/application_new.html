@@ -1,23 +1,17 @@
 <div>
-  <form name="newApplication" class="form-horizontal" role="form" ng-submit="create(newApplication.$valid)" novalidate>
+  <form name="newForm" class="form-horizontal" role="form" ng-submit="create(newForm.$valid)" novalidate>
     <div class="modal-header">
       <h3>{{'APPLICATIONS.NEW' | translate}}</h3>
     </div>
     <div class="modal-body">
-      <div ng-if="selectedTopologyWarning" class="alert alert-warning" role="alert">
-        <span class="fa fa-warning" aria-hidden="true"></span> {{'ERRORS.' + selectedTopologyWarning | translate}}
-      </div>
-      <div ng-if="selectedTopologyError" class="alert alert-danger" role="alert">
-        <span class="fa fa-warning" aria-hidden="true"></span> {{'ERRORS.' + selectedTopologyError | translate}}
-      </div>
       <div class="form-group">
-        <label for="nameid" class="col-lg-2 control-label" ng-class="{'has-error': newApplication.name.$invalid}">{{'COMMON.NAME' | translate}}</label>
-        <div class="col-lg-4" ng-class="{'has-error': newApplication.name.$invalid}">
+        <label for="nameid" class="col-lg-2 control-label" ng-class="{'has-error': newForm.name.$invalid}">{{'COMMON.NAME' | translate}}</label>
+        <div class="col-lg-4" ng-class="{'has-error': newForm.name.$invalid}">
           <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}" ng-change="nameChange()"
           ng-pattern='namePattern'>
         </div>
-        <label for="archiveNameId" class="col-lg-2 control-label" ng-class="{'has-error': newApplication.archiveName.$invalid}">{{'APPLICATIONS.ARCHIVE_NAME' | translate}}</label>
-        <div class="col-lg-4" ng-class="{'has-error': newApplication.archiveName.$invalid}">
+        <label for="archiveNameId" class="col-lg-2 control-label" ng-class="{'has-error': newForm.archiveName.$invalid}">{{'APPLICATIONS.ARCHIVE_NAME' | translate}}</label>
+        <div class="col-lg-4" ng-class="{'has-error': newForm.archiveName.$invalid}">
           <input type="text" class="form-control" id="archiveNameId" ng-model="app.archiveName" name="archiveName" required="" placeholder="{{'COMMON.NAME' | translate}}" ng-change="archiveNameChange()"
           ng-pattern='archiveNamePattern'>
         </div>
@@ -28,26 +22,11 @@
           <textarea class="form-control" id="descid" rows="3" ng-model="app.description" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
         </div>
       </div>
-      <div class="form-group">
-        <label for="templateId" class="col-lg-2 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
-        <div class="col-lg-4">
-          <input readonly type="text" class="form-control" id="templateId" ng-model="app.topologyTemplateName" name="templateId" placeholder="{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT' | translate}}">
-        </div>
-        <label for="templateVersionId" class="col-lg-2 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_VERSION' | translate}}</label>
-        <div class="col-lg-4">
-          <input readonly type="text" class="form-control" id="templateVersionId" ng-model="app.topologyTemplateVersion" name="templateVersionId" placeholder="{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}">
-        </div>
-      </div>
+      <topology-init-from-select></topology-init-from-select>
     </div>
     <div class="modal-footer">
-      <button id="btn-create" ng-disabled="selectedTopologyError || newApplication.name.$invalid || newApplication.archiveName.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+      <button id="btn-create" ng-disabled="selectedTopologyError || newForm.name.$invalid || newForm.archiveName.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
       <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
     </div>
   </form>
-  <div style="margin-left: 30px; margin-right: 30px; padding-bottom: 10px;">
-    <topology-template-search
-      archive-link="false"
-      on-select="selectTemplate(topology)">
-    </topology-template-search>
-  </div>
 </div>

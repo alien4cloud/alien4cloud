@@ -8,7 +8,7 @@ Feature: Set/Remove Out properties
     And I should receive a RestResponse with no error
     And There is a "node type" with element name "tosca.nodes.Compute" and archive version "1.0"
     And There is a "node type" with element name "fastconnect.nodes.JavaChef" and archive version "1.0"
-    And I create a new application with name "ioMan" and description "Yeo man!"
+    And I create an application with name "ioMan", archive name "ioMan", description "Yeo man!" and topology template id "null"
     And I add a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
     And I add a node template "Java" related to the "fastconnect.nodes.JavaChef:1.0" node type
 

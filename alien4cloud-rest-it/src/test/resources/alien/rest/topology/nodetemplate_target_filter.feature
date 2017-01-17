@@ -9,7 +9,6 @@ Feature: Manage target filter
     And There is a "node type" with element name "tosca.nodes.Compute" and archive version "1.0"
     And There is a "node type" with element name "fastconnect.nodes.JavaChef" and archive version "1.0"
     And There is a "node type" with element name "fastconnect.nodes.War" and archive version "1.0"
-    # And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
 
   @reset
   Scenario: Add a nodetemplate based on a node type id

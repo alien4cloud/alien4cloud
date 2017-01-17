@@ -2,7 +2,8 @@ Feature: Checking roles on topologies regarding parent application
 
   Background:
     Given I am authenticated with "APPLICATIONS_MANAGER" role
-     And I create a new application with name "mordor" and description "Bad region for hobbits." without errors
+    And I create an application with name "mordor", archive name "mordor", description "Bad region for hobbits." and topology template id "null"
+    And I should receive a RestResponse with no error
 
   @reset
   Scenario: Get a topology with the default application creator

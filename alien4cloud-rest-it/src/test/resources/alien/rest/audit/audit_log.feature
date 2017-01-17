@@ -6,7 +6,7 @@ Feature: Audit log
 
   @reset
   Scenario: Creating applications should generate log audit
-    When I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+    When I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should have 1 audit traces in Alien:
       | admin | Application | create |
     When I delete the application "watchmiddleearth"
@@ -27,12 +27,12 @@ Feature: Audit log
     When I disable audit log globally
     And I get audit log configuration
     Then I should have audit log disabled globally
-    When I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+    When I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should have no audit trace in Alien
     When I enable audit log globally
     And I get audit log configuration
     Then I should have audit log enabled globally
-    When I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+    When I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should have 1 audit traces in Alien:
       | admin | Application | create |
 
@@ -43,7 +43,7 @@ Feature: Audit log
     And I get audit log configuration
     Then I should have audit log disabled for:
       | Application | delete |
-    When I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+    When I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should have 1 audit traces in Alien:
       | admin | Application | create |
     When I delete the application "watchmiddleearth"
@@ -51,7 +51,7 @@ Feature: Audit log
       | admin | Application | create |
     When I enable audit log for following methods:
       | Application | delete |
-    And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+    And I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     And I delete the application "watchmiddleearth"
     Then I should have 3 audit traces in Alien:
       | admin | Application | create |

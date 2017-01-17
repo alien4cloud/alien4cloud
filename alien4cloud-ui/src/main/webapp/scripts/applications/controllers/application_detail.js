@@ -52,7 +52,7 @@ define(function (require) {
             return result.data;
           });
         }
-      ]
+      ],
     },
     templateUrl: 'views/applications/vertical_menu_layout.html',
     controller: 'ApplicationCtrl',
@@ -64,8 +64,8 @@ define(function (require) {
 
   // definition of the parent controller and scope for application management.
   modules.get('a4c-applications').controller('ApplicationCtrl',
-    ['$controller','$rootScope', '$scope', 'menu', 'authService', 'resourceLayoutService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor', 'toscaService', '$translate', 'toaster',
-    function($controller, $rootScope, $scope, menu, authService, resourceLayoutService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
+    ['$controller','$rootScope', '$scope', 'menu', 'authService', 'resourceLayoutService', 'application', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor', 'toscaService', '$translate', 'toaster',
+    function($controller, $rootScope, $scope, menu, authService, resourceLayoutService, applicationResult, appEnvironments,
       environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor, toscaService, $translate, toaster) {
 
       var application = applicationResult.data;
@@ -259,7 +259,6 @@ define(function (require) {
 
       // fetch the topology to display intput/output properties and matching data
       $scope.processTopologyInformations = function processTopologyInformations(topologyId) {
-
         return topologyServices.dao.get({
           topologyId: topologyId
         }, function(result) {
@@ -269,10 +268,9 @@ define(function (require) {
           }
           //case there actually is an error
           //TODO what should we do here? redirect to the editor view ? in that case make sure the user has the correct rights
-
         });
       };
-  
+
       $scope.processDeploymentTopologyInformation = function processDeploymentTopologyInformation() {
         return applicationServices.getRuntimeTopology.get({
           applicationId: application.id,
@@ -311,18 +309,8 @@ define(function (require) {
       };
 
       // get a topologyId
-      $scope.setTopologyId = function setTopologyId(applicationId, environmentId, successTopologyIdCallBack) {
-        return applicationEnvironmentServices.getTopologyId({
-          applicationId: applicationId,
-          applicationEnvironmentId: environmentId
-        }, undefined, function(response) {
-          $scope.topologyId = response.data;
-          if (successTopologyIdCallBack) {
-            if (_.defined($scope.topologyId)) {
-              successTopologyIdCallBack();
-            }
-          }
-        });
+      $scope.setTopologyIdFromEnvironment = function(environment) {
+        $scope.topologyId = environment.applicationId + ':' + environment.currentVersionName;
       };
 
       $scope.stopEvent = function stopEvent() {

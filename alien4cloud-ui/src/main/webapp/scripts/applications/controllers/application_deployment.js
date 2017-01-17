@@ -134,7 +134,6 @@ define(function(require) {
 
         // Retrieval and validation of the topology associated with the deployment.
         var checkTopology = function() {
-
           $scope.isTopologyValid($scope.topologyId).$promise.then(function(validTopologyResult) {
             $scope.validTopologyDTO = validTopologyResult.data;
             tasksProcessor.processAll($scope.validTopologyDTO);
@@ -173,12 +172,12 @@ define(function(require) {
 
         function goToNextInvalidStep() {
           //refresh initial topo validation first
-          $scope.setTopologyId($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, checkTopology).$promise.then(function() {
-            //then refresh deployment context
-            refreshDeploymentContext($scope.deploymentContext, $scope.application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu).then(function() {
-              //finally, go to the next invalid step
-              doGoToNextInvalidStep();
-            });
+          $scope.setTopologyIdFromEnvironment($scope.deploymentContext.selectedEnvironment);
+          checkTopology();
+          //then refresh deployment context
+          refreshDeploymentContext($scope.deploymentContext, $scope.application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu).then(function() {
+            //finally, go to the next invalid step
+            doGoToNextInvalidStep();
           });
         }
 
@@ -247,11 +246,11 @@ define(function(require) {
             $scope.stopEvent();
           } else {
             $scope.stopEvent();
-            $scope.setTopologyId($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, checkTopology).$promise.then(function(result) {
-              $scope.processTopologyInformations(result.data).$promise.then(function() {
-                $scope.processDeploymentTopologyInformation().$promise.then(function() {
-                  $scope.refreshInstancesStatuses($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, pageStateId);
-                });
+            $scope.setTopologyIdFromEnvironment($scope.deploymentContext.selectedEnvironment);
+            checkTopology();
+            $scope.processTopologyInformations($scope.topologyId).$promise.then(function() {
+              $scope.processDeploymentTopologyInformation().$promise.then(function() {
+                $scope.refreshInstancesStatuses($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, pageStateId);
               });
             });
           }

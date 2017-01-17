@@ -5,7 +5,7 @@ Feature: Replace node templates
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload the local archive "data/csars/node_replacement/node_replacement.yaml"
     And I should receive a RestResponse with no error
-    And I create a new application with name "node_replacement" and description "Node replacement tests" based on the template with name "node_replacement"
+    And I create an application with name "node_replacement", archive name "watchmiddleearth", description "Node replacement tests" and topology template id "node_replacement:0.1-SNAPSHOT"
     And I should receive a RestResponse with no error
 
   @reset

@@ -5,7 +5,6 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.exception.AlreadyExistException;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.events.AfterArchiveDeleted;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
@@ -59,14 +59,26 @@ public class CsarService {
     private ApplicationService applicationService;
 
     /**
-     * Get all archive matching the given set of filters.
+     * Check if a given archive exists in any workspace.
      *
-     * @param filters The filters to query the archives.
      * @param name The name of the archive.
+     * @param version The version of the archive.
      * @return Return the matching
      */
-    public long count(Map<String, String[]> filters, String name) {
-        return csarDAO.buildQuery(Csar.class).setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "name", name)).count();
+    public boolean exists(String name, String version) {
+        return csarDAO.buildQuery(Csar.class).setFilters(fromKeyValueCouples("version", version, "name", name)).count() > 0;
+    }
+
+    /**
+     * Check that a CSAR name/version does not already exists in the repository and eventually throw an AlreadyExistException.
+     *
+     * @param name The name of the archive.
+     * @param version The version of the archive.
+     */
+    public void ensureUniqueness(String name, String version) {
+        if (exists(name, version)) {
+            throw new AlreadyExistException("CSAR: " + name + ", Version: " + version + " already exists in the repository.");
+        }
     }
 
     /**

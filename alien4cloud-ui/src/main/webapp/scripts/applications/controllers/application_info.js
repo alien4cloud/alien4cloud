@@ -49,14 +49,12 @@ define(function (require) {
         // select an environment and register a callback in case the env has changed.
         appEnvironments.select(environmentId, function() {
           $scope.stopEvent(); // stop to listen for instance events
-          $scope.setTopologyId($scope.application.id, appEnvironments.selected.id, null).$promise.then(function(result) {
-            // get informations from this topology
-            $scope.processTopologyInformations(result.data).$promise.then(function() {
-              $scope.processDeploymentTopologyInformation().$promise.then(function() {
-                $scope.refreshInstancesStatuses($scope.application.id, appEnvironments.selected.id, pageStateId);
-              });
+          if(appEnvironments.selected.status !== 'UNDEPLOYED') {
+            // If the application is deployed then get informations to display.
+            $scope.processDeploymentTopologyInformation().$promise.then(function() {
+              $scope.refreshInstancesStatuses($scope.application.id, appEnvironments.selected.id, pageStateId);
             });
-          });
+          }
         }, true);
       };
 
@@ -127,6 +125,11 @@ define(function (require) {
         }
       };
 
+      var resetTagForm = function(newTag) {
+        newTag.key = '';
+        newTag.val = '';
+      };
+
       $scope.addTag = function(newTag) {
         $scope.application.tags = $scope.application.tags || [];
         $scope.updateTag(newTag.key, newTag.val);
@@ -136,11 +139,6 @@ define(function (require) {
           value: newTag.val
         });
         resetTagForm(newTag);
-      };
-
-      var resetTagForm = function(newTag) {
-        newTag.key = '';
-        newTag.val = '';
       };
 
       /**

@@ -9,7 +9,7 @@ Feature: Manage relationships template between node topology
     And I should receive a RestResponse with no error
     And There is a "node type" with element name "tosca.nodes.Compute" and archive version "1.0"
     And There is a "node type" with element name "fastconnect.nodes.Java" and archive version "1.0"
-    And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+    And I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
 
   @reset
   Scenario: Add a relationship between 2 nodes

@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -27,11 +28,11 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationTopologyVersion;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaaSCallback;
-import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
@@ -64,8 +65,8 @@ public class ApplicationEnvironmentService {
      * @param applicationId The id of the application for which to create the environment.
      * @return The id of the newly created environment.
      */
-    public ApplicationEnvironment createApplicationEnvironment(String user, String applicationId, String versionId) {
-        return createApplicationEnvironment(user, applicationId, DEFAULT_ENVIRONMENT_NAME, null, EnvironmentType.OTHER, versionId);
+    public ApplicationEnvironment createApplicationEnvironment(String user, String applicationId, String topologyVersion) {
+        return createApplicationEnvironment(user, applicationId, DEFAULT_ENVIRONMENT_NAME, null, EnvironmentType.OTHER, topologyVersion);
     }
 
     /**
@@ -78,7 +79,12 @@ public class ApplicationEnvironmentService {
      * @return The newly created environment.
      */
     public ApplicationEnvironment createApplicationEnvironment(String user, String applicationId, String name, String description,
-            EnvironmentType environmentType, String versionId) {
+            EnvironmentType environmentType, String topologyVersion) {
+        ApplicationVersion applicationVersion = applicationVersionService.getOrFailByArchiveId(Csar.createId(applicationId, topologyVersion));
+        if (!applicationVersion.getApplicationId().equals(applicationId)) {
+            throw new IllegalArgumentException(
+                    "The topology version with id <" + topologyVersion + "> is not a topology of a version of the application with id <" + applicationId + ">");
+        }
         // unique app env name for a given app
         ensureNameUnicity(applicationId, name);
         ApplicationEnvironment applicationEnvironment = new ApplicationEnvironment();
@@ -87,7 +93,8 @@ public class ApplicationEnvironmentService {
         applicationEnvironment.setDescription(description);
         applicationEnvironment.setEnvironmentType(environmentType);
         applicationEnvironment.setApplicationId(applicationId);
-        applicationEnvironment.setCurrentVersionId(versionId);
+        applicationEnvironment.setVersion(applicationVersion.getVersion());
+        applicationEnvironment.setTopologyVersion(topologyVersion);
         Map<String, Set<String>> userRoles = Maps.newHashMap();
         userRoles.put(user, Sets.newHashSet(ApplicationEnvironmentRole.DEPLOYMENT_MANAGER.toString()));
         applicationEnvironment.setUserRoles(userRoles);
@@ -237,12 +244,25 @@ public class ApplicationEnvironmentService {
     /**
      * Get the environment status regarding the linked topology and cloud
      * 
-     * @param environment to determine the status
-     * @return {@link DeploymentStatus}
-     * @throws alien4cloud.paas.exception.OrchestratorDisabledException
+     * @param environment The environment for which to get deployment status.
+     * @return The deployment status of the environment. {@link DeploymentStatus}.
+     * @throws ExecutionException In case there is a failure while communicating with the orchestrator.
+     * @throws InterruptedException In case there is a failure while communicating with the orchestrator.
      */
     public DeploymentStatus getStatus(ApplicationEnvironment environment) throws ExecutionException, InterruptedException {
         final Deployment deployment = getActiveDeployment(environment.getId());
+        return getStatus(deployment);
+    }
+
+    /**
+     * Get the status of the given deployment.
+     * 
+     * @param deployment The deployment for which to get status.
+     * @return The deployment status of the environment. {@link DeploymentStatus}.
+     * @throws ExecutionException In case there is a failure while communicating with the orchestrator.
+     * @throws InterruptedException In case there is a failure while communicating with the orchestrator.
+     */
+    public DeploymentStatus getStatus(final Deployment deployment) throws ExecutionException, InterruptedException {
         if (deployment == null) {
             return DeploymentStatus.UNDEPLOYED;
         }
@@ -272,10 +292,14 @@ public class ApplicationEnvironmentService {
      * @param applicationEnvironmentId The id of the environment.
      * @return a topology id or null
      */
+    @Deprecated
     public String getTopologyId(String applicationEnvironmentId) {
         ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
-        ApplicationVersion applicationVersion = applicationVersionService.get(applicationEnvironment.getCurrentVersionId());
-        return applicationVersion == null ? null : applicationVersion.getId();
+        ApplicationVersion applicationVersion = applicationVersionService
+                .getOrFailByArchiveId(Csar.createId(applicationEnvironment.getApplicationId(), applicationEnvironment.getTopologyVersion()));
+        ApplicationTopologyVersion topologyVersion = applicationVersion == null ? null
+                : applicationVersion.getTopologyVersions().get(applicationEnvironment.getTopologyVersion());
+        return topologyVersion == null ? null : topologyVersion.getArchiveId();
     }
 
     /**

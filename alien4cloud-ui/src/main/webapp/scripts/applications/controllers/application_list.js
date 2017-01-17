@@ -11,6 +11,7 @@ define(function (require) {
   require('scripts/applications/services/application_services');
   require('scripts/applications/controllers/application_detail');
   require('scripts/topology/services/topology_services');
+  require('scripts/applications/directives/topology_init_from_select');
 
   states.state('applications', {
     url: '/applications',
@@ -30,11 +31,12 @@ define(function (require) {
   });
   states.forward('applications', 'applications.list');
 
-  var NewApplicationCtrl = ['$scope', '$uibModalInstance', 'topologyServices',
-    function ($scope, $uibModalInstance, topologyServices) {
+  var NewApplicationCtrl = ['$scope', '$uibModalInstance',
+    function ($scope, $uibModalInstance) {
       $scope.app = {};
       $scope.namePattern=new RegExp('^[^\/\\\\]+$');
       $scope.archiveNamePattern=new RegExp('^\\w+$');
+      $scope.fromIndex = 3;
       var autoGenArchiveName = true;
       $scope.nameChange = function () {
         if (autoGenArchiveName && $scope.app.name) {
@@ -44,29 +46,12 @@ define(function (require) {
       $scope.archiveNameChange = function () {
         autoGenArchiveName = false;
       };
-      $scope.selectTemplate = function (topology) {
-        $scope.app.topologyTemplateName = topology.archiveName;
-        $scope.app.topologyTemplateVersion = topology.archiveVersion;
-        $scope.app.topologyTemplateVersionId = topology.id;
-        topologyServices.dao.get({
-          topologyId: topology.id
-        }, function (result) {
-          if (_.defined(result.error)) {
-            switch (result.error.code) {
-              case 860:
-                $scope.selectedTopologyWarning = 860;
-                break;
-              default:
-                $scope.selectedTopologyError = result.error.code;
-                break;
-            }
-          } else if (result.data.topology.workspace !== 'ALIEN_GLOBAL_WORKSPACE') {
-            $scope.selectedTopologyError = 870;
-          }
-        });
-      };
       $scope.create = function (valid) {
         if (valid) {
+          // if we create from template let's set the template id to the app.
+          if($scope.fromIndex === 2) {
+            $scope.app.topologyTemplateVersionId = $scope.topologyTemplate.versionId;
+          }
           $uibModalInstance.close($scope.app);
         }
       };

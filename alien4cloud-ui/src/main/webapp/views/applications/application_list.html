@@ -38,7 +38,7 @@
         <div ng-repeat="application in data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
           <div id="app_{{application.name}}" style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openApplication(application.id)">
             <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; $event.stopPropagation();">
-              <i ng-if="applicationStatuses[application.name]" style="padding: 8px;" class="pull-left fa fa-caret-right" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
+              <i ng-if="applicationStatuses[application.name]" style="padding: 8px;" class="pull-left fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
             </div>
             <div class="col-md-4">
               <i class="pull-left media-object fa fa-desktop fa-2x" ng-if="!application.imageId"></i>
@@ -52,7 +52,7 @@
             </div>
           </div>
           <div class="row" ng-class="{'clickable-media': environment.canDeploy}" uib-collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationStatuses[application.name] | orderBy: '-indexToOrder'"  >
-            <div class="col-span-12" style="border-width: 1px 0px 0px; border-style: solid; border-color: #DDD; padding: 8px;"
+            <div class="col-span-12 alien-table-child-row"
                  ng-click="environment.canDeploy && openDeploymentPage(application, environment.id)" >
               <div class="row">
                 <div>
