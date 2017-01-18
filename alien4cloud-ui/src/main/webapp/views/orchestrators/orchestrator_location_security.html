@@ -5,24 +5,10 @@
         <uib-tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
           <alien-user-authorization
             orchestrator="orchestrator"
-            location="context.location"
-            crud-support="false"
-            managed-app-role-list="locationRoles"
-            managed-env-role-list="null"
-            not-editable-role-list="orchestrator.authorizedUsers"
-            check-app-role-selected-callback="checklocationRoleSelectedForUser(user, role)"
-            on-select-app-role-callback="handleRoleSelectionForUser(user, role)">
+            location="context.location">
           </alien-user-authorization>
         </uib-tab>
         <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
-          <alien-search-group
-            crud-support="false"
-            managed-app-role-list="locationRoles"
-            managed-env-role-list="null"
-            not-editable-role-list="orchestrator.authorizedGroups"
-            check-app-role-selected-callback="checklocationRoleSelectedForGroup(group, role)"
-            on-select-app-role-callback="handleRoleSelectionForGroup(group, role)">
-          </alien-search-group>
         </uib-tab>
         <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
         </uib-tab>

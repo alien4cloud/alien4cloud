@@ -128,6 +128,9 @@ public class AbstractSecuredOrchestratorResource implements ISecurityEnabledReso
                 allPermissions.put(subject, newPermissions);
             }
         }
+        if (allPermissions.isEmpty()) {
+            allPermissions = null;
+        }
         setPermissions(subjectType, allPermissions);
     }
 

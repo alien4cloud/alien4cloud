@@ -857,8 +857,7 @@
     "LOCATIONS": {
       "AUTHORIZATIONS": {
         "USERS": {
-          "ADD": "Authorize user",
-          "REWOKE": "Rewoke authorization for selected users"
+          "ADD": "Authorize user"
         }
       },
       "AUTO_CONFIG": "Auto-config",
@@ -974,7 +973,8 @@
     "LAST_NAME": "Last Name",
     "NEW": "New User",
     "PASSWORD": "Password",
-    "ROLES": "Roles"
+    "ROLES": "Roles",
+    "AUTHORIZED": "user authorized"
   },
   "VALUE": "Value",
   "metrics": {

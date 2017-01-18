@@ -1,5 +1,7 @@
 package alien4cloud.rest.orchestrator;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -9,6 +11,7 @@ import org.elasticsearch.common.collect.Lists;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,6 +77,23 @@ public class LocationSecurityController {
     }
 
     /**
+     * Grant access to the location to the user (deploy on the location)
+     *
+     * @param locationId The locations id.
+     * @param usernames The authorized users.
+     * @return A {@link Void} {@link RestResponse}.
+     */
+    @ApiOperation(value = "Grant access to the location to the users", notes = "Only user with ADMIN role can grant access to another users.")
+    @RequestMapping(value = "/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<Void> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId, @RequestBody String[] usernames) {
+        Location location = getLocation(orchestratorId, locationId);
+        Arrays.stream(usernames).forEach(username -> resourcePermissionService.grantAdminPermission(location, Subject.USER, username));
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
      * Revoke the user's authorisation to access the location
      *
      * @param locationId The id of the location.
@@ -101,8 +121,9 @@ public class LocationSecurityController {
     public RestResponse<List<User>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = getLocation(orchestratorId, locationId);
         List<User> users = Lists.newArrayList();
-        if (location.getUserPermissions() != null) {
+        if (location.getUserPermissions() != null && location.getUserPermissions().size() > 0) {
             users = alienUserDao.find(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
+            users.sort(Comparator.comparing(User::getUsername));
         }
         return RestResponseBuilder.<List<User>> builder().data(users).build();
     }
@@ -152,8 +173,9 @@ public class LocationSecurityController {
     public RestResponse<List<Group>> getAuthorizedGroups(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = getLocation(orchestratorId, locationId);
         List<Group> groups = Lists.newArrayList();
-        if (location.getGroupPermissions() != null) {
+        if (location.getGroupPermissions() != null && location.getGroupPermissions().size() > 0) {
             groups = alienGroupDao.find(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
+            groups.sort(Comparator.comparing(Group::getName));
         }
         return RestResponseBuilder.<List<Group>> builder().data(groups).build();
     }
@@ -205,9 +227,10 @@ public class LocationSecurityController {
     public RestResponse<List<Application>> getAuthorizedApplications(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = getLocation(orchestratorId, locationId);
         List<Application> applications;
-        if (location.getApplicationPermissions() != null) {
+        if (location.getApplicationPermissions() != null && location.getApplicationPermissions().size() > 0) {
             applications = alienDAO.findByIds(Application.class,
                     location.getApplicationPermissions().keySet().toArray(new String[location.getApplicationPermissions().size()]));
+            applications.sort(Comparator.comparing(Application::getName));
         } else {
             applications = Lists.newArrayList();
         }
@@ -261,9 +284,10 @@ public class LocationSecurityController {
     public RestResponse<List<ApplicationEnvironment>> getAuthorizedEnvironments(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = getLocation(orchestratorId, locationId);
         List<ApplicationEnvironment> environments;
-        if (location.getEnvironmentPermissions() != null) {
+        if (location.getEnvironmentPermissions() != null && location.getEnvironmentPermissions().size() > 0) {
             environments = alienDAO.findByIds(ApplicationEnvironment.class,
                     location.getEnvironmentPermissions().keySet().toArray(new String[location.getEnvironmentPermissions().size()]));
+            environments.sort(Comparator.comparing(ApplicationEnvironment::getName));
         } else {
             environments = Lists.newArrayList();
         }

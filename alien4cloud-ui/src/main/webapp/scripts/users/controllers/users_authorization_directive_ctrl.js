@@ -1,145 +1,94 @@
 define(function (require) {
   'use strict';
-
+  
   var modules = require('modules');
-  var angular = require('angular');
   var _ = require('lodash');
-
+  
   require('scripts/users/services/user_services');
   require('scripts/orchestrators/services/location_security_service');
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
-
-  var NewUserAuthorizationController = ['$scope', '$uibModalInstance', '$resource', '$state',
-    function($scope, $uibModalInstance, $resource, $state) {
-      // $scope.create = function(valid, envType, version) {
-      //   if (valid) {
-      //     // prepare the good request
-      //     var applicationId = $state.params.id;
-      //     $scope.environment.applicationId = applicationId;
-      //     $scope.environment.environmentType = envType;
-      //     $scope.environment.versionId = version;
-      //     $uibModalInstance.close($scope.environment);
-      //   }
-      // };
-      $scope.cancel = function() {
+  
+  var NewUserAuthorizationController = ['$scope', '$uibModalInstance', 'searchServiceFactory',
+    function ($scope, $uibModalInstance, searchServiceFactory) {
+      $scope.batchSize = 5;
+      $scope.selectedUsers = [];
+      $scope.query = '';
+      $scope.onSearchCompleted = function (searchResult) {
+        $scope.selectedUsers = [];
+        $scope.usersData = searchResult.data;
+      };
+      $scope.searchService = searchServiceFactory('rest/latest/users/search', false, $scope, $scope.batchSize);
+      $scope.searchService.search();
+      
+      $scope.ok = function () {
+        if ($scope.selectedUsers.length > 0) {
+          $uibModalInstance.close($scope.selectedUsers);
+        }
+      };
+      
+      $scope.toggleSelection = function (user) {
+        var indexOfUserInSelected = $scope.selectedUsers.indexOf(user);
+        if (indexOfUserInSelected < 0) {
+          $scope.selectedUsers.push(user);
+        } else {
+          $scope.selectedUsers.splice(indexOfUserInSelected, 1);
+        }
+      };
+      
+      $scope.isSelected = function (user) {
+        return $scope.selectedUsers.indexOf(user) >= 0;
+      };
+      
+      $scope.toggleSelectAll = function () {
+        if ($scope.selectedUsers.length === $scope.usersData.data.length) {
+          $scope.selectedUsers = [];
+        } else {
+          $scope.selectedUsers = $scope.usersData.data.slice();
+        }
+      };
+      
+      $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
       };
     }
   ];
-
-  modules.get('a4c-security', ['a4c-search']).controller('UsersAuthorizationDirectiveCtrl', ['$scope', '$rootScope', '$uibModal', 'userServices', 'searchServiceFactory', 'groupServices', 'locationSecurityService',
-    function($scope, $rootScope, $uibModal, userServices, searchServiceFactory, groupServices, locationSecurityService) {
-
-      $scope.query = '';
-      $scope.onSearchCompleted = function(searchResult) {
-        $scope.usersData = searchResult.data;
-        for (var i = 0; i < $scope.usersData.data.length; i++) {
-          var user = $scope.usersData.data[i];
-          userServices.initRolesToDisplay(user);
-        }
-      };
-      $scope.searchService = searchServiceFactory('rest/latest/users/search', false, $scope, 20);
-      $scope.searchService.search();
-
-      $scope.searchAuthorizedUsers = function() {
-        locationSecurityService.getLocationUsers([], {
+  
+  modules.get('a4c-security', ['a4c-search']).controller('UsersAuthorizationDirectiveCtrl', ['$scope', '$uibModal', 'locationSecurityService', '$q',
+    function ($scope, $uibModal, locationSecurityService, $q) {
+      $scope.searchAuthorizedUsers = function () {
+        locationSecurityService.users.get({
           orchestratorId: $scope.orchestrator.id,
           locationId: $scope.location.id
-        }, function(data) {
-          $scope.authorizedUsers = data;
+        }, function (response) {
+          $scope.authorizedUsers = response.data;
         });
       };
       $scope.searchAuthorizedUsers();
-
-      $scope.hasAuthorisation = function(user) {
-        return true;
-        // return _.contains($scope.authorizedUsers, user);
-      };
-
-      $scope.openNewUserAuthorizationModal = function() {
+      
+      $scope.openNewUserAuthorizationModal = function () {
         var modalInstance = $uibModal.open({
           templateUrl: 'views/users/users_authorization_popup.html',
           controller: NewUserAuthorizationController
         });
-
-        // modalInstance.result.then(function(newLocation) {
-        //   locationService.create({orchestratorId: orchestrator.id}, angular.toJson(newLocation), function() {
-        //     updateLocations();
-        //   });
-        // });
-      };
-
-      $scope.$watch('managedAppRoleList', function(newVal) {
-        if (!newVal) {
-          return;
-        }
-        $scope.searchService.search();
-      });
-
-      /*get groups*/
-      $scope.searchGroups = function(groupQuery) {
-        var searchRequest = {
-          query: groupQuery,
-          from: 0,
-          size: 20
-        };
-        groupServices.search([], angular.toJson(searchRequest), function(results) {
-          $scope.tempGroups = results.data.data;
-          $scope.groups = [];
-          $scope.groupsMap = {};
-          $scope.tempGroups.forEach(function(group) {
-            $scope.groupsMap[group.id] = group;
-            // remove groupServices.ALL_USERS_GROUP
-            if (group.name !== groupServices.ALL_USERS_GROUP) {
-              $scope.groups.push(group);
-            }
-          });
+        
+        modalInstance.result.then(function (users) {
+          locationSecurityService.users.save({
+            orchestratorId: $scope.orchestrator.id,
+            locationId: $scope.location.id
+          }, _.map(users, function (user) {
+            return user.username;
+          }), $scope.searchAuthorizedUsers);
         });
       };
-
-      $scope.searchGroups();
-
-      $scope.filteredGroups = function(groups, user) {
-        if (_.undefined(user.groups) || _.undefined(groups)) {
-          return groups;
-        }
-        var filteredGroups = [];
-        for (var int = 0; int < groups.length; int++) {
-          if (!_.contains(user.groups, groups[int].name)) {
-            filteredGroups.push(groups[int]);
-          }
-        }
-        return filteredGroups;
+      
+      $scope.revoke = function (user) {
+        locationSecurityService.users.delete({
+          orchestratorId: $scope.orchestrator.id,
+          locationId: $scope.location.id,
+          username: user.username
+        }, $scope.searchAuthorizedUsers);
       };
-
-      $rootScope.$on('groupsChanged', function() {
-        $scope.mustRefreshUsers = true;
-      });
-
-      $rootScope.$on('usersViewActive', function() {
-        if ($scope.mustRefreshUsers) {
-          $scope.searchService.search();
-          $scope.searchGroups();
-          $scope.mustRefreshUsers = false;
-        }
-      });
     }
-  ])
-  .directive('valueMatch', function() {
-    return {
-      require: 'ngModel',
-      restrict: 'A',
-      scope: {
-        valueMatch: '='
-      },
-      link: function(scope, elem, attrs, ctrl) {
-        scope.$watch(function() {
-          return (ctrl.$pristine && angular.isUndefined(ctrl.$modelValue)) || scope.valueMatch === ctrl.$modelValue;
-        }, function(currentValue) {
-          ctrl.$setValidity('valueMatch', currentValue);
-        });
-      }
-    };
-  });
+  ]);
 });
