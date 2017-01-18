@@ -5,7 +5,9 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.orchestrators.locations.LocationCustomResourceTemplate;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
@@ -46,6 +48,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.PropertyService;
+import org.springframework.util.StringUtils;
 
 /**
  * Location Resource Service provides utilities to query LocationResourceTemplate.
@@ -77,12 +80,20 @@ public class LocationResourceService implements ILocationResourceService {
     @Override
     public LocationResources getLocationResources(Location location) {
         Orchestrator orchestrator = orchestratorService.get(location.getOrchestratorId());
+        Optional<LocationResources> locationResourcesFromOrchestrator = Optional.empty();
         if (orchestrator != null && orchestratorPluginService.get(orchestrator.getId()) != null) {
-            return getLocationResourcesFromOrchestrator(location);
+            locationResourcesFromOrchestrator = Optional.ofNullable(getLocationResourcesFromOrchestrator(location));
         }
 
         List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
         LocationResources locationResources = new LocationResources(getLocationResourceTypes(locationResourceTemplates));
+        locationResourcesFromOrchestrator.ifPresent(orchestratorResources -> {
+            locationResources.getCapabilityTypes().putAll(orchestratorResources.getCapabilityTypes());
+            locationResources.getConfigurationTypes().putAll(orchestratorResources.getConfigurationTypes());
+            locationResources.getNodeTypes().putAll(orchestratorResources.getNodeTypes());
+            locationResources.getAllNodeTypes().putAll(orchestratorResources.getAllNodeTypes());
+            locationResources.getOnDemandTypes().putAll(orchestratorResources.getOnDemandTypes());
+        });
         setLocationRessource(locationResourceTemplates, locationResources);
         return locationResources;
     }
@@ -101,7 +112,7 @@ public class LocationResourceService implements ILocationResourceService {
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
         List<String> allExposedTypes = configuratorPlugin.getResourcesTypes();
-        setLocationRessourceTypes(allExposedTypes, location, locationResources);
+        setLocationResourceTypes(allExposedTypes, location, locationResources);
 
         List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
         setLocationRessource(locationResourceTemplates, locationResources);
@@ -129,7 +140,7 @@ public class LocationResourceService implements ILocationResourceService {
             String locationId = resourceTypeByLocationIdEntry.getKey();
             Set<String> exposedTypes = resourceTypeByLocationIdEntry.getValue();
             Location location = locationService.getOrFail(locationId);
-            setLocationRessourceTypes(exposedTypes, location, locationResourceTypes);
+            setLocationResourceTypes(exposedTypes, location, locationResourceTypes);
         }
         return locationResourceTypes;
     }
@@ -137,7 +148,7 @@ public class LocationResourceService implements ILocationResourceService {
     /**
      * Put the exposed types to the appropriate List of locationResourceTypes passed as param
      */
-    private void setLocationRessourceTypes(Collection<String> exposedTypes, Location location, LocationResourceTypes locationResourceTypes) {
+    private void setLocationResourceTypes(Collection<String> exposedTypes, Location location, LocationResourceTypes locationResourceTypes) {
         for (String exposedType : exposedTypes) {
             NodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, exposedType,
                     location.getDependencies());
@@ -255,19 +266,24 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#addResourceTemplate(java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public LocationResourceTemplate addResourceTemplate(String locationId, String resourceName, String resourceTypeName) {
+    public LocationCustomResourceTemplate addResourceTemplate(String locationId, String resourceName, String resourceTypeName) {
         Location location = locationService.getOrFail(locationId);
+        return new LocationCustomResourceTemplate(this.addResourceTemplate(location, resourceName, resourceTypeName), Collections.EMPTY_SET);
+    }
+
+    private LocationResourceTemplate addResourceTemplate(Location location, String resourceName, String resourceTypeName) {
+        LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
         NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName,
                 location.getDependencies());
+
         NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(location.getDependencies(), resourceType, null);
         // FIXME Workaround to remove default scalable properties from compute
         TopologyUtils.setNullScalingPolicy(nodeTemplate, resourceType);
-        LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
         locationResourceTemplate.setName(resourceName);
         locationResourceTemplate.setEnabled(true);
         locationResourceTemplate.setGenerated(false);
         locationResourceTemplate.setId(UUID.randomUUID().toString());
-        locationResourceTemplate.setLocationId(locationId);
+        locationResourceTemplate.setLocationId(location.getId());
         locationResourceTemplate.setService(false);
         locationResourceTemplate.setTypes(Lists.<String> newArrayList(resourceType.getElementId()));
         locationResourceTemplate.getTypes().addAll(resourceType.getDerivedFrom());
@@ -281,6 +297,29 @@ public class LocationResourceService implements ILocationResourceService {
 
         saveResource(location, locationResourceTemplate);
         return locationResourceTemplate;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#addResourceTemplate(java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    public LocationCustomResourceTemplate addCustomResourceTemplate(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion) {
+        Location location = locationService.getOrFail(locationId);
+
+        // If an archive is specified, update the location dependencies accordingly. Dependencies are in a Set so there is no duplication issue.
+        if (!(StringUtils.isEmpty(archiveName) && StringUtils.isEmpty(archiveVersion))) {
+            Optional.ofNullable(csarRepoSearchService.getArchive(archiveName, archiveVersion)).map(Csar::getDependencies)
+                    .ifPresent(csarDependencies -> location.getDependencies().addAll(csarDependencies));
+            // Add the archive as dependency too
+            final CSARDependency archive = new CSARDependency(archiveName, archiveVersion);
+            location.getDependencies().add(archive);
+        }
+
+        // Return a wrapper object with the template and location dependencies
+        return new LocationCustomResourceTemplate(this.addResourceTemplate(location, resourceName, resourceTypeName), Sets.newHashSet(location.getDependencies()));
+
     }
 
     /*

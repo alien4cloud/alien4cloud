@@ -1,5 +1,6 @@
 package alien4cloud.rest.orchestrator;
 
+import alien4cloud.model.orchestrators.locations.LocationCustomResourceTemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -7,7 +8,6 @@ import io.swagger.annotations.Authorization;
 
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,13 +52,14 @@ public class LocationResourcesController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<LocationResourceTemplate> addResourceTemplate(
+    public RestResponse<LocationCustomResourceTemplate> addResourceTemplate(
             @ApiParam(value = "Id of the orchestrator for which to add resource template.", required = true) @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location of the orchestrator to add resource template.", required = true) @PathVariable String locationId,
             @RequestBody CreateLocationResourceTemplateRequest resourceTemplateRequest) {
-        LocationResourceTemplate createdTemplate = locationResourceService.addResourceTemplate(locationId, resourceTemplateRequest.getResourceName(),
-                resourceTemplateRequest.getResourceType());
-        return RestResponseBuilder.<LocationResourceTemplate> builder().data(createdTemplate).build();
+
+        LocationCustomResourceTemplate createdTemplate = locationResourceService.addCustomResourceTemplate(locationId, resourceTemplateRequest.getResourceName(),
+                resourceTemplateRequest.getResourceType(), resourceTemplateRequest.getArchiveName(), resourceTemplateRequest.getArchiveVersion());
+        return RestResponseBuilder.<LocationCustomResourceTemplate> builder().data(createdTemplate).build();
     }
 
     @ApiOperation(value = "Delete location's resource.", authorizations = { @Authorization("ADMIN") })

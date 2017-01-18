@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.orchestrators.locations.LocationCustomResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResources;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
@@ -45,7 +46,10 @@ public interface ILocationResourceService {
 
     Map<String, LocationResourceTemplate> getMultiple(Collection<String> ids);
 
-    LocationResourceTemplate addResourceTemplate(String locationId, String resourceName, String resourceTypeName);
+    @Deprecated
+    LocationCustomResourceTemplate addResourceTemplate(String locationId, String resourceName, String resourceTypeName);
+
+    LocationCustomResourceTemplate addCustomResourceTemplate(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion);
 
     void deleteResourceTemplate(String resourceId);
 
