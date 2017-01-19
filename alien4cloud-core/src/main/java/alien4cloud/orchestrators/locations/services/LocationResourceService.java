@@ -91,6 +91,7 @@ public class LocationResourceService implements ILocationResourceService {
             locationResources.getCapabilityTypes().putAll(orchestratorResources.getCapabilityTypes());
             locationResources.getConfigurationTypes().putAll(orchestratorResources.getConfigurationTypes());
             locationResources.getNodeTypes().putAll(orchestratorResources.getNodeTypes());
+            locationResources.getRecommendedTypes().addAll(orchestratorResources.getNodeTypes().keySet());
             locationResources.getAllNodeTypes().putAll(orchestratorResources.getAllNodeTypes());
             locationResources.getOnDemandTypes().putAll(orchestratorResources.getOnDemandTypes());
         });

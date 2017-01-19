@@ -185,9 +185,11 @@ define(function(require) {
 
         function computeTypes() {
           // pick all resource types from the location - this will include orchestrator & custom types
+          const recommended = $scope.context.locationResources.recommendedTypes;
           const resourcesTypes = _.map($scope.resourcesTypes, function (res) {
-            return _.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id');
+            return _.assign(_.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id'), { 'recommended': _.contains(recommended, res.elementId) });
           });
+          _.sortBy(resourcesTypes, 'recommended');
           return resourcesTypes;
         }
       }

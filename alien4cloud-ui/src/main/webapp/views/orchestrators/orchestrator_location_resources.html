@@ -59,7 +59,7 @@
       <uib-tabset justified="true">
         <uib-tab index="0">
           <uib-tab-heading>
-            <i class="icon-star"></i> Favorites
+            Favorites
           </uib-tab-heading>
           <ul class="list-group" style="margin:0">
             <li class="list-group-item media clickable-media" style="margin: 0"
@@ -70,6 +70,9 @@
                 <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_64">
               </div>
               <div class="media-body">
+                <small class="pull-right well well-sm" ng-if="resource.recommended">
+                  Recommended <i class="fa fa-star"></i>
+                </small>
                 <h4 class="media-heading">{{ resource.elementId }}</h4>
                 <p>
                   <b>{{'COMMON.SOURCE' | translate}}:</b> {{ resource.archiveName }}:{{ resource.archiveVersion }}

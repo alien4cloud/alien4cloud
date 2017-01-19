@@ -1,15 +1,18 @@
 package alien4cloud.orchestrators.locations.services;
 
 import java.util.Map;
+import java.util.Set;
+
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.NodeType;
-
-import com.google.common.collect.Maps;
 
 @Getter
 @Setter
@@ -19,6 +22,8 @@ public class LocationResourceTypes {
     private Map<String, NodeType> configurationTypes = Maps.newHashMap();
     @ApiModelProperty(value = "Map of node types id, node type used to configure the templates of on-demand resources in a location.")
     private Map<String, NodeType> nodeTypes = Maps.newHashMap();
+    @ApiModelProperty(value = "List of recommended node types ID, e.g. defined at the orchestrator level")
+    private Set<String> recommendedTypes = Sets.newHashSet();
     @ApiModelProperty(value = "Map that contains the capability types used by the configuration types or node types.")
     private Map<String, CapabilityType> capabilityTypes = Maps.newHashMap();
     @ApiModelProperty(value = "Map that contains all node types.")
