@@ -32,7 +32,6 @@ define(function(require) {
             $scope.$digest();
           }, "#catalog");
 
-          console.table($scope.resourcesTypes);
           // join favorites types with types from the orchestrator definition
           vm.favorites = computeTypes();
         };
@@ -59,12 +58,10 @@ define(function(require) {
             const resourceTemplate = response.data.resourceTemplate;
             const updatedDependencies = response.data.newDependencies;
 
-            $scope.resourcesTemplates.push(resourceTemplate);
+            locationResourcesProcessor.processLocationResourceTemplate(resourceTemplate);
             $scope.context.location.dependencies = updatedDependencies;
 
-            locationResourcesProcessor.processLocationResourceTemplate(resourceTemplate);
-
-            if ($scope.showCatalog && body.id && _.findIndex(vm.favorites, 'id', body.id) == -1) {
+            if ($scope.showCatalog && _.findIndex(vm.favorites, 'id', body.id) == -1) {
               // ResourceType was not in the fav list - get its type and add it to resource types map
               const typeId = body.resourceType;
               const componentId = body.id;
@@ -88,19 +85,25 @@ define(function(require) {
                 // keep track of promises to wait before selecting the template. Use $apply to make sure watches are triggered.
                 Promise.all(promises).then(function () {
                   $scope.$apply(function() {
-                    // Compute properties map and select the template.
-                    resourceType['propertiesMap'] = _.indexBy(resourceType.properties, 'key');
-                    $scope.resourcesTypesMap[typeId] = resourceType;
-                    $scope.resourcesTypes.push(resourceType);
+                    // select the template.
                     $scope.selectedResourceTemplate = resourceTemplate;
                   });
                 });
+
+                // Compute properties map and update scope right after getting the resource type.
+                resourceType['propertiesMap'] = _.indexBy(resourceType.properties, 'key');
+                $scope.resourcesTypesMap[typeId] = resourceType;
+                $scope.resourcesTypes.push(resourceType);
+                $scope.resourcesTemplates.push(resourceTemplate);
+
               });
 
               body.elementId = body.resourceType;
               delete body.resourceType;
               vm.favorites.push(body);
             } else {
+              // If the type is in the fav list then we already have its node and capability types
+              $scope.resourcesTemplates.push(resourceTemplate);
               $scope.selectTemplate(resourceTemplate);
             }
           });
@@ -117,7 +120,8 @@ define(function(require) {
               id: resourceTemplate.id
             });
             delete $scope.selectedResourceTemplate;
-            vm.favorites = computeTypes();
+            // To remove custom types from the list we need a way to distinguish them
+            // vm.favorites = computeTypes();
           });
         };
 
