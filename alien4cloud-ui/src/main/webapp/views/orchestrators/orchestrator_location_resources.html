@@ -1,5 +1,5 @@
 <div ng-controller="OrchestratorLocationResourcesTemplateCtrl as ctrl">
-  <div ng-if="!showCatalog" class="row" style="margin-top: 10px">
+  <div ng-show="!showCatalog" class="row" style="margin-top: 10px">
     <div class="col-md-12">
       <span>{{'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate}} </span>
       <select ng-model="selectedConfigurationResourceType"
@@ -12,7 +12,7 @@
   </div>
   <div class="row" style="margin-top: 10px">
     <div class="col-md-6">
-      <table class="table table-hover table-bordered">
+      <table class="table table-hover table-bordered" alien-droppable drag-data="" drag-on-drop="addResourceTemplate(data)">
         <thead>
           <tr>
             <th></th>
