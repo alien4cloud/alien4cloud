@@ -100,6 +100,7 @@ define(function(require) {
 
               body.elementId = body.resourceType;
               delete body.resourceType;
+              body.recommended = false;
               vm.favorites.push(body);
             } else {
               // If the type is in the fav list then we already have its node and capability types
@@ -189,7 +190,6 @@ define(function(require) {
           const resourcesTypes = _.map($scope.resourcesTypes, function (res) {
             return _.assign(_.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id'), { 'recommended': _.contains(recommended, res.elementId) });
           });
-          _.sortBy(resourcesTypes, 'recommended');
           return resourcesTypes;
         }
       }

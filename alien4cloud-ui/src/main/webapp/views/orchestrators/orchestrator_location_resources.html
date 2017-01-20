@@ -63,15 +63,19 @@
           </uib-tab-heading>
           <ul class="list-group" style="margin:0">
             <li class="list-group-item media clickable-media" style="margin: 0"
-                ng-repeat="resource in ctrl.favorites"
+                ng-repeat="resource in ctrl.favorites | orderBy : ['-recommended', 'elementId']"
                 alien-draggable drag-enabled="true" drag-data="resource">
               <div class="media-left" ng-init="nodeIcon = getIcon(resource.elementId)">
                 <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
                 <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_64">
               </div>
               <div class="media-body">
-                <small class="pull-right well well-sm" ng-if="resource.recommended">
-                  Recommended <i class="fa fa-star"></i>
+                <small class="pull-right well well-sm"
+                       ng-if="resource.recommended"
+                       uib-tooltip="Recommended type from the orchestrator"
+                       tooltip-placement="bottom"
+                       tooltip-append-to-body="true">
+                  <i class="fa fa-star" style="color:goldenrod"></i>
                 </small>
                 <h4 class="media-heading">{{ resource.elementId }}</h4>
                 <p>
