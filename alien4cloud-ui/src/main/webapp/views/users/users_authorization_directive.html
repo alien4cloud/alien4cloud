@@ -1,15 +1,12 @@
 <div ng-controller="UsersAuthorizationDirectiveCtrl">
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-4">
-      <form role="search" ng-submit="searchService.search()">
-        <div class="input-group">
-          <input type="text" class="form-control" placeholder="..." ng-model="searchText"> <span class="input-group-btn">
-            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
-              <i class="fa fa-search"></i>
-            </button>
-          </span>
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="..." ng-model="searchText">
+        <div class="input-group-addon">
+          <i class="fa fa-filter"></i>
         </div>
-      </form>
+      </div>
     </div>
     <div class="col-md-8">
       <button class="pull-right btn btn-sm btn-success" ng-click="openNewUserAuthorizationModal()">
@@ -52,7 +49,6 @@
           </tr>
           </tbody>
         </table>
-        <pagination-directive pagination-info="searchService.pagination"/>
       </div>
     </div>
   </div>

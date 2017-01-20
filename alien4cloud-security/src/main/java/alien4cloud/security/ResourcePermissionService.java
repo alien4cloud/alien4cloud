@@ -1,5 +1,6 @@
 package alien4cloud.security;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,25 +22,26 @@ public class ResourcePermissionService {
     private IGenericSearchDAO alienDAO;
 
     /**
-     * Add admin permission to the given resource.
-     * 
+     * Add admin permission to the given resource for the given subject.
+     *
      * @param resource the resource to secure
-     * @param subjectType the type of the subject
-     * @param subject the subject to which the permissions are granted
+     * @param subjects list of subjects
      */
-    public void grantPermission(ISecurityEnabledResource resource, Subject subjectType, String subject) {
-        grantPermissions(resource, subjectType, subject, Sets.newHashSet(Permission.ADMIN));
+    public void grantPermission(ISecurityEnabledResource resource, Subject subjectType, String... subjects) {
+        Arrays.stream(subjects).forEach(subject -> resource.addPermissions(subjectType, subject, Sets.newHashSet(Permission.ADMIN)));
+        alienDAO.save(resource);
     }
 
     /**
-     * Revoke admin permission of the given resource.
+     * Revoke admin permission of the given resource from the given .
      * 
      * @param resource the resource to revoke
      * @param subjectType the type of the subject
-     * @param subject the subject to which the permissions are revoked
+     * @param subjects the subjects from which the permissions are revoked
      */
-    public void revokePermission(ISecurityEnabledResource resource, Subject subjectType, String subject) {
-        revokePermissions(resource, subjectType, subject, Sets.newHashSet(Permission.ADMIN));
+    public void revokePermission(ISecurityEnabledResource resource, Subject subjectType, String... subjects) {
+        Arrays.stream(subjects).forEach(subject -> resource.removePermissions(subjectType, subject, Sets.newHashSet(Permission.ADMIN)));
+        alienDAO.save(resource);
     }
 
     /**
@@ -50,7 +52,7 @@ public class ResourcePermissionService {
      * @param subject the subject's id
      * @return true if the subject has admin privilege, false otherwise
      */
-    public boolean hasPermission(ISecurityEnabledResource resource, Subject subjectType, String subject) {
+    private boolean hasPermission(ISecurityEnabledResource resource, Subject subjectType, String subject) {
         return resource.getPermissions(subjectType, subject).contains(Permission.ADMIN);
     }
 
@@ -64,15 +66,5 @@ public class ResourcePermissionService {
     public boolean hasPermission(ISecurityEnabledResource resource, Map<Subject, Set<String>> subjects) {
         return subjects.entrySet().stream()
                 .anyMatch(subjectEntry -> subjectEntry.getValue().stream().anyMatch(subject -> hasPermission(resource, subjectEntry.getKey(), subject)));
-    }
-
-    private void grantPermissions(ISecurityEnabledResource resource, Subject subjectType, String subject, Set<Permission> permissions) {
-        resource.addPermissions(subjectType, subject, permissions);
-        alienDAO.save(resource);
-    }
-
-    private void revokePermissions(ISecurityEnabledResource resource, Subject subjectType, String subject, Set<Permission> permissions) {
-        resource.removePermissions(subjectType, subject, permissions);
-        alienDAO.save(resource);
     }
 }

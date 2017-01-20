@@ -788,7 +788,8 @@
   "GROUPS": {
     "EDIT_GROUPS": "Edit groups",
     "NEW": "New Group",
-    "ROLES": "Roles"
+    "ROLES": "Roles",
+    "AUTHORIZED": "group authorized"
   },
   "HOME": {
     "ADMIN": {
@@ -858,6 +859,9 @@
       "AUTHORIZATIONS": {
         "USERS": {
           "ADD": "Authorize user"
+        },
+        "GROUPS": {
+          "ADD": "Authorize group"
         }
       },
       "AUTO_CONFIG": "Auto-config",

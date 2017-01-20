@@ -8,8 +8,11 @@ define(function (require) {
       
       var users = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/users/:username');
       
+      var groups = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/groups/:groupId');
+      
       return {
-        'users': users
+        'users': users,
+        'groups': groups
       };
     }]);
 });

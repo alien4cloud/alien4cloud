@@ -1,6 +1,5 @@
 package alien4cloud.rest.orchestrator;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -62,17 +61,17 @@ public class LocationSecurityController {
     /**
      * Grant access to the location to the user (deploy on the location)
      *
-     * @param locationId The locations id.
-     * @param usernames The authorized users.
+     * @param locationId The location's id.
+     * @param userNames The authorized users.
      * @return A {@link Void} {@link RestResponse}.
      */
     @ApiOperation(value = "Grant access to the location to the users", notes = "Only user with ADMIN role can grant access to another users.")
     @RequestMapping(value = "/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId, @RequestBody String[] usernames) {
+    public RestResponse<Void> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId, @RequestBody String[] userNames) {
         Location location = getLocation(orchestratorId, locationId);
-        Arrays.stream(usernames).forEach(username -> resourcePermissionService.grantPermission(location, Subject.USER, username));
+        resourcePermissionService.grantPermission(location, Subject.USER, userNames);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -112,19 +111,19 @@ public class LocationSecurityController {
     }
 
     /**
-     * Grant access to the location to the group (deploy on the location)
+     * Grant access to the location to the groups (deploy on the location)
      *
-     * @param locationId The locations id.
-     * @param groupname The authorized group.
+     * @param locationId The location's id.
+     * @param groupIds The authorized groups.
      * @return A {@link Void} {@link RestResponse}.
      */
-    @ApiOperation(value = "Grant access to the location to the group", notes = "Only user with ADMIN role can grant access to a group.")
-    @RequestMapping(value = "/groups/{groupname}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Grant access to the location to the groups", notes = "Only user with ADMIN role can grant access to a group.")
+    @RequestMapping(value = "/groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> grantAccessToGroup(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String groupname) {
+    public RestResponse<Void> grantAccessToGroups(@PathVariable String orchestratorId, @PathVariable String locationId, @RequestBody String[] groupIds) {
         Location location = getLocation(orchestratorId, locationId);
-        resourcePermissionService.grantPermission(location, Subject.GROUP, groupname);
+        resourcePermissionService.grantPermission(location, Subject.GROUP, groupIds);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -132,16 +131,16 @@ public class LocationSecurityController {
      * Revoke the group's authorisation to access the location
      *
      * @param locationId The id of the location.
-     * @param groupname The authorized group.
+     * @param groupId The authorized group.
      * @return A {@link Void} {@link RestResponse}.
      */
     @ApiOperation(value = "Revoke the group's authorisation to access the location", notes = "Only user with ADMIN role can revoke access to the location.")
-    @RequestMapping(value = "/groups/{groupname}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/groups/{groupId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String groupname) {
+    public RestResponse<Void> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String groupId) {
         Location location = getLocation(orchestratorId, locationId);
-        resourcePermissionService.revokePermission(location, Subject.GROUP, groupname);
+        resourcePermissionService.revokePermission(location, Subject.GROUP, groupId);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -166,7 +165,7 @@ public class LocationSecurityController {
     /**
      * Grant access to the location to the application (deploy on the location)
      *
-     * @param locationId The locations id.
+     * @param locationId The location's id.
      * @param applicationName The authorized application.
      * @return A {@link Void} {@link RestResponse}.
      */

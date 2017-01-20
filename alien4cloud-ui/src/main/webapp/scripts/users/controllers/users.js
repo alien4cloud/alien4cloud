@@ -6,7 +6,6 @@ define(function (require) {
   var _ = require('lodash');
   require('scripts/users/directives/groups');
   require('scripts/users/directives/users');
-  require('scripts/users/directives/users_authorization');
   require('scripts/common/directives/delete_confirm');
 
   // register state for user management.

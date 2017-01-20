@@ -5,7 +5,8 @@ define(function (require) {
   var states = require('states');
   var angular = require('angular');
   var _ = require('lodash');
-  
+  require('scripts/users/directives/users_authorization');
+  require('scripts/users/directives/groups_authorization');
   require('scripts/orchestrators/services/location_security_service');
   
   states.state('admin.orchestrators.details.locations.security', {

@@ -54,8 +54,8 @@ define(function (require) {
     }
   ];
   
-  modules.get('a4c-security', ['a4c-search']).controller('UsersAuthorizationDirectiveCtrl', ['$scope', '$uibModal', 'locationSecurityService', '$q',
-    function ($scope, $uibModal, locationSecurityService, $q) {
+  modules.get('a4c-security', ['a4c-search']).controller('UsersAuthorizationDirectiveCtrl', ['$scope', '$uibModal', 'locationSecurityService',
+    function ($scope, $uibModal, locationSecurityService) {
       $scope.searchAuthorizedUsers = function () {
         locationSecurityService.users.get({
           orchestratorId: $scope.orchestrator.id,
