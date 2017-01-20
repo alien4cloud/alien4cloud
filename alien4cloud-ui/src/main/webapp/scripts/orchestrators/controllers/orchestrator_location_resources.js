@@ -26,7 +26,7 @@ define(function(require) {
           // Only show catalog on custom on-demand resources tab
           if (!$scope.showCatalog) return;
 
-          $scope.dimensions = { width: 800, height: 500 }; // TODO GET HOW THIS WORKS ??
+          $scope.dimensions = { width: 800, height: 500 };
           resizeServices.registerContainer(function (width, height) {
             $scope.dimensions = { width: width, height: height };
             $scope.$digest();
@@ -186,10 +186,12 @@ define(function(require) {
         function computeTypes() {
           // pick all resource types from the location - this will include orchestrator & custom types
           const recommended = $scope.context.locationResources.recommendedTypes;
-          const resourcesTypes = _.map($scope.resourcesTypes, function (res) {
-            return _.assign(_.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id'), { 'recommended': _.contains(recommended, res.elementId) });
+          return _.map($scope.resourcesTypes, function (res) {
+            return _.assign(
+              _.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id'),
+              {'recommended': _.contains(recommended, res.elementId)}
+            );
           });
-          return resourcesTypes;
         }
       }
     ]);

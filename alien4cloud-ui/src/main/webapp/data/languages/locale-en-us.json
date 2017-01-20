@@ -866,7 +866,8 @@
       "ON_DEMAND_RESOURCES": "On demand resources",
       "POLICIES": "Policies",
       "RESOURCES": {
-        "TYPE": "Resource types"
+        "TYPE": "Resource types",
+        "DROP": "Drop new resources here or on the table above"
       },
       "SECURITY": "Security",
       "SERVICES": "Services"

@@ -35,6 +35,9 @@
           </tr>
         </tbody>
       </table>
+      <div class="drop-box" ng-show="showCatalog" alien-droppable drag-on-drop="addResourceTemplate(data)">
+        <i class="fa fa-file-text"></i>&nbsp;<small>{{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.DROP' | translate }}</small>
+      </div>
     </div>
     <div class="col-md-6" ng-if="selectedResourceTemplate">
       <div class="well">
@@ -61,7 +64,7 @@
           <uib-tab-heading>
             {{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate }}
           </uib-tab-heading>
-          <ul class="list-group" style="overflow: auto; height: {{ dimensions.height }}px;">
+          <ul class="list-group" style="overflow: auto; height: {{ dimensions.height + 'px' }};">
             <li class="list-group-item media clickable-media favorite"
                 ng-repeat="resource in ctrl.favorites | orderBy : ['-recommended', 'elementId']"
                 alien-draggable drag-enabled="true" drag-data="resource">
@@ -73,7 +76,7 @@
                 <small class="pull-right well well-sm"
                        ng-if="resource.recommended"
                        uib-tooltip="Recommended type from the orchestrator"
-                       tooltip-placement="bottom"
+                       tooltip-placement="left"
                        tooltip-append-to-body="true">
                   <i class="fa fa-star" style="color:goldenrod"></i>
                 </small>
