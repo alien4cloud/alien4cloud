@@ -13,7 +13,6 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,6 +42,7 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
@@ -90,6 +90,8 @@ public class ApplicationDeploymentController {
     private WorkflowExecutionService workflowExecutionService;
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
+    @Resource
+    private LocationSecurityService locationSecurityService;
 
     /**
      * Trigger deployment of the application on the current configured PaaS.
@@ -123,11 +125,9 @@ public class ApplicationDeploymentController {
         // Check authorization on the location
         // get the target locations of the deployment topology
         Map<String, Location> locationMap = deploymentTopologyService.getLocations(deploymentTopology);
-        // for (Location location : locationMap.values()) {
-        // AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
-        // }
-        if (true)
-            throw new AccessDeniedException("To be implemented");
+        for (Location location : locationMap.values()) {
+            locationSecurityService.checkAuthorisation(location, environment);
+        }
         // prepare the deployment
         TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);
 
@@ -141,11 +141,6 @@ public class ApplicationDeploymentController {
 
         // process with the deployment
         deployService.deploy(deploymentTopology, application);
-        // TODO OrchestratorDisabledException handling in the ExceptionHandler
-        // return RestResponseBuilder.<Void> builder().error(
-        // new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + environment.getCloudId() + "> is disabled or not found"))
-        // .build();
-
         return RestResponseBuilder.<Void> builder().build();
     }
 

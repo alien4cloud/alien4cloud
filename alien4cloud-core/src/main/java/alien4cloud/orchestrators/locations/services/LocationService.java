@@ -3,7 +3,6 @@ package alien4cloud.orchestrators.locations.services;
 import static alien4cloud.utils.AlienUtils.array;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +21,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Objects;
@@ -77,6 +75,8 @@ public class LocationService {
     private ICSARRepositorySearchService csarRepoSearchService;
     @Inject
     private ApplicationContext applicationContext;
+    @Resource
+    private LocationSecurityService locationSecurityService;
 
     /**
      * Auto-configure locations using the given location auto-configurer.
@@ -324,28 +324,19 @@ public class LocationService {
 
     /**
      * Retrieve location given a list of ids, and a specific context
-     * Only retrieves the authorized ones.
      *
      * @param fetchContext The fetch context to recover only the required field (Note that this should be simplified to directly use the given field...).
      * @param ids array of id of the applications to find
-     * @return Map of locations that has the given ids and for which the user is authorized (key is application Id), or null if no location matching the
+     * @return Map of locations that has the given ids and (key is application Id), or null if no location matching the
      *         request is found.
      */
-    public Map<String, Location> findByIdsIfAuthorized(String fetchContext, String... ids) {
+    public Map<String, Location> findByIds(String fetchContext, String... ids) {
         List<Location> results = alienDAO.findByIdsWithContext(Location.class, fetchContext, ids);
         if (results == null) {
             return null;
         }
         Map<String, Location> locations = Maps.newHashMap();
-        Iterator<Location> iterator = results.iterator();
-        while (iterator.hasNext()) {
-            Location location = iterator.next();
-            // if (!AuthorizationUtil.hasAuthorizationForLocation(location, DeployerRole.values())) {
-            // iterator.remove();
-            // continue;
-            // }
-            if (true)
-                throw new AccessDeniedException("To be implemented");
+        for (Location location : results) {
             locations.put(location.getId(), location);
         }
         return locations.isEmpty() ? null : locations;

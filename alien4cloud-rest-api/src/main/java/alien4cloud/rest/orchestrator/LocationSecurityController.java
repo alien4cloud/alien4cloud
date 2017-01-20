@@ -63,23 +63,6 @@ public class LocationSecurityController {
      * Grant access to the location to the user (deploy on the location)
      *
      * @param locationId The locations id.
-     * @param username The authorized user.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Grant access to the location to the user", notes = "Only user with ADMIN role can grant access to another user.")
-    @RequestMapping(value = "/users/{username}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public RestResponse<Void> grantAccessToUser(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String username) {
-        Location location = getLocation(orchestratorId, locationId);
-        resourcePermissionService.grantAdminPermission(location, Subject.USER, username);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Grant access to the location to the user (deploy on the location)
-     *
-     * @param locationId The locations id.
      * @param usernames The authorized users.
      * @return A {@link Void} {@link RestResponse}.
      */
@@ -89,7 +72,7 @@ public class LocationSecurityController {
     @Audit
     public RestResponse<Void> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId, @RequestBody String[] usernames) {
         Location location = getLocation(orchestratorId, locationId);
-        Arrays.stream(usernames).forEach(username -> resourcePermissionService.grantAdminPermission(location, Subject.USER, username));
+        Arrays.stream(usernames).forEach(username -> resourcePermissionService.grantPermission(location, Subject.USER, username));
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -106,7 +89,7 @@ public class LocationSecurityController {
     @Audit
     public RestResponse<Void> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String username) {
         Location location = getLocation(orchestratorId, locationId);
-        resourcePermissionService.revokeAdminPermission(location, Subject.USER, username);
+        resourcePermissionService.revokePermission(location, Subject.USER, username);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -141,7 +124,7 @@ public class LocationSecurityController {
     @Audit
     public RestResponse<Void> grantAccessToGroup(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String groupname) {
         Location location = getLocation(orchestratorId, locationId);
-        resourcePermissionService.grantAdminPermission(location, Subject.GROUP, groupname);
+        resourcePermissionService.grantPermission(location, Subject.GROUP, groupname);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -158,7 +141,7 @@ public class LocationSecurityController {
     @Audit
     public RestResponse<Void> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String groupname) {
         Location location = getLocation(orchestratorId, locationId);
-        resourcePermissionService.revokeAdminPermission(location, Subject.GROUP, groupname);
+        resourcePermissionService.revokePermission(location, Subject.GROUP, groupname);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -194,7 +177,7 @@ public class LocationSecurityController {
     public RestResponse<Void> grantAccessToApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
             @PathVariable String applicationName) {
         Location location = getLocation(orchestratorId, locationId);
-        resourcePermissionService.grantAdminPermission(location, Subject.APPLICATION, applicationName);
+        resourcePermissionService.grantPermission(location, Subject.APPLICATION, applicationName);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -212,7 +195,7 @@ public class LocationSecurityController {
     public RestResponse<Void> revokeApplicationAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
             @PathVariable String applicationName) {
         Location location = getLocation(orchestratorId, locationId);
-        resourcePermissionService.revokeAdminPermission(location, Subject.APPLICATION, applicationName);
+        resourcePermissionService.revokePermission(location, Subject.APPLICATION, applicationName);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -251,7 +234,7 @@ public class LocationSecurityController {
     public RestResponse<Void> grantAccessToEnvironment(@PathVariable String orchestratorId, @PathVariable String locationId,
             @PathVariable String environmentId) {
         Location location = getLocation(orchestratorId, locationId);
-        resourcePermissionService.grantAdminPermission(location, Subject.ENVIRONMENT, environmentId);
+        resourcePermissionService.grantPermission(location, Subject.ENVIRONMENT, environmentId);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -269,7 +252,7 @@ public class LocationSecurityController {
     public RestResponse<Void> revokeEnvironmentAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
             @PathVariable String environmentId) {
         Location location = getLocation(orchestratorId, locationId);
-        resourcePermissionService.revokeAdminPermission(location, Subject.ENVIRONMENT, environmentId);
+        resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT, environmentId);
         return RestResponseBuilder.<Void> builder().build();
     }
 

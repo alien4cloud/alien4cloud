@@ -27,7 +27,6 @@ import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -48,6 +47,7 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
+import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
@@ -93,6 +93,8 @@ public class DeploymentTopologyService {
     private IDeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
     @Inject
     private PropertyService propertyService;
+    @Resource
+    private LocationSecurityService locationSecurityService;
 
     public void save(DeploymentTopology deploymentTopology) {
         deploymentTopology.setLastDeploymentTopologyUpdateDate(new Date());
@@ -463,8 +465,7 @@ public class DeploymentTopologyService {
             String locationId = matchEntry.getValue();
             Location location = locationService.getOrFail(locationId);
             // AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
-            if (true)
-                throw new AccessDeniedException("To be implemented");
+            locationSecurityService.checkAuthorisation(location, deploymentTopology.getEnvironmentId());
             deploymentTopology.getLocationDependencies().addAll(location.getDependencies());
             LocationPlacementPolicy locationPolicy = new LocationPlacementPolicy(locationId);
             locationPolicy.setName("Location policy");

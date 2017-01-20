@@ -6,11 +6,14 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.deployment.matching.plugins.ILocationMatcher;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.matching.ILocationMatch;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 
 @Service
@@ -21,8 +24,10 @@ public class LocationMatchingService {
     private TopologyServiceCore topoServiceCore;
     @Inject
     private LocationMatcherFactoriesRegistry locationMatcherFactoriesRegistry;
-
-    private LocationMatchAuthorizationFilter authorizationFilter = new LocationMatchAuthorizationFilter();
+    @Resource
+    private LocationMatchAuthorizationFilter authorizationFilter;
+    @Resource
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     /**
      * Given a topology, return a list of locations on which the topo can be deployed
@@ -30,7 +35,7 @@ public class LocationMatchingService {
      * @param topology The topology to match against the location matcher.
      * @return A list of candidates Location Matches.
      */
-    public List<ILocationMatch> match(Topology topology) {
+    public List<ILocationMatch> match(Topology topology, ApplicationEnvironment applicationEnvironment) {
         List<ILocationMatch> matches;
         // If no registered matcher found later on, then match with the default matcher
         ILocationMatcher matcher = defaultLocationMatcher;
@@ -45,9 +50,8 @@ public class LocationMatchingService {
         }
 
         matches = matcher.match(topology);
-
         // keep only the authorized ones
-        authorizationFilter.filter(matches, null);
+        authorizationFilter.filter(matches, applicationEnvironment);
 
         return matches.isEmpty() ? null : matches;
     }
@@ -55,11 +59,16 @@ public class LocationMatchingService {
     /**
      * Given a topologyId, return a list of locations on which the related topo can be deployed
      *
-     * @param topologyId
-     * @return
+     * @param topologyId mandatory topology id
+     * @param environmentId optional environment's id, the context from which the match is done, it affects the security aspect
+     * @return list of matched locations
      */
-    public List<ILocationMatch> match(String topologyId) {
+    public List<ILocationMatch> match(String topologyId, String environmentId) {
         Topology topology = topoServiceCore.getOrFail(topologyId);
-        return match(topology);
+        ApplicationEnvironment applicationEnvironment = null;
+        if (StringUtils.isNotBlank(environmentId)) {
+            applicationEnvironment = applicationEnvironmentService.getOrFail(environmentId);
+        }
+        return match(topology, applicationEnvironment);
     }
 }
