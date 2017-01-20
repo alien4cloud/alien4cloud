@@ -26,11 +26,11 @@ define(function(require) {
           // Only show catalog on custom on-demand resources tab
           if (!$scope.showCatalog) return;
 
-          $scope.dimensions = { width: 800, height: 600 }; // TODO GET HOW THIS WORKS ??
+          $scope.dimensions = { width: 800, height: 500 }; // TODO GET HOW THIS WORKS ??
           resizeServices.registerContainer(function (width, height) {
             $scope.dimensions = { width: width, height: height };
             $scope.$digest();
-          }, "#catalog");
+          }, "#resource-catalog");
 
           // join favorites types with types from the orchestrator definition
           vm.favorites = computeTypes();
@@ -43,7 +43,7 @@ define(function(require) {
         $scope.addResourceTemplate = function(dragData) {
           const source = dragData ? angular.fromJson(dragData.source) : $scope.selectedConfigurationResourceType;
           if (!source) return;
-          const body = {
+          const newResource = {
             'resourceType': source.elementId,
             'resourceName': 'New resource',
             'archiveName': source.archiveName || '',
@@ -54,17 +54,17 @@ define(function(require) {
           locationResourcesService.save({
             orchestratorId: $scope.context.orchestrator.id,
             locationId: $scope.context.location.id
-          }, angular.toJson(body), function(response) {
+          }, angular.toJson(newResource), function(response) {
             const resourceTemplate = response.data.resourceTemplate;
             const updatedDependencies = response.data.newDependencies;
 
             locationResourcesProcessor.processLocationResourceTemplate(resourceTemplate);
             $scope.context.location.dependencies = updatedDependencies;
 
-            if ($scope.showCatalog && _.findIndex(vm.favorites, 'id', body.id) == -1) {
+            if ($scope.showCatalog && _.findIndex(vm.favorites, 'id', newResource.id) == -1) {
               // ResourceType was not in the fav list - get its type and add it to resource types map
-              const typeId = body.resourceType;
-              const componentId = body.id;
+              const typeId = newResource.resourceType;
+              const componentId = newResource.id;
 
               componentService.get({componentId: componentId}).$promise.then(function (res) {
                 const resourceType = res.data;
@@ -96,12 +96,11 @@ define(function(require) {
                 $scope.resourcesTypes.push(resourceType);
                 $scope.resourcesTemplates.push(resourceTemplate);
 
+                newResource.elementId = newResource.resourceType;
+                delete newResource.resourceType;
+                newResource.recommended = false;
+                vm.favorites.push(newResource);
               });
-
-              body.elementId = body.resourceType;
-              delete body.resourceType;
-              body.recommended = false;
-              vm.favorites.push(body);
             } else {
               // If the type is in the fav list then we already have its node and capability types
               $scope.resourcesTemplates.push(resourceTemplate);
@@ -122,7 +121,7 @@ define(function(require) {
             });
             delete $scope.selectedResourceTemplate;
             // To remove custom types from the list we need a way to distinguish them
-            // vm.favorites = computeTypes();
+
           });
         };
 

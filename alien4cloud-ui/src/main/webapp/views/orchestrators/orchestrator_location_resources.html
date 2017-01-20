@@ -1,7 +1,7 @@
 <div ng-controller="OrchestratorLocationResourcesTemplateCtrl as ctrl">
   <div ng-show="!showCatalog" class="row" style="margin-top: 10px">
     <div class="col-md-12">
-      <span>{{'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate}} </span>
+      <span>{{'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate}}: </span>
       <select ng-model="selectedConfigurationResourceType"
               ng-options="type.elementId for type in resourcesTypes">
       </select>
@@ -55,14 +55,14 @@
         </orchestrator-location-resource-template>
       </div>
     </div>
-    <div id="catalog" ng-if="showCatalog" ng-show="!selectedResourceTemplate" class="col-md-6" style="overflow: auto; top: -40px;">
+    <div id="resource-catalog" ng-if="showCatalog" ng-show="!selectedResourceTemplate" class="col-md-6">
       <uib-tabset justified="true">
         <uib-tab index="0">
           <uib-tab-heading>
-            Favorites
+            {{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate }}
           </uib-tab-heading>
-          <ul class="list-group" style="margin:0">
-            <li class="list-group-item media clickable-media" style="margin: 0"
+          <ul class="list-group" style="overflow: auto; height: {{ dimensions.height }}px;">
+            <li class="list-group-item media clickable-media favorite"
                 ng-repeat="resource in ctrl.favorites | orderBy : ['-recommended', 'elementId']"
                 alien-draggable drag-enabled="true" drag-data="resource">
               <div class="media-left" ng-init="nodeIcon = getIcon(resource.elementId)">

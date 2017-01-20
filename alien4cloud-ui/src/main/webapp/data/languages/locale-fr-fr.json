@@ -849,7 +849,7 @@
       "ON_DEMAND_RESOURCES": "Ressources à la demande",
       "POLICIES": "Policies",
       "RESOURCES": {
-        "TYPE": "Type de ressources:"
+        "TYPE": "Type de ressources"
       },
       "SECURITY": "Sécurité",
       "SERVICES": "Services"

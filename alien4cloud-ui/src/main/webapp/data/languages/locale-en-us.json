@@ -866,7 +866,7 @@
       "ON_DEMAND_RESOURCES": "On demand resources",
       "POLICIES": "Policies",
       "RESOURCES": {
-        "TYPE": "Resources types:"
+        "TYPE": "Resource types"
       },
       "SECURITY": "Security",
       "SERVICES": "Services"
