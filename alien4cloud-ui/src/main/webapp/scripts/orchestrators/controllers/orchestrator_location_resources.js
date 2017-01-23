@@ -23,7 +23,7 @@ define(function(require) {
           if (_.isNotEmpty($scope.resourcesTypes)) {
             $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
           }
-          // Only show catalog on custom on-demand resources tab
+          // Only show catalog in the on-demand resources tab
           if (!$scope.showCatalog) return;
 
           $scope.dimensions = { width: 800, height: 500 };
@@ -32,7 +32,6 @@ define(function(require) {
             $scope.$digest();
           }, "#resource-catalog");
 
-          // join favorites types with types from the orchestrator definition
           vm.favorites = computeTypes();
         };
 
@@ -61,8 +60,8 @@ define(function(require) {
             locationResourcesProcessor.processLocationResourceTemplate(resourceTemplate);
             $scope.context.location.dependencies = updatedDependencies;
 
+            // if ResourceType is not in the fav list then get its type and add it to resource types map
             if ($scope.showCatalog && _.findIndex(vm.favorites, 'id', newResource.id) == -1) {
-              // ResourceType was not in the fav list - get its type and add it to resource types map
               const typeId = newResource.resourceType;
               const componentId = newResource.id;
 
@@ -96,6 +95,7 @@ define(function(require) {
                 $scope.resourcesTypes.push(resourceType);
                 $scope.resourcesTemplates.push(resourceTemplate);
 
+                // property named elementId is expected instead of resourceType
                 newResource.elementId = newResource.resourceType;
                 delete newResource.resourceType;
                 newResource.recommended = false;
@@ -103,6 +103,7 @@ define(function(require) {
               });
             } else {
               // If the type is in the fav list then we already have its node and capability types
+              // its either an orchestrator resource or a custom-resource already used in the location.
               $scope.resourcesTemplates.push(resourceTemplate);
               $scope.selectTemplate(resourceTemplate);
             }
@@ -120,8 +121,15 @@ define(function(require) {
               id: resourceTemplate.id
             });
             delete $scope.selectedResourceTemplate;
-            // To remove custom types from the list we need a way to distinguish them
 
+            // Clean the favorites list
+            const deletedType = resourceTemplate.template.type;
+            // If the type of the template is provided by the orchestrator, never delete it from the fav list
+            const favIndex = _.findIndex(vm.favorites, { 'elementId': deletedType });
+            if (favIndex === -1 || vm.favorites[favIndex].recommended) return;
+            // The template was a custom resource - if its still used do not delete it from the fav list
+            if (_.find($scope.resourcesTemplates, function (tplt) { return tplt.template.type === deletedType })) return;
+            vm.favorites.splice(favIndex, 1);
           });
         };
 
