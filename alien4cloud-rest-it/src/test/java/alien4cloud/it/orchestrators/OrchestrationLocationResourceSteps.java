@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import alien4cloud.model.orchestrators.locations.LocationCustomResourceTemplate;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 
@@ -34,7 +34,7 @@ public class OrchestrationLocationResourceSteps {
         request.setResourceType(resourceType);
         String resp = Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(request));
 
-        RestResponse<LocationCustomResourceTemplate> response = JsonUtil.read(resp, LocationCustomResourceTemplate.class, Context.getJsonMapper());
+        RestResponse<LocationResourceTemplateWithDependencies> response = JsonUtil.read(resp, LocationResourceTemplateWithDependencies.class, Context.getJsonMapper());
         Context.getInstance().registerOrchestratorLocationResource(orchestratorId, locationId, response.getData().getResourceTemplate().getId(), resourceName);
         Context.getInstance().registerRestResponse(resp);
     }

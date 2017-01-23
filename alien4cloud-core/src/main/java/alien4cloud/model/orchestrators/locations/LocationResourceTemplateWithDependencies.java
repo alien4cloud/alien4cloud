@@ -16,7 +16,7 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @ApiModel("Contains a custom resource template with its location's updated dependencies.")
-public class LocationCustomResourceTemplate {
+public class LocationResourceTemplateWithDependencies {
     @ApiModelProperty(value = "A custom configured resource template.")
     LocationResourceTemplate resourceTemplate;
     @ApiModelProperty(value = "The location's dependencies, which might have been updated when creating the resource template.")

@@ -5,7 +5,7 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.model.orchestrators.locations.LocationCustomResourceTemplate;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
@@ -271,9 +271,9 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#addResourceTemplate(java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public LocationCustomResourceTemplate addResourceTemplate(String locationId, String resourceName, String resourceTypeName) {
+    public LocationResourceTemplateWithDependencies addResourceTemplate(String locationId, String resourceName, String resourceTypeName) {
         Location location = locationService.getOrFail(locationId);
-        return new LocationCustomResourceTemplate(this.addResourceTemplate(location, resourceName, resourceTypeName), Collections.EMPTY_SET);
+        return new LocationResourceTemplateWithDependencies(this.addResourceTemplate(location, resourceName, resourceTypeName), Collections.EMPTY_SET);
     }
 
     private LocationResourceTemplate addResourceTemplate(Location location, String resourceName, String resourceTypeName) {
@@ -310,7 +310,7 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#addResourceTemplate(java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public LocationCustomResourceTemplate addCustomResourceTemplate(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion) {
+    public LocationResourceTemplateWithDependencies addCustomResourceTemplate(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion) {
         Location location = locationService.getOrFail(locationId);
 
         // If an archive is specified, update the location dependencies accordingly. Dependencies are in a Set so there is no duplication issue.
@@ -323,7 +323,7 @@ public class LocationResourceService implements ILocationResourceService {
         }
 
         // Return a wrapper object with the template and location dependencies
-        return new LocationCustomResourceTemplate(this.addResourceTemplate(location, resourceName, resourceTypeName), Sets.newHashSet(location.getDependencies()));
+        return new LocationResourceTemplateWithDependencies(this.addResourceTemplate(location, resourceName, resourceTypeName), Sets.newHashSet(location.getDependencies()));
 
     }
 

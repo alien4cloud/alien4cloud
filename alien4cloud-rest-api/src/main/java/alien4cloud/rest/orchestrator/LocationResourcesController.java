@@ -1,6 +1,6 @@
 package alien4cloud.rest.orchestrator;
 
-import alien4cloud.model.orchestrators.locations.LocationCustomResourceTemplate;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -52,14 +52,14 @@ public class LocationResourcesController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<LocationCustomResourceTemplate> addResourceTemplate(
+    public RestResponse<LocationResourceTemplateWithDependencies> addResourceTemplate(
             @ApiParam(value = "Id of the orchestrator for which to add resource template.", required = true) @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location of the orchestrator to add resource template.", required = true) @PathVariable String locationId,
             @RequestBody CreateLocationResourceTemplateRequest resourceTemplateRequest) {
 
-        LocationCustomResourceTemplate createdTemplate = locationResourceService.addCustomResourceTemplate(locationId, resourceTemplateRequest.getResourceName(),
+        LocationResourceTemplateWithDependencies createdTemplate = locationResourceService.addCustomResourceTemplate(locationId, resourceTemplateRequest.getResourceName(),
                 resourceTemplateRequest.getResourceType(), resourceTemplateRequest.getArchiveName(), resourceTemplateRequest.getArchiveVersion());
-        return RestResponseBuilder.<LocationCustomResourceTemplate> builder().data(createdTemplate).build();
+        return RestResponseBuilder.<LocationResourceTemplateWithDependencies> builder().data(createdTemplate).build();
     }
 
     @ApiOperation(value = "Delete location's resource.", authorizations = { @Authorization("ADMIN") })
