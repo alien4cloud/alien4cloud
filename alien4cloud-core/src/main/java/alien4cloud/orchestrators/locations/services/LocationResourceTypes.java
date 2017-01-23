@@ -23,7 +23,7 @@ public class LocationResourceTypes {
     @ApiModelProperty(value = "Map of node types id, node type used to configure the templates of on-demand resources in a location.")
     private Map<String, NodeType> nodeTypes = Maps.newHashMap();
     @ApiModelProperty(value = "List of recommended node types ID, e.g. defined at the orchestrator level")
-    private Set<String> recommendedTypes = Sets.newHashSet();
+    private Set<String> providedTypes = Sets.newHashSet();
     @ApiModelProperty(value = "Map that contains the capability types used by the configuration types or node types.")
     private Map<String, CapabilityType> capabilityTypes = Maps.newHashMap();
     @ApiModelProperty(value = "Map that contains all node types.")

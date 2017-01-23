@@ -98,7 +98,7 @@ define(function(require) {
                 // property named elementId is expected instead of resourceType
                 newResource.elementId = newResource.resourceType;
                 delete newResource.resourceType;
-                newResource.recommended = false;
+                newResource.provided = false;
                 vm.favorites.push(newResource);
               });
             } else {
@@ -126,7 +126,7 @@ define(function(require) {
             const deletedType = resourceTemplate.template.type;
             // If the type of the template is provided by the orchestrator, never delete it from the fav list
             const favIndex = _.findIndex(vm.favorites, { 'elementId': deletedType });
-            if (favIndex === -1 || vm.favorites[favIndex].recommended) return;
+            if (favIndex === -1 || vm.favorites[favIndex].provided) return;
             // The template was a custom resource - if its still used do not delete it from the fav list
             if (_.find($scope.resourcesTemplates, function (tplt) { return tplt.template.type === deletedType })) return;
             vm.favorites.splice(favIndex, 1);
@@ -193,11 +193,11 @@ define(function(require) {
 
         function computeTypes() {
           // pick all resource types from the location - this will include orchestrator & custom types
-          const recommended = $scope.context.locationResources.recommendedTypes;
+          const provided = $scope.context.locationResources.providedTypes;
           return _.map($scope.resourcesTypes, function (res) {
             return _.assign(
               _.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id'),
-              {'recommended': _.contains(recommended, res.elementId)}
+              {'provided': _.contains(provided, res.elementId)}
             );
           });
         }

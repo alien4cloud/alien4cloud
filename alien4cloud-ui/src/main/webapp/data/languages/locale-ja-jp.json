@@ -848,7 +848,8 @@
       "POLICIES": "Policies",
       "RESOURCES": {
         "TYPE": "Resource types",
-        "DROP": "Drop new resources here or on the table above"
+        "DROP": "Drop new resources here or on the table above",
+        "PROVIDED": "Provided type from the orchestrator"
       },
       "SECURITY": "Security",
       "SERVICES": "Services"

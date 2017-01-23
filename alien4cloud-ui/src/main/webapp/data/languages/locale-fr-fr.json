@@ -850,7 +850,8 @@
       "POLICIES": "Policies",
       "RESOURCES": {
         "TYPE": "Type de ressources",
-        "DROP": "Déposez des ressources ici ou dans le tableau au dessus"
+        "DROP": "Déposez des ressources ici ou dans le tableau au dessus",
+        "PROVIDED": "Type fourni par l'orchestrateur"
       },
       "SECURITY": "Sécurité",
       "SERVICES": "Services"

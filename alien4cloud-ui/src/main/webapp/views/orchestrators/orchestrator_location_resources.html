@@ -66,7 +66,7 @@
           </uib-tab-heading>
           <ul class="list-group" style="overflow: auto; height: {{ dimensions.height + 'px' }};">
             <li class="list-group-item media clickable-media favorite"
-                ng-repeat="resource in ctrl.favorites | orderBy : ['-recommended', 'elementId']"
+                ng-repeat="resource in ctrl.favorites | orderBy : ['-provided', 'elementId']"
                 alien-draggable drag-enabled="true" drag-data="resource">
               <div class="media-left" ng-init="nodeIcon = getIcon(resource.elementId)">
                 <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
@@ -74,8 +74,8 @@
               </div>
               <div class="media-body">
                 <small class="pull-right well well-sm"
-                       ng-if="resource.recommended"
-                       uib-tooltip="Recommended type from the orchestrator"
+                       ng-if="resource.provided"
+                       uib-tooltip="{{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.PROVIDED' | translate }}"
                        tooltip-placement="left"
                        tooltip-append-to-body="true">
                   <i class="fa fa-star" style="color:goldenrod"></i>

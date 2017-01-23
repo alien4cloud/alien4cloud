@@ -74,7 +74,7 @@ public class LocationResourceService implements ILocationResourceService {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getLocationResources(alien4cloud.model.orchestrators.locations.Location)
      */
     @Override
@@ -85,13 +85,17 @@ public class LocationResourceService implements ILocationResourceService {
             locationResourcesFromOrchestrator = Optional.ofNullable(getLocationResourcesFromOrchestrator(location));
         }
 
+        // Also get resource templates from outside of the orchestrator definition - eg custom resources
         List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
         LocationResources locationResources = new LocationResources(getLocationResourceTypes(locationResourceTemplates));
+        /* If the orchestrator is present, take node types computed from the resources template
+         * as "Custom resources types". If not, consider this is an orchestrator-free location.
+         */
         locationResourcesFromOrchestrator.ifPresent(orchestratorResources -> {
             locationResources.getCapabilityTypes().putAll(orchestratorResources.getCapabilityTypes());
             locationResources.getConfigurationTypes().putAll(orchestratorResources.getConfigurationTypes());
             locationResources.getNodeTypes().putAll(orchestratorResources.getNodeTypes());
-            locationResources.getRecommendedTypes().addAll(orchestratorResources.getNodeTypes().keySet());
+            locationResources.getProvidedTypes().addAll(orchestratorResources.getNodeTypes().keySet());
             locationResources.getAllNodeTypes().putAll(orchestratorResources.getAllNodeTypes());
             locationResources.getOnDemandTypes().putAll(orchestratorResources.getOnDemandTypes());
         });
