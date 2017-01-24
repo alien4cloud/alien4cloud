@@ -33,7 +33,7 @@ public class ResourcePermissionService {
     }
 
     /**
-     * Revoke admin permission of the given resource from the given .
+     * Revoke admin permission from the given resource from the given subjects.
      * 
      * @param resource the resource to revoke
      * @param subjectType the type of the subject
