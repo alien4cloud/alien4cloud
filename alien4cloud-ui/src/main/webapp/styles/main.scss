@@ -95,6 +95,14 @@ a {
   cursor: pointer;
 }
 
+.no-browser-apparence{
+  -webkit-appearance:none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+}
+
 .fa-smaller {
   font-size: 0.6666666666em;
 }

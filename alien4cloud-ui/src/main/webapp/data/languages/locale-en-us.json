@@ -252,7 +252,7 @@
     "UNDEPLOY": "Undeploy",
     "VERSION": {
       "LABEL": "Application version",
-      "NEW": "Create a new version",
+      "NEW": "New version",
       "MODAL": {
         "TITLE": "New version",
         "VERSION": "Version number",
