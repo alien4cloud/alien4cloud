@@ -31,7 +31,7 @@ public class OrchestrationLocationResourceSteps {
     }
 
     @When("^I create a resource of type \"([^\"]*)\" named \"([^\"]*)\" from archive \"([^\"]*)\" in version \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
-    public void I_create_a_resource_of_type_named_related_to_the_location_(String resourceType, String resourceName, String archiveName, String archiveVersion,
+    public void I_create_a_resource_of_type_named_from_archive_related_to_the_location_(String resourceType, String resourceName, String archiveName, String archiveVersion,
            String orchestratorName, String locationName) throws Throwable {
         createResourceTemplate(resourceType, resourceName, archiveName, archiveVersion, orchestratorName, locationName);
     }
