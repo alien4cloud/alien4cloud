@@ -6,7 +6,7 @@
     <div>
       <div class="row" style="margin-top: 10px;">
         <div class="col-md-12">
-          <form role="search" ng-submit="searchService.search(); event.preventDefault();">
+          <form role="search" ng-submit="search(event)">
             <div class="input-group">
               <input type="text" class="form-control" placeholder="..." ng-model="query"> <span
                 class="input-group-btn">
@@ -32,9 +32,9 @@
                   <a ng-click="toggleSelectAll()" href="" class="btn">
                     <i class="fa fa-fw"
                        ng-class="{
-                         'fa-check-square-o' : selectedGroups.length >= groupsData.data.length ,
-                         'fa-square-o': selectedGroups.length == 0,
-                         'fa-minus-square-o': selectedGroups.length < groupsData.data.length && selectedGroups.length > 0
+                         'fa-check-square-o' : selectedGroupsInCurrentPage.length >= groupsData.data.length ,
+                         'fa-square-o': selectedGroupsInCurrentPage.length == 0,
+                         'fa-minus-square-o': selectedGroupsInCurrentPage.length < groupsData.data.length && selectedGroupsInCurrentPage.length > 0
                          }"></i>
                   </a>
                 </th>
@@ -53,7 +53,7 @@
                 </td>
                 <td>
                   <i class="fa fa-group fa-2x" ng-if="!group.imageId"></i>
-                  <img ng-if="group.imageId" ng-src="'img?id=' + group.imageId + '&quality=QUALITY_32'" />
+                  <img ng-if="group.imageId" ng-src="'img?id=' + group.imageId + '&quality=QUALITY_32'"/>
                 </td>
                 <td>{{group.name || '---' }}</td>
                 <td>{{group.email || '---' }}</td>

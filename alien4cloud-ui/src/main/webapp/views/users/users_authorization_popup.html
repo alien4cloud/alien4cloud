@@ -6,7 +6,7 @@
     <div>
       <div class="row" style="margin-top: 10px;">
         <div class="col-md-12">
-          <form role="search" ng-submit="searchService.search(); event.preventDefault();">
+          <form role="search" ng-submit="search(event)">
             <div class="input-group">
               <input type="text" class="form-control" placeholder="..." ng-model="query"> <span
                 class="input-group-btn">
@@ -32,9 +32,9 @@
                   <a ng-click="toggleSelectAll()" href="" class="btn">
                     <i class="fa fa-fw"
                        ng-class="{
-                         'fa-check-square-o' : selectedUsers.length >= usersData.data.length ,
-                         'fa-square-o': selectedUsers.length == 0,
-                         'fa-minus-square-o': selectedUsers.length < usersData.data.length && selectedUsers.length > 0
+                         'fa-check-square-o' : selectedUsersInCurrentPage.length >= usersData.data.length ,
+                         'fa-square-o': selectedUsersInCurrentPage.length == 0,
+                         'fa-minus-square-o': selectedUsersInCurrentPage.length < usersData.data.length && selectedUsersInCurrentPage.length > 0
                          }"></i>
                   </a>
                 </th>
@@ -70,7 +70,8 @@
   </div>
   <div class="modal-footer" style="margin-top: 10px;">
     <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
-    <button ng-disabled="selectedUsers.length === 0" class="btn btn-primary" ng-click="ok()">Authorize selected users
+    <button ng-disabled="selectedUser.length === 0" class="btn btn-primary" ng-click="ok()">Authorize
+      selected users
     </button>
   </div>
 </div>

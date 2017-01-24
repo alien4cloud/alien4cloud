@@ -14,9 +14,18 @@ define(function (require) {
       $scope.batchSize = 5;
       $scope.selectedGroups = [];
       $scope.query = '';
+      
+      var indexOf = function (selectedGroups, group) {
+        return _.findIndex(selectedGroups, function (selectedGroup) {
+          return selectedGroup.id === group.id;
+        });
+      };
+      
       $scope.onSearchCompleted = function (searchResult) {
-        $scope.selectedGroups = [];
         $scope.groupsData = searchResult.data;
+        $scope.selectedGroupsInCurrentPage = _.filter($scope.groupsData.data, function (searchedGroup) {
+          return indexOf($scope.selectedGroups, searchedGroup) >= 0;
+        });
       };
       $scope.searchService = searchServiceFactory('rest/latest/groups/search', false, $scope, $scope.batchSize);
       $scope.searchService.search();
@@ -27,24 +36,39 @@ define(function (require) {
         }
       };
       
+      $scope.search = function (event) {
+        $scope.selectedGroups = [];
+        $scope.searchService.search();
+        event.preventDefault();
+      };
+      
       $scope.toggleSelection = function (group) {
-        var indexOfGroupInSelected = $scope.selectedGroups.indexOf(group);
+        var indexOfGroupInSelected = $scope.selectedGroupsInCurrentPage.indexOf(group);
         if (indexOfGroupInSelected < 0) {
+          $scope.selectedGroupsInCurrentPage.push(group);
           $scope.selectedGroups.push(group);
         } else {
-          $scope.selectedGroups.splice(indexOfGroupInSelected, 1);
+          $scope.selectedGroupsInCurrentPage.splice(indexOfGroupInSelected, 1);
+          _.remove($scope.selectedGroups, function (selectedGroup) {
+            return selectedGroup.id === group.id;
+          });
         }
       };
       
       $scope.isSelected = function (group) {
-        return $scope.selectedGroups.indexOf(group) >= 0;
+        return $scope.selectedGroupsInCurrentPage.indexOf(group) >= 0;
       };
       
       $scope.toggleSelectAll = function () {
-        if ($scope.selectedGroups.length === $scope.groupsData.data.length) {
-          $scope.selectedGroups = [];
+        // Remove anyway all the elements of the current page from the selected list
+        $scope.selectedGroups = _.filter($scope.selectedGroups, function (selectedGroup) {
+          return indexOf($scope.groupsData.data, selectedGroup) < 0;
+        });
+        if ($scope.selectedGroupsInCurrentPage.length === $scope.groupsData.data.length) {
+          $scope.selectedGroupsInCurrentPage = [];
         } else {
-          $scope.selectedGroups = $scope.groupsData.data.slice();
+          $scope.selectedGroupsInCurrentPage = $scope.groupsData.data.slice();
+          $scope.selectedGroups = _.concat($scope.selectedGroups, $scope.selectedGroupsInCurrentPage);
         }
       };
       

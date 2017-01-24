@@ -14,9 +14,18 @@ define(function (require) {
       $scope.batchSize = 5;
       $scope.selectedUsers = [];
       $scope.query = '';
+      
+      var indexOf = function (selectedUsers, user) {
+        return _.findIndex(selectedUsers, function (selectedUser) {
+          return selectedUser.username === user.username;
+        });
+      };
+      
       $scope.onSearchCompleted = function (searchResult) {
-        $scope.selectedUsers = [];
         $scope.usersData = searchResult.data;
+        $scope.selectedUsersInCurrentPage = _.filter($scope.usersData.data, function (searchedUser) {
+          return indexOf($scope.selectedUsers, searchedUser) >= 0;
+        });
       };
       $scope.searchService = searchServiceFactory('rest/latest/users/search', false, $scope, $scope.batchSize);
       $scope.searchService.search();
@@ -27,24 +36,39 @@ define(function (require) {
         }
       };
       
+      $scope.search = function (event) {
+        $scope.selectedUsers = [];
+        $scope.searchService.search();
+        event.preventDefault();
+      };
+      
       $scope.toggleSelection = function (user) {
-        var indexOfUserInSelected = $scope.selectedUsers.indexOf(user);
+        var indexOfUserInSelected = $scope.selectedUsersInCurrentPage.indexOf(user);
         if (indexOfUserInSelected < 0) {
+          $scope.selectedUsersInCurrentPage.push(user);
           $scope.selectedUsers.push(user);
         } else {
-          $scope.selectedUsers.splice(indexOfUserInSelected, 1);
+          $scope.selectedUsersInCurrentPage.splice(indexOfUserInSelected, 1);
+          _.remove($scope.selectedUsers, function (selectedUser) {
+            return selectedUser.username === user.username;
+          });
         }
       };
       
       $scope.isSelected = function (user) {
-        return $scope.selectedUsers.indexOf(user) >= 0;
+        return $scope.selectedUsersInCurrentPage.indexOf(user) >= 0;
       };
       
       $scope.toggleSelectAll = function () {
-        if ($scope.selectedUsers.length === $scope.usersData.data.length) {
-          $scope.selectedUsers = [];
+        // Remove anyway all the elements of the current page from the selected list
+        $scope.selectedUsers = _.filter($scope.selectedUsers, function (selectedUser) {
+          return indexOf($scope.usersData.data, selectedUser) < 0;
+        });
+        if ($scope.selectedUsersInCurrentPage.length === $scope.usersData.data.length) {
+          $scope.selectedUsersInCurrentPage = [];
         } else {
-          $scope.selectedUsers = $scope.usersData.data.slice();
+          $scope.selectedUsersInCurrentPage = $scope.usersData.data.slice();
+          $scope.selectedUsers = _.concat($scope.selectedUsers, $scope.selectedUsersInCurrentPage);
         }
       };
       
