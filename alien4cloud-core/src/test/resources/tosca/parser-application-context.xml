@@ -33,4 +33,9 @@
   <mockito:mock id="csar-service" class="org.alien4cloud.tosca.catalog.index.CsarService"/>
   <mockito:mock id="csar-search-service" class="alien4cloud.component.ICSARRepositorySearchService"/>
   <mockito:mock id="csar-indexer-service" class="org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService"/>
+
+  <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory"/>
+  <bean id="alienconfig" factory-bean="alienconfigFactory" factory-method="get"/>
+  <alias name="alienconfig" alias="elasticsearchConfig"/>
+  <context:property-placeholder properties-ref="alienconfig"/>
 </beans>

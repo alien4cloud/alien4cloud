@@ -96,7 +96,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
                     log.debug("Polled from date {}", lastPollingDate);
                 }
                 if (log.isDebugEnabled() && auditEvents != null && auditEvents.length > 0) {
-                    log.debug("Saving events for orchestrator {}", orchestratorId);
+                    log.debug("Saving {} events for orchestrator {}", auditEvents.length, orchestratorId);
                     for (AbstractMonitorEvent event : auditEvents) {
                         log.debug(event.toString());
                     }

@@ -4,7 +4,7 @@ Feature: Quick Search
     Given I am authenticated with "ADMIN" role
     And There is 10 "node types" indexed in ALIEN
     And There is 10 "relationship types" indexed in ALIEN
-    And I create a new application with name "newApplication" and description "My brand new application."
+    And I create an application with name "newApplication", archive name "newApplication", description "My brand new application." and topology template id "null"
 
   @reset
   Scenario: quick search should return the expected number of result
@@ -16,7 +16,7 @@ Feature: Quick Search
   @reset
   Scenario: quick search should be able to return the both application and node type
     Given There is 15 "node types" indexed in ALIEN with 6 of them having "newApplication-node-type" in the "elementId"
-      And I create a new application with name "newApplication-second" and description "My second brand new application."
+      And I create an application with name "newApplication-second", archive name "newApplicationsecond", description "My second brand new application." and topology template id "null"
     When I quickly search for "newAppli" from 0 with result size of 10
     Then I should receive a RestResponse with no error
       And The quickSearch response should contains 6 "node types"
@@ -26,7 +26,7 @@ Feature: Quick Search
   Scenario: quick search should be able to return only what is authorized for a component browser
     Given I am authenticated with "ADMIN" role
       And There is 15 "node types" indexed in ALIEN with 6 of them having "newApplication-node-type" in the "elementId"
-      And I create a new application with name "newApplication-second" and description "My second brand new application."
+      And I create an application with name "newApplication-second", archive name "newApplicationsecond", description "My second brand new application." and topology template id "null"
     When I authenticate with "COMPONENTS_BROWSER" role
       And I quickly search for "newAppli" from 0 with result size of 10
     Then I should receive a RestResponse with no error
@@ -35,7 +35,7 @@ Feature: Quick Search
   @reset
   Scenario: quick search should be able to return only what user has access (any application roles)
     Given I am authenticated with "APPLICATIONS_MANAGER" role
-      And I create a new application with name "newApplication-second" and description "My second brand new application."
+      And I create an application with name "newApplication-second", archive name "newApplicationsecond", description "My second brand new application." and topology template id "null"
     When I authenticate with "ADMIN" role
       And I quickly search for "newAppli" from 0 with result size of 10
     Then I should receive a RestResponse with no error
@@ -48,7 +48,7 @@ Feature: Quick Search
   @reset
   Scenario: quick search should be able to find applications or components regardless the query word
     Given I am authenticated with "APPLICATIONS_MANAGER" role
-      And I create a new application with name "my.application.NewNode" and description "My application with node keyword type."
+      And I create an application with name "my.application.NewNode", archive name "myapplicationNewNode", description "My application with node keyword type." and topology template id "null"
     When I authenticate with "ADMIN" role
       And I quickly search for "application" from 0 with result size of 10
     Then I should receive a RestResponse with no error

@@ -213,10 +213,10 @@ define(function (require) {
             event.message = {
               template: 'APPLICATIONS.RUNTIME.EVENTS.STORAGE_MESSAGE',
               data: {
-                state: event.instanceState,
                 nodeId: event.nodeTemplateId,
                 instanceId: event.instanceId,
-                volumeId: event.propertyValue
+                volumeId: _.get(event.persistentProperties, 'volume_id'),
+                zone: _.get(event.persistentProperties, 'zone')
               }
             };
             break;

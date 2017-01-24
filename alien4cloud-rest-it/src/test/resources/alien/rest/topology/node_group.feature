@@ -4,7 +4,7 @@ Feature: Manage Nodetemplates of a topology
     Given I am authenticated with "ADMIN" role
     And I upload the archive "tosca base types 1.0"
     And I upload the archive "sample java types 1.0"
-    And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+    And I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     And I add a node template "Compute1" related to the "tosca.nodes.Compute:1.0" node type
     And I add a node template "Compute2" related to the "tosca.nodes.Compute:1.0" node type
 

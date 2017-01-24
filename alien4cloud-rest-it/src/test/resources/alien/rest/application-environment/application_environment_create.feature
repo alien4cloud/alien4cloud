@@ -11,20 +11,20 @@ Feature: Create / Delete operations on application environment
 
   @reset
   Scenario: Create a new application environment for an application
-    Given I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+    Given I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with no error
     And The application should have a user "frodon" having "APPLICATION_MANAGER" role
-    And The RestResponse should contain an id string
+    And I should receive a RestResponse with a string data "watchmiddleearth"
     And the application can be found in ALIEN
     When I create an application environment of type "DEVELOPMENT" with name "watchmiddleearth-env-mock" and description "Mock App Env" for the newly created application
     Then I should receive a RestResponse with no error
 
   @reset
   Scenario: Create a new application environment with a name already used must fail
-    Given I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+    Given I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with no error
     And The application should have a user "frodon" having "APPLICATION_MANAGER" role
-    And The RestResponse should contain an id string
+    And I should receive a RestResponse with a string data "watchmiddleearth"
     And the application can be found in ALIEN
     When I create an application environment of type "DEVELOPMENT" with name "watchmiddleearth-env-mock" and description "Mock App Env" for the newly created application
     Then I should receive a RestResponse with no error
@@ -40,10 +40,10 @@ Feature: Create / Delete operations on application environment
 
   @reset
   Scenario: Get an application environment from its id
-    Given I create a new application with name "watchmiddleearth-1" and description "Use my great eye to find frodo and the ring."
+    Given I create an application with name "watchmiddleearth-1", archive name "watchmiddleearth1", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with no error
     And The application should have a user "frodon" having "APPLICATION_MANAGER" role
-    And The RestResponse should contain an id string
+    And I should receive a RestResponse with a string data "watchmiddleearth1"
     Given I create an application environment of type "DEVELOPMENT" with name "watchmiddleearth-env-mock-get" and description "Mock App Env 1" for the newly created application
     Then I should receive a RestResponse with no error
     And I add a role "DEPLOYMENT_MANAGER" to user "frodon" on the resource type "ENVIRONMENT" named "watchmiddleearth-env-mock-get"
@@ -52,10 +52,10 @@ Feature: Create / Delete operations on application environment
 
   @reset
   Scenario: Delete an application environment from its id
-    Given I create a new application with name "watchmiddleearth-3" and description "Use my great eye to find frodo and the ring."
+    Given I create an application with name "watchmiddleearth-3", archive name "watchmiddleearth3", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with no error
     And The application should have a user "frodon" having "APPLICATION_MANAGER" role
-    And The RestResponse should contain an id string
+    And I should receive a RestResponse with a string data "watchmiddleearth3"
     Given I create an application environment of type "DEVELOPMENT" with name "watchmiddleearth-env-mock-3" and description "Mock App Env 3" for the newly created application
     Then I should receive a RestResponse with no error
     When I delete the registered application environment named "watchmiddleearth-env-mock-3" from its id
@@ -64,7 +64,8 @@ Feature: Create / Delete operations on application environment
 
   @reset
   Scenario: APPLICATION_MANAGER should be able to create/ delete an environment, others can't
-    Given I create a new application with name "watchmiddleearth" and description "..." without errors
+    Given I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "..." and topology template id "null"
+    And I should receive a RestResponse with no error
     And I add a role "APPLICATION_MANAGER" to user "golum" on the resource type "APPLICATION" named "watchmiddleearth"
     And I add a role "APPLICATION_DEVOPS" to user "sauron" on the resource type "APPLICATION" named "watchmiddleearth"
     And I am authenticated with user named "golum"
@@ -78,5 +79,3 @@ Feature: Create / Delete operations on application environment
     When I am authenticated with user named "golum"
     When I delete the registered application environment named "other" from its id
     Then I should receive a RestResponse with no error
-
-

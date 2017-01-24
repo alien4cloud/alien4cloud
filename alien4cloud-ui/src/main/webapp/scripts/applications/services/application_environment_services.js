@@ -21,7 +21,7 @@ define(function (require) {
         var searchRequestObject = {
           'query': '',
           'from': 0,
-          'size': 50
+          'size': 1000
         };
         return this.searchEnvironment({
           applicationId: applicationId

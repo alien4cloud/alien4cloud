@@ -35,8 +35,8 @@ define(function (require) {
       $scope.menu = menu;
       $scope.getShortName = toscaService.simpleName;
       // Manage topology version selection (version is provided as parameter from the template or application)
-      $scope.topologyVersions = archiveVersions.data;
       $scope.versionContext = context;
+      $scope.versionContext.versions = archiveVersions.data;
       // this allow to avoid file edition in the ui-ace.
       $scope.released = false;
       topoEditVersions($scope);

@@ -1,12 +1,10 @@
 package alien4cloud.rest.application.model;
 
-import javax.validation.constraints.NotNull;
-
+import alien4cloud.model.application.EnvironmentType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.model.application.EnvironmentType;
 
 /**
  * DTO to create a new application environment

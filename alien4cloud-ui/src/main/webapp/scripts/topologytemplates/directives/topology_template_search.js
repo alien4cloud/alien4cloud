@@ -16,7 +16,7 @@ define(function (require) {
         onSelect: '&',
         onSelectForClone: '&',
         onSearchConfig: '&',
-        archiveLink: '@',
+        archiveLink: '=',
         defaultFilters: '=',
         staticFacets: '='
       }

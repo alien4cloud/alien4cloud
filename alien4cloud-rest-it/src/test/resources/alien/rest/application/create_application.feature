@@ -1,53 +1,70 @@
-Feature: Creating a new application
+Feature: Application creation
 
   Background:
     Given I am authenticated with "APPLICATIONS_MANAGER" role
 
   @reset
   Scenario: Creating a new application
-    When I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+    When I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with no error
+    And I should receive a RestResponse with a string data "watchmiddleearth"
+    # We should be able to query the application
+    And I get the application with id "watchmiddleearth"
+    And I should receive a RestResponse with no error
     And The application should have a user "applicationManager" having "APPLICATION_MANAGER" role
-    And The RestResponse should contain an id string
-    And the application can be found in ALIEN
+    # We should be able to query the application default version
+    And I get the application version for application "watchmiddleearth" with id "watchmiddleearth:0.1.0-SNAPSHOT"
+    And I should receive a RestResponse with no error
+    # A default application topology version with no qualifier should have been created
+    And The application version should have an application topology version with version "0.1.0-SNAPSHOT"
+    # We should be able to query an empty topology for the default topology version
+    # FIXME And I get the topology with id "watchmiddleearth:0.1.0-SNAPSHOT"
+    # And I should receive a RestResponse with no error
+    # And the topology should be empty
+    # We should be able to query the application default environment
+    And I get all application environments for application "watchmiddleearth"
+    And I should receive a RestResponse with no error
+    And I have 1 environments
+    And Current environment name is "Environment" and version is "0.1.0-SNAPSHOT"
 
   @reset
-  Scenario: Creating a new application with an invalid name should fail
-    When I create a new application with name "watchmiddl///eearth" and description "Use my great eye to find frodo and the ring."
+  Scenario: Creating a new application with no name should fail
+    When I create an application with name "null", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
+    Then I should receive a RestResponse with an error code 501
+
+  @reset
+  Scenario: Creating a new application with empty name should fail
+    When I create an application with name "", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with an error code 618
 
   @reset
-  Scenario: Creating a new application when already exist should fail
-    Given There is a "watchmiddleearth" application
-    When I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+  Scenario: Creating a new application with no archive name should fail
+    When I create an application with name "watchmiddleearth", archive name "null", description "Use my great eye to find frodo and the ring." and topology template id "null"
+    Then I should receive a RestResponse with an error code 501
+
+  @reset
+  Scenario: Creating a new application with empty archive name should fail
+    When I create an application with name "watchmiddleearth", archive name "", description "Use my great eye to find frodo and the ring." and topology template id "null"
+    Then I should receive a RestResponse with an error code 618
+
+  @reset
+  Scenario: Creating a new application with an invalid name should fail
+    When I create an application with name "watchmiddl///eearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
+    Then I should receive a RestResponse with an error code 618
+
+  @reset
+  Scenario: Creating a new application with an invalid archive name should fail
+    When I create an application with name "watchmiddleearth", archive name "watchmiddl///eearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
+    Then I should receive a RestResponse with an error code 618
+
+  @reset
+  Scenario: Creating a new application with an existing name should fail
+    Given I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
+    When I create an application with name "watchmiddleearth", archive name "sauroneye", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with an error code 502
 
   @reset
-  Scenario: Creating a new application whit an already archive name exist should fail
-    Given I upload the archive "snapshot-ter"
-    When I create a new application with name "mordor" and archive name "snapshot-ter"
+  Scenario: Creating a new application with an existing archive name should fail
+    Given I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
+    When I create an application with name "sauroneye", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "null"
     Then I should receive a RestResponse with an error code 615
-
-  @reset
-  Scenario: Searching applications
-    Given There is 20 applications indexed in ALIEN
-    When I search applications from 0 with result size of 20
-    Then I should receive a RestResponse with no error
-    And The RestResponse must contain 20 applications.
-
-  @reset
-  Scenario: Searching applications using pagination
-    Given There is 20 applications indexed in ALIEN
-    And I search applications from 0 with result size of 10
-    When I search applications from 10 with result size of 20
-    Then I should receive a RestResponse with no error
-    And I should be able to view the 10 other applications.
-
-  @reset
-  Scenario: deleting an application
-    And I have applications with names and descriptions
-      | watchmiddleearth | Use my great eye to find frodo and the ring. |
-    When I delete the application "watchmiddleearth"
-    Then I should receive a RestResponse with no error
-    And I should receive a RestResponse with a boolean data "true"
-    And the application should not be found
