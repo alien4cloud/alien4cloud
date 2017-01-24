@@ -1,9 +1,9 @@
 {
   "APPLICATIONS": {
-    "ARCHIVE_NAME": "Nom d'archive (Id)",
-    "ARCHIVE_NAME_HELP": "Le nom de l'archive TOSCA (Cloud Service Archive) liée à l'application. C'est également l'id unique et immutable de l'application.",
     "APPLICATION": "Application",
     "APPLICATION_ROLES": "Rôles d'application",
+    "ARCHIVE_NAME": "Nom d'archive (Id)",
+    "ARCHIVE_NAME_HELP": "Le nom de l'archive TOSCA (Cloud Service Archive) liée à l'application. C'est également l'id unique et immutable de l'application.",
     "DEPLOY": "Déployer",
     "DEPLOYMENT": {
       "DEPLOY": "Déployer",
@@ -58,10 +58,10 @@
       "INFORMATIONS": {
         "APP_NAME": "Nom de l'application",
         "DEPLOYMENT_ID": "ID du déploiement",
-        "ORCHESTRATOR_ID": "ID de l'orchestrateur",
-        "ORCHESTRATOR_NAME": "Nom de l'orchestrateur",
         "LOCATION_ID": "ID de la location",
-        "LOCATION_NAME": "Nom de la location"
+        "LOCATION_NAME": "Nom de la location",
+        "ORCHESTRATOR_ID": "ID de l'orchestrateur",
+        "ORCHESTRATOR_NAME": "Nom de l'orchestrateur"
       },
       "INSTANCE": "Instance",
       "INSTANCES": "Instances",
@@ -83,42 +83,49 @@
     },
     "SHOW_DEPLOYED_APP": "Afficher seulement les applications déployées.",
     "TOPOLOGY": {
-      "PARSING_ERROR": "La topologie n'est pas valide",
-      "ADD_NODETEMPLATE" : "Ajouter un Noeud",
-      "ADD_RELATIONSHIP" : "Ajouter une relation",
-      "CHANGE_RELATIONSHIP": "Changer une relation existante",
-      "ARTIFACTS" : {
-        "ADDINPUT" : "Définir l'artefact comme entrée",
-        "INPUTS" : "Artefacts d'entrée",
-        "TITLE" : "Artefacts"
+      "ADD_NODETEMPLATE": "Ajouter un Noeud",
+      "ADD_RELATIONSHIP": "Ajouter une relation",
+      "ARTIFACTS": {
+        "ADDINPUT": "Définir l'artefact comme entrée",
+        "INPUTS": "Artefacts d'entrée",
+        "TITLE": "Artefacts"
       },
       "CAPABILITY_CARDINALITIES_TOOLTIP": "maximum (restant)",
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
-      "DEPENDENCY": "Dépendances",
+      "CHANGE_RELATIONSHIP": "Changer une relation existante",
       "DEPENDENCIES": {
         "CHANGE_VERSION": {
-          "TITLE": "Modifier la version",
-          "CONFIRM": "Confirmez-vous le changement de version de la dépendance ? Cette opération peut affecter certains nodes et/ou relations dans la topologie."
-        },
-        "INCOMPATIBLE_VERSIONS": {
-          "TITLE": "Conflit de version de dépendances",
-          "CONTENT": "La topologie a déjà une dépendance vers l'archive <{{archiveName}}> version <{{archiveVersion}}>. Vous ne pouvez pas utiliser un composant provenant de cette même archive avec une version différente. Vous pouvez changer la version de la dépendance si vous souhaitez utiliser une version différente."
+          "CONFIRM": "Confirmez-vous le changement de version de la dépendance ? Cette opération peut affecter certains nodes et/ou relations dans la topologie.",
+          "TITLE": "Modifier la version"
         },
         "CONFLICTS": {
-          "TITLE": "Conflits de dépendances transitives :",
           "MESSAGE_FROM": "depuis ",
           "MESSAGE_VERSION": " en version ",
           "RESOLVED": "résolu en ",
+          "TITLE": "Conflits de dépendances transitives :",
           "WARNING": "Les conflits de dépendances transitives peuvent entrainer des incompatibilités."
+        },
+        "INCOMPATIBLE_VERSIONS": {
+          "CONTENT": "La topologie a déjà une dépendance vers l'archive <{{archiveName}}> version <{{archiveVersion}}>. Vous ne pouvez pas utiliser un composant provenant de cette même archive avec une version différente. Vous pouvez changer la version de la dépendance si vous souhaitez utiliser une version différente.",
+          "TITLE": "Conflit de version de dépendances"
         }
       },
+      "DEPENDENCY": "Dépendances",
       "DESC_TEMPLATE": "Description du modèle",
+      "EDITOR": "Visual Editor",
+      "FILES": "Archive content browser",
       "GROUPS": {
         "ADD": "Ajouter un groupe",
         "MEMBERS": "Membres",
         "POLICIES": "Politiques",
         "TOOLTIP": "Gestion des groupes"
       },
+      "INIT_FROM": "Initialiser les topologies depuis",
+      "INIT_FROM_SCRATCH": "Scratch",
+      "INIT_FROM_SCRATCH_TXT": "Créé une nouvelle topologie vide.",
+      "INIT_FROM_TEMPLATE_TXT": "Initialise la topologie depuis un template de topologie dans le catalogue.",
+      "INIT_FROM_VERSION": "Version précédente",
+      "INIT_FROM_VERSION_TXT": "Initialise la (ou les) topologie(s) depuis une version précédente.",
       "INPUTS": {
         "ADD": "Ajouter aux Propriétés d'entrée",
         "CONSTRAINT": "Contrainte"
@@ -128,9 +135,29 @@
       "NODE_INFO": "Noeud sélectionné",
       "NO_OUTPUTS": "Aucune propriété ou attribut en sortie",
       "ORCHESTRATOR_PROPERTIES": "Propriétés de l'orchestrateur",
+      "PARSING_ERROR": "La topologie n'est pas valide",
       "PLAN": "Workflow",
       "PROPERTIES_INPUTS": "Propriétés d'entrée",
       "PROPERTIES_OUTPUTS": "Propriétés de sortie",
+      "RECOVERY": {
+        "CHOICE_ASK": "Que souhaitez vous faire de la topologie ?",
+        "DESCRIPTION": "Les dépendences suivantes de la topologie ont été modifiées:",
+        "DISMISS": "Abandonner",
+        "ERRORS": {
+          "RELEASED": "Une ou plusieurs dépendances snapshots de la topologie ont été changées, par contre votre topologie a été déjà releasée. Les changements des dépendances SNAPSHOT pourraient générer des conflits dans la topologie actuelle, que Alien4Cloud ne pourrait pas résoudre automatiquement. La version actuelle interdit l'upload des archives releasés qui ont des dépendances SNAPSHOT. Vous devez soit supprimer la topologie actuelle (et le ré-uploader après l'avoir corrigé en dehors de Alien4Cloud) ou continuer de travailler avec (avec le risque que le déploiement de la topologie va échouer dû aux changements dans les dépendences SNAPSHOT)"
+        },
+        "ERRORS_TITLE": "Des erreurs empêche la réconcilliation de la topologie",
+        "RECOVER": {
+          "DESCRIPTION": "Essayer de réparer la topologie en applicquant les opérations ci dessous. Notez que la topologie sera sauvegardée.",
+          "TITLE": "Réparation de topology"
+        },
+        "RESET": {
+          "DESCRIPTION": "Tout supprimer de la topologie, la laissant vide.",
+          "TITLE": "Réinitialiser"
+        },
+        "SUCCESS_MSGE": "Topologie mise à jour!!",
+        "TITLE": "Dépendences de topologie modifées"
+      },
       "REFERENCE": "Référence",
       "RELATIONSHIPS": "Relations",
       "REPLACE_NODETEMPLATE": "Remplacer",
@@ -152,32 +179,24 @@
         "REQUIREMENTS": "Pré-requis",
         "TITLE": "Substitutions"
       },
-      "RECOVERY": {
-        "TITLE": "Dépendences de topologie modifées",
-        "ERRORS_TITLE": "Des erreurs empêche la réconcilliation de la topologie",
-        "ERRORS": {
-          "RELEASED": "Une ou plusieurs dépendances snapshots de la topologie ont été changées, par contre votre topologie a été déjà releasée. Les changements des dépendances SNAPSHOT pourraient générer des conflits dans la topologie actuelle, que Alien4Cloud ne pourrait pas résoudre automatiquement. La version actuelle interdit l'upload des archives releasés qui ont des dépendances SNAPSHOT. Vous devez soit supprimer la topologie actuelle (et le ré-uploader après l'avoir corrigé en dehors de Alien4Cloud) ou continuer de travailler avec (avec le risque que le déploiement de la topologie va échouer dû aux changements dans les dépendences SNAPSHOT)"
-        },
-        "DISMISS": "Abandonner",
-        "DESCRIPTION": "Les dépendences suivantes de la topologie ont été modifiées:",
-        "CHOICE_ASK": "Que souhaitez vous faire de la topologie ?",
-        "RECOVER": {
-          "TITLE": "Réparation de topology",
-          "DESCRIPTION": "Essayer de réparer la topologie en applicquant les opérations ci dessous. Notez que la topologie sera sauvegardée."
-        },
-        "RESET": {
-          "TITLE": "Réinitialiser",
-          "DESCRIPTION": "Tout supprimer de la topologie, la laissant vide."
-        },
-        "SUCCESS_MSGE": "Topologie mise à jour!!"
-      },
       "TASK": {
+        "ARTIFACT": {
+          "ERROR": "Erreur",
+          "ERRORS": {
+            "MISSING": "Manquant"
+          },
+          "LABEL": "Artifact",
+          "NODE": "Noeud"
+        },
         "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds",
         "EMPTY_TOPOLOGY_MESSAGE": "La topologie actuelle est vide. Ajoutez y des noeuds",
         "ERRORS_LABEL": "Erreurs",
         "GO_TO_VALIDATION": "Aller sur la page de validation de topology",
         "IMPLEMENT": "Implémenter les noeuds",
         "IMPLEMENT_LABEL": "A implémenter",
+        "INPUT_ARTIFACT": {
+          "LABEL": "Input artifact"
+        },
         "LABEL": "La topologie n'est pas valide :",
         "NODE_FILTER": {
           "CAPABILITY_MISSING_ERROR": "La cible de posséde pas cette capacité",
@@ -211,9 +230,9 @@
         }
       },
       "TEMPLATE_BASE": "Modèle de template",
-      "TEMPLATE_VERSION": "Version de template",
       "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
       "TEMPLATE_SELECT_VERSION": "-- Sélectionner une version de modèle --",
+      "TEMPLATE_VERSION": "Version de template",
       "UPDATE_ARTIFACT": "Mettre à jour l'artefact",
       "VISUAL_DETAILED": "vue détaillée",
       "WARNING": {
@@ -231,14 +250,22 @@
     },
     "UNDEPLOY": "Désinstaller",
     "VERSION": {
+      "LABEL": "Version d'application",
       "MODAL": {
-        "DESC": "Sélectionnez une ancienne version pour dupliquer sa topologie",
         "PATTERN": "Le format du numéro de version est invalide.",
-        "SELECT-TITLE": "Topologie"
+        "PREVIOUS_TOPO_VERSION": "Version de topologie précédente",
+        "PREVIOUS_VERION": "Version précédente",
+        "SELECT_PREVIOUS": "Selectionner une version pour dupliquer sa topologie",
+        "TITLE": "Nouvelle version",
+        "VERSION": "Version "
       },
       "NEW": "Créer une nouvelle version",
-      "TITLE": "Nouvelle version",
-      "VERSION": "Numéro de version"
+      "TOPOLOGY": {
+        "LABEL": "Version de topologie",
+        "NEW": "Créer une nouvelle version de topologie",
+        "QUALIFIER": "Qualifier",
+        "TITLE": "Nouvelle topologie pour la version de l'application"
+      }
     },
     "WF": {
       "DelegateWorkflowActivity": "Workflow sous-traité",
@@ -285,6 +312,7 @@
     "COLUMNS": {
       "ACTION": "Opération",
       "ACTIONDESCRIPTION": "Description",
+      "ALIEN4CLOUDUI": "Alien4Cloud UI",
       "CATEGORY": "Catégorie",
       "METHOD": "Méthode",
       "PATH": "Appel",
@@ -293,13 +321,12 @@
       "RESPONSESTATUS": "Code réponse",
       "SOURCEIP": "IP source",
       "TIMESTAMP": "Date",
+      "USERAGENT": "User-Agent",
       "USEREMAIL": "Email",
       "USERFIRSTNAME": "Prénom",
       "USERLASTNAME": "Nom",
       "USERNAME": "Identifiant",
-      "VERSION": "API Version",
-      "USERAGENT": "User-Agent",
-      "ALIEN4CLOUDUI": "Alien4Cloud UI"
+      "VERSION": "API Version"
     },
     "CONFIGURATION": {
       "ACTION_NAME": "Nom de l'action",
@@ -317,8 +344,6 @@
   "CANCEL": "Annuler",
   "CANCELLED": "Annulé",
   "CLOSE": "Fermer",
-  "OK": "OK",
-  "SELECT": "Selectionner",
   "CLOUDS": {
     "ADMINISTRATION": {
       "DRIVER": {
@@ -389,7 +414,6 @@
     "YES": "Oui"
   },
   "COMPONENTS": {
-    "VALIDSOURCES": "Sources valides",
     "ABSTRACT": "Composant abstrait",
     "ACTIVE_FILTERS": "Filtres actifs",
     "ARCHIVE": "Archive",
@@ -412,9 +436,9 @@
       "OK": "Remplacer"
     },
     "CSAR": {
-      "TITLE": "CSARS",
       "ACTIVE_FILTERS": "Filtre actifs",
       "TEMPLATEAUTHOR": "Auteur",
+      "TITLE": "CSARS",
       "WORKSPACE": "Workspace"
     },
     "DEFAULTCAPABILITIES": "Capacités défaut",
@@ -435,44 +459,45 @@
       "300": "Erreur inattendue lors de l'écriture du plugin.",
       "353": "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml.",
       "ALIEN_MAPPING_ERROR": "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
-      "CSAR_ALREADY_INDEXED": "Une archive a déjà été indexé dans Alien4Cloud avec le même contenu.",
-      "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "Un CSAR avec le même nom et la même version existe déjà dans Alien.",
-      "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT": "La dépendance transitive [{{problem}}] est en conflit avec la dépendance directe [{{context}}]. Le conflit a été résolu en utilisant la version [{{note}}] de la dépendance directe.",
-      "DEPENDENCY_VERSION_CONFLICT": "La dependence [{{problem}}] est en conflit avec la dépendance [{{context}}]. Le conflit a été résolu en utilisant la version la plus récente.",
-      "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "La dépendance [ {{note}} ] n'est pas visible depuis le workspace cible",
       "CSAR_ALREADY_EXISTS": "Une archive releasée ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
+      "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "Un CSAR avec le même nom et la même version existe déjà dans Alien.",
+      "CSAR_ALREADY_INDEXED": "Une archive a déjà été indexé dans Alien4Cloud avec le même contenu.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "Une topologie ayant une dépendence vers une archive de ce nom et cette version est déployée. Afin de garantir la stabilité des déploiements, cette archive ne peut être modifiée.",
-      "TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR": "Une archive ne peut pas écraser un type Tosca issue d'une autre archive : {{problem}}",
+      "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "La dépendance [ {{note}} ] n'est pas visible depuis le workspace cible",
+      "DEPENDENCY_VERSION_CONFLICT": "La dependence [{{problem}}] est en conflit avec la dépendance [{{context}}]. Le conflit a été résolu en utilisant la version la plus récente.",
       "DUPLICATED_ELEMENT_DECLARATION": "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
       "ENTRY_DEFINITION_NOT_FOUND": "Le fichier de définitions n'a pas été trouvé. Le fichier de définitions yaml doit se trouver à la racine de l'archive",
       "ERRONEOUS_ARCHIVE_FILE": "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",
       "FAILED_TO_READ_FILE": "Impossible de lire le fichier à l'emplacement suivant {{note}}",
       "FILE_PATH": "Fichier",
+      "INVALID_ARTIFACT_REFERENCE": "Référence d'artifact invalide {{note}}",
       "INVALID_ICON_FORMAT": "L'icône n'est pas un fichier d'image supporté",
       "INVALID_NAME": "Nom de {{context}} [ {{problem}} ] incorrect, renommé en [ {{note}} ].",
       "INVALID_SCALAR_UNIT": "Le type attendu est un Tosca scalar unit. L'unité et la valeur sont nécessaire.",
       "INVALID_YAML": "Le fichier reférencé n'est pas conforme au format YAML.",
       "LABEL": "Erreurs",
       "MISSING_DEPENDENCY": "La dépendance [{{note}}] est introuvable dans le repository Alien4Cloud.",
-      "SNAPSHOT_DEPENDENCY": "Une dépendence snapshot [{{note}}] n'est pas autorisée dans une archive releasée.",
       "MISSING_FILE": "Le fichier référencé {{note}} n'existe pas dans l'archive.",
       "MISSING_TOPOLOGY_INPUT": "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs",
       "MISSING_TOSCA_VERSION": "La version de TOSCA n'est pas spécifiée et est obligatoire.",
-      "UNKNOWN_TOSCA_VERSION": "La version de TOSCA spécifiée n'est pas reconnue par Alien4Cloud",
-      "TOSCA_VERSION_NOT_FIRST": "La version de TOSCA doit-être la première ligne du document TOSCA.",
       "NotNull": "La propriété [ {{path}} ] n'est pas nullable",
       "OUTPUTS_BAD_PARAMS_COUNT": "Le nombre d'arguments pour la fonction est incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION": "La fonction [{{note}}] est inconnue dans ce contexte",
+      "POTENTIAL_BAD_PROPERTY_VALUE": "Possibilité d'erreur typographique: {{note}}.",
       "RELATIONSHIP_NOT_BUILT": "La relationship correspondant au requirement [{{note}}] n'a pas pu être contruite (consultez les erreurs).",
       "REQUIREMENT_CAPABILITY_NOT_FOUND": "La capacité correspondant au requirement [{{note}}] n'a pas pu être identifée.",
       "REQUIREMENT_NOT_FOUND": "La définition du requirement [{{note}}] est introuvable.",
       "REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED": "Le nom du node_template est requis pour la définition d'un requirement, il doit être définit en tant que valeur d'un noeud 'node'.",
       "REQUIREMENT_TARGET_NOT_FOUND": "La cible du requirement [{{note}}] n'exite pas.",
       "SINGLE_DEFINITION_SUPPORTED": "Alien4Cloud ne supporte actuellement qu'un unique fichier de definitions.",
+      "SNAPSHOT_DEPENDENCY": "Une dépendence snapshot [{{note}}] n'est pas autorisée dans une archive releasée.",
       "SYNTAX_ERROR": "Erreur de syntaxe. La définition Yaml pour le type {{note}} ne correspond pas à la spécification.",
       "Size": "La taille de la propriété [ {{path}} ] ne statisfait pas la contrainte (vide)",
       "TOPOLOGY_DETECTED": "Un modèle de topologie à été détecté dans l'archive et créé avec le nom : {{note}}",
       "TOPOLOGY_UPDATED": "Un modèle de topologie à été détecté dans l'archive et mis à jour : {{note}}",
+      "TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR": "Une archive ne peut pas écraser un type Tosca issue d'une autre archive : {{problem}}",
+      "TOSCA_VERSION_NOT_FIRST": "La version de TOSCA doit-être la première ligne du document TOSCA.",
+      "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT": "La dépendance transitive [{{problem}}] est en conflit avec la dépendance directe [{{context}}]. Le conflit a été résolu en utilisant la version [{{note}}] de la dépendance directe.",
       "TYPE_NOT_FOUND": "Le type [ {{note}} ] référencé n'existe ni dans l'archive ni dans ses dépendances. Veuillez valider les imports de dépendances ou ajouter le type à votre archive.",
       "ToscaPropertyConstraint": "La contrainte [ {{path}} ] n'est pas correctement définie ou ne peut-être appliquée sur la propriété (type).",
       "ToscaPropertyConstraintDuplicate": "La contrainte [ {{path}} ] est déjà présente. Une même contrainte ne peut-être définie plusieurs fois.",
@@ -482,18 +507,20 @@
       "UNKNOWN_CAPABILITY": "La capabilié [{{note}}] est inconnue pour ce node.",
       "UNKNOWN_CONSTRAINT": "La contrainte [{{note}}] n'est pas une contrainte valide.",
       "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Impossible de trouver un type d'artifact pour l'extension [ {{note}} ]. Le script ne sera pas supporté.",
+      "UNKNOWN_TOSCA_VERSION": "La version de TOSCA spécifiée n'est pas reconnue par Alien4Cloud",
       "UNKNWON_DISCRIMINATOR_KEY": "La clef {{note}} est inconnue.",
       "UNKNWON_WORKFLOW_STEP": "Le pas de workflow [{{note}}] n'existe pas et est ignoré",
       "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré",
       "UNKOWN_GROUP_POLICY": "La politique de groupe [{{note}}] n'est pas gérée",
       "UNRECOGNIZED_PROPERTY": "La propriété [ {{note}} ] est inconnue et a été ignorée.",
+      "UNRESOLVED_ARTIFACT": "L'artifact {{note}} ne peut être résolu",
       "VALIDATION_ERROR": "Le type déclaré n'est pas valide: {{context | translate:note}}",
       "WORKFLOW_HAS_ERRORS": "Le workflow [{{note}}] n'est pas valide",
-      "POTENTIAL_BAD_PROPERTY_VALUE": "Possibilité d'erreur typographique: {{note}}.",
       "YAML_MAPPING_NODE_EXPECTED": "Un noeud de type mapping est attendu.",
       "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici.",
       "YAML_SEQUENCE_EXPECTED": "Une séquence YAML est attendu."
     },
+    "VALIDSOURCES": "Sources valides",
     "WORKSPACE": "Workspaces"
   },
   "CONFIRM": "Confirmer",
@@ -501,15 +528,24 @@
   "CONSTRAINT": {
     "EQUAL": "Egal",
     "GREATER_OR_EQUAL": "Plus grand ou égal",
-    "LESS_OR_EQUAL": "Plus petit ou égal",
     "GREATER_THAN": "Plus grand que",
-    "LESS_THAN": "Plus petit que",
     "IN_RANGE": "Borné",
     "LENGTH": "Longeur égal",
-    "MIN_LENGTH": "Longeur minimum",
+    "LESS_OR_EQUAL": "Plus petit ou égal",
+    "LESS_THAN": "Plus petit que",
     "MAX_LENGTH": "Longeur maximum",
+    "MIN_LENGTH": "Longeur minimum",
     "PATTERN": "Pattern",
     "VALID_VALUES": "Valeurs valides"
+  },
+  "CONSTRAINTS": {
+    "VALIDATION": {
+      "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "La valeur par défaut n'est pas valide par rapport aux contraintes déclarées dans le type",
+      "DEFAULT_VALUE_TYPE": "La valeur par défaut n'est pas valide par rapport au type de la propriété",
+      "DUPLICATED_CONSTRAINT": "Contraintes de même type ont été détectées dans la propriété",
+      "ROOT": "La contrainte n'est pas valide",
+      "TYPE": "La valeur définie dans la contrainte n'est pas valid par rapport au type de la propriété"
+    }
   },
   "CREATE": "Créer",
   "CREATION_DATE": "Date de création",
@@ -566,9 +602,9 @@
   "DEPLOYMENT": {
     "STATUS": {
       "DEPLOYED": "Déployé",
-      "INIT_DEPLOYMENT": "Initialisation du déploiement",
       "DEPLOYMENT_IN_PROGRESS": "Déploiement en cours",
       "FAILURE": "Echec",
+      "INIT_DEPLOYMENT": "Initialisation du déploiement",
       "UNDEPLOYED": "Désinstallé",
       "UNDEPLOYMENT_IN_PROGRESS": "Désinstallation en cours",
       "UNKNOWN": "Inconnu",
@@ -580,76 +616,76 @@
     }
   },
   "DETAILS": "Détails",
+  "EDITOR": {
+    "ARTIFACTS": {
+      "REPOS": {
+        "ARCHIVE_REPOSITORIES": "Dépôt d'archive",
+        "FILE": "Fichier",
+        "GLOBAL_REPOSITORIES": "Dépôt global",
+        "ID": "Identifiant",
+        "LOCAL": "Local",
+        "MUST_BE_UNIQUE": "L'identifiant de repository doit être unique pour cette archive",
+        "NEW_REPOSITORY": "Nouveau dépôt",
+        "REMOTE": "Distant",
+        "TYPE": "Type",
+        "URL": "URL"
+      },
+      "REPOSITORY": "Dépôt",
+      "SELECT": "Selectionner un artefact"
+    },
+    "ASK_SAVE": {
+      "MESSAGE": "Voulez vous sauvegarder les changements avant de quitter l'éditeur ?",
+      "TITLE": "Changements non sauvegardés"
+    },
+    "DO_NOT_SAVE": "Ignorer",
+    "EMPTY_GIT_HISTORY": "L'historique git est vide, vous devez sauver la topologie.",
+    "GIT": {
+      "MODAL": {
+        "PASSWORD": "Mot de passe",
+        "PULL": "Récupérer du dépôt git",
+        "PUSH": "Envoyer vers le dépôt git",
+        "REMOTE": "Configuration du dépôt git",
+        "REMOTE_BRANCH": "Branche",
+        "REMOTE_BRANCH_VALUE": "Branche Distante (défaut: 'master')",
+        "URL": "URL",
+        "URL_VALUE": "https://...",
+        "USERNAME": "Identifiant"
+      },
+      "OPERATIONS": {
+        "PULL": {
+          "SUCCESS_MSGE": "Récupération depuis le dépôt git terminée avec succès.",
+          "TITLE": "Opération de récupération depuis le dépôt git"
+        },
+        "PUSH": {
+          "SUCCESS_MSGE": "Envoi vers le dépôt git terminé avec succès.",
+          "TITLE": "Opération d'envoi vers le dépôt git push"
+        }
+      },
+      "PULL": "Récupérer",
+      "PUSH": "Envoyer",
+      "REMOTE": "Dépôt"
+    },
+    "GIT_HISTORY": "Historique git",
+    "MENU_FILES": "Fichiers de l'archive",
+    "MENU_HISTORY": "Historique",
+    "MENU_TOPOLOGY": "Topologie",
+    "MENU_VALIDATION": "Validation de la topologie",
+    "MENU_WORKFLOW": "Workflows",
+    "OPERATION": "Operation",
+    "REDO": "Rejouer",
+    "SAVE": "Sauver",
+    "UNDO": "Annuler",
+    "VALIDATION": {
+      "CURRENT_TOPOLOGY": "Topologie courante",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "La topologie actuelle n'a pas changé.",
+      "LAST_SAVED_TOPOLOGY": "Dernière topologie enregistrée"
+    }
+  },
   "EDIT_RIGHTS": {
     "EDIT_ROLE_ENV": "Editer les roles sur l'environnement",
     "EDIT_ROLE_HEADER_ENV": "Ajouter ou retirer des roles à l'environnement",
     "EDIT_ROLE_HEADER_RESOURCE": "Ajouter ou retirer des roles à la ressource",
     "EDIT_ROLE_RESOURCE": "Editer les roles sur la ressource"
-  },
-  "EDITOR": {
-    "SAVE": "Sauver",
-    "DO_NOT_SAVE": "Ignorer",
-    "ASK_SAVE": {
-      "TITLE": "Changements non sauvegardés",
-      "MESSAGE": "Voulez vous sauvegarder les changements avant de quitter l'éditeur ?"
-    },
-    "UNDO": "Annuler",
-    "REDO": "Rejouer",
-    "OPERATION": "Operation",
-    "GIT_HISTORY": "Historique git",
-    "EMPTY_GIT_HISTORY": "L'historique git est vide, vous devez sauver la topologie.",
-    "MENU_TOPOLOGY": "Topologie",
-    "MENU_WORKFLOW": "Workflows",
-    "MENU_FILES": "Fichiers de l'archive",
-    "MENU_VALIDATION": "Validation de la topologie",
-    "MENU_HISTORY": "Historique",
-    "GIT": {
-      "MODAL": {
-        "REMOTE": "Configuration du dépôt git",
-        "PUSH": "Envoyer vers le dépôt git",
-        "PULL": "Récupérer du dépôt git",
-        "URL": "URL",
-        "URL_VALUE": "https://...",
-        "REMOTE_BRANCH": "Branche",
-        "REMOTE_BRANCH_VALUE": "Branche Distante (défaut: 'master')",
-        "USERNAME": "Identifiant",
-        "PASSWORD": "Mot de passe"
-      },
-      "REMOTE": "Dépôt",
-      "PUSH": "Envoyer",
-      "PULL": "Récupérer",
-      "OPERATIONS": {
-        "PULL": {
-          "TITLE": "Opération de récupération depuis le dépôt git",
-          "SUCCESS_MSGE": "Récupération depuis le dépôt git terminée avec succès."
-        },
-        "PUSH": {
-          "TITLE": "Opération d'envoi vers le dépôt git push",
-          "SUCCESS_MSGE": "Envoi vers le dépôt git terminé avec succès."
-        }
-      }
-    },
-    "VALIDATION": {
-      "CURRENT_TOPOLOGY": "Topologie courante",
-      "CURRENT_TOPOLOGY_NO_OPERATIONS": "La topologie actuelle n'a pas changé.",
-      "LAST_SAVED_TOPOLOGY": "Dernière topologie enregistrée"
-    },
-    "ARTIFACTS": {
-      "SELECT": "Selectionner un artefact",
-      "REPOSITORY": "Dépôt",
-      "REPOS": {
-        "LOCAL": "Local",
-        "REMOTE": "Distant",
-        "ARCHIVE_REPOSITORIES": "Dépôt d'archive",
-        "GLOBAL_REPOSITORIES": "Dépôt global",
-        "NEW_REPOSITORY": "Nouveau dépôt",
-        "ID": "Identifiant",
-        "MUST_BE_UNIQUE": "L'identifiant de repository doit être unique pour cette archive",
-        "URL": "URL",
-        "TYPE": "Type",
-        "FILE": "Fichier"
-      }
-    }
   },
   "END_DATE": "Date de fin",
   "ENVIRONMENT_TYPE": {
@@ -827,6 +863,8 @@
     "MENU_REPOSITORIES": "Dépôts d'artefacts",
     "MENU_TOPOLOGY_TEMPLATE": "Modèles de topologie"
   },
+  "NEXT": "Suivant",
+  "OK": "OK",
   "OPTIONAL": "Optionnel",
   "ORCHESTRATORS": {
     "ARTIFACTS": {
@@ -869,10 +907,13 @@
     "STATES": {
       "CONNECTED": "Connecté",
       "CONNECTING": "Connection en cours",
-      "DISABLING": "Désactivation en cours",
       "DISABLED": "Désactivé",
+      "DISABLING": "Désactivation en cours",
       "DISCONNECTED": "Déconnecté"
     }
+  },
+  "PAGINATION": {
+    "OVERFLOW": "Le nombre de résultat dépasse le nombre maxium supporté par Alien4Cloud, merci d'utiliser le champs de recherche."
   },
   "PLACE_HOLDER_NO": "Pas de ",
   "PLUGINS": {
@@ -891,8 +932,8 @@
   "PROPERTY_RESET": "Réinitialiser à la valeur par défaut",
   "PROPERTY_SUGGESTION": {
     "MODAL": {
-      "TITLE": "Nouvelle valeur détectée",
       "DESCRIPTION": "La valeur que vous avez saisie n'est pas enregistrée dans le système.",
+      "TITLE": "Nouvelle valeur détectée",
       "USE": "Utiliser ",
       "USE_YOUR_VALUE": " et l'ajouter aux valeur de suggestion"
     }
@@ -900,14 +941,15 @@
   "REPOSITORY": {
     "ACTIVE_FILTERS": "Filtres actifs",
     "ADD": "Nouveau dépôt",
-    "PLUGINS_NOT_FOUND": "Aucun plugin résolveur trouvé",
     "CONFIGURATION": "Configuration",
+    "PLUGINS_NOT_FOUND": "Aucun plugin résolveur trouvé",
     "REPOSITORYTYPE": "Type"
   },
   "REQUIRED": "Obligatoire",
   "ROLE_TABS": {
     "USERS": "Utilisateurs"
   },
+  "SELECT": "Selectionner",
   "START_DATE": "Date de début",
   "STATES": {
     "available": "Disponible",
@@ -940,9 +982,9 @@
     },
     "DUPLICATE": "Dupliquer la topology",
     "NEW": "Nouveau Modèle",
-    "REMOVE_TOOLTIP": "Supprimer le modèle",
+    "REMOVE_CONTENT": "Tous les modèles de topologie sont liés à une archive. En la supprimant vous supprimerai les deux.",
     "REMOVE_TITLE": "Comment supprimer le modèle de topologie ?",
-    "REMOVE_CONTENT": "Tous les modèles de topologie sont liés à une archive. En la supprimant vous supprimerai les deux."
+    "REMOVE_TOOLTIP": "Supprimer le modèle"
   },
   "TRUE": "Vrai",
   "UPDATE_DATE": "Date de mise à jour",
@@ -1017,17 +1059,5 @@
     "refresh.button": "Rafraichir",
     "title": "Métriques d'Alien4Cloud"
   },
-  "operations": "Opérations",
-  "CONSTRAINTS": {
-    "VALIDATION": {
-      "TYPE": "La valeur définie dans la contrainte n'est pas valid par rapport au type de la propriété",
-      "DEFAULT_VALUE_TYPE": "La valeur par défaut n'est pas valide par rapport au type de la propriété",
-      "ROOT": "La contrainte n'est pas valide",
-      "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "La valeur par défaut n'est pas valide par rapport aux contraintes déclarées dans le type",
-      "DUPLICATED_CONSTRAINT": "Contraintes de même type ont été détectées dans la propriété"
-    }
-  },
-  "PAGINATION": {
-    "OVERFLOW": "Le nombre de résultat dépasse le nombre maxium supporté par Alien4Cloud, merci d'utiliser le champs de recherche."
-  }
+  "operations": "Opérations"
 }

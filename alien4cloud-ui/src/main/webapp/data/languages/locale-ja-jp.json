@@ -1,9 +1,9 @@
 {
   "APPLICATIONS": {
-    "ARCHIVE_NAME": "Archive name (Id)",
-    "ARCHIVE_NAME_HELP": "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
     "APPLICATION": "アプリケーション",
     "APPLICATION_ROLES": "アプリケーションロール",
+    "ARCHIVE_NAME": "Archive name (Id)",
+    "ARCHIVE_NAME_HELP": "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
     "DEPLOY": "デプロイ",
     "DEPLOYMENT": {
       "DEPLOY": "デプロイ",
@@ -58,10 +58,10 @@
       "INFORMATIONS": {
         "APP_NAME": "アプリケーション名",
         "DEPLOYMENT_ID": "デプロイID",
-        "ORCHESTRATOR_ID": "Orchestrator ID",
-        "ORCHESTRATOR_NAME": "Orchestrator name",
         "LOCATION_ID": "Location ID",
-        "LOCATION_NAME": "Location name"
+        "LOCATION_NAME": "Location name",
+        "ORCHESTRATOR_ID": "Orchestrator ID",
+        "ORCHESTRATOR_NAME": "Orchestrator name"
       },
       "INSTANCE": "インスタンス",
       "INSTANCES": "インスタンス",
@@ -83,42 +83,49 @@
     },
     "SHOW_DEPLOYED_APP": "Only show deployed applications.",
     "TOPOLOGY": {
-      "PARSING_ERROR": "Topology is not valid",
-      "ADD_NODETEMPLATE" : "ノードテンプレートの追加",
-      "ADD_RELATIONSHIP" : "他ノードとの関連追加",
-      "CHANGE_RELATIONSHIP": "Change an existing relationship",
-      "ARTIFACTS" : {
-        "ADDINPUT" : "アーティファクト入力の定義",
-        "INPUTS" : "アーティファクトの入力",
-        "TITLE" : "アーティファクト"
+      "ADD_NODETEMPLATE": "ノードテンプレートの追加",
+      "ADD_RELATIONSHIP": "他ノードとの関連追加",
+      "ARTIFACTS": {
+        "ADDINPUT": "アーティファクト入力の定義",
+        "INPUTS": "アーティファクトの入力",
+        "TITLE": "アーティファクト"
       },
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
-      "DEPENDENCY": "依存関係",
+      "CHANGE_RELATIONSHIP": "Change an existing relationship",
       "DEPENDENCIES": {
         "CHANGE_VERSION": {
-          "TITLE": "Change version",
-          "CONFIRM": "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology."
-        },
-        "INCOMPATIBLE_VERSIONS": {
-          "TITLE": "Dependency version conflict",
-          "CONTENT": "The topology has already a dependency to the archive <{{archiveName}}> version <{{archiveVersion}}>. You can not use a component from the same archive with a different version. Please upgrade or downgrade the topology dependency if you want to use a different version."
+          "CONFIRM": "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology.",
+          "TITLE": "Change version"
         },
         "CONFLICTS": {
-          "TITLE": "Transitive dependency conflicts",
           "MESSAGE_FROM": "from ",
           "MESSAGE_VERSION": " in version ",
           "RESOLVED": "resolved to ",
+          "TITLE": "Transitive dependency conflicts",
           "WARNING": "Transitive dependency conflicts may cause incompatibility issues."
+        },
+        "INCOMPATIBLE_VERSIONS": {
+          "CONTENT": "The topology has already a dependency to the archive <{{archiveName}}> version <{{archiveVersion}}>. You can not use a component from the same archive with a different version. Please upgrade or downgrade the topology dependency if you want to use a different version.",
+          "TITLE": "Dependency version conflict"
         }
       },
+      "DEPENDENCY": "依存関係",
       "DESC_TEMPLATE": "トポロジテンプレートの説明",
+      "EDITOR": "Visual Editor",
+      "FILES": "Archive content browser",
       "GROUPS": {
         "ADD": "グループの追加",
         "MEMBERS": "メンバー",
         "POLICIES": "ポリシー",
         "TOOLTIP": "グループの管理"
       },
+      "INIT_FROM": "Initialize topology from",
+      "INIT_FROM_SCRATCH": "Scratch",
+      "INIT_FROM_SCRATCH_TXT": "Creates a single new empty topology version.",
+      "INIT_FROM_TEMPLATE_TXT": "Creates a single topology based on the selected topology template.",
+      "INIT_FROM_VERSION": "Previous version",
+      "INIT_FROM_VERSION_TXT": "Creates a new version by making a copy of every topologies defined in the given version (with the same qualifiers but new version number).",
       "INPUTS": {
         "ADD": "入力の追加",
         "CONSTRAINT": "制約"
@@ -128,27 +135,28 @@
       "NODE_INFO": "選択ノード",
       "NO_OUTPUTS": "プロパティ、属性の出力なし",
       "ORCHESTRATOR_PROPERTIES": "オーケストレータのプロパティ",
+      "PARSING_ERROR": "Topology is not valid",
       "PLAN": "Workflow",
       "PROPERTIES_INPUTS": "プロパティの入力",
       "PROPERTIES_OUTPUTS": "プロパティ出力",
       "RECOVERY": {
-        "TITLE": "Topology recovery",
-        "ERRORS_TITLE": "There are errors which prevent the topology from being recovered",
+        "CHOICE_ASK": "What would you like to do with the topology ?",
+        "DESCRIPTION": "The following topology's dependencies have been updated:",
+        "DISMISS": "Dismiss",
         "ERRORS": {
           "RELEASED": "A SNAPSHOT dependency of your topology has changed, but your topology has been released and cannot be changed. The changes in a SNAPSHOT dependency may generate issues in your current topology, that Alien4Cloud won’t be able to handle. Current version of alien4cloud does not authorise you to upload a released version having dependencies on snapshot archives. You may have to either delete the current topology (and re-upload it after fixing issues out of alien) or try to keep working with it (with the risk that this may fail later due to changes in the snapshot dependencies)."
         },
-        "DISMISS": "Dismiss",
-        "DESCRIPTION": "The following topology's dependencies have been updated:",
-        "CHOICE_ASK": "What would you like to do with the topology ?",
+        "ERRORS_TITLE": "There are errors which prevent the topology from being recovered",
         "RECOVER": {
-          "TITLE": "Recover",
-          "DESCRIPTION": "Try to recover the topology, by synchronizing it with the exisiting dependencies."
+          "DESCRIPTION": "Try to recover the topology, by synchronizing it with the exisiting dependencies.",
+          "TITLE": "Recover"
         },
         "RESET": {
-          "TITLE": "Reset",
-          "DESCRIPTION": "Delete everything from the topology, leaving it completely empty."
+          "DESCRIPTION": "Delete everything from the topology, leaving it completely empty.",
+          "TITLE": "Reset"
         },
-        "SUCCESS_MSGE": "Topology updated successfuly!"
+        "SUCCESS_MSGE": "Topology updated successfuly!",
+        "TITLE": "Topology recovery"
       },
       "REFERENCE": "参照",
       "RELATIONSHIPS": "関連定義",
@@ -172,12 +180,23 @@
         "TITLE": "代入"
       },
       "TASK": {
+        "ARTIFACT": {
+          "ERROR": "Error",
+          "ERRORS": {
+            "MISSING": "Missing"
+          },
+          "LABEL": "Artifact",
+          "NODE": "Node"
+        },
         "CREATE_TOPOLOGY_MESSAGE": "トポロジが見つかりません。 ノードタイプを使った新しいトポロジを作成してください。",
         "EMPTY_TOPOLOGY_MESSAGE": "現在のトポロジは空です。 ノードテンプレートを追加してください。",
         "ERRORS_LABEL": "エラー",
         "GO_TO_VALIDATION": "Go to topology validation",
         "IMPLEMENT": "ノードの実装",
         "IMPLEMENT_LABEL": "実装",
+        "INPUT_ARTIFACT": {
+          "LABEL": "Input artifact"
+        },
         "LABEL": "The topology is not valid:",
         "NODE_FILTER": {
           "CAPABILITY_MISSING_ERROR": "The target has not this ability",
@@ -211,9 +230,9 @@
         }
       },
       "TEMPLATE_BASE": "トポロジテンプレート",
-      "TEMPLATE_VERSION": "Template version",
       "TEMPLATE_SELECT": "-- トポロジテンプレートの選択 --",
       "TEMPLATE_SELECT_VERSION": "-- テンプレートバージョンの選択 --",
+      "TEMPLATE_VERSION": "Template version",
       "UPDATE_ARTIFACT": "アーティファクトの更新",
       "VISUAL_DETAILED": "詳細ビュー",
       "WARNING": {
@@ -231,14 +250,22 @@
     },
     "UNDEPLOY": "デプロイ解除",
     "VERSION": {
+      "LABEL": "Application version",
       "MODAL": {
-        "DESC": "トポロジを複製するバージョンを選択",
         "PATTERN": "無効なフォーマットバージョン",
-        "SELECT-TITLE": "トポロジ"
+        "PREVIOUS_TOPO_VERSION": "Previous topology version",
+        "PREVIOUS_VERION": "Previous version",
+        "SELECT_PREVIOUS": "Select an older version to duplicate its topology",
+        "TITLE": "New version",
+        "VERSION": "Version number"
       },
       "NEW": "新しいバージョンの作成",
-      "TITLE": "新バージョン",
-      "VERSION": "バージョンNo."
+      "TOPOLOGY": {
+        "LABEL": "Topology version",
+        "NEW": "Create a new topology",
+        "QUALIFIER": "Qualifier",
+        "TITLE": "New topology for application version"
+      }
     },
     "WF": {
       "DelegateWorkflowActivity": "Delegate workflow",
@@ -285,6 +312,7 @@
     "COLUMNS": {
       "ACTION": "Operation",
       "ACTIONDESCRIPTION": "Description",
+      "ALIEN4CLOUDUI": "Alien4Cloud UI",
       "CATEGORY": "Category",
       "METHOD": "Method",
       "PATH": "Call",
@@ -293,13 +321,12 @@
       "RESPONSESTATUS": "Response status",
       "SOURCEIP": "Source IP",
       "TIMESTAMP": "Date",
+      "USERAGENT": "User-Agent",
       "USEREMAIL": "Email",
       "USERFIRSTNAME": "First name",
       "USERLASTNAME": "Last name",
       "USERNAME": "Username",
-      "VERSION": "API Version",
-      "USERAGENT": "User-Agent",
-      "ALIEN4CLOUDUI": "Alien4Cloud UI"
+      "VERSION": "API Version"
     },
     "CONFIGURATION": {
       "ACTION_NAME": "Action's name",
@@ -315,8 +342,8 @@
   },
   "BOUNDS": "Bounds",
   "CANCEL": "キャンセル",
+  "CANCELLED": "Cancelled",
   "CLOSE": "閉じる",
-  "OK": "上書き",
   "CLOUDS": {
     "ADMINISTRATION": {
       "DRIVER": {
@@ -387,7 +414,6 @@
     "YES": "Yes"
   },
   "COMPONENTS": {
-    "VALIDSOURCES": "Valid sources",
     "ABSTRACT": "抽象コンポーネント",
     "ACTIVE_FILTERS": "アクティブフィルター",
     "ARCHIVE": "アーカイブ",
@@ -410,9 +436,9 @@
       "OK": "上書き"
     },
     "CSAR": {
-      "TITLE": "CSARS",
       "ACTIVE_FILTERS": "Active filters",
       "TEMPLATEAUTHOR": "Author",
+      "TITLE": "CSARS",
       "WORKSPACE": "Workspace"
     },
     "DEFAULTCAPABILITIES": "デフォルト機能",
@@ -433,44 +459,45 @@
       "300": "Unexpected IO error on plugin upload.",
       "353": "The META-INF/plugin.yml file is missing in your plugin.",
       "ALIEN_MAPPING_ERROR": "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
-      "CSAR_ALREADY_INDEXED": "The CSAR has already been indexed in Alien with the same content",
-      "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "An archive with the same name and version already exists in Alien repository in another workspace.",
-      "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT": "The transitive dependency [{{problem}}] is in conflict with the direct dependency [{{context}}]. The conflict has been resolved by using the direct dependency version: [{{note}}].",
-      "DEPENDENCY_VERSION_CONFLICT": "The dependency [{{problem}}] is in conflict with the dependency [{{context}}]. The conflict has been resolved by using the latest version.",
-      "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "The dependency [ {{note}} ] is not visible from the target workspace",
       "CSAR_ALREADY_EXISTS": "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive.",
+      "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "An archive with the same name and version already exists in Alien repository in another workspace.",
+      "CSAR_ALREADY_INDEXED": "The CSAR has already been indexed in Alien with the same content",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien doesn't allow the overriding.",
-      "TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR": "An archive cannot override a node type of an other archive : {{problem}}",
+      "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE": "The dependency [ {{note}} ] is not visible from the target workspace",
+      "DEPENDENCY_VERSION_CONFLICT": "The dependency [{{problem}}] is in conflict with the dependency [{{context}}]. The conflict has been resolved by using the latest version.",
       "DUPLICATED_ELEMENT_DECLARATION": "The element [ {{note}} ] has already be defined in this definition file.",
       "ENTRY_DEFINITION_NOT_FOUND": "Entry definition file has not been found. Please put a valid definition file at the root of the archive.",
       "ERRONEOUS_ARCHIVE_FILE": "Cannot load the archive file. Please check that the file is a valid zip.",
       "FAILED_TO_READ_FILE": "Unable to read the file {{note}}",
       "FILE_PATH": "File path",
+      "INVALID_ARTIFACT_REFERENCE": "Invalid artifact's reference {{note}}",
       "INVALID_ICON_FORMAT": "Icon file is not a supported image format.",
-      "INVALID_NODE_TEMPLATE_NAME": "Invalid name [{{problem}}]. renamed into [{{note}}].",
+      "INVALID_NAME": "{{context}} name [ {{problem}} ] invalid. renamed into [ {{note}} ].",
       "INVALID_SCALAR_UNIT": "Expected type was a TOSCA scalar unit, both unit and value are required.",
       "INVALID_YAML": "The File does not respect YAML format.",
       "LABEL": "Errors",
       "MISSING_DEPENDENCY": "Dependency [{{note}}] cannot be found in Alien repository.",
-      "SNAPSHOT_DEPENDENCY": "Snapshot dependency [{{note}}] is not allowed in released archive.",
       "MISSING_FILE": "Reference file {{note}} cannot be found within the archive.",
       "MISSING_TOPOLOGY_INPUT": "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
       "MISSING_TOSCA_VERSION": "Tosca version is not specified and is required.",
-      "UNKNOWN_TOSCA_VERSION": "Tosca version is unknown and not recognized by Alien 4 Cloud.",
-      "TOSCA_VERSION_NOT_FIRST": "Tosca version must be the first line of the service template.",
       "NotNull": "The property [ {{path}} ] cannot be null",
       "OUTPUTS_BAD_PARAMS_COUNT": "Function arguments count is incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION": "Unknown function [{{note}}]",
+      "POTENTIAL_BAD_PROPERTY_VALUE": "There might be typographical errors: {{note}}.",
       "RELATIONSHIP_NOT_BUILT": "Not able to build the relationship for the requirement [{{note}}] (please read errors).",
       "REQUIREMENT_CAPABILITY_NOT_FOUND": "The capability corresponding to the requirement [{{note}}] can't be identified.",
       "REQUIREMENT_NOT_FOUND": "Requirement definition for [{{note}}] was not found.",
       "REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED": "Node template name is required for the requirement definition, it should be defined as the value of a node 'node'.",
       "REQUIREMENT_TARGET_NOT_FOUND": "The requirement's target for [{{note}}] doesn't exists.",
       "SINGLE_DEFINITION_SUPPORTED": "Alien 4 Cloud currently supports a single definition file within an archive.",
+      "SNAPSHOT_DEPENDENCY": "Snapshot dependency [{{note}}] is not allowed in released archive.",
       "SYNTAX_ERROR": "Syntax error: Yaml definition for the type {{note}} doesn't follow the TOSCA specification.",
       "Size": "The property [ {{path}} ]'s size does not satisfy constraint (empty)",
       "TOPOLOGY_DETECTED": "A topology template has been detected in the archive and created with name: {{note}}",
       "TOPOLOGY_UPDATED": "A topology template has been detected in the archive and updated  : {{note}}",
+      "TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR": "An archive cannot override a node type of an other archive : {{problem}}",
+      "TOSCA_VERSION_NOT_FIRST": "Tosca version must be the first line of the service template.",
+      "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT": "The transitive dependency [{{problem}}] is in conflict with the direct dependency [{{context}}]. The conflict has been resolved by using the direct dependency version: [{{note}}].",
       "TYPE_NOT_FOUND": "Referenced type [ {{note}} ] cannot be found neither in the archive or its dependencies. Please check the import section or add the type to your archive.",
       "ToscaPropertyConstraint": "Constraint [ {{path}} ] is not valid or cannot be applied on the defined property.",
       "ToscaPropertyConstraintDuplicate": "The constraint [ {{path}} ] already existed. The same constraint cannot be defined more than once.",
@@ -480,18 +507,20 @@
       "UNKNOWN_CAPABILITY": "Capability [{{note}}] is unknown for this node.",
       "UNKNOWN_CONSTRAINT": "Constraint [{{note}}] does not exists in TOSCA specification.",
       "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Failed to find any Artifact Type for the extension [ {{note}} ]. The artifact type won't be supported.",
+      "UNKNOWN_TOSCA_VERSION": "Tosca version is unknown and not recognized by Alien 4 Cloud.",
       "UNKNWON_DISCRIMINATOR_KEY": "Key {{note}} is not known.",
       "UNKNWON_WORKFLOW_STEP": "Workflow step [{{note}}] doesn't exists and has been ignored",
       "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored",
       "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
       "UNRECOGNIZED_PROPERTY": "Property [ {{note}} ] is unknown and has been ignored.",
+      "UNRESOLVED_ARTIFACT": "Artifact {{note}} cannot be resolved ",
       "VALIDATION_ERROR": "Declared type is not valid: {{context | translate:note}}",
       "WORKFLOW_HAS_ERRORS": "Workflow [{{note}}] is not valid",
-      "POTENTIAL_BAD_PROPERTY_VALUE": "There might be typographical errors: {{note}}.",
       "YAML_MAPPING_NODE_EXPECTED": "A mapping node is expected.",
       "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here.",
       "YAML_SEQUENCE_EXPECTED": "A YAML sequence is expected."
     },
+    "VALIDSOURCES": "Valid sources",
     "WORKSPACE": "Workspaces"
   },
   "CONFIRM": "確認",
@@ -499,15 +528,24 @@
   "CONSTRAINT": {
     "EQUAL": "Equal",
     "GREATER_OR_EQUAL": "Greater or equal",
-    "LESS_OR_EQUAL": "Less or equal",
     "GREATER_THAN": "Greater than",
-    "LESS_THAN": "Less than",
     "IN_RANGE": "In range",
     "LENGTH": "Length equal",
-    "MIN_LENGTH": "Length minimum",
+    "LESS_OR_EQUAL": "Less or equal",
+    "LESS_THAN": "Less than",
     "MAX_LENGTH": "Length maximum",
+    "MIN_LENGTH": "Length minimum",
     "PATTERN": "Pattern",
     "VALID_VALUES": "Valid values"
+  },
+  "CONSTRAINTS": {
+    "VALIDATION": {
+      "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "The default value does not match constraints",
+      "DEFAULT_VALUE_TYPE": "The default value does not match its declared type",
+      "DUPLICATED_CONSTRAINT": "Multiple constraints with the same type has been detected",
+      "ROOT": "The constraint is not valid",
+      "TYPE": "The value defined in constraint do not match its declared type"
+    }
   },
   "CREATE": "作成",
   "CREATION_DATE": "作成日付",
@@ -564,9 +602,9 @@
   "DEPLOYMENT": {
     "STATUS": {
       "DEPLOYED": "Deployed",
-      "INIT_DEPLOYMENT": "Deployment init",
       "DEPLOYMENT_IN_PROGRESS": "Deployment in progress",
       "FAILURE": "Failed",
+      "INIT_DEPLOYMENT": "Deployment init",
       "UNDEPLOYED": "Undeployed",
       "UNDEPLOYMENT_IN_PROGRESS": "Undeployment in progress",
       "UNKNOWN": "Unknown",
@@ -578,76 +616,76 @@
     }
   },
   "DETAILS": "Details",
+  "EDITOR": {
+    "ARTIFACTS": {
+      "REPOS": {
+        "ARCHIVE_REPOSITORIES": "Archive Repositories",
+        "FILE": "File",
+        "GLOBAL_REPOSITORIES": "Global repositories",
+        "ID": "Repository ID",
+        "LOCAL": "Local",
+        "MUST_BE_UNIQUE": "Repository ID must be unique for this archive",
+        "NEW_REPOSITORY": "New repository",
+        "REMOTE": "Remote",
+        "TYPE": "Type",
+        "URL": "URL"
+      },
+      "REPOSITORY": "Repository",
+      "SELECT": "Select artifact"
+    },
+    "ASK_SAVE": {
+      "MESSAGE": "Do you want to save changes before leaving the editor ?",
+      "TITLE": "Unsaved changes"
+    },
+    "DO_NOT_SAVE": "Skip",
+    "EMPTY_GIT_HISTORY": "The git history is empty, you need to save the topology.",
+    "GIT": {
+      "MODAL": {
+        "PASSWORD": "Password",
+        "PULL": "Git pull",
+        "PUSH": "Git push",
+        "REMOTE": "Git config",
+        "REMOTE_BRANCH": "Branch",
+        "REMOTE_BRANCH_VALUE": "Remote Branch (default: 'master')",
+        "URL": "URL",
+        "URL_VALUE": "https://...",
+        "USERNAME": "Username"
+      },
+      "OPERATIONS": {
+        "PULL": {
+          "SUCCESS_MSGE": "Successfully pulled from git",
+          "TITLE": "Git pull operation"
+        },
+        "PUSH": {
+          "SUCCESS_MSGE": "Successfully pushed to git",
+          "TITLE": "Git push operation"
+        }
+      },
+      "PULL": "Pull",
+      "PUSH": "Push",
+      "REMOTE": "Remote"
+    },
+    "GIT_HISTORY": "Git history",
+    "MENU_FILES": "Archive content",
+    "MENU_HISTORY": "History",
+    "MENU_TOPOLOGY": "Topology",
+    "MENU_VALIDATION": "Topology validation",
+    "MENU_WORKFLOW": "Workflows",
+    "OPERATION": "Operation",
+    "REDO": "Redo",
+    "SAVE": "Save",
+    "UNDO": "Undo",
+    "VALIDATION": {
+      "CURRENT_TOPOLOGY": "Current topology",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology haven't changed.",
+      "LAST_SAVED_TOPOLOGY": "Last saved topology"
+    }
+  },
   "EDIT_RIGHTS": {
     "EDIT_ROLE_ENV": "環境ロールの編集",
     "EDIT_ROLE_HEADER_ENV": "環境ロールの追加もしくは削除",
     "EDIT_ROLE_HEADER_RESOURCE": "リソースロールの追加もしくは削除",
     "EDIT_ROLE_RESOURCE": "リソースロールの編集"
-  },
-  "EDITOR": {
-    "SAVE": "Save",
-    "DO_NOT_SAVE": "Skip",
-    "ASK_SAVE": {
-      "TITLE": "Unsaved changes",
-      "MESSAGE": "Do you want to save changes before leaving the editor ?"
-    },
-    "UNDO": "Undo",
-    "REDO": "Redo",
-    "OPERATION": "Operation",
-    "EMPTY_GIT_HISTORY": "The git history is empty, you need to save the topology.",
-    "GIT_HISTORY": "Git history",
-    "MENU_TOPOLOGY": "Topology",
-    "MENU_WORKFLOW": "Workflows",
-    "MENU_FILES": "Archive content",
-    "MENU_VALIDATION": "Topology validation",
-    "MENU_HISTORY": "History",
-    "GIT": {
-      "MODAL": {
-        "REMOTE": "Git config",
-        "PUSH": "Git push",
-        "PULL": "Git pull",
-        "URL": "URL",
-        "URL_VALUE": "https://...",
-        "REMOTE_BRANCH": "Branch",
-        "REMOTE_BRANCH_VALUE": "Remote Branch (default: 'master')",
-        "USERNAME": "Username",
-        "PASSWORD": "Password"
-      },
-      "REMOTE": "Remote",
-      "PUSH": "Push",
-      "PULL": "Pull",
-      "OPERATIONS": {
-        "PULL": {
-          "TITLE": "Git pull operation",
-          "SUCCESS_MSGE": "Successfully pulled from git"
-        },
-        "PUSH": {
-          "TITLE": "Git push operation",
-          "SUCCESS_MSGE": "Successfully pushed to git"
-        }
-      }
-    },
-    "VALIDATION": {
-      "CURRENT_TOPOLOGY": "Current topology",
-      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology haven't changed.",
-      "LAST_SAVED_TOPOLOGY": "Last saved topology"
-    },
-    "ARTIFACTS": {
-      "SELECT": "Select artifact",
-      "REPOSITORY": "Repository",
-      "REPOS": {
-        "LOCAL": "Local",
-        "REMOTE": "Remote",
-        "ARCHIVE_REPOSITORIES": "Archive Repositories",
-        "GLOBAL_REPOSITORIES": "Global repositories",
-        "NEW_REPOSITORY": "New repository",
-        "ID": "Repository ID",
-        "MUST_BE_UNIQUE": "Repository ID must be unique for this archive",
-        "URL": "URL",
-        "TYPE": "Type",
-        "FILE": "File"
-      }
-    }
   },
   "END_DATE": "終了日",
   "ENVIRONMENT_TYPE": {
@@ -734,6 +772,7 @@
     "831": "This version can not be renamed since it's already used elsewhere",
     "850": "Not allowed operation for this type of workflow",
     "860": "The topology that you select needs recovery",
+    "870": "The topology that you select cannot be used as it won't be visible in the context of the application",
     "INTERNAL": "Internal error",
     "UNKNOWN": "Unknown error"
   },
@@ -742,7 +781,6 @@
   "GENERIC_FORM": {
     "ADD": "追加",
     "CANCEL": "キャンセル",
-    "CANCELLED": "Cancelled",
     "DELETE": "削除",
     "EDIT": "編集",
     "FORM_INVALID_MESSAGE": "注意!フォームは無効となり、すべての問題が解決されるまで保存されません:",
@@ -825,6 +863,8 @@
     "MENU_REPOSITORIES": "Artifacts repositories",
     "MENU_TOPOLOGY_TEMPLATE": "トポロジテンプレート"
   },
+  "NEXT": "Next",
+  "OK": "上書き",
   "OPTIONAL": "Optional",
   "ORCHESTRATORS": {
     "ARTIFACTS": {
@@ -867,10 +907,13 @@
     "STATES": {
       "CONNECTED": "Connected",
       "CONNECTING": "Connecting",
-      "DISABLING": "Disabling",
       "DISABLED": "Disabled",
+      "DISABLING": "Disabling",
       "DISCONNECTED": "Disconnected"
     }
+  },
+  "PAGINATION": {
+    "OVERFLOW": "The number of results exceeds the maximum number supported by Alien4Cloud, please use the search box."
   },
   "PLACE_HOLDER_NO": "No ",
   "PLUGINS": {
@@ -887,17 +930,26 @@
     "UPLOAD": "プラグインのアップロード"
   },
   "PROPERTY_RESET": "Set to default value or reset",
+  "PROPERTY_SUGGESTION": {
+    "MODAL": {
+      "DESCRIPTION": "The value that you entered has never been registered before in the system.",
+      "TITLE": "New value detected",
+      "USE": "Use ",
+      "USE_YOUR_VALUE": " and add it to the suggestion values"
+    }
+  },
   "REPOSITORY": {
     "ACTIVE_FILTERS": "Active filters",
     "ADD": "New repository",
-    "PLUGINS_NOT_FOUND": "No resolver plugins found",
     "CONFIGURATION": "Configuration",
+    "PLUGINS_NOT_FOUND": "No resolver plugins found",
     "REPOSITORYTYPE": "Type"
   },
   "REQUIRED": "Required",
   "ROLE_TABS": {
     "USERS": "ユーザ"
   },
+  "SELECT": "Select",
   "START_DATE": "開始日",
   "STATES": {
     "available": "Available",
@@ -930,9 +982,9 @@
     },
     "DUPLICATE": "Duplicate the topology",
     "NEW": "新規テンプレート",
-    "REMOVE_TOOLTIP": "Delete template",
+    "REMOVE_CONTENT": "All topology templates are linked to an archive. Delete the associate archive to remove both of them.",
     "REMOVE_TITLE": "How to delete a topology template ?",
-    "REMOVE_CONTENT": "All topology templates are linked to an archive. Delete the associate archive to remove both of them."
+    "REMOVE_TOOLTIP": "Delete template"
   },
   "TRUE": "True",
   "UPDATE_DATE": "更新日付",
@@ -1007,17 +1059,5 @@
     "refresh.button": "Refresh",
     "title": "Alien 4 Cloud's Metrics"
   },
-  "operations": "Operations",
-  "CONSTRAINTS": {
-    "VALIDATION": {
-      "TYPE": "The value defined in constraint do not match its declared type",
-      "DEFAULT_VALUE_TYPE": "The default value does not match its declared type",
-      "ROOT": "The constraint is not valid",
-      "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "The default value does not match constraints",
-      "DUPLICATED_CONSTRAINT": "Multiple constraints with the same type has been detected"
-    }
-  },
-  "PAGINATION": {
-    "OVERFLOW": "The number of results exceeds the maximum number supported by Alien4Cloud, please use the search box."
-  }
+  "operations": "Operations"
 }
