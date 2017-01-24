@@ -310,7 +310,7 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#addResourceTemplate(java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public LocationResourceTemplateWithDependencies addCustomResourceTemplate(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion) {
+    public LocationResourceTemplateWithDependencies addResourceTemplateFromArchive(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion) {
         Location location = locationService.getOrFail(locationId);
 
         // If an archive is specified, update the location dependencies accordingly. Dependencies are in a Set so there is no duplication issue.

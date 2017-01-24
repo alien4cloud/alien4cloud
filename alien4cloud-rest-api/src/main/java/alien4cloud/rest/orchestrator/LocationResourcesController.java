@@ -57,7 +57,7 @@ public class LocationResourcesController {
             @ApiParam(value = "Id of the location of the orchestrator to add resource template.", required = true) @PathVariable String locationId,
             @RequestBody CreateLocationResourceTemplateRequest resourceTemplateRequest) {
 
-        LocationResourceTemplateWithDependencies createdTemplate = locationResourceService.addCustomResourceTemplate(locationId, resourceTemplateRequest.getResourceName(),
+        LocationResourceTemplateWithDependencies createdTemplate = locationResourceService.addResourceTemplateFromArchive(locationId, resourceTemplateRequest.getResourceName(),
                 resourceTemplateRequest.getResourceType(), resourceTemplateRequest.getArchiveName(), resourceTemplateRequest.getArchiveVersion());
         return RestResponseBuilder.<LocationResourceTemplateWithDependencies> builder().data(createdTemplate).build();
     }
