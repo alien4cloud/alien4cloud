@@ -194,50 +194,6 @@ public class LocationSecurityController {
     }
 
     /**
-     * List all applications authorised to access the location.
-     *
-     * @return list of all application.
-     */
-    @ApiOperation(value = "List all applications authorized to access the location", notes = "Only user with ADMIN role can list authorized applications to the location.")
-    @RequestMapping(value = "/applications", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<List<Application>> getAuthorizedApplications(@PathVariable String orchestratorId, @PathVariable String locationId) {
-        Location location = getLocation(orchestratorId, locationId);
-        List<Application> applications;
-        if (location.getApplicationPermissions() != null && location.getApplicationPermissions().size() > 0) {
-            applications = alienDAO.findByIds(Application.class,
-                    location.getApplicationPermissions().keySet().toArray(new String[location.getApplicationPermissions().size()]));
-            applications.sort(Comparator.comparing(Application::getName));
-        } else {
-            applications = Lists.newArrayList();
-        }
-        return RestResponseBuilder.<List<Application>> builder().data(applications).build();
-    }
-
-    /**
-     * List all environments authorised to access the location.
-     *
-     * @return list of all environments.
-     */
-    @Deprecated
-    @ApiOperation(value = "List all environments authorized to access the location", notes = "Only user with ADMIN role can list authorized environments to the location.")
-    @RequestMapping(value = "/environments", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<List<ApplicationEnvironment>> getAuthorizedEnvironments(@PathVariable String orchestratorId, @PathVariable String locationId) {
-        Location location = getLocation(orchestratorId, locationId);
-        List<ApplicationEnvironment> environments;
-        if (location.getEnvironmentPermissions() != null && location.getEnvironmentPermissions().size() > 0) {
-            environments = alienDAO.findByIds(ApplicationEnvironment.class,
-                    location.getEnvironmentPermissions().keySet().toArray(new String[location.getEnvironmentPermissions().size()]));
-            environments.sort(Comparator.comparing(ApplicationEnvironment::getName));
-        } else {
-            environments = Lists.newArrayList();
-        }
-        return RestResponseBuilder.<List<ApplicationEnvironment>> builder().data(environments).build();
-    }
-
-
-    /**
      * List all environments per application authorised to access the location.
      *
      * @return list of all environments per application.
