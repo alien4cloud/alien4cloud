@@ -80,13 +80,14 @@ define(function (require) {
   
   modules.get('a4c-security', ['a4c-search']).controller('GroupsAuthorizationDirectiveCtrl', ['$scope', '$uibModal', 'locationSecurityService',
     function ($scope, $uibModal, locationSecurityService) {
+      var refreshAuthorizedGroups = function (response) {
+        $scope.authorizedGroups = response.data;
+      };
       $scope.searchAuthorizedGroups = function () {
         locationSecurityService.groups.get({
           orchestratorId: $scope.orchestrator.id,
           locationId: $scope.location.id
-        }, function (response) {
-          $scope.authorizedGroups = response.data;
-        });
+        }, refreshAuthorizedGroups);
       };
       $scope.searchAuthorizedGroups();
       
@@ -102,7 +103,7 @@ define(function (require) {
             locationId: $scope.location.id
           }, _.map(groups, function (group) {
             return group.id;
-          }), $scope.searchAuthorizedGroups);
+          }), refreshAuthorizedGroups);
         });
       };
       
@@ -111,7 +112,7 @@ define(function (require) {
           orchestratorId: $scope.orchestrator.id,
           locationId: $scope.location.id,
           groupId: group.id
-        }, $scope.searchAuthorizedGroups);
+        }, refreshAuthorizedGroups);
       };
     }
   ]);

@@ -80,13 +80,15 @@ define(function (require) {
   
   modules.get('a4c-security', ['a4c-search']).controller('UsersAuthorizationDirectiveCtrl', ['$scope', '$uibModal', 'locationSecurityService',
     function ($scope, $uibModal, locationSecurityService) {
+      var refreshAuthorizedUsers = function (response) {
+        $scope.authorizedUsers = response.data;
+      };
+      
       $scope.searchAuthorizedUsers = function () {
         locationSecurityService.users.get({
           orchestratorId: $scope.orchestrator.id,
           locationId: $scope.location.id
-        }, function (response) {
-          $scope.authorizedUsers = response.data;
-        });
+        }, refreshAuthorizedUsers);
       };
       $scope.searchAuthorizedUsers();
       
@@ -102,7 +104,7 @@ define(function (require) {
             locationId: $scope.location.id
           }, _.map(users, function (user) {
             return user.username;
-          }), $scope.searchAuthorizedUsers);
+          }), refreshAuthorizedUsers);
         });
       };
       
@@ -111,7 +113,7 @@ define(function (require) {
           orchestratorId: $scope.orchestrator.id,
           locationId: $scope.location.id,
           username: user.username
-        }, $scope.searchAuthorizedUsers);
+        }, refreshAuthorizedUsers);
       };
     }
   ]);

@@ -69,14 +69,15 @@ public class LocationSecurityController {
      * @param userNames The authorized users.
      * @return A {@link Void} {@link RestResponse}.
      */
-    @ApiOperation(value = "Grant access to the location to the users", notes = "Only user with ADMIN role can grant access to another users.")
+    @ApiOperation(value = "Grant access to the location to the users, send back the new authorised users list", notes = "Only user with ADMIN role can grant access to another users.")
     @RequestMapping(value = "/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId, @RequestBody String[] userNames) {
+    public RestResponse<List<UserDTO>> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId,
+            @RequestBody String[] userNames) {
         Location location = getLocation(orchestratorId, locationId);
         resourcePermissionService.grantPermission(location, Subject.USER, userNames);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<List<UserDTO>> builder().data(getAuthorizedUsers(location)).build();
     }
 
     /**
@@ -86,14 +87,14 @@ public class LocationSecurityController {
      * @param username The authorized user.
      * @return A {@link Void} {@link RestResponse}.
      */
-    @ApiOperation(value = "Revoke the user's authorisation to access the location", notes = "Only user with ADMIN role can revoke access to the location.")
+    @ApiOperation(value = "Revoke the user's authorisation to access the location, send back the new authorised users list", notes = "Only user with ADMIN role can revoke access to the location.")
     @RequestMapping(value = "/users/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String username) {
+    public RestResponse<List<UserDTO>> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String username) {
         Location location = getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.USER, username);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<List<UserDTO>> builder().data(getAuthorizedUsers(location)).build();
     }
 
     @AllArgsConstructor
@@ -106,6 +107,17 @@ public class LocationSecurityController {
         private String email;
     }
 
+    private List<UserDTO> getAuthorizedUsers(Location location) {
+        List<UserDTO> userDTOs = Lists.newArrayList();
+        if (location.getUserPermissions() != null && location.getUserPermissions().size() > 0) {
+            List<User> users = alienUserDao.find(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
+            users.sort(Comparator.comparing(User::getUsername));
+            userDTOs = users.stream().map(user -> new UserDTO(user.getUsername(), user.getLastName(), user.getFirstName(), user.getEmail()))
+                    .collect(Collectors.toList());
+        }
+        return userDTOs;
+    }
+
     /**
      * List all users authorised to access the location.
      *
@@ -116,14 +128,7 @@ public class LocationSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<UserDTO>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = getLocation(orchestratorId, locationId);
-        List<UserDTO> userDTOs = Lists.newArrayList();
-        if (location.getUserPermissions() != null && location.getUserPermissions().size() > 0) {
-            List<User> users = alienUserDao.find(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
-            users.sort(Comparator.comparing(User::getUsername));
-            userDTOs = users.stream().map(user -> new UserDTO(user.getUsername(), user.getLastName(), user.getFirstName(), user.getEmail()))
-                    .collect(Collectors.toList());
-        }
-        return RestResponseBuilder.<List<UserDTO>> builder().data(userDTOs).build();
+        return RestResponseBuilder.<List<UserDTO>> builder().data(getAuthorizedUsers(location)).build();
     }
 
     /**
@@ -137,10 +142,11 @@ public class LocationSecurityController {
     @RequestMapping(value = "/groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> grantAccessToGroups(@PathVariable String orchestratorId, @PathVariable String locationId, @RequestBody String[] groupIds) {
+    public RestResponse<List<GroupDTO>> grantAccessToGroups(@PathVariable String orchestratorId, @PathVariable String locationId,
+            @RequestBody String[] groupIds) {
         Location location = getLocation(orchestratorId, locationId);
         resourcePermissionService.grantPermission(location, Subject.GROUP, groupIds);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(location)).build();
     }
 
     /**
@@ -154,10 +160,21 @@ public class LocationSecurityController {
     @RequestMapping(value = "/groups/{groupId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String groupId) {
+    public RestResponse<List<GroupDTO>> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String groupId) {
         Location location = getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.GROUP, groupId);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(location)).build();
+    }
+
+    private List<GroupDTO> getAuthorizedGroups(Location location) {
+        List<GroupDTO> groupDTOS = Lists.newArrayList();
+        if (location.getGroupPermissions() != null && location.getGroupPermissions().size() > 0) {
+            List<Group> groups = alienGroupDao.find(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
+            groups.sort(Comparator.comparing(Group::getName));
+            groupDTOS = groups.stream().map(group -> new GroupDTO(group.getId(), group.getName(), group.getEmail(), group.getDescription()))
+                    .collect(Collectors.toList());
+        }
+        return groupDTOS;
     }
 
     @AllArgsConstructor
@@ -180,14 +197,7 @@ public class LocationSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<GroupDTO>> getAuthorizedGroups(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = getLocation(orchestratorId, locationId);
-        List<GroupDTO> groupDTOS = Lists.newArrayList();
-        if (location.getGroupPermissions() != null && location.getGroupPermissions().size() > 0) {
-            List<Group> groups = alienGroupDao.find(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
-            groups.sort(Comparator.comparing(Group::getName));
-            groupDTOS = groups.stream().map(group -> new GroupDTO(group.getId(), group.getName(), group.getEmail(), group.getDescription()))
-                    .collect(Collectors.toList());
-        }
-        return RestResponseBuilder.<List<GroupDTO>> builder().data(groupDTOS).build();
+        return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(location)).build();
     }
 
     /**
