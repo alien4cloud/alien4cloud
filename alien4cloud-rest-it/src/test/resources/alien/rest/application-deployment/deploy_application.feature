@@ -101,3 +101,15 @@ Feature: Deploy an application
 #      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
 #    And I deploy the application "App(Test" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
 #    Then I should receive a RestResponse with an error code 613
+
+  @reset
+  Scenario: Deploy an application on location without appropriate authorization should failed
+    Given I am authenticated with "ADMIN" role
+    Given I revoke access to the resource type "LOCATION" named "Thark location" from the user "sangoku"
+    And I am authenticated with user named "sangoku"
+    Given I create a new application with name "ALIEN" and description "" and node templates
+      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    Then I should receive a RestResponse with an error code 102
+    When I deploy it
+    Then I should receive a RestResponse with an error code 500
