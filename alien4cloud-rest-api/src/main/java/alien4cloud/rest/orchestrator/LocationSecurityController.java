@@ -194,9 +194,7 @@ public class LocationSecurityController {
     }
 
     /**
-     * List all environments per application authorised to access the location.
-     *
-     * @return list of all environments per application.
+     * Update applications/environments authorized to access the location.
      */
     @ApiOperation(value = "Update applications/environments authorized to access the location", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
