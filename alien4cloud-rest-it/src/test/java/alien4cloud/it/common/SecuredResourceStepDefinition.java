@@ -70,6 +70,15 @@ public class SecuredResourceStepDefinition {
                 JsonUtil.toString(new String[] { Context.getInstance().getGroupId(groupName) })));
     }
 
+    @Given("^I grant access to the location named \"([^\"]*)\"/\"([^\"]*)\" to the group \"([^\"]*)\"$")
+    public void iGrantAccessToTheLocationNamedToTheGroup(String orchestratorName, String locationName, String groupName) throws Throwable {
+        String url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
+                + LocationsDefinitionsSteps.getLocationIdFromName(orchestratorName, locationName) + "/security/groups";
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url,
+                JsonUtil.toString(new String[] { Context.getInstance().getGroupId(groupName) })));
+    }
+
+
     @When("^I get the authorised groups for the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
     public void iGetTheAuthorisedGroupsForTheResourceTypeNamed(String resourceType, String resourceName) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get(getSecuredResourceBaseURL(resourceType, resourceName) + "/groups"));

@@ -398,6 +398,7 @@ public class DeploymentTopologyService {
 
         DeploymentTopology deploymentTopology = new DeploymentTopology();
         deploymentTopology.setOrchestratorId(orchestratorId);
+        deploymentTopology.setEnvironmentId(environmentId);
         addLocationPolicies(deploymentTopology, groupsToLocations);
 
         if (oldDT != null) {

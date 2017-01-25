@@ -16,7 +16,7 @@ Feature: get runtime topology
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
     And I add a role "COMPONENTS_MANAGER" to user "sangoku"
-    And I add a role "DEPLOYER" to user "sangoku" on the resource type "LOCATION" named "Thark location"
+    And I grant access to the resource type "LOCATION" named "Thark location" to the user "sangoku"
     And I am authenticated with user named "sangoku"
     And I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error

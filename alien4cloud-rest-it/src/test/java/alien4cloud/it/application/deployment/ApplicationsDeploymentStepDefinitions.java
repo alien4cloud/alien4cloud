@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import alien4cloud.it.common.SecuredResourceStepDefinition;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.Header;
@@ -42,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ApplicationsDeploymentStepDefinitions {
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
     private DeploymentTopologyStepDefinitions deploymentTopoSteps = new DeploymentTopologyStepDefinitions();
+    private SecuredResourceStepDefinition securedResourceStepDefinition = new SecuredResourceStepDefinition();
     private static Map<String, Set<DeploymentStatus>> pendingStatuses;
 
     static {
@@ -496,6 +498,7 @@ public class ApplicationsDeploymentStepDefinitions {
     public void I_deploy_the_application_on_the_location_without_waiting_for_the_end_of_deployment(String appName, String orchestratorName, String locationName)
             throws Throwable {
         deploymentTopoSteps.I_Set_a_unique_location_policy_to_for_all_nodes(orchestratorName, locationName);
+        securedResourceStepDefinition.iGrantAccessToTheLocationNamedToTheGroup(orchestratorName, locationName, "_A4C_ALL");
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(appName, null);
         deployApplicationRequest.setApplicationId(Context.getInstance().getApplication().getId());
         String response = deploy(deployApplicationRequest);

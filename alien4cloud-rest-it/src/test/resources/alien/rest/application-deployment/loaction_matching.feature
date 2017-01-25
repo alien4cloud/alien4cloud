@@ -27,7 +27,7 @@ Feature: Match location for a deployment configuration
     Then I should receive a match result with no locations
 
     When I authenticate with "ADMIN" role
-    And I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
+    And I grant access to the resource type "LOCATION" named "Thark location" to the user "frodon"
     Then I should receive a RestResponse with no error
 
     When I am authenticated with user named "frodon"

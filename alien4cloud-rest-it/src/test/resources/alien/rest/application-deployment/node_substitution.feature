@@ -21,7 +21,7 @@ Feature: Node substitution in the deployment topology
     # Do not update the image Id as we want to be able to update it at deployment
     And I update the property "flavorId" to "1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
 
-    And I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
+    And I grant access to the resource type "LOCATION" named "Thark location" to the user "frodon"
 
     And I create a new application with name "ALIEN" and description "desc" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
