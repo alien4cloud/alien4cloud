@@ -3,6 +3,7 @@ package alien4cloud.rest.orchestrator;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -32,6 +33,9 @@ import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @RestController
 @RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/security/",
@@ -92,6 +96,16 @@ public class LocationSecurityController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    private static class UserDTO {
+        private String username;
+        private String lastName;
+        private String firstName;
+        private String email;
+    }
+
     /**
      * List all users authorised to access the location.
      *
@@ -100,14 +114,16 @@ public class LocationSecurityController {
     @ApiOperation(value = "List all users authorized to access the location", notes = "Only user with ADMIN role can list authorized users to the location.")
     @RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<List<User>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId) {
+    public RestResponse<List<UserDTO>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = getLocation(orchestratorId, locationId);
-        List<User> users = Lists.newArrayList();
+        List<UserDTO> userDTOs = Lists.newArrayList();
         if (location.getUserPermissions() != null && location.getUserPermissions().size() > 0) {
-            users = alienUserDao.find(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
+            List<User> users = alienUserDao.find(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
             users.sort(Comparator.comparing(User::getUsername));
+            userDTOs = users.stream().map(user -> new UserDTO(user.getUsername(), user.getLastName(), user.getFirstName(), user.getEmail()))
+                    .collect(Collectors.toList());
         }
-        return RestResponseBuilder.<List<User>> builder().data(users).build();
+        return RestResponseBuilder.<List<UserDTO>> builder().data(userDTOs).build();
     }
 
     /**
@@ -144,6 +160,16 @@ public class LocationSecurityController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    private static class GroupDTO {
+        private String id;
+        private String name;
+        private String email;
+        private String description;
+    }
+
     /**
      * List all groups authorised to access the location.
      *
@@ -152,14 +178,16 @@ public class LocationSecurityController {
     @ApiOperation(value = "List all groups authorized to access the location", notes = "Only user with ADMIN role can list authorized groups to the location.")
     @RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<List<Group>> getAuthorizedGroups(@PathVariable String orchestratorId, @PathVariable String locationId) {
+    public RestResponse<List<GroupDTO>> getAuthorizedGroups(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = getLocation(orchestratorId, locationId);
-        List<Group> groups = Lists.newArrayList();
+        List<GroupDTO> groupDTOS = Lists.newArrayList();
         if (location.getGroupPermissions() != null && location.getGroupPermissions().size() > 0) {
-            groups = alienGroupDao.find(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
+            List<Group> groups = alienGroupDao.find(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
             groups.sort(Comparator.comparing(Group::getName));
+            groupDTOS = groups.stream().map(group -> new GroupDTO(group.getId(), group.getName(), group.getEmail(), group.getDescription()))
+                    .collect(Collectors.toList());
         }
-        return RestResponseBuilder.<List<Group>> builder().data(groups).build();
+        return RestResponseBuilder.<List<GroupDTO>> builder().data(groupDTOS).build();
     }
 
     /**
