@@ -19,7 +19,6 @@
             </li>
           </ul>
         </div>
-
       </h5>
     </div>
   </div>
@@ -27,27 +26,15 @@
   <div class="row">
     <div class="col-md-3 resource-user-roles" ng-repeat="appRole in appRoles">
       <div class="thumbnail">
-        <h5>
-          {{appRole}}
-        </h5>
+        <h5>{{appRole}}</h5>
         <ul class="td_list liste-no-style">
-          <li ng-repeat="(username, userAppRoles) in application.userRoles | orderBy:'username.toString()' " ng-show="userAppRoles.indexOf(appRole) >=0">
+          <li ng-repeat="appUser in usersByRole[appRole] | orderBy:'username'">
             <i class="fa fa-user"></i>
-            <span>
-              {{relatedUsers[username].firstName}}
-            </span>
-            <span>
-              {{relatedUsers[username].lastName}}
-            </span>
-            <span>
-              ({{username}})
-            </span>
+            <span>{{appUser.firstName}}</span> <span>{{appUser.lastName}}</span> <span>({{appUser.username}})</span>
           </li>
-          <li ng-repeat="(groupId, groupAppRoles) in application.groupRoles | orderBy:'relatedGroups[groupId].name' " ng-show="groupAppRoles.indexOf(appRole) >=0">
+          <li ng-repeat="appGroup in groupByAppRole[appRole] | orderBy:'name'">
             <i class="fa fa-users"></i>
-            <span>
-              {{ relatedGroups[groupId].name }}
-            </span>
+            <span>{{appGroup.name}}</span>
           </li>
         </ul>
       </div>
@@ -55,28 +42,15 @@
 
     <div class="col-md-3 resource-user-roles" ng-repeat="envRole in environmentRoles">
       <div class="thumbnail">
-        <h5>
-          {{envRole}}
-        </h5>
+        <h5>{{envRole}}</h5>
         <ul class="td_list liste-no-style">
-          <li ng-repeat="(username, userEnvRoles) in selectedEnvironment.userRoles | orderBy:'username.toString()' " ng-show="userEnvRoles.indexOf(envRole) >=0">
+          <li ng-repeat="appUser in usersByRole[envRole] | orderBy:'username'">
             <i class="fa fa-user"></i>
-            <span>
-              {{ relatedUsers[username].firstName }}
-            </span>
-            <span>
-              {{ relatedUsers[username].lastName}}
-            </span>
-            <span>
-              ({{username}})
-            </span>
+            <span>{{appUser.firstName}}</span> <span>{{appUser.lastName}}</span> <span>({{appUser.username}})</span>
           </li>
-
-          <li ng-repeat="(groupId, groupEnvRoles) in selectedEnvironment.groupRoles | orderBy:'relatedGroups[groupId].name' " ng-show="groupEnvRoles.indexOf(envRole) >=0">
+          <li ng-repeat="appGroup in groupByAppRole[envRole] | orderBy:'name'">
             <i class="fa fa-users"></i>
-            <span>
-              {{ relatedGroups[groupId].name }}
-            </span>
+            <span>{{appGroup.name}}</span>
           </li>
         </ul>
       </div>
