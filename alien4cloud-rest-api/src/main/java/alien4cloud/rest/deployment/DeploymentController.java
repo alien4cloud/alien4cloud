@@ -109,13 +109,6 @@ public class DeploymentController {
                         if (appSources != null) {
                             sources = appSources;
                         }
-                        // FIXME Allow CSAR deployment again for testing and validation purpose.
-                        // break;
-                        // case CSAR:
-                        // Map<String, ? extends IDeploymentSource> csarSources = csarService.findByIds(FetchContext.SUMMARY, sourceIds);
-                        // if (csarSources != null) {
-                        // sources = csarSources;
-                        // }
                     }
                 }
             }

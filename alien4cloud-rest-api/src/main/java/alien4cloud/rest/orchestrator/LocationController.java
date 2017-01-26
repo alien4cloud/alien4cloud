@@ -71,7 +71,7 @@ public class LocationController {
 
     @ApiOperation(value = "Get all locations for a given orchestrator.")
     @RequestMapping(method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<List<LocationDTO>> getAll(
             @ApiParam(value = "Id of the orchestrator for which to get all locations.") @PathVariable String orchestratorId) {
         List<Location> locations = locationService.getAll(orchestratorId);
@@ -84,7 +84,7 @@ public class LocationController {
 
     @ApiOperation(value = "Get a location from it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<LocationDTO> get(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to get", required = true) @PathVariable String id) {
         Location location = locationService.getOrFail(id);

@@ -21,7 +21,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.model.common.IDatableResource;
 import alien4cloud.model.common.IMetaProperties;
-import alien4cloud.model.orchestrators.AbstractSecuredOrchestratorResource;
+import alien4cloud.security.AbstractSecurityEnabledResource;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,7 +32,7 @@ import lombok.Setter;
 @ESObject
 @ApiModel(value = "Location", description = "A location represents a cloud, a region of a cloud, a set of machines and resources."
         + "basically any location on which alien will be allowed to perform deployment. Locations are managed by orchestrators.")
-public class Location extends AbstractSecuredOrchestratorResource implements IMetaProperties, IDatableResource {
+public class Location extends AbstractSecurityEnabledResource implements IMetaProperties, IDatableResource {
     @Id
     @FetchContext(contexts = SUMMARY, include = true)
     private String id;

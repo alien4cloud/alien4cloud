@@ -1,6 +1,6 @@
 <div>
   <div class="modal-header">
-    <h3>Select users</h3>
+    <h3>{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD_POPUP.TITLE' | translate}}</h3>
   </div>
   <div class="modal-body">
     <div>
@@ -70,8 +70,7 @@
   </div>
   <div class="modal-footer" style="margin-top: 10px;">
     <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
-    <button ng-disabled="selectedUser.length === 0" class="btn btn-primary" ng-click="ok()">Authorize
-      selected users
+    <button ng-disabled="selectedUsers.length === 0" class="btn btn-primary" ng-click="ok()">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD_POPUP.OK' | translate}}
     </button>
   </div>
 </div>

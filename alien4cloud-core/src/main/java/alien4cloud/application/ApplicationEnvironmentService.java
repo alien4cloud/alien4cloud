@@ -23,6 +23,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
+import alien4cloud.events.BeforeEnvironmentDeletedEvent;
 import alien4cloud.events.DeleteEnvironmentEvent;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
@@ -140,8 +141,8 @@ public class ApplicationEnvironmentService {
         }
 
         deploymentTopologyService.deleteByEnvironmentId(id);
+        applicationContext.publishEvent(new BeforeEnvironmentDeletedEvent(this, environmentToDelete.getId()));
         alienDAO.delete(ApplicationEnvironment.class, id);
-
         applicationContext
                 .publishEvent(new DeleteEnvironmentEvent(this, environmentToDelete, deploymentService.getAllOrchestratorIdsAndOrchestratorDeploymentId(id)));
         return true;

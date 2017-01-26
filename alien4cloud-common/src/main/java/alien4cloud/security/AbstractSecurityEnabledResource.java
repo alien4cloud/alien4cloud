@@ -1,4 +1,4 @@
-package alien4cloud.model.orchestrators;
+package alien4cloud.security;
 
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
@@ -27,7 +27,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AbstractSecuredOrchestratorResource implements ISecurityEnabledResource {
+public class AbstractSecurityEnabledResource implements ISecurityEnabledResource {
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
@@ -132,10 +132,5 @@ public class AbstractSecuredOrchestratorResource implements ISecurityEnabledReso
             allPermissions = null;
         }
         setPermissions(subjectType, allPermissions);
-    }
-
-    @Override
-    public void revokeAllPermissions(Subject subjectType, String subject) {
-        getPermissions(subjectType).remove(subject);
     }
 }

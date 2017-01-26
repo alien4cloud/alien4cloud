@@ -53,7 +53,7 @@ define(function(require) {
             if ($scope.locationsDTOs.length > 0) {
               // For the moment show only first location
               $scope.selectLocation($scope.locationsDTOs[0]);
-              $state.go('admin.orchestrators.details.locations.security');
+              $state.go('admin.orchestrators.details.locations.config');
             }
           });
         }

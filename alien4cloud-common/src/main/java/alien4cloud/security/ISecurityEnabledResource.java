@@ -40,12 +40,4 @@ public interface ISecurityEnabledResource {
      * @param permissions list of permissions
      */
     void removePermissions(Subject subjectType, String subject, Set<Permission> permissions);
-
-    /**
-     * Revoke all permissions of a subject
-     * 
-     * @param subjectType the type of the subject
-     * @param subject the id of the subject
-     */
-    void revokeAllPermissions(Subject subjectType, String subject);
 }

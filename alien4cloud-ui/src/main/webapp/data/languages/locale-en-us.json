@@ -4,6 +4,7 @@
     "APPLICATION_ROLES": "Application roles",
     "ARCHIVE_NAME": "Archive name (Id)",
     "ARCHIVE_NAME_HELP": "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
+    "AUTHORIZED": "application authorized",
     "DEPLOY": "Deploy",
     "DEPLOYMENT": {
       "DEPLOY": "Deploy",
@@ -16,6 +17,7 @@
       }
     },
     "ENVIRONMENT": {
+      "ALL": "All Environment",
       "ENV": "Environment",
       "ENV_ROLES": "Environment roles",
       "FORM": {
@@ -879,10 +881,24 @@
     "LOCATIONS": {
       "AUTHORIZATIONS": {
         "USERS": {
-          "ADD": "Authorize user"
+          "ADD": "Authorize user",
+          "ADD_POPUP": {
+            "TITLE": "Select users",
+            "OK": "Authorize selected users"
+          }
         },
         "GROUPS": {
-          "ADD": "Authorize group"
+          "ADD": "Authorize group",
+          "ADD_POPUP": {
+            "TITLE": "Select groups",
+            "OK": "Authorize selected groups"
+          }
+        },
+        "APPS": {
+          "ADD": "Authorize application",
+          "ADD_POPUP": {
+            "TITLE": "Select applications / environments"
+          }
         }
       },
       "AUTO_CONFIG": "Auto-config",

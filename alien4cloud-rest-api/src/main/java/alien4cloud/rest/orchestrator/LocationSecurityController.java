@@ -83,7 +83,7 @@ public class LocationSecurityController {
     @RequestMapping(value = "/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<List<UserDTO>> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId,
+    public synchronized RestResponse<List<UserDTO>> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId,
             @RequestBody String[] userNames) {
         Location location = getLocation(orchestratorId, locationId);
         resourcePermissionService.grantPermission(location, Subject.USER, userNames);
@@ -101,7 +101,8 @@ public class LocationSecurityController {
     @RequestMapping(value = "/users/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<List<UserDTO>> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String username) {
+    public synchronized RestResponse<List<UserDTO>> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
+            @PathVariable String username) {
         Location location = getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.USER, username);
         return RestResponseBuilder.<List<UserDTO>> builder().data(getAuthorizedUsers(location)).build();
@@ -152,7 +153,7 @@ public class LocationSecurityController {
     @RequestMapping(value = "/groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<List<GroupDTO>> grantAccessToGroups(@PathVariable String orchestratorId, @PathVariable String locationId,
+    public synchronized RestResponse<List<GroupDTO>> grantAccessToGroups(@PathVariable String orchestratorId, @PathVariable String locationId,
             @RequestBody String[] groupIds) {
         Location location = getLocation(orchestratorId, locationId);
         resourcePermissionService.grantPermission(location, Subject.GROUP, groupIds);
@@ -170,7 +171,8 @@ public class LocationSecurityController {
     @RequestMapping(value = "/groups/{groupId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<List<GroupDTO>> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String groupId) {
+    public synchronized RestResponse<List<GroupDTO>> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
+            @PathVariable String groupId) {
         Location location = getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.GROUP, groupId);
         return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(location)).build();
@@ -221,7 +223,7 @@ public class LocationSecurityController {
     @RequestMapping(value = "/applications/{applicationId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> revokeApplicationAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
+    public synchronized RestResponse<Void> revokeApplicationAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
             @PathVariable String applicationId) {
         Location location = getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.APPLICATION, applicationId);
@@ -241,7 +243,8 @@ public class LocationSecurityController {
     @ApiOperation(value = "Update applications/environments authorized to access the location", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId, @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
+    public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
+            @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = getLocation(orchestratorId, locationId);
         if (request.getApplicationsToDelete() != null && request.getApplicationsToDelete().length > 0) {
             resourcePermissionService.revokePermission(location, Subject.APPLICATION, request.getApplicationsToDelete());
