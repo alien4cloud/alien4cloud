@@ -146,29 +146,32 @@ h4 .editable-error {
   display: none;
 }
 
-#editor-env-version-select {
-  min-width: 140px;
-  display: inline-block;
-}
+#editor-head-menu {
+  .ui-select-container {
+    min-width: 140px;
+    display: inline-block;
+    vertical-align: text-top;
 
-#editor-env-version-select span {
-  height: 22px;
-  outline: 0px none;
-  padding: 0px;
-  font-size: 12px;
-  padding-top: 1px;
-}
+    span {
+      height: 22px;
+      outline: 0px none;
+      padding: 0px;
+      font-size: 12px;
+      padding-top: 1px;
 
-#editor-env-version-select span i {
-  left: 92%;
-}
+      i {
+        left: 92%;
+      }
+    }
 
-#editor-env-version-select input {
-  height: 22px;
-  outline: 0px none;
-  padding: 0px;
-  font-size: 12px;
-  padding-top: 1px;
+    input {
+      height: 22px;
+      outline: 0px none;
+      padding: 0px;
+      font-size: 12px;
+      padding-top: 1px;
+    }
+  }
 }
 
 /*

@@ -43,13 +43,13 @@
       </button>
     </div>
 
-    <ui-select id="editor-env-version-select" ng-if="versionContext.versions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.change(selectedVersion)" reset-search-input="true" close-on-select="true">
+    <ui-select id="editor-app-version-select" ng-if="versionContext.versions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.change(selectedVersion)" reset-search-input="true" close-on-select="true">
       <ui-select-match placeholder="Select or search a version...">{{$select.selected.version | limitTo: 20}}{{$select.selected.version.length > 20 ? '...' : ''}}</ui-select-match>
       <ui-select-choices repeat="versionRpt in versionContext.versions | filter: $select.search">
         <span ng-bind-html="versionRpt.version | limitTo: 20 | highlight: $select.search"></span>{{versionRpt.version.length > 20 ? '...' : ''}}
       </ui-select-choices>
     </ui-select>
-    <ui-select id="editor-env-version-select" ng-if="selectedVersion && _.defined(selectedVersion.topologyVersions)" ng-model="selectedTopologyVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.changeTopologyVersion(selectedTopologyVersion)" reset-search-input="true" close-on-select="true">
+    <ui-select id="editor-topo-version-select" ng-if="selectedVersion && _.defined(selectedVersion.topologyVersions)" ng-model="selectedTopologyVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.changeTopologyVersion(selectedTopologyVersion)" reset-search-input="true" close-on-select="true">
       <ui-select-match placeholder="Select or search a version...">{{$select.selected.key | limitTo: 20}}{{$select.selected.key.length > 20 ? '...' : ''}}</ui-select-match>
       <ui-select-choices repeat="topologyVersionRpt.key as (key, topologyVersionRpt) in selectedVersion.topologyVersions | filter: {'key':$select.search}">
         <span ng-bind-html="topologyVersionRpt.key | limitTo: 20 | highlight: $select.search"></span>{{topologyVersionRpt.key.length > 20 ? '...' : ''}}

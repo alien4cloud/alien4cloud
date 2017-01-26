@@ -163,7 +163,10 @@ define(function (require) {
       };
 
       var versionFetchResource = $alresource('rest/latest/components/element/:elementId/versions');
-      $scope.fetchElementVersion = function (component) {
+      $scope.fetchElementVersion = function (component, $event) {
+        if(_.defined($event)){
+          $event.stopPropagation();
+        }
         if (_.defined(component.olderVersions)) {
           return;
         }
