@@ -1,5 +1,6 @@
 package alien4cloud.deployment;
 
+import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
@@ -206,11 +207,16 @@ public class DeploymentService {
         return dataResult.getData();
     }
 
-    public Map<String, Set<String>> getAllOrchestratorIdsAndOrchestratorDeploymentId(String applicationEnvironmentId) {
+    /**
+     * For a given environment get all deployments that have been and compute a map of deployment orchestrator ids by orchestrator id.
+     *
+     * @param applicationEnvironmentId The id of the application environment for which to get the map or pas deployment
+     * @return A map of orchestrator deployment ids by orchestrator ids.
+     */
+    public Map<String, Set<String>> getOrchestratorDeploymentIdsByOrchestratorId(String applicationEnvironmentId) {
         Map<String, Set<String>> result = new HashMap<>();
-        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "environmentId" },
-                new String[][] { new String[] { applicationEnvironmentId } });
-        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, Integer.MAX_VALUE);
+        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null,
+                FilterUtil.fromKeyValueCouples("environmentId", applicationEnvironmentId), Integer.MAX_VALUE);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             for (Deployment deployment : dataResult.getData()) {
                 if (!result.containsKey(deployment.getOrchestratorId())) {

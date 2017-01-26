@@ -14,6 +14,8 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
+import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
@@ -30,6 +32,7 @@ import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -81,8 +84,6 @@ public class DeploymentTopologyService {
     private ILocationResourceService locationResourceService;
     @Inject
     private ApplicationVersionService applicationVersionService;
-    @Inject
-    private ApplicationEnvironmentService applicationEnvironmentService;
     @Inject
     private InputsPreProcessorService inputsPreProcessorService;
     @Inject
@@ -381,8 +382,14 @@ public class DeploymentTopologyService {
         }
     }
 
-    public void deleteByEnvironmentId(String environmentId) {
-        alienDAO.delete(DeploymentTopology.class, QueryBuilders.termQuery("environmentId", environmentId));
+    @EventListener
+    public void handleDeleteTopologyVersion(BeforeApplicationTopologyVersionDeleted event) {
+        alienDAO.delete(DeploymentTopology.class, QueryBuilders.termQuery("versionId", Csar.createId(event.getApplicationId(), event.getTopologyVersion())));
+    }
+
+    @EventListener
+    public void handleDeleteEnvironment(BeforeApplicationEnvironmentDeleted event) {
+        alienDAO.delete(DeploymentTopology.class, QueryBuilders.termQuery("environmentId", event.getApplicationEnvironmentId()));
     }
 
     /**

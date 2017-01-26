@@ -8,8 +8,10 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.utils.version.InvalidVersionException;
-import alien4cloud.utils.version.UpdateApplicationVersionException;
+import org.alien4cloud.alm.events.AfterApplicationTopologyVersionDeleted;
+import org.alien4cloud.alm.events.AfterApplicationVersionDeleted;
+import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
+import org.alien4cloud.alm.events.BeforeApplicationVersionDeleted;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.catalog.index.CsarService;
@@ -19,6 +21,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
@@ -38,12 +41,14 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import alien4cloud.utils.version.UpdateApplicationVersionException;
 
 @Service
 public class ApplicationVersionService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Inject
+    private ApplicationEventPublisher publisher;
     @Inject
     private ArchiveIndexer archiveIndexer;
     @Inject
@@ -298,6 +303,17 @@ public class ApplicationVersionService {
     }
 
     /**
+     * Get the latest version for a given application.
+     *
+     * @param applicationId The id of the application for which to get the latest snapshot.
+     * @return The latest version for a given application.
+     */
+    public ApplicationVersion getLatest(String applicationId) {
+        return alienDAO.buildQuery(ApplicationVersion.class).prepareSearch().setFilters(fromKeyValueCouples("applicationId", applicationId))
+                .alterSearchRequestBuilder(searchRequestBuilder -> addSort(searchRequestBuilder)).find();
+    }
+
+    /**
      * Search for versions.
      * 
      * @param applicationId The id of the application for which to search for versions.
@@ -352,10 +368,20 @@ public class ApplicationVersionService {
 
     private void deleteVersion(ApplicationVersion version) {
         // Call delete archive
-        for (ApplicationTopologyVersion topologyVersion : version.getTopologyVersions().values()) {
-            csarService.deleteCsar(topologyVersion.getArchiveId());
+        for (Map.Entry<String, ApplicationTopologyVersion> topologyVersionEntry : version.getTopologyVersions().entrySet()) {
+            publisher.publishEvent(
+                    new BeforeApplicationTopologyVersionDeleted(this, version.getApplicationId(), version.getId(), topologyVersionEntry.getKey()));
+            csarService.deleteCsar(topologyVersionEntry.getValue().getArchiveId());
         }
+
+        publisher.publishEvent(new BeforeApplicationVersionDeleted(this, version.getApplicationId(), version.getId()));
         alienDAO.delete(ApplicationVersion.class, version.getId());
+        publisher.publishEvent(new AfterApplicationVersionDeleted(this, version.getApplicationId(), version.getId()));
+
+        for (Map.Entry<String, ApplicationTopologyVersion> topologyVersionEntry : version.getTopologyVersions().entrySet()) {
+            publisher
+                    .publishEvent(new AfterApplicationTopologyVersionDeleted(this, version.getApplicationId(), version.getId(), topologyVersionEntry.getKey()));
+        }
     }
 
     /**
@@ -383,8 +409,12 @@ public class ApplicationVersionService {
         }
 
         ApplicationTopologyVersion deleted = applicationVersion.getTopologyVersions().remove(topologyVersion);
+        publisher.publishEvent(
+                new BeforeApplicationTopologyVersionDeleted(this, applicationVersion.getApplicationId(), applicationVersion.getId(), topologyVersion));
         csarService.deleteCsar(deleted.getArchiveId());
         alienDAO.save(applicationVersion);
+        publisher.publishEvent(
+                new AfterApplicationTopologyVersionDeleted(this, applicationVersion.getApplicationId(), applicationVersion.getId(), topologyVersion));
     }
 
     /**
