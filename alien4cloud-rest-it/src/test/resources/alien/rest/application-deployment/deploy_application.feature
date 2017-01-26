@@ -16,7 +16,7 @@ Feature: Deploy an application
     And There are these users in the system
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
-    And I add a role "DEPLOYER" to user "sangoku" on the resource type "LOCATION" named "Thark location"
+    And I grant access to the resource type "LOCATION" named "Thark location" to the user "sangoku"
     And I am authenticated with user named "sangoku"
 
     And I pre register orchestrator properties
@@ -101,3 +101,68 @@ Feature: Deploy an application
 #      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
 #    And I deploy the application "App(Test" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
 #    Then I should receive a RestResponse with an error code 613
+
+  @reset
+  Scenario: Deploy an application on location without appropriate user authorization should failed
+    Given I am authenticated with "ADMIN" role
+    Given I revoke access to the resource type "LOCATION" named "Thark location" from the user "sangoku"
+    And I am authenticated with user named "sangoku"
+    Given I create a new application with name "ALIEN" and description "" and node templates
+      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    Then I should receive a RestResponse with an error code 102
+    When I deploy it
+    Then I should receive a RestResponse with an error code 500
+
+  @reset
+  Scenario: Deploy an application on location with appropriate group authorization with success
+    Given I am authenticated with "ADMIN" role
+    Given I revoke access to the resource type "LOCATION" named "Thark location" from the user "sangoku"
+    When I create a new group in the system with name "lordOfRing" , a role "APPLICATIONS_MANAGER" and a user "sangoku"
+    And I grant access to the resource type "LOCATION" named "Thark location" to the group "lordOfRing"
+    And I am authenticated with user named "sangoku"
+    Given I create a new application with name "ALIEN" and description "" and node templates
+      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    When I deploy it
+    Then I should receive a RestResponse with no error
+    And The application's deployment must succeed
+
+  @reset
+  Scenario: Deploy an application on location without appropriate group authorization should failed
+    Given I am authenticated with "ADMIN" role
+    Given I revoke access to the resource type "LOCATION" named "Thark location" from the user "sangoku"
+    When I create a new group in the system with name "lordOfRing" , a role "APPLICATIONS_MANAGER" and a user "sangoku"
+    And I am authenticated with user named "sangoku"
+    Given I create a new application with name "ALIEN" and description "" and node templates
+      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    Then I should receive a RestResponse with an error code 102
+    When I deploy it
+    Then I should receive a RestResponse with an error code 500
+
+  @reset
+  Scenario: Deploy an application on location with appropriate application authorization should success
+    Given I create a new application with name "ALIEN" and description "" and node templates
+      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    Given I am authenticated with "ADMIN" role
+    Given I revoke access to the resource type "LOCATION" named "Thark location" from the user "sangoku"
+    Then I grant access to the resource type "LOCATION" named "Thark location" to the application "ALIEN"
+    And I am authenticated with user named "sangoku"
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    When I deploy it
+    Then I should receive a RestResponse with no error
+    And The application's deployment must succeed
+
+  @reset
+  Scenario: Deploy an application on location with appropriate environment authorization should success
+    Given I create a new application with name "ALIEN" and description "" and node templates
+      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    Then I am authenticated with "ADMIN" role
+    And I revoke access to the resource type "LOCATION" named "Thark location" from the user "sangoku"
+    And I grant access to the resource type "LOCATION" named "Thark location" to the environment "Environment" of the application "ALIEN"
+    Then I am authenticated with user named "sangoku"
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    When I deploy it
+    Then I should receive a RestResponse with no error
+    And The application's deployment must succeed

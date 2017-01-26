@@ -16,7 +16,7 @@
 #    And There are these users in the system
 #      | sangoku |
 #    And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
-#    And I add a role "DEPLOYER" to user "sangoku" on the resource type "LOCATION" named "Thark location"
+#    And I grant access to the resource type "LOCATION" named "Thark location" to the user "sangoku"
 #    And I am authenticated with user named "sangoku"
 #    And I pre register orchestrator properties
 #      | managementUrl | http://cloudifyurl:8099 |

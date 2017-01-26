@@ -16,7 +16,7 @@ Feature: Un-Deploy an application
     And There are these users in the system
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
-    And I add a role "DEPLOYER" to user "sangoku" on the resource type "LOCATION" named "Thark location"
+    And I grant access to the resource type "LOCATION" named "Thark location" to the user "sangoku"
     And I am authenticated with user named "sangoku"
 
     And I pre register orchestrator properties
@@ -38,6 +38,7 @@ Feature: Un-Deploy an application
     And I have expected applications statuses for "undeployment" operation
       | The great eye | UNDEPLOYED |
 
+    Then I am authenticated with "ADMIN" role
     When I ask for detailed deployments for orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
     And the response should contains 1 deployments DTO and applications with an end date set

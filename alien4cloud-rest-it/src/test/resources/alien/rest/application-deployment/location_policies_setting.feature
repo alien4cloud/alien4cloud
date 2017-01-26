@@ -15,7 +15,7 @@ Feature: Set location policies
 
   @reset
   Scenario: Set location policy for all groups in the topology
-    Given I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
+    Given I grant access to the resource type "LOCATION" named "Thark location" to the user "frodon"
 #		When I Set the following location policies with orchestrator "Mount doom orchestrator" for groups
 #			| _A4C_ALL | Thark location |
     When I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
@@ -25,14 +25,14 @@ Feature: Set location policies
 
   @reset
   Scenario: Setting a location policy for a group other than _A4C_ALL should fail
-    Given I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
+    Given I grant access to the resource type "LOCATION" named "Thark location" to the user "frodon"
     When I Set the following location policies with orchestrator "Mount doom orchestrator" for groups
       | TEST_GROUP | Thark location |
     Then I should receive a RestResponse with an error code 500
 
   @reset
   Scenario: Setting location policy for more than one group should fail
-    Given I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
+    Given I grant access to the resource type "LOCATION" named "Thark location" to the user "frodon"
     When I Set the following location policies with orchestrator "Mount doom orchestrator" for groups
       | HAHAHA  | Thark location |
       | HOHOHOH | Thark location |

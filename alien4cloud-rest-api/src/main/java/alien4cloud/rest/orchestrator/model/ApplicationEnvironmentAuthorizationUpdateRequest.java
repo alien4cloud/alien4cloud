@@ -1,0 +1,13 @@
+package alien4cloud.rest.orchestrator.model;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class ApplicationEnvironmentAuthorizationUpdateRequest {
+    private String[] applicationsToDelete;
+    private String[] environmentsToDelete;
+    private String[] applicationsToAdd;
+    private String[] environmentsToAdd;
+}

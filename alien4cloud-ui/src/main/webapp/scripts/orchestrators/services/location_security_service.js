@@ -1,68 +1,24 @@
 define(function (require) {
   'use strict';
-
+  
   var modules = require('modules');
+  
+  modules.get('a4c-orchestrators').factory('locationSecurityService', ['$alresource',
+    function ($alresource) {
+      
+      var users = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/users/:username');
+      
+      var groups = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/groups/:groupId');
 
-  modules.get('a4c-orchestrators').factory('locationSecurityService', ['$resource',
-    function($resource) {
-      /* Users/groups roles on an clouds */
-      var manageLocationUserRoles = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/roles/users/:username/:role', {}, {
-        'addUserRole': {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          },
-          params: {
-            orchestratorId: '@orchestratorId',
-            locationId: '@locationId',
-            username: '@username',
-            role: '@role'
-          }
-        },
-        'removeUserRole': {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          },
-          params: {
-            orchestratorId: '@orchestratorId',
-            locationId: '@locationId',
-            username: '@username',
-            role: '@role'
-          }
-        }
-      });
+      var applications = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/applications/:applicationId');
 
-      var manageLocationGroupRoles = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/roles/groups/:groupId/:role', {}, {
-        'addGroupRole': {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          },
-          params: {
-            orchestratorId: '@orchestratorId',
-            locationId: '@locationId',
-            groupId: '@groupId',
-            role: '@role'
-          }
-        },
-        'removeGroupRole': {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          },
-          params: {
-            orchestratorId: '@orchestratorId',
-            locationId: '@locationId',
-            groupId: '@groupId',
-            role: '@role'
-          }
-        }
-      });
+      var environmentsPerApplication = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/environmentsPerApplication');
 
       return {
-        'userRoles': manageLocationUserRoles,
-        'groupRoles': manageLocationGroupRoles
+        'users': users,
+        'groups': groups,
+        'applications': applications,
+        'environmentsPerApplication': environmentsPerApplication
       };
     }]);
 });

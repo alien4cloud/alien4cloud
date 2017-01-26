@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import io.swagger.annotations.Api;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -46,6 +45,7 @@ import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -77,7 +77,7 @@ public class DeploymentController {
      */
     @ApiOperation(value = "Get deployments for an orchestrator.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<DeploymentDTO>> get(
             @ApiParam(value = "Id of the orchestrator for which to get deployments. If not provided, get deployments for all orchestrators") @RequestParam(required = false) String orchestratorId,
             @ApiParam(value = "Id of the application for which to get deployments. if not provided, get deployments for all applications") @RequestParam(required = false) String sourceId,
@@ -144,7 +144,7 @@ public class DeploymentController {
         }
         Map<String, Location> locations = null;
         if (!locationIds.isEmpty()) {
-            locations = locationService.findByIdsIfAuthorized(FetchContext.SUMMARY, locationIds.toArray(new String[0]));
+            locations = locationService.findByIds(FetchContext.SUMMARY, locationIds.toArray(new String[locationIds.size()]));
         }
 
         return locations != null ? locations : Maps.<String, Location> newHashMap();

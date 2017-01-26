@@ -807,7 +807,8 @@
   "GROUPS": {
     "EDIT_GROUPS": "Edit groups",
     "NEW": "New Group",
-    "ROLES": "Roles"
+    "ROLES": "Roles",
+    "AUTHORIZED": "group authorized"
   },
   "HOME": {
     "ADMIN": {
@@ -876,6 +877,14 @@
       "UNLOCK-BTN-TITLE": "Unlock"
     },
     "LOCATIONS": {
+      "AUTHORIZATIONS": {
+        "USERS": {
+          "ADD": "Authorize user"
+        },
+        "GROUPS": {
+          "ADD": "Authorize group"
+        }
+      },
       "AUTO_CONFIG": "Auto-config",
       "CONFIGURATION_RESOURCES": "Configuration resources",
       "CONFIG_REQUIRES_CONNEXION": "Orchestrator must be connected so you can configure locations.",
@@ -1000,7 +1009,8 @@
     "LAST_NAME": "Last Name",
     "NEW": "New User",
     "PASSWORD": "Password",
-    "ROLES": "Roles"
+    "ROLES": "Roles",
+    "AUTHORIZED": "user authorized"
   },
   "VALUE": "Value",
   "metrics": {

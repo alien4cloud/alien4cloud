@@ -14,7 +14,6 @@ define(function (require) {
   require('scripts/orchestrators/controllers/orchestrator_configuration');
   require('scripts/orchestrators/controllers/orchestrator_locations');
   require('scripts/orchestrators/controllers/orchestrator_deployments');
-  require('scripts/orchestrators/controllers/orchestrator_security');
 
   states.state('admin.orchestrators.details', {
     url: '/details/:id',

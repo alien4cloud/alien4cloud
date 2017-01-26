@@ -45,6 +45,7 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
@@ -59,7 +60,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
-import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyValidationResult;
 import io.swagger.annotations.Api;
@@ -93,6 +93,8 @@ public class ApplicationDeploymentController {
     private WorkflowExecutionService workflowExecutionService;
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
+    @Resource
+    private LocationSecurityService locationSecurityService;
     @Inject
     private ApplicationEnvironmentDTOBuilder dtoBuilder;
 
@@ -129,9 +131,8 @@ public class ApplicationDeploymentController {
         // get the target locations of the deployment topology
         Map<String, Location> locationMap = deploymentTopologyService.getLocations(deploymentTopology);
         for (Location location : locationMap.values()) {
-            AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
+            locationSecurityService.checkAuthorisation(location, environment);
         }
-
         // prepare the deployment
         TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);
 
@@ -145,11 +146,6 @@ public class ApplicationDeploymentController {
 
         // process with the deployment
         deployService.deploy(deploymentTopology, application);
-        // TODO OrchestratorDisabledException handling in the ExceptionHandler
-        // return RestResponseBuilder.<Void> builder().error(
-        // new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + environment.getCloudId() + "> is disabled or not found"))
-        // .build();
-
         return RestResponseBuilder.<Void> builder().build();
     }
 

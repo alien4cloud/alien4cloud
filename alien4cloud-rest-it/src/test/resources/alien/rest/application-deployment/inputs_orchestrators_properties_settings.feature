@@ -20,7 +20,7 @@ Feature: inputs and orchestrator proerties settings in deployment topology
     And I create a resource of type "alien.nodes.mock.Compute" named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "imageId" to "img1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "flavorId" to "1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-    And I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
+    And I grant access to the resource type "LOCATION" named "Thark location" to the user "frodon"
 
     And I create a new application with name "ALIEN" and description "ALIEN_1" and node templates
       | WebServer | tosca.nodes.WebServer:1.0.0-SNAPSHOT |

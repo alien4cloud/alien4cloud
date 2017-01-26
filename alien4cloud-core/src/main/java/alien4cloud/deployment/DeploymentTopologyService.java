@@ -51,9 +51,8 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
+import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.orchestrators.locations.services.LocationService;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
@@ -96,6 +95,8 @@ public class DeploymentTopologyService {
     private IDeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
     @Inject
     private PropertyService propertyService;
+    @Resource
+    private LocationSecurityService locationSecurityService;
 
     public void save(DeploymentTopology deploymentTopology) {
         deploymentTopology.setLastDeploymentTopologyUpdateDate(new Date());
@@ -403,6 +404,7 @@ public class DeploymentTopologyService {
 
         DeploymentTopology deploymentTopology = new DeploymentTopology();
         deploymentTopology.setOrchestratorId(orchestratorId);
+        deploymentTopology.setEnvironmentId(environmentId);
         addLocationPolicies(deploymentTopology, groupsToLocations);
 
         if (oldDT != null) {
@@ -469,7 +471,8 @@ public class DeploymentTopologyService {
         for (Entry<String, String> matchEntry : groupsLocationsMapping.entrySet()) {
             String locationId = matchEntry.getValue();
             Location location = locationService.getOrFail(locationId);
-            AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
+            // AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
+            locationSecurityService.checkAuthorisation(location, deploymentTopology.getEnvironmentId());
             deploymentTopology.getLocationDependencies().addAll(location.getDependencies());
             LocationPlacementPolicy locationPolicy = new LocationPlacementPolicy(locationId);
             locationPolicy.setName("Location policy");
