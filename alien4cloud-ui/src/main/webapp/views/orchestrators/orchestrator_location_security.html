@@ -15,6 +15,10 @@
           </alien-group-authorization>
         </uib-tab>
         <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
+          <alien-app-authorization
+                  orchestrator="orchestrator"
+                  location="context.location">
+          </alien-app-authorization>
         </uib-tab>
       </uib-tabset>
     </div>

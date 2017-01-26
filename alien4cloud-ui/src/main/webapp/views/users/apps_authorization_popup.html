@@ -1,0 +1,89 @@
+<div>
+  <div class="modal-header">
+    <h3>ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.DEFINE</h3>
+  </div>
+  <div class="modal-body">
+    <div>
+      <div class="row" style="margin-top: 10px;" ng-show="!editionMode">
+        <div class="col-md-12">
+          <form role="search" ng-submit="searchApp(); event.preventDefault();">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="..." ng-model="query">
+                <span class="input-group-btn">
+                  <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+                    <i class="fa fa-search"></i>
+                  </button>
+                </span>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <div class="col-md-12">
+          <empty-place-holder
+              for="'ROLE_TABS.USERS'"
+              data="appsData.data">
+          </empty-place-holder>
+          <div class="table-responsive large-data-container" id="apps-table" ng-if="appsData.data.length > 0">
+            <table class="table table-hover">
+              <thead>
+              <tr>
+                <th class="text-center">
+                  <a ng-click="toggleSelectAll()" href="" ng-if="getSelectAllStatus() != -1">
+                    <i class="fa"
+                       ng-class="{
+                         'fa-check-square-o' : getSelectAllStatus() == 2,
+                         'fa-square-o': getSelectAllStatus() == 0,
+                         'fa-minus-square-o': getSelectAllStatus() == 1
+                         }"></i>
+                  </a>
+                  <i class="fa fa-minus-square-o text-muted" ng-if="getSelectAllStatus() == -1"></i>
+                </th>
+                <th>{{ 'APPLICATIONS.APPLICATION' | translate}}</th>
+                <th></th>
+                <th>{{ 'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr ng-repeat="app in appsData.data" ng-init="isEnvironmentsCollapsed = !editionMode">
+                <td class="text-center">
+                  <a ng-click="toggleApplicationSelection(app)" href="" ng-if="getApplicationSelectionStatus(app) != 1">
+                    <i class="fa"
+                       ng-init="selectionStatus = getApplicationSelectionStatus(app)"
+                       ng-class="{'fa-check-square-o' : getApplicationSelectionStatus(app) == 2, 'fa-minus-square-o': getApplicationSelectionStatus(app) == 1, 'fa-square-o': getApplicationSelectionStatus(app) == 0}"></i>
+                  </a>
+                  <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(app) == 1"></i>
+                </td>
+                <td>{{ app.name }}</td>
+                <td ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; expandEnvironments(app, isEnvironmentsCollapsed);" class="clickable">
+                    <i class="pull-left fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
+                </td>
+                <td>
+                  <div ng-if="!isEnvironmentsCollapsed">
+                    <div class="row" ng-repeat="env in environments[app.id]">
+                      <div class="col-md-12">
+                        <a ng-click="toggleEnvironmentSelection(app, env)" href="" ng-if="getApplicationSelectionStatus(app) < 2">
+                          <i class="fa"
+                             ng-class="{'fa-check-square-o' : isEnvironmentSelected(app, env),  'fa-square-o': !isEnvironmentSelected(app, env)}"></i>
+                        </a>
+                        <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(app) == 2"></i>
+                        {{ env.name }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <pagination-directive pagination-info="searchService.pagination"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer" style="margin-top: 10px;">
+    <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+    <button ng-disabled="selectedUsers.length === 0" class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}
+    </button>
+  </div>
+</div>

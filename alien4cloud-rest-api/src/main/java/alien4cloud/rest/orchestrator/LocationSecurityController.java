@@ -241,8 +241,7 @@ public class LocationSecurityController {
     @ApiOperation(value = "Update applications/environments authorized to access the location", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
+    public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId, @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = getLocation(orchestratorId, locationId);
         if (request.getApplicationsToDelete() != null && request.getApplicationsToDelete().length > 0) {
             resourcePermissionService.revokePermission(location, Subject.APPLICATION, request.getApplicationsToDelete());
@@ -250,11 +249,24 @@ public class LocationSecurityController {
         if (request.getEnvironmentsToDelete() != null && request.getEnvironmentsToDelete().length > 0) {
             resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
         }
+        Set<String> envToAddSet = Sets.newHashSet(request.getEnvironmentsToAdd());
         if (request.getApplicationsToAdd() != null && request.getApplicationsToAdd().length > 0) {
             resourcePermissionService.grantPermission(location, Subject.APPLICATION, request.getApplicationsToAdd());
+            // when an app is added, all eventual existing env authorizations are removed
+            List<String> envIds = Lists.newArrayList();
+            for (String applicationToAddId : request.getApplicationsToAdd()) {
+                ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationToAddId);
+                for (ApplicationEnvironment ae : aes) {
+                    envIds.add(ae.getId());
+                    envToAddSet.remove(ae.getId());
+                }
+            }
+            if (!envIds.isEmpty()) {
+                resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT, envIds.toArray(new String[envIds.size()]));
+            }
         }
         if (request.getEnvironmentsToAdd() != null && request.getEnvironmentsToAdd().length > 0) {
-            resourcePermissionService.grantPermission(location, Subject.ENVIRONMENT, request.getEnvironmentsToAdd());
+            resourcePermissionService.grantPermission(location, Subject.ENVIRONMENT, envToAddSet.toArray(new String[envToAddSet.size()]));
         }
         return RestResponseBuilder.<Void> builder().build();
     }
