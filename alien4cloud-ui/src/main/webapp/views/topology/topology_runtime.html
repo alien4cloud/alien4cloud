@@ -1,12 +1,17 @@
-<div id="editor-head-menu" class="topology-editor" style="margin-top: -10px; padding:2px; padding-left:20px; padding-right:20px; background-color: #666666;">
+<div id="editor-head-menu" class="topology-editor row" style="margin-top: -10px; padding:2px; padding-left:20px; padding-right:20px; background-color: #666666;">
 
-  <ui-select id="editor-env-version-select" ng-model="selectedEnvironment" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeEnvironment(selectedEnvironment)" reset-search-input="true" close-on-select="true">
-    <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name | limitTo: 20}}{{$select.selected.name.length > 20 ? '...' : ''}}</ui-select-match>
-    <ui-select-choices repeat="environment in runtimeEnvironments | filter: {status: '!UNDEPLOYED', name: $select.search}">
-      <span ng-bind-html="environment.name | limitTo: 20 | highlight: $select.search"></span>
-      {{environment.name > 20 ? '...' : ''}}
-    </ui-select-choices>
-  </ui-select>
+  <div style="display: inline-flex;">
+    <div style="min-width: 140px">
+      <ui-select id="editor-env-version-select" ng-model="selectedEnvironment" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeEnvironment(selectedEnvironment)" reset-search-input="true" close-on-select="true">
+        <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name | limitTo: 20}}{{$select.selected.name.length > 20 ? '...' : ''}}</ui-select-match>
+        <ui-select-choices repeat="environment in runtimeEnvironments | filter: {status: '!UNDEPLOYED', name: $select.search}">
+          <span ng-bind-html="environment.name | limitTo: 20 | highlight: $select.search"></span>
+          {{environment.name > 20 ? '...' : ''}}
+        </ui-select-choices>
+      </ui-select>
+    </div>
+    <span style="color:whitesmoke; margin: 0 5px;">{{'APPLICATIONS.VERSION.TOPOLOGY.LABEL' | translate}}&nbsp;:&nbsp;{{ selectedEnvironment.currentVersionName }}</span>
+  </div>
 
   <div id="editor-context-container" class="pull-right">
   </div>
