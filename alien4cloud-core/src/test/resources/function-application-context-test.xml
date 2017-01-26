@@ -49,4 +49,5 @@
   <context:property-placeholder properties-ref="alienconfig"/>
 
   <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
+  <bean id="resourcePermissionService" class="alien4cloud.security.ResourcePermissionService"/>
 </beans>

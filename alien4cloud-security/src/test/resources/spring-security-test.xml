@@ -43,4 +43,5 @@
 
   <mockito:mock id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate" />
   <mockito:mock id="group-dao" class="alien4cloud.security.groups.IAlienGroupDao" />
+  <mockito:mock id="alien-es-dao" class="alien4cloud.dao.IGenericSearchDAO" />
 </beans>
