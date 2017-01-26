@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.utils.VersionUtil;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -39,7 +38,6 @@ import alien4cloud.it.topology.EditorStepDefinitions;
 import alien4cloud.it.topology.TopologyStepDefinitions;
 import alien4cloud.it.topology.TopologyTemplateStepDefinitions;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.common.Tag;
@@ -53,6 +51,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.utils.ReflectionUtil;
+import alien4cloud.utils.VersionUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -611,7 +610,7 @@ public class ApplicationStepDefinitions {
     public void I_create_a_new_application_with_name_and_description_based_this_created_template(String name, String description) throws Throwable {
         String topologyTemplateId = TopologyTemplateStepDefinitions.CURRENT_TOPOLOGY_TEMP_ID;
         assertFalse(StringUtils.isBlank(topologyTemplateId));
-        createApplication(name, description, topologyTemplateId, null);
+        createApplication(name, appToArchName(name), description, topologyTemplateId);
     }
 
     @Then("^The created application topology is the same as the one in the base topology template$")
@@ -643,7 +642,7 @@ public class ApplicationStepDefinitions {
     public void iCreateANewApplicationWithNameAndDescriptionBasedOnTheTemplateWithName(String name, String description, String templateName) throws Throwable {
         String topologyTemplateId = TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName);
         assertFalse(StringUtils.isBlank(topologyTemplateId));
-        createApplication(name, description, topologyTemplateId, null);
+        createApplication(name, appToArchName(name), description, topologyTemplateId);
     }
 
     @When("^I get the application named \"([^\"]*)\"$")
