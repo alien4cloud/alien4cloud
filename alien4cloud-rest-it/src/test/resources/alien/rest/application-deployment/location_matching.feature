@@ -79,3 +79,19 @@ Feature: Match location for a deployment configuration
     When I ask for the locations matching for the environment "DEV-ALIEN" of the application "ALIEN"
     Then I should receive a match result with 1 locations
       | Elf location |
+
+
+  @reset
+  Scenario: Get locations matchings for this topology, environment has access
+    Given I am authenticated with user named "tom"
+    When I ask for the locations matching for the current application
+    Then I should receive a match result with no locations
+
+    When I authenticate with "ADMIN" role
+    And I grant access to the resource type "LOCATION" named "Thark location" to the environment "DEV-ALIEN" of the application "ALIEN"
+    And I add a role "DEPLOYMENT_MANAGER" to user "tom" on the resource type "ENVIRONMENT" named "DEV-ALIEN"
+
+    When I am authenticated with user named "tom"
+    When I ask for the locations matching for the environment "DEV-ALIEN" of the application "ALIEN"
+    Then I should receive a match result with 1 locations
+      | Thark location |
