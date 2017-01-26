@@ -1,5 +1,7 @@
 package alien4cloud.application;
 
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,8 +11,12 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.events.AfterApplicationEnvironmentDeleted;
+import org.alien4cloud.alm.events.AfterApplicationTopologyVersionDeleted;
+import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.tosca.model.Csar;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -23,8 +29,6 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
-import alien4cloud.events.BeforeEnvironmentDeletedEvent;
-import alien4cloud.events.DeleteEnvironmentEvent;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.NotFoundException;
@@ -55,8 +59,8 @@ public class ApplicationEnvironmentService {
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
-    @Resource
-    private ApplicationContext applicationContext;
+    @Inject
+    private ApplicationEventPublisher publisher;
     @Inject
     private DeploymentService deploymentService;
 
@@ -115,6 +119,23 @@ public class ApplicationEnvironmentService {
         return result.getData();
     }
 
+    @EventListener
+    public void handleDeleteVersion(AfterApplicationTopologyVersionDeleted event) {
+        GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.buildQuery(ApplicationEnvironment.class)
+                .setFilters(fromKeyValueCouples("applicationId", event.getApplicationId(), "topologyVersion", event.getTopologyVersion())).prepareSearch()
+                .search(0, Integer.MAX_VALUE);
+        if (result.getData() == null || result.getData().length == 0) {
+            return;
+        }
+        ApplicationVersion version = applicationVersionService.getLatest(event.getApplicationId());
+        // assign the latest version and save
+        for (ApplicationEnvironment environment : result.getData()) {
+            environment.setVersion(version.getVersion());
+            environment.setTopologyVersion(version.getTopologyVersions().keySet().iterator().next());
+            alienDAO.save(environment);
+        }
+    }
+
     /**
      * Get all environments for a given application
      *
@@ -133,18 +154,16 @@ public class ApplicationEnvironmentService {
      * @param id The id of the version to delete.
      */
     public boolean delete(String id) {
-        ApplicationEnvironment environmentToDelete = getOrFail(id);
+        ApplicationEnvironment applicationEnvironment = getOrFail(id);
         boolean isDeployed = isDeployed(id);
 
         if (isDeployed) {
             throw new DeleteDeployedException("Application environment with id <" + id + "> cannot be deleted since it is deployed");
         }
 
-        deploymentTopologyService.deleteByEnvironmentId(id);
-        applicationContext.publishEvent(new BeforeEnvironmentDeletedEvent(this, environmentToDelete.getId()));
+        publisher.publishEvent(new BeforeApplicationEnvironmentDeleted(this, applicationEnvironment.getApplicationId(), applicationEnvironment.getId()));
         alienDAO.delete(ApplicationEnvironment.class, id);
-        applicationContext
-                .publishEvent(new DeleteEnvironmentEvent(this, environmentToDelete, deploymentService.getAllOrchestratorIdsAndOrchestratorDeploymentId(id)));
+        publisher.publishEvent(new AfterApplicationEnvironmentDeleted(this, applicationEnvironment.getApplicationId(), applicationEnvironment.getId()));
         return true;
     }
 
