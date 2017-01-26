@@ -443,3 +443,14 @@ img.icon_32 {
     background-color: transparent;
     cursor: not-allowed;
 }
+
+.nav > li.tab-label > a {
+  font-weight: 500;
+  color: #333333;
+}
+.nav > li.tab-label > a:hover {
+  border-color: rgba(0, 0, 0, 0);
+  font-weight: 500;
+  color: #333333;
+  cursor: default;
+}
