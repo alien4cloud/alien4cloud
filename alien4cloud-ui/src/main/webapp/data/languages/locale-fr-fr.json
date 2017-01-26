@@ -4,6 +4,7 @@
     "APPLICATION_ROLES": "Rôles d'application",
     "ARCHIVE_NAME": "Nom d'archive (Id)",
     "ARCHIVE_NAME_HELP": "Le nom de l'archive TOSCA (Cloud Service Archive) liée à l'application. C'est également l'id unique et immutable de l'application.",
+    "AUTHORIZED": "application autorisée",
     "DEPLOY": "Déployer",
     "DEPLOYMENT": {
       "DEPLOY": "Déployer",
@@ -16,6 +17,7 @@
       }
     },
     "ENVIRONMENT": {
+      "ALL": "All Environment",
       "ENV": "Environnement",
       "ENV_ROLES": "Rôles d'environment",
       "FORM": {
@@ -807,7 +809,8 @@
   "GROUPS": {
     "EDIT_GROUPS": "Editer les groupes",
     "NEW": "Nouveau Groupe",
-    "ROLES": "Roles"
+    "ROLES": "Roles",
+    "AUTHORIZED": "groupe autorisé"
   },
   "HOME": {
     "ADMIN": {
@@ -876,6 +879,28 @@
       "UNLOCK-BTN-TITLE": "Déverrouiller"
     },
     "LOCATIONS": {
+      "AUTHORIZATIONS": {
+        "USERS": {
+          "ADD": "Autoriser utilisateur",
+          "ADD_POPUP": {
+            "TITLE": "Selectionner utilisateurs",
+            "OK": "Autoriser"
+          }
+        },
+        "GROUPS": {
+          "ADD": "Autoriser group",
+          "ADD_POPUP": {
+            "TITLE": "Selectionner groupes",
+            "OK": "Autoriser"
+          }
+        },
+        "APPS": {
+          "ADD": "Autoriser application",
+          "ADD_POPUP": {
+            "TITLE": "Selectionner applications / environnements"
+          }
+        }
+      },
       "AUTO_CONFIG": "Auto-configuration",
       "CONFIGURATION_RESOURCES": "Configuration des ressources",
       "CONFIG_REQUIRES_CONNEXION": "L'ochestrateur doit être connecté afin de permetre la configuration des locations.",
@@ -1000,7 +1025,8 @@
     "LAST_NAME": "Nom",
     "NEW": "Nouvel Utilisateur",
     "PASSWORD": "Mot de passe",
-    "ROLES": "Roles"
+    "ROLES": "Roles",
+    "AUTHORIZED": "utilisateur autorisé"
   },
   "VALUE": "Valeur",
   "metrics": {

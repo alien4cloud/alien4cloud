@@ -4,6 +4,7 @@
     "APPLICATION_ROLES": "アプリケーションロール",
     "ARCHIVE_NAME": "Archive name (Id)",
     "ARCHIVE_NAME_HELP": "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
+    "AUTHORIZED": "application authorized",
     "DEPLOY": "デプロイ",
     "DEPLOYMENT": {
       "DEPLOY": "デプロイ",
@@ -16,6 +17,7 @@
       }
     },
     "ENVIRONMENT": {
+      "ALL": "All Environment",
       "ENV": "環境",
       "ENV_ROLES": "環境のロール",
       "FORM": {
@@ -807,7 +809,8 @@
   "GROUPS": {
     "EDIT_GROUPS": "グループの編集",
     "NEW": "新しいグループ",
-    "ROLES": "ロール"
+    "ROLES": "ロール",
+    "AUTHORIZED": "group authorized"
   },
   "HOME": {
     "ADMIN": {
@@ -876,6 +879,28 @@
       "UNLOCK-BTN-TITLE": "Unlock"
     },
     "LOCATIONS": {
+      "AUTHORIZATIONS": {
+        "USERS": {
+          "ADD": "Authorize user",
+          "ADD_POPUP": {
+            "TITLE": "Select users",
+            "OK": "Authorize selected users"
+          }
+        },
+        "GROUPS": {
+          "ADD": "Authorize group",
+          "ADD_POPUP": {
+            "TITLE": "Select groups",
+            "OK": "Authorize selected groups"
+          }
+        },
+        "APPS": {
+          "ADD": "Authorize application",
+          "ADD_POPUP": {
+            "TITLE": "Select applications / environments"
+          }
+        }
+      },
       "AUTO_CONFIG": "Auto-config",
       "CONFIGURATION_RESOURCES": "Configuration resources",
       "CONFIG_REQUIRES_CONNEXION": "Orchestrator must be connected so you can configure locations.",
@@ -1000,7 +1025,8 @@
     "LAST_NAME": "Last Name",
     "NEW": "新しいユーザ",
     "PASSWORD": "Password",
-    "ROLES": "ロール"
+    "ROLES": "ロール",
+    "AUTHORIZED": "user authorized"
   },
   "VALUE": "Value",
   "metrics": {
