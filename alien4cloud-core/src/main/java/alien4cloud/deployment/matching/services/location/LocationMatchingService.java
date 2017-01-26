@@ -7,10 +7,8 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.deployment.matching.plugins.ILocationMatcher;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.matching.ILocationMatch;
@@ -26,8 +24,6 @@ public class LocationMatchingService {
     private LocationMatcherFactoriesRegistry locationMatcherFactoriesRegistry;
     @Resource
     private LocationMatchAuthorizationFilter authorizationFilter;
-    @Resource
-    private ApplicationEnvironmentService applicationEnvironmentService;
 
     /**
      * Given a topology, return a list of locations on which the topo can be deployed
@@ -60,15 +56,11 @@ public class LocationMatchingService {
      * Given a topologyId, return a list of locations on which the related topo can be deployed
      *
      * @param topologyId mandatory topology id
-     * @param environmentId optional environment's id, the context from which the match is done, it affects the security aspect
+     * @param applicationEnvironment optional environment, the context from which the match is done, it affects the security aspect
      * @return list of matched locations
      */
-    public List<ILocationMatch> match(String topologyId, String environmentId) {
+    public List<ILocationMatch> match(String topologyId, ApplicationEnvironment applicationEnvironment) {
         Topology topology = topoServiceCore.getOrFail(topologyId);
-        ApplicationEnvironment applicationEnvironment = null;
-        if (StringUtils.isNotBlank(environmentId)) {
-            applicationEnvironment = applicationEnvironmentService.getOrFail(environmentId);
-        }
         return match(topology, applicationEnvironment);
     }
 }
