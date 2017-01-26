@@ -128,6 +128,9 @@ public class ApplicationEnvironmentService {
             return;
         }
         ApplicationVersion version = applicationVersionService.getLatest(event.getApplicationId());
+        if (version == null) {
+            return;
+        }
         // assign the latest version and save
         for (ApplicationEnvironment environment : result.getData()) {
             environment.setVersion(version.getVersion());
