@@ -11,7 +11,8 @@ define(function(require) {
         'resourcesTemplates': '=',
         'resourcesTypes': '=',
         'resourcesTypesMap': '=',
-        'context': '=?'
+        'context': '=?',
+        'showCatalog': '=?'
       },
       link: {}
     };

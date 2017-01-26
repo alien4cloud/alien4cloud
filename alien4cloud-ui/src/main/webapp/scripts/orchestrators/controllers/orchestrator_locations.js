@@ -69,6 +69,7 @@ define(function(require) {
           $scope.context.locationResources = location.resources;
           $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
           $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
+
         };
 
         $scope.deleteLocation = function(location){

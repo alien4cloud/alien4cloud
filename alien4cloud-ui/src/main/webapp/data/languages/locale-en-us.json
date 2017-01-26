@@ -912,7 +912,9 @@
       "ON_DEMAND_RESOURCES": "On demand resources",
       "POLICIES": "Policies",
       "RESOURCES": {
-        "TYPE": "Resources types:"
+        "TYPE": "Resource types",
+        "DROP": "Drop new resources here or on the table above",
+        "PROVIDED": "Provided type from the orchestrator"
       },
       "SECURITY": "Security",
       "SERVICES": "Services"

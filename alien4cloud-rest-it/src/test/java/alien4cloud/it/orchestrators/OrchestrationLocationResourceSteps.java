@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 
@@ -11,6 +12,7 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.it.Context;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.orchestrator.model.CreateLocationResourceTemplateRequest;
 import alien4cloud.rest.orchestrator.model.LocationDTO;
@@ -25,16 +27,38 @@ public class OrchestrationLocationResourceSteps {
     @When("^I create a resource of type \"([^\"]*)\" named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
     public void I_create_a_resource_of_type_named_related_to_the_location_(String resourceType, String resourceName, String orchestratorName,
             String locationName) throws Throwable {
+        createResourceTemplate(resourceType, resourceName,  null, null, orchestratorName, locationName);
+    }
+
+    @When("^I create a resource of type \"([^\"]*)\" named \"([^\"]*)\" from archive \"([^\"]*)\" in version \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void I_create_a_resource_of_type_named_from_archive_related_to_the_location_(String resourceType, String resourceName, String archiveName, String archiveVersion,
+           String orchestratorName, String locationName) throws Throwable {
+        createResourceTemplate(resourceType, resourceName, archiveName, archiveVersion, orchestratorName, locationName);
+    }
+
+    @And("^The create resource response should contain a new dependency named \"([^\"]*)\" in version \"([^\"]*)\"$")
+    public void The_create_resource_response_should_contain_a_new_dependency(String archiveName, String archiveVersion) throws Throwable {
+        final RestResponse<LocationResourceTemplateWithDependencies> response = JsonUtil.read(Context.getInstance().getRestResponse(), LocationResourceTemplateWithDependencies.class, Context.getJsonMapper());
+        Assert.assertNotNull(response);
+        Assert.assertNotNull(response.getData());
+        Assert.assertNotNull(response.getData().getResourceTemplate());
+        Assert.assertNotNull(response.getData().getNewDependencies());
+        Assert.assertTrue(response.getData().getNewDependencies().contains(new CSARDependency(archiveName, archiveVersion)));
+    }
+
+    private void createResourceTemplate(String resourceType, String resourceName, String archiveName, String archiveVersion, String orchestratorName, String locationName) throws IOException {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
         String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s/resources", orchestratorId, locationId);
         CreateLocationResourceTemplateRequest request = new CreateLocationResourceTemplateRequest();
         request.setResourceName(resourceName);
         request.setResourceType(resourceType);
+        request.setArchiveName(archiveName);
+        request.setArchiveVersion(archiveVersion);
         String resp = Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(request));
 
-        RestResponse<LocationResourceTemplate> response = JsonUtil.read(resp, LocationResourceTemplate.class, Context.getJsonMapper());
-        Context.getInstance().registerOrchestratorLocationResource(orchestratorId, locationId, response.getData().getId(), resourceName);
+        RestResponse<LocationResourceTemplateWithDependencies> response = JsonUtil.read(resp, LocationResourceTemplateWithDependencies.class, Context.getJsonMapper());
+        Context.getInstance().registerOrchestratorLocationResource(orchestratorId, locationId, response.getData().getResourceTemplate().getId(), resourceName);
         Context.getInstance().registerRestResponse(resp);
     }
 
@@ -56,11 +80,21 @@ public class OrchestrationLocationResourceSteps {
 
     @Then("^The location should contains a resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")
     public void The_location_should_contains_a_resource_with_name_and_type(String resourceName, String resourceType) throws Throwable {
+        doesLocationContainResource(resourceName, resourceType, false);
+    }
+
+    @Then("^The location should contains an on-demand resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")
+    public void The_location_should_contains_an_on_demand_resource_with_name_and_type(String resourceName, String resourceType) throws Throwable {
+        doesLocationContainResource(resourceName, resourceType, true);
+    }
+
+    private void doesLocationContainResource(String resourceName, String resourceType, boolean onDemand) throws Throwable {
         String restResponse = Context.getInstance().getRestResponse();
         RestResponse<LocationDTO> response = JsonUtil.read(restResponse, LocationDTO.class, Context.getJsonMapper());
         LocationDTO locationDTO = response.getData();
         boolean found = false;
-        for (LocationResourceTemplate lrt : locationDTO.getResources().getConfigurationTemplates()) {
+        final List<LocationResourceTemplate> templates = onDemand ? locationDTO.getResources().getNodeTemplates() : locationDTO.getResources().getConfigurationTemplates();
+        for (LocationResourceTemplate lrt : templates) {
             if (lrt.getName().equals(resourceName) && lrt.getTypes().contains(resourceType)) {
                 found = true;
                 break;
@@ -137,4 +171,5 @@ public class OrchestrationLocationResourceSteps {
         Assert.assertTrue(keyName + " must be defined as environment variable", StringUtils.isNotBlank(keyName));
         I_update_the_property_to_for_the_resource_named_related_to_the_location_(propertyName, keyName, resourceName, orchestratorName, locationName);
     }
+
 }
