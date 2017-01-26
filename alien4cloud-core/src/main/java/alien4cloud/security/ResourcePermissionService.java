@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.alm.events.BeforeApplicationDeleted;
+import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.context.event.EventListener;
@@ -17,8 +19,6 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.events.BeforeApplicationDeletedEvent;
-import alien4cloud.events.BeforeEnvironmentDeletedEvent;
 import alien4cloud.security.event.GroupDeletedEvent;
 import alien4cloud.security.event.UserDeletedEvent;
 import alien4cloud.utils.TypeScanner;
@@ -113,16 +113,17 @@ public class ResourcePermissionService {
     }
 
     @EventListener
-    public void applicationDeletedEventListener(BeforeApplicationDeletedEvent event) throws IOException, ClassNotFoundException {
+    public void applicationDeletedEventListener(BeforeApplicationDeleted event) throws IOException, ClassNotFoundException {
         FilterBuilder resourceFilter = FilterBuilders.nestedFilter("applicationPermissions",
                 FilterBuilders.termFilter("applicationPermissions.key", event.getApplicationId()));
         deletePermissions(resourceFilter, event.getApplicationId(), ((resource, subjectId) -> revokePermission(resource, Subject.APPLICATION, subjectId)));
     }
 
     @EventListener
-    public void environmentDeletedEventListener(BeforeEnvironmentDeletedEvent event) throws IOException, ClassNotFoundException {
+    public void environmentDeletedEventListener(BeforeApplicationEnvironmentDeleted event) throws IOException, ClassNotFoundException {
         FilterBuilder resourceFilter = FilterBuilders.nestedFilter("environmentPermissions",
-                FilterBuilders.termFilter("environmentPermissions.key", event.getEnvironmentId()));
-        deletePermissions(resourceFilter, event.getEnvironmentId(), ((resource, subjectId) -> revokePermission(resource, Subject.ENVIRONMENT, subjectId)));
+                FilterBuilders.termFilter("environmentPermissions.key", event.getApplicationEnvironmentId()));
+        deletePermissions(resourceFilter, event.getApplicationEnvironmentId(),
+                ((resource, subjectId) -> revokePermission(resource, Subject.ENVIRONMENT, subjectId)));
     }
 }

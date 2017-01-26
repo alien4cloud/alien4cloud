@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.events.AfterApplicationDeleted;
-import org.alien4cloud.tosca.catalog.events.AfterArchiveDeleted;
+import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import org.elasticsearch.common.lang3.ArrayUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
-import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
