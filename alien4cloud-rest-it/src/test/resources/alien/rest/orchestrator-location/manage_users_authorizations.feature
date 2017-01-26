@@ -14,10 +14,15 @@ Feature: Manage user's authorizations on an location
   @reset
   Scenario: Add / Remove rights to a user on a location
     Given I grant access to the resource type "LOCATION" named "middle_earth" to the user "frodon"
+    Then I should have following list of users:
+      | frodon |
     When I get the authorised users for the resource type "LOCATION" named "middle_earth"
     Then I should have following list of users:
       | frodon |
     Given I grant access to the resource type "LOCATION" named "middle_earth" to the user "sam"
+    Then I should have following list of users:
+      | frodon |
+      | sam    |
     When I get the authorised users for the resource type "LOCATION" named "middle_earth"
     Then I should have following list of users:
       | frodon |
@@ -26,3 +31,5 @@ Feature: Manage user's authorizations on an location
     When I get the authorised users for the resource type "LOCATION" named "middle_earth"
     Then I should have following list of users:
       | frodon |
+    Given I revoke access to the resource type "LOCATION" named "middle_earth" from the user "frodon"
+    Then I should not have any authorized users

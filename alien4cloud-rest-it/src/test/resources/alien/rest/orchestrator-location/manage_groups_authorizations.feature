@@ -18,6 +18,8 @@ Feature: Manage group's authorizations on location
   @reset
   Scenario: Add / Remove rights to a group on a location
     Given I grant access to the resource type "LOCATION" named "middle_earth" to the group "lordOfRing"
+    Then I should have following list of groups:
+      | lordOfRing |
     When I get the authorised groups for the resource type "LOCATION" named "middle_earth"
     Then I should have following list of groups:
       | lordOfRing |
@@ -27,6 +29,10 @@ Feature: Manage group's authorizations on location
       | lordOfRing |
       | hobbits    |
     Given I revoke access to the resource type "LOCATION" named "middle_earth" from the group "lordOfRing"
+    Then I should have following list of groups:
+      | hobbits |
     When I get the authorised groups for the resource type "LOCATION" named "middle_earth"
     Then I should have following list of groups:
       | hobbits |
+    Given I revoke access to the resource type "LOCATION" named "middle_earth" from the user "frodon"
+    Then I should not have any authorized groups
