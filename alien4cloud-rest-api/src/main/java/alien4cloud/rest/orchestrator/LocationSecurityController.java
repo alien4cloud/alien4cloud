@@ -252,7 +252,10 @@ public class LocationSecurityController {
         if (request.getEnvironmentsToDelete() != null && request.getEnvironmentsToDelete().length > 0) {
             resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
         }
-        Set<String> envToAddSet = Sets.newHashSet(request.getEnvironmentsToAdd());
+        Set<String> envToAddSet = Sets.newHashSet();
+        if (request.getEnvironmentsToAdd() != null) {
+            envToAddSet.addAll(Sets.newHashSet(request.getEnvironmentsToAdd()));
+        }
         if (request.getApplicationsToAdd() != null && request.getApplicationsToAdd().length > 0) {
             resourcePermissionService.grantPermission(location, Subject.APPLICATION, request.getApplicationsToAdd());
             // when an app is added, all eventual existing env authorizations are removed
