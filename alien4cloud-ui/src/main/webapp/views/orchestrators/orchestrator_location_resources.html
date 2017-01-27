@@ -1,7 +1,7 @@
-<div ng-controller="OrchestratorLocationResourcesTemplateCtrl">
-  <div class="row" style="margin-top: 10px">
+<div ng-controller="OrchestratorLocationResourcesTemplateCtrl as ctrl">
+  <div ng-show="!showCatalog" class="row" style="margin-top: 10px">
     <div class="col-md-12">
-      <span>{{'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate}} </span>
+      <span>{{'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate}}: </span>
       <select ng-model="selectedConfigurationResourceType"
               ng-options="type.elementId for type in resourcesTypes">
       </select>
@@ -12,7 +12,7 @@
   </div>
   <div class="row" style="margin-top: 10px">
     <div class="col-md-6">
-      <table class="table table-hover table-bordered">
+      <table class="table table-hover table-bordered" alien-droppable drag-data="" drag-on-drop="addResourceTemplate(data)">
         <thead>
           <tr>
             <th></th>
@@ -26,7 +26,7 @@
               class="clickable"
               ng-class="{'warning': selectedResourceTemplate == template}"
               ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.elementId">
-            <td ng-init="nodeIcon = getIcon(template)">
+            <td ng-init="nodeIcon = getIcon(template.template.type)">
               <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
               <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
             </td>
@@ -35,9 +35,15 @@
           </tr>
         </tbody>
       </table>
+      <div class="drop-box" ng-show="showCatalog" alien-droppable drag-on-drop="addResourceTemplate(data)">
+        <i class="fa fa-file-text"></i>&nbsp;<small>{{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.DROP' | translate }}</small>
+      </div>
     </div>
     <div class="col-md-6" ng-if="selectedResourceTemplate">
       <div class="well">
+        <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="selectTemplate(null)">
+              <i class="fa fa-remove close-panel"></i>
+        </span>
         <orchestrator-location-resource-template resource-template="selectedResourceTemplate"
                                                  resource-type="resourcesTypesMap[selectedResourceTemplate.template.type]"
                                                  resource-capability-types="context.locationResources.capabilityTypes"
@@ -51,6 +57,51 @@
                                                  on-portability-property-update="updatePortabilityProperty(propertyName, propertyValue)">
         </orchestrator-location-resource-template>
       </div>
+    </div>
+    <div id="resource-catalog" ng-if="showCatalog" ng-show="!selectedResourceTemplate" class="col-md-6">
+      <uib-tabset justified="true">
+        <uib-tab index="0">
+          <uib-tab-heading>
+            {{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate }}
+          </uib-tab-heading>
+          <ul class="list-group" style="overflow: auto; height: {{ dimensions.height + 'px' }};">
+            <li class="list-group-item media clickable-media favorite"
+                ng-repeat="resource in ctrl.favorites | orderBy : ['-provided', 'elementId']"
+                alien-draggable drag-enabled="true" drag-data="resource">
+              <div class="media-left" ng-init="nodeIcon = getIcon(resource.elementId)">
+                <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
+                <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_64">
+              </div>
+              <div class="media-body">
+                <small class="pull-right well well-sm"
+                       ng-if="resource.provided"
+                       uib-tooltip="{{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.PROVIDED' | translate }}"
+                       tooltip-placement="left"
+                       tooltip-append-to-body="true">
+                  <i class="fa fa-star" style="color:goldenrod"></i>
+                </small>
+                <h4 class="media-heading">{{ resource.elementId }}</h4>
+                <p>
+                  <b>{{'COMMON.SOURCE' | translate}}:</b> {{ resource.archiveName }}:{{ resource.archiveVersion }}
+                </p>
+              </div>
+            </li>
+          </ul>
+        </uib-tab>
+        <uib-tab index="1">
+          <uib-tab-heading>
+            <i class="icon-folder-open"></i> Catalog
+          </uib-tab-heading>
+          <alien-search-node-type
+                  display-detail-pannel="false"
+                  drag-and-drop-enabled="true"
+                  default-filters="{'abstract':'F'}"
+                  height-info="dimensions"
+                  static-facets="staticFacets"
+                  badges="badges">
+          </alien-search-node-type>
+        </uib-tab>
+      </uib-tabset>
     </div>
   </div>
 </div>

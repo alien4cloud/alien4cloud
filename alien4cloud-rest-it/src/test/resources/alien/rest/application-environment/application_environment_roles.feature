@@ -5,14 +5,15 @@ Feature: Roles managements on application environment
     And There are these users in the system
       | frodon |
     And There is a "hobbits" group in the system
-    And I create a new application with name "LAMP" and description "LAMP Stack application..." without errors
+    And I create an application with name "LAMP", archive name "LAMP", description "LAMP Stack application..." and topology template id "null"
+    And I should receive a RestResponse with no error
 
   @reset
   Scenario: Add role to user
     When I add a role "DEPLOYMENT_MANAGER" to user "frodon" on the resource type "ENVIRONMENT" named "Environment"
     Then I should receive a RestResponse with no error
     When I get the application environment named "Environment"
-    And I register the rest response data as SPEL context of type "alien4cloud.model.application.ApplicationEnvironment"
+    And I register the rest response data as SPEL context of type "alien4cloud.rest.application.model.ApplicationEnvironmentDTO"
     And The SPEL expression "userRoles['frodon'][0]" should return "DEPLOYMENT_MANAGER"
 
   @reset
@@ -23,7 +24,7 @@ Feature: Roles managements on application environment
     When I remove a role "DEPLOYMENT_MANAGER" to user "frodon" on the resource type "ENVIRONMENT" named "Environment"
     Then I should receive a RestResponse with no error
     When I get the application environment named "Environment"
-    And I register the rest response data as SPEL context of type "alien4cloud.model.application.ApplicationEnvironment"
+    And I register the rest response data as SPEL context of type "alien4cloud.rest.application.model.ApplicationEnvironmentDTO"
     And The SPEL boolean expression "userRoles['frodon'] == null" should return true
     When I search for "LAMP" application
     And The application should have a user "frodon" not having "APPLICATION_USER" role
@@ -33,7 +34,7 @@ Feature: Roles managements on application environment
     When I add a role "DEPLOYMENT_MANAGER" to group "hobbits" on the resource type "ENVIRONMENT" named "Environment"
     Then I should receive a RestResponse with no error
     When I get the application environment named "Environment"
-    And I register the rest response data as SPEL context of type "alien4cloud.model.application.ApplicationEnvironment"
+    And I register the rest response data as SPEL context of type "alien4cloud.rest.application.model.ApplicationEnvironmentDTO"
     And The SPEL expression "groupRoles.entrySet()[0].value[0]" should return "DEPLOYMENT_MANAGER"
 
   @reset
@@ -44,7 +45,7 @@ Feature: Roles managements on application environment
     When I remove a role "DEPLOYMENT_MANAGER" to group "hobbits" on the resource type "ENVIRONMENT" named "Environment"
     Then I should receive a RestResponse with no error
     When I get the application environment named "Environment"
-    And I register the rest response data as SPEL context of type "alien4cloud.model.application.ApplicationEnvironment"
+    And I register the rest response data as SPEL context of type "alien4cloud.rest.application.model.ApplicationEnvironmentDTO"
     And The SPEL boolean expression "groupRoles == null" should return true
     When I search for "LAMP" application
     Then The application should have the group "hobbits" not having "APPLICATION_USER" role

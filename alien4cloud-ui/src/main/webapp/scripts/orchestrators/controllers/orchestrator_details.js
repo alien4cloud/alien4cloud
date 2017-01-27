@@ -14,7 +14,6 @@ define(function (require) {
   require('scripts/orchestrators/controllers/orchestrator_configuration');
   require('scripts/orchestrators/controllers/orchestrator_locations');
   require('scripts/orchestrators/controllers/orchestrator_deployments');
-  require('scripts/orchestrators/controllers/orchestrator_security');
 
   states.state('admin.orchestrators.details', {
     url: '/details/:id',
@@ -50,8 +49,8 @@ define(function (require) {
   states.forward('admin.orchestrators.details', 'admin.orchestrators.details.info');
 
   modules.get('a4c-orchestrators').controller('OrchestratorDetailsCtrl',
-    ['$scope', '$modal', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'globalRestErrorHandler',
-    function($scope, $modal, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, globalRestErrorHandler) {
+    ['$scope', '$uibModal', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'globalRestErrorHandler',
+    function($scope, $uibModal, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, globalRestErrorHandler) {
       $scope.orchestrator = orchestrator;
       $scope.showForceDisable = false;
 

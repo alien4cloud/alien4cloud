@@ -20,8 +20,8 @@ define(function(require) {
           }
           var instance = this;
           $http.get('data/guides/' + tourName + '-' + $translate.use() + '.json')
-            .success(function(data) {
-              instance.currentTour = data;
+            .then(function(data) {
+              instance.currentTour = data.data;
               hopscotch.endTour(true);
               var clickTarget = null;
               var autoResume = false;
@@ -57,7 +57,7 @@ define(function(require) {
               hopscotch.startTour(instance.currentTour);
 
             })
-            .error(function() {
+            .catch(function() {
               toaster.pop('info', $translate.instant('HOPSCOTCH_MISSING.TITLE'), $translate.instant('HOPSCOTCH_MISSING.CONTENT'), 2000, 'trustedHtml', null);
             });
         },

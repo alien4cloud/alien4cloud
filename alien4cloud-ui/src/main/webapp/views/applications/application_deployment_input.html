@@ -38,7 +38,7 @@
           <i class="fa" ng-class="{'fa-caret-down' : !isInputPropertiesCollapsed, 'fa-caret-right': isInputPropertiesCollapsed}"></i>
         </h4>
       </legend>
-      <div collapse="isInputPropertiesCollapsed" class="topology-level">
+      <div uib-collapse="isInputPropertiesCollapsed" class="topology-level">
         <table class="table table-condensed" id="inputsTable">
           <tr ng-repeat="(inputId, inputDefinition) in deploymentContext.deploymentTopologyDTO.topology.inputs | allowedInputs">
             <td>
@@ -68,11 +68,11 @@
           <i class="fa" ng-class="{'fa-caret-down' : !isInputArtifactsCollapsed, 'fa-caret-right': isInputArtifactsCollapsed}"></i>
         </h4>
       </legend>
-      <div collapse="isInputArtifactsCollapsed" class="topology-level">
+      <div uib-collapse="isInputArtifactsCollapsed" class="topology-level">
         <ul>
           <li ng-repeat="(artifactKey,artifactValue) in deploymentContext.deploymentTopologyDTO.topology.inputArtifacts">
             {{artifactKey}}
-            <div class="topology-level" collapse="isArtifactCollapsed">
+            <div class="topology-level" uib-collapse="isArtifactCollapsed">
               <div class="row">
                 <div class="col-md-3">{{'COMMON.TYPE' | translate}}</div>
                 <div class="col-md-9">{{artifactValue.artifactType}}</div>
@@ -81,17 +81,17 @@
                 <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
                 <div class="col-md-9">
                   <div ng-if="!uploads[artifactKey].isUploading">
-                  <span tooltip="{{artifactValue.artifactName}}"
+                  <span uib-tooltip="{{artifactValue.artifactName}}"
                         tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifactValue.artifactName.length > 20]}}">{{artifactValue.artifactName | truncate:20}}</span>
 
-                    <div class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
+                    <div class="fileUploadImg btn" uib-tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
                     <span>
                       <i class="fa fa-upload text-primary"></i>
                     </span>
                       <input type="file" class="upload" ng-file-select="onArtifactSelected($files, artifactKey, inputArtifactValue)">
                     </div>
                   </div>
-                  <progressbar ng-if="uploads[artifactKey].isUploading" class="progress-striped active" value="uploads[artifactKey].uploadProgress"
+                  <uib-progressbar ng-if="uploads[artifactKey].isUploading" class="progress-striped active" value="uploads[artifactKey].uploadProgress"
                                type="{{uploads[artifactKey].type}}" />
                 </div>
               </div>
@@ -111,7 +111,7 @@
           <i class="fa" ng-class="{'fa-caret-down' : !isOrchestratorDeploymentPropertiesCollapsed, 'fa-caret-right': isOrchestratorDeploymentPropertiesCollapsed}"></i>
         </h4>
       </legend>
-      <div collapse="isOrchestratorDeploymentPropertiesCollapsed" class="topology-level">
+      <div uib-collapse="isOrchestratorDeploymentPropertiesCollapsed" class="topology-level">
         <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
           <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentContext.orchestratorDeploymentPropertyDefinitions">
             <td id="p_deployment_{{propertyKey}}">

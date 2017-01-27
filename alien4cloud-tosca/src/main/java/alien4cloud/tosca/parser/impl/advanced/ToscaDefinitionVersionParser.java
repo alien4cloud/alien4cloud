@@ -16,6 +16,8 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 
 @Component
 public class ToscaDefinitionVersionParser implements INodeParser<String> {
+    private static ThreadLocal<Boolean> recursiveCall = new ThreadLocal<>();
+
     @Override
     public String parse(Node node, ParsingContextExecution context) {
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getParent();
@@ -23,6 +25,14 @@ public class ToscaDefinitionVersionParser implements INodeParser<String> {
         if (toscaDefinitionVersion != null) {
             CSARDependency dependency = ToscaNormativeImports.IMPORTS.get(toscaDefinitionVersion);
             if (dependency != null) {
+                if (ToscaNormativeImports.TOSCA_NORMATIVE_TYPES.equals(dependency.getName())) {
+                    if (recursiveCall.get() == null) {
+                        recursiveCall.set(true);
+                    } else {
+                        return toscaDefinitionVersion;
+                    }
+                }
+
                 Set<CSARDependency> dependencies = archiveRoot.getArchive().getDependencies();
                 if (dependencies == null) {
                     dependencies = new HashSet<>();
@@ -32,6 +42,7 @@ public class ToscaDefinitionVersionParser implements INodeParser<String> {
                 // Normative imports are automatically injected and supposed to be accessible, no specific validation is performed here.
                 ToscaContext.get().addDependency(dependency);
                 dependencies.add(dependency);
+                recursiveCall.remove();
             }
         }
         return toscaDefinitionVersion;

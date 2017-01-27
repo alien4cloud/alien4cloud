@@ -6,7 +6,7 @@
             class="form-tree-label"
             ng-class="{'form-tree-label-active': isActivePath}"
             ng-click="goTo()"
-            tooltip="{{labelName}}"
+            uib-tooltip="{{labelName}}"
             tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
         {{labelName | translate | truncate:configuration.labelSize}}
       </span>

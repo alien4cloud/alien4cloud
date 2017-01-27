@@ -40,8 +40,8 @@ define(function (require) {
       );
 
       // get the configuration for the orchestrator.
-      $http.get('rest/latest/formdescriptor/orchestratorConfig/' + orchestrator.id).success(function(result) {
-        $scope.configurationDefinition = result.data;
+      $http.get('rest/latest/formdescriptor/orchestratorConfig/' + orchestrator.id).then(function(result) {
+        $scope.configurationDefinition = result.data.data;
       });
 
       // if a key of configuration object is remove from scope by generic form, we re-add this key with a null value

@@ -34,7 +34,7 @@ define(function (require) {
   require('scripts/topology/services/topology_editor_events_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
-    ['$scope', '$modal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService',
+    ['$scope', '$uibModal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService',
     'defaultFilters',
     'topoEditArtifacts',
     'topoEditDisplay',
@@ -47,7 +47,7 @@ define(function (require) {
     'topoEditRelationships',
     'topoEditSubstitution',
     'topoEditDependencies',
-    function($scope, $modal, $timeout, componentService, nodeTemplateService, toscaService,
+    function($scope, $uibModal, $timeout, componentService, nodeTemplateService, toscaService,
     defaultFilters,
     topoEditArtifacts,
     topoEditDisplay,

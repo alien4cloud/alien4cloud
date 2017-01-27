@@ -3,8 +3,6 @@ package alien4cloud.orchestrators.locations.services;
 import static alien4cloud.utils.AlienUtils.array;
 
 import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,8 +11,9 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +22,10 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -33,9 +36,6 @@ import alien4cloud.exception.MissingCSARDependenciesException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.common.Usage;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
@@ -48,16 +48,11 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages a locations.
@@ -80,6 +75,8 @@ public class LocationService {
     private ICSARRepositorySearchService csarRepoSearchService;
     @Inject
     private ApplicationContext applicationContext;
+    @Resource
+    private LocationSecurityService locationSecurityService;
 
     /**
      * Auto-configure locations using the given location auto-configurer.
@@ -327,26 +324,19 @@ public class LocationService {
 
     /**
      * Retrieve location given a list of ids, and a specific context
-     * Only retrieves the authorized ones.
      *
      * @param fetchContext The fetch context to recover only the required field (Note that this should be simplified to directly use the given field...).
      * @param ids array of id of the applications to find
-     * @return Map of locations that has the given ids and for which the user is authorized (key is application Id), or null if no location matching the
+     * @return Map of locations that has the given ids and (key is application Id), or null if no location matching the
      *         request is found.
      */
-    public Map<String, Location> findByIdsIfAuthorized(String fetchContext, String... ids) {
+    public Map<String, Location> findByIds(String fetchContext, String... ids) {
         List<Location> results = alienDAO.findByIdsWithContext(Location.class, fetchContext, ids);
         if (results == null) {
             return null;
         }
         Map<String, Location> locations = Maps.newHashMap();
-        Iterator<Location> iterator = results.iterator();
-        while (iterator.hasNext()) {
-            Location location = iterator.next();
-            if (!AuthorizationUtil.hasAuthorizationForLocation(location, DeployerRole.values())) {
-                iterator.remove();
-                continue;
-            }
+        for (Location location : results) {
             locations.put(location.getId(), location);
         }
         return locations.isEmpty() ? null : locations;

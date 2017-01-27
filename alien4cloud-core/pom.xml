@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.4.0-SM1</version>
+    <version>1.4.0-SM2</version>
   </parent>
   <artifactId>alien4cloud-core</artifactId>
   <name>Alien 4 Cloud Core</name>
@@ -140,24 +140,28 @@
 
   </dependencies>
 
-  <build>
-    <plugins>
+  <!--<build>-->
+    <!--<plugins>-->
       <!--<plugin>-->
-      <!--<groupId>fr.fastconnect</groupId>-->
-      <!--<artifactId>plantuml-maven-plugin</artifactId>-->
-      <!--<version>1.0.0</version>-->
-      <!--<executions>-->
-      <!--<execution>-->
-      <!--<goals>-->
-      <!--<goal>plant</goal>-->
-      <!--</goals>-->
-      <!--<phase>prepare-package</phase>-->
-      <!--<configuration>-->
-      <!--<annotation>org.elasticsearch.annotation.ESObject</annotation>-->
-      <!--</configuration>-->
-      <!--</execution>-->
-      <!--</executions>-->
+        <!--<groupId>fr.fastconnect</groupId>-->
+        <!--<artifactId>plantuml-maven-plugin</artifactId>-->
+        <!--<version>1.1.0-SNAPSHOT</version>-->
+        <!--<executions>-->
+          <!--<execution>-->
+            <!--<goals>-->
+              <!--<goal>plant</goal>-->
+            <!--</goals>-->
+            <!--<phase>prepare-package</phase>-->
+            <!--<configuration>-->
+              <!--<annotation>org.elasticsearch.annotation.ESObject</annotation>-->
+              <!--<scannedPackages>-->
+                <!--<param>alien4cloud.model</param>-->
+                <!--<param>org.alien4cloud</param>-->
+              <!--</scannedPackages>-->
+            <!--</configuration>-->
+          <!--</execution>-->
+        <!--</executions>-->
       <!--</plugin>-->
-    </plugins>
-  </build>
+    <!--</plugins>-->
+  <!--</build>-->
 </project>

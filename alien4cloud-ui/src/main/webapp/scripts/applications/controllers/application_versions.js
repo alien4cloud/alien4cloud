@@ -4,6 +4,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   require('scripts/common/directives/pagination');
 
@@ -27,31 +28,71 @@ define(function (require) {
     }
   });
 
-  var NewApplicationVersionCtrl = ['$scope', '$modalInstance',
-  function($scope, $modalInstance) {
+  var NewApplicationVersionCtrl = ['$scope', '$uibModalInstance',
+  function($scope, $uibModalInstance) {
+    $scope.selectTopoVersion = false;
     $scope.appVersion = {};
-
-    $scope.create = function(version, desc, fromTopologyId) {
-      $scope.appVersion.version = version;
-      $scope.appVersion.description = desc;
-      $scope.appVersion.topologyId = fromTopologyId;
-      $modalInstance.close($scope.appVersion);
-      $scope.searchService.search();
+    $scope.fromIndex = 1;
+    $scope.create = function(valid) {
+      if (valid) {
+        if($scope.fromIndex === 1) { // create from previous version
+          $scope.appVersion.fromVersionId = $scope.fromVersion.selected.id;
+        } else if($scope.fromIndex === 2) { // create from template
+          $scope.appVersion.topologyTemplateId = $scope.topologyTemplate.versionId;
+        }
+        $uibModalInstance.close($scope.appVersion);
+      }
     };
-
     $scope.cancel = function() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     };
-  }
-  ];
+  }];
 
-  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'authService', '$modal', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify',
-    function($scope, $state, $translate, toaster, authService, $modal, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify) {
+  var NewApplicationTopologyVersionCtrl = ['$scope', '$uibModalInstance',
+  function($scope, $uibModalInstance) {
+    $scope.selectTopoVersion = true;
+    $scope.qualifierPattern = new RegExp('^(?:[a-zA-Z0-9\\-_]+)*$');
+    $scope.appTopoVersion = {};
+    $scope.fromIndex = 1;
+    var prefix = $scope.selectedVersion.version;
+    var suffix = '';
+    var snapshotIndex = $scope.selectedVersion.version.indexOf('-SNAPSHOT');
+    if(snapshotIndex > 0) {
+      prefix = $scope.selectedVersion.version.substring(0, snapshotIndex) + $scope.selectedVersion.version.substring(snapshotIndex + 9, $scope.selectedVersion.version.length);
+      suffix = '-SNAPSHOT';
+      console.log('prefix {}, suffix {}', prefix, suffix);
+    }
+
+    $scope.$watch('appTopoVersion.qualifier', function() {
+      if(_.defined($scope.appTopoVersion.qualifier) && $scope.appTopoVersion.qualifier !== '') {
+        $scope.computedVersion = prefix + '-' + $scope.appTopoVersion.qualifier + suffix;
+      } else {
+        $scope.computedVersion = $scope.selectedVersion.version;
+      }
+    });
+    $scope.create = function(valid) {
+      if (valid) {
+        if($scope.fromIndex === 1) { // create from previous version
+          $scope.appTopoVersion.applicationTopologyVersion = $scope.fromVersion.selected.topologyVersions[$scope.fromVersion.selectedTopoVersion].archiveId;
+        } else if($scope.fromIndex === 2) { // create from template
+          $scope.appTopoVersion.topologyTemplateId = $scope.topologyTemplate.versionId;
+        }
+        $uibModalInstance.close($scope.appTopoVersion);
+      }
+    };
+    $scope.cancel = function() {
+      $uibModalInstance.dismiss('cancel');
+    };
+  }];
+
+  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$translate', '$uibModal', '$alresource', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify',
+    function($scope, $translate, $uibModal, $alresource, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify) {
+      var topoVersionService = $alresource('rest/latest/applications/:appId/versions/:versionId/topologyVersions/:topoVersionId');
+
       $scope.isManager = userCanModify;
       $scope.archiveVersions = archiveVersions.data;
       $scope.searchAppVersionResult = archiveVersions.data;
-      $scope.versionPattern = new RegExp('^\\d+(?:\\.\\d+)*(?:[a-zA-Z0-9\\-_]+)*$');
-
+      $scope.versionPattern = versionServices.pattern;
       $scope.searchService = searchServiceFactory(searchServiceUrl, false, $scope, 12);
       $scope.searchService.search();
       $scope.onSearchCompleted = function(searchResult) {
@@ -72,27 +113,28 @@ define(function (require) {
       };
 
       $scope.openNewAppVersion = function() {
-        var modalInstance = $modal.open({
-          templateUrl: 'newApplicationVersion.html',
+        var modalInstance = $uibModal.open({
+          templateUrl: 'views/applications/application_version_new.html',
           controller: NewApplicationVersionCtrl,
-          scope: $scope
+          scope: $scope,
+          windowClass: 'new-app-modal'
         });
-        modalInstance.result.then(function(appVersion) {
+        modalInstance.result.then(function(createAppVersionRequest) {
           versionServices.create({
             delegateId: delegateId
-          }, angular.toJson(appVersion), function() {
+          }, angular.toJson(createAppVersionRequest), function() {
             $scope.searchService.search();
             refreshAllAppVersions();
           });
         });
       };
 
-      $scope.delete = function deleteAppEnvironment(versionId) {
+      $scope.delete = function(versionId) {
         if (!angular.isUndefined(versionId)) {
           versionServices.delete({
             delegateId: delegateId,
             versionId: versionId
-          }, null, function deleteAppEnvironment(result) {
+          }, null, function(result) {
             if (result) {
               $scope.searchService.search();
               refreshAllAppVersions();
@@ -112,6 +154,37 @@ define(function (require) {
             return $translate.instant('ERRORS.' + errorResponse.data.error.code);
           }
         );
+      };
+
+      $scope.openNewAppTopoVersion = function(version) {
+        $scope.selectedVersion = version;
+        var modalInstance = $uibModal.open({
+          templateUrl: 'views/applications/application_version_topology_new.html',
+          controller: NewApplicationTopologyVersionCtrl,
+          scope: $scope,
+          windowClass: 'new-app-modal'
+        });
+        modalInstance.result.then(function(createAppTopoVersionRequest) {
+          console.log('create', delegateId, version.id, createAppTopoVersionRequest);
+          topoVersionService.create({
+            appId: delegateId,
+            versionId: version.id
+          }, angular.toJson(createAppTopoVersionRequest), function() {
+            $scope.searchService.search();
+            refreshAllAppVersions();
+          });
+        });
+      };
+
+      $scope.deleteAppTopoVersion = function(version, topoVersionId) {
+        topoVersionService.delete({
+          appId: delegateId,
+          versionId: version.id,
+          topoVersionId: topoVersionId
+        }, null, function() {
+          $scope.searchService.search();
+          refreshAllAppVersions();
+        });
       };
     }
   ]);

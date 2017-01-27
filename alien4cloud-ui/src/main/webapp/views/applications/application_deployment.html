@@ -1,12 +1,12 @@
 <div>
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-3">
-      <select ng-if="envs" class="form-control" ng-model="deploymentContext.selectedEnvironment" ng-options="env.name for env in envs"
+      <select class="form-control" ng-model="deploymentContext.selectedEnvironment" ng-options="env.name for env in envs"
               ng-change="onEnvironmentChange()"></select>
     </div>
     <!--  Environment status -->
     <div class="col-md-3">
-      <i class="fa fa-2x vertical-center" tooltip="{{'DEPLOYMENT.STATUS.' + deploymentContext.selectedEnvironment.status | translate }}"
+      <i class="fa fa-2x vertical-center" uib-tooltip="{{'DEPLOYMENT.STATUS.' + deploymentContext.selectedEnvironment.status | translate }}"
          tooltip-append-to-body="true" ng-class="{
             'fa-circle text-success' : deploymentContext.selectedEnvironment.status === 'DEPLOYED',
             'fa-circle text-muted' : deploymentContext.selectedEnvironment.status === 'UNDEPLOYED',
@@ -78,7 +78,7 @@
                 <i class="fa" ng-class="{'fa-caret-down' : !isHAGroupWarningsCollapsed , 'fa-caret-right': isHAGroupWarningsCollapsed }"></i>
                 <span>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.LABEL' | translate}}</span>
               </h4>
-              <div collapse="isHAGroupWarningsCollapsed" class="topology-level">
+              <div uib-collapse="isHAGroupWarningsCollapsed" class="topology-level">
                 <table class="table table-condensed">
                   <thead>
                     <th>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.GROUP' | translate}}</th>
@@ -105,12 +105,12 @@
                    ng-class="{'fa-caret-down' : !isPropertiesGroupWarningsCollapsed , 'fa-caret-right': isPropertiesGroupWarningsCollapsed }"></i>
                 <span>{{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.LABEL' | translate}}</span>
               </h4>
-              <div collapse="isPropertiesGroupWarningsCollapsed" class="topology-level">
+              <div uib-collapse="isPropertiesGroupWarningsCollapsed" class="topology-level">
                 <table class="table table-condensed">
                   <thead>
                     <th>{{'COMMON.NODE' | translate}}</th>
                     <th>
-                      <i class="fa fa-exclamation-triangle" tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i>
+                      <i class="fa fa-exclamation-triangle" uib-tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i>
                       {{'COMMON.PROPERTIES' | translate}}
                     </th>
                   </thead>

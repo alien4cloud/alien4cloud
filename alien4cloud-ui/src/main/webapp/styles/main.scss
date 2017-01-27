@@ -32,6 +32,7 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "hopscotch";
 @import "bold-override";
 @import "tree-control";
+@import "location-resources-directive";
 
 // Navbar and global layout
 
@@ -91,13 +92,16 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 }
 
 // Navbar and global layout end
-
-.well {
-  background-color: white;
-}
-
 a {
   cursor: pointer;
+}
+
+.no-browser-apparence{
+  -webkit-appearance:none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  -o-appearance: none;
+  appearance: none;
 }
 
 .fa-smaller {
@@ -108,6 +112,11 @@ a {
   height: auto;
   min-height: $input-height-base;
   @extend .form-control;
+}
+
+// confirm popover
+[confirm-popup].popover {
+  display: block !important;
 }
 
 /*pagination*/
@@ -284,7 +293,6 @@ img.icon_32 {
 .option-selected > a,
 .option-selected > a:HOVER {
   cursor: default;
-
 }
 
 /* Toaster directive div : error message */
@@ -296,21 +304,18 @@ img.icon_32 {
 
 #toast-container.toast-top-right > div {
   width: 96%;
-
 }
 
 @media(min-width: $screen-sm-min) {
   .toast-top-right {
     width: 50%;
   }
-
 }
 
 @media(min-width: $screen-md-min) {
   .toast-top-right {
     width: 600px;
   }
-
 }
 
 /* End : Toaster directive div : error message */
@@ -320,7 +325,6 @@ img.icon_32 {
   display: inline-block;
   margin-top: $line-height-computed + 3;
   vertical-align: top;
-
 }
 
 /* Restected logo customized */
@@ -383,23 +387,29 @@ img.icon_32 {
   right: 0%;
 }
 
+.btn-transparent {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.btn-transparent:active {
+  box-shadow: none;
+}
+
 .alien-table-row {
-  border-width: 1px 0px;
+  border-width: 0px 0px 1px 0px;
   border-style: solid;
   border-color: #DDD;
   padding: 8px;
 }
 
-.alien-table-row:first-child {
-  border-width: 0px 0px 1px;
+.alien-table-row:last-of-type {
+  border-width: 0px 0px 0px 0px;
 }
 
-.alien-table-row:last-child {
-  border-width: 0px 0px 0px;
-}
-
-.alien-table-row:only-child {
-  border-width: 0px 0px 0px;
+.alien-table-child-row {
+  padding-top: 4px;
+  padding-bottom: 0px;
 }
 
 .empty-place-holder {
@@ -433,4 +443,15 @@ img.icon_32 {
     text-decoration: none;
     background-color: transparent;
     cursor: not-allowed;
+}
+
+.nav > li.tab-label > a {
+  font-weight: 500;
+  color: #333333;
+}
+.nav > li.tab-label > a:hover {
+  border-color: rgba(0, 0, 0, 0);
+  font-weight: 500;
+  color: #333333;
+  cursor: default;
 }

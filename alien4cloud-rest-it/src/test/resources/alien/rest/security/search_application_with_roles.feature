@@ -10,11 +10,16 @@ Feature: Search applications should be able to filter
     And There is a "Dumb dev" group in the system
     And I add the user "dumb" to the group "Dumb dev"
     And I am authenticated with "APPLICATIONS_MANAGER" role
-    And I create a new application with name "a4c" and description "Great application." without errors
-    And I create a new application with name "dumbest" and description "Dumbest application." without errors
-    And I create a new application with name "smartest" and description "Smartest application." without errors
-    And I create a new application with name "tron" and description "Tron legacy application." without errors
-    And I create a new application with name "lost" and description "Lost application." without errors
+    And I create an application with name "a4c", archive name "a4c", description "Great application." and topology template id "null"
+    And I should receive a RestResponse with no error
+    And I create an application with name "dumbest", archive name "dumbest", description "Dumbest application." and topology template id "null"
+    And I should receive a RestResponse with no error
+    And I create an application with name "smartest", archive name "smartest", description "Smartest application." and topology template id "null"
+    And I should receive a RestResponse with no error
+    And I create an application with name "tron", archive name "tron", description "Tron legacy application." and topology template id "null"
+    And I should receive a RestResponse with no error
+    And I create an application with name "lost", archive name "lost", description "Lost application." and topology template id "null"
+    And I should receive a RestResponse with no error
 
   @reset
   Scenario: Searching applications with right given to groups

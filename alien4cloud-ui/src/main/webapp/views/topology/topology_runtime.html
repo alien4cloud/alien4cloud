@@ -1,12 +1,17 @@
-<div id="editor-head-menu" class="topology-editor" style="margin-top: -10px; padding:2px; padding-left:20px; padding-right:20px; background-color: #666666;">
+<div id="editor-head-menu" class="topology-editor row" style="margin-top: -10px; padding:2px; padding-left:20px; padding-right:20px; background-color: #666666;">
 
-  <ui-select id="editor-env-version-select" ng-model="selectedEnvironment" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeEnvironment(selectedEnvironment)" reset-search-input="true" close-on-select="true">
-    <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name | limitTo: 20}}{{$select.selected.name.length > 20 ? '...' : ''}}</ui-select-match>
-    <ui-select-choices repeat="environment in runtimeEnvironments | filter: {status: '!UNDEPLOYED', name: $select.search}">
-      <span ng-bind-html="environment.name | limitTo: 20 | highlight: $select.search"></span>
-      {{environment.name > 20 ? '...' : ''}}
-    </ui-select-choices>
-  </ui-select>
+  <div style="display: inline-flex;">
+    <div style="min-width: 140px">
+      <ui-select id="editor-env-version-select" ng-model="selectedEnvironment" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeEnvironment(selectedEnvironment)" reset-search-input="true" close-on-select="true">
+        <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name | limitTo: 20}}{{$select.selected.name.length > 20 ? '...' : ''}}</ui-select-match>
+        <ui-select-choices repeat="environment in runtimeEnvironments | filter: {status: '!UNDEPLOYED', name: $select.search}">
+          <span ng-bind-html="environment.name | limitTo: 20 | highlight: $select.search"></span>
+          {{environment.name > 20 ? '...' : ''}}
+        </ui-select-choices>
+      </ui-select>
+    </div>
+    <span style="color:whitesmoke; margin: 0 5px;">{{'APPLICATIONS.VERSION.TOPOLOGY.LABEL' | translate}}&nbsp;:&nbsp;{{ topology.topology.archiveVersion }}</span>
+  </div>
 
   <div id="editor-context-container" class="pull-right">
   </div>
@@ -77,7 +82,7 @@
                       <td class="col-md-8" colspan="2">{{selectedEnvironment.name}}</td>
                     </tr>
                     <tr>
-                      <td class="col-md-4"><strong>{{'APPLICATIONS.VERSION.VERSION' | translate}}</strong></td>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.VERSION.TOPOLOGY.LABEL' | translate}}</strong></td>
                       <td class="col-md-8" colspan="2">{{selectedEnvironment.currentVersionName}}</td>
                     </tr>
                     <tr>
@@ -116,7 +121,7 @@
               </div>
               <div class="pull-right">
                 <button id="backToDeploymentButton" type="button" class="btn btn-default btn-xs" ng-click="clearNodeSelection()"
-                        tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
+                        uib-tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
                   <i class="fa fa-arrow-left"></i>
                 </button>
               </div>
@@ -140,11 +145,11 @@
                 e-max="{{selectedNodeTemplate.scalingPolicy.maxInstances}}"
                 e-required
                 e-onkeypress="if (event.which==13) {$('#scaleEditableInput button.btn-primary').click(); event.preventDefault();}"
-                collapse="isNodeScaleCollapsed">
+                uib-collapse="isNodeScaleCollapsed">
                 <h4>
                   {{selectedNodeTemplate.newInstancesCount || selectedNodeTemplate.instancesCount}}
                   <span id="scaleEditableButton" class="btn btn-primary btn-xs"
-                          tooltip="{{ 'APPLICATIONS.RUNTIME.SCALE_BUTTON' | translate }}">
+                          uib-tooltip="{{ 'APPLICATIONS.RUNTIME.SCALE_BUTTON' | translate }}">
                     <i class="fa fa-signal"></i>
                   </span>
                 </h4>
@@ -158,7 +163,7 @@
                   {{'APPLICATIONS.RUNTIME.INSTANCES' | translate}}
                 </h4>
               </div>
-              <div id="node-instance-list" collapse="isNodeInstanceListCollapsed" class="row">
+              <div id="node-instance-list" uib-collapse="isNodeInstanceListCollapsed" class="row">
                 <div class="col-md-12">
                   <table class="table">
                     <thead>
@@ -219,7 +224,7 @@
               </div>
               <div class="pull-right">
                 <button id="backToInstanceListButton" type="button" class="btn btn-default btn-xs" ng-click="clearInstanceSelection()"
-                        tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
+                        uib-tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
                   <i class="fa fa-arrow-left"></i>
                 </button>
               </div>
@@ -231,7 +236,7 @@
                 {{'COMMON.PROPERTIES' | translate}}
               </h4>
             </div>
-            <div class="row" collapse="isNodeInstancePropertiesCollapsed">
+            <div class="row" uib-collapse="isNodeInstancePropertiesCollapsed">
               <div class="col-md-12">
                 <table class="table">
                   <thead>
@@ -256,7 +261,7 @@
                 {{'COMMON.ATTRIBUTES' | translate}}
               </h4>
             </div>
-            <div class="row" collapse="isNodeInstanceAttributesCollapsed">
+            <div class="row" uib-collapse="isNodeInstanceAttributesCollapsed">
               <div class="col-md-12">
                 <table class="table">
                   <thead>
@@ -280,7 +285,7 @@
                 {{'APPLICATIONS.RUNTIME.RUNTIMEPROPS' | translate}}
               </h4>
             </div>
-            <div class="row" collapse="isNodeInstanceRuntimePropsCollapsed">
+            <div class="row" uib-collapse="isNodeInstanceRuntimePropsCollapsed">
               <div class="col-md-12">
                 <table class="table">
                   <thead>
@@ -309,14 +314,14 @@
                 {{'operations' | translate}}
               </h4>
             </div>
-            <div collapse="isNodeOperationsCollapsed">
+            <div uib-collapse="isNodeOperationsCollapsed">
               <div ng-repeat="(interfaceName, interface) in selectedNodeCustomInterfaces">
                 <div ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{interfaceName}}_{{operationName}}" ng-repeat="(operationName, operation) in interface.operations">
                   <!-- Operation div with "execute" button -->
                   <div ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
                     <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-caret-down' : !isOpCollapsed[operationName], 'fa-caret-right': isOpCollapsed[operationName]}"></i>
                     <span>{{interfaceName}}.{{operationName}}</span>
-                    <span class="pull-right" tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
+                    <span class="pull-right" uib-tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
                       <button class="btn btn-success btn-xs"
                           ng-click="executeOperation(interfaceName, operationName, operation.inputParameters, $event)"
                           ng-disabled="operationLoading[selectedNodeTemplate.name][interfaceName][operationName]"
@@ -327,7 +332,7 @@
                     <span class="clearfix"></span>
                   </div>
                   <!-- Operation inputs in collapsed div (if exists) -->
-                  <div collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
+                  <div uib-collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
                     <table class="table table-condensed" id="op_{{operationName}}_inputParams">
                       <tr ng-repeat="(inputParameterName, inputParameter) in operation.inputParameters">
                         <td class="col-md-11" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
@@ -376,12 +381,12 @@
                 <div class="form-group">
                   <label class="col-md-2 control-label">{{'COMMON.TYPE' | translate}}</label>
                   <div class="col-md-10">
-                    <div class="btn-group">
-                      <button id="eventTypeSelection" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <div class="btn-group" uib-dropdown>
+                      <button id="eventTypeSelection" type="button" class="btn btn-default" uib-dropdown-toggle>
                         {{eventTypeLabels[selectedEventTypeFilter.value] | translate}}
                         <span class="caret"></span>
                       </button>
-                      <ul class="dropdown-menu" role="menu">
+                      <ul class="dropdown-menu" uib-dropdown-menu role="menu">
                         <li><a id="{{eventTypeFilter.value + 'Select'}}" ng-repeat="eventTypeFilter in eventTypeFilters | filter: {value: '!' + selectedEventTypeFilter.value} " ng-click="filterEvents(eventTypeFilter)">{{eventTypeLabels[eventTypeFilter.value]
                           | translate}}</a>
                         </li>
@@ -394,7 +399,7 @@
             <div class="row">
               <div class="col-md-12">
                 <div style="overflow: auto; height: {{eventsDivHeight}}px">
-                  <table class="table table-hover">
+                  <table class="table table-hover runtime-events-table">
                     <thead>
                       <tr>
                         <th>{{ 'APPLICATIONS.RUNTIME.EVENTS.DATE' | translate}}</th>

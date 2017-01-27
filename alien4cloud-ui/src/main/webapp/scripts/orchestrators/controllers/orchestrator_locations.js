@@ -30,17 +30,17 @@ define(function(require) {
   });
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsCtrl',
-    ['$scope', '$modal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor', '$translate', '$state',
-      function($scope, $modal, $http, locationService, orchestrator, menu, locationResourcesProcessor, $translate, $state) {
+    ['$scope', '$uibModal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor', '$translate', '$state',
+      function($scope, $uibModal, $http, locationService, orchestrator, menu, locationResourcesProcessor, $translate, $state) {
         $scope.envTypes = ['OTHER', 'DEVELOPMENT', 'INTEGRATION_TESTS', 'USER_ACCEPTANCE_TESTS', 'PRE_PRODUCTION', 'PRODUCTION'];
         $scope.orchestrator = orchestrator;
         $scope.menu = menu;
         var locationSupport;
         // query to get the location support informations for the orchestrator.
 
-        $http.get('rest/latest/orchestrators/' + orchestrator.id + '/locationsupport').success(function(response) {
-          if (_.defined(response.data)) {
-            locationSupport = response.data;
+        $http.get('rest/latest/orchestrators/' + orchestrator.id + '/locationsupport').then(function(response) {
+          if (_.defined(response.data.data)) {
+            locationSupport = response.data.data;
             $scope.multipleLocations = locationSupport.multipleLocations;
             $scope.locationTypes = locationSupport.types;
           }
@@ -50,7 +50,7 @@ define(function(require) {
         function updateLocations() {
           locationService.get({orchestratorId: orchestrator.id}, function(result) {
             $scope.locationsDTOs = result.data;
-            if ($scope.locationsDTOs.length > 0 && _.isUndefined($scope.locationDTO)) {
+            if ($scope.locationsDTOs.length > 0) {
               // For the moment show only first location
               $scope.selectLocation($scope.locationsDTOs[0]);
               $state.go('admin.orchestrators.details.locations.config');
@@ -69,6 +69,7 @@ define(function(require) {
           $scope.context.locationResources = location.resources;
           $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
           $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
+
         };
 
         $scope.deleteLocation = function(location){
@@ -91,7 +92,7 @@ define(function(require) {
         };
 
         $scope.openNewModal = function() {
-          var modalInstance = $modal.open({
+          var modalInstance = $uibModal.open({
             templateUrl: 'views/orchestrators/orchestrator_location_new.html',
             controller: 'NewLocationController',
             resolve: {

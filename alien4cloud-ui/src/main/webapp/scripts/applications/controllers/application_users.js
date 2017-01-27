@@ -39,136 +39,170 @@ define(function (require) {
   modules.get('a4c-applications').controller('ApplicationUsersCtrl', ['$scope', 'authService',
     'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles', 'environmentRoles', 'applicationEnvironmentServices', 'appEnvironments',
     function($scope, authService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult, environmentRolesResult, applicationEnvironmentServices, appEnvironments) {
-
       $scope.application = applicationResult.data;
+      $scope.selectedEnvironment = appEnvironments.selected;
       $scope.appRoles = applicationRolesResult.data;
       $scope.environmentRoles = environmentRolesResult.data;
 
-      // set default selected environment
-      $scope.selectedEnvironment = appEnvironments.selected;
+      // To ease later code just initialize the user and group roles fields in app and environments.
+      function initField(obj, field) {
+        if (_.undefined(obj[field])) {
+          obj[field] = {};
+        }
+      }
+      initField($scope.application, 'userRoles');
+      initField($scope.application, 'groupRoles');
 
-      $scope.isManager = authService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
-      $scope.isDeployer = authService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
-      $scope.isDevops = authService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
-      $scope.isUser = authService.hasResourceRole($scope.application, 'APPLICATION_USER');
+      $scope.usersByRole = {};
+      $scope.groupsByRole = {};
 
-      // switch environment
-      $scope.changeUserEnvironment = function(switchToEnvironment) {
-        appEnvironments.select(switchToEnvironment.id, function(){
-          $scope.selectedEnvironment = appEnvironments.selected;
+      // Initialze the ids of groups and users defined in app or environment roles
+      var usernames = [], groupIds = [];
+      _.each($scope.application.userRoles, function(userRoles, username) {
+        usernames.push(username);
+      });
+      _.each($scope.application.groupRoles, function(groupRoles, groupId) {
+        groupIds.push(groupId);
+      });
+      _.each($scope.envs, function(environment) {
+        initField(environment, 'userRoles');
+        initField(environment, 'groupRoles');
+        _.each(environment.userRoles, function(userRoles, username) {
+          usernames.push(username);
         });
-      };
+        _.each(environment.groupRoles, function(groupRoles, groupId) {
+          groupIds.push(groupId);
+        });
+      });
 
-      // get users related to the application
-      $scope.relatedUsers = {};
-      var loadUsers = function loadUsersToDisplay() {
-        var usernames = [];
-        // get usernames from application userRoles
-        if ($scope.application.userRoles) {
-          for (var username in $scope.application.userRoles) {
-            if ($scope.application.userRoles.hasOwnProperty(username)) {
-              usernames.push(username);
-            }
-          }
-        }
-        if (usernames.length > 0) {
-          userServices.get([], angular.toJson(usernames), function(usersResults) {
-            var data = usersResults.data;
-            for (var i = 0; i < data.length; i++) {
-              $scope.relatedUsers[data[i].username] = data[i];
+      // Maps of users and groups currently fetched for details display.
+      var userMap = {}, groupMap = {};
+
+      function updateUserEnvironmentRoles() {
+        _.each($scope.environmentRoles, function(envRole) {
+          $scope.usersByRole[envRole] = [];
+          _.each($scope.selectedEnvironment.userRoles, function(roles, userId) {
+            if(roles.indexOf(envRole) >= 0) {
+              _.safePush($scope.usersByRole, envRole, userMap[userId]);
             }
           });
-        }
-      };
-      loadUsers();
-
-      // Handle groups in groupRoles from application / environment
-      $scope.relatedGroups = {};
-      var loadGroups = function loadGroupToDisplay() {
-        var groupIds = [];
-        // get group ids from application group roles
-        if ($scope.application.groupRoles) {
-          for (var groupId in $scope.application.groupRoles) {
-            if ($scope.application.groupRoles.hasOwnProperty(groupId)) {
-              groupIds.push(groupId);
-            }
-          }
-        }
-        // get group ids from environment group roles
-        if ($scope.selectedEnvironment.groupRoles) {
-          for (var envGroupId in $scope.selectedEnvironment.groupRoles) {
-            if ($scope.selectedEnvironment.groupRoles.hasOwnProperty(envGroupId)) {
-              groupIds.push(envGroupId);
-            }
-          }
-        }
-        // get the goot name from group id
-        if (groupIds.length > 0) {
-          groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
-            var data = groupsResults.data;
-            for (var i = 0; i < data.length; i++) {
-              $scope.relatedGroups[data[i].id] = data[i];
+        });
+      }
+      function updateGroupEnvironmentRoles() {
+        _.each($scope.environmentRoles, function(envRole) {
+          $scope.groupsByRole[envRole] = [];
+          _.each($scope.selectedEnvironment.groupRoles, function(roles, groupId) {
+            if(roles.indexOf(envRole) >= 0) {
+              _.safePush($scope.groupsByRole, envRole, groupMap[groupId]);
             }
           });
-        }
-      };
-      loadGroups();
+        });
+      }
 
-      /**
-       * FOR USER SEARCH AND ADD APPLICATION'S ROLE
-       */
-      var updateRoles = function(roles, role, operation) {
+      // Initialze the map of users.
+      if (usernames.length > 0) {
+        userServices.get([], angular.toJson(usernames), function(usersResults) {
+          var data = usersResults.data;
+          for (var i = 0; i < data.length; i++) {
+            userMap[data[i].username] = data[i];
+          }
+
+          _.each($scope.application.userRoles, function(roles, userId) {
+            // lets put user ids by roles
+            _.each($scope.appRoles, function(appRole) {
+              if(roles.indexOf(appRole) >= 0) {
+                _.safePush($scope.usersByRole, appRole, userMap[userId]);
+              }
+            });
+          });
+          updateUserEnvironmentRoles();
+        });
+      }
+      // Initialze map of groups
+      if (groupIds.length > 0) {
+        groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
+          var data = groupsResults.data;
+          for (var i = 0; i < data.length; i++) {
+            groupMap[data[i].id] = data[i];
+          }
+
+          _.each($scope.application.groupRoles, function(roles, groupId) {
+            // lets put user ids by roles
+            _.each($scope.appRoles, function(appRole) {
+              if(roles.indexOf(appRole) >= 0) {
+                _.safePush($scope.groupsByRole, appRole, groupMap[groupId]);
+              }
+            });
+          });
+
+          updateGroupEnvironmentRoles();
+        });
+      }
+
+      /** FOR USER SEARCH AND ADD APPLICATION'S ROLE */
+      var updateRoles = function(roles, role, operation, target, targetElement) {
         switch (operation) {
           case 'add':
             if (!roles) {
               roles = [];
             }
             roles.push(role);
+            _.safePush(target, role, targetElement);
             return roles;
           case 'remove':
             var index = roles.indexOf(role);
             roles.splice(index, 1);
+            _.remove(target[role], function(element) {
+              if(_.defined(element.username)) {
+                return element.username === targetElement.username;
+              }
+              return element.name === targetElement.name;
+            });
             return roles;
           default:
             break;
         }
       };
 
+      // switch environment
+      $scope.changeUserEnvironment = function(switchToEnvironment) {
+        appEnvironments.select(switchToEnvironment.id, function() {
+          $scope.selectedEnvironment = appEnvironments.selected;
+          updateUserEnvironmentRoles();
+          updateGroupEnvironmentRoles();
+        });
+      };
+
       // Handle selection for USER
       $scope.handleAppRoleSelectionForUser = function(user, role) {
-        if (_.undefined($scope.application.userRoles)) {
-          $scope.application.userRoles = {};
-        }
         var appUserRoles = $scope.application.userRoles[user.username];
 
         if (!appUserRoles || appUserRoles.indexOf(role) < 0) {
-
+          // Add the role
           applicationServices.userRoles.addUserRole([], {
             applicationId: $scope.application.id,
             username: user.username,
             role: role
           }, function() {
-            $scope.application.userRoles[user.username] = updateRoles(appUserRoles, role, 'add');
-            if (!$scope.relatedUsers[user.username]) {
-              $scope.relatedUsers[user.username] = user;
+            if (!userMap[user.username]) {
+              userMap[user.username] = user;
             }
+            $scope.application.userRoles[user.username] = updateRoles(appUserRoles, role, 'add', $scope.usersByRole, user);
           });
 
         } else {
+          // remove the role
           applicationServices.userRoles.removeUserRole([], {
             applicationId: $scope.application.id,
             username: user.username,
             role: role
           }, function() {
-            $scope.application.userRoles[user.username] = updateRoles(appUserRoles, role, 'remove');
+            $scope.application.userRoles[user.username] = updateRoles(appUserRoles, role, 'remove', $scope.usersByRole, user);
           });
         }
       };
 
       $scope.handleEnvRoleSelectionForUser = function(user, role) {
-        if (_.undefined($scope.selectedEnvironment.userRoles)) {
-          $scope.selectedEnvironment.userRoles = {};
-        }
         var envUserRoles = $scope.selectedEnvironment.userRoles[user.username];
         var envId = $scope.selectedEnvironment.id;
         if (!envUserRoles || envUserRoles.indexOf(role) < 0) {
@@ -179,10 +213,10 @@ define(function (require) {
             username: user.username,
             role: role
           }, function() {
-            $scope.selectedEnvironment.userRoles[user.username] = updateRoles(envUserRoles, role, 'add');
-            if (!$scope.relatedUsers[user.username]) {
-              $scope.relatedUsers[user.username] = user;
-            }
+          if (!userMap[user.username]) {
+            userMap[user.username] = user;
+          }
+            $scope.selectedEnvironment.userRoles[user.username] = updateRoles(envUserRoles, role, 'add', $scope.usersByRole, user);
           });
 
         } else {
@@ -192,16 +226,13 @@ define(function (require) {
             username: user.username,
             role: role
           }, function() {
-            $scope.selectedEnvironment.userRoles[user.username] = updateRoles(envUserRoles, role, 'remove');
+            $scope.selectedEnvironment.userRoles[user.username] = updateRoles(envUserRoles, role, 'remove', $scope.usersByRole, user);
           });
         }
       };
 
       // Handle selection for GROUP
       $scope.handleAppRoleSelectionForGroup = function(group, role) {
-        if (_.undefined($scope.application.groupRoles)) {
-          $scope.application.groupRoles = {};
-        }
         var appGroupRoles = $scope.application.groupRoles[group.id];
         if (!appGroupRoles || appGroupRoles.indexOf(role) < 0) {
           applicationServices.groupRoles.addGroupRole([], {
@@ -209,9 +240,9 @@ define(function (require) {
             groupId: group.id,
             role: role
           }, function() {
-            $scope.application.groupRoles[group.id] = updateRoles(appGroupRoles, role, 'add');
-            if (!$scope.relatedGroups[group.id]) {
-              $scope.relatedGroups[group.id] = group;
+            $scope.application.groupRoles[group.id] = updateRoles(appGroupRoles, role, 'add', $scope.groupsByRole, group);
+            if (!groupMap[group.id]) {
+              groupMap[group.id] = group;
             }
           });
 
@@ -221,28 +252,24 @@ define(function (require) {
             groupId: group.id,
             role: role
           }, function() {
-            $scope.application.groupRoles[group.id] = updateRoles(appGroupRoles, role, 'remove');
+            $scope.application.groupRoles[group.id] = updateRoles(appGroupRoles, role, 'remove', $scope.groupsByRole, group);
           });
         }
       };
 
       $scope.handleEnvRoleSelectionForGroup = function(group, role) {
-        if (_.undefined($scope.selectedEnvironment.groupRoles)) {
-          $scope.selectedEnvironment.groupRoles = {};
-        }
         var envGroupRoles = $scope.selectedEnvironment.groupRoles[group.id];
         var envId = $scope.selectedEnvironment.id;
         if (!envGroupRoles || envGroupRoles.indexOf(role) < 0) {
-
           applicationEnvironmentServices.groupRoles.addGroupRole([], {
             applicationEnvironmentId: envId,
             applicationId: $scope.application.id,
             groupId: group.id,
             role: role
           }, function() {
-            $scope.selectedEnvironment.groupRoles[group.id] = updateRoles(envGroupRoles, role, 'add');
-            if (!$scope.relatedGroups[group.id]) {
-              $scope.relatedGroups[group.id] = group;
+            $scope.selectedEnvironment.groupRoles[group.id] = updateRoles(envGroupRoles, role, 'add', $scope.groupsByRole, group);
+            if (!groupMap[group.id]) {
+              groupMap[group.id] = group;
             }
           });
 
@@ -253,7 +280,7 @@ define(function (require) {
             groupId: group.id,
             role: role
           }, function() {
-            $scope.selectedEnvironment.groupRoles[group.id] = updateRoles(envGroupRoles, role, 'remove');
+            $scope.selectedEnvironment.groupRoles[group.id] = updateRoles(envGroupRoles, role, 'remove', $scope.groupsByRole, group);
           });
         }
       };

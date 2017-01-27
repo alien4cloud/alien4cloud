@@ -10,8 +10,12 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(features = {
         //
         "classpath:alien/rest/application-version"
+        // "classpath:alien/rest/application-version/create_application_version.feature"
+        // "classpath:alien/rest/application-version/delete_application_version.feature"
+        // "classpath:alien/rest/application-version/search_application_version.feature"
+        // "classpath:alien/rest/application-version/security_application_version.feature"
+        // "classpath:alien/rest/application-version/update_application_version.feature"
         //
 }, format = { "pretty", "html:target/cucumber/application-version", "json:target/cucumber/cucumber-application-version.json" })
-//@Ignore
 public class RunApplicationVersionIT {
 }

@@ -1,5 +1,6 @@
 package alien4cloud.security;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +23,6 @@ import com.google.common.collect.Sets;
 import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.model.CloudRole;
 import alien4cloud.security.model.Group;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
@@ -68,19 +68,6 @@ public final class AuthorizationUtil {
     }
 
     /**
-     * Check that the user has one of the requested rights for the given cloud
-     *
-     * @param resource
-     * @param expectedRoles
-     */
-    public static void checkAuthorizationForLocation(ISecuredResource resource, IResourceRoles... expectedRoles) {
-        if (!hasAuthorizationForLocation(resource, expectedRoles)) {
-            throw new AccessDeniedException("user <" + SecurityContextHolder.getContext().getAuthentication().getName()
-                    + "> has no authorization to perform the requested operation on this cloud.");
-        }
-    }
-
-    /**
      * Check that the user has one of the requested rights for the given application environment
      *
      * @deprecated use {@link AuthorizationUtil#checkAuthorizationForEnvironment(ISecuredResource, ISecuredResource, IResourceRoles...)} instead
@@ -113,10 +100,6 @@ public final class AuthorizationUtil {
 
     public static boolean hasAuthorizationForApplication(ISecuredResource resource, IResourceRoles... expectedRoles) {
         return hasAuthorization(getCurrentUser(), resource, ApplicationRole.APPLICATION_MANAGER, expectedRoles);
-    }
-
-    public static boolean hasAuthorizationForLocation(ISecuredResource resource, IResourceRoles... expectedRoles) {
-        return hasAuthorization(getCurrentUser(), resource, CloudRole.CLOUD_DEPLOYER, expectedRoles);
     }
 
     /**
@@ -233,6 +216,27 @@ public final class AuthorizationUtil {
             return (User) auth.getPrincipal();
         }
         return null;
+    }
+
+    /**
+     * Get user's groups
+     * 
+     * @param user the user to get groups
+     * @return all user's groups (group all included)
+     */
+    public static Set<String> getUserGroups(User user) {
+        if (user == null) {
+            return null;
+        }
+        Set<String> groups = user.getGroups();
+        if (groups == null) {
+            groups = new HashSet<>();
+        }
+        Group allUserGroup = getAllUsersGroup();
+        if (allUserGroup != null) {
+            groups.add(allUserGroup.getId());
+        }
+        return groups;
     }
 
     /**

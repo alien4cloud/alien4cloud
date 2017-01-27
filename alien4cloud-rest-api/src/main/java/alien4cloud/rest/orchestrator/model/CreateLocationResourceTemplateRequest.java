@@ -18,4 +18,8 @@ public class CreateLocationResourceTemplateRequest {
     @NotBlank
     @ApiModelProperty(value = "Name of the location's resource.", required = true)
     private String resourceName;
+    @ApiModelProperty(value = "Archive name of the resource type.")
+    private String archiveName;
+    @ApiModelProperty(value = "Archive version of the resource type.")
+    private String archiveVersion;
 }

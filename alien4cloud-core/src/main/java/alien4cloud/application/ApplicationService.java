@@ -9,7 +9,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import org.alien4cloud.alm.events.AfterApplicationDeleted;
+import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import org.elasticsearch.common.lang3.ArrayUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -19,7 +22,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.events.BeforeApplicationDeletedEvent;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
@@ -42,7 +44,7 @@ public class ApplicationService {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private ApplicationVersionService applicationVersionService;
-    @Resource
+    @Inject
     private ApplicationEventPublisher publisher;
 
     /**
@@ -171,8 +173,9 @@ public class ApplicationService {
         applicationVersionService.deleteByApplication(applicationId);
         applicationEnvironmentService.deleteByApplication(applicationId);
         // Clean up other resources
-        publisher.publishEvent(new BeforeApplicationDeletedEvent(this, applicationId));
+        publisher.publishEvent(new BeforeApplicationDeleted(this, applicationId));
         alienDAO.delete(Application.class, applicationId);
+        publisher.publishEvent(new AfterApplicationDeleted(this, applicationId));
         return true;
     }
 

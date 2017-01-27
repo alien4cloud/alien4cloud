@@ -24,64 +24,57 @@
 
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-12">
-      <div class="table-responsive large-data-container" id="users-table">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>{{'APPLICATIONS.VERSION.VERSION' | translate}}</th>
-              <th>{{'COMMON.DESCRIPTION' | translate}}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="version in searchAppVersionResult">
-              <td id="td-{{version.version}}"><span editable-text="version.version" onbeforesave="updateApplicationVersion('version',$data, version.id)" buttons="no" style="font-style:inherit;" blur="submit">{{version.version}} <i class="fa fa-edit"></i></span></td>
-              <td><span editable-text="version.description" onbeforesave="updateApplicationVersion('description',$data, version.id)" buttons="no" style="font-style:inherit;" blur="submit">{{version.description}} <i class="fa fa-edit"></i></span></td>
-              <td>
-                <delete-confirm class="pull-right" id='delete-version-{{version.version}}' func="delete(version.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+      <div class="large-data-container">
+        <div class="alien-table-row" id="av-{{version.version}}" ng-repeat="version in searchAppVersionResult" ng-init="isAvtCollapsed = false">
+          <div class="row">
+            <div class="col-md-3">
+              <button class="btn btn-sm btn-transparent" id="avt-clpse-btn-{{version.version}}" ng-click="isAvtCollapsed = !isAvtCollapsed;">
+                <i class="pull-left fa" ng-class="{'fa-caret-down' : !isAvtCollapsed, 'fa-caret-right': isAvtCollapsed}"></i>
+              </button>
+              <span id="avt-f-version-{{version.version}}" editable-text="version.version"
+                onbeforesave="updateApplicationVersion('version',$data, version.id)" buttons="no" style="font-style:inherit;" blur="submit">
+                {{version.version}} <i class="fa fa-edit"></i>
+              </span>
+            </div>
+            <div class="col-md-7">
+              <span id="avt-f-desc-{{version.version}}" editable-text="version.description"
+                onbeforesave="updateApplicationVersion('description',$data, version.id)" buttons="no" style="font-style:inherit;" blur="submit">
+                {{version.description}} <i class="fa fa-edit"></i>
+              </span>
+            </div>
+            <div class="col-md-2">
+              <div class="pull-right">
+                <button class="btn btn-sm btn-success" id="avt-new-btn-{{version.version}}" ng-click="openNewAppTopoVersion(version)"
+                  uib-tooltip="{{'APPLICATIONS.VERSION.TOPOLOGY.NEW' | translate}}" tooltip-placement="left" tooltip-append-to-body="true">
+                  <i class="fa fa fa-plus-circle"></i>
+                </button>
+                <delete-confirm  id='delete-version-{{version.version}}' func="delete(version.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+          </div>
+          <div class="row" uib-collapse="isAvtCollapsed" ng-repeat="(topologyVersionKey, topologyVersionValue) in version.topologyVersions">
+            <div class="col-md-12">
+              <div class="row alien-table-child-row">
+                <div class="col-md-1"></div>
+                <div class="col-md-2">
+                  {{topologyVersionKey}}
+                </div>
+                <div class="col-md-7">
+                  {{topologyVersionValue.description}}
+                </div>
+                <div class="col-md-2">
+                  <div class="pull-right">
+                    <delete-confirm  id='delete-version-{{version.version}}' func="deleteAppTopoVersion(version, topologyVersionKey)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                    </delete-confirm>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <pagination-directive pagination-info="searchService.pagination" />
       </div>
     </div>
   </div>
-
-  <script type="text/ng-template" id="newApplicationVersion.html">
-    <form name="newApplicationVersion" class="form-horizontal" role="form" ng-submit="create(versionId, descId, fromVersion.id)" novalidate>
-      <div class="modal-header">
-        <h3>{{'APPLICATIONS.VERSION.TITLE' | translate}}</h3>
-      </div>
-      <div class="modal-body">
-        <div class="form-group" ng-class="{'has-error': newApplicationVersion.name.$invalid}">
-          <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.VERSION' | translate}}</label>
-          <div class="col-lg-9">
-            <input type="text" class="form-control" id="versionId" ng-model="versionId" name="versionId" required="" ng-pattern="versionPattern" placeholder="{{'COMMON.NAME' | translate}}">
-            <span id="span-alert-pattern" ng-show="newApplicationVersion.versionId.$error.pattern">{{'APPLICATIONS.VERSION.MODAL.PATTERN' | translate}}</span>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="descid" class="col-lg-3 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
-          <div class="col-lg-9">
-            <textarea class="form-control" id="descId" rows="3" ng-model="descId" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="versionid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.MODAL.SELECT-TITLE' | translate}}</label>
-          <div class="col-lg-9">
-            <select class="form-control" id="topologyId" ng-model="fromVersion" ng-options="t.version for t in archiveVersions" placeholder="{{'COMMON.DESCRIPTION' | translate}}">
-              <option value="">{{'APPLICATIONS.VERSION.MODAL.DESC' | translate}}</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button id="btn-create" ng-disabled="newApplicationVersion.versionId.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
-        <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
-      </div>
-    </form>
-  </script>
-
 </div>

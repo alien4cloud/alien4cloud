@@ -56,8 +56,8 @@ define(function (require) {
   });
 
   modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('TopologyTemplateListCtrl',
-    ['$scope', '$modal', '$alresource', '$state', 'authService',
-    function($scope, $modal, $alresource, $state, authService) {
+    ['$scope', '$uibModal', '$alresource', '$state', 'authService',
+    function($scope, $uibModal, $alresource, $state, authService) {
       $scope.openTopology = function(archiveName, archiveVersion) {
         $state.go('topologycatalog.csar', { archiveName: archiveName, archiveVersion: archiveVersion });
       };
@@ -91,7 +91,7 @@ define(function (require) {
           resolve: { topology: function() { return topology; } }
         };
 
-        var modalInstance = $modal.open(modalConfiguration);
+        var modalInstance = $uibModal.open(modalConfiguration);
         modalInstance.result.then($scope.createTopologyTemplate);
       };
 

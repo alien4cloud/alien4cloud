@@ -3,22 +3,22 @@ define(function (require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('EditorGitRemoteModalController', ['$scope', '$modalInstance', 'remoteGit',
-    function($scope, $modalInstance, remoteGit) {
+  modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('EditorGitRemoteModalController', ['$scope', '$uibModalInstance', 'remoteGit',
+    function($scope, $uibModalInstance, remoteGit) {
       $scope.remoteGit = remoteGit;
 
       $scope.setRemote = function() {
-        $modalInstance.close($scope.remoteGit.remoteUrl);
+        $uibModalInstance.close($scope.remoteGit.remoteUrl);
       };
 
       $scope.close = function() {
-        $modalInstance.dismiss('close');
+        $uibModalInstance.dismiss('close');
       };
     }
   ]);
 
-  modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('EditorGitPushPullModalController', ['$scope', '$modalInstance', 'action',
-    function($scope, $modalInstance, action) {
+  modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('EditorGitPushPullModalController', ['$scope', '$uibModalInstance', 'action',
+    function($scope, $uibModalInstance, action) {
       $scope.gitPushPullForm = {};
       $scope.gitPushPullForm.credentials = {};
       $scope.action = action;
@@ -31,7 +31,7 @@ define(function (require) {
           },
           'remoteBranch': $scope.gitPushPullForm.remoteBranch
         };
-        $modalInstance.close(form);
+        $uibModalInstance.close(form);
       };
 
       $scope.pull = function() {
@@ -42,10 +42,10 @@ define(function (require) {
           },
           'remoteBranch': $scope.gitPushPullForm.remoteBranch
         };
-        $modalInstance.close(form);
+        $uibModalInstance.close(form);
       };
       $scope.close = function() {
-        $modalInstance.dismiss('close');
+        $uibModalInstance.dismiss('close');
       };
     }
   ]);

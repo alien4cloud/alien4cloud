@@ -6,12 +6,12 @@
     <div class="col-md-6 resource-user-roles">
       <h5>
         {{'APPLICATIONS.ENVIRONMENT.ENV_ROLES' | translate}}
-        <div id="users_environment_switcher" class="btn-group btn-group-xs">
-          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="environment_{{selectedEnvironment.name}}">
+        <div id="users_environment_switcher" uib-dropdown class="btn-group btn-group-xs">
+          <button type="button" class="btn btn-default" uib-dropdown-toggle id="environment_{{selectedEnvironment.name}}">
             {{selectedEnvironment.name}}
             <span class="caret"></span>
           </button>
-          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
             <li ng-repeat="env in envs" ng-class="{'option-selected' : env.id == selectedEnvironment.id}">
               <a id="environment_{{env.name}}" ng-click="changeUserEnvironment(env)">
                 <i class="fa fa-angle-right" ng-if="env.id == selectedEnvironment.id"></i> {{env.name}}
@@ -19,7 +19,6 @@
             </li>
           </ul>
         </div>
-
       </h5>
     </div>
   </div>
@@ -27,27 +26,15 @@
   <div class="row">
     <div class="col-md-3 resource-user-roles" ng-repeat="appRole in appRoles">
       <div class="thumbnail">
-        <h5>
-          {{appRole}}
-        </h5>
+        <h5>{{appRole}}</h5>
         <ul class="td_list liste-no-style">
-          <li ng-repeat="(username, userAppRoles) in application.userRoles | orderBy:'username.toString()' " ng-show="userAppRoles.indexOf(appRole) >=0">
+          <li ng-repeat="appUser in usersByRole[appRole] | orderBy:'username'">
             <i class="fa fa-user"></i>
-            <span>
-              {{relatedUsers[username].firstName}}
-            </span>
-            <span>
-              {{relatedUsers[username].lastName}}
-            </span>
-            <span>
-              ({{username}})
-            </span>
+            <span>{{appUser.firstName}}</span> <span>{{appUser.lastName}}</span> <span>({{appUser.username}})</span>
           </li>
-          <li ng-repeat="(groupId, groupAppRoles) in application.groupRoles | orderBy:'relatedGroups[groupId].name' " ng-show="groupAppRoles.indexOf(appRole) >=0">
+          <li ng-repeat="appGroup in groupByAppRole[appRole] | orderBy:'name'">
             <i class="fa fa-users"></i>
-            <span>
-              {{ relatedGroups[groupId].name }}
-            </span>
+            <span>{{appGroup.name}}</span>
           </li>
         </ul>
       </div>
@@ -55,28 +42,15 @@
 
     <div class="col-md-3 resource-user-roles" ng-repeat="envRole in environmentRoles">
       <div class="thumbnail">
-        <h5>
-          {{envRole}}
-        </h5>
+        <h5>{{envRole}}</h5>
         <ul class="td_list liste-no-style">
-          <li ng-repeat="(username, userEnvRoles) in selectedEnvironment.userRoles | orderBy:'username.toString()' " ng-show="userEnvRoles.indexOf(envRole) >=0">
+          <li ng-repeat="appUser in usersByRole[envRole] | orderBy:'username'">
             <i class="fa fa-user"></i>
-            <span>
-              {{ relatedUsers[username].firstName }}
-            </span>
-            <span>
-              {{ relatedUsers[username].lastName}}
-            </span>
-            <span>
-              ({{username}})
-            </span>
+            <span>{{appUser.firstName}}</span> <span>{{appUser.lastName}}</span> <span>({{appUser.username}})</span>
           </li>
-
-          <li ng-repeat="(groupId, groupEnvRoles) in selectedEnvironment.groupRoles | orderBy:'relatedGroups[groupId].name' " ng-show="groupEnvRoles.indexOf(envRole) >=0">
+          <li ng-repeat="appGroup in groupByAppRole[envRole] | orderBy:'name'">
             <i class="fa fa-users"></i>
-            <span>
-              {{ relatedGroups[groupId].name }}
-            </span>
+            <span>{{appGroup.name}}</span>
           </li>
         </ul>
       </div>
@@ -91,18 +65,18 @@
 
   <div class="row">
     <div class="col-md-12">
-      <tabset>
-        <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
+      <uib-tabset>
+        <uib-tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
           <alien-search-user crud-support="false" managed-app-role-list="appRoles" managed-env-role-list="environmentRoles" check-app-role-selected-callback="checkAppRoleSelectedForUser(user, role)" check-env-role-selected-callback="checkEnvRoleSelectedForUser(user, role)"
           on-select-app-role-callback="handleAppRoleSelectionForUser(user, role)" on-select-env-role-callback="handleEnvRoleSelectionForUser(user, role)">
           </alien-search-user>
-        </tab>
-        <tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
+        </uib-tab>
+        <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
           <alien-search-group crud-support="false" managed-app-role-list="appRoles" managed-env-role-list="environmentRoles" check-app-role-selected-callback="checkAppRoleSelectedForGroup(group, role)" check-env-role-selected-callback="checkEnvRoleSelectedForGroup(group, role)"
           on-select-app-role-callback="handleAppRoleSelectionForGroup(group, role)" on-select-env-role-callback="handleEnvRoleSelectionForGroup(group, role)">
           </alien-search-group>
-        </tab>
-      </tabset>
+        </uib-tab>
+      </uib-tabset>
     </div>
   </div>
 </div>

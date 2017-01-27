@@ -1,6 +1,5 @@
 package alien4cloud.orchestrators.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,8 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class OrchestratorService {
-    public static final String[] ENABLED_STATES = new String[] { OrchestratorState.CONNECTED.toString(),
-            OrchestratorState.CONNECTING.toString(), OrchestratorState.DISCONNECTED.toString() };
+    public static final String[] ENABLED_STATES = new String[] { OrchestratorState.CONNECTED.toString(), OrchestratorState.CONNECTING.toString(),
+            OrchestratorState.DISCONNECTED.toString() };
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
@@ -62,8 +61,6 @@ public class OrchestratorService {
         orchestrator.setPluginBean(pluginBean);
         // by default clouds are disabled as it should be configured before being enabled.
         orchestrator.setState(OrchestratorState.DISABLED);
-        orchestrator.setAuthorizedUsers(new ArrayList<String>());
-        orchestrator.setAuthorizedGroups(new ArrayList<String>());
 
         // get default configuration for the orchestrator.
         IOrchestratorPluginFactory orchestratorFactory = getPluginFactory(orchestrator);
@@ -195,9 +192,9 @@ public class OrchestratorService {
     public List<Orchestrator> getAllEnabledOrchestrators() {
         return alienDAO.customFindAll(Orchestrator.class, QueryBuilders.termsQuery("state", ENABLED_STATES));
     }
-    
+
     public List<Orchestrator> getAll() {
-       return alienDAO.customFindAll(Orchestrator.class, null);
+        return alienDAO.customFindAll(Orchestrator.class, null);
     }
 
 }

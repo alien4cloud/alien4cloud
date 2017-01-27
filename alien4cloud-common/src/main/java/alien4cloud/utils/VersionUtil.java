@@ -44,6 +44,18 @@ public final class VersionUtil {
     }
 
     /**
+     * Check if a version is valid or throw a alien4cloud.utils.version.InvalidVersionException
+     *
+     * @param version version text to check
+     * @throws alien4cloud.utils.version.InvalidVersionException if the version text is not following the defined version pattern
+     */
+    public static void isValidOrFail(String version) {
+        if (!isValid(version)) {
+            throw new InvalidVersionException("This version is not valid [" + version + "] as it does not match [" + VERSION_PATTERN + "]");
+        }
+    }
+
+    /**
      * Parse the version's text to produce a comparable version object
      * 
      * @param version version text to parse
@@ -51,11 +63,8 @@ public final class VersionUtil {
      * @throws alien4cloud.utils.version.InvalidVersionException if the version text is not following the defined version pattern
      */
     public static Version parseVersion(String version) {
-        if (!isValid(version)) {
-            throw new InvalidVersionException("This version is not valid [" + version + "] as it does not match [" + VERSION_PATTERN + "]");
-        } else {
-            return new Version(version);
-        }
+        isValidOrFail(version);
+        return new Version(version);
     }
 
     /**

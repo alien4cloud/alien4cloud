@@ -85,10 +85,7 @@ public class ArchiveIndexer {
      * @param version The version of the archive.
      */
     public void ensureUniqueness(String name, String version) {
-        long count = csarService.count(singleKeyFilter("version", version), name);
-        if (count > 0) {
-            throw new AlreadyExistException("CSAR: " + name + ", Version: " + version + " already exists in the repository.");
-        }
+        csarService.ensureUniqueness(name, version);
     }
 
     /**
@@ -229,11 +226,10 @@ public class ArchiveIndexer {
             return;
         }
         AbstractToscaType indexedNodeType = alienDAO.findById(AbstractToscaType.class, toscaType.getId());
-        if  (indexedNodeType != null && !toscaType.getArchiveName().equals(indexedNodeType.getArchiveName())) {
+        if (indexedNodeType != null && !toscaType.getArchiveName().equals(indexedNodeType.getArchiveName())) {
             throw new ToscaTypeAlreadyDefinedInOtherCSAR("Tosca type: " + toscaType.getElementId() + ", version: " + toscaType.getArchiveVersion());
         }
     }
-
 
     private void indexTopology(final ArchiveRoot archiveRoot, List<ParsingError> parsingErrors, String archiveName, String archiveVersion) {
         Topology topology = archiveRoot.getTopology();

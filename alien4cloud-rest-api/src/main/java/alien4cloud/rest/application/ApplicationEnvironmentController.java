@@ -5,7 +5,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import alien4cloud.model.deployment.Deployment;
+import org.alien4cloud.tosca.model.Csar;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,7 +57,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping({"/rest/applications/{applicationId:.+}/environments", "/rest/v1/applications/{applicationId:.+}/environments", "/rest/latest/applications/{applicationId:.+}/environments"})
+@RequestMapping({ "/rest/applications/{applicationId:.+}/environments", "/rest/v1/applications/{applicationId:.+}/environments",
+        "/rest/latest/applications/{applicationId:.+}/environments" })
 @Api(value = "", description = "Manages application's environments")
 public class ApplicationEnvironmentController {
 
@@ -66,6 +70,8 @@ public class ApplicationEnvironmentController {
     private ApplicationService applicationService;
     @Resource
     private ApplicationVersionService applicationVersionService;
+    @Inject
+    private ApplicationEnvironmentDTOBuilder dtoBuilder;
 
     /**
      * Search for application environment for a given application id
@@ -86,7 +92,7 @@ public class ApplicationEnvironmentController {
         GetMultipleDataResult<ApplicationEnvironmentDTO> searchResultDTO = new GetMultipleDataResult<ApplicationEnvironmentDTO>();
         searchResultDTO.setQueryDuration(searchResult.getQueryDuration());
         searchResultDTO.setTypes(searchResult.getTypes());
-        searchResultDTO.setData(getApplicationEnvironmentDTO(searchResult.getData()));
+        searchResultDTO.setData(dtoBuilder.getApplicationEnvironmentDTO(searchResult.getData()));
         searchResultDTO.setTotalResults(searchResult.getTotalResults());
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentDTO>> builder().data(searchResultDTO).build();
     }
@@ -109,11 +115,12 @@ public class ApplicationEnvironmentController {
     @ApiOperation(value = "Get an application environment from its id", notes = "Returns the application environment. Roles required: Application environment [ APPLICATION_USER | DEPLOYMENT_MANAGER ], or application [APPLICATION_MANAGER]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<ApplicationEnvironment> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+    public RestResponse<ApplicationEnvironmentDTO> getApplicationEnvironment(@PathVariable String applicationId,
+            @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.values());
-        return RestResponseBuilder.<ApplicationEnvironment> builder().data(environment).build();
+        return RestResponseBuilder.<ApplicationEnvironmentDTO> builder().data(dtoBuilder.getApplicationEnvironmentDTO(environment)).build();
     }
 
     /**
@@ -127,7 +134,8 @@ public class ApplicationEnvironmentController {
     @ApiOperation(value = "Get an application environment from its id", notes = "Returns the application environment. Application role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}/status", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentStatus> getApplicationEnvironmentStatus(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) throws ExecutionException, InterruptedException {
+    public RestResponse<DeploymentStatus> getApplicationEnvironmentStatus(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
+            throws ExecutionException, InterruptedException {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.values());
@@ -188,6 +196,13 @@ public class ApplicationEnvironmentController {
         if (applicationEnvironment.getName() == null || applicationEnvironment.getName().isEmpty()) {
             throw new UnsupportedOperationException("Application environment name cannot be set to null or empty");
         }
+        if (request.getCurrentVersionId() != null) {
+            // update the version of the environment
+            ApplicationVersion applicationVersion = applicationVersionService
+                    .getOrFailByArchiveId(Csar.createId(applicationEnvironment.getApplicationId(), request.getCurrentVersionId()));
+            applicationEnvironment.setVersion(applicationVersion.getVersion());
+            applicationEnvironment.setTopologyVersion(request.getCurrentVersionId());
+        }
         alienDAO.save(applicationEnvironment);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -233,43 +248,11 @@ public class ApplicationEnvironmentController {
         return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
     }
 
-    /**
-     * Get a list a application environment DTO
-     *
-     * @param applicationEnvironments
-     * @return
-     */
-    private ApplicationEnvironmentDTO[] getApplicationEnvironmentDTO(ApplicationEnvironment[] applicationEnvironments) {
-        List<ApplicationEnvironmentDTO> listApplicationEnvironmentsDTO = Lists.newArrayList();
-        ApplicationEnvironmentDTO tempEnvDTO = null;
-        for (ApplicationEnvironment env : applicationEnvironments) {
-            tempEnvDTO = new ApplicationEnvironmentDTO();
-            tempEnvDTO.setApplicationId(env.getApplicationId());
-            tempEnvDTO.setDescription(env.getDescription());
-            tempEnvDTO.setEnvironmentType(env.getEnvironmentType());
-            tempEnvDTO.setId(env.getId());
-            tempEnvDTO.setName(env.getName());
-            tempEnvDTO.setUserRoles(env.getUserRoles());
-            tempEnvDTO.setGroupRoles(env.getGroupRoles());
-            ApplicationVersion applicationVersion = applicationVersionService.get(env.getCurrentVersionId());
-            tempEnvDTO.setCurrentVersionName(applicationVersion != null ? applicationVersion.getVersion() : null);
-            try {
-                tempEnvDTO.setStatus(applicationEnvironmentService.getStatus(env));
-            } catch (Exception e) {
-                log.debug("Getting status for the environment <" + env.getId()
-                        + "> failed because the associated orchestrator cannot be reached. Returned status is UNKNOWN.", e);
-                tempEnvDTO.setStatus(DeploymentStatus.UNKNOWN);
-            }
-            listApplicationEnvironmentsDTO.add(tempEnvDTO);
-        }
-        return listApplicationEnvironmentsDTO.toArray(new ApplicationEnvironmentDTO[listApplicationEnvironmentsDTO.size()]);
-    }
-
-    @ApiOperation(value = "Get the id of the topology linked to the environment", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @Deprecated
+    @ApiOperation(value = "Deprecated: Get the id of the topology linked to the environment", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<String> getTopologyId(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
-
         Application application = applicationService.getOrFail(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.values());

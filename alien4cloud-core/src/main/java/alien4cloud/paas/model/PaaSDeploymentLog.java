@@ -2,8 +2,6 @@ package alien4cloud.paas.model;
 
 import java.util.Date;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.StringField;
@@ -14,7 +12,9 @@ import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -29,7 +29,7 @@ import lombok.Setter;
 public class PaaSDeploymentLog {
 
     /**
-     * Deployment PaaS id is unique for an application on a given environment (for ex : Alien-Prod)
+     * Deployment id is unique for a deployment
      * It corresponds to {@link alien4cloud.model.deployment.Deployment#getId}
      * This field is mandatory
      */

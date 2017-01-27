@@ -1,0 +1,76 @@
+<div>
+  <div class="modal-header">
+    <h3>{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD_POPUP.TITLE' | translate}}</h3>
+  </div>
+  <div class="modal-body">
+    <div>
+      <div class="row" style="margin-top: 10px;">
+        <div class="col-md-12">
+          <form role="search" ng-submit="search(event)">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="..." ng-model="query"> <span
+                class="input-group-btn">
+                  <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+                    <i class="fa fa-search"></i>
+                  </button>
+                </span>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <div class="col-md-12">
+          <empty-place-holder
+              for="'ROLE_TABS.USERS'"
+              data="usersData.data">
+          </empty-place-holder>
+          <div class="table-responsive large-data-container" id="users-table" ng-if="usersData.data.length > 0">
+            <table class="table table-hover">
+              <thead>
+              <tr>
+                <th class="text-center">
+                  <a ng-click="toggleSelectAll()" href="" class="btn">
+                    <i class="fa fa-fw"
+                       ng-class="{
+                         'fa-check-square-o' : selectedUsersInCurrentPage.length >= usersData.data.length ,
+                         'fa-square-o': selectedUsersInCurrentPage.length == 0,
+                         'fa-minus-square-o': selectedUsersInCurrentPage.length < usersData.data.length && selectedUsersInCurrentPage.length > 0
+                         }"></i>
+                  </a>
+                </th>
+                <th></th>
+                <th>{{ 'USERS.FIRST_NAME' | translate}}</th>
+                <th>{{ 'USERS.LAST_NAME' | translate}}</th>
+                <th>{{ 'COMMON.USERNAME' | translate}}</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr ng-repeat="user in usersData.data">
+                <td class="text-center">
+                  <a ng-click="toggleSelection(user)" href="" class="btn">
+                    <i class="fa fa-fw"
+                       ng-class="{'fa-check-square-o' : isSelected(user),  'fa-square-o': !isSelected(user)}"></i>
+                  </a>
+                </td>
+                <td>
+                  <i class="fa fa-user fa-2x" ng-if="!user.imageId"></i>
+                  <img ng-if="user.imageId" ng-src="'img?id=' + user.imageId + '&quality=QUALITY_32'"/>
+                </td>
+                <td>{{user.firstName || '---' }}</td>
+                <td>{{user.lastName || '---' }}</td>
+                <td>{{user.username || '---' }}</td>
+              </tr>
+              </tbody>
+            </table>
+            <pagination-directive pagination-info="searchService.pagination"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer" style="margin-top: 10px;">
+    <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+    <button ng-disabled="selectedUsers.length === 0" class="btn btn-primary" ng-click="ok()">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD_POPUP.OK' | translate}}
+    </button>
+  </div>
+</div>

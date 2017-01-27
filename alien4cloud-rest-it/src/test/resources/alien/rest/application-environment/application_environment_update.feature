@@ -5,7 +5,8 @@ Feature: Updates operation on application environment
     And There are these users in the system
       | frodon |
     And I add a role "APPLICATIONS_MANAGER" to user "frodon"
-    And I create a new application with name "LAMP" and description "LAMP Stack application..." without errors
+    And I create an application with name "LAMP", archive name "LAMP", description "LAMP Stack application..." and topology template id "null"
+    And I should receive a RestResponse with no error
     And I must have an environment named "Environment" for application "LAMP"
     And I add a role "APPLICATION_MANAGER" to user "frodon" on the resource type "APPLICATION" named "LAMP"
 

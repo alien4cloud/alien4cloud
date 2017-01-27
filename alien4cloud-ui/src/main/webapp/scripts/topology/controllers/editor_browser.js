@@ -71,11 +71,12 @@ define(function (require) {
         } else {
           $scope.isImage = false;
           $http({method: 'GET',
+            transformResponse: function(d) { return d; },
             url: selectedUrl})
-            .success(function(data) {
+            .then(function(result) {
+              console.log(result);
               $scope.aceFilePath = dirName;
-              aceEditor.getSession().setValue(data);
-              // $scope.editorContent = data;
+              aceEditor.getSession().setValue(result.data);
               $scope.mode = explorerService.getMode(node);
             });
         }

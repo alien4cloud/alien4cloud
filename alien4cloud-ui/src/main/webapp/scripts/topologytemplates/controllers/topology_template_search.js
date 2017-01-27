@@ -6,8 +6,8 @@ define(function (require) {
   var _ = require('lodash');
 
   modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('TopologyTemplateSearchCtrl',
-    ['$scope', '$modal', '$resource', '$state', 'authService', '$alresource',
-    function($scope, $modal, $resource, $state, authService, $alresource) {
+    ['$scope', '$uibModal', '$resource', '$state', 'authService', '$alresource',
+    function($scope, $uibModal, $resource, $state, authService, $alresource) {
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
         $scope.onSearchConfig({ searchConfig: searchConfig });
@@ -58,8 +58,8 @@ define(function (require) {
       ////////////////////////////////////
       ///  Delete topology template modal
       ///
-      var DeleteTopologyTemplateModalCtrl = ['$scope', '$modalInstance', '$state', 'csarId',
-        function($scope, $modalInstance, $state, csarId) {
+      var DeleteTopologyTemplateModalCtrl = ['$scope', '$uibModalInstance', '$state', 'csarId',
+        function($scope, $uibModalInstance, $state, csarId) {
           $scope.csarId = csarId;
           $scope.goToArchive = function () {
             $state.go('components.csars.csardetail', { csarId: csarId });
@@ -67,7 +67,7 @@ define(function (require) {
           };
 
           $scope.close = function () {
-            $modalInstance.dismiss();
+            $uibModalInstance.dismiss();
           };
       }];
 
@@ -75,7 +75,7 @@ define(function (require) {
         if (_.defined(event)) {
           event.stopPropagation();
         }
-        $modal.open({
+        $uibModal.open({
           templateUrl: 'views/topologytemplates/toplogy_template_remove_modal.html',
           controller: DeleteTopologyTemplateModalCtrl,
           resolve: {

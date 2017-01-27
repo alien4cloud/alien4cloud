@@ -25,6 +25,7 @@ public class ApplicationEnvironmentDTO {
     private String applicationId;
     private EnvironmentType environmentType;
     private String currentVersionName;
+    private String deployedVersion;
     private Map<String, Set<String>> userRoles;
     private Map<String, Set<String>> groupRoles;
 }

@@ -1,0 +1,60 @@
+<div ng-controller="AppsAuthorizationDirectiveCtrl">
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-4">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="..." ng-model="searchText">
+        <div class="input-group-addon">
+          <i class="fa fa-filter"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <button class="pull-right btn btn-sm btn-success" ng-click="openNewAppAuthorizationModal()">
+        <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}
+      </button>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+      <empty-place-holder
+          for="'APPLICATIONS.AUTHORIZED'"
+          data="authorizedEnvironmentsPerApplication">
+      </empty-place-holder>
+      <div class="table-responsive large-data-container" id="apps-table" ng-if="authorizedEnvironmentsPerApplication.length > 0">
+        <table class="table table-hover">
+          <thead>
+          <tr>
+            <th>{{ 'APPLICATIONS.APPLICATION' | translate}}</th>
+            <th>{{ 'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</th>
+            <th></th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr ng-repeat="application in authorizedEnvironmentsPerApplication | filter:searchText" id="app_{{application.application.id}}">
+            <td>{{application.application.name}}</td>
+            <td>
+              <div ng-if="application.environments && application.environments.length > 0">
+                <span class="badge" ng-repeat="environment in application.environments">{{environment.name}}</span>
+              </div>
+              <div ng-if="!application.environments || application.environments.length == 0">
+                <span class="label label-success">{{ 'APPLICATIONS.ENVIRONMENT.ALL' | translate }}</span>
+              </div>
+            </td>
+            <td>
+              <button class="pull-left btn btn-xs btn-info" ng-click="openNewAppAuthorizationModal(application.application)">
+                <i class="fa fa-edit"></i>
+              </button>
+            </td>
+            <td>
+              <button class="pull-left btn btn-xs btn-danger" ng-click="revoke(application)">
+                <i class="fa fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

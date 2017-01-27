@@ -22,52 +22,59 @@ define(function (require) {
     }
   });
 
-  var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$state',
-    function($scope, $modalInstance, $resource, $state) {
-      $scope.environment = {};
-      $scope.create = function(valid, envType, version) {
+  var NewApplicationEnvironmentCtrl = ['$scope', '$uibModalInstance',
+    function($scope, $uibModalInstance) {
+      $scope.newEnvironment = { applicationId: $scope.application.id };
+      $scope.create = function(valid) {
         if (valid) {
-          // prepare the good request
-          var applicationId = $state.params.id;
-          $scope.environment.applicationId = applicationId;
-          $scope.environment.environmentType = envType;
-          $scope.environment.versionId = version;
-          $modalInstance.close($scope.environment);
+          $uibModalInstance.close($scope.newEnvironment);
         }
       };
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ];
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentsCtrl',
-    ['$scope', '$state', '$translate', 'toaster', 'authService', '$modal', 'applicationEnvironmentServices', 'applicationVersionServices', 'appEnvironments', 'archiveVersions',
-    function($scope, $state, $translate, toaster, authService, $modal, applicationEnvironmentServices, applicationVersionServices, appEnvironments, archiveVersions) {
+    ['$scope', '$state', '$translate', 'toaster', 'authService', '$uibModal', 'applicationEnvironmentServices', 'applicationVersionServices', 'appEnvironments', 'archiveVersions',
+    function($scope, $state, $translate, toaster, authService, $uibModal, applicationEnvironmentServices, applicationVersionServices, appEnvironments, archiveVersions) {
       $scope.archiveVersions = archiveVersions.data;
       $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
       $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function() {});
 
+      $scope.environments = appEnvironments.environments;
+
+      function initEnvironment(environment) {
+        // initialize the selectedAppVersion and selectedAppTopoVersion variables based on the environment currentVersionName (basically the application topo version currently configured).
+        environment.selectedAppVersion = _.find($scope.versions, function(version) {
+          return _.defined(version.topologyVersions[environment.currentVersionName]);
+        });
+        environment.selectedAppTopoVersion = environment.currentVersionName;
+      }
       // Application versions search
       var searchVersions = function() {
         var searchRequestObject = {
           'query': '',
           'from': 0,
-          'size': 50
+          'size': 100
         };
         applicationVersionServices.searchVersion({
           delegateId: $state.params.id
         }, angular.toJson(searchRequestObject), function versionSearchResult(result) {
           $scope.versions = result.data.data;
-        });
 
+          _.each($scope.environments, function(environment) {
+            initEnvironment(environment);
+          });
+        });
       };
       searchVersions();
 
       // Modal to create an new application environment
       $scope.openNewAppEnv = function() {
-        var modalInstance = $modal.open({
-          templateUrl: 'newApplicationEnvironment.html',
+        var modalInstance = $uibModal.open({
+          templateUrl: 'views/applications/application_environment_new.html',
           controller: NewApplicationEnvironmentCtrl,
           scope: $scope
         });
@@ -75,35 +82,19 @@ define(function (require) {
           applicationEnvironmentServices.create({
             applicationId: $scope.application.id
           }, angular.toJson(environment), function(successResponse) {
-            $scope.search().then(function(searchResult){
-              var environments = searchResult.data.data;
-              var pushed = false;
-              for(var i=0; i < environments.length && !pushed; i++) {
-                if(environments[i].id === successResponse.data) {
-                  appEnvironments.addEnvironment(environments[i]);
-                  pushed = true;
-                }
+            // query the matching dto object
+            applicationEnvironmentServices.get({
+              applicationId: environment.applicationId,
+              applicationEnvironmentId: successResponse.data
+            }, function (result) {
+              if (_.undefined(result.error) ) {
+                initEnvironment(result.data);
+                appEnvironments.addEnvironment(result.data);
               }
             });
           });
         });
       };
-
-      // Search for application environments
-      $scope.search = function() {
-        var searchRequestObject = {
-          'query': $scope.query,
-          'from': 0,
-          'size': 50
-        };
-        return applicationEnvironmentServices.searchEnvironment({
-          applicationId: $scope.application.id
-        }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
-          $scope.searchAppEnvResult = result.data.data;
-          return $scope.searchAppEnvResult;
-        }).$promise;
-      };
-      $scope.search();
 
       // Delete the app environment
       $scope.delete = function deleteAppEnvironment(appEnvId) {
@@ -115,25 +106,23 @@ define(function (require) {
             if(result.data) {
               appEnvironments.removeEnvironment(appEnvId);
             }
-            $scope.search();
           });
         }
       };
 
-      $scope.getVersionByName = function(name) {
-        return _.find($scope.versions, {'version': name});
-      };
-
-      var getVersionIdByName = function(name) {
-        return _.result($scope.getVersionByName(name), 'id');
+      $scope.setAppTopologyVersion = function(environment, selectedTopologyVersion) {
+        $scope.updateApplicationEnvironment('currentVersionId', selectedTopologyVersion, environment.id, environment.currentVersionName);
       };
 
       function updateEnvironment(environmentId, fieldName, fieldValue) {
         // update the environments
         var done = false;
-        for(var i=0; i < $scope.searchAppEnvResult.length && !done; i++) {
-          var environment = $scope.searchAppEnvResult[i];
+        for(var i=0; i < $scope.environments.length && !done; i++) {
+          var environment = $scope.environments[i];
           if(environment.id === environmentId) {
+            if(fieldName === 'currentVersionId') {
+              fieldName = 'currentVersionName';
+            }
             environment[fieldName] = fieldValue;
             appEnvironments.updateEnvironment(environment);
             done = true;
@@ -142,13 +131,10 @@ define(function (require) {
       }
 
       $scope.updateApplicationEnvironment = function(fieldName, fieldValue, environmentId, oldValue) {
-        if (fieldName !== 'name' || fieldValue !== oldValue) {
+        if (_.undefined(oldValue) || fieldValue !== oldValue) {
           var updateApplicationEnvironmentRequest = {};
 
           var realFieldValue = fieldValue;
-          if (fieldName === 'currentVersionId') {
-            realFieldValue = getVersionIdByName(fieldValue);
-          }
           updateApplicationEnvironmentRequest[fieldName] = realFieldValue;
 
           return applicationEnvironmentServices.update({

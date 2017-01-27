@@ -1,0 +1,18 @@
+#resource-catalog {
+  overflow: auto;
+  top: -40px;
+}
+
+#resource-catalog .tab-pane {
+  border: none;
+  padding: 0;
+}
+
+#resource-catalog .list-group, #resource-catalog .list-group-item {
+  margin:0;
+}
+
+#resource-catalog .list-group-item.favorite:first-child {
+  border-top: none;
+}
+

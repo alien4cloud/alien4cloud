@@ -1,0 +1,34 @@
+<form name="newForm" class="form-horizontal" role="form" ng-submit="create(newForm.$valid)" novalidate>
+  <div class="modal-header">
+    <h3>{{'APPLICATIONS.VERSION.TOPOLOGY.TITLE' | translate}}</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="appVersion" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.LABEL' | translate}}</label>
+      <div class="col-lg-9">
+        <input readonly type="text" class="form-control" id="appVersion" ng-model="selectedVersion.version" name="appVersion">
+      </div>
+    </div>
+    <div class="form-group" ng-class="{'has-error': newForm.version.$invalid}">
+      <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.TOPOLOGY.QUALIFIER' | translate}}</label>
+      <div class="col-lg-5">
+        <input type="text" class="form-control" id="versionId" ng-model="appTopoVersion.qualifier"  name="version" required="" ng-pattern="qualifierPattern" placeholder="{{'COMMON.NAME' | translate}}">
+        <span id="span-alert-pattern" ng-show="newForm.version.$error.pattern">{{'APPLICATIONS.VERSION.MODAL.PATTERN' | translate}}</span>
+      </div>
+      <div class="col-lg-4 control-label" style="text-align: left">
+        {{computedVersion}}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="descid" class="col-lg-3 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
+      <div class="col-lg-9">
+        <textarea class="form-control" id="descId" rows="3" ng-model="appTopoVersion.description" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
+      </div>
+    </div>
+    <topology-init-from-select></topology-init-from-select>
+  </div>
+  <div class="modal-footer">
+    <button id="btn-create" ng-disabled="newForm.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+    <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+  </div>
+</form>

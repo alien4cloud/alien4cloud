@@ -71,15 +71,15 @@
                         <td>
                           <div ng-switch="resource.resourceType" class="pull-right">
                             <span ng-switch-when="csar">
-                              <a href="#/components/csars/details/{{resource.resourceId}}" class="btn btn-primary btn-xs" tooltip="{{ 'CSAR.DETAILS.RESOURCE.CSAR_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
+                              <a href="#/components/csars/details/{{resource.resourceId}}" class="btn btn-primary btn-xs" uib-tooltip="{{ 'CSAR.DETAILS.RESOURCE.CSAR_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
                               </a>
                             </span>
                             <span ng-switch-when="application">
-                              <a href="#/applications/details/{{resource.resourceId}}/infos" class="btn btn-primary btn-xs" tooltip="{{ 'CSAR.DETAILS.RESOURCE.APP_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
+                              <a href="#/applications/details/{{resource.resourceId}}/infos" class="btn btn-primary btn-xs" uib-tooltip="{{ 'CSAR.DETAILS.RESOURCE.APP_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
                               </a>
                             </span>
                             <span ng-switch-when="topologytemplate">
-                              <a ng-click="goToRuntimeView(resource.resourceId)" class="btn btn-primary btn-xs" tooltip="{{ 'CSAR.DETAILS.RESOURCE.TOPOLOGY_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
+                              <a ng-click="goToRuntimeView(resource.resourceId)" class="btn btn-primary btn-xs" uib-tooltip="{{ 'CSAR.DETAILS.RESOURCE.TOPOLOGY_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
                               </a>
                             </span>
                             <span ng-switch-default>---</span>

@@ -11,6 +11,9 @@ define(function (require) {
   require('scripts/applications/services/application_services');
   require('scripts/applications/controllers/application_detail');
   require('scripts/topology/services/topology_services');
+  require('scripts/applications/directives/topology_init_from_select');
+
+  require('scripts/common/filters/id_to_version');
 
   states.state('applications', {
     url: '/applications',
@@ -30,11 +33,12 @@ define(function (require) {
   });
   states.forward('applications', 'applications.list');
 
-  var NewApplicationCtrl = ['$scope', '$modalInstance', 'topologyServices',
-    function ($scope, $modalInstance, topologyServices) {
+  var NewApplicationCtrl = ['$scope', '$uibModalInstance',
+    function ($scope, $uibModalInstance) {
       $scope.app = {};
       $scope.namePattern=new RegExp('^[^\/\\\\]+$');
       $scope.archiveNamePattern=new RegExp('^\\w+$');
+      $scope.fromIndex = 3;
       var autoGenArchiveName = true;
       $scope.nameChange = function () {
         if (autoGenArchiveName && $scope.app.name) {
@@ -44,49 +48,32 @@ define(function (require) {
       $scope.archiveNameChange = function () {
         autoGenArchiveName = false;
       };
-      $scope.selectTemplate = function (topology) {
-        $scope.app.topologyTemplateName = topology.archiveName;
-        $scope.app.topologyTemplateVersion = topology.archiveVersion;
-        $scope.app.topologyTemplateVersionId = topology.id;
-        topologyServices.dao.get({
-          topologyId: topology.id
-        }, function (result) {
-          if (_.defined(result.error)) {
-            switch (result.error.code) {
-              case 860:
-                $scope.selectedTopologyWarning = 860;
-                break;
-              default:
-                $scope.selectedTopologyError = result.error.code;
-                break;
-            }
-          } else if (result.data.topology.workspace !== 'ALIEN_GLOBAL_WORKSPACE') {
-            $scope.selectedTopologyError = 870;
-          }
-        });
-      };
       $scope.create = function (valid) {
         if (valid) {
-          $modalInstance.close($scope.app);
+          // if we create from template let's set the template id to the app.
+          if($scope.fromIndex === 2) {
+            $scope.app.topologyTemplateVersionId = $scope.topologyTemplate.versionId;
+          }
+          $uibModalInstance.close($scope.app);
         }
       };
 
       $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ];
 
   modules.get('a4c-applications').controller('ApplicationListCtrl',
-    ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster', 'searchServiceFactory', 'pieChartService', 'applicationEnvironmentServices',
-      function ($scope, $modal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory, pieChartService, applicationEnvironmentServices) {
+    ['$scope', '$uibModal', '$state', 'authService', 'applicationServices', '$translate', 'toaster', 'searchServiceFactory', 'pieChartService',
+      function ($scope, $uibModal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory, pieChartService) {
         $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
-        $scope.applicationStatuses = [];
+        $scope.applicationEnvironmentMap = {};
         $scope.onlyShowDeployedApplications = undefined;
         d3.selectAll('.d3-tip').remove();
 
         $scope.openNewApp = function () {
-          var modalInstance = $modal.open({
+          var modalInstance = $uibModal.open({
             templateUrl: 'views/applications/application_new.html',
             controller: NewApplicationCtrl,
             windowClass: 'new-app-modal'
@@ -103,12 +90,12 @@ define(function (require) {
           });
         };
 
-        var getApplicationStatuses = function (applications) {
-          var requestAppStatuses = [];
+        var getApplicationEnvironments = function (applications) {
+          var requestEnvironments = [];
           Object.keys(applications).forEach(function (key) {
-            requestAppStatuses.push(applications[key].id);
+            requestEnvironments.push(applications[key].id);
           });
-          var appStatuses = applicationServices.applicationStatus.statuses([], angular.toJson(requestAppStatuses));
+          var appStatuses = applicationServices.envrironments.getAll([], angular.toJson(requestEnvironments));
           return appStatuses;
         };
 
@@ -134,60 +121,36 @@ define(function (require) {
 
         var updateApplicationStatuses = function (applicationSearchResult) {
           if (!angular.isUndefined(applicationSearchResult)) {
-            var statuses = getApplicationStatuses(applicationSearchResult.data);
-            Object.keys(applicationSearchResult.data).forEach(function (key) {
-              var app = applicationSearchResult.data[key];
-              statuses.$promise.then(function (statuses) {
+            var environmentsQuery = getApplicationEnvironments(applicationSearchResult.data);
+            environmentsQuery.$promise.then(function (environmentsResult) {
+              $scope.applicationEnvironmentMap = environmentsResult.data;
+              _.each(applicationSearchResult.data, function(app) {
                 var data = [];
-                var tmpArray = statuses.data[app.id];
-                for (var key in tmpArray) {
+                _.each(environmentsResult.data[app.id], function(envDTO) {
+                  // segment in the env pie
                   var segment = {};
-                  segment.label = tmpArray[key].environmentStatus;
-                  segment.color = colors[tmpArray[key].environmentStatus];
-                  segment.indexToOrder = priorityToOrder[tmpArray[key].environmentStatus];
+                  segment.label = envDTO.status;
+                  segment.color = colors[envDTO.status];
+                  segment.indexToOrder = priorityToOrder[envDTO.status];
+                  envDTO.indexToOrder = priorityToOrder[envDTO.status];
                   segment.value = 1;
-                  segment.id = key;
-                  segment.name = tmpArray[key].environmentName;
+                  segment.id = envDTO.id;
+                  segment.name = envDTO.name;
 
-                  // Initial the counter of number deployed environment by applications to sort
+                  // Initialize the counter of number deployed environment by applications to sort
                   if (!_.isNumber(app.countDeployedEnvironment)) {
                     app.countDeployedEnvironment = 0;
-                    applicationSearchResult.data[key] = app;
                   }
 
                   if (segment.label === 'DEPLOYED') {
                     app.countDeployedEnvironment++;
-                  }
-
-                  // Here we manage a filter to display the deployed applications
-                  if ($scope.onlyShowDeployedApplications && segment.label === 'DEPLOYED') {
                     app.isDeployed = true;
-                    data.push(segment);
-                  } else if (!$scope.onlyShowDeployedApplications) {
-                    data.push(segment);
                   }
+                  data.push(segment);
 
-                  applicationSearchResult.data[key] = app;
-                }
-                $scope.applicationStatuses[app.name] = data;
-                pieChartService.render(app.id, data);
-
-                _.each(data, function(item){
-                  if(authService.hasResourceRole(app, 'APPLICATION_MANAGER') ){
-                    item.canDeploy = true;
-                  }else {
-                    applicationEnvironmentServices.get({
-                      applicationId: app.id,
-                      applicationEnvironmentId: item.id
-                    }, function (result) {
-                      if (_.undefined(result.error) ) {
-                        item.canDeploy = authService.hasResourceRole(result.data, 'DEPLOYMENT_MANAGER');
-                      }
-                    });
-                  }
+                  envDTO.canDeploy = authService.hasResourceRole(app, 'APPLICATION_MANAGER') || authService.hasResourceRole(envDTO, 'DEPLOYMENT_MANAGER');
                 });
-
-
+                pieChartService.render(app.id, data);
               });
             });
           }

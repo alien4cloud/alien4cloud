@@ -1,4 +1,4 @@
-<div ng-show="uploadInfo.errors || uploadInfo.otherError" collapse="uploadInfo.isErrorBlocCollapsed">
+<div ng-show="uploadInfo.errors || uploadInfo.otherError" uib-collapse="uploadInfo.isErrorBlocCollapsed">
   <div class="well well-sm">
     <div class="panel panel-default" ng-repeat="(filePath, csrarErrors) in uploadInfo.errors">
       <div class="panel-heading">

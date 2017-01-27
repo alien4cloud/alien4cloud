@@ -52,7 +52,17 @@ Feature: Manage location resources
     Then I should receive a RestResponse with an error code 504
 
   @reset
-  Scenario: Update a ressource with wrong value type should fail
+  Scenario: Update a resource with wrong value type should fail
     When I create a resource of type "alien.nodes.mock.openstack.Flavor" named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the capability "host" property "disk_size" to "should-fail" for the resource named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
     Then I should receive a RestResponse with an error code 800
+    
+  @reset
+  Scenario: Create a custom resource
+    Given I upload the local archive "data/csars/node_replacement/node_replacement.yaml"
+    When I create a resource of type "alien.test.nodes.JBoss" named "CustomJBoss" from archive "node_replacement" in version "0.1-SNAPSHOT" related to the location "Mount doom orchestrator"/"Thark location"
+    Then I should receive a RestResponse with no error
+    And The create resource response should contain a new dependency named "node_replacement" in version "0.1-SNAPSHOT"
+    When I get the location "Mount doom orchestrator"/"Thark location"
+    Then I should receive a RestResponse with no error
+    And The location should contains an on-demand resource with name "CustomJBoss" and type "alien.test.nodes.JBoss"

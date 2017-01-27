@@ -28,15 +28,15 @@ define(function (require) {
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
     ['$scope', 'menu', 'layoutService', 'context', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
-    'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster', '$state',
-    function($scope, menu, layoutService, context, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal, $translate, toaster, $state) {
+    'hotkeys','topologyRecoveryServices', '$uibModal', '$translate', 'toaster', '$state',
+    function($scope, menu, layoutService, context, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $uibModal, $translate, toaster, $state) {
       // This controller acts as a specific layout for the topology edition.
       layoutService.process(menu);
       $scope.menu = menu;
       $scope.getShortName = toscaService.simpleName;
       // Manage topology version selection (version is provided as parameter from the template or application)
-      $scope.topologyVersions = archiveVersions.data;
       $scope.versionContext = context;
+      $scope.versionContext.versions = archiveVersions.data;
       // this allow to avoid file edition in the ui-ace.
       $scope.released = false;
       topoEditVersions($scope);
@@ -224,7 +224,7 @@ define(function (require) {
       // GIT SET REMOTE
       //
       $scope.gitRemote = function() {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'views/topology/editor_git_remote_modal.html',
           controller: 'EditorGitRemoteModalController',
           scope: $scope,
@@ -250,7 +250,7 @@ define(function (require) {
       // GIT PUSH FUNCTION
       //
       $scope.gitPush = function() {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'views/topology/editor_git_push_pull_modal.html',
           controller: 'EditorGitPushPullModalController',
           scope: $scope,
@@ -272,13 +272,13 @@ define(function (require) {
       };
 
       $scope.showParsingErrors = function (response) {
-        $modal.open({
+        $uibModal.open({
           templateUrl: 'views/topology/topology_parsing_error.html',
-          controller: ['$scope', '$modalInstance', 'uploadInfo',
-            function ($scope, $modalInstance, uploadInfo) {
+          controller: ['$scope', '$uibModalInstance', 'uploadInfo',
+            function ($scope, $uibModalInstance, uploadInfo) {
               $scope.uploadInfo = uploadInfo;
               $scope.close = function () {
-                $modalInstance.dismiss('close');
+                $uibModalInstance.dismiss('close');
               };
             }],
           resolve: {
@@ -295,7 +295,7 @@ define(function (require) {
       // GIT PULL FUNCTION
       //
       $scope.gitPull = function() {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'views/topology/editor_git_push_pull_modal.html',
           controller: 'EditorGitPushPullModalController',
           scope: $scope,
@@ -358,14 +358,14 @@ define(function (require) {
           }
         });
 
-      var AskSaveTopologyController = ['$scope', '$modalInstance',
-        function($scope, $modalInstance) {
+      var AskSaveTopologyController = ['$scope', '$uibModalInstance',
+        function($scope, $uibModalInstance) {
           $scope.save = function () {
-            $modalInstance.close();
+            $uibModalInstance.close();
           };
 
           $scope.doNotSave = function () {
-            $modalInstance.dismiss();
+            $uibModalInstance.dismiss();
           };
         }];
 
@@ -393,7 +393,7 @@ define(function (require) {
             return;
           }
           event.preventDefault();
-          var modalInstance = $modal.open({
+          var modalInstance = $uibModal.open({
             templateUrl: 'views/topology/editor_ask_save.html',
             controller: AskSaveTopologyController
           });

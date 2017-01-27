@@ -30,8 +30,8 @@ define(function (require) {
   states.forward('components.csars', 'components.csars.list');
 
   /* Main CSAR search controller */
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', '$translate', 'toaster', 'authService',
-    function ($scope, $modal, $state, csarService, $translate, toaster, authService) {
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$uibModal', '$state', 'csarService', '$translate', 'toaster', 'authService',
+    function ($scope, $uibModal, $state, csarService, $translate, toaster, authService) {
       $scope.writeWorkspaces = [];
       var isComponentManager = authService.hasOneRoleIn(['COMPONENT_MANAGER', 'ARCHITECT']);
       if (isComponentManager === true) {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResources;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
@@ -45,7 +46,21 @@ public interface ILocationResourceService {
 
     Map<String, LocationResourceTemplate> getMultiple(Collection<String> ids);
 
-    LocationResourceTemplate addResourceTemplate(String locationId, String resourceName, String resourceTypeName);
+    @Deprecated
+    LocationResourceTemplateWithDependencies addResourceTemplate(String locationId, String resourceName, String resourceTypeName);
+
+    /**
+     * Create a new resource template, getting its type from the given archive.
+     * If the archive was not in the location dependencies (e.g. the template is a custom resources), update the location dependencies
+     * accordingly and shout back the newly added dependencies.
+     * @param locationId The location to add the template to.
+     * @param resourceName The name of the created resource template.
+     * @param resourceTypeName The type of the template.
+     * @param archiveName The name of the archive to find the type into.
+     * @param archiveVersion The archive's version.
+     * @return A wrapper object containing the <code>LocationResourceTemplate</code> along with a Set of <code>CSARDependencies</code>
+     */
+    LocationResourceTemplateWithDependencies addResourceTemplateFromArchive(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion);
 
     void deleteResourceTemplate(String resourceId);
 

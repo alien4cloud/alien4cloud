@@ -1,5 +1,6 @@
 package alien4cloud.rest.application;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -7,6 +8,8 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
+import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -42,6 +45,7 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
@@ -56,7 +60,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
-import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyValidationResult;
 import io.swagger.annotations.Api;
@@ -90,6 +93,10 @@ public class ApplicationDeploymentController {
     private WorkflowExecutionService workflowExecutionService;
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
+    @Resource
+    private LocationSecurityService locationSecurityService;
+    @Inject
+    private ApplicationEnvironmentDTOBuilder dtoBuilder;
 
     /**
      * Trigger deployment of the application on the current configured PaaS.
@@ -124,9 +131,8 @@ public class ApplicationDeploymentController {
         // get the target locations of the deployment topology
         Map<String, Location> locationMap = deploymentTopologyService.getLocations(deploymentTopology);
         for (Location location : locationMap.values()) {
-            AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
+            locationSecurityService.checkAuthorisation(location, environment);
         }
-
         // prepare the deployment
         TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);
 
@@ -140,11 +146,6 @@ public class ApplicationDeploymentController {
 
         // process with the deployment
         deployService.deploy(deploymentTopology, application);
-        // TODO OrchestratorDisabledException handling in the ExceptionHandler
-        // return RestResponseBuilder.<Void> builder().error(
-        // new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + environment.getCloudId() + "> is disabled or not found"))
-        // .build();
-
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -219,9 +220,10 @@ public class ApplicationDeploymentController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTOBuilder.buildTopologyDTO(deploymentTopology)).build();
     }
 
-    @ApiOperation(value = "Get the deployment status for the environements that the current user is allowed to see for a given application.", notes = "Returns the current status of an application list from the PaaS it is deployed on for all environments.")
+    @ApiOperation(value = "Deprecated Get the deployment status for the environements that the current user is allowed to see for a given application.", notes = "Returns the current status of an application list from the PaaS it is deployed on for all environments.")
     @RequestMapping(value = "/statuses", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
+    @Deprecated
     public RestResponse<Map<String, Map<String, EnvironmentStatusDTO>>> getApplicationsStatuses(@RequestBody List<String> applicationIds) {
         Map<String, Map<String, EnvironmentStatusDTO>> statuses = Maps.newHashMap();
 
@@ -246,6 +248,27 @@ public class ApplicationDeploymentController {
             statuses.put(applicationId, environmentStatuses);
         }
         return RestResponseBuilder.<Map<String, Map<String, EnvironmentStatusDTO>>> builder().data(statuses).build();
+    }
+
+    @ApiOperation(value = "Get all environments including their current deployment status for a list of applications.", notes = "Return the environements for all given applications. Note that only environments the user is authorized to see are returned.")
+    @RequestMapping(value = "/environments", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @Deprecated
+    public RestResponse<Map<String, ApplicationEnvironmentDTO[]>> getApplicationsEnvironments(@RequestBody List<String> applicationIds) {
+        Map<String, ApplicationEnvironmentDTO[]> envsByApplicationId = Maps.newHashMap();
+        for (String applicationId : applicationIds) {
+            Application application = applicationService.checkAndGetApplication(applicationId);
+            // get all environments status for the current application
+            ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
+            List<ApplicationEnvironmentDTO> userEnvironmentList = new ArrayList<>(environments.length);
+            for (ApplicationEnvironment env : environments) {
+                if (AuthorizationUtil.hasAuthorizationForEnvironment(application, env, ApplicationEnvironmentRole.values())) {
+                    userEnvironmentList.add(dtoBuilder.getApplicationEnvironmentDTO(env));
+                }
+            }
+            envsByApplicationId.put(applicationId, userEnvironmentList.toArray(new ApplicationEnvironmentDTO[userEnvironmentList.size()]));
+        }
+        return RestResponseBuilder.<Map<String, ApplicationEnvironmentDTO[]>> builder().data(envsByApplicationId).build();
     }
 
     /**

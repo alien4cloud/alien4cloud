@@ -27,9 +27,9 @@
   </div>
   <div class="row" style="margin-top: 20px;">
     <div class="col-md-12">
-      <accordion close-others="oneAtATime">
-        <accordion-group is-open="status.open" ng-repeat="(category, methods) in configuration.methodsConfiguration">
-          <accordion-heading>
+      <uib-accordion>
+        <div uib-accordion-group heading="Delete account" is-open="status.open" ng-repeat="(category, methods) in configuration.methodsConfiguration">
+          <uib-accordion-heading>
             <a ng-click="toggleAuditCategory(category); $event.stopPropagation();" href="" class="btn" ng-class="{'disabled': !configuration.enabled}">
               <i class="fa fa-fw"
                  ng-class="{
@@ -38,7 +38,7 @@
                  'fa-minus-square-o': categories[category].enabledCount < categories[category].totalCount && categories[category].enabledCount > 0
                  }"></i>
             </a> {{category}} <i class="pull-right fa" ng-class="{'fa-caret-down': status.open, 'fa-caret-right': !status.open}"></i>
-          </accordion-heading>
+          </uib-accordion-heading>
           <table class="table table-hover">
             <thead>
               <tr>
@@ -60,8 +60,8 @@
               </tr>
             </tbody>
           </table>
-        </accordion-group>
-      </accordion>
+        </div>
+      </uib-accordion>
     </div>
   </div>
 </div>

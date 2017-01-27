@@ -49,7 +49,7 @@ define(function(require) {
         }
 
         var refreshLocationMatching = function() {
-          locationsMatchingServices.getLocationsMatches({topologyId: $scope.topologyId}, function(result) {
+          locationsMatchingServices.getLocationsMatches({topologyId: $scope.topologyId, environmentId: $scope.deploymentContext.selectedEnvironment.id}, function(result) {
             formatLocationMatches(result.data);
             initSelectedLocation();
           });

@@ -4,8 +4,8 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-orchestrators', ['ui.bootstrap']).controller('NewTopologyTemplateCtrl', ['$scope', '$modalInstance', 'applicationVersionServices', 'topology',
-    function($scope, $modalInstance, applicationVersionServices, topology) {
+  modules.get('a4c-orchestrators', ['ui.bootstrap']).controller('NewTopologyTemplateCtrl', ['$scope', '$uibModalInstance', 'applicationVersionServices', 'topology',
+    function($scope, $uibModalInstance, applicationVersionServices, topology) {
       $scope.topology = topology;
       $scope.topologytemplate = {
         version: '0.1.0-SNAPSHOT'
@@ -19,11 +19,11 @@ define(function (require) {
           if(topology) {
             $scope.topologytemplate.fromTopologyId = topology.id;
           }
-          $modalInstance.close($scope.topologytemplate);
+          $uibModalInstance.close($scope.topologytemplate);
         }
       };
       $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
       };
     }
   ]);

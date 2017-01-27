@@ -91,14 +91,16 @@ public class ApplicationController {
         try {
             archiveIndexer.ensureUniqueness(request.getArchiveName(), VersionUtil.DEFAULT_VERSION_NAME);
         } catch (AlreadyExistException e) {
-            return RestResponseBuilder.<String> builder().error(
-                    RestErrorBuilder.builder(RestErrorCode.APPLICATION_CSAR_VERSION_ALREADY_EXIST).message("CSAR: " + request.getArchiveName() + ", Version: " + VersionUtil.DEFAULT_VERSION_NAME + " already exists in the repository.").build())
+            return RestResponseBuilder.<String> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_CSAR_VERSION_ALREADY_EXIST).message(
+                            "CSAR: " + request.getArchiveName() + ", Version: " + VersionUtil.DEFAULT_VERSION_NAME + " already exists in the repository.")
+                            .build())
                     .build();
         }
         // create the application with default environment and version
         String applicationId = applicationService.create(auth.getName(), request.getArchiveName(), request.getName(), request.getDescription());
-        ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, topologyId);
-        applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getId());
+        ApplicationVersion version = applicationVersionService.createInitialVersion(applicationId, topologyId);
+        applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getTopologyVersions().keySet().iterator().next());
         return RestResponseBuilder.<String> builder().data(applicationId).build();
     }
 

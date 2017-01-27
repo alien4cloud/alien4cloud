@@ -27,7 +27,7 @@
         {{'COMMON.PROPERTIES' | translate}}
       </h4>
     </div>
-    <div id="node-details-properties-panel" collapse="isPropertiesCollapsed" class="topology-level">
+    <div id="node-details-properties-panel" uib-collapse="isPropertiesCollapsed" class="topology-level">
       <table class="table table-condensed" id="nodeTemplateProperties">
         <tr ng-repeat="propEntry in resourceTemplate.template.properties">
           <td>
@@ -60,7 +60,7 @@
         {{'COMMON.CAPABILITIES' | translate}}
       </h4>
     </div>
-    <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
+    <div id="node-details-capabilities-panel" uib-collapse="isCapabilitiesCollapsed" class="topology-level">
       <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in resourceTemplate.template.capabilities"
            ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
         <div style="font-weight: normal"
@@ -74,7 +74,7 @@
               <span>{{capabilityEntry.key}}</span>
             </div>
             <div class="col-md-3" id="capability-{{capabilityEntry.key}}">
-                    <span tooltip="{{capabilityEntry.value.type}}"
+                    <span uib-tooltip="{{capabilityEntry.value.type}}"
                           tooltip-append-to-body="true">{{getShortName(capabilityEntry.value.type)}}</span>
             </div>
             <div class="col-md-6" ng-init="capaComp = getComponent(resourceTemplate.template, capabilityEntry.value.type)">
@@ -117,7 +117,7 @@
         {{'PORTABILITY.COMPONENTS.TITLE' | translate}}
       </h4>
     </div>
-    <div id="node-details-portability-panel" collapse="isPortabilityCollapsed" class="topology-level">
+    <div id="node-details-portability-panel" uib-collapse="isPortabilityCollapsed" class="topology-level">
       <table class="table table-condensed" id="nodeTemplatePortability">
         <tr ng-repeat="(portabilityKey, portabilityValue) in resourceTemplate.template.portability" ng-if="resourceTemplate.portabilityDefinitions[portabilityKey]">
           <td>

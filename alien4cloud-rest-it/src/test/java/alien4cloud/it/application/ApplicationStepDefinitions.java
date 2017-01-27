@@ -2,6 +2,7 @@ package alien4cloud.it.application;
 
 import static alien4cloud.it.Context.getInstance;
 import static alien4cloud.it.Context.getRestClientInstance;
+import static alien4cloud.it.utils.TestUtils.nullable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +38,6 @@ import alien4cloud.it.topology.EditorStepDefinitions;
 import alien4cloud.it.topology.TopologyStepDefinitions;
 import alien4cloud.it.topology.TopologyTemplateStepDefinitions;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.common.Tag;
@@ -50,6 +51,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.utils.ReflectionUtil;
+import alien4cloud.utils.VersionUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -88,68 +90,58 @@ public class ApplicationStepDefinitions {
         Context.getInstance().registerApplicationEnvironmentId(applicationName, appEnvDTO.getName(), appEnvDTO.getId());
     }
 
-    @When("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\"$")
-    public void I_create_a_new_application_with_name_and_description(String name, String description) throws Throwable {
-        createApplication(name, description, null, null);
+    @When("^I create an application with name \"([^\"]*)\", archive name \"([^\"]*)\", description \"([^\"]*)\" and topology template id \"([^\"]*)\"$")
+    public void stepCreateApplication(String name, String archiveName, String description, String topologyTemplateId) throws Throwable {
+        createApplication(nullable(name), nullable(archiveName), nullable(description), nullable(topologyTemplateId));
     }
 
-    @When("^I create a new application with name \"([^\"]*)\" and archive name \"([^\"]*)\"$")
-    public void I_create_a_new_application_with_name_and_archive_name(String name, String archiveName) throws Throwable {
-        createApplication(name, "", null, archiveName);
+    private void createApplication(String name, String archiveName, String description, String topologyTemplateId) throws Throwable {
+        doCreateApplication(name, archiveName, description, topologyTemplateId, true);
     }
 
-    private String getTopologyIdFromApplication(String name) throws IOException {
-        String response = getRestClientInstance().get("/rest/v1/applications/" + Context.getInstance().getApplicationId(name) + "/environments/"
-                + Context.getInstance().getDefaultApplicationEnvironmentId(name) + "/topology");
-        return JsonUtil.read(response, String.class).getData();
-    }
+    private void doCreateApplication(String name, String archiveName, String description, String topologyTemplateId, boolean register) throws IOException {
+        CreateApplicationRequest request = new CreateApplicationRequest(archiveName, name, description, topologyTemplateId);
+        Context.getInstance().registerRestResponse(getRestClientInstance().postJSon("/rest/v1/applications/", JsonUtil.toString(request)));
 
-    @Then("^The RestResponse should contain an id string$")
-    public void The_RestResponse_should_contain_an_id_string() throws Throwable {
-        String response = Context.getInstance().getRestResponse();
-        assertNotNull(response);
-        RestResponse<String> restResponse = JsonUtil.read(response, String.class);
-        assertNotNull(restResponse);
-        assertNotNull(restResponse.getData());
-        assertEquals(String.class, restResponse.getData().getClass());
-    }
-
-    private void createApplication(String name, String description, String fromTopologyId, String archiveName) throws Throwable {
-        doCreateApplication(name, description, fromTopologyId, archiveName);
-
-        // check the created application (topologyId)
-        RestResponse<String> response = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
-        String applicationJson = getRestClientInstance().get("/rest/v1/applications/" + response.getData());
-        Application application = JsonUtil.read(applicationJson, Application.class).getData();
-        if (application != null) {
-            CURRENT_APPLICATION = application;
-            CURRENT_APPLICATIONS.put(name, application);
-            Context.getInstance().registerApplication(application);
-            Context.getInstance().registerApplicationId(name, application.getId());
-            setAppEnvironmentIdToContext(application.getName());
-            setAppVersionIdToContext(application.getId());
-            String topologyId = getTopologyIdFromApplication(application.getName());
-            assertNotNull(topologyId);
-            Context.getInstance().registerTopologyId(topologyId);
+        // Registration makes a lot of implicit calls for simplification of features files but make them not fully meaningful. We should stop using group things
+        // and rely on complete features.
+        if (!register) {
+            return;
+        }
+        try {
+            // check the created application (topologyId)
+            RestResponse<String> response = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
+            String applicationJson = getRestClientInstance().get("/rest/v1/applications/" + response.getData());
+            Application application = JsonUtil.read(applicationJson, Application.class).getData();
+            if (application != null) {
+                CURRENT_APPLICATION = application;
+                CURRENT_APPLICATIONS.put(name, application);
+                Context.getInstance().registerApplication(application);
+                Context.getInstance().registerApplicationId(name, application.getId());
+                setAppEnvironmentIdToContext(application.getName());
+                setAppVersionIdToContext(application.getId());
+                String topologyId = Csar.createId(application.getId(), VersionUtil.DEFAULT_VERSION_NAME);
+                assertNotNull(topologyId);
+                Context.getInstance().registerTopologyId(topologyId);
+            }
+        } catch (Throwable t) {
         }
     }
 
-    private void doCreateApplication(String name, String description, String fromTopologyId, String archiveName) throws IOException {
-        if (archiveName == null) {
-            archiveName = getArchiveNameFromApplicationName(name);
+    @When("^I get the application with id \"([^\"]*)\"$")
+    public void getApplication(String id) throws Throwable {
+        Context.getInstance().registerRestResponse(getRestClientInstance().get("/rest/v1/applications/" + id));
+        // Try to register the application (this works only if the operations is successful)
+        try {
+            CURRENT_APPLICATION = null;
+            CURRENT_APPLICATION = JsonUtil.read(Context.getInstance().getRestResponse(), Application.class).getData();
+        } catch (IOException e) {
+            // Registration is optional
         }
-        CreateApplicationRequest request = new CreateApplicationRequest(archiveName, name, description, fromTopologyId);
-        Context.getInstance().registerRestResponse(getRestClientInstance().postJSon("/rest/latest/applications/", JsonUtil.toString(request)));
     }
 
-    private String getArchiveNameFromApplicationName(String name) {
+    private String appToArchName(String name) {
         return name.replaceAll("\\W", "");
-    }
-
-    @When("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\" without errors$")
-    public void I_create_a_new_application_with_name_and_description_without_errors(String name, String description) throws Throwable {
-        I_create_a_new_application_with_name_and_description(name, description);
-        commonStepDefinitions.I_should_receive_a_RestResponse_with_no_error();
     }
 
     @When("^I retrieve the newly created application$")
@@ -173,7 +165,7 @@ public class ApplicationStepDefinitions {
             }
         }
         if (!hasApplication) {
-            I_create_a_new_application_with_name_and_description(applicationName, "");
+            doCreateApplication(applicationName, appToArchName(applicationName), null, null, true);
         }
     }
 
@@ -194,7 +186,7 @@ public class ApplicationStepDefinitions {
     @Given("^There is a \"([^\"]*)\" application with tags:$")
     public void There_is_a_application_with_tags(String applicationName, DataTable tags) throws Throwable {
         // Create a new application with tags
-        doCreateApplication(applicationName, null, null, null);
+        doCreateApplication(applicationName, appToArchName(applicationName), null, null, true);
         String responseAsJson = Context.getInstance().getRestResponse();
         String applicationId = JsonUtil.read(responseAsJson, String.class).getData();
         Context.getInstance().registerApplicationId(applicationName, applicationId);
@@ -228,7 +220,8 @@ public class ApplicationStepDefinitions {
         registeredApps.clear();
         for (int i = 0; i < applicationCount; i++) {
             String appName = "name" + i;
-            I_create_a_new_application_with_name_and_description(appName, "");
+
+            doCreateApplication(appName, appToArchName(appName), "", null, true);
             registeredApps.add(appName);
             CURRENT_APPLICATIONS.put(appName, CURRENT_APPLICATION);
         }
@@ -292,7 +285,7 @@ public class ApplicationStepDefinitions {
     public void I_create_a_new_application_with_name_and_description_and_node_templates(String applicationName, String applicationDescription,
             DataTable nodeTemplates) throws Throwable {
         // create the topology
-        I_create_a_new_application_with_name_and_description(applicationName, applicationDescription);
+        doCreateApplication(applicationName, appToArchName(applicationName), applicationDescription, null, true);
 
         EditorStepDefinitions.do_i_get_the_current_topology();
 
@@ -397,7 +390,7 @@ public class ApplicationStepDefinitions {
         CURRENT_APPLICATIONS.clear();
         // Create each application and store in CURRENT_APPS
         for (List<String> app : applicationNames.raw()) {
-            doCreateApplication(app.get(0), app.get(1), null, null);
+            doCreateApplication(app.get(0), appToArchName(app.get(0)), app.get(1), null, true);
             RestResponse<String> reponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
             String applicationJson = getRestClientInstance().get("/rest/v1/applications/" + reponse.getData());
             RestResponse<Application> application = JsonUtil.read(applicationJson, Application.class);
@@ -529,7 +522,7 @@ public class ApplicationStepDefinitions {
         appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(appEnvType));
         appEnvRequest.setName(appEnvName);
         appEnvRequest.setDescription(appEnvDescription);
-        appEnvRequest.setVersionId(Context.getInstance().getApplicationVersionId("0.1.0-SNAPSHOT"));
+        appEnvRequest.setVersionId("0.1.0-SNAPSHOT");
         Context.getInstance().registerRestResponse(
                 getRestClientInstance().postJSon("/rest/v1/applications/" + CURRENT_APPLICATION.getId() + "/environments", JsonUtil.toString(appEnvRequest)));
         RestResponse<String> appEnvId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
@@ -544,7 +537,7 @@ public class ApplicationStepDefinitions {
         String applicationEnvId = Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), applicationEnvironmentName);
         Context.getInstance().registerRestResponse(
                 getRestClientInstance().get("/rest/v1/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + applicationEnvId));
-        RestResponse<ApplicationEnvironment> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), ApplicationEnvironment.class);
+        RestResponse<ApplicationEnvironmentDTO> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), ApplicationEnvironmentDTO.class);
         Assert.assertNotNull(appEnvironment.getData());
         Assert.assertEquals(appEnvironment.getData().getId(), applicationEnvId);
     }
@@ -617,14 +610,13 @@ public class ApplicationStepDefinitions {
     public void I_create_a_new_application_with_name_and_description_based_this_created_template(String name, String description) throws Throwable {
         String topologyTemplateId = TopologyTemplateStepDefinitions.CURRENT_TOPOLOGY_TEMP_ID;
         assertFalse(StringUtils.isBlank(topologyTemplateId));
-        createApplication(name, description, topologyTemplateId, null);
+        createApplication(name, appToArchName(name), description, topologyTemplateId);
     }
 
     @Then("^The created application topology is the same as the one in the base topology template$")
     public void The_created_application_topology_is_the_same_as_the_one_in_the_base_topology_template() throws Throwable {
-
         // created topology
-        String topologyId = getTopologyIdFromApplication(CURRENT_APPLICATION.getName());
+        String topologyId = Csar.createId(CURRENT_APPLICATION.getId(), VersionUtil.DEFAULT_VERSION_NAME);
         Context.getInstance().registerRestResponse(getRestClientInstance().get("/rest/v1/topologies/" + topologyId));
         TopologyDTO createdTopology = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class, Context.getJsonMapper()).getData();
 
@@ -650,7 +642,7 @@ public class ApplicationStepDefinitions {
     public void iCreateANewApplicationWithNameAndDescriptionBasedOnTheTemplateWithName(String name, String description, String templateName) throws Throwable {
         String topologyTemplateId = TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName);
         assertFalse(StringUtils.isBlank(topologyTemplateId));
-        createApplication(name, description, topologyTemplateId, null);
+        createApplication(name, appToArchName(name), description, topologyTemplateId);
     }
 
     @When("^I get the application named \"([^\"]*)\"$")

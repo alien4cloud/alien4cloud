@@ -230,7 +230,7 @@ Feature: Topology composition
       | capabilityName | data_endpoint                                                                                           |
       | propertyName   | port                                                                                                    |
     And I save the topology
-    Given I create a new application with name "myWebapp" and description "A webapp that use an embeded topology."
+    And I create an application with name "myWebapp", archive name "myWebapp", description "A webapp that use an embeded topology." and topology template id "null"
     And I get the current topology
     And I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
@@ -518,7 +518,7 @@ Feature: Topology composition
       | capabilityId             | attachWebsite                                                                               |
     And I save the topology
     # Now create the application that use this LAMP to deploy a wordpress
-    Given I create a new application with name "myWebapp2" and description "A webapp that use 2 embeded topology."
+    And I create an application with name "myWebapp2", archive name "myWebapp2", description "A webapp that use 2 embeded topology." and topology template id "null"
     And I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | myLAMP                                                                |
@@ -750,7 +750,7 @@ Feature: Topology composition
       | capabilityId             | attachWebsite                                                                               |
     And I save the topology
     # Now create the application that use this LAMP to deploy a wordpress
-    Given I create a new application with name "myWebapp2" and description "A webapp that use 2 embeded topology."
+    Given I create an application with name "myWebapp2", archive name "myWebapp2", description "A webapp that use 2 embeded topology." and topology template id "null"
     And I get the current topology
     And I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
@@ -873,7 +873,7 @@ Feature: Topology composition
       | elementId | tosca.nodes.Root                                                                  |
     And I save the topology
     And I create a new topology template version named "0.2.0-SNAPSHOT" based on the current version
-    And I create a new application with name "myWebapp" and description "A webapp that use an embeded topology."
+    Given I create an application with name "myWebapp", archive name "myWebapp", description "A webapp that use an embeded topology." and topology template id "null"
     And I get the current topology
     And I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |

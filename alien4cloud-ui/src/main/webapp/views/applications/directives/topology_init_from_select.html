@@ -1,0 +1,65 @@
+<uib-tabset active="fromIndex">
+  <uib-tab disable="true" classes="tab-label">
+    <uib-tab-heading>{{'APPLICATIONS.TOPOLOGY.INIT_FROM' | translate}}</uib-tab-heading>
+  </uib-tab>
+  <uib-tab ng-show="archiveVersions">
+    <uib-tab-heading>{{'APPLICATIONS.TOPOLOGY.INIT_FROM_VERSION' | translate}}</uib-tab-heading>
+    <div>
+      {{'APPLICATIONS.TOPOLOGY.INIT_FROM_VERSION_TXT' | translate}}
+      <div class="form-group">
+        <div class="col-lg-6" ng-class="{'has-error': newForm.fromVersionid.$invalid}">
+          <label for="fromVersionid" class="col-lg-6 control-label">
+            {{'APPLICATIONS.VERSION.MODAL.PREVIOUS_VERION' | translate}}
+          </label>
+          <div class="col-lg-6">
+            <select class="form-control" id="fromVersionid" name="fromVersionid" ng-model="fromVersion.selected" ng-options="t.version for t in archiveVersions" placeholder="{{'COMMON.DESCRIPTION' | translate}}" ng-required="fromIndex===1">
+              <option value="">{{'APPLICATIONS.VERSION.MODAL.SELECT_PREVIOUS' | translate}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-lg-6" ng-if="fromVersion.selected && selectTopoVersion" ng-class="{'has-error': newForm.fromTopologyVersion.$invalid}">
+          <label for="fromTopologyVersion" class="col-lg-6 control-label">
+            {{'APPLICATIONS.VERSION.MODAL.PREVIOUS_TOPO_VERSION' | translate}}
+          </label>
+          <div class="col-lg-6">
+            <select class="form-control" id="fromTopologyVersion" name="fromTopologyVersion" ng-model="fromVersion.selectedTopoVersion" ng-options="key as key for (key, value) in fromVersion.selected.topologyVersions" placeholder="{{'COMMON.DESCRIPTION' | translate}}" ng-required="fromIndex===1">
+              <option value="">{{'APPLICATIONS.VERSION.MODAL.SELECT_PREVIOUS' | translate}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </uib-tab>
+  <uib-tab>
+    <uib-tab-heading>{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</uib-tab-heading>
+    <div>
+      {{'APPLICATIONS.TOPOLOGY.INIT_FROM_TEMPLATE_TXT' | translate}}
+      <div ng-if="selectedTopologyWarning" class="alert alert-warning" role="alert">
+        <span class="fa fa-warning" aria-hidden="true"></span> {{'ERRORS.' + selectedTopologyWarning | translate}}
+      </div>
+      <div ng-if="selectedTopologyError" class="alert alert-danger" role="alert">
+        <span class="fa fa-warning" aria-hidden="true"></span> {{'ERRORS.' + selectedTopologyError | translate}}
+      </div>
+      <div class="form-group" ng-class="{'has-error': newForm.templateId.$invalid || newForm.templateVersionId.$invalid}">
+        <label for="templateId" class="col-lg-2 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
+        <div class="col-lg-4">
+          <input readonly type="text" class="form-control" id="templateId" ng-model="topologyTemplate.name" name="templateId" placeholder="{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT' | translate}}" ng-required="fromIndex===2">
+        </div>
+        <label for="templateVersionId" class="col-lg-2 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_VERSION' | translate}}</label>
+        <div class="col-lg-4">
+          <input readonly type="text" class="form-control" id="templateVersionId" ng-model="topologyTemplate.version" name="templateVersionId" placeholder="{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}" ng-required="fromIndex===2">
+        </div>
+      </div>
+      <div style="margin-left: 30px; margin-right: 30px; padding-bottom: 10px;">
+        <topology-template-search
+          archive-link="false"
+          on-select="selectTemplate(topology)">
+        </topology-template-search>
+      </div>
+    </div>
+  </uib-tab>
+  <uib-tab>
+    <uib-tab-heading>{{'APPLICATIONS.TOPOLOGY.INIT_FROM_SCRATCH' | translate}}</uib-tab-heading>
+    <div>{{'APPLICATIONS.TOPOLOGY.INIT_FROM_SCRATCH_TXT' | translate}}</div>
+  </uib-tab>
+</uib-tabset>

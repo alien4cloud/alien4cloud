@@ -26,8 +26,8 @@ define(function (require) {
   states.forward('components.csars', 'components.csars.list');
 
   /* Main CSAR search controller */
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarGitListCtrl', ['$scope', '$modal', '$state', 'csarGitService', 'searchServiceFactory', '$translate', 'toaster',
-  function($scope, $modal, $state, csarGitService, searchServiceFactory, $translate, toaster) {
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarGitListCtrl', ['$scope', '$uibModal', '$state', 'csarGitService', 'searchServiceFactory', '$translate', 'toaster',
+  function($scope, $uibModal, $state, csarGitService, searchServiceFactory, $translate, toaster) {
     var statesToClasses = {
       'error': 'danger',
       'success': 'success',
@@ -104,7 +104,8 @@ define(function (require) {
       var importResult = {
         'name': url,
         'progress': 100,
-        'errors': []
+        'errors': [],
+        isErrorBlocCollapsed: true
       };
       // file is uploaded successfully and the server respond without error
       if (data.error === null) {
@@ -139,7 +140,7 @@ define(function (require) {
     };
 
     $scope.openNewCsarGitTemplate = function() {
-      var modalInstance = $modal.open({
+      var modalInstance = $uibModal.open({
         templateUrl: 'views/components/csar_git_crud.html',
         controller: 'CsarGitCrudController',
         scope: $scope,
@@ -169,7 +170,7 @@ define(function (require) {
     };
 
     $scope.openCsarGit = function(csar) {
-      var modalInstance = $modal.open({
+      var modalInstance = $uibModal.open({
         templateUrl: 'views/components/csar_git_crud.html',
         controller: 'CsarGitCrudController',
         scope: $scope,

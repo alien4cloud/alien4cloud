@@ -37,7 +37,7 @@
           <tbody>
             <tr ng-repeat="plugin in data.data" id='plugin_{{plugin.id}}'>
               <td><i class="fa fa-circle fa-2x" ng-class="{'text-success': plugin.enabled,'text-danger': !plugin.enabled}"
-                  tooltip="{{'COMMON.ENABLED_' + plugin.enabled | translate }}"></i></td>
+                  uib-tooltip="{{'COMMON.ENABLED_' + plugin.enabled | translate }}"></i></td>
               <td>{{plugin.descriptor.id}}</td>
               <td>{{plugin.descriptor.version}}</td>
               <td>{{plugin.descriptor.name}}</td>
@@ -49,14 +49,14 @@
               </td>
               <td>
                 <div class="pull-right">
-                  <a ng-click="enable(plugin.id)" ng-if="!plugin.enabled" class="btn btn-success btn-sm" tooltip="{{ 'PLUGINS.ENABLE' | translate}}"
+                  <a ng-click="enable(plugin.id)" ng-if="!plugin.enabled" class="btn btn-success btn-sm" uib-tooltip="{{ 'PLUGINS.ENABLE' | translate}}"
                      tooltip-append-to-body="true"> <i class="fa fa-circle fa-fw"></i>
                   </a>
-                  <a ng-click="disable(plugin.id)" ng-if="plugin.enabled" class="btn btn-danger btn-sm" tooltip="{{ 'PLUGINS.DISABLE' | translate}}"
+                  <a ng-click="disable(plugin.id)" ng-if="plugin.enabled" class="btn btn-danger btn-sm" uib-tooltip="{{ 'PLUGINS.DISABLE' | translate}}"
                      tooltip-append-to-body="true"> <i class="fa fa-circle"></i>
                   </a>
                   <a id='plugin_{{plugin.id}}_configure' ng-click="openConfiguration(plugin.id)" ng-if="plugin.configurable" class="btn btn-default btn-sm"
-                     tooltip="{{ 'PLUGINS.CONFIGURE' | translate}}" tooltip-append-to-body="true">
+                     uib-tooltip="{{ 'PLUGINS.CONFIGURE' | translate}}" tooltip-append-to-body="true">
                     <i class="fa fa-cog"></i>
                   </a>
 

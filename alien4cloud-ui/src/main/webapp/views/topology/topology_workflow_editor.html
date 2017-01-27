@@ -27,7 +27,7 @@
                 <div class="pull-right">
                     <a id="wfUnpinStep"
                        class="btn btn-primary btn-sm"
-                       tooltip="{{ 'APPLICATIONS.WF.addWorkflow' | translate}}"
+                       uib-tooltip="{{ 'APPLICATIONS.WF.addWorkflow' | translate}}"
                        tooltip-append-to-body="true" ng-click="workflows.createWorkflow()">
                       <i class="fa fa-plus-square"></i>
                     </a>
@@ -44,7 +44,7 @@
                 {{topology.topology.workflows[currentWorkflowName].errors.length}} {{'APPLICATIONS.WF.hasErrors' | translate}}
               </h5>
             </div>
-            <div id="wf-errors-panel" collapse="isWfErrorsCollapsed" class="topology-level">
+            <div id="wf-errors-panel" uib-collapse="isWfErrorsCollapsed" class="topology-level">
               <span class="label label-danger wfLabelError" ng-repeat="error in topology.topology.workflows[currentWorkflowName].errors" ng-init="errorType = workflows.getErrorType(error)">
                 {{'APPLICATIONS.WF.errors.' + errorType | translate:error}}
               </span>
@@ -73,7 +73,7 @@
                   <a id="wfViewMode"
                      class="btn btn-default btn-sm pull-right"
                      ng-class="{'active' : wfViewMode === 'full'}"
-                     tooltip="{{ 'APPLICATIONS.WF.changeViewMode' | translate}}"
+                     uib-tooltip="{{ 'APPLICATIONS.WF.changeViewMode' | translate}}"
                      tooltip-append-to-body="true" ng-click="workflows.switchViewMode()">
                     <i class="fa fa-binoculars"></i>
                   </a>
@@ -142,7 +142,7 @@
                 <div class="pull-right">
                     <a id="wfUnpinStep"
                        class="btn btn-default btn-sm"
-                       tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
+                       uib-tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
                        tooltip-append-to-body="true" ng-click="workflows.unPinCurrentEdge()">
                       <i class="fa fa-unlock"></i>
                     </a>
@@ -174,7 +174,7 @@
                 <div class="pull-right">
                     <a id="wfUnpinStep"
                        class="btn btn-default btn-sm"
-                       tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
+                       uib-tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
                        tooltip-append-to-body="true" ng-click="workflows.unpinCurrent()">
                       <i class="fa fa-unlock"></i>
                     </a>

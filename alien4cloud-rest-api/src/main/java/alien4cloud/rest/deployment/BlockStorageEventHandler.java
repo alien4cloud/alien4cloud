@@ -6,7 +6,12 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -154,7 +159,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         Map<String, Object> concernedNodeProperties = extractConcernedNodeProperties(nodeTemplate.getName(), nodeTemplate.getProperties(),
                 persistentProperties.keySet());
         List<Map<String, String>> splittedNodeProperties = splitNodePropertiesValue(concernedNodeProperties);
-        if (!doesPersistentPropertiesAlreadyExist(persistentProperties, splittedNodeProperties)) {
+        if (!persistentPropertiesAlreadyExist(persistentProperties, splittedNodeProperties)) {
             aggregatedProperties = buildAggregatedProperties(persistentProperties, concernedNodeProperties);
         }
 
@@ -177,7 +182,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         return aggregatedProperties;
     }
 
-    private boolean doesPersistentPropertiesAlreadyExist(Map<String, Object> persistentProperties, List<Map<String, String>> splittedNodeProperties) {
+    private boolean persistentPropertiesAlreadyExist(Map<String, Object> persistentProperties, List<Map<String, String>> splittedNodeProperties) {
         int nbProperties = persistentProperties.size();
         for (Map<String, String> existing : splittedNodeProperties) {
             int nbPropertiesEquals = 0;
@@ -231,7 +236,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 extractedMap.put(key, existingValue);
             } else {
                 // Can't aggregate values
-                log.warn("Fail to aggregate persistent value for node {} as property key {} is not a scalar type", nodeName, key);
+                log.debug("Fail to aggregate persistent value for node {} as property key {} is not a scalar type", nodeName, key);
                 return Maps.newHashMap();
             }
         }

@@ -8,6 +8,7 @@ import alien4cloud.paas.model.DeploymentStatus;
 @Getter
 @Setter
 @AllArgsConstructor(suppressConstructorProperties = true)
+@Deprecated
 public class EnvironmentStatusDTO {
     private String environmentName;
     private DeploymentStatus environmentStatus;

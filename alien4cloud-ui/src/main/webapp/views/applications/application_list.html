@@ -38,10 +38,10 @@
         <div ng-repeat="application in data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
           <div id="app_{{application.name}}" style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openApplication(application.id)">
             <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; $event.stopPropagation();">
-              <i ng-if="applicationStatuses[application.name]" style="padding: 8px;" class="pull-left fa fa-caret-right" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
+              <i ng-if="applicationEnvironmentMap[application.id]" style="padding-right: .8em;" class="vertical-align-middle fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
             </div>
             <div class="col-md-4">
-              <i class="pull-left media-object fa fa-desktop fa-2x" ng-if="!application.imageId"></i>
+              <i class="vertical-center fa fa-desktop fa-2x" style="margin-right: .4em;" ng-if="!application.imageId"></i>
               <img class="pull-left media-object fa img-circle" style="height: 46px;" ng-if="application.imageId" ng-src="img?id={{application.imageId}}&quality=QUALITY_64" />
               {{application.name}}</div>
             <div class="col-md-5" class="">{{application.description}}</div>
@@ -51,24 +51,36 @@
               <span id="pieChart-{{application.id}}" class="pull-right" style="margin-top: -18px;"></span>
             </div>
           </div>
-          <div class="row" ng-class="{'clickable-media': environment.canDeploy}" collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationStatuses[application.name] | orderBy: '-indexToOrder'"  >
-            <div class="col-span-12" style="border-width: 1px 0px 0px; border-style: solid; border-color: #DDD; padding: 8px;"
+          <div class="row" ng-class="{'clickable-media': environment.canDeploy}" uib-collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationEnvironmentMap[application.id] | orderBy: '-indexToOrder'"  >
+            <div class="col-span-12 alien-table-child-row"
                  ng-click="environment.canDeploy && openDeploymentPage(application, environment.id)" >
               <div class="row">
                 <div>
                   <div class="col-md-1"> </div>
                   <div class="col-md-5">
-                    <i class="pull-left fa fa-2x vertical-center" tooltip="{{'DEPLOYMENT.STATUS.' + environment.label | translate }}" tooltip-append-to-body="true" ng-class="{
-                      'fa-circle text-success' : environment.label == 'DEPLOYED',
-                      'fa-circle text-muted' : environment.label == 'UNDEPLOYED',
-                      'fa-warning text-warning' : environment.label == 'WARNING',
-                      'fa-circle text-danger' : environment.label == 'FAILURE',
-                      'fa-question-circle text-muted' : environment.label == 'UNKNOWN',
-                      'fa-spinner fa-spin' : environment.label == 'DEPLOYMENT_IN_PROGRESS' || environment.label == 'UNDEPLOYMENT_IN_PROGRESS'
+                    <i class="fa fa-2x vertical-center" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true" ng-class="{
+                      'fa-circle text-success' : environment.status == 'DEPLOYED',
+                      'fa-circle text-muted' : environment.status == 'UNDEPLOYED',
+                      'fa-warning text-warning' : environment.status == 'WARNING',
+                      'fa-circle text-danger' : environment.status == 'FAILURE',
+                      'fa-question-circle text-muted' : environment.status == 'UNKNOWN',
+                      'fa-spinner fa-spin' : environment.status == 'DEPLOYMENT_IN_PROGRESS' || environment.status == 'UNDEPLOYMENT_IN_PROGRESS'
                     }"></i>
-                    <span style="vertical-align: -moz-middle-with-baseline; vertical-align: -webkit-baseline-middle;">{{environment.name}}</span>
+                    <span>{{environment.name}}</span>
                   </div>
-                  <div class="col-md-6" class=""> </div>
+                  <div class="col-md-3">
+                    {{environment.currentVersionName}}
+                  </div>
+                  <div class="col-md-3" ng-class="{
+                    'text-success' : environment.status == 'DEPLOYED',
+                    'text-muted' : environment.status == 'UNDEPLOYED',
+                    'text-warning' : environment.status == 'WARNING',
+                    'text-danger' : environment.status == 'FAILURE',
+                    'text-muted' : environment.status == 'UNKNOWN',
+                    'text-info' : environment.status == 'DEPLOYMENT_IN_PROGRESS' || environment.status == 'UNDEPLOYMENT_IN_PROGRESS'
+                  }">
+                    {{environment.deployedVersion | idToVersion}}
+                  </div>
                 </div>
               </div>
             </div>
