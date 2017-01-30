@@ -19,7 +19,7 @@
     </div>
 </div>
 <!-- Displaying all terms and its facets -->
-<div ng-repeat="(term, termFacets) in facets" ng-init="active=!_.isEmpty(termFacets)">
+<div ng-repeat="(term, termFacets) in facets" ng-init="active=_.isNotEmpty(termFacets)">
     <div ng-click="active && (isFacetCollapsed = !isFacetCollapsed)" class="facet-category" ng-class= "{'facet-category-active' : active}">
         <span>{{ toDisplayFacet(term, filterPrefix) }}</span>
         <i class="pull-right fa"

@@ -21,7 +21,10 @@ define(function (require) {
       };
 
       var fetchVersionsResource = $alresource('rest/latest/catalog/topologies/:archiveName/versions');
-      $scope.fetchVersions = function(topology) {
+      $scope.fetchVersions = function(topology, $event) {
+        if(_.defined($event)){
+          $event.stopPropagation();
+        }
         if(_.defined(topology.allVersions)) {
           return;
         }

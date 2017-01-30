@@ -31,7 +31,7 @@
             <td>{{topology.description || '---' }}</td>
             <td>
               <div uib-dropdown>
-                <button class="btn btn-default" uib-dropdown-toggle ng-click="fetchVersions(topology)">
+                <button class="btn btn-default" uib-dropdown-toggle ng-click="fetchVersions(topology, $event)">
                    {{topology.archiveVersion}} <i class="fa fa-caret-down"></i>
                 </button>
                 <ul ng-if="!topology.allVersions" class="dropdown-menu" uib-dropdown-menu role="menu">
