@@ -5,8 +5,17 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -184,7 +193,7 @@ public final class ReflectionUtil {
      * @param ignoreNullValue indicate if we should merge null value
      * @param ignores properties names that should be ignored
      */
-    public static void mergeObject(Object from, Object to, boolean ignoreNullValue, Set<String>  ignores) {
+    public static void mergeObject(Object from, Object to, boolean ignoreNullValue, Set<String> ignores) {
         try {
             Map<String, Object> settablePropertiesMap = Maps.newHashMap();
             PropertyDescriptor[] propertyDescriptors = getPropertyDescriptors(from.getClass());
@@ -253,14 +262,32 @@ public final class ReflectionUtil {
      */
     public static Field getDeclaredField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
         try {
-            Field field = clazz.getDeclaredField(fieldName);
-            return field;
+            return clazz.getDeclaredField(fieldName);
         } catch (NoSuchFieldException e) {
             if (Object.class.equals(clazz.getSuperclass())) {
                 throw e;
             }
             return getDeclaredField(clazz.getSuperclass(), fieldName);
         }
+    }
+
+    /**
+     * Recursive getDeclaredField that allows looking for parent types fields for the first field that holds the given annotation.
+     *
+     * @param annotationClass The annotation we are looking for.
+     * @param clazz The class in which to search.
+     */
+    public static Field getDeclaredField(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(annotationClass)) {
+                return field;
+            }
+        }
+        if (Object.class.equals(clazz.getSuperclass())) {
+            return null;
+        }
+        return getDeclaredField(clazz.getSuperclass(), annotationClass);
     }
 
     /**
