@@ -78,6 +78,14 @@ public class LocationService {
     @Resource
     private LocationSecurityService locationSecurityService;
 
+    public Location getLocation(String orchestratorId, String locationId) {
+        Location location = getOrFail(locationId);
+        if (!java.util.Objects.equals(location.getOrchestratorId(), orchestratorId)) {
+            throw new NotFoundException("Orchestrator id " + orchestratorId + " does not exist or does not have the location " + locationId);
+        }
+        return location;
+    }
+
     /**
      * Auto-configure locations using the given location auto-configurer.
      *

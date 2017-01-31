@@ -3,6 +3,7 @@ package alien4cloud.model.orchestrators.locations;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.security.AbstractSecurityEnabledResource;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.ObjectField;
@@ -27,7 +28,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @ESObject
-public class LocationResourceTemplate {
+public class LocationResourceTemplate  extends AbstractSecurityEnabledResource {
     @Id
     private String id;
     @NotBlank

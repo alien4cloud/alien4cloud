@@ -64,14 +64,6 @@ public class LocationSecurityController {
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
 
-    private Location getLocation(String orchestratorId, String locationId) {
-        Location location = locationService.getOrFail(locationId);
-        if (!Objects.equals(location.getOrchestratorId(), orchestratorId)) {
-            throw new NotFoundException("Orchestrator id " + orchestratorId + " does not exist or does not have the location " + locationId);
-        }
-        return location;
-    }
-
     /**
      * Grant access to the location to the user (deploy on the location)
      *
@@ -85,7 +77,7 @@ public class LocationSecurityController {
     @Audit
     public synchronized RestResponse<List<UserDTO>> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId,
             @RequestBody String[] userNames) {
-        Location location = getLocation(orchestratorId, locationId);
+        Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.grantPermission(location, Subject.USER, userNames);
         return RestResponseBuilder.<List<UserDTO>> builder().data(getAuthorizedUsers(location)).build();
     }
@@ -103,7 +95,7 @@ public class LocationSecurityController {
     @Audit
     public synchronized RestResponse<List<UserDTO>> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
             @PathVariable String username) {
-        Location location = getLocation(orchestratorId, locationId);
+        Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.USER, username);
         return RestResponseBuilder.<List<UserDTO>> builder().data(getAuthorizedUsers(location)).build();
     }
@@ -138,7 +130,7 @@ public class LocationSecurityController {
     @RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<UserDTO>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId) {
-        Location location = getLocation(orchestratorId, locationId);
+        Location location = locationService.getLocation(orchestratorId, locationId);
         return RestResponseBuilder.<List<UserDTO>> builder().data(getAuthorizedUsers(location)).build();
     }
 
@@ -155,7 +147,7 @@ public class LocationSecurityController {
     @Audit
     public synchronized RestResponse<List<GroupDTO>> grantAccessToGroups(@PathVariable String orchestratorId, @PathVariable String locationId,
             @RequestBody String[] groupIds) {
-        Location location = getLocation(orchestratorId, locationId);
+        Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.grantPermission(location, Subject.GROUP, groupIds);
         return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(location)).build();
     }
@@ -173,7 +165,7 @@ public class LocationSecurityController {
     @Audit
     public synchronized RestResponse<List<GroupDTO>> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
             @PathVariable String groupId) {
-        Location location = getLocation(orchestratorId, locationId);
+        Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.GROUP, groupId);
         return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(location)).build();
     }
@@ -208,7 +200,7 @@ public class LocationSecurityController {
     @RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<GroupDTO>> getAuthorizedGroups(@PathVariable String orchestratorId, @PathVariable String locationId) {
-        Location location = getLocation(orchestratorId, locationId);
+        Location location = locationService.getLocation(orchestratorId, locationId);
         return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(location)).build();
     }
 
@@ -225,7 +217,7 @@ public class LocationSecurityController {
     @Audit
     public synchronized RestResponse<Void> revokeApplicationAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
             @PathVariable String applicationId) {
-        Location location = getLocation(orchestratorId, locationId);
+        Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.APPLICATION, applicationId);
         // remove all environments related to this application
         ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationId);
@@ -245,7 +237,7 @@ public class LocationSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
             @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
-        Location location = getLocation(orchestratorId, locationId);
+        Location location = locationService.getLocation(orchestratorId, locationId);
         if (request.getApplicationsToDelete() != null && request.getApplicationsToDelete().length > 0) {
             resourcePermissionService.revokePermission(location, Subject.APPLICATION, request.getApplicationsToDelete());
         }
@@ -287,7 +279,7 @@ public class LocationSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId,
             @PathVariable String locationId) {
-        Location location = getLocation(orchestratorId, locationId);
+        Location location = locationService.getLocation(orchestratorId, locationId);
         Map<String, ApplicationEnvironmentAuthorizationDTO> aeaDTOsMap = Maps.newHashMap();
         if (location.getEnvironmentPermissions() != null && location.getEnvironmentPermissions().size() > 0) {
 
