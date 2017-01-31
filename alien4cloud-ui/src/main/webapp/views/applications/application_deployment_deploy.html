@@ -28,3 +28,8 @@
     </div>
   </div>
 </div>
+<div class="row" style="margin-top: 10px;" ng-if="deploymentContext.selectedEnvironment.status !== 'UNDEPLOYED'">
+  <div class="col-md-12">
+    <display-outputs></display-outputs>
+  </div>
+</div>

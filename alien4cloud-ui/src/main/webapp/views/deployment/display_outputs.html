@@ -8,7 +8,10 @@
         <i class="fa fa-sign-out padding-right"> </i>
         <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
       </span>
-      <span class="pull-right" style="text-align: right">{{e.deployedVersion | idToVersion}}</span>
+      <span ng-if="selectedEnvironment.deployedVersion" class="pull-right">
+        <strong>{{ 'APPLICATIONS.DEPLOYMENT.VERSION' | translate }}:</strong>
+        <span class="text-primary">{{selectedEnvironment.deployedVersion | idToVersion}}</span>
+      </span>
       <tr>
         <td colspan="2"></td>
       </tr>

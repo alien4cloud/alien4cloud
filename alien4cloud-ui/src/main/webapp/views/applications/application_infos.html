@@ -141,16 +141,16 @@
       </legend>
       <div class="row col-md-12">
         <uib-tabset>
-          <uib-tab ng-repeat="e in appEnvironments.environments" id="tab-env-{{e.name}}" select="setEnvironment(e.id)" active="e.active">
+          <uib-tab ng-repeat="selectedEnvironment in appEnvironments.environments" id="tab-env-{{selectedEnvironment.name}}" select="setEnvironment(selectedEnvironment.id)" active="selectedEnvironment.active">
             <uib-tab-heading>
-              <i class="pull-left fa fa-x" uib-tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
-                'fa-circle text-success' : e.status == 'DEPLOYED',
-                'fa-circle text-muted' : e.status == 'UNDEPLOYED',
-                'fa-warning text-warning' : e.status == 'WARNING',
-                'fa-circle text-danger' : e.status == 'FAILURE',
-                'fa-question-circle text-muted' : e.status == 'UNKNOWN',
-                'fa-spinner fa-spin' : e.status == 'DEPLOYMENT_IN_PROGRESS' || e.status == 'UNDEPLOYMENT_IN_PROGRESS'
-              }"></i> {{e.name}}
+              <i class="pull-left fa fa-x" uib-tooltip="{{'DEPLOYMENT.STATUS.' + selectedEnvironment.status | translate }}" tooltip-append-to-body="true" ng-class="{
+                'fa-circle text-success' : selectedEnvironment.status == 'DEPLOYED',
+                'fa-circle text-muted' : selectedEnvironment.status == 'UNDEPLOYED',
+                'fa-warning text-warning' : selectedEnvironment.status == 'WARNING',
+                'fa-circle text-danger' : selectedEnvironment.status == 'FAILURE',
+                'fa-question-circle text-muted' : selectedEnvironment.status == 'UNKNOWN',
+                'fa-spinner fa-spin' : selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' || selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
+              }"></i> {{selectedEnvironment.name}}
             </uib-tab-heading>
             <div>
               <display-outputs></display-outputs>

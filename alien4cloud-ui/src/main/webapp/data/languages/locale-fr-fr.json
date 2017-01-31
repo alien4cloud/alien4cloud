@@ -14,7 +14,8 @@
         "REQUIRED": "Obligatoire",
         "WARNING": "Alerte",
         "WARNING_MESSAGE": "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
-      }
+      },
+      "VERSION": "Version déployée"
     },
     "ENVIRONMENT": {
       "ALL": "All Environment",

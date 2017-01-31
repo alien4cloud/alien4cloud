@@ -14,7 +14,8 @@
         "REQUIRED": "Required",
         "WARNING": "Warning",
         "WARNING_MESSAGE": "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
-      }
+      },
+      "VERSION": "Deployed version"
     },
     "ENVIRONMENT": {
       "ALL": "All Environment",
