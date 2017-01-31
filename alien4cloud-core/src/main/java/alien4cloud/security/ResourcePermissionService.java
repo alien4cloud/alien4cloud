@@ -2,6 +2,8 @@ package alien4cloud.security;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -10,6 +12,8 @@ import javax.annotation.Resource;
 
 import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
+import org.apache.commons.collections4.MapUtils;
+import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.context.event.EventListener;
@@ -21,6 +25,8 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.security.event.GroupDeletedEvent;
 import alien4cloud.security.event.UserDeletedEvent;
+import alien4cloud.security.model.User;
+import alien4cloud.security.users.IAlienUserDao;
 import alien4cloud.utils.TypeScanner;
 
 /**
@@ -30,6 +36,9 @@ import alien4cloud.utils.TypeScanner;
 public class ResourcePermissionService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+
+    @Resource
+    private IAlienUserDao alienUserDao;
 
     /**
      * Add admin permission to the given resource for the given subject.
@@ -78,6 +87,23 @@ public class ResourcePermissionService {
                 .anyMatch(subjectEntry -> subjectEntry.getValue().stream().anyMatch(subject -> hasPermission(resource, subjectEntry.getKey(), subject)));
     }
 
+    /**
+     * Get summary infos of all authorized users of the resource
+     *
+     * @param resource
+     * @return
+     */
+    public List<User> getAuthorizedUsers(AbstractSecurityEnabledResource resource) {
+        List<User> userDTOs = Lists.newArrayList();
+        if (MapUtils.isNotEmpty(resource.getUserPermissions())) {
+            List<User> users = alienUserDao.find(resource.getUserPermissions().keySet().toArray(new String[resource.getUserPermissions().size()]));
+            users.sort(Comparator.comparing(User::getUsername));
+            userDTOs = users.stream().map(user -> new User(user.getUsername(), user.getLastName(), user.getFirstName(), user.getEmail()))
+                    .collect(Collectors.toList());
+        }
+        return userDTOs;
+    }
+
     private interface ResourcePermissionCleaner {
         void cleanPermission(AbstractSecurityEnabledResource resource, String subjectId);
     }
@@ -97,6 +123,12 @@ public class ResourcePermissionService {
             totalResult = result.getTotalResults();
         } while (from < totalResult);
     }
+
+    /*******************************************************************************************************************************
+     *
+     * EVENT LISTENERS
+     *
+     *******************************************************************************************************************************/
 
     @EventListener
     public void userDeletedEventListener(UserDeletedEvent event) throws IOException, ClassNotFoundException {
@@ -126,4 +158,5 @@ public class ResourcePermissionService {
         deletePermissions(resourceFilter, event.getApplicationEnvironmentId(),
                 ((resource, subjectId) -> revokePermission(resource, Subject.ENVIRONMENT, subjectId)));
     }
+
 }
