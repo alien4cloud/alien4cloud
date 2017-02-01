@@ -11,222 +11,63 @@ define(function (require) {
 
   require('scripts/topology/controllers/topology_editor_display');
   require('scripts/topology/controllers/topology_editor_workflows');
-  require('scripts/topology/directives/workflow_rendering');
 
   states.state('applications.detail.runtime.topology', {
-    url: '/runtime/topology',
+    url: '/topology',
     templateUrl: 'views/topology/topology_runtime.html',
-    controller: 'TopologyRuntimeCtrl',
+    controller: 'a4cRuntimeTopologyCtrl',
     menu: {
       id: 'am.applications.detail.runtime.topology',
       state: 'applications.detail.runtime.topology',
-      key: 'NAVAPPLICATIONS.MENU_RUNTIME',
-      icon: 'fa fa-cogs',
-      roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
-      priority: 400
+      key: 'EDITOR.MENU_TOPOLOGY',
+      icon: 'fa fa-sitemap',
+      priority: 1
     }
   });
   states.forward('applications.detail.runtime', 'applications.detail.runtime.topology');
 
-  modules.get('a4c-applications').controller('TopologyRuntimeCtrl',
+  modules.get('a4c-applications').controller('a4cRuntimeTopologyCtrl',
     ['$scope',
     'applicationServices',
     '$translate',
     'deploymentServices',
-    'applicationEventServicesFactory',
-    '$state',
     'propertiesServices',
     'toaster',
-    'orchestratorService',
-    'locationService',
-    'appEnvironments',
     '$interval',
     'toscaService',
-    'topologyJsonProcessor',
-    'topoEditWf',
     'topoEditDisplay',
     function($scope,
       applicationServices,
       $translate,
       deploymentServices,
-      applicationEventServicesFactory,
-      $state,
       propertiesServices,
       toaster,
-      orchestratorService,
-      locationService,
-      appEnvironments,
       $interval,
       toscaService,
-      topologyJsonProcessor,
-      topoEditWf,
       topoEditDisplay) {
       $scope.isRuntime = true;
 
       $scope.displays = {
         details: { active: true, size: 500, selector: '#runtime-details-box', only: ['topology', 'details'] },
-        events: { active: false, size: 500, selector: '#runtime-events-box', only: ['topology', 'events'] },
-        workflows: { active: false, size: 400, selector: '#workflows-box', only: ['workflows'] }
+        events: { active: false, size: 500, selector: '#runtime-events-box', only: ['topology', 'events'] }
       };
       topoEditDisplay($scope, '#topology-editor');
-      topoEditWf($scope);
-
-      var pageStateId = $state.current.name;
-      var applicationId = $state.params.id;
-      $scope.selectedEnvironment = null;
+      $scope.view = 'RENDERED';
       $scope.triggerTopologyRefresh = null;
 
-      var updateSelectedEnvironment = function() {
-        $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
-        //maybe the state request was made to open the view on a specific environment
-        if(_.defined($state.params.openOnEnvironment) && appEnvironments.selected.id !== $state.params.openOnEnvironment){
-          appEnvironments.select($state.params.openOnEnvironment, function() {
-            if(appEnvironments.selected.status !== 'UNDEPLOYED') {
-              $scope.selectedEnvironment = appEnvironments.selected;
-            }
-          });
-        } else if (_.defined(appEnvironments.selected) && appEnvironments.deployEnvironments.indexOf(appEnvironments.selected) > 0 && appEnvironments.selected.status !== 'UNDEPLOYED') {
-          // select current environment
-          $scope.selectedEnvironment = appEnvironments.selected;
-
-        } else {
-          //otherwise, just select the first deployed envionment
-          for (var i = 0; i < appEnvironments.deployEnvironments.length && _.undefined($scope.selectedEnvironment); i++) {
-            if (appEnvironments.deployEnvironments[i].status !== 'UNDEPLOYED') {
-              $scope.selectedEnvironment = appEnvironments.deployEnvironments[i];
-              appEnvironments.select($scope.selectedEnvironment.id);
-              return;
-            }
-          }
-        }
-      };
-
-      //update the selectedEnvironment
-      updateSelectedEnvironment();
-
-      // get the related cloud to display informations.
-      var refreshOrchestratorInfo = function() {
-        locationService.get({
-          orchestratorId: $scope.topology.topology.orchestratorId,
-          locationId: $scope.topology.topology.locationGroups._A4C_ALL.policies[0].locationId
-        }, function(response) {
-          $scope.location = response.data.location;
-        });
-        orchestratorService.get({
-          orchestratorId: $scope.topology.topology.orchestratorId
-        }, function(response) {
-          $scope.orchestrator = response.data;
-        });
-      };
-
-      $scope.eventTypeLabels = {
-        'ALL': 'APPLICATIONS.RUNTIME.EVENTS.ALL',
-        'paasdeploymentstatusmonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.STATUS',
-        'paasinstancestatemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.INSTANCES',
-        'paasinstancepersistentresourcemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.STORAGE',
-        'paasmessagemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.MESSAGES'
-      };
-
-      $scope.eventTypeFilters = [{
-        'value': 'ALL'
-      }, {
-        'value': 'paasdeploymentstatusmonitorevent'
-      }, {
-        'value': 'paasinstancestatemonitorevent'
-      }, {
-        'value': 'paasinstancepersistentresourcemonitorevent'
-      }, {
-        'value': 'paasmessagemonitorevent'
-      }];
+      $scope.eventTypeFilters = [
+        { 'value': 'ALL' },
+        { 'value': 'paasdeploymentstatusmonitorevent' },
+        { 'value': 'paasinstancestatemonitorevent' },
+        { 'value': 'paasinstancepersistentresourcemonitorevent' },
+        { 'value': 'paasmessagemonitorevent' }
+      ];
 
       $scope.selectedEventTypeFilter = $scope.eventTypeFilters[0];
       $scope.filterEvents = function(filter) {
         $scope.selectedEventTypeFilter = filter;
       };
 
-      var applicationEventServices = null;
-
-      function getPAASEvents() {
-        deploymentServices.getEvents({
-          applicationEnvironmentId: $scope.selectedEnvironment.id
-        }, function(result) {
-          // display events
-          if (_.undefined(result.data) || _.undefined(result.data.data)) {
-            $scope.events = {};
-            $scope.events.data = [];
-          } else {
-            for (var i = 0; i < result.data.data.length; i++) {
-              var event = result.data.data[i];
-              event.rawType = result.data.types[i];
-              enrichPAASEvent(event);
-            }
-            $scope.events = result.data;
-          }
-          // if we already have a listener then stop it
-          if (applicationEventServices !== null) {
-            applicationEventServices.stop();
-          }
-          applicationEventServices = applicationEventServicesFactory(applicationId, $scope.selectedEnvironment.id);
-          applicationEventServices.start();
-          applicationEventServices.subscribe(pageStateId, onStatusChange);
-        });
-      }
-
-      $scope.$on('$destroy', function() {
-        if (applicationEventServices !== null) {
-          applicationEventServices.stop();
-        }
-      });
-
-      function enrichPAASEvent(event) {
-        event.type = $scope.eventTypeLabels[event.rawType];
-        switch (event.rawType) {
-          case 'paasdeploymentstatusmonitorevent':
-            event.message = {
-              template: 'APPLICATIONS.RUNTIME.EVENTS.DEPLOYMENT_STATUS_MESSAGE',
-              data: {
-                status: 'DEPLOYMENT.STATUS.' + event.deploymentStatus
-              }
-            };
-            break;
-          case 'paasinstancestatemonitorevent':
-            if (_.defined(event.instanceState)) {
-              event.message = {
-                template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_STATE_MESSAGE',
-                data: {
-                  state: event.instanceState,
-                  nodeId: event.nodeTemplateId,
-                  instanceId: event.instanceId
-                }
-              };
-            } else {
-              event.message = {
-                template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_DELETED_MESSAGE',
-                data: {
-                  nodeId: event.nodeTemplateId,
-                  instanceId: event.instanceId
-                }
-              };
-            }
-            break;
-          case 'paasinstancepersistentresourcemonitorevent':
-            event.message = {
-              template: 'APPLICATIONS.RUNTIME.EVENTS.STORAGE_MESSAGE',
-              data: {
-                nodeId: event.nodeTemplateId,
-                instanceId: event.instanceId,
-                volumeId: _.get(event.persistentProperties, 'volume_id'),
-                zone: _.get(event.persistentProperties, 'zone')
-              }
-            };
-            break;
-          case 'paasmessagemonitorevent':
-            event.message = {
-              template: event.message
-            };
-            break;
-        }
-      }
 
       function refreshSelectedNodeInstancesCount() {
         if (_.defined($scope.selectedNodeTemplate)) {
@@ -260,11 +101,10 @@ define(function (require) {
 
       function refreshInstancesStatuses() {
         applicationServices.runtime.get({
-          applicationId: applicationId,
+          applicationId: $scope.application.id,
           applicationEnvironmentId: $scope.selectedEnvironment.id
         }, function(successResult) {
           if (!angular.equals($scope.topology.instances, successResult.data)) {
-            getPAASEvents();
             $scope.topology.instances = successResult.data;
             refreshSelectedNodeInstancesCount();
             refreshNodeInstanceInMaintenanceMode();
@@ -273,28 +113,16 @@ define(function (require) {
         });
       }
 
-      /////////////////////////////////////////////////////////////
-      // Initialize the view (we have to get the runtime topology)
-      /////////////////////////////////////////////////////////////
-      $scope.loadTopologyRuntime = function loadTopologyRuntime() {
-        delete $scope.topology;
-        deploymentServices.runtime.getTopology({
-          applicationId: applicationId,
-          applicationEnvironmentId: $scope.selectedEnvironment.id
-        }, function(successResult) { // get the topology
-          $scope.topology = successResult.data;
-          $scope.workflows.setCurrentWorkflowName('install');
-          topologyJsonProcessor.process($scope.topology);
-          refreshInstancesStatuses(); // update instance states
-          refreshOrchestratorInfo(); // cloud info for deployment view
-        });
-      };
+      $scope.$on('a4cRuntimeTopologyLoaded', function() {
+        refreshInstancesStatuses();
+        refreshNodeInstanceInMaintenanceMode();
+      });
 
-      var onStatusChange = function(type, event) {
-        // Enrich the event with the type based on the topic destination
-        event.rawType = type;
-        enrichPAASEvent(event);
-        $scope.events.data.push(event);
+      $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
+        if(event.rawType === 'paasmessagemonitorevent') {
+          return;
+        }
+        // topology has changed
         if (!$scope.isWaitingForRefresh) {
           $scope.isWaitingForRefresh = true;
           $interval(function() {
@@ -304,16 +132,9 @@ define(function (require) {
           refreshNodeInstanceInMaintenanceMode();
           $scope.$digest();
         }
-      };
-
-      $scope.$on('$destroy', function() {
-        // UnSubscribe
-        applicationEventServices.unsubscribe(pageStateId);
       });
 
-
       var injectPropertyDefinitionToInterfaces = function(interfaces) {
-
         if (_.defined(interfaces)) {
           angular.forEach(interfaces, function(interfaceObj) {
             Object.keys(interfaceObj.operations).forEach(function(operation) {
@@ -441,7 +262,7 @@ define(function (require) {
       $scope.scale = function(newValue) {
         if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
           applicationServices.scale({
-            applicationId: applicationId,
+            applicationId: $scope.application.id,
             nodeTemplateId: $scope.selectedNodeTemplate.name,
             instances: (newValue - $scope.selectedNodeTemplate.instancesCount),
             applicationEnvironmentId: $scope.selectedEnvironment.id
@@ -449,17 +270,6 @@ define(function (require) {
             $scope.loadTopologyRuntime();
           });
         }
-      };
-
-      $scope.launchWorkflow = function() {
-        $scope.isLaunchingWorkflow = true;
-        applicationServices.launchWorkflow({
-          applicationId: applicationId,
-          applicationEnvironmentId: $scope.selectedEnvironment.id,
-          workflowName: $scope.currentWorkflowName
-        }, undefined, function success() {
-          $scope.isLaunchingWorkflow = false;
-        });
       };
 
       $scope.filter = null;
@@ -496,7 +306,7 @@ define(function (require) {
         $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = true;
 
         deploymentServices.runtime.executeOperation({
-          applicationId: applicationId
+          applicationId: $scope.application.id
         }, angular.toJson(operationExecRequest), function(successResult) {
           // success
           $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = false;
@@ -561,7 +371,7 @@ define(function (require) {
         switch ($scope.topology.instances[$scope.selectedNodeTemplate.name][nodeInstanceId].instanceStatus) {
         case 'SUCCESS':
           deploymentServices.nodeInstanceMaintenanceOn({
-            applicationId: applicationId,
+            applicationId: $scope.application.id,
             applicationEnvironmentId: $scope.selectedEnvironment.id,
             nodeTemplateId: $scope.selectedNodeTemplate.name,
             instanceId: nodeInstanceId
@@ -569,7 +379,7 @@ define(function (require) {
           break;
         case 'MAINTENANCE':
           deploymentServices.nodeInstanceMaintenanceOff({
-            applicationId: applicationId,
+            applicationId: $scope.application.id,
             applicationEnvironmentId: $scope.selectedEnvironment.id,
             nodeTemplateId: $scope.selectedNodeTemplate.name,
             instanceId: nodeInstanceId
@@ -580,29 +390,16 @@ define(function (require) {
       $scope.switchDeployementMaintenanceMode = function() {
         if ($scope.hasNOdeInstanceInMaintenanceMode) {
           deploymentServices.deploymentMaintenance.off({
-            applicationId: applicationId,
+            applicationId: $scope.application.id,
             applicationEnvironmentId: $scope.selectedEnvironment.id
           }, {}, undefined);
         } else {
           deploymentServices.deploymentMaintenance.on({
-            applicationId: applicationId,
+            applicationId: $scope.application.id,
             applicationEnvironmentId: $scope.selectedEnvironment.id
           }, {}, undefined);
         }
       };
-
-      $scope.changeEnvironment = function(selectedEnvironment) {
-        appEnvironments.select(selectedEnvironment.id, function() {
-          $scope.selectedEnvironment = appEnvironments.selected;
-          // update the environment
-          $scope.loadTopologyRuntime();
-          $scope.clearNodeSelection();
-        });
-      };
-
-      // first topology load
-      $scope.loadTopologyRuntime();
-      $scope.view = 'RENDERED';
     }
   ]);
 });

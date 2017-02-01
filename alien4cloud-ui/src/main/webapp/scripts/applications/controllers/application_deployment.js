@@ -185,14 +185,7 @@ define(function(require) {
           appEnvironments.select($scope.deploymentContext.selectedEnvironment.id, goToNextInvalidStep);
         };
 
-        if(_.defined($state.params.openOnEnvironment) && appEnvironments.selected.id !== $state.params.openOnEnvironment){
-          appEnvironments.select($state.params.openOnEnvironment, function(){
-            $scope.deploymentContext.selectedEnvironment = appEnvironments.selected;
-            goToNextInvalidStep();
-          });
-        }else{
-          goToNextInvalidStep(); // immediately go to the next invalid tab
-        }
+        goToNextInvalidStep(); // immediately go to the next invalid tab
 
         $scope.showTodoList = function() {
           return $scope.validTopologyDTOLoaded && !$scope.validTopologyDTO.valid && $scope.isManager;

@@ -1,21 +1,3 @@
-<div id="editor-head-menu" class="topology-editor row" style="margin-top: -10px; padding:2px; padding-left:20px; padding-right:20px; background-color: #666666;">
-
-  <div style="display: inline-flex;">
-    <div style="min-width: 140px">
-      <ui-select id="editor-env-version-select" ng-model="selectedEnvironment" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeEnvironment(selectedEnvironment)" reset-search-input="true" close-on-select="true">
-        <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name | limitTo: 20}}{{$select.selected.name.length > 20 ? '...' : ''}}</ui-select-match>
-        <ui-select-choices repeat="environment in runtimeEnvironments | filter: {status: '!UNDEPLOYED', name: $select.search}">
-          <span ng-bind-html="environment.name | limitTo: 20 | highlight: $select.search"></span>
-          {{environment.name > 20 ? '...' : ''}}
-        </ui-select-choices>
-      </ui-select>
-    </div>
-    <span style="color:whitesmoke; margin: 0 5px;">{{'APPLICATIONS.VERSION.TOPOLOGY.LABEL' | translate}}&nbsp;:&nbsp;{{ topology.topology.archiveVersion }}</span>
-  </div>
-
-  <div id="editor-context-container" class="pull-right">
-  </div>
-</div>
 <div id="topology-editor" class="topology-editor" style="height: {{dimensions.height}}px; width: {{dimensions.width}}px;">
   <div class="topology-row" style="height: {{dimensions.height}}px;">
     <!-- TOPOLOGY display -->
@@ -65,17 +47,7 @@
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.APP_NAME' | translate}}</strong></td>
                       <td class="col-md-7">{{application.name}}</td>
-                      <td class="col-md-1">
-                        <!-- <a class="{{hasNOdeInstanceInMaintenanceMode ? 'btn btn-danger btn-xs' : 'btn btn-success btn-xs'}}"
-                           id="appMaintenanceButton"
-                           confirm="{{hasNOdeInstanceInMaintenanceMode ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate}}"
-                           confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
-                           confirm-placement="left"
-                           confirm-handler="switchDeployementMaintenanceMode()"
-                           ng-click="$event.stopPropagation();">
-                          <i class="fa fa-wrench"></i>
-                        </a> -->
-                      </td>
+                      <td class="col-md-1"></td>
                     </tr>
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</strong></td>
@@ -387,7 +359,7 @@
                         <span class="caret"></span>
                       </button>
                       <ul class="dropdown-menu" uib-dropdown-menu role="menu">
-                        <li><a id="{{eventTypeFilter.value + 'Select'}}" ng-repeat="eventTypeFilter in eventTypeFilters | filter: {value: '!' + selectedEventTypeFilter.value} " ng-click="filterEvents(eventTypeFilter)">{{eventTypeLabels[eventTypeFilter.value]
+                        <li ng-repeat="eventTypeFilter in eventTypeFilters | filter: {value: '!' + selectedEventTypeFilter.value}"><a id="{{eventTypeFilter.value + 'Select'}}" ng-click="filterEvents(eventTypeFilter)">{{eventTypeLabels[eventTypeFilter.value]
                           | translate}}</a>
                         </li>
                       </ul>
@@ -418,38 +390,6 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- workflows -->
-    <div id="workflows-box" ng-show="view === 'PLAN'" class="topology-column ui-resizable" style="width: {{displays.workflows.size}}px;">
-      <div class="topology-column-box">
-        <resizable-bar
-          id="workflows-box-handler"
-          classes="topology-column-menu-left">
-        </resizable-bar>
-        <div class="topology-column-content">
-          <div class="topology-column-content-head">
-            <span>
-              <i class="fa fa-power-off"></i> {{'APPLICATIONS.WF.title' | translate}}
-            </span>
-          </div>
-          <div class="well wfbox">
-            <div class="row">
-  	          <div class="col-md-8">
-  			        <select name="wf-select" id="wf-select" ng-model="currentWorkflowName" ng-change="workflows.setCurrentWorkflowName(currentWorkflowName)">
-  			          <option ng-repeat="w in topology.topology.workflows" value="{{w.name}}" ng-selected="w.name === currentWorkflowName">{{w.name}}</option>
-  			        </select>
-  	          </div>
-  	          <div class="col-md-4">
-  			        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button"
-  			           ng-click="launchWorkflow()"
-  			           ng-disabled="topology.topology.workflows[currentWorkflowName].standard || isLaunchingWorkflow" >
-  			          <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
-  			        </button>
-  	          </div>
-  	        </div>
           </div>
         </div>
       </div>

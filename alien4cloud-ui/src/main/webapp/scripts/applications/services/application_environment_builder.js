@@ -7,16 +7,23 @@ define(function (require) {
   modules.get('a4c-applications').factory('appEnvironmentsBuilder', ['applicationEnvironmentServices', 'authService',
     function(applicationEnvironmentServices, authService) {
 
-      var AppEnvironmentsPromise = function(application) {
+      var AppEnvironmentsPromise = function(application, environmentId) {
         var instance = this;
         return applicationEnvironmentServices.getAllEnvironments(application.id).then(function(result) {
           var data = result.data.data;
-
           instance.environments = _.undefined(data) ? [] : data;
 
           instance.selected = null;
           if(_.isNotEmpty(data)){
-            instance.selected =_.first(data);
+            if(_.defined(environmentId)) {
+              instance.select(environmentId);
+              if(_.undefined(instance.selected)) {
+                // if environment id is not part of the list let's select first
+                instance.selected =_.first(data);
+              }
+            } else {
+              instance.selected =_.first(data);
+            }
             instance.selected.active = true;
           }
 
@@ -31,14 +38,18 @@ define(function (require) {
           });
           return instance;
         });
-
-
       };
 
       AppEnvironmentsPromise.prototype = {
         constructor: AppEnvironmentsPromise,
 
-        //select an environment
+        /**
+        * Performs selection of an environment based on it's id.
+        *
+        * @param environemnt The environment to actually select.
+        * @param envChangedCallback An optional callback to be triggered once the environment has been selected.
+        * @param force Update the selected value even if the selected environment is the provided one. This ensures that the callback will be called and that angularjs will re-digest the scope.
+        */
         select: function(environmentId, envChangedCallback, force) {
           if(_.defined(this.selected)){
             if(this.selected.id === environmentId && !force) {
@@ -48,12 +59,39 @@ define(function (require) {
           }
           for (var i = 0; i < this.environments.length; i++) {
             if (this.environments[i].id === environmentId) {
-              this.selected = this.environments[i];
-              this.selected.active = true;
-              if(_.defined(envChangedCallback)) {
-                envChangedCallback();
+              this.doSelect(this.environments[i], envChangedCallback);
+              return;
+            }
+          }
+        },
+
+        /**
+        * Ensures that the current selected environemnt is deployed. If not selects the first available environment.
+        * Note that if no environment is deployed the selection will be kept as is meaning a non-deployed environment will still be selected.
+        */
+        selectDeployed: function() {
+          if(this.selected.status === 'UNDEPLOYED') {
+            // select the first deployed environment
+            for (var i = 0; i < this.environments.length; i++) {
+              if (this.environments[i].status !== 'UNDEPLOYED') {
+                this.doSelect(this.environments[i]);
+                return;
               }
             }
+          }
+        },
+
+        /**
+        * Actually performs selection of a given environemnt.
+        *
+        * @param environemnt The environment to actually select.
+        * @param envChangedCallback An optional callback to be triggered once the environment has been selected.
+        */
+        doSelect: function(environment, envChangedCallback) {
+          this.selected = environment;
+          this.selected.active = true;
+          if(_.defined(envChangedCallback)) {
+            envChangedCallback();
           }
         },
 
@@ -71,8 +109,8 @@ define(function (require) {
 
       };
 
-      return function(application) {
-        return new AppEnvironmentsPromise(application).then(function(result){
+      return function(application, environmentId) {
+        return new AppEnvironmentsPromise(application, environmentId).then(function(result){
           return result;
         });
       };

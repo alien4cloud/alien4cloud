@@ -4,7 +4,6 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var _ = require('lodash');
   require('angular-ui-ace');
 
   require('angular-tree-control');
