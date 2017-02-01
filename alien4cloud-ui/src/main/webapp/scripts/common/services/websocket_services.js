@@ -14,8 +14,8 @@ define(function (require) {
 
       var socket = null;
       var subscribesRegistry = {};
-      var debugEnabled = true;
-      var debugStompEnabled = true;
+      var debugEnabled = false;
+      var debugStompEnabled = false;
       var subscribeQueue = [];
       var connected = false;
       var connecting = false;

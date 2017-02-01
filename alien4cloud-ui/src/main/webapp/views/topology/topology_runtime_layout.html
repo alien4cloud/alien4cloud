@@ -1,0 +1,32 @@
+<ul class="vertical-navbar">
+  <li ng-repeat="menuItem in menu" ui-sref-active="active" ng-if="menuItem.show">
+    <a id="{{menuItem.id}}"
+       ng-click="onItemClick($event, menuItem)"
+       ui-sref="{{menuItem.state}}"
+       uib-tooltip="{{menuItem.key | translate}}"
+       tooltip-placement="right"
+       tooltip-append-to-body="true"
+       ng-class="{'disabled' : menuItem.disabled}">
+      <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
+    </a>
+  </li>
+</ul>
+<div class="vertical-panel-shift">
+  <div id="editor-head-menu" class="topology-editor">
+    <div style="display: inline-flex;">
+      <div style="min-width: 140px">
+        <ui-select id="editor-env-version-select" ng-model="selectedEnvironment" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeEnvironment(selectedEnvironment)" reset-search-input="true" close-on-select="true">
+          <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name | limitTo: 20}}{{$select.selected.name.length > 20 ? '...' : ''}}</ui-select-match>
+          <ui-select-choices repeat="environment in runtimeEnvironments | filter: {status: '!UNDEPLOYED', name: $select.search}">
+            <span ng-bind-html="environment.name | limitTo: 20 | highlight: $select.search"></span>
+            {{environment.name > 20 ? '...' : ''}}
+          </ui-select-choices>
+        </ui-select>
+      </div>
+      <span style="margin-left: 10px;"><strong>{{'APPLICATIONS.VERSION.TOPOLOGY.LABEL' | translate}}&nbsp;:</strong>&nbsp;{{ topology.topology.archiveVersion }}</span>
+    </div>
+    <div id="editor-context-container" class="pull-right">
+    </div>
+   </div>
+  <div ui-view></div>
+</div>

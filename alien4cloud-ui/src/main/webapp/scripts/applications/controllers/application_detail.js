@@ -20,8 +20,7 @@ define(function (require) {
   require('scripts/applications/controllers/application_environments');
   require('scripts/applications/controllers/application_versions');
   require('scripts/applications/controllers/application_users');
-  require('scripts/applications/controllers/topology_runtime');
-  require('scripts/applications/controllers/application_runtime');
+  require('scripts/applications/controllers/runtime');
 
   require('scripts/layout/resource_layout');
 
@@ -35,9 +34,9 @@ define(function (require) {
           }).$promise;
         }
       ],
-      appEnvironments: ['application', 'appEnvironmentsBuilder',
-        function(application, appEnvironmentsBuilder) {
-          return appEnvironmentsBuilder(application.data);
+      appEnvironments: ['application', 'appEnvironmentsBuilder', '$stateParams',
+        function(application, appEnvironmentsBuilder, $stateParams) {
+          return appEnvironmentsBuilder(application.data, $stateParams.openOnEnvironment);
         }
       ],
       archiveVersions: ['$http', 'application', 'applicationVersionServices',
@@ -58,7 +57,7 @@ define(function (require) {
     controller: 'ApplicationCtrl',
     params: {
       // optional id of the environment to automatically select when triggering this state
-      openOnEnvironment:null
+      openOnEnvironment: null
     }
   });
 
