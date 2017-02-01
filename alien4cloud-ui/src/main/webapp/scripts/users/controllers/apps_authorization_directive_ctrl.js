@@ -1,14 +1,13 @@
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
   var _ = require('lodash');
-  
+
   require('scripts/applications/services/application_environment_services');
-  require('scripts/orchestrators/services/location_security_service');
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
-  
+
   var NewAppAuthorizationController = ['$scope', '$uibModalInstance', 'searchServiceFactory', 'applicationEnvironmentServices',
     function ($scope, $uibModalInstance, searchServiceFactory, applicationEnvironmentServices) {
       $scope.query = '';
@@ -63,12 +62,12 @@ define(function (require) {
           }
         });
         _.forEach($scope.preSelectedApps, function(status, appId) {
-          if (status == 0) {
+          if (status === 0) {
             result.applicationsToDelete.push(appId);
           }
         });
         _.forEach($scope.preSelectedEnvs, function(status, envId) {
-          if (status == 0) {
+          if (status === 0) {
             result.environmentsToDelete.push(envId);
           }
         });
@@ -82,11 +81,11 @@ define(function (require) {
         $scope.selectedApps = {};
         $scope.environments = {};
         $scope.searchService.search();
-      }
+      };
 
       $scope.toggleApplicationSelection = function (app) {
         if (app.id in $scope.selectedApps) {
-          if ($scope.selectedApps[app.id].length == 0) {
+          if ($scope.selectedApps[app.id].length === 0) {
             // no env for this app, toggle = no selection
             delete $scope.selectedApps[app.id];
             // app was previoulsy selected (or partially selected)
@@ -115,7 +114,7 @@ define(function (require) {
       */
       $scope.getApplicationSelectionStatus = function (app) {
         if (app.id in $scope.selectedApps) {
-          if ($scope.selectedApps[app.id].length == 0) {
+          if ($scope.selectedApps[app.id].length === 0) {
             // no env for this app, full selection
             return 2;
           } else {
@@ -125,7 +124,7 @@ define(function (require) {
         } else {
           return 0;
         }
-      }
+      };
 
       $scope.toggleEnvironmentSelection = function (app, env) {
         if (app.id in $scope.preSelectedApps) {
@@ -140,7 +139,7 @@ define(function (require) {
             }
           } else {
             $scope.selectedApps[app.id].splice(indexOfEnv, 1);
-            if ($scope.selectedApps[app.id].length == 0) {
+            if ($scope.selectedApps[app.id].length === 0) {
                 delete $scope.selectedApps[app.id];
             }
             if (env.id in $scope.preSelectedEnvs) {
@@ -158,7 +157,7 @@ define(function (require) {
         } else {
           return false;
         }
-      }
+      };
 
       $scope.toggleSelectAll = function () {
         var selectAllStatus = $scope.getSelectAllStatus();
@@ -166,7 +165,7 @@ define(function (require) {
           case 1:
             _.forEach($scope.appsData.data, function(app) {
               var appSelectionStatus = $scope.getApplicationSelectionStatus(app);
-              if (appSelectionStatus == 0) {
+              if (appSelectionStatus === 0) {
                 $scope.toggleApplicationSelection(app);
               }
             });
@@ -192,11 +191,11 @@ define(function (require) {
       $scope.getSelectAllStatus = function () {
         var result = 0;
         _.forEach($scope.appsData.data, function(app) {
-          if (result == -1) {
+          if (result === -1) {
             return;
           }
           var appSelectionStatus = $scope.getApplicationSelectionStatus(app);
-          if (appSelectionStatus == 1) {
+          if (appSelectionStatus === 1) {
             result = -1;
           } else {
             result += appSelectionStatus;
@@ -215,28 +214,24 @@ define(function (require) {
             // some app are fully selected, others not
             return 1;
         }
-      }
+      };
 
       $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
       };
     }
   ];
-  
-  modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationDirectiveCtrl', ['$scope', '$uibModal', 'locationSecurityService',
-    function ($scope, $uibModal, locationSecurityService) {
+
+  modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationDirectiveCtrl', ['$scope', '$uibModal',
+    function ($scope, $uibModal) {
       $scope.searchAuthorizedEnvironmentsPerApplication = function () {
-        locationSecurityService.environmentsPerApplication.get({
-          orchestratorId: $scope.orchestrator.id,
-          locationId: $scope.location.id
-        }, function (response) {
+        $scope.envService.get({}, function (response) {
           $scope.authorizedEnvironmentsPerApplication = response.data;
         });
       };
       $scope.searchAuthorizedEnvironmentsPerApplication();
-      
+
       $scope.openNewAppAuthorizationModal = function (app) {
-        var childScope = {};
         $scope.application = app;
         $scope.preSelection = {};
         $scope.preSelectedApps = {};
@@ -257,20 +252,15 @@ define(function (require) {
           controller: NewAppAuthorizationController,
           scope: $scope
         });
-        
+
         modalInstance.result.then(function (result) {
-          locationSecurityService.environmentsPerApplication.save({
-              orchestratorId: $scope.orchestrator.id,
-              locationId: $scope.location.id
-          }, result, $scope.searchAuthorizedEnvironmentsPerApplication);
+          $scope.envService.save({}, result, $scope.searchAuthorizedEnvironmentsPerApplication);
         });
       };
-      
+
       $scope.revoke = function (application) {
         // here if application has env or not then do different things
-        locationSecurityService.applications.delete({
-          orchestratorId: $scope.orchestrator.id,
-          locationId: $scope.location.id,
+        $scope.appService.delete({
           applicationId: application.application.id
         }, $scope.searchAuthorizedEnvironmentsPerApplication);
       };
