@@ -1,8 +1,10 @@
 package alien4cloud.rest.orchestrator;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -36,6 +38,8 @@ import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
+import static org.codehaus.groovy.runtime.DefaultGroovyMethods.collect;
 
 @RestController
 @RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/security/",
@@ -134,6 +138,17 @@ public class LocationSecurityController {
      *******************************************************************************************************************************/
 
     /**
+     * Convert a List<Group> to List<GroupDTO>
+     *
+     * @param groups
+     * @return List<UserDTO>
+     */
+    public static List<GroupDTO> convertListGroupToListGroupDTO(List<Group> groups) {
+        return groups.stream().map(group -> new GroupDTO(group.getId(), group.getName(), group.getEmail(), group.getDescription()))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Grant access to the location to the groups (deploy on the location)
      *
      * @param locationId The location's id.
@@ -172,17 +187,6 @@ public class LocationSecurityController {
     }
 
     /**
-     * Convert a List<Group> to List<GroupDTO>
-     *
-     * @param groups
-     * @return List<UserDTO>
-     */
-    public static List<GroupDTO> convertListGroupToListGroupDTO(List<Group> groups) {
-        return groups.stream().map(group -> new GroupDTO(group.getId(), group.getName(), group.getEmail(), group.getDescription()))
-                .collect(Collectors.toList());
-    }
-
-    /**
      * List all groups authorised to access the location.
      *
      * @return list of all authorised groups.
@@ -195,6 +199,13 @@ public class LocationSecurityController {
         List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(location));
         return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
+
+
+    /*******************************************************************************************************************************
+     *
+     * SECURITY ON APPLICATIONS
+     *
+     *******************************************************************************************************************************/
 
     /**
      * Revoke the application's authorisation to access the location (including all related environments).
@@ -213,10 +224,7 @@ public class LocationSecurityController {
         resourcePermissionService.revokePermission(location, Subject.APPLICATION, applicationId);
         // remove all environments related to this application
         ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationId);
-        String[] envIds = new String[aes.length];
-        for (int i = 0; i < envIds.length; i++) {
-            envIds[i] = aes[i].getId();
-        }
+        String[] envIds = Arrays.stream(aes).map(ae -> ae.getId()).toArray(String[]::new);
         resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT, envIds);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -236,19 +244,14 @@ public class LocationSecurityController {
         if (request.getEnvironmentsToDelete() != null && request.getEnvironmentsToDelete().length > 0) {
             resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
         }
-        Set<String> envToAddSet = Sets.newHashSet();
-        if (request.getEnvironmentsToAdd() != null) {
-            envToAddSet.addAll(Sets.newHashSet(request.getEnvironmentsToAdd()));
-        }
+        List<String> envIds = Lists.newArrayList();
         if (request.getApplicationsToAdd() != null && request.getApplicationsToAdd().length > 0) {
             resourcePermissionService.grantPermission(location, Subject.APPLICATION, request.getApplicationsToAdd());
             // when an app is added, all eventual existing env authorizations are removed
-            List<String> envIds = Lists.newArrayList();
             for (String applicationToAddId : request.getApplicationsToAdd()) {
                 ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationToAddId);
                 for (ApplicationEnvironment ae : aes) {
                     envIds.add(ae.getId());
-                    envToAddSet.remove(ae.getId());
                 }
             }
             if (!envIds.isEmpty()) {
@@ -256,6 +259,7 @@ public class LocationSecurityController {
             }
         }
         if (request.getEnvironmentsToAdd() != null && request.getEnvironmentsToAdd().length > 0) {
+            List<String> envToAddSet = Arrays.stream(request.getEnvironmentsToAdd()).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
             resourcePermissionService.grantPermission(location, Subject.ENVIRONMENT, envToAddSet.toArray(new String[envToAddSet.size()]));
         }
         return RestResponseBuilder.<Void> builder().build();
@@ -276,12 +280,9 @@ public class LocationSecurityController {
         if (location.getEnvironmentPermissions() != null && location.getEnvironmentPermissions().size() > 0) {
 
             // build the set of application ids
-            Set<String> environmentApplicationIds = Sets.newHashSet();
             List<ApplicationEnvironment> environments = alienDAO.findByIds(ApplicationEnvironment.class,
                     location.getEnvironmentPermissions().keySet().toArray(new String[location.getEnvironmentPermissions().size()]));
-            for (ApplicationEnvironment ae : environments) {
-                environmentApplicationIds.add(ae.getApplicationId());
-            }
+            Set<String> environmentApplicationIds = environments.stream().map(ae -> new String(ae.getApplicationId())).collect(Collectors.toSet());
 
             // retrieve the applications related to these environments
             List<Application> applications = alienDAO.findByIds(Application.class,
