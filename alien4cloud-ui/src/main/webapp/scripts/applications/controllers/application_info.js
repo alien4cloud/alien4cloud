@@ -46,8 +46,14 @@ define(function (require) {
       $scope.appEnvironments = appEnvironments;
 
       $scope.setEnvironment = function setEnvironment(environmentId) {
+        if(_.undefined(environmentId)) {
+          console.log('selectedEnvironment', $scope.selectedEnvironment);
+          environmentId = $scope.selectedEnvironment.id;
+        }
+
         // select an environment and register a callback in case the env has changed.
         appEnvironments.select(environmentId, function() {
+          $scope.selectedEnvironment = appEnvironments.selected;
           $scope.stopEvent(); // stop to listen for instance events
           $scope.setTopologyId($scope.application.id, appEnvironments.selected.id, null).$promise.then(function(result) {
             // get informations from this topology
@@ -57,6 +63,7 @@ define(function (require) {
           });
         }, true);
       };
+      $scope.setEnvironment(appEnvironments.selected.id);
 
       $scope.$on('$destroy', function() { // routing to another page
         $scope.stopEvent(); // stop to listen for instance events

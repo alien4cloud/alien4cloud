@@ -22,14 +22,13 @@ define(function (require) {
     }
   });
 
-  var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$state',
-    function($scope, $modalInstance, $resource, $state) {
+  var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance',
+    function($scope, $modalInstance) {
       $scope.environment = {};
       $scope.create = function(valid, envType, version) {
         if (valid) {
           // prepare the good request
-          var applicationId = $state.params.id;
-          $scope.environment.applicationId = applicationId;
+          $scope.environment.applicationId = $scope.application.id;
           $scope.environment.environmentType = envType;
           $scope.environment.versionId = version;
           $modalInstance.close($scope.environment);
@@ -53,12 +52,13 @@ define(function (require) {
         var searchRequestObject = {
           'query': '',
           'from': 0,
-          'size': 50
+          'size': 1000000
         };
         applicationVersionServices.searchVersion({
           delegateId: $state.params.id
         }, angular.toJson(searchRequestObject), function versionSearchResult(result) {
           $scope.versions = result.data.data;
+          $scope.environments = appEnvironments.environments;
         });
 
       };
@@ -75,8 +75,8 @@ define(function (require) {
           applicationEnvironmentServices.create({
             applicationId: $scope.application.id
           }, angular.toJson(environment), function(successResponse) {
-            $scope.search().then(function(searchResult){
-              var environments = searchResult.data.data;
+            applicationEnvironmentServices.getAllEnvironments($scope.application.id).then(function(result) {
+              var environments = _.undefined(result.data.data) ? [] : result.data.data;
               var pushed = false;
               for(var i=0; i < environments.length && !pushed; i++) {
                 if(environments[i].id === successResponse.data) {
@@ -89,22 +89,6 @@ define(function (require) {
         });
       };
 
-      // Search for application environments
-      $scope.search = function() {
-        var searchRequestObject = {
-          'query': $scope.query,
-          'from': 0,
-          'size': 50
-        };
-        return applicationEnvironmentServices.searchEnvironment({
-          applicationId: $scope.application.id
-        }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
-          $scope.searchAppEnvResult = result.data.data;
-          return $scope.searchAppEnvResult;
-        }).$promise;
-      };
-      $scope.search();
-
       // Delete the app environment
       $scope.delete = function deleteAppEnvironment(appEnvId) {
         if (!angular.isUndefined(appEnvId)) {
@@ -115,7 +99,6 @@ define(function (require) {
             if(result.data) {
               appEnvironments.removeEnvironment(appEnvId);
             }
-            $scope.search();
           });
         }
       };
@@ -128,11 +111,12 @@ define(function (require) {
         return _.result($scope.getVersionByName(name), 'id');
       };
 
+
       function updateEnvironment(environmentId, fieldName, fieldValue) {
         // update the environments
         var done = false;
-        for(var i=0; i < $scope.searchAppEnvResult.length && !done; i++) {
-          var environment = $scope.searchAppEnvResult[i];
+        for(var i=0; i < $scope.environments.length && !done; i++) {
+          var environment = $scope.environments[i];
           if(environment.id === environmentId) {
             environment[fieldName] = fieldValue;
             appEnvironments.updateEnvironment(environment);
@@ -142,13 +126,16 @@ define(function (require) {
       }
 
       $scope.updateApplicationEnvironment = function(fieldName, fieldValue, environmentId, oldValue) {
-        if (fieldName !== 'name' || fieldValue !== oldValue) {
+        if (_.undefined(oldValue) || fieldValue !== oldValue) {
           var updateApplicationEnvironmentRequest = {};
 
           var realFieldValue = fieldValue;
           if (fieldName === 'currentVersionId') {
             realFieldValue = getVersionIdByName(fieldValue);
           }
+
+          console.log('update', fieldName, realFieldValue);
+
           updateApplicationEnvironmentRequest[fieldName] = realFieldValue;
 
           return applicationEnvironmentServices.update({

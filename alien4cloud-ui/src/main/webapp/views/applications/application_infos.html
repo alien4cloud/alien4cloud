@@ -139,7 +139,7 @@
       <legend style="text-align: center;">
         <h3><i class="fa fa-share-alt-square"></i> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</h3>
       </legend>
-      <div class="row col-md-12">
+      <div class="row col-md-12" ng-if="appEnvironments.environments.length < 10">
         <tabset>
           <tab ng-repeat="e in appEnvironments.environments" id="tab-env-{{e.name}}" select="setEnvironment(e.id)" active="e.active">
             <tab-heading>
@@ -157,6 +157,32 @@
             </div>
           </tab>
         </tabset>
+      </div>
+      <div class="row col-md-12" ng-if="appEnvironments.environments.length >= 10">
+        <ui-select ng-model="selectedEnvironment" on-select="setEnvironment(selectedEnvironment.id)" reset-search-input="true" close-on-select="true" append-to-body="true" theme="bootstrap">
+          <ui-select-match placeholder="Select or search an environment...">
+             <i class="pull-left fa fa-x" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
+               'fa-circle text-success' : $select.selected.status == 'DEPLOYED',
+               'fa-circle text-muted' : $select.selected.status == 'UNDEPLOYED',
+               'fa-warning text-warning' : $select.selected.status == 'WARNING',
+               'fa-circle text-danger' : $select.selected.status == 'FAILURE',
+               'fa-question-circle text-muted' : $select.selected.status == 'UNKNOWN',
+               'fa-spinner fa-spin' : $select.selected.status == 'DEPLOYMENT_IN_PROGRESS' || $select.selected.status == 'UNDEPLOYMENT_IN_PROGRESS'
+             }"></i> {{$select.selected.name}}</ui-select-match>
+          <ui-select-choices repeat="e in appEnvironments.environments | filter: $select.search | orderBy: 'name'">
+            <i class="fa fa-x" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
+              'fa-circle text-success' : e.status == 'DEPLOYED',
+              'fa-circle text-muted' : e.status == 'UNDEPLOYED',
+              'fa-warning text-warning' : e.status == 'WARNING',
+              'fa-circle text-danger' : e.status == 'FAILURE',
+              'fa-question-circle text-muted' : e.status == 'UNKNOWN',
+              'fa-spinner fa-spin' : e.status == 'DEPLOYMENT_IN_PROGRESS' || e.status == 'UNDEPLOYMENT_IN_PROGRESS'
+            }"></i> <span ng-bind-html="e.name | highlight: $select.search"></span>
+          </ui-select-choices>
+        </ui-select>
+        <div>
+          <display-outputs></display-output>
+        </div>
       </div>
     </fieldset>
   </div>

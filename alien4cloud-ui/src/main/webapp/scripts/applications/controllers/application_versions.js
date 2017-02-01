@@ -61,7 +61,7 @@ define(function (require) {
       var refreshAllAppVersions = function() {
         var searchAppVersionRequestObject = {
           'from': 0,
-          'size': 400
+          'size': 1000000
         };
         versionServices.searchVersion({
           delegateId: delegateId

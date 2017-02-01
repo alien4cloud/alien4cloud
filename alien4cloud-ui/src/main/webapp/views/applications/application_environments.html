@@ -7,19 +7,6 @@
         <i class="fa fa fa-plus-circle"></i> {{'APPLICATIONS.ENVIRONMENT.NEW' | translate}}
       </button>
     </div>
-    <!--  Environment search -->
-    <!-- div class="col-md-3 pull-right">
-      <form role="search" ng-submit="search()">
-        <div class="input-group">
-          <input type="text" class="form-control" placeholder="..." ng-model="query">
-          <span class="input-group-btn">
-            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
-              <i class="fa fa-search"></i>
-            </button>
-          </span>
-        </div>
-      </form>
-    </div -->
   </div>
 
   <div class="row" style="margin-top: 10px;">
@@ -37,7 +24,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="environment in searchAppEnvResult" id="{{environment.id}}">
+            <tr ng-repeat="environment in environments | orderBy:'name' track by environment.id" id="{{environment.id}}">
               <td>
                 <i class="pull-left fa fa-2x vertical-center" tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true" ng-class="{
                   'fa-circle text-success' : environment.status == 'DEPLOYED',
