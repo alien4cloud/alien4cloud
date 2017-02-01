@@ -1,19 +1,12 @@
 package alien4cloud.rest.orchestrator;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.common.collect.Lists;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -24,18 +17,12 @@ import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.security.AbstractSecurityEnabledResource;
+import alien4cloud.rest.orchestrator.model.GroupDTO;
+import alien4cloud.rest.orchestrator.model.UserDTO;
 import alien4cloud.security.ResourcePermissionService;
 import alien4cloud.security.Subject;
-import alien4cloud.security.groups.IAlienGroupDao;
-import alien4cloud.security.model.Group;
-import alien4cloud.security.model.User;
-import alien4cloud.security.users.IAlienUserDao;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @RestController
 @RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources/{resourceId}/security/",
@@ -49,35 +36,80 @@ public class LocationResourcesSecurityController {
     private LocationSecurityService locationSecurityService;
     @Resource
     private ILocationResourceService locationResourceService;
-    @Resource
-    private IAlienUserDao alienUserDao;
-    @Resource
-    private IAlienGroupDao alienGroupDao;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
     private ResourcePermissionService resourcePermissionService;
 
-    private List<GroupDTO> getAuthorizedGroups(AbstractSecurityEnabledResource resource) {
-        List<GroupDTO> groupDTOS = Lists.newArrayList();
-        if (resource.getGroupPermissions() != null && resource.getGroupPermissions().size() > 0) {
-            List<Group> groups = alienGroupDao.find(resource.getGroupPermissions().keySet().toArray(new String[resource.getGroupPermissions().size()]));
-            groups.sort(Comparator.comparing(Group::getName));
-            groupDTOS = groups.stream().map(group -> new GroupDTO(group.getId(), group.getName(), group.getEmail(), group.getDescription()))
-                    .collect(Collectors.toList());
-        }
-        return groupDTOS;
+
+    /*******************************************************************************************************************************
+     *
+     * SECURITY ON USERS
+     *
+     *******************************************************************************************************************************/
+
+    /**
+     * Grant access to the location resoure to the user (deploy on the location)
+     *
+     * @param locationId The location's id.
+     * @param resourceId The location resource's id.
+     * @param userNames The authorized users.
+     * @return A {@link Void} {@link RestResponse}.
+     */
+    @ApiOperation(value = "Grant access to the location's resource to the users, send back the new authorised users list", notes = "Only user with ADMIN role can grant access to another users.")
+    @RequestMapping(value = "/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public synchronized RestResponse<List<UserDTO>> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId,
+                                                                    @PathVariable String resourceId, @RequestBody String[] userNames) {
+        // TODO check that provided users are authorized on this location before. what to is one of them is not ?
+        // Location location = locationService.getLocation(orchestratorId, locationId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        resourcePermissionService.grantPermission(resourceTemplate, Subject.USER, userNames);
+        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
+        return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
 
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    private static class GroupDTO {
-        private String id;
-        private String name;
-        private String email;
-        private String description;
+    /**
+     * Revoke the user's authorisation to access a location resource
+     *
+     * @param locationId The id of the location.
+     * @param username The authorized user.
+     * @return A {@link Void} {@link RestResponse}.
+     */
+    @ApiOperation(value = "Revoke the user's authorisation to access a location resource, send back the new authorised users list", notes = "Only user with ADMIN role can revoke access to the location.")
+    @RequestMapping(value = "/users/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public synchronized RestResponse<List<UserDTO>> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
+                                                                  @PathVariable String resourceId, @PathVariable String username) {
+        // TODO check that provided users are authorized on this location before. what to is one of them is not ?
+        // Location location = locationService.getLocation(orchestratorId, locationId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        resourcePermissionService.revokePermission(resourceTemplate, Subject.USER, username);
+        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
+        return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
+
+    /**
+     * List all users authorised to access the location resource.
+     *
+     * @return list of all authorized users.
+     */
+    @ApiOperation(value = "List all users authorized to access the location resource", notes = "Only user with ADMIN role can list authorized users to the location.")
+    @RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public RestResponse<List<UserDTO>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId) {
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
+        return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();    }
+
+
+    /*******************************************************************************************************************************
+     *
+     * SECURITY ON GROUPS
+     *
+     *******************************************************************************************************************************/
 
     /**
      * Grant access to the location to the groups (deploy on the location)
@@ -96,7 +128,8 @@ public class LocationResourcesSecurityController {
         locationSecurityService.checkAuthorisation(location, (String) null);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.grantPermission(resourceTemplate, Subject.GROUP, groupIds);
-        return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(resourceTemplate)).build();
+        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
+        return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
     /**
@@ -116,7 +149,8 @@ public class LocationResourcesSecurityController {
         locationSecurityService.checkAuthorisation(location, (String) null);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.revokePermission(resourceTemplate, Subject.GROUP, groupId);
-        return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(resourceTemplate)).build();
+        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
+        return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
     /**
@@ -131,61 +165,9 @@ public class LocationResourcesSecurityController {
         Location location = locationService.getLocation(orchestratorId, locationId);
         locationSecurityService.checkAuthorisation(location, (String) null);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(resourceTemplate)).build();
+        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
+        return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
-    /**
-     * Grant access to the location resoure to the user (deploy on the location)
-     *
-     * @param locationId The location's id.
-     * @param resourceId The location resource's id.
-     * @param userNames The authorized users.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Grant access to the location's resource to the users, send back the new authorised users list", notes = "Only user with ADMIN role can grant access to another users.")
-    @RequestMapping(value = "/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public synchronized RestResponse<List<User>> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @PathVariable String resourceId, @RequestBody String[] userNames) {
-        // TODO check that provided users are authorized on this location before. what to is one of them is not ?
-        // Location location = locationService.getLocation(orchestratorId, locationId);
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        resourcePermissionService.grantPermission(resourceTemplate, Subject.USER, userNames);
-        return RestResponseBuilder.<List<User>> builder().data(resourcePermissionService.getAuthorizedUsers(resourceTemplate)).build();
-    }
-
-    /**
-     * Revoke the user's authorisation to access a location resource
-     *
-     * @param locationId The id of the location.
-     * @param username The authorized user.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Revoke the user's authorisation to access a location resource, send back the new authorised users list", notes = "Only user with ADMIN role can revoke access to the location.")
-    @RequestMapping(value = "/users/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public synchronized RestResponse<List<User>> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @PathVariable String resourceId, @PathVariable String username) {
-        // TODO check that provided users are authorized on this location before. what to is one of them is not ?
-        // Location location = locationService.getLocation(orchestratorId, locationId);
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        resourcePermissionService.revokePermission(resourceTemplate, Subject.USER, username);
-        return RestResponseBuilder.<List<User>> builder().data(resourcePermissionService.getAuthorizedUsers(resourceTemplate)).build();
-    }
-
-    /**
-     * List all users authorised to access the location resource.
-     *
-     * @return list of all authorized users.
-     */
-    @ApiOperation(value = "List all users authorized to access the location resource", notes = "Only user with ADMIN role can list authorized users to the location.")
-    @RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<List<User>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId) {
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        return RestResponseBuilder.<List<User>> builder().data(resourcePermissionService.getAuthorizedUsers(resourceTemplate)).build();
-    }
 
 }

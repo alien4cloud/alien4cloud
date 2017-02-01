@@ -1,9 +1,7 @@
 package alien4cloud.rest.orchestrator;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,11 +10,7 @@ import javax.annotation.Resource;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -24,7 +18,6 @@ import com.google.common.collect.Sets;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -33,6 +26,8 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationDTO;
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
+import alien4cloud.rest.orchestrator.model.GroupDTO;
+import alien4cloud.rest.orchestrator.model.UserDTO;
 import alien4cloud.security.ResourcePermissionService;
 import alien4cloud.security.Subject;
 import alien4cloud.security.groups.IAlienGroupDao;
@@ -41,9 +36,6 @@ import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @RestController
 @RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/security/",
@@ -64,6 +56,24 @@ public class LocationSecurityController {
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
 
+
+    /*******************************************************************************************************************************
+     *
+     * SECURITY ON USERS
+     *
+     *******************************************************************************************************************************/
+
+    /**
+     * Convert a List<User> to List<UserDTO>
+     *
+     * @param users
+     * @return List<UserDTO>
+     */
+    public static List<UserDTO> convertListUserToListUserDTO(List<User> users) {
+        return users.stream().map(user -> new UserDTO(user.getUsername(), user.getLastName(), user.getFirstName(), user.getEmail()))
+                .collect(Collectors.toList());
+    }
+
     /**
      * Grant access to the location to the user (deploy on the location)
      *
@@ -79,7 +89,8 @@ public class LocationSecurityController {
             @RequestBody String[] userNames) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.grantPermission(location, Subject.USER, userNames);
-        return RestResponseBuilder.<List<UserDTO>> builder().data(getAuthorizedUsers(location)).build();
+        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(location));
+        return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
 
     /**
@@ -97,28 +108,8 @@ public class LocationSecurityController {
             @PathVariable String username) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.USER, username);
-        return RestResponseBuilder.<List<UserDTO>> builder().data(getAuthorizedUsers(location)).build();
-    }
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    private static class UserDTO {
-        private String username;
-        private String lastName;
-        private String firstName;
-        private String email;
-    }
-
-    private List<UserDTO> getAuthorizedUsers(Location location) {
-        List<UserDTO> userDTOs = Lists.newArrayList();
-        if (location.getUserPermissions() != null && location.getUserPermissions().size() > 0) {
-            List<User> users = alienUserDao.find(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
-            users.sort(Comparator.comparing(User::getUsername));
-            userDTOs = users.stream().map(user -> new UserDTO(user.getUsername(), user.getLastName(), user.getFirstName(), user.getEmail()))
-                    .collect(Collectors.toList());
-        }
-        return userDTOs;
+        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(location));
+        return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
 
     /**
@@ -131,8 +122,16 @@ public class LocationSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<UserDTO>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        return RestResponseBuilder.<List<UserDTO>> builder().data(getAuthorizedUsers(location)).build();
+        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(location));
+        return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
+
+
+    /*******************************************************************************************************************************
+     *
+     * SECURITY ON GROUPS
+     *
+     *******************************************************************************************************************************/
 
     /**
      * Grant access to the location to the groups (deploy on the location)
@@ -149,7 +148,8 @@ public class LocationSecurityController {
             @RequestBody String[] groupIds) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.grantPermission(location, Subject.GROUP, groupIds);
-        return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(location)).build();
+        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(location));
+        return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
     /**
@@ -167,28 +167,19 @@ public class LocationSecurityController {
             @PathVariable String groupId) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.GROUP, groupId);
-        return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(location)).build();
+        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(location));
+        return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
-    private List<GroupDTO> getAuthorizedGroups(Location location) {
-        List<GroupDTO> groupDTOS = Lists.newArrayList();
-        if (location.getGroupPermissions() != null && location.getGroupPermissions().size() > 0) {
-            List<Group> groups = alienGroupDao.find(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
-            groups.sort(Comparator.comparing(Group::getName));
-            groupDTOS = groups.stream().map(group -> new GroupDTO(group.getId(), group.getName(), group.getEmail(), group.getDescription()))
-                    .collect(Collectors.toList());
-        }
-        return groupDTOS;
-    }
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    private static class GroupDTO {
-        private String id;
-        private String name;
-        private String email;
-        private String description;
+    /**
+     * Convert a List<Group> to List<GroupDTO>
+     *
+     * @param groups
+     * @return List<UserDTO>
+     */
+    public static List<GroupDTO> convertListGroupToListGroupDTO(List<Group> groups) {
+        return groups.stream().map(group -> new GroupDTO(group.getId(), group.getName(), group.getEmail(), group.getDescription()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -201,7 +192,8 @@ public class LocationSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<GroupDTO>> getAuthorizedGroups(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        return RestResponseBuilder.<List<GroupDTO>> builder().data(getAuthorizedGroups(location)).build();
+        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(location));
+        return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
     /**

@@ -1,11 +1,7 @@
 package alien4cloud.security;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -25,6 +21,8 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.security.event.GroupDeletedEvent;
 import alien4cloud.security.event.UserDeletedEvent;
+import alien4cloud.security.groups.IAlienGroupDao;
+import alien4cloud.security.model.Group;
 import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
 import alien4cloud.utils.TypeScanner;
@@ -39,6 +37,9 @@ public class ResourcePermissionService {
 
     @Resource
     private IAlienUserDao alienUserDao;
+
+    @Resource
+    private IAlienGroupDao alienGroupDao;
 
     /**
      * Add admin permission to the given resource for the given subject.
@@ -98,11 +99,27 @@ public class ResourcePermissionService {
         if (MapUtils.isNotEmpty(resource.getUserPermissions())) {
             List<User> users = alienUserDao.find(resource.getUserPermissions().keySet().toArray(new String[resource.getUserPermissions().size()]));
             users.sort(Comparator.comparing(User::getUsername));
-            userDTOs = users.stream().map(user -> new User(user.getUsername(), user.getLastName(), user.getFirstName(), user.getEmail()))
-                    .collect(Collectors.toList());
+            userDTOs.addAll(users);
         }
         return userDTOs;
     }
+
+    /**
+     * Get summary infos of all authorized groups of the resource
+     *
+     * @param resource
+     * @return
+     */
+    public List<Group> getAuthorizedGroups(AbstractSecurityEnabledResource resource) {
+        List<Group> groupDTOS = Lists.newArrayList();
+        if (resource.getGroupPermissions() != null && resource.getGroupPermissions().size() > 0) {
+            List<Group> groups = alienGroupDao.find(resource.getGroupPermissions().keySet().toArray(new String[resource.getGroupPermissions().size()]));
+            groups.sort(Comparator.comparing(Group::getName));
+            groupDTOS.addAll(groups);
+        }
+        return groupDTOS;
+    }
+
 
     private interface ResourcePermissionCleaner {
         void cleanPermission(AbstractSecurityEnabledResource resource, String subjectId);
