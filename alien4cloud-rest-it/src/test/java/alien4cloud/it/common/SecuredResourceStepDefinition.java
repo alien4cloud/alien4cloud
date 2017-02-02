@@ -30,11 +30,17 @@ public class SecuredResourceStepDefinition {
 
     private String getSecuredResourceBaseURL(String resourceType, String resourceName) throws Throwable {
         String url = null;
+        String orchestratorName = LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME;
         switch (resourceType) {
         case "LOCATION":
-            String orchestratorName = LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME;
             url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
                     + LocationsDefinitionsSteps.getLocationIdFromName(orchestratorName, resourceName) + "/security";
+            break;
+        case "LOCATION_RESOURCE":
+            String locationId = Context.getInstance().getLocationId(Context.getInstance().getOrchestratorId(orchestratorName), LocationsDefinitionsSteps.DEFAULT_LOCATION_NAME);
+            String locationResourceId = Context.getInstance().getLocationResourceId(Context.getInstance().getOrchestratorId(orchestratorName), locationId, resourceName);
+            url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
+                    + locationId + "/resources/" + locationResourceId + "/security";
             break;
         default:
             Assert.fail("Dot not support resource type " + resourceType);
