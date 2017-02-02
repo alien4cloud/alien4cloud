@@ -2,6 +2,7 @@ package alien4cloud.dao;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.elasticsearch.mapping.MappingBuilder;
 import org.elasticsearch.mapping.QueryBuilderAdapter;
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.SourceFetchContext;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.missing.InternalMissing;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
@@ -121,8 +123,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         } else {
             List<T> hits = Lists.newArrayList();
             for (int i = 0; i < response.getHits().getHits().length; i++) {
-                String hit = response.getHits().getAt(i).sourceAsString();
-                hits.add((T) getJsonMapper().readValue(hit, getClassFromType(response.getHits().getAt(i).getType())));
+                hits.add(hitToObject(response.getHits().getAt(i)));
             }
             return hits;
         }
@@ -291,7 +292,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         List<T> result = new ArrayList<>();
 
         for (int i = 0; i < searchResponse.getHits().getHits().length; i++) {
-            result.add(getJsonMapper().readValue(searchResponse.getHits().getAt(i).getSourceAsString(), clazz));
+            result.add(hitToObject(clazz, searchResponse.getHits().getAt(i)));
         }
 
         return result;
@@ -311,12 +312,30 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
         T[] resultData = (T[]) Array.newInstance(clazz, resultTypes.length);
         for (int i = 0; i < resultTypes.length; i++) {
-            resultTypes[i] = searchResponse.getHits().getAt(i).getType();
-            resultData[i] = (T) getJsonMapper().readValue(searchResponse.getHits().getAt(i).getSourceAsString(), getClassFromType(resultTypes[i]));
+            SearchHit hit = searchResponse.getHits().getAt(i);
+            resultTypes[i] = hit.getType();
+            resultData[i] = hitToObject(hit);
         }
         finalResponse.setData(resultData);
 
         finalResponse.setTypes(resultTypes);
+    }
+
+    private <T> T hitToObject(SearchHit hit) throws IOException {
+        return hitToObject((Class<? extends T>) getClassFromType(hit.getType()), hit);
+    }
+
+    private <T> T hitToObject(Class<T> clazz, SearchHit hit) throws IOException {
+        T obj = (T) getJsonMapper().readValue(hit.getSourceAsString(), clazz);
+        Field generatedId = getClassTogeneratedIdFields().get(clazz);
+        if (generatedId != null) {
+            try {
+                generatedId.set(obj, hit.getId());
+            } catch (IllegalAccessException e) {
+                log.error("Failed to set id from elastic to declared generated id field.", e);
+            }
+        }
+        return obj;
     }
 
     private <T> IESSearchQueryBuilderHelper<T> getSearchBuilderHelper(Class<T> clazz, String searchText, Map<String, String[]> filters,
