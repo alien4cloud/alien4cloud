@@ -16,6 +16,8 @@ public final class ToscaNodeLifecycleConstants {
     public static final String STOP = "stop";
     public static final String DELETE = "delete";
 
+    public static final String ATT_STATE = "state";
+
     // node states
     public static final String INITIAL = "initial";
     public static final String CREATING = "creating";

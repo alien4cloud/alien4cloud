@@ -5,6 +5,7 @@ import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpression;
 import java.nio.file.Files;
 import java.util.List;
 
+import alien4cloud.model.service.ServiceResource;
 import org.alien4cloud.exception.rest.FieldErrorDTO;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -69,6 +70,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
         indicesToClean.add(ElasticSearchDAO.SUGGESTION_INDEX);
         indicesToClean.add(Repository.class.getSimpleName().toLowerCase());
+        indicesToClean.add(ServiceResource.class.getSimpleName().toLowerCase());
 
         indicesToClean.add(Plugin.class.getSimpleName().toLowerCase());
         indicesToClean.add(PluginConfiguration.class.getSimpleName().toLowerCase());

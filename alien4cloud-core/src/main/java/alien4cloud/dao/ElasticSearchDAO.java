@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import alien4cloud.model.service.ServiceResource;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.*;
@@ -70,6 +71,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(Topology.class);
         initIndice(Csar.class);
         initIndice(Repository.class);
+        initIndice(ServiceResource.class);
         initIndice(Plugin.class);
         initIndice(PluginConfiguration.class);
         initIndice(MetaPropConfiguration.class);
