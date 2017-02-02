@@ -97,7 +97,7 @@ public class LocationResourcesSecurityController {
         checkAuthorization(location, Subject.USER, userNames);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.grantPermission(resourceTemplate, Subject.USER, userNames);
-        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
+        List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
         return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
 
@@ -116,7 +116,7 @@ public class LocationResourcesSecurityController {
                                                                   @PathVariable String resourceId, @PathVariable String username) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.revokePermission(resourceTemplate, Subject.USER, username);
-        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
+        List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
         return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
 
@@ -130,7 +130,7 @@ public class LocationResourcesSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<UserDTO>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
+        List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
         return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();    }
 
 
@@ -157,7 +157,7 @@ public class LocationResourcesSecurityController {
         checkAuthorization(location, Subject.GROUP, groupIds);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.grantPermission(resourceTemplate, Subject.GROUP, groupIds);
-        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
+        List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
         return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
@@ -176,7 +176,7 @@ public class LocationResourcesSecurityController {
                                                                        @PathVariable String resourceId, @PathVariable String groupId) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.revokePermission(resourceTemplate, Subject.GROUP, groupId);
-        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
+        List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
         return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
@@ -190,7 +190,7 @@ public class LocationResourcesSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<GroupDTO>> getAuthorizedGroups(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
+        List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
         return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 

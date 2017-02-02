@@ -79,13 +79,14 @@
                         search-config-builder="buildSecuritySearchConfig('users')">
                       </alien-user-authorization>
                     </uib-tab>
-                    <!-- <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
+                    <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
                       <alien-group-authorization
-                          orchestrator="orchestrator"
-                          location="context.location">
+                      resource="selectedResourceTemplate"
+                      service="locationResourcesSecurityService.groups"
+                      search-config-builder="buildSecuritySearchConfig('groups')">
                       </alien-group-authorization>
                     </uib-tab>
-                    <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
+                    <!--<uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
                       <alien-app-authorization
                               orchestrator="orchestrator"
                               location="context.location">

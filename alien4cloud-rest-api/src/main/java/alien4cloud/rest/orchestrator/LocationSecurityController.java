@@ -74,17 +74,6 @@ public class LocationSecurityController {
      *******************************************************************************************************************************/
 
     /**
-     * Convert a List<User> to List<UserDTO>
-     *
-     * @param users
-     * @return List<UserDTO>
-     */
-    public static List<UserDTO> convertListUserToListUserDTO(List<User> users) {
-        return users.stream().map(user -> new UserDTO(user.getUsername(), user.getLastName(), user.getFirstName(), user.getEmail()))
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Grant access to the location to the user (deploy on the location)
      *
      * @param locationId The location's id.
@@ -99,7 +88,7 @@ public class LocationSecurityController {
             @RequestBody String[] userNames) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.grantPermission(location, Subject.USER, userNames);
-        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(location));
+        List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(location));
         return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
 
@@ -118,7 +107,7 @@ public class LocationSecurityController {
             @PathVariable String username) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.USER, username);
-        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(location));
+        List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(location));
         return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
 
@@ -132,7 +121,7 @@ public class LocationSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<UserDTO>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(location));
+        List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(location));
         return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
 
@@ -166,17 +155,6 @@ public class LocationSecurityController {
      *******************************************************************************************************************************/
 
     /**
-     * Convert a List<Group> to List<GroupDTO>
-     *
-     * @param groups
-     * @return List<UserDTO>
-     */
-    public static List<GroupDTO> convertListGroupToListGroupDTO(List<Group> groups) {
-        return groups.stream().map(group -> new GroupDTO(group.getId(), group.getName(), group.getEmail(), group.getDescription()))
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Grant access to the location to the groups (deploy on the location)
      *
      * @param locationId The location's id.
@@ -191,7 +169,7 @@ public class LocationSecurityController {
             @RequestBody String[] groupIds) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.grantPermission(location, Subject.GROUP, groupIds);
-        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(location));
+        List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(location));
         return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
@@ -210,7 +188,7 @@ public class LocationSecurityController {
             @PathVariable String groupId) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.revokePermission(location, Subject.GROUP, groupId);
-        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(location));
+        List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(location));
         return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
@@ -224,10 +202,33 @@ public class LocationSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<GroupDTO>> getAuthorizedGroups(@PathVariable String orchestratorId, @PathVariable String locationId) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(location));
+        List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(location));
         return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
 
+
+    /**
+     * search groups authorised to access the location.
+     *
+     * @return {@link RestResponse} that contains a {@link GetMultipleDataResult} of {@link GroupDTO}..
+     */
+    // TODO consider merging this with getAuthorizedGroups
+    @ApiOperation(value = "List all groups authorized to access the location", notes = "Only user with ADMIN role can list authorized groups to the location.")
+    @RequestMapping(value = "/groups/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public RestResponse<GetMultipleDataResult<GroupDTO>> getAuthorizedGroupsPaginated(@PathVariable String orchestratorId, @PathVariable String locationId,
+            @RequestParam(required = false, defaultValue = "false") boolean connectedOnly,
+            @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
+            @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
+        Location location = locationService.getLocation(orchestratorId, locationId);
+        if (MapUtils.isEmpty(location.getGroupPermissions())) {
+            return RestResponseBuilder.<GetMultipleDataResult<GroupDTO>> builder().data(new GetMultipleDataResult<>()).build();
+        }
+        IdsFilterBuilder idFilters = FilterBuilders.idsFilter()
+                .ids(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
+        GetMultipleDataResult<Group> tempResult = alienGroupDao.find(from, size, idFilters);
+        return RestResponseBuilder.<GetMultipleDataResult<GroupDTO>> builder().data(GroupDTO.convert(tempResult)).build();
+    }
 
     /*******************************************************************************************************************************
      *
