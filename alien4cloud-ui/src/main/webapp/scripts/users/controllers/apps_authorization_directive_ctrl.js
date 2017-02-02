@@ -36,7 +36,12 @@ define(function (require) {
         }
       };
 
-      $scope.searchService = searchServiceFactory('/rest/latest/applications/search', false, $scope, $scope.batchSize);
+      var searchConfig = $scope.buildSearchConfig();
+      console.log(searchConfig);
+      var url = _.get(searchConfig, 'url', '/rest/latest/applications/search');
+      var useParams = _.get(searchConfig, 'useParams', false);
+      var params = _.get(searchConfig, 'params', null);
+      $scope.searchService = searchServiceFactory(url, useParams, $scope, $scope.batchSize, null, null, null, params);
       if (_.isUndefined($scope.application)) {
         $scope.editionMode = false;
         $scope.searchService.search();
@@ -77,10 +82,13 @@ define(function (require) {
         }
       };
 
-      $scope.searchApp = function () {
+      $scope.searchApp = function ($event) {
         $scope.selectedApps = {};
         $scope.environments = {};
         $scope.searchService.search();
+        if(_.defined($event)){
+          $event.preventDefault();
+        }
       };
 
       $scope.toggleApplicationSelection = function (app) {

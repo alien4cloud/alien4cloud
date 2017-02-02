@@ -6,7 +6,7 @@
     <div>
       <div class="row" style="margin-top: 10px;" ng-show="!editionMode">
         <div class="col-md-12">
-          <form role="search" ng-submit="searchApp(); event.preventDefault();">
+          <form role="search" ng-submit="searchApp($event)">
             <div class="input-group">
               <input type="text" class="form-control" placeholder="..." ng-model="query">
                 <span class="input-group-btn">

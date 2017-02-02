@@ -8,8 +8,8 @@ define(function (require) {
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
 
-  var NewUserAuthorizationController = ['$scope', '$uibModalInstance', 'searchServiceFactory',
-    function ($scope, $uibModalInstance, searchServiceFactory) {
+  var NewUserAuthorizationController = ['$scope', '$uibModalInstance', 'searchServiceFactory', 'searchConfig',
+    function ($scope, $uibModalInstance, searchServiceFactory, searchConfig) {
       $scope.batchSize = 5;
       $scope.selectedUsers = [];
       $scope.query = '';
@@ -26,7 +26,10 @@ define(function (require) {
           return indexOf($scope.selectedUsers, searchedUser) >= 0;
         });
       };
-      $scope.searchService = searchServiceFactory('rest/latest/users/search', false, $scope, $scope.batchSize);
+      var url = _.get(searchConfig, 'url', 'rest/latest/users/search');
+      var useParams = _.get(searchConfig, 'useParams', false);
+      var params = _.get(searchConfig, 'params', null);
+      $scope.searchService = searchServiceFactory(url, useParams, $scope, $scope.batchSize, null, null, null, params);
       $scope.searchService.search();
 
       $scope.ok = function () {
@@ -79,6 +82,7 @@ define(function (require) {
 
   modules.get('a4c-security', ['a4c-search']).controller('UsersAuthorizationDirectiveCtrl', ['$scope', '$uibModal',
     function ($scope, $uibModal) {
+
       var refreshAuthorizedUsers = function (response) {
         $scope.authorizedUsers = response.data;
       };
@@ -92,6 +96,9 @@ define(function (require) {
         var modalInstance = $uibModal.open({
           templateUrl: 'views/users/users_authorization_popup.html',
           controller: NewUserAuthorizationController,
+          resolve:{
+            searchConfig:  $scope.buildSearchConfig()
+          }
         });
 
         modalInstance.result.then(function (users) {

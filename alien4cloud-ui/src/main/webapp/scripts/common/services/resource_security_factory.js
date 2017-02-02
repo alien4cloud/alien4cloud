@@ -9,7 +9,7 @@ define(function (require) {
 /* url MUST NOT ends with a '/' */
       var create = function(url, params){
 
-        var users = $alresource(url+'/security/users/:userId', null, params);
+        var users = $alresource(url+'/security/users/:username', null, params);
 
         var groups = $alresource(url+'/security/groups/:groupId', null, params);
 

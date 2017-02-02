@@ -8,8 +8,8 @@ define(function (require) {
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
 
-  var NewGroupAuthorizationController = ['$scope', '$uibModalInstance', 'searchServiceFactory',
-    function ($scope, $uibModalInstance, searchServiceFactory) {
+  var NewGroupAuthorizationController = ['$scope', '$uibModalInstance', 'searchServiceFactory', 'searchConfig',
+    function ($scope, $uibModalInstance, searchServiceFactory, searchConfig) {
       $scope.batchSize = 5;
       $scope.selectedGroups = [];
       $scope.query = '';
@@ -26,7 +26,10 @@ define(function (require) {
           return indexOf($scope.selectedGroups, searchedGroup) >= 0;
         });
       };
-      $scope.searchService = searchServiceFactory('rest/latest/groups/search', false, $scope, $scope.batchSize);
+      var url = _.get(searchConfig, 'url', 'rest/latest/groups/search');
+      var useParams = _.get(searchConfig, 'useParams', false);
+      var params = _.get(searchConfig, 'params', null);
+      $scope.searchService = searchServiceFactory(url, useParams, $scope, $scope.batchSize, null, null, null, params);
       $scope.searchService.search();
 
       $scope.ok = function () {
@@ -90,7 +93,10 @@ define(function (require) {
       $scope.openNewGroupAuthorizationModal = function () {
         var modalInstance = $uibModal.open({
           templateUrl: 'views/users/groups_authorization_popup.html',
-          controller: NewGroupAuthorizationController
+          controller: NewGroupAuthorizationController,
+          resolve:{
+            searchConfig:  $scope.buildSearchConfig()
+          }
         });
 
         modalInstance.result.then(function (groups) {

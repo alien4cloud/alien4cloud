@@ -62,6 +62,8 @@
                                                      on-portability-property-update="updatePortabilityProperty(propertyName, propertyValue)">
             </orchestrator-location-resource-template>
           </uib-tab>
+
+          <!-- Security-->
           <uib-tab index="1">
             <uib-tab-heading>
               <i class="icon-folder-open"></i> Security
@@ -96,6 +98,8 @@
         </uib-tabset>
       </div>
     </div>
+
+    <!-- catalog-->
     <div id="resource-catalog" ng-if="showCatalog" ng-show="!selectedResourceTemplate" class="col-md-6">
       <uib-tabset justified="true">
         <uib-tab index="0">

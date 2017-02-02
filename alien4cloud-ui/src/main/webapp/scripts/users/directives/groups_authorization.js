@@ -9,8 +9,20 @@ define(function (require) {
       templateUrl: 'views/users/groups_authorization_directive.html',
       restrict: 'E',
       scope: {
+        /*The resource to secure*/
         'resource': '=',
-        'service': '='
+
+        /*the service for authorizations CRUD*/
+        'service': '=',
+
+        /*searchConfigBuilder, a function that should return an object like
+          {
+            url: // the url for searching
+            params: // eventually params to complete the url
+            useParams: // whether the remaining params after constructing the url shold be passed like param args or into the body of the request
+        }
+      */
+        'buildSearchConfig': '&searchConfigBuilder'
       }
     };
   });
