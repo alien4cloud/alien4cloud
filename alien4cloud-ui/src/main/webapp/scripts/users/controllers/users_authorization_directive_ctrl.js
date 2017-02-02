@@ -83,6 +83,11 @@ define(function (require) {
   modules.get('a4c-security', ['a4c-search']).controller('UsersAuthorizationDirectiveCtrl', ['$scope', '$uibModal',
     function ($scope, $uibModal) {
 
+      // do nothin if there is no resource
+      if(_.undefined($scope.resource)){
+        return;
+      }
+
       var refreshAuthorizedUsers = function (response) {
         $scope.authorizedUsers = response.data;
       };
@@ -113,6 +118,13 @@ define(function (require) {
           username: user.username
         }, refreshAuthorizedUsers);
       };
+
+      $scope.$watch('resource.id', function(newValue, oldValue){
+        if(newValue === oldValue){
+          return;
+        }
+        $scope.searchAuthorizedUsers();
+      });
     }
   ]);
 });

@@ -9,16 +9,17 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.dao.ESGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.security.model.User;
-
-import com.google.common.collect.Maps;
 
 @Component("user-dao")
 public class ElasticSearchUserDao extends ESGenericSearchDAO implements IAlienUserDao {
@@ -82,5 +83,10 @@ public class ElasticSearchUserDao extends ESGenericSearchDAO implements IAlienUs
     @Override
     public List<User> find(String... usernames) {
         return super.findByIds(User.class, usernames);
+    }
+
+    @Override
+    public GetMultipleDataResult<User> find(int from, int size, FilterBuilder customFilter) {
+        return super.search(User.class, null, null, customFilter, null, from, size, "username", false);
     }
 }

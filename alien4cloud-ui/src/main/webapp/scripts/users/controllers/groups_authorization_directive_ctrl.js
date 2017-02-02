@@ -82,6 +82,10 @@ define(function (require) {
 
   modules.get('a4c-security', ['a4c-search']).controller('GroupsAuthorizationDirectiveCtrl', ['$scope', '$uibModal',
     function ($scope, $uibModal) {
+      // do nothin if there is no resource
+      if(_.undefined($scope.resource)){
+        return;
+      }
       var refreshAuthorizedGroups = function (response) {
         $scope.authorizedGroups = response.data;
       };

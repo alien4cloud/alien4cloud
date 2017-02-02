@@ -4,22 +4,29 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.IdsFilterBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -38,8 +45,7 @@ import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
-import static org.codehaus.groovy.runtime.DefaultGroovyMethods.collect;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/security/",
@@ -130,6 +136,28 @@ public class LocationSecurityController {
         return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
 
+    /**
+     * search users authorised to access the location.
+     *
+     * @return {@link RestResponse} that contains a {@link GetMultipleDataResult} of {@link UserDTO}..
+     */
+    // TODO consider merging this with getAuthorizedUsers
+    @ApiOperation(value = "List all users authorized to access the location", notes = "Only user with ADMIN role can list authorized users to the location.")
+    @RequestMapping(value = "/users/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public RestResponse<GetMultipleDataResult<UserDTO>> getAuthorizedUsersPaginated(@PathVariable String orchestratorId, @PathVariable String locationId,
+            @RequestParam(required = false, defaultValue = "false") boolean connectedOnly,
+            @ApiParam(value = "Query from the given i*ndex.") @RequestParam(required = false, defaultValue = "0") int from,
+            @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
+        Location location = locationService.getLocation(orchestratorId, locationId);
+        if (MapUtils.isEmpty(location.getUserPermissions())) {
+            return RestResponseBuilder.<GetMultipleDataResult<UserDTO>> builder().data(new GetMultipleDataResult<>()).build();
+        }
+        IdsFilterBuilder idFilters = FilterBuilders.idsFilter()
+                .ids(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
+        GetMultipleDataResult<User> tempResult = alienUserDao.find(from, size, idFilters);
+        return RestResponseBuilder.<GetMultipleDataResult<UserDTO>> builder().data(UserDTO.convert(tempResult)).build();
+    }
 
     /*******************************************************************************************************************************
      *

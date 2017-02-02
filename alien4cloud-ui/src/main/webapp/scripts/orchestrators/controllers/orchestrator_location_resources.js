@@ -11,26 +11,40 @@ define(function(require) {
   require('scripts/tosca/services/node_template_service');
   require('scripts/common/services/resize_services');
   require('scripts/components/services/component_services');
+  require('scripts/common/services/resource_security_factory');
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationResourcesTemplateCtrl',
     ['$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService',
       'locationResourcesProcessor', 'nodeTemplateService', 'locationResourcesPortabilityService', 'resizeServices', 'componentService',
+      'resourceSecurityFactory',
       function($scope, locationResourcesService, locationResourcesPropertyService,
                locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService,
-               locationResourcesPortabilityService, resizeServices, componentService) {
+               locationResourcesPortabilityService, resizeServices, componentService, resourceSecurityFactory) {
         const vm = this;
+
+        function computeTypes() {
+          // pick all resource types from the location - this will include orchestrator & custom types
+          const provided = $scope.context.locationResources.providedTypes;
+          return _.map($scope.resourcesTypes, function (res) {
+            return _.assign(
+              _.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id'),
+              {'provided': _.contains(provided, res.elementId)}
+            );
+          });
+        }
+
         var init = function(){
           if (_.isNotEmpty($scope.resourcesTypes)) {
             $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
           }
           // Only show catalog in the on-demand resources tab
-          if (!$scope.showCatalog) return;
+          if (!$scope.showCatalog) {return;}
 
           $scope.dimensions = { width: 800, height: 500 };
           resizeServices.registerContainer(function (width, height) {
             $scope.dimensions = { width: width, height: height };
             $scope.$digest();
-          }, "#resource-catalog");
+          }, '#resource-catalog');
 
           vm.favorites = computeTypes();
         };
@@ -41,7 +55,7 @@ define(function(require) {
 
         $scope.addResourceTemplate = function(dragData) {
           const source = dragData ? angular.fromJson(dragData.source) : $scope.selectedConfigurationResourceType;
-          if (!source) return;
+          if (!source) {return;}
           const newResource = {
             'resourceType': source.elementId,
             'resourceName': 'New resource',
@@ -61,7 +75,7 @@ define(function(require) {
             $scope.context.location.dependencies = updatedDependencies;
 
             // if ResourceType is not in the fav list then get its type and add it to resource types map
-            if ($scope.showCatalog && _.findIndex(vm.favorites, 'id', newResource.id) == -1) {
+            if ($scope.showCatalog && _.findIndex(vm.favorites, 'id', newResource.id) === -1) {
               const typeId = newResource.resourceType;
               const componentId = newResource.id;
 
@@ -186,21 +200,39 @@ define(function(require) {
             propertyValue: propertyValue
           })).$promise;
         };
-        
+
         $scope.isPropertyEditable = function() {
           return true;
         };
 
-        function computeTypes() {
-          // pick all resource types from the location - this will include orchestrator & custom types
-          const provided = $scope.context.locationResources.providedTypes;
-          return _.map($scope.resourcesTypes, function (res) {
-            return _.assign(
-              _.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id'),
-              {'provided': _.contains(provided, res.elementId)}
-            );
-          });
-        }
+
+        /****
+        *For authorizations directives
+        ****/
+
+        // NOTE: locationId and resourceId are functions, so that it will be evaluated everytime a REST call will be made
+        // this is because the selected location / resource can change within the page
+        var locationResourcesSecurityService = resourceSecurityFactory('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:resourceId', {
+          orchestratorId: $scope.context.orchestrator.id,
+          locationId: function(){ return $scope.context.location.id;},
+          resourceId: function(){ return _.get($scope.selectedResourceTemplate,'id');}
+        });
+        $scope.locationResourcesSecurityService = locationResourcesSecurityService;
+
+
+        //NOTE: locationId is not defined a function here, since buildSecuritySearchConfig itself will be called from the directive controller
+        // therefore, even if the selected location changes, it will always be updated  on the directive side.
+        /*subject can be users, groups, applications*/
+        $scope.buildSecuritySearchConfig = function(subject){
+          return {
+            url: 'rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/'+subject+'/search',
+            useParams: true,
+            params: {
+              orchestratorId: $scope.context.orchestrator.id,
+              locationId: $scope.context.location.id,
+            }
+          };
+        };
       }
     ]);
 });

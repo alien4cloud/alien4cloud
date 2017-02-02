@@ -22,6 +22,9 @@ define(function (require) {
 
   modules.get('a4c-orchestrators').controller('OrchestratorLocationSecurityCtrl', ['$scope', 'resourceSecurityFactory',
     function($scope, resourceSecurityFactory) {
+
+      // NOTE: locationId is a function, so that it will be evaluated everytime a REST call will be made
+      // this is because the selected location can change within the page
       var locationSecurityService = resourceSecurityFactory('rest/latest/orchestrators/:orchestratorId/locations/:locationId', {
         orchestratorId: $scope.orchestrator.id,
         locationId: function () {

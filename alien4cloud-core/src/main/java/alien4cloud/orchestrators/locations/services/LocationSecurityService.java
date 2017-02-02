@@ -61,7 +61,7 @@ public class LocationSecurityService {
             return true;
         }
         Map<Subject, Set<String>> subjectsMap = getSubjectsFromContext(environment);
-        return resourcePermissionService.hasPermission(location, subjectsMap);
+        return resourcePermissionService.anyHasPermission(location, subjectsMap);
     }
 
     public boolean isAuthorised(Location location, String environmentId) {

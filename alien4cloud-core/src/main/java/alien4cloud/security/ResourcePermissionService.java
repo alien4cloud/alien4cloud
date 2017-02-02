@@ -1,7 +1,11 @@
 package alien4cloud.security;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -77,15 +81,27 @@ public class ResourcePermissionService {
     }
 
     /**
-     * Check if the given subjects has admin privilege on the given resource.
+     * Checks if any of the given subjects has admin privilege on the given resource.
      * 
      * @param resource the resource
      * @param subjects the subjects' ids
-     * @return true if the subjects have admin privilege, false otherwise
+     * @return true if any of the subjects has admin privilege, false otherwise
      */
-    public boolean hasPermission(ISecurityEnabledResource resource, Map<Subject, Set<String>> subjects) {
+    public boolean anyHasPermission(ISecurityEnabledResource resource, Map<Subject, Set<String>> subjects) {
         return subjects.entrySet().stream()
                 .anyMatch(subjectEntry -> subjectEntry.getValue().stream().anyMatch(subject -> hasPermission(resource, subjectEntry.getKey(), subject)));
+    }
+
+    /**
+     * Checks if all the given subjects have admin privilege on the given resource.
+     *
+     * @param resource the resource
+     * @param subjects the subjects' ids
+     * @return true if all the subjects have admin privilege, false otherwise
+     */
+    public boolean allHavePermission(ISecurityEnabledResource resource, Map<Subject, Set<String>> subjects) {
+        return subjects.entrySet().stream()
+                .allMatch(subjectEntry -> subjectEntry.getValue().stream().allMatch(subject -> hasPermission(resource, subjectEntry.getKey(), subject)));
     }
 
     /**
@@ -94,6 +110,7 @@ public class ResourcePermissionService {
      * @param resource
      * @return
      */
+    // TODO consider enabling pagination here
     public List<User> getAuthorizedUsers(AbstractSecurityEnabledResource resource) {
         List<User> userDTOs = Lists.newArrayList();
         if (MapUtils.isNotEmpty(resource.getUserPermissions())) {

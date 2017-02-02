@@ -1,16 +1,23 @@
 package alien4cloud.rest.orchestrator;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.orchestrators.locations.Location;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -20,6 +27,7 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationSecurityService;
@@ -56,10 +64,11 @@ public class LocationResourcesSecurityController {
     private ApplicationEnvironmentService applicationEnvironmentService;
 
 
-    private void hasAuthorizationOrFailed(Location resource, Subject subject, String[] names) {
+    private void checkAuthorization(Location resource, Subject subject, String[] names) {
         Map<Subject, Set<String>> subjectsMap = new HashMap<>();
         subjectsMap.put(subject, Sets.newHashSet(names));
-        if (!resourcePermissionService.hasPermission(resource, subjectsMap)) {
+        // TODO improve this so that we know exactly who doesn't have the permission
+        if (!resourcePermissionService.allHavePermission(resource, subjectsMap)) {
             throw new AccessDeniedException("At least one of the current <" + names + "> <" + subject + "> has no authorization on location <" + resource.getName() + "> to perform the requested operation.");
         }
     }
@@ -85,7 +94,7 @@ public class LocationResourcesSecurityController {
     public synchronized RestResponse<List<UserDTO>> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                     @PathVariable String resourceId, @RequestBody String[] userNames) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        hasAuthorizationOrFailed(location, Subject.USER, userNames);
+        checkAuthorization(location, Subject.USER, userNames);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.grantPermission(resourceTemplate, Subject.USER, userNames);
         List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
@@ -105,8 +114,6 @@ public class LocationResourcesSecurityController {
     @Audit
     public synchronized RestResponse<List<UserDTO>> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                   @PathVariable String resourceId, @PathVariable String username) {
-        Location location = locationService.getLocation(orchestratorId, locationId);
-        hasAuthorizationOrFailed(location, Subject.USER,  new String[] { username });
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.revokePermission(resourceTemplate, Subject.USER, username);
         List<UserDTO> users = LocationSecurityController.convertListUserToListUserDTO(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
@@ -147,7 +154,7 @@ public class LocationResourcesSecurityController {
     public synchronized RestResponse<List<GroupDTO>> grantAccessToGroups(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                          @PathVariable String resourceId, @RequestBody String[] groupIds) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        hasAuthorizationOrFailed(location, Subject.GROUP, groupIds);
+        checkAuthorization(location, Subject.GROUP, groupIds);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.grantPermission(resourceTemplate, Subject.GROUP, groupIds);
         List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
@@ -167,8 +174,6 @@ public class LocationResourcesSecurityController {
     @Audit
     public synchronized RestResponse<List<GroupDTO>> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                        @PathVariable String resourceId, @PathVariable String groupId) {
-        Location location = locationService.getLocation(orchestratorId, locationId);
-        hasAuthorizationOrFailed(location, Subject.GROUP, new String[] { groupId });
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.revokePermission(resourceTemplate, Subject.GROUP, groupId);
         List<GroupDTO> groups = LocationSecurityController.convertListGroupToListGroupDTO(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
@@ -209,8 +214,6 @@ public class LocationResourcesSecurityController {
     @Audit
     public synchronized RestResponse<Void> revokeApplicationAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                    @PathVariable String applicationId, @PathVariable String resourceId) {
-        Location location = locationService.getLocation(orchestratorId, locationId);
-        hasAuthorizationOrFailed(location, Subject.APPLICATION, new String[] { applicationId });
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.revokePermission(resourceTemplate, Subject.APPLICATION, applicationId);
         // remove all environments related to this application
@@ -220,18 +223,18 @@ public class LocationResourcesSecurityController {
         return RestResponseBuilder.<Void>builder().build();
     }
 
-    private void checkAllAuthorizationsForApplicationsAndEnvironments(ApplicationEnvironmentAuthorizationUpdateRequest request, Location resource) {
+    private void checkAllAuthorizationsForApplicationsAndEnvironments(ApplicationEnvironmentAuthorizationUpdateRequest request, Location location) {
         if (request.getApplicationsToDelete() != null && request.getApplicationsToDelete().length > 0) {
-            hasAuthorizationOrFailed(resource, Subject.APPLICATION, request.getApplicationsToDelete());
+            checkAuthorization(location, Subject.APPLICATION, request.getApplicationsToDelete());
         }
         if (request.getEnvironmentsToDelete() != null && request.getEnvironmentsToDelete().length > 0) {
-            hasAuthorizationOrFailed(resource, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
+            checkAuthorization(location, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
         }
         if (request.getApplicationsToAdd() != null && request.getApplicationsToAdd().length > 0) {
-            hasAuthorizationOrFailed(resource, Subject.APPLICATION, request.getApplicationsToAdd());
+            checkAuthorization(location, Subject.APPLICATION, request.getApplicationsToAdd());
         }
         if (request.getEnvironmentsToAdd() != null && request.getEnvironmentsToAdd().length > 0) {
-            hasAuthorizationOrFailed(resource, Subject.ENVIRONMENT, request.getEnvironmentsToAdd());
+            checkAuthorization(location, Subject.ENVIRONMENT, request.getEnvironmentsToAdd());
         }
     }
 
@@ -245,8 +248,8 @@ public class LocationResourcesSecurityController {
                                                                                       @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         checkAllAuthorizationsForApplicationsAndEnvironments(request, location);
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
 
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         if (request.getApplicationsToDelete() != null && request.getApplicationsToDelete().length > 0) {
             resourcePermissionService.revokePermission(resourceTemplate, Subject.APPLICATION, request.getApplicationsToDelete());
         }

@@ -3,13 +3,15 @@ package alien4cloud.security.users;
 import java.util.List;
 import java.util.Map;
 
+import org.elasticsearch.index.query.FilterBuilder;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import alien4cloud.dao.model.FacetedSearchFacet;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
-
 import alien4cloud.security.model.User;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Implementation of the {@link IAlienUserDao} that stores data in memory only. This should not be used in production.
@@ -58,6 +60,12 @@ public class InMemoryUserDao implements IAlienUserDao {
 
     @Override
     public List<User> find(String... usernames) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public GetMultipleDataResult<User> find(int from, int size, FilterBuilder customFilter) {
         // TODO Auto-generated method stub
         return null;
     }

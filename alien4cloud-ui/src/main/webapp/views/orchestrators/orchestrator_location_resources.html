@@ -74,11 +74,12 @@
                   <uib-tabset>
                     <uib-tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
                       <alien-user-authorization
-                        orchestrator="orchestrator"
-                        location="context.location">
+                        resource="selectedResourceTemplate"
+                        service="locationResourcesSecurityService.users"
+                        search-config-builder="buildSecuritySearchConfig('users')">
                       </alien-user-authorization>
                     </uib-tab>
-                    <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
+                    <!-- <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
                       <alien-group-authorization
                           orchestrator="orchestrator"
                           location="context.location">
@@ -89,7 +90,7 @@
                               orchestrator="orchestrator"
                               location="context.location">
                       </alien-app-authorization>
-                    </uib-tab>
+                    </uib-tab> -->
                   </uib-tabset>
                 </div>
               </div>

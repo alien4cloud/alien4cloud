@@ -37,7 +37,6 @@ define(function (require) {
       };
 
       var searchConfig = $scope.buildSearchConfig();
-      console.log(searchConfig);
       var url = _.get(searchConfig, 'url', '/rest/latest/applications/search');
       var useParams = _.get(searchConfig, 'useParams', false);
       var params = _.get(searchConfig, 'params', null);
@@ -232,6 +231,11 @@ define(function (require) {
 
   modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationDirectiveCtrl', ['$scope', '$uibModal',
     function ($scope, $uibModal) {
+      // do nothin if there is no resource
+      if(_.undefined($scope.resource)){
+        return;
+      }
+
       $scope.searchAuthorizedEnvironmentsPerApplication = function () {
         $scope.envService.get({}, function (response) {
           $scope.authorizedEnvironmentsPerApplication = response.data;
