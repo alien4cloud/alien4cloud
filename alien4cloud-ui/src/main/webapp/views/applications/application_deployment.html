@@ -1,8 +1,12 @@
 <div>
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-3">
-      <select class="form-control" ng-model="deploymentContext.selectedEnvironment" ng-options="env.name for env in envs"
-              ng-change="onEnvironmentChange()"></select>
+      <ui-select ng-if="envs" ng-model="deploymentContext.selectedEnvironment" on-select="onEnvironmentChange()" reset-search-input="true" close-on-select="true" append-to-body="true" theme="bootstrap">
+        <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name}}</ui-select-match>
+        <ui-select-choices repeat="env in envs | filter: $select.search | orderBy: 'name'">
+          <span ng-bind-html="env.name | highlight: $select.search"></span>
+        </ui-select-choices>
+      </ui-select>
     </div>
     <!--  Environment status -->
     <div class="col-md-3">

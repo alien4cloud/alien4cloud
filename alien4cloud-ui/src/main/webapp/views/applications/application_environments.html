@@ -25,7 +25,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="environment in environments" id="{{environment.id}}">
+            <tr ng-repeat="environment in environments | orderBy:'name' track by environment.id" id="{{environment.id}}">
               <td>
                 <i class="pull-left fa fa-2x vertical-center" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true" ng-class="{
                   'fa-circle text-success' : environment.status == 'DEPLOYED',

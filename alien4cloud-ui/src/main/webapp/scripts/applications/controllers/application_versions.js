@@ -60,7 +60,6 @@ define(function (require) {
     if(snapshotIndex > 0) {
       prefix = $scope.selectedVersion.version.substring(0, snapshotIndex) + $scope.selectedVersion.version.substring(snapshotIndex + 9, $scope.selectedVersion.version.length);
       suffix = '-SNAPSHOT';
-      console.log('prefix {}, suffix {}', prefix, suffix);
     }
 
     $scope.$watch('appTopoVersion.qualifier', function() {
@@ -102,7 +101,7 @@ define(function (require) {
       var refreshAllAppVersions = function() {
         var searchAppVersionRequestObject = {
           'from': 0,
-          'size': 400
+          'size': 1000
         };
         versionServices.searchVersion({
           delegateId: delegateId
@@ -165,7 +164,6 @@ define(function (require) {
           windowClass: 'new-app-modal'
         });
         modalInstance.result.then(function(createAppTopoVersionRequest) {
-          console.log('create', delegateId, version.id, createAppTopoVersionRequest);
           topoVersionService.create({
             appId: delegateId,
             versionId: version.id
