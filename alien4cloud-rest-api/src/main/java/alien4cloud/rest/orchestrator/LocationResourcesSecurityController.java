@@ -286,49 +286,20 @@ public class LocationResourcesSecurityController {
     public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId,
                                                                                                               @PathVariable String locationId, @PathVariable String resourceId) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        Map<String, ApplicationEnvironmentAuthorizationDTO> aeaDTOsMap = Maps.newHashMap();
+        List<Application> applicationsRelatedToEnvironment = Lists.newArrayList();
+        List<ApplicationEnvironment> environments = Lists.newArrayList();
+        List<Application> applications = Lists.newArrayList();
+
         if (resourceTemplate.getEnvironmentPermissions() != null && resourceTemplate.getEnvironmentPermissions().size() > 0) {
-
-            // build the set of application ids
-            List<ApplicationEnvironment> environments = alienDAO.findByIds(ApplicationEnvironment.class,
-                    resourceTemplate.getEnvironmentPermissions().keySet().toArray(new String[resourceTemplate.getEnvironmentPermissions().size()]));
+            environments = alienDAO.findByIds(ApplicationEnvironment.class, resourceTemplate.getEnvironmentPermissions().keySet().toArray(new String[resourceTemplate.getEnvironmentPermissions().size()]));
             Set<String> environmentApplicationIds = environments.stream().map(ae -> new String(ae.getApplicationId())).collect(Collectors.toSet());
-
-            // retrieve the applications related to these environments
-            List<Application> applications = alienDAO.findByIds(Application.class,
-                    environmentApplicationIds.toArray(new String[environmentApplicationIds.size()]));
-
-            // for each application, build a DTO
-            for (Application application : applications) {
-                ApplicationEnvironmentAuthorizationDTO dto = new ApplicationEnvironmentAuthorizationDTO();
-                dto.setApplication(application);
-                List<ApplicationEnvironment> aes = Lists.newArrayList();
-                dto.setEnvironments(aes);
-                aeaDTOsMap.put(application.getId(), dto);
-            }
-
-            for (ApplicationEnvironment ae : environments) {
-                ApplicationEnvironmentAuthorizationDTO dto = aeaDTOsMap.get(ae.getApplicationId());
-                dto.getEnvironments().add(ae);
-            }
+            applicationsRelatedToEnvironment = alienDAO.findByIds(Application.class, environmentApplicationIds.toArray(new String[environmentApplicationIds.size()]));
         }
         if (resourceTemplate.getApplicationPermissions() != null && resourceTemplate.getApplicationPermissions().size() > 0) {
-            List<Application> applications = alienDAO.findByIds(Application.class,
-                    resourceTemplate.getApplicationPermissions().keySet().toArray(new String[resourceTemplate.getApplicationPermissions().size()]));
-            for (Application application : applications) {
-                ApplicationEnvironmentAuthorizationDTO dto = aeaDTOsMap.get(application.getId());
-                if (dto == null) {
-                    dto = new ApplicationEnvironmentAuthorizationDTO();
-                    dto.setApplication(application);
-                    aeaDTOsMap.put(application.getId(), dto);
-                } else {
-                    // the application has detailed environment authorizations but the whole application authorization has precedence.
-                    dto.setEnvironments(null);
-                }
-            }
+            applications = alienDAO.findByIds(Application.class, resourceTemplate.getApplicationPermissions().keySet().toArray(new String[resourceTemplate.getApplicationPermissions().size()]));
         }
 
-        List<ApplicationEnvironmentAuthorizationDTO> result = Lists.newArrayList(aeaDTOsMap.values());
+        List<ApplicationEnvironmentAuthorizationDTO> result = ApplicationEnvironmentAuthorizationDTO.buildDTOs(applicationsRelatedToEnvironment, environments, applications);
         return RestResponseBuilder.<List<ApplicationEnvironmentAuthorizationDTO>> builder().data(result).build();
     }
 

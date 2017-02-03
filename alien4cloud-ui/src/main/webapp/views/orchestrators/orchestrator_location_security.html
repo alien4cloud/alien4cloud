@@ -4,21 +4,20 @@
       <uib-tabset>
         <uib-tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
           <alien-user-authorization
-            resource="context.location"
-            service="locationSecurityService.users">
+            orchestrator="orchestrator"
+            location="context.location">
           </alien-user-authorization>
         </uib-tab>
         <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
           <alien-group-authorization
-              resource="context.location"
-              service="locationSecurityService.groups">
+              orchestrator="orchestrator"
+              location="context.location">
           </alien-group-authorization>
         </uib-tab>
         <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
           <alien-app-authorization
-                  resource="context.location"
-                  app-service="locationSecurityService.applications"
-                  env-service="locationSecurityService.environmentsPerApplication">
+                  orchestrator="orchestrator"
+                  location="context.location">
           </alien-app-authorization>
         </uib-tab>
       </uib-tabset>

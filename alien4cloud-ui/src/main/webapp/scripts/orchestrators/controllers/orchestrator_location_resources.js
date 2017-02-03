@@ -140,7 +140,9 @@ define(function(require) {
             const deletedType = resourceTemplate.template.type;
             // If the type of the template is provided by the orchestrator, never delete it from the fav list
             const favIndex = _.findIndex(vm.favorites, { 'elementId': deletedType });
-            if (favIndex === -1 || vm.favorites[favIndex].provided) return;
+            if (favIndex === -1 || vm.favorites[favIndex].provided) {
+              return;
+            }
             // The template was a custom resource - if its still used do not delete it from the fav list
             if (_.find($scope.resourcesTemplates, function (tplt) { return tplt.template.type === deletedType })) return;
             vm.favorites.splice(favIndex, 1);
@@ -207,7 +209,7 @@ define(function(require) {
 
 
         /****
-        *For authorizations directives
+        *  For authorizations directives
         ****/
 
         // NOTE: locationId and resourceId are functions, so that it will be evaluated everytime a REST call will be made
@@ -225,7 +227,7 @@ define(function(require) {
         /*subject can be users, groups, applications*/
         $scope.buildSecuritySearchConfig = function(subject){
           return {
-            url: 'rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/'+subject+'/search',
+            url: 'rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/' + subject + '/search',
             useParams: true,
             params: {
               orchestratorId: $scope.context.orchestrator.id,
