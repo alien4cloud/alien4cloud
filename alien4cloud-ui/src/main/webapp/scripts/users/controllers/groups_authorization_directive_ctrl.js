@@ -115,6 +115,14 @@ define(function (require) {
           groupId: group.id
         }, refreshAuthorizedGroups);
       };
+
+      $scope.$watch('resource.id', function(newValue, oldValue){
+        if(newValue === oldValue){
+          return;
+        }
+        $scope.searchAuthorizedGroups();
+      });
+
     }
   ]);
 });

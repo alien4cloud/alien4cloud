@@ -276,6 +276,13 @@ define(function (require) {
           applicationId: application.application.id
         }, $scope.searchAuthorizedEnvironmentsPerApplication);
       };
+
+      $scope.$watch('resource.id', function(newValue, oldValue){
+        if(newValue === oldValue){
+          return;
+        }
+        $scope.searchAuthorizedEnvironmentsPerApplication();
+      });
     }
   ]);
 });
