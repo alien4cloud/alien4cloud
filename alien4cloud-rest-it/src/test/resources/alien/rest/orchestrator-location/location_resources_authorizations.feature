@@ -20,55 +20,55 @@ Feature: Manage location resources authorizations
     Then I should receive a RestResponse with no error
 
 
-#  @reset
-#  Scenario: Add / Remove rights to a user on a location
-#    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the user "frodon"
-#    Then I should have following list of users:
-#      | frodon |
-#    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium"
-#    Then I should have following list of users:
-#      | frodon |
-#    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the user "sam"
-#    Then I should receive a RestResponse with an error code 102
-#    Given I grant access to the resource type "LOCATION" named "middle_earth" to the user "sam"
-#    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the user "sam"
-#    Then I should have following list of users:
-#      | frodon |
-#      | sam    |
-#    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium"
-#    Then I should have following list of users:
-#      | frodon |
-#      | sam    |
-#    Given I revoke access to the resource type "LOCATION_RESOURCE" named "Medium" from the user "sam"
-#    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium"
-#    Then I should have following list of users:
-#      | frodon |
-#    Given I revoke access to the resource type "LOCATION_RESOURCE" named "Medium" from the user "frodon"
-#    Then I should not have any authorized users
-#
-#  @reset
-#  Scenario: Add / Remove rights to a group on a location
-#    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the group "lordOfRing"
-#    Then I should have following list of groups:
-#      | lordOfRing |
-#    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium"
-#    Then I should have following list of groups:
-#      | lordOfRing |
-#    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the group "hobbits"
-#    Then I should receive a RestResponse with an error code 102
-#    Given I grant access to the resource type "LOCATION" named "middle_earth" to the group "hobbits"
-#    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the group "hobbits"
-#    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium"
-#    Then I should have following list of groups:
-#      | lordOfRing |
-#      | hobbits    |
-#    Given I revoke access to the resource type "LOCATION_RESOURCE" named "Medium" from the group "lordOfRing"
-#    Then I should have following list of groups:
-#      | hobbits |
-#    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium"
-#    Then I should have following list of groups:
-#      | hobbits |
-#    Given I revoke access to the resource type "LOCATION_RESOURCE" named "Medium" from the user "frodon"
+  @reset
+  Scenario: Add / Remove rights to a user on a location
+    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the user "frodon"
+    Then I should have following list of users:
+      | frodon |
+    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium"
+    Then I should have following list of users:
+      | frodon |
+    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the user "sam"
+    Then I should receive a RestResponse with an error code 102
+    Given I grant access to the resource type "LOCATION" named "middle_earth" to the user "sam"
+    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the user "sam"
+    Then I should have following list of users:
+      | frodon |
+      | sam    |
+    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium"
+    Then I should have following list of users:
+      | frodon |
+      | sam    |
+    Given I revoke access to the resource type "LOCATION_RESOURCE" named "Medium" from the user "sam"
+    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium"
+    Then I should have following list of users:
+      | frodon |
+    Given I revoke access to the resource type "LOCATION_RESOURCE" named "Medium" from the user "frodon"
+    Then I should not have any authorized users
+
+  @reset
+  Scenario: Add / Remove rights to a group on a location
+    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the group "lordOfRing"
+    Then I should have following list of groups:
+      | lordOfRing |
+    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium"
+    Then I should have following list of groups:
+      | lordOfRing |
+    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the group "hobbits"
+    Then I should receive a RestResponse with an error code 102
+    Given I grant access to the resource type "LOCATION" named "middle_earth" to the group "hobbits"
+    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the group "hobbits"
+    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium"
+    Then I should have following list of groups:
+      | lordOfRing |
+      | hobbits    |
+    Given I revoke access to the resource type "LOCATION_RESOURCE" named "Medium" from the group "lordOfRing"
+    Then I should have following list of groups:
+      | hobbits |
+    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium"
+    Then I should have following list of groups:
+      | hobbits |
+    Given I revoke access to the resource type "LOCATION_RESOURCE" named "Medium" from the user "frodon"
     Then I should not have any authorized groups
 
   @reset
@@ -77,11 +77,15 @@ Feature: Manage location resources authorizations
     When I create an application environment of type "DEVELOPMENT" with name "DEV-ALIEN" and description "" for the newly created application
     When I create an application environment of type "INTEGRATION_TESTS" with name "TST-ALIEN" and description "" for the newly created application
     When I create an application environment of type "PRODUCTION" with name "PRD-ALIEN" and description "" for the newly created application
+    Given I grant access to the resource type "LOCATION" named "middle_earth" to the application "ALIEN"
     And I create an application with name "SDE", archive name "SDE", description "" and topology template id "null"
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the application "ALIEN"
     When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium"
     Then I should have following list of applications:
       | ALIEN |
+    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the application "SDE"
+    Then I should receive a RestResponse with an error code 102
+    Given I grant access to the resource type "LOCATION" named "middle_earth" to the application "SDE"
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the application "SDE"
     When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium"
     Then I should have following list of applications:
@@ -92,9 +96,13 @@ Feature: Manage location resources authorizations
     Then I should have following list of applications:
       | SDE |
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the environment "DEV-ALIEN" of the application "ALIEN"
+    Then I should receive a RestResponse with an error code 102
+    Given I grant access to the resource type "LOCATION" named "middle_earth" to the environment "DEV-ALIEN" of the application "ALIEN"
+    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the environment "DEV-ALIEN" of the application "ALIEN"
     When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium"
     Then I should have following list of environments:
       | DEV-ALIEN |
+    Given I grant access to the resource type "LOCATION" named "middle_earth" to the environment "PRD-ALIEN" of the application "ALIEN"
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the environment "PRD-ALIEN" of the application "ALIEN"
     When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium"
     Then I should have following list of environments:

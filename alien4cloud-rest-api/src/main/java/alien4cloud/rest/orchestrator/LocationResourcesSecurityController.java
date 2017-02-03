@@ -1,7 +1,6 @@
 package alien4cloud.rest.orchestrator;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,14 +12,9 @@ import org.elasticsearch.common.collect.Lists;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
@@ -38,6 +32,7 @@ import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationDT
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
 import alien4cloud.rest.orchestrator.model.GroupDTO;
 import alien4cloud.rest.orchestrator.model.UserDTO;
+import alien4cloud.security.Permission;
 import alien4cloud.security.ResourcePermissionService;
 import alien4cloud.security.Subject;
 import io.swagger.annotations.Api;
@@ -63,13 +58,16 @@ public class LocationResourcesSecurityController {
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
 
-
-    private void checkAuthorization(Location resource, Subject subject, String[] names) {
-        Map<Subject, Set<String>> subjectsMap = new HashMap<>();
-        subjectsMap.put(subject, Sets.newHashSet(names));
-        // TODO improve this so that we know exactly who doesn't have the permission
-        if (!resourcePermissionService.allHavePermission(resource, subjectsMap)) {
-            throw new AccessDeniedException("At least one of the current <" + names + "> <" + subject + "> has no authorization on location <" + resource.getName() + "> to perform the requested operation.");
+    /**
+     * Check if all subjects have the authorization on the location or failed.
+     * @param resource
+     * @param subjectType
+     * @param subjects
+     */
+    private void checkAuthorization(Location resource, Subject subjectType, String[] subjects) {
+        Set unauthorizedNames = Arrays.stream(subjects).filter(name -> !resource.getPermissions(subjectType, name).contains(Permission.ADMIN)).collect(Collectors.toSet());
+        if (!unauthorizedNames.isEmpty()) {
+            throw new AccessDeniedException("At least one of the current <" + subjectType + "> has no authorization on location <" + resource.getName() + "> to perform the requested operation: " + unauthorizedNames.toString());
         }
     }
 
