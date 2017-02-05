@@ -21,6 +21,9 @@ import static alien4cloud.dao.model.FetchContext.SUMMARY;
 @Getter
 @Setter
 public class NodeInstance {
+    // The node template actually does not include the type version (maybe we should add that to the node template ?).
+    @StringField(indexType = IndexType.no, includeInAll = false)
+    private String typeVersion;
 
     @ObjectField
     private NodeTemplate nodeTemplate;
@@ -31,5 +34,4 @@ public class NodeInstance {
     public void setAttribute(String key, String value) {
         attributeValues.put(key, value);
     }
-
 }

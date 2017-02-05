@@ -102,4 +102,11 @@ public final class CollectionUtils {
         value.clear();
         value.addAll(set);
     }
+
+    public static <E> HashSet<E> safeNewHashSet(E... elements) {
+        if (elements == null) {
+            return Sets.newHashSet();
+        }
+        return Sets.newHashSet(elements);
+    }
 }

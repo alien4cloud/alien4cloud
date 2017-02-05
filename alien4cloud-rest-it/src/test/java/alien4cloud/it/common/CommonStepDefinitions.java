@@ -199,18 +199,30 @@ public class CommonStepDefinitions {
         Assert.assertEquals(expectedResponseStr, restResponse.getData());
     }
 
-    @Then("^The SPEL boolean expression \"([^\"]*)\" should return (true|false)$")
-    public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression, Boolean expected) {
-        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
-    }
-
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentContext(String spelExpression, String expected) {
         evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
     }
 
+    @Then("^The SPEL expression \"([^\"]*)\" should return (true|false)$")
+    public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, Boolean expected) {
+        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
+    }
+
+    @Then("^The SPEL expression \"([^\"]*)\" should return (\\d+)$")
+    public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, Integer expected) {
+        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
+    }
+
+    @Deprecated
     @Then("^The SPEL int expression \"([^\"]*)\" should return (\\d+)$")
     public void The_SPEL_int_expression_should_return(String spelExpression, int expected) throws Throwable {
+        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
+    }
+
+    @Deprecated
+    @Then("^The SPEL boolean expression \"([^\"]*)\" should return (true|false)$")
+    public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression, Boolean expected) {
         evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
     }
 

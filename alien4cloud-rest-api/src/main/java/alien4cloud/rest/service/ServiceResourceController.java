@@ -1,46 +1,44 @@
 package alien4cloud.rest.service;
 
+import javax.annotation.Resource;
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.exception.NotFoundException;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.model.SortedSearchRequest;
 import alien4cloud.rest.service.model.CreateServiceResourceRequest;
 import alien4cloud.rest.service.model.UpdateServiceResourceRequest;
 import alien4cloud.service.ServiceResourceService;
-import alien4cloud.utils.ReflectionUtil;
-import com.google.common.collect.Sets;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * Created by xdegenne on 01/02/2017.
+ * Controller to access services.
  */
 @Slf4j
 @RestController
 @RequestMapping({ "/rest/services", "/rest/v1/services", "/rest/latest/services" })
 @Api(value = "Services", description = "Allow to create/read/update/delete and search services.", authorizations = { @Authorization("COMPONENTS_MANAGER") })
 public class ServiceResourceController {
-
-    @Resource
-    private IToscaTypeSearchService toscaTypeSearchService;
-
     @Resource
     private ServiceResourceService serviceResourceService;
 
@@ -50,77 +48,83 @@ public class ServiceResourceController {
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @Audit
     public RestResponse<String> create(@ApiParam(value = "Create service", required = true) @Valid @RequestBody CreateServiceResourceRequest createRequest) {
-
-        NodeType nodeType = toscaTypeSearchService.find(NodeType.class, createRequest.getServiceNodeType(), createRequest.getArchiveVersion());
-        if (nodeType == null) {
-            throw new NotFoundException(String.format("Node type [%s] doesn't exists with version [%s].", createRequest.getServiceNodeType(), createRequest.getArchiveVersion()));
-        }
-
-        String serviceId = serviceResourceService.create(createRequest.getServiceName(), createRequest.getServiceVersion(), nodeType, createRequest.getDeploymentId());
-
+        String serviceId = serviceResourceService.create(createRequest.getName(), createRequest.getVersion(), createRequest.getNodeType(),
+                createRequest.getNodeTypeVersion());
         return RestResponseBuilder.<String> builder().data(serviceId).build();
     }
 
-    @ApiOperation(value = "Get a service from it's id.")
+    @ApiOperation(value = "List and iterate service resources.", notes = "This API is a simple api to list (with iteration) the service resources. If you need to search with criterias please look at the advanced search API.", authorizations = {
+            @Authorization("ADMIN") })
+    @RequestMapping(method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public RestResponse<GetMultipleDataResult<ServiceResource>> list(
+            @ApiParam(value = "Optional pagination start index.", defaultValue = "0") @RequestParam(required = false, defaultValue = "0") int from,
+            @ApiParam(value = "Optional pagination element count (limited to 1000).", defaultValue = "100") @RequestParam(required = false, defaultValue = "100") int count) {
+        if (count > 1000) {
+            throw new InvalidArgumentException("Count cannot be higher than 1000");
+        }
+        GetMultipleDataResult<ServiceResource> result = serviceResourceService.list(from, count);
+        return RestResponseBuilder.<GetMultipleDataResult<ServiceResource>> builder().data(result).build();
+    }
+
+    @ApiOperation(value = "Get a service from it's id.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     public RestResponse<ServiceResource> get(@ApiParam(value = "Id of the service to get", required = true) @PathVariable String id) {
-        // check roles on the requested cloud
         ServiceResource serviceResource = serviceResourceService.getOrFail(id);
         return RestResponseBuilder.<ServiceResource> builder().data(serviceResource).build();
     }
 
-    @ApiOperation(value = "Update the name, version or/and description of an existing service.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Update a service. Note: alien managed services (through application deployment) cannot be updated via API.", authorizations = {
+            @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> update(@ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
-                                     @ApiParam(value = "ServiceResource update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody UpdateServiceResourceRequest request) {
-        ServiceResource serviceResource = serviceResourceService.getOrFail(id);
-        String currentName = serviceResource.getName();
-        String currentVersion = serviceResource.getVersion();
-        ReflectionUtil.mergeObject(request, serviceResource);
-        serviceResourceService.ensureUnicityAndSave(serviceResource, currentName, currentVersion);
+            @ApiParam(value = "ServiceResource update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody UpdateServiceResourceRequest request) {
+        serviceResourceService.update(id, request.getName(), request.getVersion(), request.getDescription(), request.getNodeInstance(),
+                request.getLocationIds());
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Add these locationIds to the authorized list of locations for this service.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/{id}/authorizeLocations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a service. Note: alien managed services (through application deployment) cannot be deleted via API.", authorizations = {
+            @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<String[]> authorizeLocations(@ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
-                                                 @ApiParam(value = "The ids of the locations to authorize for this service.", required = true) @Valid @NotEmpty @RequestBody String[] locationIds) {
-        ServiceResource serviceResource = serviceResourceService.getOrFail(id);
-        // TODO: ensure all locationIds really exist
+    public RestResponse<Void> delete(@ApiParam(value = "Id of the service to delete.", required = true) @PathVariable @Valid @NotEmpty String id) {
+        serviceResourceService.delete(id);
+        return RestResponseBuilder.<Void> builder().build();
+    }
 
-        String[] existingIds = serviceResource.getLocationIds();
-        Set<String> ids = Sets.newHashSet();
-        if (existingIds != null) {
-            ids.addAll(Arrays.asList(existingIds));
-        }
-        ids.addAll(Arrays.asList(locationIds));
-        serviceResource.setLocationIds(ids.toArray(new String[ids.size()]));
-        serviceResourceService.save(serviceResource);
-        return RestResponseBuilder.<String[]> builder().data(serviceResource.getLocationIds()).build();
+    @ApiOperation(value = "Search services.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/adv/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<GetMultipleDataResult<ServiceResource>> search(@RequestBody SortedSearchRequest searchRequest) {
+        GetMultipleDataResult<ServiceResource> result = serviceResourceService.search(searchRequest.getQuery(), searchRequest.getFilters(),
+                searchRequest.getSortField(), searchRequest.isDesc(), searchRequest.getFrom(), searchRequest.getSize());
+        return RestResponseBuilder.<GetMultipleDataResult<ServiceResource>> builder().data(result).build();
+    }
+
+    @ApiOperation(value = "Add these locationIds to the authorized list of locations for this service.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/adv/{id}/authorizeLocations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<String[]> authorizeLocations(
+            @ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
+            @ApiParam(value = "The ids of the locations to authorize for this service.", required = true) @Valid @NotEmpty @RequestBody String[] locationIds) {
+        String[] updatedLocations = serviceResourceService.addLocations(id, locationIds);
+        return RestResponseBuilder.<String[]> builder().data(updatedLocations).build();
     }
 
     @ApiOperation(value = "Remove these locationIds to the authorized list of locations for this service.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/{id}/revokeLocations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/adv/{id}/revokeLocations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<String[]> revokeLocations(@ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
-                                                 @ApiParam(value = "The ids of the locations to revoke for this service.", required = true) @Valid @NotEmpty @RequestBody String[] locationIds) {
-        ServiceResource serviceResource = serviceResourceService.getOrFail(id);
-
-        String[] existingIds = serviceResource.getLocationIds();
-        if (existingIds != null && existingIds.length > 0) {
-            Set<String> olds  = Sets.newHashSet(Arrays.asList(existingIds));
-            Set<String> removed  = Sets.newHashSet(Arrays.asList(locationIds));
-            Set<String> news = olds.stream().filter(l -> !removed.contains(l)).collect(Collectors.toSet());
-            serviceResource.setLocationIds(news.toArray(new String[news.size()]));
-            serviceResourceService.save(serviceResource);
-        }
-        return RestResponseBuilder.<String[]> builder().data(serviceResource.getLocationIds()).build();
+            @ApiParam(value = "The ids of the locations to revoke for this service.", required = true) @Valid @NotEmpty @RequestBody String[] locationIds) {
+        String[] updatedLocations = serviceResourceService.removeLocations(id, locationIds);
+        return RestResponseBuilder.<String[]> builder().data(updatedLocations).build();
     }
-
 }
