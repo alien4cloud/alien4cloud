@@ -17,12 +17,12 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class SearchRequest extends BasicSearchRequest {
+public class ComponentSearchRequest extends BasicSearchRequest {
     /* The component type to query */
     private QueryComponentType type;
     private Map<String, String[]> filters;
 
-    public SearchRequest(QueryComponentType type, String query, Integer from, Integer size, Map<String, String[]> filters) {
+    public ComponentSearchRequest(QueryComponentType type, String query, Integer from, Integer size, Map<String, String[]> filters) {
         super(query, from, size);
         this.type = type;
         this.filters = filters;

@@ -45,8 +45,9 @@ import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.model.ApplicationEnvironmentRequest;
 import alien4cloud.rest.application.model.CreateApplicationRequest;
 import alien4cloud.rest.application.model.UpdateApplicationEnvironmentRequest;
-import alien4cloud.rest.component.SearchRequest;
+import alien4cloud.rest.component.ComponentSearchRequest;
 import alien4cloud.rest.component.UpdateTagRequest;
+import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
@@ -79,7 +80,7 @@ public class ApplicationStepDefinitions {
     @SuppressWarnings("rawtypes")
     public void setAppEnvironmentIdToContext(String applicationName) throws IOException {
         String applicationId = Context.getInstance().getApplicationId(applicationName);
-        SearchRequest request = new SearchRequest();
+        FilteredSearchRequest request = new FilteredSearchRequest();
         request.setFrom(0);
         request.setSize(10);
         String applicationEnvironmentsJson = getRestClientInstance().postJSon("/rest/v1/applications/" + applicationId + "/environments/search",
@@ -153,7 +154,7 @@ public class ApplicationStepDefinitions {
 
     @Given("^There is a \"([^\"]*)\" application$")
     public void There_is_a_application(String applicationName) throws Throwable {
-        SearchRequest searchRequest = new SearchRequest(null, applicationName, 0, 50, null);
+        FilteredSearchRequest searchRequest = new FilteredSearchRequest(applicationName, 0, 50, null);
         String searchResponse = getRestClientInstance().postJSon("/rest/v1/applications/search", JsonUtil.toString(searchRequest));
         RestResponse<FacetedSearchResult> response = JsonUtil.read(searchResponse, FacetedSearchResult.class);
         boolean hasApplication = false;
@@ -229,7 +230,7 @@ public class ApplicationStepDefinitions {
 
     @When("^I search applications from (\\d+) with result size of (\\d+)$")
     public void I_search_applications_from_with_result_size_of(int from, int to) throws Throwable {
-        SearchRequest searchRequest = new SearchRequest(null, "", from, to, null);
+        FilteredSearchRequest searchRequest = new FilteredSearchRequest("", from, to, null);
         previousRestResponse = Context.getInstance().getRestResponse();
         Context.getInstance().registerRestResponse(getRestClientInstance().postJSon("/rest/v1/applications/search", JsonUtil.toString(searchRequest)));
     }
@@ -311,7 +312,7 @@ public class ApplicationStepDefinitions {
 
     @When("^I search for \"([^\"]*)\" application$")
     public void I_search_for_application(String applicationName) throws Throwable {
-        SearchRequest searchRequest = new SearchRequest(null, applicationName, 0, 10, null);
+        ComponentSearchRequest searchRequest = new ComponentSearchRequest(null, applicationName, 0, 10, null);
         String searchResponse = getRestClientInstance().postJSon("/rest/v1/applications/search", JsonUtil.toString(searchRequest));
         Context.getInstance().registerRestResponse(searchResponse);
         RestResponse<FacetedSearchResult> response = JsonUtil.read(searchResponse, FacetedSearchResult.class);

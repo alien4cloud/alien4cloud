@@ -41,7 +41,7 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARSource;
-import alien4cloud.rest.component.SearchRequest;
+import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -195,7 +195,7 @@ public class CloudServiceArchiveController {
     @ApiOperation(value = "Search for cloud service archives.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest) {
+    public RestResponse<FacetedSearchResult> search(@RequestBody FilteredSearchRequest searchRequest) {
         return RestResponseBuilder.<FacetedSearchResult> builder()
                 .data(csarSearchService.search(searchRequest.getQuery(), searchRequest.getFrom(), searchRequest.getSize(), searchRequest.getFilters())).build();
     }

@@ -22,7 +22,7 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.rest.application.model.CreateApplicationVersionRequest;
 import alien4cloud.rest.application.model.UpdateApplicationVersionRequest;
-import alien4cloud.rest.component.SearchRequest;
+import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
@@ -69,7 +69,8 @@ public class ApplicationVersionController {
     @ApiOperation(value = "Search application versions", notes = "Returns a search result with that contains application versions matching the request. A application version is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<GetMultipleDataResult<ApplicationVersion>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
+    public RestResponse<GetMultipleDataResult<ApplicationVersion>> search(@PathVariable String applicationId,
+            @RequestBody FilteredSearchRequest searchRequest) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
         GetMultipleDataResult<ApplicationVersion> searchResult = appVersionService.search(applicationId, searchRequest.getQuery(), searchRequest.getFrom(),

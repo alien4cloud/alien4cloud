@@ -5,7 +5,6 @@ import java.io.IOException;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import alien4cloud.exception.AlreadyExistException;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.http.HttpStatus;
@@ -28,6 +27,7 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.exception.ImageUploadException;
@@ -36,7 +36,7 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.rest.application.model.CreateApplicationRequest;
 import alien4cloud.rest.application.model.UpdateApplicationRequest;
-import alien4cloud.rest.component.SearchRequest;
+import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -125,7 +125,7 @@ public class ApplicationController {
     @ApiOperation(value = "Search for applications", notes = "Returns a search result with that contains applications matching the request. A application is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest) {
+    public RestResponse<FacetedSearchResult> search(@RequestBody FilteredSearchRequest searchRequest) {
         FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
         FacetedSearchResult searchResult = alienDAO.facetedSearch(Application.class, searchRequest.getQuery(), searchRequest.getFilters(), authorizationFilter,
                 null, searchRequest.getFrom(), searchRequest.getSize());

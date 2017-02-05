@@ -73,11 +73,11 @@ public class SearchTest {
     public void searchPostTest() {
         String query = "positive";
         RestResponse<FacetedSearchResult<? extends AbstractToscaType>> response;
-        SearchRequest req;
+        ComponentSearchRequest req;
         FacetedSearchResult data;
         String[] ids;
         // without filters
-        req = new SearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, null);
+        req = new ComponentSearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, null);
         response = componentController.search(req);
         assertNotNull(response);
         assertNotNull(response.getData());
@@ -96,7 +96,7 @@ public class SearchTest {
         // filter based test
         Map<String, String[]> filters = new HashMap<String, String[]>();
         filters.put("capabilities.type", new String[] { "container", "banana" });
-        req = new SearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, filters);
+        req = new ComponentSearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, filters);
         response = componentController.search(req);
         assertNotNull(response);
         assertNotNull(response.getData());
@@ -110,7 +110,7 @@ public class SearchTest {
 
         // test nothing found
         query = "pacpac";
-        req = new SearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, null);
+        req = new ComponentSearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, null);
         response = componentController.search(req);
         assertNotNull(response);
         assertNotNull(response.getData());
