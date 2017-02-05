@@ -1,0 +1,111 @@
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="row-margin">
+      <form role="search" ng-submit="searchService.search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query"> <span class="input-group-btn">
+            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+    <div id="services-container" class="drop-container" alien-droppable drag-on-drop="addService(data)">
+      <empty-place-holder for="'services'" data="serviceResources"></empty-place-holder>
+      <table ng-if="serviceResources && serviceResources.length > 0" class="table table-hover">
+        <thead>
+          <th>Name</th>
+          <th>Version</th>
+          <th>Type</th>
+          <th>State</th>
+          <th></th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="serviceResource in serviceResources" id='service_{{serviceResource.id}}' class="clickable" ng-click="selectService(serviceResource)"
+          ng-class="{'warning': selectedService.id === serviceResource.id}">
+            <td>{{serviceResource.name}}</td>
+            <td>{{serviceResource.version}}</td>
+            <td>{{serviceResource.nodeInstance.nodeTemplate.type}}</td>
+            <td>{{serviceResource.nodeInstance.attributeValues.state}}</td>
+            <td><delete-confirm id='delete-service_{{serviceResource.id}}' func="deleteService(serviceResource.id)" position="right" bssize="btn-sm" fastyle="fa-trash-o" disable="serviceResource.nodeInstance.attributeValues.state !== 'initial'">
+            </delete-confirm></td>
+          </tr>
+        </tbody>
+      </table>
+      <div>
+        <pagination-directive pagination-info="searchService.pagination"/>
+      </div>
+      <div class="drop-container-label">
+        <i class="fa fa-plus"></i>&nbsp;{{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.DROP' | translate }}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div id="catalog-container" class="large-data-container" ng-if="!selectedService">
+      <alien-search-node-type
+              display-detail-pannel="false"
+              drag-and-drop-enabled="true"
+              height-info="dimensions",
+              badges="badges">
+      </alien-search-node-type>
+    </div>
+    <div id="service-configuration" ng-if="selectedService">
+      <uib-tabset justified="true">
+        <uib-tab>
+          <uib-tab-heading>
+            <i class="fa fa-list" aria-hidden="true"></i>&nbsp;Details
+          </uib-tab-heading>
+          <form editable-form name="serviceDetailForm" class="form-horizontal" onbeforesave="updateServiceDetails()">
+            <div class="form-group">
+              <label for="service_detail_name_id" class="col-lg-3 control-label">{{'COMMON.NAME' | translate}}</label>
+              <div class="col-lg-9">
+                <span id="service_detail_name_id" editable-text="selectedService.name" e-name="name" e-required>{{ selectedService.name }}</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="service_detail_version_id" class="col-lg-3 control-label">{{'COMMON.VERSION' | translate}}</label>
+              <div class="col-lg-9">
+                <span id="service_detail_version_id" editable-text="selectedService.version" e-name="version" e-required>{{ selectedService.version }}</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="service_detail_desc_id" class="col-lg-3 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
+              <div class="col-lg-9">
+                <span id="service_detail_desc_id" editable-text="selectedService.description" e-name="description" e-required>{{ selectedService.description }}</span>
+              </div>
+            </div>
+            <div class="buttons">
+              <!-- button to show form -->
+              <button type="button" class="btn btn-default" ng-click="serviceDetailForm.$show()" ng-show="!serviceDetailForm.$visible"><i class="fa fa-edit"></i> Edit</button>
+              <!-- buttons to submit / cancel form -->
+              <span ng-show="serviceDetailForm.$visible">
+                <button type="submit" class="btn btn-primary" ng-disabled="serviceDetailForm.$waiting">Save</button>
+                <button type="button" class="btn btn-default" ng-disabled="serviceDetailForm.$waiting" ng-click="serviceDetailForm.$cancel()">Cancel</button>
+              </span>
+            </div>
+          </form>
+        </uib-tab>
+        <uib-tab>
+          <uib-tab-heading>
+            <i class="fa fa-cube" aria-hidden="true"></i>&nbsp;Instance
+          </uib-tab-heading>
+          Service instance configuration
+        </uib-tab>
+        <uib-tab>
+          <uib-tab-heading>
+            <i class="fa fa-cloud" aria-hidden="true"></i>&nbsp;Locations
+          </uib-tab-heading>
+          Service locations
+        </uib-tab>
+        <uib-tab>
+          <uib-tab-heading>
+            <i class="fa fa-lock" aria-hidden="true"></i>&nbsp;Security
+          </uib-tab-heading>
+          Service security
+        </uib-tab>
+      </uib-tabset>
+    </div>
+  </div>
+</div>
