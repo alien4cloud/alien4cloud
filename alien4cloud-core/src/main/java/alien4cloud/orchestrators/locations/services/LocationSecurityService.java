@@ -14,6 +14,8 @@ import com.google.common.collect.Sets;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.security.AbstractSecurityEnabledResource;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.ResourcePermissionService;
 import alien4cloud.security.Subject;
@@ -50,22 +52,29 @@ public class LocationSecurityService {
     }
 
     /**
-     * Check whether the location is authorised with the current context
+     * Check whether the resource is authorised with the current context
      * 
-     * @param location the location to check for authorisation
+     * @param resource the resource to check for authorisation
      * @param environment the environment
      * @return true if the location is authorised, false otherwise
      */
-    public boolean isAuthorised(Location location, ApplicationEnvironment environment) {
+    public boolean isAuthorised(AbstractSecurityEnabledResource resource, ApplicationEnvironment environment) {
         if (AuthorizationUtil.hasOneRoleIn(Role.ADMIN)) {
             return true;
         }
         Map<Subject, Set<String>> subjectsMap = getSubjectsFromContext(environment);
-        return resourcePermissionService.anyHasPermission(location, subjectsMap);
+        return resourcePermissionService.anyHasPermission(resource, subjectsMap);
     }
 
-    public boolean isAuthorised(Location location, String environmentId) {
-        return isAuthorised(location, applicationEnvironmentService.getOrFail(environmentId));
+    /**
+     * Check whether the resource is authorised with the current context
+     *
+     * @param resource the resource to check for authorisation
+     * @param environmentId the id of the environment
+     * @return true if the location is authorised, false otherwise
+     */
+    public boolean isAuthorised(AbstractSecurityEnabledResource resource, String environmentId) {
+        return isAuthorised(resource, environmentId != null ? applicationEnvironmentService.getOrFail(environmentId) : null);
     }
 
     public void checkAuthorisation(Location location, ApplicationEnvironment environment) {
@@ -77,6 +86,20 @@ public class LocationSecurityService {
     public void checkAuthorisation(Location location, String environmentId) {
         if (!isAuthorised(location, environmentId)) {
             throw new AccessDeniedException("Current context does not have access to the location [" + location.getName() + "]");
+        }
+    }
+
+    public void checkAuthorisation(LocationResourceTemplate resourceTemplate, ApplicationEnvironment environment) {
+        if (!isAuthorised(resourceTemplate, environment)) {
+            throw new AccessDeniedException("Current context does not have access to the location resource [" + resourceTemplate.getLocationId() + "]["
+                    + resourceTemplate.getName() + "]");
+        }
+    }
+
+    public void checkAuthorisation(LocationResourceTemplate resourceTemplate, String environmentId) {
+        if (!isAuthorised(resourceTemplate, environmentId)) {
+            throw new AccessDeniedException("Current context does not have access to the location resource [" + resourceTemplate.getLocationId() + "]["
+                    + resourceTemplate.getName() + "]");
         }
     }
 }

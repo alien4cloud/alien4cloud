@@ -8,13 +8,20 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
@@ -65,7 +72,8 @@ public class LocationResourcesSecurityController {
      * @param subjects
      */
     private void checkAuthorization(Location resource, Subject subjectType, String[] subjects) {
-        Set unauthorizedNames = Arrays.stream(subjects).filter(name -> !resource.getPermissions(subjectType, name).contains(Permission.ADMIN)).collect(Collectors.toSet());
+        Set<String> unauthorizedNames = Arrays.stream(subjects).filter(name -> !resource.getPermissions(subjectType, name).contains(Permission.ADMIN))
+                .collect(Collectors.toSet());
         if (!unauthorizedNames.isEmpty()) {
             throw new AccessDeniedException("At least one of the current <" + subjectType + "> has no authorization on location <" + resource.getName() + "> to perform the requested operation: " + unauthorizedNames.toString());
         }
@@ -129,7 +137,8 @@ public class LocationResourcesSecurityController {
     public RestResponse<List<UserDTO>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
-        return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();    }
+        return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
+    }
 
 
     /*******************************************************************************************************************************
@@ -248,14 +257,14 @@ public class LocationResourcesSecurityController {
         checkAllAuthorizationsForApplicationsAndEnvironments(request, location);
 
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        if (request.getApplicationsToDelete() != null && request.getApplicationsToDelete().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
             resourcePermissionService.revokePermission(resourceTemplate, Subject.APPLICATION, request.getApplicationsToDelete());
         }
-        if (request.getEnvironmentsToDelete() != null && request.getEnvironmentsToDelete().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToDelete())) {
             resourcePermissionService.revokePermission(resourceTemplate, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
         }
-        List<String> envIds = Lists.newArrayList();
-        if (request.getApplicationsToAdd() != null && request.getApplicationsToAdd().length > 0) {
+        Set<String> envIds = Sets.newHashSet();
+        if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
             resourcePermissionService.grantPermission(resourceTemplate, Subject.APPLICATION, request.getApplicationsToAdd());
             // when an app is added, all eventual existing env authorizations are removed
             for (String applicationToAddId : request.getApplicationsToAdd()) {
@@ -268,7 +277,7 @@ public class LocationResourcesSecurityController {
                 resourcePermissionService.revokePermission(resourceTemplate, Subject.ENVIRONMENT, envIds.toArray(new String[envIds.size()]));
             }
         }
-        if (request.getEnvironmentsToAdd() != null && request.getEnvironmentsToAdd().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
             List<String> envToAddSet = Arrays.stream(request.getEnvironmentsToAdd()).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
             resourcePermissionService.grantPermission(resourceTemplate, Subject.ENVIRONMENT, envToAddSet.toArray(new String[envToAddSet.size()]));
         }
@@ -290,7 +299,7 @@ public class LocationResourcesSecurityController {
         List<ApplicationEnvironment> environments = Lists.newArrayList();
         List<Application> applications = Lists.newArrayList();
 
-        if (resourceTemplate.getEnvironmentPermissions() != null && resourceTemplate.getEnvironmentPermissions().size() > 0) {
+        if (MapUtils.isNotEmpty(resourceTemplate.getEnvironmentPermissions())) {
             environments = alienDAO.findByIds(ApplicationEnvironment.class, resourceTemplate.getEnvironmentPermissions().keySet().toArray(new String[resourceTemplate.getEnvironmentPermissions().size()]));
             Set<String> environmentApplicationIds = environments.stream().map(ae -> new String(ae.getApplicationId())).collect(Collectors.toSet());
             applicationsRelatedToEnvironment = alienDAO.findByIds(Application.class, environmentApplicationIds.toArray(new String[environmentApplicationIds.size()]));

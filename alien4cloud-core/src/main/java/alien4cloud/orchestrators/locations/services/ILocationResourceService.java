@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import alien4cloud.model.orchestrators.locations.LocationResources;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.plugin.aop.Overridable;
@@ -17,7 +17,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 public interface ILocationResourceService {
 
     /**
-     * Get the list of resources definitions for a given orchestrator.
+     * Get the list of resources definitions for a given location.
      *
      * @param location the location.
      * @return A list of resource definitions for the given location.
