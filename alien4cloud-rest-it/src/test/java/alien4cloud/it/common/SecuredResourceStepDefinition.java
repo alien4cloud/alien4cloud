@@ -37,7 +37,12 @@ public class SecuredResourceStepDefinition {
                     + LocationsDefinitionsSteps.getLocationIdFromName(orchestratorName, resourceName) + "/security";
             break;
         case "LOCATION_RESOURCE":
-            String locationId = Context.getInstance().getLocationId(Context.getInstance().getOrchestratorId(orchestratorName), LocationsDefinitionsSteps.DEFAULT_LOCATION_NAME);
+            // resrouceName == orchestratorName/locationName/resourceName
+            String[] decomposed = StringUtils.split(resourceName, "/");
+            orchestratorName = decomposed.length == 1 ? orchestratorName : decomposed[0].trim();
+            String locationName = decomposed.length == 1 ? LocationsDefinitionsSteps.DEFAULT_LOCATION_NAME : decomposed[1].trim();
+            resourceName = decomposed[decomposed.length - 1].trim();
+            String locationId = Context.getInstance().getLocationId(Context.getInstance().getOrchestratorId(orchestratorName), locationName);
             String locationResourceId = Context.getInstance().getLocationResourceId(Context.getInstance().getOrchestratorId(orchestratorName), locationId, resourceName);
             url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
                     + locationId + "/resources/" + locationResourceId + "/security";
@@ -48,10 +53,11 @@ public class SecuredResourceStepDefinition {
         return url;
     }
 
-    @Given("^I grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the user \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourceTypeNamedToTheUser(String resourceType, String resourceName, String userName) throws Throwable {
+    @Given("^I (successfully\\s)?grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the user \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourceTypeNamedToTheUser(String successfully, String resourceType, String resourceName, String userName) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/users",
                 JsonUtil.toString(new String[] { userName })));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
     @When("^I get the authorised users for the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
@@ -79,18 +85,20 @@ public class SecuredResourceStepDefinition {
         Assert.assertEquals(getExpectedNames(rawExpectedUsers), getAuthorizedUsers());
     }
 
-    @Given("^I grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the group \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourceTypeNamedToTheGroup(String resourceType, String resourceName, String groupName) throws Throwable {
+    @Given("^I (successfully\\s)?grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the group \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourceTypeNamedToTheGroup(String successfully, String resourceType, String resourceName, String groupName) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/groups",
                 JsonUtil.toString(new String[] { Context.getInstance().getGroupId(groupName) })));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
-    @Given("^I grant access to the location named \"([^\"]*)\"/\"([^\"]*)\" to the group \"([^\"]*)\"$")
-    public void iGrantAccessToTheLocationNamedToTheGroup(String orchestratorName, String locationName, String groupName) throws Throwable {
+    @Given("^I (successfully\\s)?grant access to the location named \"([^\"]*)\"/\"([^\"]*)\" to the group \"([^\"]*)\"$")
+    public void iGrantAccessToTheLocationNamedToTheGroup(String successfully, String orchestratorName, String locationName, String groupName) throws Throwable {
         String url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
                 + LocationsDefinitionsSteps.getLocationIdFromName(orchestratorName, locationName) + "/security/groups";
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon(url, JsonUtil.toString(new String[] { Context.getInstance().getGroupId(groupName) })));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
     @When("^I get the authorised groups for the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
@@ -118,12 +126,15 @@ public class SecuredResourceStepDefinition {
                 .delete(getSecuredResourceBaseURL(resourceType, resourceName) + "/groups/" + Context.getInstance().getGroupId(groupName)));
     }
 
-    @Given("^I grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the application \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourceTypeNamedToTheApplication(String resourceType, String resourceName, String applicationName) throws Throwable {
+    @Given("^I (successfully\\s)?grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the application \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourceTypeNamedToTheApplication(String sucessfully, String resourceType, String resourceName, String applicationName)
+            throws Throwable {
         ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
         request.setApplicationsToAdd(new String[] { Context.getInstance().getApplicationId(applicationName) });
         Context.getInstance().registerRestResponse(Context.getRestClientInstance()
                 .postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/environmentsPerApplication/", JsonUtil.toString(request)));
+
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(sucessfully));
     }
 
     @When("^I get the authorised applications for the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
@@ -167,13 +178,16 @@ public class SecuredResourceStepDefinition {
                 .postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/environmentsPerApplication/", JsonUtil.toString(request)));
     }
 
-    @Given("^I grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the environment \"([^\"]*)\" of the application \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourceTypeNamedToTheEnvironmentOfTheApplication(String resourceType, String resourceName, String environmentName,
+    @Given("^I (successfully\\s)?grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the environment \"([^\"]*)\" of the application \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourceTypeNamedToTheEnvironmentOfTheApplication(String successfully, String resourceType, String resourceName,
+            String environmentName,
             String applicationName) throws Throwable {
         ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
         request.setEnvironmentsToAdd(new String[] { Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName) });
         Context.getInstance().registerRestResponse(Context.getRestClientInstance()
                 .postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/environmentsPerApplication/", JsonUtil.toString(request)));
+
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
     @Then("^I should have following list of environments:$")
