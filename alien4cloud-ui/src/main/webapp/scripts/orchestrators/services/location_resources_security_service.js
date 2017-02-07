@@ -12,10 +12,13 @@ define(function (require) {
 
       var applications = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:resourceId/security/applications/:applicationId');
 
+      var environmentsPerApplication = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:resourceId/security/environmentsPerApplication');
+
       return {
         'users': users,
         'groups': groups,
-        'applications': applications
+        'applications': applications,
+        'environmentsPerApplication': environmentsPerApplication
       };
     }]);
 });

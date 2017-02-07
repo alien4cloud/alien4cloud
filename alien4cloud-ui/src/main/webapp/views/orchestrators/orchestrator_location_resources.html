@@ -89,7 +89,8 @@
                     <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
                       <alien-app-authorization
                         resource="selectedResourceTemplate"
-                        service="locationResourcesSecurityService.applications"
+                        app-service="locationResourcesSecurityService.applications"
+                        env-service="locationResourcesSecurityService.environmentsPerApplication"
                         search-config-builder="buildSecuritySearchConfig('applications')">
                       </alien-app-authorization>
                     </uib-tab>

@@ -1,17 +1,17 @@
 package alien4cloud.rest.orchestrator.model;
 
+import java.util.List;
+import java.util.Map;
+
+import org.elasticsearch.common.collect.Lists;
+
+import com.google.common.collect.Maps;
+
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.elasticsearch.common.collect.Lists;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * This DTO represents an authorization given to a given application / environment.
