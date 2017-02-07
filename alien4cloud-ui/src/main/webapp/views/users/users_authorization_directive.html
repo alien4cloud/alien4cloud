@@ -42,9 +42,7 @@
             <td>{{user.lastName || '---' }}</td>
             <td>{{user.username || '---' }}</td>
             <td>
-              <button class="pull-left btn btn-xs btn-danger" ng-click="revoke(user)">
-                <i class="fa fa-trash"></i>
-              </button>
+              <delete-confirm id="btn-revoke-{{user.username}}" func="revoke(user)" position="left" bssize="btn-xs" fastyle="fa-trash-o"></delete-confirm>
             </td>
           </tr>
           </tbody>

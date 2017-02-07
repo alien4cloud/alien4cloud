@@ -1,5 +1,5 @@
 <div ng-controller="OrchestratorLocationResourcesTemplateCtrl as ctrl">
-  <div ng-show="!showCatalog" class="row" style="margin-top: 10px">
+  <div ng-if="!showCatalog" class="row" style="margin-top: 10px">
     <div class="col-md-12">
       <span>{{'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate}}: </span>
       <select ng-model="selectedConfigurationResourceType"
@@ -35,75 +35,73 @@
           </tr>
         </tbody>
       </table>
-      <div class="drop-box" ng-show="showCatalog" alien-droppable drag-on-drop="addResourceTemplate(data)">
+      <div class="drop-box" ng-if="showCatalog" alien-droppable drag-on-drop="addResourceTemplate(data)">
         <i class="fa fa-file-text"></i>&nbsp;<small>{{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.DROP' | translate }}</small>
       </div>
     </div>
     <div class="col-md-6" ng-if="selectedResourceTemplate">
-      <div class="well">
-        <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="selectTemplate(null)">
-              <i class="fa fa-remove close-panel"></i>
-        </span>
-        <uib-tabset justified="true">
-          <uib-tab index="0">
-            <uib-tab-heading>
-              Properties
-            </uib-tab-heading>
-            <orchestrator-location-resource-template resource-template="selectedResourceTemplate"
-                                                     resource-type="resourcesTypesMap[selectedResourceTemplate.template.type]"
-                                                     resource-capability-types="context.locationResources.capabilityTypes"
-                                                     dependencies="context.location.dependencies"
-                                                     is-editable="true"
-                                                     is-property-editable="isPropertyEditable()"
-                                                     on-delete="deleteResourceTemplate(resourceTemplate)"
-                                                     on-update="updateLocationResource(propertyName, propertyValue)"
-                                                     on-property-update="updateResourceProperty(propertyName, propertyValue)"
-                                                     on-capability-property-update="updateResourceCapabilityProperty(capabilityName, propertyName, propertyValue)"
-                                                     on-portability-property-update="updatePortabilityProperty(propertyName, propertyValue)">
-            </orchestrator-location-resource-template>
-          </uib-tab>
+      <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="selectTemplate(null)">
+            <i class="fa fa-remove close-panel"></i>
+      </span>
+      <uib-tabset justified="true">
+        <uib-tab index="0">
+          <uib-tab-heading>
+            Properties
+          </uib-tab-heading>
+          <orchestrator-location-resource-template resource-template="selectedResourceTemplate"
+                                                   resource-type="resourcesTypesMap[selectedResourceTemplate.template.type]"
+                                                   resource-capability-types="context.locationResources.capabilityTypes"
+                                                   dependencies="context.location.dependencies"
+                                                   is-editable="true"
+                                                   is-property-editable="isPropertyEditable()"
+                                                   on-delete="deleteResourceTemplate(resourceTemplate)"
+                                                   on-update="updateLocationResource(propertyName, propertyValue)"
+                                                   on-property-update="updateResourceProperty(propertyName, propertyValue)"
+                                                   on-capability-property-update="updateResourceCapabilityProperty(capabilityName, propertyName, propertyValue)"
+                                                   on-portability-property-update="updatePortabilityProperty(propertyName, propertyValue)">
+          </orchestrator-location-resource-template>
+        </uib-tab>
 
-          <!-- Security-->
-          <uib-tab index="1">
-            <uib-tab-heading>
-              <i class="icon-folder-open"></i> Security
-            </uib-tab-heading>
-            <div>
-              <div class="row" id="app-user-role">
-                <div class="col-md-12">
-                  <uib-tabset>
-                    <uib-tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
-                      <alien-user-authorization
-                        resource="selectedResourceTemplate"
-                        service="locationResourcesSecurityService.users"
-                        search-config-builder="buildSecuritySearchConfig('users')">
-                      </alien-user-authorization>
-                    </uib-tab>
-                    <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
-                      <alien-group-authorization
-                        resource="selectedResourceTemplate"
-                        service="locationResourcesSecurityService.groups"
-                        search-config-builder="buildSecuritySearchConfig('groups')">
-                      </alien-group-authorization>
-                    </uib-tab>
-                    <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
-                      <alien-app-authorization
-                        resource="selectedResourceTemplate"
-                        service="locationResourcesSecurityService.applications"
-                        search-config-builder="buildSecuritySearchConfig('applications')">
-                      </alien-app-authorization>
-                    </uib-tab>
-                  </uib-tabset>
-                </div>
+        <!-- Security-->
+        <uib-tab index="1">
+          <uib-tab-heading>
+            <i class="icon-folder-open"></i> Security
+          </uib-tab-heading>
+          <div>
+            <div class="row" id="app-user-role">
+              <div class="col-md-12">
+                <uib-tabset>
+                  <uib-tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
+                    <alien-user-authorization
+                      resource="selectedResourceTemplate"
+                      service="locationResourcesSecurityService.users"
+                      search-config-builder="buildSecuritySearchConfig('users')">
+                    </alien-user-authorization>
+                  </uib-tab>
+                  <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
+                    <alien-group-authorization
+                      resource="selectedResourceTemplate"
+                      service="locationResourcesSecurityService.groups"
+                      search-config-builder="buildSecuritySearchConfig('groups')">
+                    </alien-group-authorization>
+                  </uib-tab>
+                  <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
+                    <alien-app-authorization
+                      resource="selectedResourceTemplate"
+                      service="locationResourcesSecurityService.applications"
+                      search-config-builder="buildSecuritySearchConfig('applications')">
+                    </alien-app-authorization>
+                  </uib-tab>
+                </uib-tabset>
               </div>
             </div>
-          </uib-tab>
-        </uib-tabset>
-      </div>
+          </div>
+        </uib-tab>
+      </uib-tabset>
     </div>
 
     <!-- catalog-->
-    <div id="resource-catalog" ng-if="showCatalog" ng-show="!selectedResourceTemplate" class="col-md-6">
+    <div id="resource-catalog" ng-if="showCatalog && !selectedResourceTemplate" class="col-md-6">
       <uib-tabset justified="true">
         <uib-tab index="0">
           <uib-tab-heading>
