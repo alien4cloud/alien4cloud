@@ -78,7 +78,7 @@
                 <i class="fa" ng-class="{'fa-caret-down' : !isHAGroupWarningsCollapsed , 'fa-caret-right': isHAGroupWarningsCollapsed }"></i>
                 <span>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.LABEL' | translate}}</span>
               </h4>
-              <div uib-collapse="isHAGroupWarningsCollapsed" class="topology-level">
+              <div uib-collapse="isHAGroupWarningsCollapsed" >
                 <table class="table table-condensed">
                   <thead>
                     <th>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.GROUP' | translate}}</th>
@@ -105,7 +105,7 @@
                    ng-class="{'fa-caret-down' : !isPropertiesGroupWarningsCollapsed , 'fa-caret-right': isPropertiesGroupWarningsCollapsed }"></i>
                 <span>{{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.LABEL' | translate}}</span>
               </h4>
-              <div uib-collapse="isPropertiesGroupWarningsCollapsed" class="topology-level">
+              <div uib-collapse="isPropertiesGroupWarningsCollapsed" >
                 <table class="table table-condensed">
                   <thead>
                     <th>{{'COMMON.NODE' | translate}}</th>

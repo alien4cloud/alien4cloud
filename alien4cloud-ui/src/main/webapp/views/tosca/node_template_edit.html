@@ -1,0 +1,86 @@
+<div ng-controller="a4cNodeTemplateEditCtrl">
+  <!-- Properties -->
+  <div ng-if="nodeTemplate.properties.length > 0">
+    <div id="node-details-properties" class="clickable topology-column-content-head" ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
+      <i class="fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
+      {{'COMMON.PROPERTIES' | translate}}
+    </div>
+    <div id="node-details-properties-panel" uib-collapse="isPropertiesCollapsed" >
+      <table class="table table-condensed" id="nodeTemplateProperties">
+        <tr ng-repeat="propEntry in nodeTemplate.properties">
+          <td>
+            <property-display
+                ng-init="condensed = true"
+                definition="nodeType.propertiesMap[propEntry.key].value"
+                dependencies="dependencies"
+                property-name="propEntry.key"
+                property-value="propEntry.value"
+                editable = "canEditProperty(propEntry.key)"
+                on-save="updateProperty(propertyName, propertyValue)"
+                condensed="condensed">
+            </property-display>
+          </td>
+          <td>
+            <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{properties.getPropertyDescription(propEntry.key)}}"
+                          key="{{propEntry.key}}"></simple-modal>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Capabilities -->
+  <div ng-if="nodeTemplate.capabilities.length > 0">
+    <div id="node-details-capabilities" class="clickable topology-column-content-head"
+         ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
+      <i class=" fa" ng-class="{'fa-caret-down' : !isCapabilitiesCollapsed, 'fa-caret-right': isCapabilitiesCollapsed}"></i>
+      {{'COMMON.CAPABILITIES' | translate}}
+    </div>
+    <div id="node-details-capabilities-panel" class="indent" uib-collapse="isCapabilitiesCollapsed" >
+      <div id="node-details-capabilities-{{capabilityEntry.key}}-block" class="row-margin" ng-repeat="capabilityEntry in nodeTemplate.capabilities"
+           ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
+        <div class="topology-column-content-head"
+             ng-class="{'clickable' : !emptyProps}"
+             ng-click="!emptyProps && (isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key])">
+          <div class="row">
+            <div class="col-md-5">
+              <i class="fa fa-fw"
+                 ng-class="{'fa-caret-down' : !emptyProps && !isReqPropsCollapsed[capabilityEntry.key], 'fa-caret-right': !emptyProps && isReqPropsCollapsed[capabilityEntry.key]}">
+              </i>{{capabilityEntry.key}}
+            </div>
+            <div style="font-weight: normal" class="col-md-6 text-info" id="capability-{{capabilityEntry.key}}">
+              {{capabilityEntry.value.type}}
+            </div>
+            <div class="col-md-1" ng-init="capaComp = getComponent(nodeTemplate, capabilityEntry.value.type)">
+              <simple-modal title="{{ 'MODAL.TITLE.CAPABILITY' | translate}}" content="{{capaComp.data.description}}"
+                            key="{{capabilityEntry.value.type}}"></simple-modal>
+            </div>
+          </div>
+        </div>
+        <div class="indent">
+          <table ng-if="!emptyProps && !isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
+            <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
+              <td>
+                <property-display
+                    ng-init="condensed = true"
+                    definition="getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key)"
+                    dependencies="dependencies"
+                    property-name="propertyEntry.key"
+                    property-value="propertyEntry.value"
+                    editable = "canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
+                    on-save="updateCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
+                    condensed="condensed">
+                </property-display>
+              </td>
+              <td>
+                <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}"
+                              content="{{topology.nodeCapabilityTypes[capabilityEntry.value.type].propertiesMap[propertyEntry.key].value.description}}"
+                              key="{{propertyEntry.key}}"></simple-modal>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

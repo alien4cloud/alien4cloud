@@ -24,13 +24,15 @@ define(function(require) {
             $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
           }
           // Only show catalog in the on-demand resources tab
-          if (!$scope.showCatalog) return;
+          if (!$scope.showCatalog) {
+            return;
+          }
 
           $scope.dimensions = { width: 800, height: 500 };
           resizeServices.registerContainer(function (width, height) {
             $scope.dimensions = { width: width, height: height };
             $scope.$digest();
-          }, "#resource-catalog");
+          }, '#resource-catalog');
 
           vm.favorites = computeTypes();
         };
@@ -41,7 +43,9 @@ define(function(require) {
 
         $scope.addResourceTemplate = function(dragData) {
           const source = dragData ? angular.fromJson(dragData.source) : $scope.selectedConfigurationResourceType;
-          if (!source) return;
+          if (!source) {
+            return;
+          }
           const newResource = {
             'resourceType': source.elementId,
             'resourceName': 'New resource',
@@ -61,7 +65,7 @@ define(function(require) {
             $scope.context.location.dependencies = updatedDependencies;
 
             // if ResourceType is not in the fav list then get its type and add it to resource types map
-            if ($scope.showCatalog && _.findIndex(vm.favorites, 'id', newResource.id) == -1) {
+            if ($scope.showCatalog && _.findIndex(vm.favorites, 'id', newResource.id) === -1) {
               const typeId = newResource.resourceType;
               const componentId = newResource.id;
 
@@ -74,7 +78,7 @@ define(function(require) {
                     const p = componentService.getInArchives(capability.type, 'CAPABILITY_TYPE', updatedDependencies)
                       .then(function (res) {
                         const capabilityType = res.data.data;
-                        capabilityType['propertiesMap'] = _.indexBy(capabilityType.properties, 'key');
+                        capabilityType.propertiesMap = _.indexBy(capabilityType.properties, 'key');
                         $scope.context.locationResources.capabilityTypes[capability.type] = capabilityType;
                       });
                     promises.push(p);
@@ -90,7 +94,7 @@ define(function(require) {
                 });
 
                 // Compute properties map and update scope right after getting the resource type.
-                resourceType['propertiesMap'] = _.indexBy(resourceType.properties, 'key');
+                resourceType.propertiesMap = _.indexBy(resourceType.properties, 'key');
                 $scope.resourcesTypesMap[typeId] = resourceType;
                 $scope.resourcesTypes.push(resourceType);
                 $scope.resourcesTemplates.push(resourceTemplate);
@@ -126,9 +130,14 @@ define(function(require) {
             const deletedType = resourceTemplate.template.type;
             // If the type of the template is provided by the orchestrator, never delete it from the fav list
             const favIndex = _.findIndex(vm.favorites, { 'elementId': deletedType });
-            if (favIndex === -1 || vm.favorites[favIndex].provided) return;
+            if (favIndex === -1 || vm.favorites[favIndex].provided) {
+              return;
+            }
             // The template was a custom resource - if its still used do not delete it from the fav list
-            if (_.find($scope.resourcesTemplates, function (tplt) { return tplt.template.type === deletedType })) return;
+
+            if (_.find($scope.resourcesTemplates, function (tplt) { return tplt.template.type === deletedType; })) {
+              return;
+            }
             vm.favorites.splice(favIndex, 1);
           });
         };
@@ -186,7 +195,7 @@ define(function(require) {
             propertyValue: propertyValue
           })).$promise;
         };
-        
+
         $scope.isPropertyEditable = function() {
           return true;
         };

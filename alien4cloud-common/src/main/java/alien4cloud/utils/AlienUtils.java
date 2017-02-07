@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +36,7 @@ public final class AlienUtils {
      * 
      * @param collection The list that may be null.
      * @param <T> The type of list inner elements
-     * @return The list of an empty list.
+     * @return The list or an empty list.
      */
     public static <T> Collection<T> safe(Collection<T> collection) {
         return org.apache.commons.collections4.CollectionUtils.emptyIfNull(collection);
@@ -51,7 +52,7 @@ public final class AlienUtils {
      * @param map The list that may be null.
      * @param <K> The type of map keys
      * @param <K> The type of map values
-     * @return The map of an empty map.
+     * @return The map or an empty map.
      */
     public static <K, V> Map<K, V> safe(Map<K, V> map) {
         return org.apache.commons.collections4.MapUtils.emptyIfNull(map);

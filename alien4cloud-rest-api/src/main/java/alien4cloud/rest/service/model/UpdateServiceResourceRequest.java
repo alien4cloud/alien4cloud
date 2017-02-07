@@ -8,6 +8,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.Size;
 
 /**
  * Update a Service Resource.
@@ -18,6 +21,7 @@ import lombok.Setter;
 @ApiModel(description = "Request to update a service resource.")
 public class UpdateServiceResourceRequest {
     @ApiModelProperty(value = "The new name of the service or undefined if the update request should not update the service name.")
+    @Size(min = 1) // may be null (field not updated), if not it must be a non empty string.
     private String name;
     @ApiModelProperty(value = "The new version of the service or undefined if the update request should not update the service version.")
     private String version;

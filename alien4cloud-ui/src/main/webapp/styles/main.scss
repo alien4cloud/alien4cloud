@@ -12,27 +12,26 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "helveticaneue-thin";
 @import "roboto-thin";
 
-@import "editable";
+@import "a4c_forms";
 @import "ace-editor";
-@import "form-generator";
-@import "dragdrop";
-@import "fileupload";
-@import "topology";
-@import "topology-svg";
-@import "topology-plan";
-@import "lang";
-@import "search-directive";
-@import "users";
 @import "application";
-@import "cloud";
-@import "plans";
-@import "vertical-menu";
-@import "horizontal-menu";
-@import "flip-card";
-@import "hopscotch";
 @import "bold-override";
-@import "tree-control";
+@import "dragdrop";
+@import "editable";
+@import "fileupload";
+@import "form-generator";
+@import "hopscotch";
+@import "horizontal-menu";
+@import "lang";
 @import "location-resources-directive";
+@import "plans";
+@import "search-directive";
+@import "topology-plan";
+@import "topology-svg";
+@import "topology";
+@import "tree-control";
+@import "users";
+@import "vertical-menu";
 
 // Navbar and global layout
 
@@ -95,6 +94,10 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 
 .row-margin {
   margin-bottom: 10px;
+}
+
+.indent {
+  padding-left: 15px;
 }
 
 // Navbar and global layout end

@@ -9,7 +9,7 @@
           <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
         </h4>
 
-        <div uib-collapse="isToImplementNodesCollapsed" class="topology-level">
+        <div uib-collapse="isToImplementNodesCollapsed" >
           <table class="table table-condensed">
             <tbody>
               <tr ng-repeat=" toImplementNodeTask in tasks">
@@ -34,7 +34,7 @@
           <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
         </h4>
 
-        <div uib-collapse="isToReplaceNodesCollapsed" class="topology-level">
+        <div uib-collapse="isToReplaceNodesCollapsed" >
           <table class="table table-condensed">
             <thead>
               <tr>
@@ -116,17 +116,22 @@
       </uib-accordion>
     </div>
     <div class="col-md-6">
-      <div ng-if="selectedResourceTemplate" class="well">
-        <orchestrator-location-resource-template
-            is-editable="false"
-            is-property-editable="isPropertyEditable(propertyPath)"
-            resource-template="selectedResourceTemplate"
-            resource-type="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
-            resource-capability-types="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.capabilityTypes"
+      <div ng-if="selectedResourceTemplate">
+        <fieldset class="field">
+          <legend>
+            <h4><i class="fa fa-wrench"></i> {{'APPLICATIONS.DEPLOYMENT.MATCHING.CONFIGURATION' | translate}}</h4>
+          </legend>
+          <div class="row-margin">{{'APPLICATIONS.DEPLOYMENT.MATCHING.CONFIGURATION_HELP' | translate}}</div>
+          <a4c-node-template-edit
+            node-template="selectedResourceTemplate.template"
+            node-type="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
+            node-capability-types="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.capabilityTypes"
             dependencies="deploymentContext.deploymentTopologyDTO.topology.dependencies"
+            is-property-editable="isPropertyEditable(propertyPath)"
             on-property-update="updateSubstitutionProperty(propertyName, propertyValue)"
             on-capability-property-update="updateSubstitutionCapabilityProperty(capabilityName, propertyName, propertyValue)">
-        </orchestrator-location-resource-template>
+          </a4c-node-template-edit>
+        </fieldset>
       </div>
     </div>
   </div>

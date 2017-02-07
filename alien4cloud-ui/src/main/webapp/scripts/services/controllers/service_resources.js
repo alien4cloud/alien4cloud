@@ -4,8 +4,10 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   require('scripts/common/services/alien_resource');
+  require('scripts/tosca/directives/node_template_edit');
   require('scripts/services/controllers/service_resource_new');
 
   states.state('admin.services', {
@@ -24,7 +26,8 @@ define(function (require) {
   modules.get('a4c-services', ['ui.router', 'ui.bootstrap','a4c-common']).controller('a4cServiceResourcesCtrl',
     ['$scope', '$uibModal', '$alresource', 'searchServiceFactory', 'resizeServices',
     function($scope, $uibModal, $alresource, searchServiceFactory, resizeServices) {
-      const serviceResourceService = $alresource('rest/latest/services/:id');
+      const serviceResourceService = $alresource('rest/latest/services/:serviceId');
+      const typeWithDependenciesService = $alresource('rest/latest/catalog/types/adv/typewithdependencies/:typeId/:typeVersion');
 
       $scope.dimensions = { width: 800, height: 500 };
       resizeServices.registerContainer(function (width, height) {
@@ -66,9 +69,60 @@ define(function (require) {
         });
       };
 
-
       $scope.selectService = function(service) {
         $scope.selectedService = service;
+        delete $scope.nodeType;
+
+        // We have to fetch the node type, the dependencies, and the related capabilities
+        if(_.defined(service)) {
+          typeWithDependenciesService.get({
+            typeId: service.nodeInstance.nodeTemplate.type,
+            typeVersion: service.nodeInstance.typeVersion
+          }, null, function(result){
+            $scope.selectedNodeType = result.data.toscaType;
+            $scope.selectedCapabilityTypes = result.data.capabilityTypes;
+            $scope.selectedDependencies = result.data.dependencies;
+          });
+        }
+      };
+
+      $scope.isPropertyEditable = function() { return true; };
+
+      $scope.updateProperty= function(propertyName, propertyValue) {
+        console.log('property update', propertyName, propertyValue);
+
+        var updateRequest = {nodeInstance: {nodeTemplate: {properties:{}}}};
+        updateRequest.nodeInstance.nodeTemplate.properties[propertyName] = propertyValue;
+        return serviceResourceService.update({
+          serviceId: $scope.selectedService.id
+        }, angular.toJson(updateRequest)).$promise;
+      };
+
+      $scope.updateCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
+        console.log('update capability property', capabilityName, propertyName, propertyValue);
+        var updateRequest = {nodeInstance: {nodeTemplate: {capabilities:{}}}};
+        updateRequest.nodeInstance.nodeTemplate.capabilities[capabilityName] = {properties:{}};
+        updateRequest.nodeInstance.nodeTemplate.capabilities[capabilityName].properties[propertyName] = propertyValue;
+        return serviceResourceService.update({
+          serviceId: $scope.selectedService.id
+        }, angular.toJson(updateRequest)).$promise;
+      };
+
+      $scope.update = function(updateRequest) {
+        // This may be triggered by editable form so it must return the promise.
+        return serviceResourceService.update({
+          serviceId: $scope.selectedService.id
+        }, angular.toJson(updateRequest)).$promise;
+      };
+
+      $scope.delete = function(serviceId) {
+        serviceResourceService.delete({
+          serviceId: serviceId
+        }, null, function(){
+          if(_.defined($scope.selectedService) && $scope.selectedService.id === serviceId) {
+            $scope.selectedService = undefined;
+          }
+        });
       };
     }
   ]); // controller

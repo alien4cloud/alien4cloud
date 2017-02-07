@@ -6,7 +6,7 @@
       <i class="pull-left fa" ng-if="collapsable"  ng-class="{'fa-caret-down' : !isMetaPropsCollapsed, 'fa-caret-right': isMetaPropsCollapsed}"></i>
       <strong>{{ 'APPLICATIONS.META_PROPERTIES' | translate}}</strong>
     </div>
-    <div class="topology-level" uib-collapse="isMetaPropsCollapsed">
+    <div  uib-collapse="isMetaPropsCollapsed">
       <table class="table table-condensed" id="tabProperties">
         <tr ng-repeat="metaProperty in properties">
           <td ng-init="propertyDefinition = metaProperty">

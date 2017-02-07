@@ -1,6 +1,11 @@
 
 <div class="row">
   <div class="col-md-6">
+    <div class="topology-column-content-head">
+      <span class="ng-binding">
+        <i class="fa fa-list"></i> {{'SERVICES.LIST'}}
+      </span>
+    </div>
     <div class="row-margin">
       <form role="search" ng-submit="searchService.search()">
         <div class="input-group">
@@ -29,7 +34,7 @@
             <td>{{serviceResource.version}}</td>
             <td>{{serviceResource.nodeInstance.nodeTemplate.type}}</td>
             <td>{{serviceResource.nodeInstance.attributeValues.state}}</td>
-            <td><delete-confirm id='delete-service_{{serviceResource.id}}' func="deleteService(serviceResource.id)" position="right" bssize="btn-sm" fastyle="fa-trash-o" disable="serviceResource.nodeInstance.attributeValues.state !== 'initial'">
+            <td><delete-confirm id='delete-service_{{serviceResource.id}}' func="delete(serviceResource.id)" position="right" bssize="btn-sm" fastyle="fa-trash-o" disable="serviceResource.nodeInstance.attributeValues.state !== 'initial'">
             </delete-confirm></td>
           </tr>
         </tbody>
@@ -43,7 +48,12 @@
     </div>
   </div>
   <div class="col-md-6">
-    <div id="catalog-container" class="large-data-container" ng-if="!selectedService">
+    <div id="catalog-container" ng-if="!selectedService">
+      <div class="topology-column-content-head">
+        <span class="ng-binding">
+          <i class="fa fa-cubes"></i> {{'SERVICES.CATALOG'}}
+        </span>
+      </div>
       <alien-search-node-type
               display-detail-pannel="false"
               drag-and-drop-enabled="true"
@@ -52,56 +62,73 @@
       </alien-search-node-type>
     </div>
     <div id="service-configuration" ng-if="selectedService">
+      <div class="topology-column-content-head">
+        <span class="ng-binding">
+          <i class="fa fa-globe"></i> {{'SERVICES.DETAIL.TITLE' | translate}}
+        </span>
+        <a id="closeSelection" class="pull-right" style="font-weight: 400;" ng-click="selectService()">
+          <i class="fa fa-arrow-left"></i> {{'SERVICES.DETAIL.BACK' | translate}}
+        </a>
+      </div>
       <uib-tabset justified="true">
         <uib-tab>
           <uib-tab-heading>
-            <i class="fa fa-list" aria-hidden="true"></i>&nbsp;Details
+            <i class="fa fa-list" aria-hidden="true"></i>&nbsp;{{'SERVICES.DETAIL.DETAIL' | translate}}
           </uib-tab-heading>
-          <form editable-form name="serviceDetailForm" class="form-horizontal" onbeforesave="updateServiceDetails()">
-            <div class="form-group">
-              <label for="service_detail_name_id" class="col-lg-3 control-label">{{'COMMON.NAME' | translate}}</label>
-              <div class="col-lg-9">
-                <span id="service_detail_name_id" editable-text="selectedService.name" e-name="name" e-required>{{ selectedService.name }}</span>
+          <div>
+            <div class="row row-margin">
+              <div class="col-md-3">
+                <strong>{{'COMMON.NAME' | translate}}</strong>
+              </div>
+              <div class="col-md-9" id="app-desc">
+                <div editable-text="selectedService.name" onbeforesave="update({'name': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">
+                  {{selectedService.name}} <i class="fa fa-edit"></i>
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="service_detail_version_id" class="col-lg-3 control-label">{{'COMMON.VERSION' | translate}}</label>
-              <div class="col-lg-9">
-                <span id="service_detail_version_id" editable-text="selectedService.version" e-name="version" e-required>{{ selectedService.version }}</span>
+            <div class="row row-margin">
+              <div class="col-md-3">
+                <strong>{{'COMMON.VERSION' | translate}}</strong>
+              </div>
+              <div class="col-md-9" id="app-desc">
+                <div editable-text="selectedService.version" onbeforesave="update({'version': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">
+                  {{selectedService.version}} <i class="fa fa-edit"></i>
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="service_detail_desc_id" class="col-lg-3 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
-              <div class="col-lg-9">
-                <span id="service_detail_desc_id" editable-text="selectedService.description" e-name="description" e-required>{{ selectedService.description }}</span>
+            <div class="row row-margin">
+              <div class="col-md-3">
+                <strong>{{'COMMON.DESCRIPTION' | translate}}</strong>
+              </div>
+              <div class="col-md-9" id="app-desc">
+                <div style="white-space: pre;" editable-textarea="selectedService.description" onbeforesave="update({'description': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">{{selectedService.description}} <i class="fa fa-edit"></i></div>
               </div>
             </div>
-            <div class="buttons">
-              <!-- button to show form -->
-              <button type="button" class="btn btn-default" ng-click="serviceDetailForm.$show()" ng-show="!serviceDetailForm.$visible"><i class="fa fa-edit"></i> Edit</button>
-              <!-- buttons to submit / cancel form -->
-              <span ng-show="serviceDetailForm.$visible">
-                <button type="submit" class="btn btn-primary" ng-disabled="serviceDetailForm.$waiting">Save</button>
-                <button type="button" class="btn btn-default" ng-disabled="serviceDetailForm.$waiting" ng-click="serviceDetailForm.$cancel()">Cancel</button>
-              </span>
-            </div>
-          </form>
+          </div>
         </uib-tab>
         <uib-tab>
           <uib-tab-heading>
-            <i class="fa fa-cube" aria-hidden="true"></i>&nbsp;Instance
+            <i class="fa fa-cube" aria-hidden="true"></i>&nbsp;{{'SERVICES.INSTANCE' | translate}}
           </uib-tab-heading>
-          Service instance configuration
+          <a4c-node-template-edit ng-if="selectedNodeType"
+            node-template="selectedService.nodeInstance.nodeTemplate"
+            node-type="selectedNodeType"
+            node-capability-types="selectedCapabilityTypes"
+            dependencies="selectedDependencies"
+            is-property-editable="isPropertyEditable()"
+            on-property-update="updateProperty(propertyName, propertyValue)"
+            on-capability-property-update="updateCapabilityProperty(capabilityName, propertyName, propertyValue)">
+          </a4c-node-template-edit>
         </uib-tab>
         <uib-tab>
           <uib-tab-heading>
-            <i class="fa fa-cloud" aria-hidden="true"></i>&nbsp;Locations
+            <i class="fa fa-cloud" aria-hidden="true"></i>&nbsp;{{'ORCHESTRATORS.NAV.LOCATIONS' | translate}}
           </uib-tab-heading>
           Service locations
         </uib-tab>
         <uib-tab>
           <uib-tab-heading>
-            <i class="fa fa-lock" aria-hidden="true"></i>&nbsp;Security
+            <i class="fa fa-lock" aria-hidden="true"></i>&nbsp;{{'ORCHESTRATORS.LOCATIONS.SECURITY' | translate}}
           </uib-tab-heading>
           Service security
         </uib-tab>

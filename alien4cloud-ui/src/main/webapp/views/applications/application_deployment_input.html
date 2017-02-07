@@ -38,7 +38,7 @@
           <i class="fa" ng-class="{'fa-caret-down' : !isInputPropertiesCollapsed, 'fa-caret-right': isInputPropertiesCollapsed}"></i>
         </h4>
       </legend>
-      <div uib-collapse="isInputPropertiesCollapsed" class="topology-level">
+      <div uib-collapse="isInputPropertiesCollapsed" >
         <table class="table table-condensed" id="inputsTable">
           <tr ng-repeat="(inputId, inputDefinition) in deploymentContext.deploymentTopologyDTO.topology.inputs | allowedInputs">
             <td>
@@ -68,11 +68,11 @@
           <i class="fa" ng-class="{'fa-caret-down' : !isInputArtifactsCollapsed, 'fa-caret-right': isInputArtifactsCollapsed}"></i>
         </h4>
       </legend>
-      <div uib-collapse="isInputArtifactsCollapsed" class="topology-level">
+      <div uib-collapse="isInputArtifactsCollapsed" >
         <ul>
           <li ng-repeat="(artifactKey,artifactValue) in deploymentContext.deploymentTopologyDTO.topology.inputArtifacts">
             {{artifactKey}}
-            <div class="topology-level" uib-collapse="isArtifactCollapsed">
+            <div  uib-collapse="isArtifactCollapsed">
               <div class="row">
                 <div class="col-md-3">{{'COMMON.TYPE' | translate}}</div>
                 <div class="col-md-9">{{artifactValue.artifactType}}</div>
@@ -111,7 +111,7 @@
           <i class="fa" ng-class="{'fa-caret-down' : !isOrchestratorDeploymentPropertiesCollapsed, 'fa-caret-right': isOrchestratorDeploymentPropertiesCollapsed}"></i>
         </h4>
       </legend>
-      <div uib-collapse="isOrchestratorDeploymentPropertiesCollapsed" class="topology-level">
+      <div uib-collapse="isOrchestratorDeploymentPropertiesCollapsed" >
         <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
           <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentContext.orchestratorDeploymentPropertyDefinitions">
             <td id="p_deployment_{{propertyKey}}">

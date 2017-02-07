@@ -3,8 +3,12 @@ package alien4cloud.tosca.context;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,6 +19,10 @@ import com.google.common.collect.Sets;
 
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Resource;
+
+import static alien4cloud.utils.AlienUtils.safe;
+
 /**
  * This aspect executes for ToscaContextual methods and ensure that a ToscaContext is defined (or creates one if not).
  */
@@ -22,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @Component
 public class ToscaContextualAspect {
+    @Resource
+    private ICSARRepositorySearchService csarRepositorySearchService;
 
     @Around("@annotation(alien4cloud.tosca.context.ToscaContextual)")
     public Object ensureContext(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -64,6 +74,16 @@ public class ToscaContextualAspect {
                 if (set.size() > 0 && set.iterator().next() instanceof CSARDependency) {
                     return (Set<CSARDependency>) arg;
                 }
+            }
+            if (arg instanceof AbstractToscaType) {
+                AbstractToscaType type = ((AbstractToscaType) arg);
+                Csar csar = csarRepositorySearchService.getArchive(type.getArchiveName(), type.getArchiveVersion());
+                if (csar == null) {
+                    throw new NotFoundException("Unable to find dependencies from type as it's archive cannot be found in the repository.");
+                }
+                Set<CSARDependency> dependencies = csar.getDependencies() == null ? Sets.newHashSet() : csar.getDependencies();
+                dependencies.add(new CSARDependency(type.getArchiveName(), type.getArchiveVersion()));
+                return dependencies;
             }
         }
         return Sets.<CSARDependency> newHashSet();

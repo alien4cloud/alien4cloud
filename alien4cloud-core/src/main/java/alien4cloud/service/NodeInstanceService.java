@@ -4,7 +4,9 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import javax.inject.Inject;
 
+import alien4cloud.tosca.context.ToscaContext;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.instances.NodeInstance;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -37,6 +39,7 @@ public class NodeInstanceService {
     @ToscaContextual
     public NodeInstance create(String typeName, String typeVersion) {
         NodeType nodeType = toscaTypeSearchService.find(NodeType.class, typeName, typeVersion);
+        ToscaContext.get().addDependency(new CSARDependency(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
         if (nodeType == null) {
             throw new NotFoundException(String.format("Node type [%s] doesn't exists with version [%s].", typeName, typeVersion));
         }
