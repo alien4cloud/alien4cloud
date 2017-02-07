@@ -47,7 +47,6 @@ public interface IAlienGroupDao {
 
     /**
      * Search for groups.
-     * 
      * @param searchQuery the search query text.
      * @param filters filters to apply
      * @param from offset from the first result you want to fetch.
@@ -85,6 +84,6 @@ public interface IAlienGroupDao {
      * @param size maximum amount of {@link Group} to be returned.*
      * @param customFilter a customized filter.
      */
-    GetMultipleDataResult<Group> find(int from, int size, FilterBuilder customFilter);
+    GetMultipleDataResult<Group> find(String searchQuery, int from, int size, FilterBuilder customFilter);
 
 }

@@ -65,7 +65,7 @@ public class InMemoryUserDao implements IAlienUserDao {
     }
 
     @Override
-    public GetMultipleDataResult<User> find(int from, int size, FilterBuilder customFilter) {
+    public GetMultipleDataResult<User> find(String searchQuery, int from, int size, FilterBuilder customFilter) {
         // TODO Auto-generated method stub
         return null;
     }

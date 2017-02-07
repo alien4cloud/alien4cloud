@@ -14,7 +14,12 @@ import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.IdsFilterBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Sets;
 
@@ -130,7 +135,7 @@ public class LocationSecurityController {
     @RequestMapping(value = "/users/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<GetMultipleDataResult<UserDTO>> getAuthorizedUsersPaginated(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestParam(required = false, defaultValue = "false") boolean connectedOnly,
+            @ApiParam(value = "Text Query to search.") @RequestParam(required = false) String query,
             @ApiParam(value = "Query from the given i*ndex.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
         Location location = locationService.getLocation(orchestratorId, locationId);
@@ -139,7 +144,7 @@ public class LocationSecurityController {
         }
         IdsFilterBuilder idFilters = FilterBuilders.idsFilter()
                 .ids(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
-        GetMultipleDataResult<User> tempResult = alienUserDao.find(from, size, idFilters);
+        GetMultipleDataResult<User> tempResult = alienUserDao.find(query, from, size, idFilters);
         return RestResponseBuilder.<GetMultipleDataResult<UserDTO>> builder().data(UserDTO.convert(tempResult)).build();
     }
 
@@ -212,7 +217,7 @@ public class LocationSecurityController {
     @RequestMapping(value = "/groups/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<GetMultipleDataResult<GroupDTO>> getAuthorizedGroupsPaginated(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestParam(required = false, defaultValue = "false") boolean connectedOnly,
+            @ApiParam(value = "Text Query to search.") @RequestParam(required = false) String query,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
         Location location = locationService.getLocation(orchestratorId, locationId);
@@ -221,7 +226,7 @@ public class LocationSecurityController {
         }
         IdsFilterBuilder idFilters = FilterBuilders.idsFilter()
                 .ids(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
-        GetMultipleDataResult<Group> tempResult = alienGroupDao.find(from, size, idFilters);
+        GetMultipleDataResult<Group> tempResult = alienGroupDao.find(query, from, size, idFilters);
         return RestResponseBuilder.<GetMultipleDataResult<GroupDTO>> builder().data(GroupDTO.convert(tempResult)).build();
     }
 

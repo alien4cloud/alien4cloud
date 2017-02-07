@@ -86,7 +86,7 @@ public class ElasticSearchUserDao extends ESGenericSearchDAO implements IAlienUs
     }
 
     @Override
-    public GetMultipleDataResult<User> find(int from, int size, FilterBuilder customFilter) {
-        return super.search(User.class, null, null, customFilter, null, from, size, "username", false);
+    public GetMultipleDataResult<User> find(String searchQuery, int from, int size, FilterBuilder customFilter) {
+        return super.search(User.class, searchQuery, null, customFilter, null, from, size, "username", false);
     }
 }

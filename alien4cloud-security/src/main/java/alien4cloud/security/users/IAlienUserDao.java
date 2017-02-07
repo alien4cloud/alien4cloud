@@ -69,5 +69,5 @@ public interface IAlienUserDao {
      * @param size maximum amount of {@link User} to be returned.*
      * @param customFilter a customized filter.
      */
-    GetMultipleDataResult<User> find(int from, int size, FilterBuilder customFilter);
+    GetMultipleDataResult<User> find(String searchQuery, int from, int size, FilterBuilder customFilter);
 }
