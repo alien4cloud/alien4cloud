@@ -1,35 +1,28 @@
 package alien4cloud.security;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
-import org.alien4cloud.alm.events.BeforeApplicationDeleted;
-import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
+import org.alien4cloud.alm.events.AfterPermissionRevokedEvent;
+import org.alien4cloud.alm.events.BeforePermissionRevokedEvent;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.security.event.GroupDeletedEvent;
-import alien4cloud.security.event.UserDeletedEvent;
 import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.model.Group;
 import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
-import alien4cloud.utils.TypeScanner;
 
 /**
  * Service managing permissions to resources
@@ -44,6 +37,9 @@ public class ResourcePermissionService {
 
     @Resource
     private IAlienGroupDao alienGroupDao;
+
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     /**
      * Add admin permission to the given resource for the given subject.
@@ -64,8 +60,14 @@ public class ResourcePermissionService {
      * @param subjects the subjects from which the permissions are revoked
      */
     public void revokePermission(ISecurityEnabledResource resource, Subject subjectType, String... subjects) {
+        publisher.publishEvent(new BeforePermissionRevokedEvent(this, new BeforePermissionRevokedEvent.OnResource(resource.getClass(), resource.getId()),
+                subjectType, subjects));
+
         Arrays.stream(subjects).forEach(subject -> resource.removePermissions(subjectType, subject, Sets.newHashSet(Permission.ADMIN)));
         alienDAO.save(resource);
+
+        publisher.publishEvent(new AfterPermissionRevokedEvent(this, new BeforePermissionRevokedEvent.OnResource(resource.getClass(), resource.getId()),
+                subjectType, subjects));
     }
 
     /**
@@ -135,62 +137,6 @@ public class ResourcePermissionService {
             groupDTOS.addAll(groups);
         }
         return groupDTOS;
-    }
-
-
-    private interface ResourcePermissionCleaner {
-        void cleanPermission(AbstractSecurityEnabledResource resource, String subjectId);
-    }
-
-    private void deletePermissions(FilterBuilder appFilter, String ownerId, ResourcePermissionCleaner permissionCleaner)
-            throws IOException, ClassNotFoundException {
-        int from = 0;
-        long totalResult;
-
-        Set<Class<?>> classes = TypeScanner.scanTypes("alien4cloud.model", AbstractSecurityEnabledResource.class);
-        Set<String> indices = classes.stream().map(clazz -> alienDAO.getIndexForType(clazz)).collect(Collectors.toSet());
-        do {
-            GetMultipleDataResult<Object> result = alienDAO.search(indices.toArray(new String[indices.size()]), classes.toArray(new Class<?>[classes.size()]),
-                    null, null, appFilter, null, from, 20);
-            Arrays.stream(result.getData()).forEach(resource -> permissionCleaner.cleanPermission((AbstractSecurityEnabledResource) resource, ownerId));
-            from += result.getData().length;
-            totalResult = result.getTotalResults();
-        } while (from < totalResult);
-    }
-
-    /*******************************************************************************************************************************
-     *
-     * EVENT LISTENERS
-     *
-     *******************************************************************************************************************************/
-
-    @EventListener
-    public void userDeletedEventListener(UserDeletedEvent event) throws IOException, ClassNotFoundException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("userPermissions",
-                FilterBuilders.termFilter("userPermissions.key", event.getUser().getUsername()));
-        deletePermissions(resourceFilter, event.getUser().getUsername(), ((resource, subjectId) -> revokePermission(resource, Subject.USER, subjectId)));
-    }
-
-    @EventListener
-    public void groupDeletedEventListener(GroupDeletedEvent event) throws IOException, ClassNotFoundException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("groupPermissions",
-                FilterBuilders.termFilter("groupPermissions.key", event.getGroup().getId()));
-        deletePermissions(resourceFilter, event.getGroup().getId(), ((resource, subjectId) -> revokePermission(resource, Subject.GROUP, subjectId)));
-    }
-
-    @EventListener
-    public void applicationDeletedEventListener(BeforeApplicationDeleted event) throws IOException, ClassNotFoundException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("applicationPermissions",
-                FilterBuilders.termFilter("applicationPermissions.key", event.getApplicationId()));
-        deletePermissions(resourceFilter, event.getApplicationId(), ((resource, subjectId) -> revokePermission(resource, Subject.APPLICATION, subjectId)));
-    }
-
-    @EventListener
-    public void environmentDeletedEventListener(BeforeApplicationEnvironmentDeleted event) throws IOException, ClassNotFoundException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("environmentPermissions",
-                FilterBuilders.termFilter("environmentPermissions.key", event.getApplicationEnvironmentId()));
-        deletePermissions(resourceFilter, event.getApplicationEnvironmentId(),
-                ((resource, subjectId) -> revokePermission(resource, Subject.ENVIRONMENT, subjectId)));
     }
 
 }

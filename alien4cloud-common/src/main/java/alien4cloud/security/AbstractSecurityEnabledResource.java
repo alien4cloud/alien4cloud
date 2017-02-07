@@ -14,9 +14,6 @@ import org.elasticsearch.annotation.query.TermFilter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import alien4cloud.security.ISecurityEnabledResource;
-import alien4cloud.security.Permission;
-import alien4cloud.security.Subject;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
@@ -27,7 +24,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AbstractSecurityEnabledResource implements ISecurityEnabledResource {
+public abstract class AbstractSecurityEnabledResource implements ISecurityEnabledResource {
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
