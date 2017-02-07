@@ -330,24 +330,30 @@ public class LocationSecurityController {
     @ApiOperation(value = "List all groups authorized to access the location", notes = "Only user with ADMIN role can list authorized applications/environments to the location.")
     @RequestMapping(value = "/applications/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<GetMultipleDataResult<Application>> getAuthorizedEnvironmentsPerApplicationPaginated(@PathVariable String orchestratorId, @PathVariable String locationId,
+    public RestResponse<GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplicationPaginated(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                                       @RequestParam(required = false, defaultValue = "false") boolean connectedOnly,
                                                                                       @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
                                                                                       @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        Set<String> allApplicationIds = Sets.newHashSet();
+        List<Application> applicationsRelatedToEnvironment = Lists.newArrayList();
+        List<ApplicationEnvironment> environments = Lists.newArrayList();
+        List<Application> applications = Lists.newArrayList();
+
+        // we get all authorized applications and environment to not favor the one of them
         if (location.getEnvironmentPermissions() != null && location.getEnvironmentPermissions().size() > 0) {
-            List<ApplicationEnvironment> environments = alienDAO.findByIds(ApplicationEnvironment.class, location.getEnvironmentPermissions().keySet().toArray(new String[location.getEnvironmentPermissions().size()]));
-            allApplicationIds.addAll(environments.stream().map(ae -> new String(ae.getApplicationId())).collect(Collectors.toSet()));
+            environments = alienDAO.findByIds(ApplicationEnvironment.class, location.getEnvironmentPermissions().keySet().toArray(new String[location.getEnvironmentPermissions().size()]));
+            Set<String> environmentApplicationIds = environments.stream().map(ae -> new String(ae.getApplicationId())).collect(Collectors.toSet());
+            applicationsRelatedToEnvironment = alienDAO.findByIds(Application.class, environmentApplicationIds.toArray(new String[environmentApplicationIds.size()]));
         }
         if (location.getApplicationPermissions() != null && location.getApplicationPermissions().size() > 0) {
-            allApplicationIds.addAll(location.getApplicationPermissions().keySet());
+            applications = alienDAO.findByIds(Application.class, location.getApplicationPermissions().keySet().toArray(new String[location.getApplicationPermissions().size()]));
         }
-        int to = (from + size < allApplicationIds.size()) ? from + size : allApplicationIds.size();
-        List<String> ids = Lists.newArrayList(allApplicationIds);
-        ids = IntStream.range(from, to).mapToObj(ids::get).collect(Collectors.toList());
+        List<ApplicationEnvironmentAuthorizationDTO> allDTOs = ApplicationEnvironmentAuthorizationDTO.buildDTOs(applicationsRelatedToEnvironment, environments, applications);
+        int to = (from + size < allDTOs.size()) ? from + size : allDTOs.size();
+        allDTOs = IntStream.range(from, to).mapToObj(allDTOs::get).collect(Collectors.toList());
+        List<String> ids = allDTOs.stream().map(appEnvDTO -> appEnvDTO.getApplication().getId()).collect(Collectors.toList());
         IdsFilterBuilder idFilters = FilterBuilders.idsFilter().ids(ids.toArray(new String[ids.size()]));
         GetMultipleDataResult<Application> tempResult = alienDAO.search(Application.class, null, null,  idFilters, null, from,  to,  "id",  false);
-        return RestResponseBuilder.<GetMultipleDataResult<Application>> builder().data(tempResult).build();
+        return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO>> builder().data(ApplicationEnvironmentAuthorizationDTO.convert(tempResult, allDTOs)).build();
     }
 }
