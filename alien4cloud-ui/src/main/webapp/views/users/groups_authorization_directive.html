@@ -40,9 +40,7 @@
             <td>{{group.name || '---' }}</td>
             <td>{{group.email || '---' }}</td>
             <td>
-              <button class="pull-left btn btn-xs btn-danger" ng-click="revoke(group)">
-                <i class="fa fa-trash"></i>
-              </button>
+              <delete-confirm id="btn-revoke-{{group.name}}" func="revoke(group)" position="left" bssize="btn-xs" fastyle="fa-trash-o"></delete-confirm>
             </td>
           </tr>
           </tbody>

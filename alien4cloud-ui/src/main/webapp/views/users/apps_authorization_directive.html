@@ -47,9 +47,7 @@
               </button>
             </td>
             <td>
-              <button class="pull-left btn btn-xs btn-danger" ng-click="revoke(application)">
-                <i class="fa fa-trash"></i>
-              </button>
+              <delete-confirm id="btn-revoke-{{application.application.name}}" func="revoke(application)" position="left" bssize="btn-xs" fastyle="fa-trash-o"></delete-confirm>
             </td>
           </tr>
           </tbody>
