@@ -39,7 +39,7 @@ public class JSonMapEntryArrayDeSerializer extends StdDeserializer<Map<?, ?>> im
     @Override
     public Map<?, ?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         // deserialize the map from array of map entries
-        Map<Object, Object> map = Maps.newHashMap();
+        Map<Object, Object> map = Maps.newLinkedHashMap();
         JavaType mapEntryType = TypeFactory.defaultInstance().constructSimpleType(MapEntry.class, new JavaType[] { keyType, valueType });
         JavaType mapEntryArrayType = TypeFactory.defaultInstance().constructArrayType(mapEntryType);
         ObjectCodec codec = jp.getCodec();
