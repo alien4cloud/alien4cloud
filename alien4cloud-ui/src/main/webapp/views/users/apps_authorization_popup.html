@@ -45,7 +45,7 @@
               </tr>
               </thead>
               <tbody>
-                <!-- TODO: refactor the two next tr -->
+              <!-- Display all Applications -->
               <tr ng-repeat="app in appsData.data" ng-init="isEnvironmentsCollapsed = !editionMode" ng-if="!appsData.data[0].application">
                 <td class="text-center">
                   <a ng-click="toggleApplicationSelection(app)" href="" ng-if="getApplicationSelectionStatus(app) != 1">
@@ -74,14 +74,16 @@
                   </div>
                 </td>
               </tr>
+              <!-- Display all applicationEnvironmentDTOs -->
               <tr ng-repeat="app in appsData.data" ng-init="isEnvironmentsCollapsed = !editionMode" ng-if="appsData.data[0].application">
                 <td class="text-center">
-                  <a ng-click="toggleApplicationSelection(app.application)" href="" ng-if="getApplicationSelectionStatus(app.application) != 1">
+                  <a ng-click="toggleApplicationSelection(app.application)" href="" ng-if="getApplicationSelectionStatus(app.application) != 1 && !app.environments">
                     <i class="fa"
                        ng-init="selectionStatus = getApplicationSelectionStatus(app.application)"
                        ng-class="{'fa-check-square-o' : getApplicationSelectionStatus(app.application) == 2, 'fa-minus-square-o': getApplicationSelectionStatus(app.application) == 1, 'fa-square-o': getApplicationSelectionStatus(app.application) == 0}"></i>
                   </a>
-                  <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(app.application) == 1"></i>
+                  <i class="fa fa-square-o text-muted" ng-if="app.environments"></i>
+                  <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(app.application) == 1 && !app.environments"></i>
                 </td>
                 <td>{{ app.application.name }}</td>
                 <td ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; expandEnvironments(app.application, isEnvironmentsCollapsed);" class="clickable">
@@ -89,6 +91,7 @@
                 </td>
                 <td>
                   <div ng-if="!isEnvironmentsCollapsed">
+                    <!-- Display environments from the applicationEnvironmentDTOs -->
                     <div class="row" ng-repeat="env in app.environments"
                       <div class="col-md-12">
                         <a ng-click="toggleEnvironmentSelection(app.application, env)" href="" ng-if="getApplicationSelectionStatus(app.application) < 2">
@@ -99,6 +102,7 @@
                         {{ env.name }}
                       </div>
                     </div>
+                    <!-- Display all environments of an Application -->
                     <div class="row" ng-repeat="env in environments[app.application.id]">
                       <div class="col-md-12"  ng-if="!app.environments">
                         <a ng-click="toggleEnvironmentSelection(app.application, env)" href="" ng-if="getApplicationSelectionStatus(app.application) < 2">
