@@ -332,6 +332,7 @@ public class LocationSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplicationPaginated(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                                       @RequestParam(required = false, defaultValue = "false") boolean connectedOnly,
+                                                                                      @ApiParam(value = "Text Query to search.") @RequestParam(required = false) String query,
                                                                                       @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
                                                                                       @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
         Location location = locationService.getLocation(orchestratorId, locationId);
@@ -353,7 +354,7 @@ public class LocationSecurityController {
         allDTOs = IntStream.range(from, to).mapToObj(allDTOs::get).collect(Collectors.toList());
         List<String> ids = allDTOs.stream().map(appEnvDTO -> appEnvDTO.getApplication().getId()).collect(Collectors.toList());
         IdsFilterBuilder idFilters = FilterBuilders.idsFilter().ids(ids.toArray(new String[ids.size()]));
-        GetMultipleDataResult<Application> tempResult = alienDAO.search(Application.class, null, null,  idFilters, null, from,  to,  "id",  false);
+        GetMultipleDataResult<Application> tempResult = alienDAO.search(Application.class, query, null,  idFilters, null, from,  to,  "id",  false);
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO>> builder().data(ApplicationEnvironmentAuthorizationDTO.convert(tempResult, allDTOs)).build();
     }
 }
