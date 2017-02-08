@@ -29,13 +29,8 @@
               <thead>
               <tr>
                 <th class="text-center">
-                  <a ng-click="toggleSelectAll()" href="" class="btn">
-                    <i class="fa fa-fw"
-                       ng-class="{
-                         'fa-check-square-o' : selectedGroupsInCurrentPage.length >= groupsData.data.length ,
-                         'fa-square-o': selectedGroupsInCurrentPage.length == 0,
-                         'fa-minus-square-o': selectedGroupsInCurrentPage.length < groupsData.data.length && selectedGroupsInCurrentPage.length > 0
-                         }"></i>
+                  <a ng-click="toggleSelectAll()">
+                    <i class="fa fa-fw" ng-class="getSelectAllClass()"></i>
                   </a>
                 </th>
                 <th></th>
@@ -44,12 +39,13 @@
               </tr>
               </thead>
               <tbody>
-              <tr ng-repeat="group in groupsData.data">
+              <tr ng-repeat="group in groupsData.data" ng-init = "isAuthorized = isAuthorized(group)" ng-class="{'option-selected text-muted': isAuthorized}">
                 <td class="text-center">
-                  <a ng-click="toggleSelection(group)" href="" class="btn">
+                  <a ng-if = "!isAuthorized" ng-click="toggleSelection(group)">
                     <i class="fa fa-fw"
                        ng-class="{'fa-check-square-o' : isSelected(group),  'fa-square-o': !isSelected(group)}"></i>
                   </a>
+                  <i ng-if = "isAuthorized" class="fa fa-fw fa-check-square-o"></i>
                 </td>
                 <td>
                   <i class="fa fa-group fa-2x" ng-if="!group.imageId"></i>

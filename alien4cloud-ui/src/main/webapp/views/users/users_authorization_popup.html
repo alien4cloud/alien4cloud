@@ -29,13 +29,8 @@
               <thead>
               <tr>
                 <th class="text-center">
-                  <a ng-click="toggleSelectAll()" href="" class="btn">
-                    <i class="fa fa-fw"
-                       ng-class="{
-                         'fa-check-square-o' : selectedUsersInCurrentPage.length >= usersData.data.length ,
-                         'fa-square-o': selectedUsersInCurrentPage.length == 0,
-                         'fa-minus-square-o': selectedUsersInCurrentPage.length < usersData.data.length && selectedUsersInCurrentPage.length > 0
-                         }"></i>
+                  <a ng-click="toggleSelectAll()">
+                    <i class="fa fa-fw" ng-class="getSelectAllClass()"></i>
                   </a>
                 </th>
                 <th></th>
@@ -45,12 +40,13 @@
               </tr>
               </thead>
               <tbody>
-              <tr ng-repeat="user in usersData.data">
+              <tr ng-repeat="user in usersData.data" ng-init = "isAuthorized = isAuthorized(user)" ng-class="{'option-selected text-muted': isAuthorized}">
                 <td class="text-center">
-                  <a ng-click="toggleSelection(user)" href="" class="btn">
+                  <a ng-if = "!isAuthorized" ng-click="toggleSelection(user)">
                     <i class="fa fa-fw"
                        ng-class="{'fa-check-square-o' : isSelected(user),  'fa-square-o': !isSelected(user)}"></i>
                   </a>
+                  <i ng-if = "isAuthorized" class="fa fa-fw fa-check-square-o"></i>
                 </td>
                 <td>
                   <i class="fa fa-user fa-2x" ng-if="!user.imageId"></i>

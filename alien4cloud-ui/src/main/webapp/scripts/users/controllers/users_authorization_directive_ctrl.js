@@ -8,16 +8,14 @@ define(function (require) {
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
 
-  var NewUserAuthorizationController = ['$scope', '$uibModalInstance', 'searchServiceFactory', 'searchConfig',
-    function ($scope, $uibModalInstance, searchServiceFactory, searchConfig) {
+  var NewUserAuthorizationController = ['$scope', '$uibModalInstance', 'searchServiceFactory', 'searchConfig', 'authorizedUsers',
+    function ($scope, $uibModalInstance, searchServiceFactory, searchConfig, authorizedUsers) {
       $scope.batchSize = 5;
       $scope.selectedUsers = [];
       $scope.query = '';
 
       var indexOf = function (selectedUsers, user) {
-        return _.findIndex(selectedUsers, function (selectedUser) {
-          return selectedUser.username === user.username;
-        });
+        return _.findIndex(selectedUsers, {'username': user.username});
       };
 
       $scope.onSearchCompleted = function (searchResult) {
@@ -51,15 +49,18 @@ define(function (require) {
           $scope.selectedUsers.push(user);
         } else {
           $scope.selectedUsersInCurrentPage.splice(indexOfUserInSelected, 1);
-          _.remove($scope.selectedUsers, function (selectedUser) {
-            return selectedUser.username === user.username;
-          });
+          _.remove($scope.selectedUsers, {'username': user.username});
         }
       };
 
       $scope.isSelected = function (user) {
         return $scope.selectedUsersInCurrentPage.indexOf(user) >= 0;
       };
+
+      $scope.isAuthorized = function(user) {
+        return indexOf(authorizedUsers, user) >= 0;
+      };
+
 
       $scope.toggleSelectAll = function () {
         // Remove anyway all the elements of the current page from the selected list
@@ -70,7 +71,28 @@ define(function (require) {
           $scope.selectedUsersInCurrentPage = [];
         } else {
           $scope.selectedUsersInCurrentPage = $scope.usersData.data.slice();
+          //remove already authorized users
+          _.each(authorizedUsers, function(user){
+            _.remove($scope.selectedUsersInCurrentPage, {'username': user.username});
+          });
           $scope.selectedUsers = _.concat($scope.selectedUsers, $scope.selectedUsersInCurrentPage);
+        }
+
+      };
+
+      $scope.getSelectAllClass = function(){
+        var allCurrentPageUsernames = _.map($scope.usersData.data, 'username');
+        var allSelected = _.map(_.union(authorizedUsers, $scope.selectedUsersInCurrentPage), 'username');
+        var allSelectedInCurrentPage = _.intersection(allSelected, allCurrentPageUsernames);
+
+        if(_.isEmpty(allSelectedInCurrentPage)){
+          return 'fa-square-o';
+        } else if (_.every(allCurrentPageUsernames, function(username){
+          return _.includes(allSelectedInCurrentPage, username);
+        })) {
+          return 'fa-check-square-o';
+        }else {
+          return 'fa-minus-square-o';
         }
       };
 
@@ -102,7 +124,8 @@ define(function (require) {
           templateUrl: 'views/users/users_authorization_popup.html',
           controller: NewUserAuthorizationController,
           resolve:{
-            searchConfig:  $scope.buildSearchConfig()
+            searchConfig:  $scope.buildSearchConfig(),
+            authorizedUsers: function() { return $scope.authorizedUsers; }
           }
         });
 

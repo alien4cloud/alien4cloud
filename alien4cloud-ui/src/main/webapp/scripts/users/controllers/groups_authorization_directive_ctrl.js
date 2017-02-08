@@ -8,16 +8,14 @@ define(function (require) {
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
 
-  var NewGroupAuthorizationController = ['$scope', '$uibModalInstance', 'searchServiceFactory', 'searchConfig',
-    function ($scope, $uibModalInstance, searchServiceFactory, searchConfig) {
+  var NewGroupAuthorizationController = ['$scope', '$uibModalInstance', 'searchServiceFactory', 'searchConfig', 'authorizedGroups',
+    function ($scope, $uibModalInstance, searchServiceFactory, searchConfig, authorizedGroups) {
       $scope.batchSize = 5;
       $scope.selectedGroups = [];
       $scope.query = '';
 
       var indexOf = function (selectedGroups, group) {
-        return _.findIndex(selectedGroups, function (selectedGroup) {
-          return selectedGroup.id === group.id;
-        });
+        return _.findIndex(selectedGroups, {'id': group.id});
       };
 
       $scope.onSearchCompleted = function (searchResult) {
@@ -61,6 +59,10 @@ define(function (require) {
         return $scope.selectedGroupsInCurrentPage.indexOf(group) >= 0;
       };
 
+      $scope.isAuthorized = function(group) {
+        return indexOf(authorizedGroups, group) >= 0;
+      };
+
       $scope.toggleSelectAll = function () {
         // Remove anyway all the elements of the current page from the selected list
         $scope.selectedGroups = _.filter($scope.selectedGroups, function (selectedGroup) {
@@ -70,7 +72,27 @@ define(function (require) {
           $scope.selectedGroupsInCurrentPage = [];
         } else {
           $scope.selectedGroupsInCurrentPage = $scope.groupsData.data.slice();
+          //remove already authorized groups
+          _.each(authorizedGroups, function(group){
+            _.remove($scope.selectedGroupsInCurrentPage, {'id': group.id});
+          });
           $scope.selectedGroups = _.concat($scope.selectedGroups, $scope.selectedGroupsInCurrentPage);
+        }
+      };
+
+      $scope.getSelectAllClass = function(){
+        var allCurrentPageGroupIds = _.map($scope.groupsData.data, 'id');
+        var allSelected = _.map(_.union(authorizedGroups, $scope.selectedGroupsInCurrentPage), 'id');
+        var allSelectedInCurrentPage = _.intersection(allSelected, allCurrentPageGroupIds);
+
+        if(_.isEmpty(allSelectedInCurrentPage)){
+          return 'fa-square-o';
+        } else if (_.every(allCurrentPageGroupIds, function(id){
+          return _.includes(allSelectedInCurrentPage, id);
+        })) {
+          return 'fa-check-square-o';
+        }else {
+          return 'fa-minus-square-o';
         }
       };
 
@@ -99,7 +121,8 @@ define(function (require) {
           templateUrl: 'views/users/groups_authorization_popup.html',
           controller: NewGroupAuthorizationController,
           resolve:{
-            searchConfig:  $scope.buildSearchConfig()
+            searchConfig:  $scope.buildSearchConfig(),
+            authorizedGroups: function(){ return $scope.authorizedGroups; }
           }
         });
 
