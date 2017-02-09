@@ -33,6 +33,16 @@ public interface IToscaTypeSearchService extends ICSARRepositorySearchService {
     <T extends AbstractToscaType> T find(Class<T> elementType, String elementId, String version);
 
     /**
+     * Find an element based on it's type, id and version or throw a NotFoundException.
+     *
+     * @param elementType The element type.
+     * @param elementId The element id.
+     * @param version The element version (version of the archive that defines the element).
+     * @return Return the matching type or throw a NotFoundException
+     */
+    <T extends AbstractToscaType> T findOrFail(Class<T> elementType, String elementId, String version);
+
+    /**
      * Find the most recent element from a given id.
      *
      * @param elementType The element type.

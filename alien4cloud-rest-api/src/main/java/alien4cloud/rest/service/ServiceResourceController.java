@@ -18,13 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.model.SortedSearchRequest;
 import alien4cloud.rest.service.model.CreateServiceResourceRequest;
+import alien4cloud.rest.service.model.PatchServiceResourceRequest;
 import alien4cloud.rest.service.model.UpdateServiceResourceRequest;
 import alien4cloud.service.ServiceResourceService;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.RestConstraintValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -75,16 +81,40 @@ public class ServiceResourceController {
         return RestResponseBuilder.<ServiceResource> builder().data(serviceResource).build();
     }
 
-    @ApiOperation(value = "Update a service. Note: alien managed services (through application deployment) cannot be updated via API.", authorizations = {
+    @ApiOperation(value = "Update a service.", notes = "Alien managed services (through application deployment) cannot be updated via API.", authorizations = {
             @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> update(@ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
+    public RestResponse<ConstraintInformation> update(
+            @ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
             @ApiParam(value = "ServiceResource update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody UpdateServiceResourceRequest request) {
-        serviceResourceService.update(id, request.getName(), request.getVersion(), request.getDescription(), request.getNodeInstance(),
-                request.getLocationIds());
-        return RestResponseBuilder.<Void> builder().build();
+        try {
+            serviceResourceService.update(id, request.getName(), request.getVersion(), request.getDescription(), request.getNodeInstance().getType(),
+                    request.getNodeInstance().getTypeVersion(), request.getNodeInstance().getProperties(), request.getNodeInstance().getCapabilities(),
+                    request.getNodeInstance().getAttributeValues(), request.getLocationIds());
+            return RestResponseBuilder.<ConstraintInformation> builder().build();
+        } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
+            return RestConstraintValidator.fromException(e, e.getConstraintInformation().getName(), e.getConstraintInformation().getValue());
+        }
+    }
+
+    @ApiOperation(value = "Patch a service.", notes = "When the service is managed by alien (through application deployment) the only authorized patch are on location and authorizations.", authorizations = {
+            @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<ConstraintInformation> patch(
+            @ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
+            @ApiParam(value = "ServiceResource update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody PatchServiceResourceRequest request) {
+        try {
+            serviceResourceService.patch(id, request.getName(), request.getVersion(), request.getDescription(), request.getNodeInstance().getType(),
+                    request.getNodeInstance().getTypeVersion(), request.getNodeInstance().getProperties(), request.getNodeInstance().getCapabilities(),
+                    request.getNodeInstance().getAttributeValues(), request.getLocationIds());
+            return RestResponseBuilder.<ConstraintInformation> builder().build();
+        } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
+            return RestConstraintValidator.fromException(e, e.getConstraintInformation().getName(), e.getConstraintInformation().getValue());
+        }
     }
 
     @ApiOperation(value = "Delete a service. Note: alien managed services (through application deployment) cannot be deleted via API.", authorizations = {
@@ -92,9 +122,10 @@ public class ServiceResourceController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> delete(@ApiParam(value = "Id of the service to delete.", required = true) @PathVariable @Valid @NotEmpty String id) {
-        serviceResourceService.delete(id);
-        return RestResponseBuilder.<Void> builder().build();
+    public RestResponse<Deployment[]> delete(@ApiParam(value = "Id of the service to delete.", required = true) @PathVariable @Valid @NotEmpty String id) {
+        // FIXME throw a usage exception.
+        Deployment[] deployments = serviceResourceService.delete(id);
+        return RestResponseBuilder.<Deployment[]> builder().data(deployments).build();
     }
 
     @ApiOperation(value = "Search services.", authorizations = { @Authorization("ADMIN") })
@@ -105,26 +136,5 @@ public class ServiceResourceController {
         GetMultipleDataResult<ServiceResource> result = serviceResourceService.search(searchRequest.getQuery(), searchRequest.getFilters(),
                 searchRequest.getSortField(), searchRequest.isDesc(), searchRequest.getFrom(), searchRequest.getSize());
         return RestResponseBuilder.<GetMultipleDataResult<ServiceResource>> builder().data(result).build();
-    }
-
-    @ApiOperation(value = "Add these locationIds to the authorized list of locations for this service.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/adv/{id}/authorizeLocations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public RestResponse<String[]> authorizeLocations(
-            @ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
-            @ApiParam(value = "The ids of the locations to authorize for this service.", required = true) @Valid @NotEmpty @RequestBody String[] locationIds) {
-        String[] updatedLocations = serviceResourceService.addLocations(id, locationIds);
-        return RestResponseBuilder.<String[]> builder().data(updatedLocations).build();
-    }
-
-    @ApiOperation(value = "Remove these locationIds to the authorized list of locations for this service.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/adv/{id}/revokeLocations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public RestResponse<String[]> revokeLocations(@ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
-            @ApiParam(value = "The ids of the locations to revoke for this service.", required = true) @Valid @NotEmpty @RequestBody String[] locationIds) {
-        String[] updatedLocations = serviceResourceService.removeLocations(id, locationIds);
-        return RestResponseBuilder.<String[]> builder().data(updatedLocations).build();
     }
 }

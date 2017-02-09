@@ -2,7 +2,6 @@ package alien4cloud.service;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -11,12 +10,13 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.dao.IESQueryBuilderHelper;
-import org.alien4cloud.tosca.model.instances.NodeInstance;
+import alien4cloud.model.deployment.Deployment;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -24,7 +24,10 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.service.ServiceResource;
-import alien4cloud.tosca.context.ToscaContextual;
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
+import alien4cloud.rest.utils.PatchUtil;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
@@ -32,7 +35,7 @@ import alien4cloud.utils.version.Version;
 /**
  * Manages services.
  *
- * TODO: should be notified when a location is deleted in order to clean locationIds
+ * FIXME: should be notified when a location is deleted in order to clean locationIds
  */
 @Service
 public class ServiceResourceService {
@@ -40,6 +43,8 @@ public class ServiceResourceService {
     private IGenericSearchDAO alienDAO;
     @Inject
     private NodeInstanceService nodeInstanceService;
+    @Inject
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     /**
      * Creates a service.
@@ -57,7 +62,8 @@ public class ServiceResourceService {
         serviceResource.setCreationDate(new Date());
 
         // build a node instance from the given type
-        serviceResource.setNodeInstance(nodeInstanceService.create(serviceNodeType, serviceNodeVersion));
+        NodeType nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceNodeType, serviceNodeVersion);
+        serviceResource.setNodeInstance(nodeInstanceService.create(nodeType, serviceNodeVersion));
 
         // ensure uniqueness and save
         save(serviceResource, true);
@@ -112,109 +118,104 @@ public class ServiceResourceService {
 
     /**
      * Update a service resource.
-     * 
-     * @param resourceId The id of the service resource to update.
-     * @param name The optional new name of the service.
-     * @param version The optional new version of the service.
-     * @param description The optional new description of the service.
-     * @param nodeInstance The optional new nodeInstance of the service.
-     * @param locations The optional new locations of the service.
+     *
+     * @param resourceId The service resource id.
+     * @param name The new name of the service resource.
+     * @param version The new version of the service resource.
+     * @param description The description of the service resource.
+     * @param nodeType The new node type for the instance of the service resource.
+     * @param nodeTypeVersion The new node type version of the service resource.
+     * @param nodeProperties The new properties of the service resource.
+     * @param nodeCapabilities The new capabilies properties of the service resource.
+     * @param nodeAttributeValues The new attributes of the service resource.
+     * @param locations The new location for the service resource.
      */
-    public void update(String resourceId, String name, String version, String description, NodeInstance nodeInstance, String[] locations) {
-        ServiceResource serviceResource = getOrFail(resourceId);
+    public void update(String resourceId, String name, String version, String description, String nodeType, String nodeTypeVersion,
+            Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues,
+            String[] locations) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        update(resourceId, name, version, description, nodeType, nodeTypeVersion, nodeProperties, nodeCapabilities, nodeAttributeValues, locations, false);
+    }
 
-        // if we don't update neither the name and version then there is no need for uniqueness check.
+    /**
+     * Patch a service resource.
+     *
+     * @param resourceId The service resource id.
+     * @param name The new name of the service resource.
+     * @param version The new version of the service resource.
+     * @param description The description of the service resource.
+     * @param nodeType The new node type for the instance of the service resource.
+     * @param nodeTypeVersion The new node type version of the service resource.
+     * @param nodeProperties The new properties of the service resource.
+     * @param nodeCapabilities The new capabilies properties of the service resource.
+     * @param nodeAttributeValues The new attributes of the service resource.
+     * @param locations The new location for the service resource.
+     */
+    public void patch(String resourceId, String name, String version, String description, String nodeType, String nodeTypeVersion,
+            Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues,
+            String[] locations) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        update(resourceId, name, version, description, nodeType, nodeTypeVersion, nodeProperties, nodeCapabilities, nodeAttributeValues, locations, true);
+    }
+
+    private void update(String resourceId, String name, String version, String description, String nodeTypeStr, String nodeTypeVersion,
+            Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues,
+            String[] locations, boolean patch) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        ServiceResource serviceResource = getOrFail(resourceId);
+        failUpdateIfManaged(serviceResource);
+
         boolean ensureUniqueness = false;
-        if (name != null && !serviceResource.getName().equals(name)) {
-            failUpdateIfManaged(serviceResource);
-            serviceResource.setName(name);
-            ensureUniqueness = true;
-        }
-        if (version != null && !serviceResource.getVersion().equals(version)) {
-            failUpdateIfManaged(serviceResource);
-            serviceResource.setVersion(version);
-            ensureUniqueness = true;
+        // Check if we try to update a running service.
+        if (!ToscaNodeLifecycleConstants.INITIAL.equals(serviceResource.getNodeInstance().getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE))) {
+            // Update operation is not allowed for running services.
+            // Patch operation is allowed only on the service description or locations authorized for matching.
+            if (!patch || name != null || version != null || nodeTypeStr != null || nodeTypeVersion != null || nodeProperties != null
+                    || nodeCapabilities != null || nodeAttributeValues != null) {
+                throw new AuthorizationServiceException(
+                        "Update is not allowed on a running service, please use patch if you wish to change locations or authorizations.");
+            }
         } else {
-            // FIXME actually do we authorize to update version and type ? Only when not used ? Or should we let the user delete and create a new service ? Or
-            // only when the state is initial ?
-            // if the version has not changed it is not authorized to change the node instance type.
-            if (nodeInstance != null && nodeInstance.getNodeTemplate() != null
-                    && !serviceResource.getNodeInstance().getNodeTemplate().getType().equals(nodeInstance.getNodeTemplate().getType())) {
-                throw new IllegalArgumentException("Update request cannot change the node's type if version is not changed.");
+            ensureUniqueness = PatchUtil.set(serviceResource, "name", name, patch);
+            ensureUniqueness = ensureUniqueness || PatchUtil.set(serviceResource, "version", version, patch);
+
+            // node instance type update
+            PatchUtil.set(serviceResource.getNodeInstance().getNodeTemplate(), "type", nodeTypeStr, patch);
+            PatchUtil.set(serviceResource.getNodeInstance(), "typeVersion", nodeTypeVersion, patch);
+
+            // Node instance properties update
+            NodeType nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
+                    serviceResource.getNodeInstance().getTypeVersion());
+            if (patch) {
+                nodeInstanceService.patch(nodeType, serviceResource.getNodeInstance(), nodeProperties, nodeCapabilities, nodeAttributeValues);
+            } else {
+                serviceResource.getNodeInstance().getNodeTemplate().setProperties(nodeProperties);
+                serviceResource.getNodeInstance().getNodeTemplate().setCapabilities(nodeCapabilities);
+                serviceResource.getNodeInstance().setAttributeValues(nodeAttributeValues);
+                nodeInstanceService.validate(nodeType, serviceResource.getNodeInstance());
             }
         }
-        if (description != null) {
-            failUpdateIfManaged(serviceResource);
-            serviceResource.setDescription(description);
-        }
-        if (nodeInstance != null) {
-            failUpdateIfManaged(serviceResource);
-            // FIXME perform validation of the node instance.
-            nodeInstanceService.validate(nodeInstance);
-            serviceResource.setNodeInstance(nodeInstance);
-        }
-        if (locations != null) {
-            // Update the list of locations and ensure that every defined id actually exists.
-            Set<String> previousLocations = CollectionUtils.safeNewHashSet(serviceResource.getLocationIds());
-            for (String locationId : locations) {
-                if (!previousLocations.contains(locationId) && !alienDAO.exist(Location.class, locationId)) {
-                    throw new NotFoundException("Location with id <" + locationId + "> does not exist.");
-                }
-            }
-            serviceResource.setLocationIds(locations);
-        }
+
+        // description, authorized locations and authorizations can be updated even when deployed.
+        // Note that changing the locations or authorizations won't impact already deployed applications using the service
+        PatchUtil.set(serviceResource, "description", description, patch);
+        updateLocations(serviceResource, locations);
 
         save(serviceResource, ensureUniqueness);
+    }
+
+    private void updateLocations(ServiceResource serviceResource, String[] locations) {
+        // Check what elements have changed.
+        Set<String> previousLocations = CollectionUtils.safeNewHashSet(serviceResource.getLocationIds());
+        for (String locationId : locations) {
+            if (!previousLocations.contains(locationId) && !alienDAO.exist(Location.class, locationId)) {
+                throw new NotFoundException("Location with id <" + locationId + "> does not exist.");
+            }
+        }
+        serviceResource.setLocationIds(locations);
     }
 
     private void failUpdateIfManaged(ServiceResource serviceResource) {
         if (serviceResource.getDeploymentId() != null) {
             throw new AuthorizationServiceException("Alien managed services cannot be updated via Service API.");
         }
-    }
-
-    /**
-     * Remove a list of locations on which the service is accessible for matching.
-     * 
-     * @param resourceId The id of the location.
-     * @param newLocationIds The ids of the locations to add.
-     * @return The location list after update.
-     */
-    public String[] addLocations(String resourceId, String[] newLocationIds) {
-        ServiceResource serviceResource = getOrFail(resourceId);
-        Set<String> updatedLocationIds = CollectionUtils.safeNewHashSet(serviceResource.getLocationIds());
-        for (String newLocationId : newLocationIds) {
-            if (!updatedLocationIds.contains(newLocationId)) {
-                // ensure location exist
-                if (!alienDAO.exist(Location.class, newLocationId)) {
-                    throw new NotFoundException("Location with id <" + newLocationId + "> does not exist.");
-                }
-                updatedLocationIds.add(newLocationId);
-            }
-        }
-        serviceResource.setLocationIds(updatedLocationIds.toArray(new String[updatedLocationIds.size()]));
-        save(serviceResource, false);
-        return serviceResource.getLocationIds();
-    }
-
-    /**
-     * Remove a list of locations for which the service is not accessible for matching anymore.
-     *
-     * @param resourceId The id of the location.
-     * @param revokedLocationIds The ids of the locations to remove.
-     * @return The location list after update.
-     */
-    public String[] removeLocations(String resourceId, String[] revokedLocationIds) {
-        ServiceResource serviceResource = getOrFail(resourceId);
-
-        String[] existingIds = serviceResource.getLocationIds();
-        if (existingIds != null && existingIds.length > 0) {
-            Set<String> updatedLocationIds = Sets.newHashSet(Arrays.asList(existingIds));
-            updatedLocationIds.removeAll(Arrays.asList(revokedLocationIds));
-            serviceResource.setLocationIds(updatedLocationIds.toArray(new String[updatedLocationIds.size()]));
-            save(serviceResource, false);
-        }
-        return serviceResource.getLocationIds();
     }
 
     /**
@@ -244,8 +245,14 @@ public class ServiceResourceService {
      * 
      * @param id The id of the service resource.
      */
-    public synchronized void delete(String id) {
+    public synchronized Deployment[] delete(String id) {
         // FIXME check usage
+        GetMultipleDataResult<Deployment> usageResult = alienDAO.buildQuery(Deployment.class)
+                .setFilters(fromKeyValueCouples("endDate", null, "serviceResourceIds", id)).prepareSearch().search(0, Integer.MAX_VALUE);
+        if (usageResult.getTotalResults() > 0) {
+            return usageResult.getData();
+        }
         alienDAO.delete(ServiceResource.class, id);
+        return null;
     }
 }

@@ -19,7 +19,7 @@ import com.google.common.collect.Maps;
 /**
  * Manages polymorphism deserialization for Jackson through discriminator field (based on field exists).
  */
-public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserializer<T> {
+public abstract class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserializer<T> {
     private Map<String, Map<String, Class<? extends T>>> registry = Maps.newHashMap();
     private Class<? extends T> valueStringClass = null;
 
@@ -59,8 +59,9 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
                 Constructor constructor = this.valueStringClass.getConstructor(String.class);
                 return (T) constructor.newInstance(parameter);
             } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                throw new JsonParseException("Failed to create instance of <" + this.valueStringClass.getName() + "> from constructor using string parameter <"
-                        + parameter + ">", jp.getCurrentLocation(), e);
+                throw new JsonParseException(
+                        "Failed to create instance of <" + this.valueStringClass.getName() + "> from constructor using string parameter <" + parameter + ">",
+                        jp.getCurrentLocation(), e);
             }
         }
         ObjectNode root = mapper.readTree(jp);
@@ -87,4 +88,6 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
         }
         return mapper.treeToValue(root, parameterClass);
     }
+
+    // protected abstract T nullInstance();
 }

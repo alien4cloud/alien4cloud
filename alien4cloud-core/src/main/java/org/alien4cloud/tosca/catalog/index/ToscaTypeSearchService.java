@@ -59,6 +59,15 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
     }
 
     @Override
+    public <T extends AbstractToscaType> T findOrFail(Class<T> elementType, String elementId, String version) {
+        T type = find(elementType, elementId, version);
+        if (type == null) {
+            throw new NotFoundException(String.format("[%s] [%s] does not exists with version [%s].", elementType.getSimpleName(), elementId, version));
+        }
+        return type;
+    }
+
+    @Override
     public <T extends AbstractToscaType> T findMostRecent(Class<T> elementType, String elementId) {
         return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("rawElementId", elementId)).prepareSearch()
                 .alterSearchRequestBuilder(
