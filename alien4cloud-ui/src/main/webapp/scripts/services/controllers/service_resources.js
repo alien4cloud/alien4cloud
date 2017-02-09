@@ -27,6 +27,8 @@ define(function (require) {
     ['$scope', '$uibModal', '$alresource', 'searchServiceFactory', 'resizeServices',
     function($scope, $uibModal, $alresource, searchServiceFactory, resizeServices) {
       const serviceResourceService = $alresource('rest/latest/services/:serviceId');
+      const orchestratorsService = $alresource('rest/latest/orchestrators/:id');
+      const locationsService = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:id');
       const typeWithDependenciesService = $alresource('rest/latest/catalog/types/adv/typewithdependencies/:typeId/:typeVersion');
 
       $scope.dimensions = { width: 800, height: 500 };
@@ -34,6 +36,23 @@ define(function (require) {
         $scope.dimensions = { width: width, height: height };
         $scope.$digest();
       }, '#catalog-container');
+
+      $scope.locations = [];
+      // Fetch all orchestrators and locations for display
+      orchestratorsService.get({}, null, function(orchestratorResult){
+        if(_.undefined(orchestratorResult.data) || _.undefined(orchestratorResult.data.data)) { return; }
+        _.each(orchestratorResult.data.data, function(orchestrator){
+          locationsService.get({
+            orchestratorId: orchestrator.id
+          }, null, function(locationResult){
+            if(_.undefined(locationResult.data)) { return; }
+            _.each(locationResult.data, function(location) {
+              location.location.orchestratorName = orchestrator.name;
+              $scope.locations.push(location.location);
+            });
+          });
+        });
+      });
 
       $scope.query = '';
       // onSearchCompleted is used as a callaback for the searchServiceFactory and triggered when the search operation is completed.
@@ -69,21 +88,61 @@ define(function (require) {
         });
       };
 
+      function setSelectedTypesToScope() {
+        $scope.selectedNodeType = $scope.selectedService.uiNodeType;
+        $scope.selectedCapabilityTypes = $scope.selectedService.uiCapabilityTypes;
+        $scope.selectedDependencies = $scope.selectedService.uiDependencies;
+      }
+
       $scope.selectService = function(service) {
         $scope.selectedService = service;
-        delete $scope.nodeType;
+        delete $scope.selectedNodeType;
 
         // We have to fetch the node type, the dependencies, and the related capabilities
         if(_.defined(service)) {
-          typeWithDependenciesService.get({
-            typeId: service.nodeInstance.nodeTemplate.type,
-            typeVersion: service.nodeInstance.typeVersion
-          }, null, function(result){
-            $scope.selectedNodeType = result.data.toscaType;
-            $scope.selectedCapabilityTypes = result.data.capabilityTypes;
-            $scope.selectedDependencies = result.data.dependencies;
-          });
+          if(_.undefined(service.uiNodeType)) {
+            typeWithDependenciesService.get({
+              typeId: service.nodeInstance.nodeTemplate.type,
+              typeVersion: service.nodeInstance.typeVersion
+            }, null, function(result) {
+              $scope.selectedService.uiNodeType = result.data.toscaType;
+              $scope.selectedService.uiCapabilityTypes = result.data.capabilityTypes;
+              $scope.selectedService.uiDependencies = result.data.dependencies;
+              setSelectedTypesToScope();
+            });
+          } else {
+            setSelectedTypesToScope();
+          }
         }
+      };
+
+      $scope.isLocAuthorized = function(targetLocation) {
+        if(_.undefined($scope.selectedService) || _.undefined($scope.selectedService.locationIds)) {
+          return false;
+        }
+        return $scope.selectedService.locationIds.indexOf(targetLocation.id) !== -1;
+      };
+
+      $scope.toggleLoc = function(targetLocation) {
+        if(_.undefined($scope.selectedService)) {
+          return; // should not be able to trigger this.
+        }
+        if(_.undefined($scope.selectedService.locationIds)) {
+          $scope.selectedService.locationIds = [];
+        }
+        var add = $scope.selectedService.locationIds.indexOf(targetLocation.id) === -1;
+        var updatedLocations;
+        if(add) {
+          updatedLocations = _.concat($scope.selectedService.locationIds, [targetLocation.id]);
+        } else {
+          updatedLocations = _.without($scope.selectedService.locationIds, targetLocation.id);
+        }
+
+        return serviceResourceService.patch({
+          serviceId: $scope.selectedService.id
+        }, angular.toJson({locationIds: updatedLocations}), function(){
+          $scope.selectedService.locationIds = updatedLocations;
+        });
       };
 
       $scope.isPropertyEditable = function() { return true; };
