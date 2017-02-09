@@ -24,6 +24,9 @@ define(function(require) {
           listToMapService.process(nodeTemplate, 'properties');
           listToMapService.process(nodeTemplate, 'requirements');
           listToMapService.process(nodeTemplate, 'capabilities');
+          _.each(nodeTemplate.capabilitiesMap, function(capabilityEntry){
+            listToMapService.process(capabilityEntry.value, 'properties');
+          });
         }
       },
 

@@ -89,28 +89,25 @@ define(function (require) {
       $scope.isPropertyEditable = function() { return true; };
 
       $scope.updateProperty= function(propertyName, propertyValue) {
-        console.log('property update', propertyName, propertyValue);
-
-        var updateRequest = {nodeInstance: {nodeTemplate: {properties:{}}}};
-        updateRequest.nodeInstance.nodeTemplate.properties[propertyName] = propertyValue;
-        return serviceResourceService.update({
+        var updateRequest = { nodeInstance: { properties:{} } };
+        updateRequest.nodeInstance.properties[propertyName] = propertyValue;
+        return serviceResourceService.patch({
           serviceId: $scope.selectedService.id
         }, angular.toJson(updateRequest)).$promise;
       };
 
       $scope.updateCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
-        console.log('update capability property', capabilityName, propertyName, propertyValue);
-        var updateRequest = {nodeInstance: {nodeTemplate: {capabilities:{}}}};
-        updateRequest.nodeInstance.nodeTemplate.capabilities[capabilityName] = {properties:{}};
-        updateRequest.nodeInstance.nodeTemplate.capabilities[capabilityName].properties[propertyName] = propertyValue;
-        return serviceResourceService.update({
+        var updateRequest = { nodeInstance: { capabilities:{} } };
+        updateRequest.nodeInstance.capabilities[capabilityName] = {properties:{}};
+        updateRequest.nodeInstance.capabilities[capabilityName].properties[propertyName] = propertyValue;
+        return serviceResourceService.patch({
           serviceId: $scope.selectedService.id
         }, angular.toJson(updateRequest)).$promise;
       };
 
       $scope.update = function(updateRequest) {
         // This may be triggered by editable form so it must return the promise.
-        return serviceResourceService.update({
+        return serviceResourceService.patch({
           serviceId: $scope.selectedService.id
         }, angular.toJson(updateRequest)).$promise;
       };

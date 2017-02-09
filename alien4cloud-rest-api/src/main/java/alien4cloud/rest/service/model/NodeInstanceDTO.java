@@ -36,13 +36,12 @@ public class NodeInstanceDTO {
 
     @ApiModelProperty(value = "Map of property values that must match the properties defined in the instance type.")
     @ConditionalOnAttribute(ConditionalAttributes.REST)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = PropertyValueDeserializer.class)
+    @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, AbstractPropertyValue> properties;
 
     @ApiModelProperty(value = "Map of capability that contains the values of the properties as defined in the instance type.")
     @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES_1_2 })
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @NotNull
     private Map<String, Capability> capabilities;

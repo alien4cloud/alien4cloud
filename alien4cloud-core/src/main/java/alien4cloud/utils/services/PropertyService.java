@@ -11,6 +11,7 @@ import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -41,7 +42,9 @@ public class PropertyService {
         }
 
         constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
-        if (propertyValue instanceof String) {
+        if (propertyValue instanceof PropertyValue) {
+            properties.put(propertyName, (T) propertyValue);
+        } else if (propertyValue instanceof String) {
             properties.put(propertyName, (T) new ScalarPropertyValue((String) propertyValue));
         } else if (propertyValue instanceof Map) {
             properties.put(propertyName, (T) new ComplexPropertyValue((Map<String, Object>) propertyValue));

@@ -37,11 +37,15 @@ public final class PatchUtil {
             if (patch) {
             }
             field.setAccessible(true);
-            field.set(instance, value);
+            Object previousValue = field.get(instance);
+            boolean update = previousValue == null ? value != null : !previousValue.equals(value);
+            if (update) {
+                field.set(instance, value);
+            }
+            return update;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new IllegalArgumentException("Unable to patch field <" + fieldName + ">");
         }
-        return true;
     }
 
     /**

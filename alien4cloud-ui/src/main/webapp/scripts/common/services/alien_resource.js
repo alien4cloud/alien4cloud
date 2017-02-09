@@ -27,6 +27,11 @@ define(function (require) {
             isArray: false,
             headers: headers
           },
+          'patch': {
+            method: 'PATCH',
+            isArray: false,
+            headers: headers
+          },
           'remove': {
             method: 'DELETE',
             isArray: false,

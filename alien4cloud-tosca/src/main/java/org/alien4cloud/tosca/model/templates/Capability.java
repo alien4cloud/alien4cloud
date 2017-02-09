@@ -34,7 +34,7 @@ public class Capability {
      */
     @ObjectField(enabled = false)
     @ConditionalOnAttribute(ConditionalAttributes.REST)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = PropertyValueDeserializer.class)
+    @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, AbstractPropertyValue> properties;
 }

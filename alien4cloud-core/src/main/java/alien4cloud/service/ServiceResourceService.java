@@ -202,6 +202,9 @@ public class ServiceResourceService {
     }
 
     private void updateLocations(ServiceResource serviceResource, String[] locations) {
+        if (locations == null) {
+            return;
+        }
         // Check what elements have changed.
         Set<String> previousLocations = CollectionUtils.safeNewHashSet(serviceResource.getLocationIds());
         for (String locationId : locations) {

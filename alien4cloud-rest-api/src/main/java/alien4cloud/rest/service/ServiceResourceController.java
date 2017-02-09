@@ -3,6 +3,8 @@ package alien4cloud.rest.service;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,6 +38,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Map;
 
 /**
  * Controller to access services.
@@ -108,9 +112,14 @@ public class ServiceResourceController {
             @ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
             @ApiParam(value = "ServiceResource update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody PatchServiceResourceRequest request) {
         try {
-            serviceResourceService.patch(id, request.getName(), request.getVersion(), request.getDescription(), request.getNodeInstance().getType(),
-                    request.getNodeInstance().getTypeVersion(), request.getNodeInstance().getProperties(), request.getNodeInstance().getCapabilities(),
-                    request.getNodeInstance().getAttributeValues(), request.getLocationIds());
+            String nodeType = request.getNodeInstance() == null ? null : request.getNodeInstance().getType();
+            String nodeTypeVersion = request.getNodeInstance() == null ? null : request.getNodeInstance().getTypeVersion();
+            Map<String, AbstractPropertyValue> nodeProperties = request.getNodeInstance() == null ? null : request.getNodeInstance().getProperties();
+            Map<String, Capability> nodeCapabilities = request.getNodeInstance() == null ? null : request.getNodeInstance().getCapabilities();
+            Map<String, String> nodeAttributeValues = request.getNodeInstance() == null ? null : request.getNodeInstance().getAttributeValues();
+
+            serviceResourceService.patch(id, request.getName(), request.getVersion(), request.getDescription(), nodeType, nodeTypeVersion, nodeProperties,
+                    nodeCapabilities, nodeAttributeValues, request.getLocationIds());
             return RestResponseBuilder.<ConstraintInformation> builder().build();
         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
             return RestConstraintValidator.fromException(e, e.getConstraintInformation().getName(), e.getConstraintInformation().getValue());
