@@ -2,6 +2,7 @@ package alien4cloud.security.users;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.elasticsearch.index.query.FilterBuilder;
 
@@ -60,14 +61,13 @@ public class InMemoryUserDao implements IAlienUserDao {
 
     @Override
     public List<User> find(String... usernames) {
-        // TODO Auto-generated method stub
-        return null;
+       return userMap.keySet().stream().map(userName -> userMap.get(userName)).collect(Collectors.toList());
     }
 
     @Override
     public GetMultipleDataResult<User> find(String searchQuery, int from, int size, FilterBuilder customFilter) {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO: add support of FilterBuilder
+        return search(searchQuery, null, from, size);
     }
 
 }
