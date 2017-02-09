@@ -2,7 +2,6 @@ package alien4cloud.rest.orchestrator;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -102,7 +100,10 @@ public class LocationResourcesSecurityController {
         Location location = locationService.getLocation(orchestratorId, locationId);
         checkAuthorization(location, Subject.USER, userNames);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        resourcePermissionService.grantPermission(resourceTemplate, Subject.USER, userNames);
+        // prefer using locationResourceService.saveResource so that the location update date is update.
+        // This will then trigger a deployment topology update
+        resourcePermissionService.grantPermission(resourceTemplate,
+                (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.USER, userNames);
         List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
         return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
@@ -121,7 +122,8 @@ public class LocationResourcesSecurityController {
     public synchronized RestResponse<List<UserDTO>> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                   @PathVariable String resourceId, @PathVariable String username) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        resourcePermissionService.revokePermission(resourceTemplate, Subject.USER, username);
+        resourcePermissionService.revokePermission(resourceTemplate, (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)),
+                Subject.USER, username);
         List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
         return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
@@ -163,7 +165,8 @@ public class LocationResourcesSecurityController {
         Location location = locationService.getLocation(orchestratorId, locationId);
         checkAuthorization(location, Subject.GROUP, groupIds);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        resourcePermissionService.grantPermission(resourceTemplate, Subject.GROUP, groupIds);
+        resourcePermissionService.grantPermission(resourceTemplate,
+                (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.GROUP, groupIds);
         List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
         return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
@@ -182,7 +185,8 @@ public class LocationResourcesSecurityController {
     public synchronized RestResponse<List<GroupDTO>> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                        @PathVariable String resourceId, @PathVariable String groupId) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        resourcePermissionService.revokePermission(resourceTemplate, Subject.GROUP, groupId);
+        resourcePermissionService.revokePermission(resourceTemplate, (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)),
+                Subject.GROUP, groupId);
         List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
         return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
@@ -222,25 +226,27 @@ public class LocationResourcesSecurityController {
     public synchronized RestResponse<Void> revokeApplicationAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                    @PathVariable String applicationId, @PathVariable String resourceId) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
-        resourcePermissionService.revokePermission(resourceTemplate, Subject.APPLICATION, applicationId);
+        resourcePermissionService.revokePermission(resourceTemplate, (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)),
+                Subject.APPLICATION, applicationId);
         // remove all environments related to this application
         ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationId);
         String[] envIds = Arrays.stream(aes).map(ae -> ae.getId()).toArray(String[]::new);
-        resourcePermissionService.revokePermission(resourceTemplate, Subject.ENVIRONMENT, envIds);
+        resourcePermissionService.revokePermission(resourceTemplate, (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)),
+                Subject.ENVIRONMENT, envIds);
         return RestResponseBuilder.<Void>builder().build();
     }
 
     private void checkAllAuthorizationsForApplicationsAndEnvironments(ApplicationEnvironmentAuthorizationUpdateRequest request, Location location) {
-        if (request.getApplicationsToDelete() != null && request.getApplicationsToDelete().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
             checkAuthorization(location, Subject.APPLICATION, request.getApplicationsToDelete());
         }
-        if (request.getEnvironmentsToDelete() != null && request.getEnvironmentsToDelete().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToDelete())) {
             checkAuthorization(location, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
         }
-        if (request.getApplicationsToAdd() != null && request.getApplicationsToAdd().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
             checkAuthorization(location, Subject.APPLICATION, request.getApplicationsToAdd());
         }
-        if (request.getEnvironmentsToAdd() != null && request.getEnvironmentsToAdd().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
             checkAuthorization(location, Subject.ENVIRONMENT, request.getEnvironmentsToAdd());
         }
     }
@@ -258,14 +264,20 @@ public class LocationResourcesSecurityController {
 
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
-            resourcePermissionService.revokePermission(resourceTemplate, Subject.APPLICATION, request.getApplicationsToDelete());
+            resourcePermissionService.revokePermission(resourceTemplate,
+                    (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.APPLICATION,
+                    request.getApplicationsToDelete());
         }
         if (ArrayUtils.isNotEmpty(request.getEnvironmentsToDelete())) {
-            resourcePermissionService.revokePermission(resourceTemplate, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
+            resourcePermissionService.revokePermission(resourceTemplate,
+                    (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT,
+                    request.getEnvironmentsToDelete());
         }
         Set<String> envIds = Sets.newHashSet();
         if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
-            resourcePermissionService.grantPermission(resourceTemplate, Subject.APPLICATION, request.getApplicationsToAdd());
+            resourcePermissionService.grantPermission(resourceTemplate,
+                    (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.APPLICATION,
+                    request.getApplicationsToAdd());
             // when an app is added, all eventual existing env authorizations are removed
             for (String applicationToAddId : request.getApplicationsToAdd()) {
                 ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationToAddId);
@@ -274,12 +286,16 @@ public class LocationResourcesSecurityController {
                 }
             }
             if (!envIds.isEmpty()) {
-                resourcePermissionService.revokePermission(resourceTemplate, Subject.ENVIRONMENT, envIds.toArray(new String[envIds.size()]));
+                resourcePermissionService.revokePermission(resourceTemplate,
+                        (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT,
+                        envIds.toArray(new String[envIds.size()]));
             }
         }
         if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
             List<String> envToAddSet = Arrays.stream(request.getEnvironmentsToAdd()).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
-            resourcePermissionService.grantPermission(resourceTemplate, Subject.ENVIRONMENT, envToAddSet.toArray(new String[envToAddSet.size()]));
+            resourcePermissionService.grantPermission(resourceTemplate,
+                    (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT,
+                    envToAddSet.toArray(new String[envToAddSet.size()]));
         }
         return RestResponseBuilder.<Void> builder().build();
     }

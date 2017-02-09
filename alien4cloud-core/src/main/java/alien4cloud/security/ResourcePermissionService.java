@@ -48,8 +48,21 @@ public class ResourcePermissionService {
      * @param subjects list of subjects
      */
     public void grantPermission(ISecurityEnabledResource resource, Subject subjectType, String... subjects) {
+        grantPermission(resource, (resource1 -> alienDAO.save(resource1)), subjectType, subjects);
+    }
+
+    /**
+     * Add admin permission to the given resource for the given subject.
+     *
+     * @param resource the resource to secure
+     * @param saver a callback to save the resource after modification
+     * @param subjects list of subjects
+     */
+    public void grantPermission(ISecurityEnabledResource resource, IResourceSaver saver, Subject subjectType, String... subjects) {
         Arrays.stream(subjects).forEach(subject -> resource.addPermissions(subjectType, subject, Sets.newHashSet(Permission.ADMIN)));
-        alienDAO.save(resource);
+        if (saver != null) {
+            saver.save(resource);
+        }
     }
 
     /**
@@ -60,11 +73,25 @@ public class ResourcePermissionService {
      * @param subjects the subjects from which the permissions are revoked
      */
     public void revokePermission(ISecurityEnabledResource resource, Subject subjectType, String... subjects) {
+        revokePermission(resource, (resource1 -> alienDAO.save(resource1)), subjectType, subjects);
+    }
+
+    /**
+     * Revoke admin permission from the given resource from the given subjects.
+     *
+     * @param resource the resource to revoke
+     * @param saver a callback to save the resource after modification
+     * @param subjectType the type of the subject
+     * @param subjects the subjects from which the permissions are revoked
+     */
+    public void revokePermission(ISecurityEnabledResource resource, IResourceSaver saver, Subject subjectType, String... subjects) {
         publisher.publishEvent(new BeforePermissionRevokedEvent(this, new BeforePermissionRevokedEvent.OnResource(resource.getClass(), resource.getId()),
                 subjectType, subjects));
 
         Arrays.stream(subjects).forEach(subject -> resource.removePermissions(subjectType, subject, Sets.newHashSet(Permission.ADMIN)));
-        alienDAO.save(resource);
+        if (saver != null) {
+            saver.save(resource);
+        }
 
         publisher.publishEvent(new AfterPermissionRevokedEvent(this, new BeforePermissionRevokedEvent.OnResource(resource.getClass(), resource.getId()),
                 subjectType, subjects));
@@ -76,6 +103,7 @@ public class ResourcePermissionService {
      * @param resource the resource
      * @param subjectType subject's type
      * @param subject the subject's id
+     * 
      * @return true if the subject has admin privilege, false otherwise
      */
     private boolean hasPermission(ISecurityEnabledResource resource, Subject subjectType, String subject) {
@@ -137,6 +165,10 @@ public class ResourcePermissionService {
             groupDTOS.addAll(groups);
         }
         return groupDTOS;
+    }
+
+    public interface IResourceSaver {
+        void save(ISecurityEnabledResource resource);
     }
 
 }

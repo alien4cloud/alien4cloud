@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.IdsFilterBuilder;
@@ -20,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
@@ -267,14 +266,14 @@ public class LocationSecurityController {
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
             @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        if (request.getApplicationsToDelete() != null && request.getApplicationsToDelete().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
             resourcePermissionService.revokePermission(location, Subject.APPLICATION, request.getApplicationsToDelete());
         }
-        if (request.getEnvironmentsToDelete() != null && request.getEnvironmentsToDelete().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToDelete())) {
             resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
         }
         List<String> envIds = Lists.newArrayList();
-        if (request.getApplicationsToAdd() != null && request.getApplicationsToAdd().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
             resourcePermissionService.grantPermission(location, Subject.APPLICATION, request.getApplicationsToAdd());
             // when an app is added, all eventual existing env authorizations are removed
             for (String applicationToAddId : request.getApplicationsToAdd()) {
@@ -287,7 +286,7 @@ public class LocationSecurityController {
                 resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT, envIds.toArray(new String[envIds.size()]));
             }
         }
-        if (request.getEnvironmentsToAdd() != null && request.getEnvironmentsToAdd().length > 0) {
+        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
             List<String> envToAddSet = Arrays.stream(request.getEnvironmentsToAdd()).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
             resourcePermissionService.grantPermission(location, Subject.ENVIRONMENT, envToAddSet.toArray(new String[envToAddSet.size()]));
         }
@@ -331,7 +330,6 @@ public class LocationSecurityController {
     @RequestMapping(value = "/applications/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplicationPaginated(@PathVariable String orchestratorId, @PathVariable String locationId,
-                                                                                      @RequestParam(required = false, defaultValue = "false") boolean connectedOnly,
                                                                                       @ApiParam(value = "Text Query to search.") @RequestParam(required = false) String query,
                                                                                       @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
                                                                                       @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
@@ -341,12 +339,12 @@ public class LocationSecurityController {
         List<Application> applications = Lists.newArrayList();
 
         // we get all authorized applications and environment to not favor the one of them
-        if (location.getEnvironmentPermissions() != null && location.getEnvironmentPermissions().size() > 0) {
+        if (MapUtils.isNotEmpty(location.getEnvironmentPermissions())) {
             environments = alienDAO.findByIds(ApplicationEnvironment.class, location.getEnvironmentPermissions().keySet().toArray(new String[location.getEnvironmentPermissions().size()]));
             Set<String> environmentApplicationIds = environments.stream().map(ae -> new String(ae.getApplicationId())).collect(Collectors.toSet());
             applicationsRelatedToEnvironment = alienDAO.findByIds(Application.class, environmentApplicationIds.toArray(new String[environmentApplicationIds.size()]));
         }
-        if (location.getApplicationPermissions() != null && location.getApplicationPermissions().size() > 0) {
+        if (MapUtils.isNotEmpty(location.getApplicationPermissions())) {
             applications = alienDAO.findByIds(Application.class, location.getApplicationPermissions().keySet().toArray(new String[location.getApplicationPermissions().size()]));
         }
         List<ApplicationEnvironmentAuthorizationDTO> allDTOs = ApplicationEnvironmentAuthorizationDTO.buildDTOs(applicationsRelatedToEnvironment, environments, applications);
