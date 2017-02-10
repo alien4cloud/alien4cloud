@@ -14,17 +14,17 @@ Feature: List service resource
 
   @reset
   Scenario: Listing services should succeed
-    Given I create 1000 services each of them having 10 versions from type "tosca.nodes.Database", archive version "1.0.0-SNAPSHOT"
+    Given I create 100 services each of them having 10 versions from type "tosca.nodes.Database", archive version "1.0.0-SNAPSHOT"
     When I list services
     Then I should receive a RestResponse with no error
-    And The SPEL expression "totalResults" should return 10000
+    And The SPEL expression "totalResults" should return 1000
     And The SPEL expression "from" should return 0
-    And The SPEL expression "to" should return 100
+    And The SPEL expression "to" should return 99
     When I list services from 0 count 1000
     Then I should receive a RestResponse with no error
-    And The SPEL expression "totalResults" should return 10000
+    And The SPEL expression "totalResults" should return 1000
     And The SPEL expression "from" should return 0
-    And The SPEL expression "to" should return 1000
+    And The SPEL expression "to" should return 99
 
   @reset
   Scenario: Listing services and asking for more than 1000 results should fail

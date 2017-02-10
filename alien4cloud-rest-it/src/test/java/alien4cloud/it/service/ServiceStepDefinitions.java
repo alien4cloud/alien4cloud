@@ -18,17 +18,22 @@ import org.apache.http.message.BasicNameValuePair;
 
 @Slf4j
 public class ServiceStepDefinitions {
+    public static String LAST_CREATED_ID;
+
     @When("^I create a service with name \"(.*?)\", version \"(.*?)\", type \"(.*?)\", archive version \"(.*?)\"$")
     public void createService(String serviceName, String serviceVersion, String type, String archiveVersion) throws Throwable {
         CreateServiceResourceRequest request = new CreateServiceResourceRequest(nullable(serviceName), nullable(serviceVersion), nullable(type),
                 nullable(archiveVersion));
         Context.getInstance().registerRestResponse(getRestClientInstance().postJSon("/rest/v1/services/", JsonUtil.toString(request)));
+        try {
+            LAST_CREATED_ID = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
+        } catch (Throwable t) {
+        }
     }
 
     @When("^I get the last created service$")
     public void getLastService() throws Throwable {
-        RestResponse<String> response = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
-        getService(response.getData());
+        getService(LAST_CREATED_ID);
     }
 
     @When("^I get a service with id \"(.*?)\"$")
@@ -65,7 +70,7 @@ public class ServiceStepDefinitions {
         try {
             RestResponse<GetMultipleDataResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), GetMultipleDataResult.class);
             Context.getInstance().buildEvaluationContext(restResponse.getData());
-        } catch (IOException e) {
+        } catch (Throwable e) {
             // Registration is optional
         }
     }

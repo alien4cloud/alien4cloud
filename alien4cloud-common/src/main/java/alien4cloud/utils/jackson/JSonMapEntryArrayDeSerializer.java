@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -13,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.Maps;
@@ -29,17 +32,22 @@ public class JSonMapEntryArrayDeSerializer extends StdDeserializer<Map<?, ?>> im
 
     private JavaType keyType;
     private JavaType valueType;
+    private JsonDeserializer<?> fallback;
 
-    public JSonMapEntryArrayDeSerializer(JavaType keyType, JavaType valueType) {
+    public JSonMapEntryArrayDeSerializer(JavaType keyType, JavaType valueType, JsonDeserializer<?> fallback) {
         super(Map.class);
         this.keyType = keyType;
         this.valueType = valueType;
+        this.fallback = fallback;
     }
 
     @Override
     public Map<?, ?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        if (JsonToken.START_OBJECT.equals(jp.currentToken())) {
+            return (Map<?, ?>) fallback.deserialize(jp, ctxt);
+        }
         // deserialize the map from array of map entries
-        Map<Object, Object> map = Maps.newHashMap();
+        Map<Object, Object> map = Maps.newLinkedHashMap();
         JavaType mapEntryType = TypeFactory.defaultInstance().constructSimpleType(MapEntry.class, new JavaType[] { keyType, valueType });
         JavaType mapEntryArrayType = TypeFactory.defaultInstance().constructArrayType(mapEntryType);
         ObjectCodec codec = jp.getCodec();
@@ -56,7 +64,12 @@ public class JSonMapEntryArrayDeSerializer extends StdDeserializer<Map<?, ?>> im
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
         if (ConditionalEnabledHelper.isEnabled(ctxt, property)) {
-            return new JSonMapEntryArrayDeSerializer(property.getType().getKeyType(), property.getType().getContentType());
+            BeanDescription beanDesc = ctxt.getConfig().introspect(property.getType());
+            JsonDeserializer<?> deserializer = ctxt.getFactory().createMapDeserializer(ctxt, (MapType) property.getType(), beanDesc);
+            if (deserializer instanceof ContextualDeserializer) {
+                deserializer = ((ContextualDeserializer) deserializer).createContextual(ctxt, property);
+            }
+            return new JSonMapEntryArrayDeSerializer(property.getType().getKeyType(), property.getType().getContentType(), deserializer);
         }
         BeanDescription beanDesc = ctxt.getConfig().introspect(property.getType());
         JsonDeserializer<?> deserializer = ctxt.getFactory().createMapDeserializer(ctxt, (MapType) property.getType(), beanDesc);

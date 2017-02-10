@@ -18,18 +18,22 @@ public class JsonPatchDeserializerTest {
 
     @Test
     public void deserializeIgnorePatch() throws IOException {
+        RestMapper.REQUEST_OPERATION.set("PATCH");
         ObjectMapper objectMapper = new RestMapper();
         Person person = objectMapper.readValue("{ \"name\": \"name\" }", Person.class);
         Assert.assertEquals("name", person.getName());
         Assert.assertNull(person.getAddress());
+        RestMapper.REQUEST_OPERATION.remove();
     }
 
     @Test
     public void deserializeSetNullPatch() throws IOException {
+        RestMapper.REQUEST_OPERATION.set("PATCH");
         ObjectMapper objectMapper = new RestMapper();
         Person person = objectMapper.readValue("{ \"name\": \"name\", \"address\": null }", Person.class);
         Assert.assertEquals("name", person.getName());
         Assert.assertNotNull(person.getAddress());
         Assert.assertTrue(person.getAddress() == RestMapper.NULL_INSTANCES.get(Address.class));
+        RestMapper.REQUEST_OPERATION.remove();
     }
 }

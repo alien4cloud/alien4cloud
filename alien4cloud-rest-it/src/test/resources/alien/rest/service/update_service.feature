@@ -7,20 +7,22 @@ Feature: Update service resource
 
   @reset
   Scenario: Updating the name of a service should succeed
+    Given I am authenticated with "ADMIN" role
 
-    Then I should receive a RestResponse with no error
 
   @reset
   Scenario: Updating the name of a service with an existing name should fail
+    Given I am authenticated with "ADMIN" role
 
   @reset
   Scenario: Updating the version of a service should succeed
-    Then I should receive a RestResponse with no error
+    Given I am authenticated with "ADMIN" role
+
 
   @reset
   Scenario: Updating the version of a service with an existing version should fail
+    Given I am authenticated with "ADMIN" role
 
   @reset
   Scenario: Updating the description of a service should succeed
-
-    Then I should receive a RestResponse with no error
+    Given I am authenticated with "ADMIN" role

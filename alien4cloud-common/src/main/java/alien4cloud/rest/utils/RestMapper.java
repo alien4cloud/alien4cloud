@@ -29,6 +29,8 @@ public class RestMapper extends ObjectMapper {
     private static final long serialVersionUID = 1L;
 
     public static final Map<Class, Object> NULL_INSTANCES = Maps.newHashMap();
+    public static final ThreadLocal<String> REQUEST_OPERATION = new ThreadLocal<>();
+    private static final String PATCH = "PATCH";
 
     public RestMapper() {
         super();
@@ -74,14 +76,16 @@ public class RestMapper extends ObjectMapper {
 
         @Override
         public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
-            try {
-                Object instance = NULL_INSTANCES.get(handledType());
-                if (instance == null) {
-                    instance = _valueInstantiator.createUsingDefault(ctxt);
+            if (PATCH.equals(RestMapper.REQUEST_OPERATION.get())) {
+                try {
+                    Object instance = NULL_INSTANCES.get(handledType());
+                    if (instance == null) {
+                        instance = _valueInstantiator.createUsingDefault(ctxt);
+                    }
+                    NULL_INSTANCES.put(handledType(), instance);
+                    return instance;
+                } catch (IOException e) {
                 }
-                NULL_INSTANCES.put(handledType(), instance);
-                return instance;
-            } catch (IOException e) {
             }
             return getNullValue();
         }
@@ -112,14 +116,16 @@ public class RestMapper extends ObjectMapper {
 
         @Override
         public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
-            try {
-                Object instance = NULL_INSTANCES.get(handledType());
-                if (instance == null) {
-                    instance = handledType().getConstructor().newInstance();
+            if (PATCH.equals(RestMapper.REQUEST_OPERATION.get())) {
+                try {
+                    Object instance = NULL_INSTANCES.get(handledType());
+                    if (instance == null) {
+                        instance = handledType().getConstructor().newInstance();
+                    }
+                    NULL_INSTANCES.put(handledType(), instance);
+                    return instance;
+                } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
                 }
-                NULL_INSTANCES.put(handledType(), instance);
-                return instance;
-            } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
             }
             return wrapped.getNullValue();
         }
