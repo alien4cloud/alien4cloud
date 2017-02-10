@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0-SNAPSHOT",
+  "nodeInstance": {
+    "type": "tosca.nodes.Database",
+    "typeVersion": "1.0.0-SNAPSHOT"
+  }
+}

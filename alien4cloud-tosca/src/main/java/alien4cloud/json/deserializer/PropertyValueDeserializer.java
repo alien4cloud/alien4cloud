@@ -32,7 +32,7 @@ public class PropertyValueDeserializer extends AbstractDiscriminatorPolymorphicD
 
     @Override
     public AbstractPropertyValue getNullValue(DeserializationContext ctxt) throws JsonMappingException {
-        if (ctxt.getAttribute(ConditionalAttributes.REST) != null) {
+        if (ctxt.getAttribute(ConditionalAttributes.REST) != null && RestMapper.PATCH.equals(RestMapper.REQUEST_OPERATION.get())) {
             try {
                 AbstractPropertyValue instance = (AbstractPropertyValue) RestMapper.NULL_INSTANCES.get(ScalarPropertyValue.class);
                 if (instance == null) {

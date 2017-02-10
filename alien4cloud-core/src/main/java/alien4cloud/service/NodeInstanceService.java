@@ -157,12 +157,13 @@ public class NodeInstanceService {
      *
      * When the node state is anything else the validation performs above validation and also checks that all required properties are defined.
      *
-     * @param nodeInstance
+     * @param nodeType The node type against which to perform validation of the node instance.
+     * @param nodeInstance The actual node instance to validate
      */
     @ToscaContextual
     public void validate(NodeType nodeType, NodeInstance nodeInstance) {
-        // FIXME this actually requires a parsing context
-        nodeTemplatePostProcessor.process(nodeInstance.getNodeTemplate());
+        // FIXME we need a proper template validation here
+        // nodeTemplatePostProcessor.process(nodeInstance.getNodeTemplate());
 
         if (!ToscaNodeLifecycleConstants.INITIAL.equals(safe(nodeInstance.getAttributeValues()).get(ToscaNodeLifecycleConstants.ATT_STATE))) {
             // FIXME check that all required properties are defined.

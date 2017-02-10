@@ -174,7 +174,7 @@ public class ServiceResourceService {
             }
         } else {
             ensureUniqueness = PatchUtil.set(serviceResource, "name", name, patch);
-            ensureUniqueness = ensureUniqueness || PatchUtil.set(serviceResource, "version", version, patch);
+            ensureUniqueness = PatchUtil.set(serviceResource, "version", version, patch) || ensureUniqueness;
 
             // node instance type update
             PatchUtil.set(serviceResource.getNodeInstance().getNodeTemplate(), "type", nodeTypeStr, patch);

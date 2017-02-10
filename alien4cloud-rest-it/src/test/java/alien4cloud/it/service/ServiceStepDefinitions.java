@@ -12,6 +12,8 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.service.model.CreateServiceResourceRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import com.google.common.collect.Lists;
+import cucumber.api.DataTable;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.message.BasicNameValuePair;
@@ -66,6 +68,17 @@ public class ServiceStepDefinitions {
     @When("^I list services$")
     public void listServices() throws Throwable {
         Context.getInstance().registerRestResponse(getRestClientInstance().get("/rest/v1/services/"));
+        registerListResultForSpel();
+    }
+
+    @When("^I list services from (\\d+) count (\\d+)$")
+    public void listServices(int from, int count) throws Throwable {
+        Context.getInstance().registerRestResponse(getRestClientInstance().getUrlEncoded("/rest/v1/services/",
+                Lists.newArrayList(new BasicNameValuePair("from", String.valueOf(from)), new BasicNameValuePair("count", String.valueOf(count)))));
+    }
+
+    @And("^I register service list result for SPEL$")
+    public void registerListResultForSpel() {
         // register for SPEL
         try {
             RestResponse<GetMultipleDataResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), GetMultipleDataResult.class);
@@ -73,11 +86,5 @@ public class ServiceStepDefinitions {
         } catch (Throwable e) {
             // Registration is optional
         }
-    }
-
-    @When("^I list services from (\\d+) count (\\d+)$")
-    public void listServices(int from, int count) throws Throwable {
-        Context.getInstance().registerRestResponse(getRestClientInstance().getUrlEncoded("/rest/v1/services/",
-                Lists.newArrayList(new BasicNameValuePair("from", String.valueOf(from)), new BasicNameValuePair("count", String.valueOf(count)))));
     }
 }

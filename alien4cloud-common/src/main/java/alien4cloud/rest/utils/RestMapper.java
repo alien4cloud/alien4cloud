@@ -30,7 +30,7 @@ public class RestMapper extends ObjectMapper {
 
     public static final Map<Class, Object> NULL_INSTANCES = Maps.newHashMap();
     public static final ThreadLocal<String> REQUEST_OPERATION = new ThreadLocal<>();
-    private static final String PATCH = "PATCH";
+    public static final String PATCH = "PATCH";
 
     public RestMapper() {
         super();

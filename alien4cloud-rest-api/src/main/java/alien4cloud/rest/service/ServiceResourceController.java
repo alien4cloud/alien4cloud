@@ -3,6 +3,9 @@ package alien4cloud.rest.service;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.model.common.Usage;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -39,6 +42,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -132,9 +136,13 @@ public class ServiceResourceController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Deployment[]> delete(@ApiParam(value = "Id of the service to delete.", required = true) @PathVariable @Valid @NotEmpty String id) {
-        // FIXME throw a usage exception.
         Deployment[] deployments = serviceResourceService.delete(id);
-        return RestResponseBuilder.<Deployment[]> builder().data(deployments).build();
+        if (deployments == null || deployments.length == 0) {
+            return RestResponseBuilder.<Deployment[]> builder().build();
+        }
+        String errorMessage = "The service <" + id + "> cannot be deleted as used in some deployments.";
+        return RestResponseBuilder.<Deployment[]> builder().data(deployments)
+                .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(errorMessage).build()).build();
     }
 
     @ApiOperation(value = "Search services.", authorizations = { @Authorization("ADMIN") })
