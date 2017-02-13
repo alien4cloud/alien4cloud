@@ -208,9 +208,9 @@ define(function(require) {
         };
 
 
-        /****
+        /************************************
         *  For authorizations directives
-        ****/
+        /************************************/
 
         // NOTE: locationId and resourceId are functions, so that it will be evaluated everytime a REST call will be made
         // this is because the selected location / resource can change within the page

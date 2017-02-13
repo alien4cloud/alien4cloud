@@ -4,9 +4,17 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var _ = require('lodash');
+  var angular = require('angular');
+
 
   require('scripts/orchestrators/controllers/orchestrator_location_resources');
   require('scripts/orchestrators/directives/orchestrator_location_resources');
+
+  require('scripts/orchestrators/services/location_resources_security_service');
+
+
+  require('scripts/users/controllers/users_authorization_modal_ctrl');
+
 
   states.state('admin.orchestrators.details.locations.nodes', {
     url: '/nodes',
@@ -21,8 +29,8 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource', 'locationResourcesProcessor',
-    function($scope, $resource, locationResourcesProcessor) {
+  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource', 'locationResourcesProcessor', '$uibModal', 'locationResourcesSecurityService',
+    function($scope, $resource, locationResourcesProcessor, $uibModal, locationResourcesSecurityService) {
 
       function removeGeneratedResources() {
           _.remove($scope.context.locationResources.nodeTemplates, function(locationResource){
@@ -47,6 +55,63 @@ define(function (require) {
             $scope.autoConfiguring=false;
           });
       };
+
+
+      /************************************
+      *  For authorizations directives
+      /************************************/
+
+      $scope.buildSecuritySearchConfig = function(subject){
+        return {
+          url: 'rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/' + subject + '/search',
+          useParams: true,
+          params: {
+            orchestratorId: $scope.context.orchestrator.id,
+            locationId: $scope.context.location.id,
+          }
+        };
+      };
+
+      $scope.openNewUserAuthorizationModal = function (resources) {
+        var modalInstance = $uibModal.open({
+          templateUrl: 'views/users/users_authorization_popup.html',
+          controller: 'UsersAuthorizationModalCtrl',
+          resolve:{
+            searchConfig:  $scope.buildSecuritySearchConfig('users'),
+            authorizedUsers: function() { return $scope.authorizedUsers; }
+          }
+        });
+
+
+        var getUsernames = function(users) {
+          var result = [];
+          for (var index in users) {
+            if (users[index].hasOwnProperty('username')) {
+              result.push(users[index].username);
+            }
+          }
+          return result;
+        };
+
+        modalInstance.result.then(function (users) {
+          var SubjectsAuthorizationRequest = {};
+          SubjectsAuthorizationRequest['resources'] = Object.keys(resources);
+          SubjectsAuthorizationRequest['subjects'] = getUsernames(users);
+
+          var params = {
+            orchestratorId: $scope.context.orchestrator.id,
+            locationId: $scope.context.location.id,
+          };
+
+          locationResourcesSecurityService.usersBatch.grant(params, angular.toJson(SubjectsAuthorizationRequest), function(successResponse) {
+            //TODO: check if an error occur and add a refresh
+          });
+
+        });
+      };
+
+
+
 
     }
   ]);

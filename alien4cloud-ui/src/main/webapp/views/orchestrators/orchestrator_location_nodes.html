@@ -1,11 +1,11 @@
 <button ng-click="autoConfigureResources()" class="btn btn-primary btn-sm"><i class="fa fa-refresh" ng-class="{'disabled fa-spin': autoConfiguring }"></i> {{'ORCHESTRATORS.LOCATIONS.AUTO_CONFIG' | translate}}</button>
 
 <div class="btn-sm btn-group" uib-dropdown>
-  <button id="btn-append-to-body" type="button" class="btn btn-default" uib-dropdown-toggle>
+  <button ng-disabled="_.isEmpty(context.selectedResourceTemplates)" id="multi-authorization" type="button" class="btn btn-default" uib-dropdown-toggle>
     Authorizations <span class="caret"></span>
   </button>
   <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="btn-append-to-body">
-    <li role="menuitem"><a href="#">Authorize users</a></li>
+    <li role="menuitem"><a ng-click="openNewUserAuthorizationModal(context.selectedResourceTemplates)">Authorize users</a></li>
     <li role="menuitem"><a href="#">Revoke users</a></li>
     <li class="divider"></li>
     <li role="menuitem"><a href="#">Authorize groups</a></li>
