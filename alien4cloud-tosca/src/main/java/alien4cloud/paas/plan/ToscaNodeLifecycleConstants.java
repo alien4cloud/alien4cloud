@@ -1,5 +1,9 @@
 package alien4cloud.paas.plan;
 
+import com.google.common.collect.Sets;
+
+import java.util.Set;
+
 /**
  * Constants and helper functions to manage TOSCA Node life-cycle.
  */
@@ -32,6 +36,9 @@ public final class ToscaNodeLifecycleConstants {
     public static final String DELETING = "deleting";
     public static final String DELETED = "deleted";
     public static final String ERROR = "error";
+
+    public static final Set<String> TOSCA_STATES = Sets.newHashSet(INITIAL, CREATING, CREATED, CONFIGURING, CONFIGURED, STARTING, STARTED, AVAILABLE, STOPPING,
+            STOPPED, DELETING, DELETED, ERROR);
 
     /** not really tosca */
     public static final String MAINTENANCE = "maintenance";

@@ -139,15 +139,12 @@ public class ServiceResourceController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Deployment[]> delete(@ApiParam(value = "Id of the service to delete.", required = true) @PathVariable @Valid @NotEmpty String id) {
-        Deployment[] deployments = serviceResourceService.delete(id);
-        if (deployments == null || deployments.length == 0) {
-            return RestResponseBuilder.<Deployment[]> builder().build();
-        }
-        String errorMessage = "The service <" + id + "> cannot be deleted as used in some deployments.";
-        return RestResponseBuilder.<Deployment[]> builder().data(deployments)
-                .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(errorMessage).build()).build();
+    public RestResponse<Void> delete(@ApiParam(value = "Id of the service to delete.", required = true) @PathVariable @Valid @NotEmpty String id) {
+        serviceResourceService.delete(id);
+        return RestResponseBuilder.<Void> builder().build();
     }
+
+    // .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(errorMessage).build())
 
     @ApiOperation(value = "Search services.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/adv/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)

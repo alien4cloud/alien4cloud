@@ -85,46 +85,50 @@ public class TopologyPropertiesValidationService {
             if (relatedIndexedNodeType.isAbstract()) {
                 continue;
             }
-
-            // Define a task regarding properties
-            PropertiesTask task = new PropertiesTask();
-            task.setNodeTemplateName(nodeTempEntry.getKey());
-            task.setComponent(relatedIndexedNodeType);
-            task.setCode(TaskCode.PROPERTIES);
-            task.setProperties(Maps.<TaskLevel, List<String>> newHashMap());
-
-            // Check the properties of node template
-            if (MapUtils.isNotEmpty(nodeTemplate.getProperties())) {
-                addRequiredPropertyIdToTaskProperties(null, nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task, skipInputProperties);
-            }
-
-            // Check relationships PD
-            for (Map.Entry<String, RelationshipTemplate> relationshipEntry : safe(nodeTemplate.getRelationships()).entrySet()) {
-                RelationshipTemplate relationship = relationshipEntry.getValue();
-                if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
-                    continue;
-                }
-                addRequiredPropertyIdToTaskProperties("relationships[" + relationshipEntry.getKey() + "]", relationship.getProperties(),
-                        getRelationshipPropertyDefinition(nodeTemplate), task, skipInputProperties);
-            }
-            for (Map.Entry<String, Capability> capabilityEntry : safe(nodeTemplate.getCapabilities()).entrySet()) {
-                Capability capability = capabilityEntry.getValue();
-                if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
-                    continue;
-                }
-                addRequiredPropertyIdToTaskProperties("capabilities[" + capabilityEntry.getKey() + "]", capability.getProperties(),
-                        getCapabilitiesPropertyDefinition(nodeTemplate), task, skipInputProperties);
-                if (capability.getType().equals(NormativeComputeConstants.SCALABLE_CAPABILITY_TYPE)) {
-                    Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
-                    verifyScalableProperties(scalableProperties, toReturnTaskList, nodeTempEntry.getKey(), skipInputProperties);
-                }
-            }
-
-            if (MapUtils.isNotEmpty(task.getProperties())) {
-                toReturnTaskList.add(task);
-            }
+            validateNodeTemplate(toReturnTaskList, relatedIndexedNodeType, nodeTemplate, nodeTempEntry.getKey(), skipInputProperties);
         }
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
+    }
+
+    public void validateNodeTemplate(List<PropertiesTask> toReturnTaskList, NodeType relatedIndexedNodeType, NodeTemplate nodeTemplate, String nodeTempalteName,
+            boolean skipInputProperties) {
+        // Define a task regarding properties
+        PropertiesTask task = new PropertiesTask();
+        task.setNodeTemplateName(nodeTempalteName);
+        task.setComponent(relatedIndexedNodeType);
+        task.setCode(TaskCode.PROPERTIES);
+        task.setProperties(Maps.newHashMap());
+
+        // Check the properties of node template
+        if (MapUtils.isNotEmpty(nodeTemplate.getProperties())) {
+            addRequiredPropertyIdToTaskProperties(null, nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task, skipInputProperties);
+        }
+
+        // Check relationships PD
+        for (Map.Entry<String, RelationshipTemplate> relationshipEntry : safe(nodeTemplate.getRelationships()).entrySet()) {
+            RelationshipTemplate relationship = relationshipEntry.getValue();
+            if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
+                continue;
+            }
+            addRequiredPropertyIdToTaskProperties("relationships[" + relationshipEntry.getKey() + "]", relationship.getProperties(),
+                    getRelationshipPropertyDefinition(nodeTemplate), task, skipInputProperties);
+        }
+        for (Map.Entry<String, Capability> capabilityEntry : safe(nodeTemplate.getCapabilities()).entrySet()) {
+            Capability capability = capabilityEntry.getValue();
+            if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
+                continue;
+            }
+            addRequiredPropertyIdToTaskProperties("capabilities[" + capabilityEntry.getKey() + "]", capability.getProperties(),
+                    getCapabilitiesPropertyDefinition(nodeTemplate), task, skipInputProperties);
+            if (capability.getType().equals(NormativeComputeConstants.SCALABLE_CAPABILITY_TYPE)) {
+                Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
+                verifyScalableProperties(scalableProperties, toReturnTaskList, nodeTempalteName, skipInputProperties);
+            }
+        }
+
+        if (MapUtils.isNotEmpty(task.getProperties())) {
+            toReturnTaskList.add(task);
+        }
     }
 
     private Map<String, PropertyDefinition> getCapabilitiesPropertyDefinition(NodeTemplate nodeTemplate) {

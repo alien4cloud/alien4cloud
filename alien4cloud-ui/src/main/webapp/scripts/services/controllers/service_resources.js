@@ -97,9 +97,11 @@ define(function (require) {
       $scope.selectService = function(service) {
         $scope.selectedService = service;
         delete $scope.selectedNodeType;
+        delete $scope.stateDisabled;
 
         // We have to fetch the node type, the dependencies, and the related capabilities
         if(_.defined(service)) {
+          $scope.stateDisabled = service.nodeInstance.attributeValues.state === 'initial';
           if(_.undefined(service.uiNodeType)) {
             typeWithDependenciesService.get({
               typeId: service.nodeInstance.nodeTemplate.type,
@@ -114,6 +116,20 @@ define(function (require) {
             setSelectedTypesToScope();
           }
         }
+      };
+
+      $scope.toggleState = function() {
+        var newState = 'initial';
+        if($scope.stateDisabled) {
+          newState = 'started';
+        }
+        var updateRequest = { nodeInstance: { attributeValues:{ state: newState} } };
+        return serviceResourceService.patch({
+          serviceId: $scope.selectedService.id
+        }, angular.toJson(updateRequest), function() {
+          $scope.selectedService.nodeInstance.attributeValues.state = newState;
+          $scope.stateDisabled = !$scope.stateDisabled;
+        });
       };
 
       $scope.isLocAuthorized = function(targetLocation) {

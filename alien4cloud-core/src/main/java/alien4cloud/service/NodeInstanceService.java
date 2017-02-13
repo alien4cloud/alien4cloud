@@ -2,17 +2,33 @@ package alien4cloud.service;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.topology.task.PropertiesTask;
+import alien4cloud.topology.validation.TopologyPropertiesValidationService;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.postprocess.PropertyValueChecker;
+import alien4cloud.utils.services.ConstraintPropertyService;
+import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.instances.NodeInstance;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -27,6 +43,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMa
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import alien4cloud.utils.services.PropertyService;
+import org.yaml.snakeyaml.nodes.Node;
 
 /**
  * Simple service to manage node instance validations.
@@ -34,9 +51,9 @@ import alien4cloud.utils.services.PropertyService;
 @Service
 public class NodeInstanceService {
     @Inject
-    private NodeTemplatePostProcessor nodeTemplatePostProcessor;
-    @Inject
     private PropertyService propertyService;
+    @Inject
+    private TopologyPropertiesValidationService topologyPropertiesValidationService;
 
     /**
      * Create a new instance of a given node type based on default generated template.
@@ -161,12 +178,17 @@ public class NodeInstanceService {
      * @param nodeInstance The actual node instance to validate
      */
     @ToscaContextual
-    public void validate(NodeType nodeType, NodeInstance nodeInstance) {
-        // FIXME we need a proper template validation here
-        // nodeTemplatePostProcessor.process(nodeInstance.getNodeTemplate());
-
-        if (!ToscaNodeLifecycleConstants.INITIAL.equals(safe(nodeInstance.getAttributeValues()).get(ToscaNodeLifecycleConstants.ATT_STATE))) {
-            // FIXME check that all required properties are defined.
+    public void checkRequired(NodeType nodeType, NodeInstance nodeInstance) {
+        List<PropertiesTask> errors = Lists.newArrayList();
+        topologyPropertiesValidationService.validateNodeTemplate(errors, nodeType, nodeInstance.getNodeTemplate(), "", false);
+        if (!errors.isEmpty()) {
+            Set<String> errorProperties = Sets.newHashSet();
+            for (PropertiesTask task : errors) {
+                for (List<String> properties : task.getProperties().values()) {
+                    errorProperties.addAll(properties);
+                }
+            }
+            throw new InstanceRequiredPropertiesException("Some required properties are not defined.", errorProperties);
         }
     }
 }

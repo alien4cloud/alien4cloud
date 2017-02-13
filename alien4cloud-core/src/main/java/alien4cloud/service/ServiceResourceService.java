@@ -1,7 +1,9 @@
 package alien4cloud.service;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -10,10 +12,18 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
+import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import com.google.common.collect.Sets;
+import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 
@@ -34,8 +44,6 @@ import alien4cloud.utils.version.Version;
 
 /**
  * Manages services.
- *
- * FIXME: should be notified when a location is deleted in order to clean locationIds
  */
 @Service
 public class ServiceResourceService {
@@ -163,8 +171,24 @@ public class ServiceResourceService {
         failUpdateIfManaged(serviceResource);
 
         boolean ensureUniqueness = false;
-        // Check if we try to update a running service.
-        if (!ToscaNodeLifecycleConstants.INITIAL.equals(serviceResource.getNodeInstance().getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE))) {
+
+        boolean isDeployed = !ToscaNodeLifecycleConstants.INITIAL
+                .equals(serviceResource.getNodeInstance().getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE));
+
+        String updatedState = nodeAttributeValues.get(ToscaNodeLifecycleConstants.ATT_STATE);
+        if (!patch || updatedState != null) {
+            // in case of an update or when patching the state: check that the new state is a valid state
+            if (!ToscaNodeLifecycleConstants.TOSCA_STATES.contains(updatedState)) {
+                throw new IllegalArgumentException(
+                        "State <" + updatedState + "> is not a valid state value must be one of " + ToscaNodeLifecycleConstants.TOSCA_STATES.toString());
+            }
+        }
+        boolean isUpdateDeployed = updatedState == null ? isDeployed
+                : !ToscaNodeLifecycleConstants.INITIAL.equals(nodeAttributeValues.get(ToscaNodeLifecycleConstants.ATT_STATE));
+
+        NodeType nodeType = null;
+        // Updating a running service is not yet authorized
+        if (isDeployed && isUpdateDeployed) {
             // Update operation is not allowed for running services.
             // Patch operation is allowed only on the service description or locations authorized for matching.
             if (!patch || name != null || version != null || nodeTypeStr != null || nodeTypeVersion != null || nodeProperties != null
@@ -181,19 +205,17 @@ public class ServiceResourceService {
             PatchUtil.set(serviceResource.getNodeInstance(), "typeVersion", nodeTypeVersion, patch);
 
             // Node instance properties update
-            NodeType nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
+            nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
                     serviceResource.getNodeInstance().getTypeVersion());
             if (patch) {
                 nodeInstanceService.patch(nodeType, serviceResource.getNodeInstance(), nodeProperties, nodeCapabilities, nodeAttributeValues);
-                // FIXME if the state has changed we need validation of required properties
-                if (!ToscaNodeLifecycleConstants.INITIAL
-                        .equals(serviceResource.getNodeInstance().getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE))) {
-                }
             } else {
                 serviceResource.getNodeInstance().getNodeTemplate().setProperties(nodeProperties);
                 serviceResource.getNodeInstance().getNodeTemplate().setCapabilities(nodeCapabilities);
+                // performs property values validations and ensure the node template match the required type
+                serviceResource.getNodeInstance()
+                        .setNodeTemplate(NodeTemplateBuilder.buildNodeTemplate(nodeType, serviceResource.getNodeInstance().getNodeTemplate()));
                 serviceResource.getNodeInstance().setAttributeValues(nodeAttributeValues);
-                nodeInstanceService.validate(nodeType, serviceResource.getNodeInstance());
             }
         }
 
@@ -201,6 +223,19 @@ public class ServiceResourceService {
         // Note that changing the locations or authorizations won't impact already deployed applications using the service
         PatchUtil.set(serviceResource, "description", description, patch);
         updateLocations(serviceResource, locations);
+
+        if (isDeployed && !isUpdateDeployed) {
+            // un-deploying a service is authorized only if the service is not used.
+            failIdUsed(serviceResource.getId());
+        }
+        if (!isDeployed && isUpdateDeployed) {
+            // check that all required properties are defined
+            if (nodeType == null) {
+                nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
+                        serviceResource.getNodeInstance().getTypeVersion());
+            }
+            nodeInstanceService.checkRequired(nodeType, serviceResource.getNodeInstance());
+        }
 
         save(serviceResource, ensureUniqueness);
     }
@@ -211,12 +246,14 @@ public class ServiceResourceService {
         }
         // Check what elements have changed.
         Set<String> previousLocations = CollectionUtils.safeNewHashSet(serviceResource.getLocationIds());
+        Set<String> newLocations = Sets.newHashSet();
         for (String locationId : locations) {
             if (!previousLocations.contains(locationId) && !alienDAO.exist(Location.class, locationId)) {
                 throw new NotFoundException("Location with id <" + locationId + "> does not exist.");
             }
+            newLocations.add(locationId);
         }
-        serviceResource.setLocationIds(locations);
+        serviceResource.setLocationIds(newLocations.toArray(new String[newLocations.size()]));
     }
 
     private void failUpdateIfManaged(ServiceResource serviceResource) {
@@ -252,14 +289,43 @@ public class ServiceResourceService {
      * 
      * @param id The id of the service resource.
      */
-    public synchronized Deployment[] delete(String id) {
-        // FIXME check usage
-        GetMultipleDataResult<Deployment> usageResult = alienDAO.buildQuery(Deployment.class)
-                .setFilters(fromKeyValueCouples("endDate", null, "serviceResourceIds", id)).prepareSearch().search(0, Integer.MAX_VALUE);
-        if (usageResult.getTotalResults() > 0) {
-            return usageResult.getData();
-        }
+    public synchronized void delete(String id) {
+        failIdUsed(id);
         alienDAO.delete(ServiceResource.class, id);
-        return null;
+    }
+
+    private void failIdUsed(String id) {
+        GetMultipleDataResult<Deployment> usageResult = usage(id);
+        if (usageResult.getTotalResults() > 0) {
+            throw new ServiceUsageException("Used services cannot be updated or deleted.", usageResult.getData());
+        }
+    }
+
+    /**
+     * Return a query result that contains all active deployments that use the service with the given id.
+     * 
+     * @param id The id of the service for which to get usage.
+     * @return A GetMultipleDataResult that contains the active deployments that uses the requested service.
+     */
+    public GetMultipleDataResult<Deployment> usage(String id) {
+        return alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("endDate", null, "serviceResourceIds", id)).prepareSearch().search(0,
+                Integer.MAX_VALUE);
+    }
+
+    @EventListener
+    public synchronized void handleLocationDeleted(AfterLocationDeleted event) {
+        // Remove the location in every service that referenced it
+        GetMultipleDataResult<ServiceResource> serviceResourceResult = alienDAO.buildQuery(ServiceResource.class)
+                .setFilters(singleKeyFilter("locationIds", event.getLocationId())).prepareSearch().search(0, Integer.MAX_VALUE);
+        if (serviceResourceResult.getData() == null) {
+            return;
+        }
+        for (ServiceResource serviceResource : serviceResourceResult.getData()) {
+            Set<String> locations = CollectionUtils.safeNewHashSet(serviceResource.getLocationIds());
+            locations.remove(event.getLocationId());
+            serviceResource.setLocationIds(locations.toArray(new String[locations.size()]));
+        }
+        // bulk update
+        alienDAO.save(serviceResourceResult.getData());
     }
 }

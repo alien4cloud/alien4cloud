@@ -1,0 +1,46 @@
+@import "bootstrap_variables";
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 22px;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  border-radius: 20px;
+  border: 1px solid $btn-danger-border;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: $btn-danger-bg;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.switch-slider.enabled {
+  border-color: $btn-success-border;
+  background-color: $btn-success-bg;
+}
+
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.switch-slider.enabled:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}

@@ -9,7 +9,8 @@
     <div class="row-margin">
       <form role="search" ng-submit="searchService.search()">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="..." ng-model="query"> <span class="input-group-btn">
+          <input type="text" class="form-control" placeholder="..." ng-model="query">
+          <span class="input-group-btn">
             <button type="submit" class="btn btn-default" data-loading-text="Loading...">
               <i class="fa fa-search"></i>
             </button>
@@ -80,8 +81,8 @@
               <div class="col-md-3">
                 <strong>{{'COMMON.NAME' | translate}}</strong>
               </div>
-              <div class="col-md-9" id="app-desc">
-                <div editable-text="selectedService.name" onbeforesave="update({'name': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">
+              <div class="col-md-9">
+                <div id="srv-name" editable-text="selectedService.name" onbeforesave="update({'name': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">
                   {{selectedService.name}} <i class="fa fa-edit"></i>
                 </div>
               </div>
@@ -90,8 +91,8 @@
               <div class="col-md-3">
                 <strong>{{'COMMON.VERSION' | translate}}</strong>
               </div>
-              <div class="col-md-9" id="app-desc">
-                <div editable-text="selectedService.version" onbeforesave="update({'version': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">
+              <div class="col-md-9">
+                <div id="srv-version" editable-text="selectedService.version" onbeforesave="update({'version': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">
                   {{selectedService.version}} <i class="fa fa-edit"></i>
                 </div>
               </div>
@@ -100,8 +101,18 @@
               <div class="col-md-3">
                 <strong>{{'COMMON.DESCRIPTION' | translate}}</strong>
               </div>
-              <div class="col-md-9" id="app-desc">
+              <div id="srv-desc" class="col-md-9">
                 <div style="white-space: pre;" editable-textarea="selectedService.description" onbeforesave="update({'description': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">{{selectedService.description}} <i class="fa fa-edit"></i></div>
+              </div>
+            </div>
+            <div class="row row-margin">
+              <div class="col-md-3">
+                <strong>{{'COMMON.STATE' | translate}}</strong>
+              </div>
+              <div class="col-md-9">
+                <div class="switch" ng-click="toggleState()">
+                  <div class="switch-slider" ng-class="stateDisabled ? 'disabled' : 'enabled'"></div>
+                </div>
               </div>
             </div>
           </div>
