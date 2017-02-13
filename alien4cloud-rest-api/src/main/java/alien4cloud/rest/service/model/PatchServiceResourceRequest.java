@@ -3,6 +3,9 @@ package alien4cloud.rest.service.model;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import alien4cloud.rest.utils.PatchNotBlankValidator;
+import alien4cloud.rest.utils.PatchNotBlankValidator.PatchNotBlank;
+import alien4cloud.rest.utils.PatchNotNullValidator;
 import org.alien4cloud.tosca.model.instances.NodeInstance;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -21,10 +24,10 @@ import lombok.Setter;
 @ApiModel(description = "Request to update a service resource.")
 public class PatchServiceResourceRequest {
     @ApiModelProperty(value = "The new name of the service or undefined if the update request should not update the service name.")
-    @Size(min = 1) // may be null (field not updated), if not it must be a non empty string.
-    @Pattern(regexp = "^(?!null).*$")
+    @PatchNotBlank
     private String name;
     @ApiModelProperty(value = "The new version of the service or undefined if the update request should not update the service version.")
+    @PatchNotBlank
     private String version;
     @ApiModelProperty(value = "The new description of the service or undefined if update request should not update the service description.")
     private String description;

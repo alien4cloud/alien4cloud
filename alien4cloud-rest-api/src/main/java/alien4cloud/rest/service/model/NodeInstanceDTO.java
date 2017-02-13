@@ -19,6 +19,7 @@ import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
 import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 
@@ -30,8 +31,10 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Represents a simple node instance with it's properties and attributes.")
 public class NodeInstanceDTO {
     @ApiModelProperty(value = "The tosca node type of the instance.", notes = "The field is not required for patch operation where undefined will be considered as no update.", required = true)
+    @NotBlank(groups = UpdateValidationGroup.class)
     private String type;
     @ApiModelProperty(value = "The version of the tosca node type of the instance.", notes = "The field is not required for patch operation where undefined will be considered as no update.", required = true)
+    @NotBlank(groups = UpdateValidationGroup.class)
     private String typeVersion;
 
     @ApiModelProperty(value = "Map of property values that must match the properties defined in the instance type.")
@@ -43,7 +46,6 @@ public class NodeInstanceDTO {
     @ApiModelProperty(value = "Map of capability that contains the values of the properties as defined in the instance type.")
     @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES_1_2 })
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    @NotNull
     private Map<String, Capability> capabilities;
 
     @ApiModelProperty(value = "Map of values for the runtime attributes of a tosca instance.")

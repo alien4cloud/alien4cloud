@@ -1,5 +1,6 @@
 package alien4cloud.rest.service.model;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -29,6 +30,7 @@ public class UpdateServiceResourceRequest {
     private String description;
     @ApiModelProperty(value = "The node instance definition for the service.", required = true)
     @NotNull
+    @Valid
     private NodeInstanceDTO nodeInstance;
     @ApiModelProperty(value = "The list of locations.")
     private String[] locationIds;

@@ -2,16 +2,19 @@ package alien4cloud.rest.service;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.groups.Default;
 
 import alien4cloud.model.common.Usage;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.service.model.UpdateValidationGroup;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -96,7 +99,8 @@ public class ServiceResourceController {
     @Audit
     public RestResponse<ConstraintInformation> update(
             @ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
-            @ApiParam(value = "ServiceResource update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody UpdateServiceResourceRequest request) {
+            @ApiParam(value = "ServiceResource update request, representing the fields to updates and their new values.", required = true) @Validated(value = {
+                    Default.class, UpdateValidationGroup.class }) @NotEmpty @RequestBody UpdateServiceResourceRequest request) {
         try {
             serviceResourceService.update(id, request.getName(), request.getVersion(), request.getDescription(), request.getNodeInstance().getType(),
                     request.getNodeInstance().getTypeVersion(), request.getNodeInstance().getProperties(), request.getNodeInstance().getCapabilities(),

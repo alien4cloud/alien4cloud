@@ -19,11 +19,13 @@ import lombok.Setter;
 public class PropertyValueDeserializationTest {
     @Test
     public void testPatchDeserialization() throws IOException {
+        RestMapper.REQUEST_OPERATION.set("PATCH");
         ObjectMapper objectMapper = new RestMapper();
         Simple simple = objectMapper.readValue("{ \"id\": \"the_id_value\", \"propertyValue\": null }", Simple.class);
         Assert.assertEquals("the_id_value", simple.getId());
         Assert.assertNotNull(simple.getPropertyValue());
         Assert.assertTrue(simple.getPropertyValue() == RestMapper.NULL_INSTANCES.get(simple.getPropertyValue().getClass()));
+        RestMapper.REQUEST_OPERATION.remove();
     }
 
     @Getter
