@@ -119,6 +119,31 @@
             on-property-update="updateProperty(propertyName, propertyValue)"
             on-capability-property-update="updateCapabilityProperty(capabilityName, propertyName, propertyValue)">
           </a4c-node-template-edit>
+          <!-- Attributes -->
+          <div ng-if="selectedNodeType.attributes.length > 0">
+            <div id="node-details-attributes" class="clickable topology-column-content-head" ng-click="isAttributesCollapsed = !isAttributesCollapsed">
+              <i class="fa" ng-class="{'fa-caret-down' : !isAttributesCollapsed, 'fa-caret-right': isAttributesCollapsed}"></i>
+              {{'COMMON.ATTRIBUTES' | translate}}
+            </div>
+            <div id="node-details-attributes-panel" uib-collapse="isAttributesCollapsed" >
+              <table class="table table-condensed" id="nodeAttributes">
+                <tr ng-repeat="attrEntry in selectedNodeType.attributes">
+                  <td>
+                    <label>{{attrEntry.key}}</label>
+                  </td>
+                  <td>
+                    <span editable-text="selectedService.nodeInstance.attributeValues[attrEntry.key]" buttons="no" onbeforesave="updateAttribute(attrEntry.key, $data)" blur="submit" class="editable editable-click">
+                      {{selectedService.nodeInstance.attributeValues[attrEntry.key]}} <i class="fa fa-pencil-square-o"></i>
+                    </span>
+                  </td>
+                  <td>
+                    <simple-modal class="pull-right" title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{attrEntry.value.description}}"
+                                  key="{{attrEntry.key}}"></simple-modal>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
         </uib-tab>
         <uib-tab>
           <uib-tab-heading>

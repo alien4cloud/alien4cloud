@@ -7,9 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
-import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -36,6 +33,7 @@ import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.ScalableTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.utils.PropertyUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -46,9 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class TopologyPropertiesValidationService {
-    @Resource
-    private IToscaTypeSearchService toscaTypeSearchService;
-
     /**
      * Validate that the properties values in the topology are matching the property definitions (required & constraints).
      * Skips properties defined as get_input
@@ -85,8 +80,7 @@ public class TopologyPropertiesValidationService {
         // create task by nodetemplate
         for (Map.Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
             NodeTemplate nodeTemplate = nodeTempEntry.getValue();
-            NodeType relatedIndexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(),
-                    topology.getDependencies());
+            NodeType relatedIndexedNodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
             // do pass if abstract node
             if (relatedIndexedNodeType.isAbstract()) {
                 continue;
@@ -111,7 +105,7 @@ public class TopologyPropertiesValidationService {
                     continue;
                 }
                 addRequiredPropertyIdToTaskProperties("relationships[" + relationshipEntry.getKey() + "]", relationship.getProperties(),
-                        getRelationshipPropertyDefinition(topology, nodeTemplate), task, skipInputProperties);
+                        getRelationshipPropertyDefinition(nodeTemplate), task, skipInputProperties);
             }
             for (Map.Entry<String, Capability> capabilityEntry : safe(nodeTemplate.getCapabilities()).entrySet()) {
                 Capability capability = capabilityEntry.getValue();
@@ -119,7 +113,7 @@ public class TopologyPropertiesValidationService {
                     continue;
                 }
                 addRequiredPropertyIdToTaskProperties("capabilities[" + capabilityEntry.getKey() + "]", capability.getProperties(),
-                        getCapabilitiesPropertyDefinition(topology, nodeTemplate), task, skipInputProperties);
+                        getCapabilitiesPropertyDefinition(nodeTemplate), task, skipInputProperties);
                 if (capability.getType().equals(NormativeComputeConstants.SCALABLE_CAPABILITY_TYPE)) {
                     Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
                     verifyScalableProperties(scalableProperties, toReturnTaskList, nodeTempEntry.getKey(), skipInputProperties);
@@ -133,12 +127,11 @@ public class TopologyPropertiesValidationService {
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
     }
 
-    private Map<String, PropertyDefinition> getCapabilitiesPropertyDefinition(Topology topology, NodeTemplate nodeTemplate) {
+    private Map<String, PropertyDefinition> getCapabilitiesPropertyDefinition(NodeTemplate nodeTemplate) {
         Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
 
         for (Map.Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
-            CapabilityType indexedCapabilityType = toscaTypeSearchService.getRequiredElementInDependencies(CapabilityType.class,
-                    capabilityEntry.getValue().getType(), topology.getDependencies());
+            CapabilityType indexedCapabilityType = ToscaContext.get(CapabilityType.class, capabilityEntry.getValue().getType());
             if (indexedCapabilityType.getProperties() != null && !indexedCapabilityType.getProperties().isEmpty()) {
                 relatedProperties.putAll(indexedCapabilityType.getProperties());
             }
@@ -147,12 +140,11 @@ public class TopologyPropertiesValidationService {
         return relatedProperties;
     }
 
-    private Map<String, PropertyDefinition> getRelationshipPropertyDefinition(Topology topology, NodeTemplate nodeTemplate) {
+    private Map<String, PropertyDefinition> getRelationshipPropertyDefinition(NodeTemplate nodeTemplate) {
         Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
 
         for (Map.Entry<String, RelationshipTemplate> relationshipTemplateEntry : nodeTemplate.getRelationships().entrySet()) {
-            RelationshipType indexedRelationshipType = toscaTypeSearchService.getRequiredElementInDependencies(RelationshipType.class,
-                    relationshipTemplateEntry.getValue().getType(), topology.getDependencies());
+            RelationshipType indexedRelationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplateEntry.getValue().getType());
             if (indexedRelationshipType.getProperties() != null && !indexedRelationshipType.getProperties().isEmpty()) {
                 relatedProperties.putAll(indexedRelationshipType.getProperties());
             }

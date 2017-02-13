@@ -164,6 +164,14 @@ define(function (require) {
         }, angular.toJson(updateRequest)).$promise;
       };
 
+      $scope.updateAttribute= function(attributeName, attributeValue) {
+        var updateRequest = { nodeInstance: { attributeValues:{} } };
+        updateRequest.nodeInstance.attributeValues[attributeName] = attributeValue;
+        return serviceResourceService.patch({
+          serviceId: $scope.selectedService.id
+        }, angular.toJson(updateRequest)).$promise;
+      };
+
       $scope.update = function(updateRequest) {
         // This may be triggered by editable form so it must return the promise.
         return serviceResourceService.patch({

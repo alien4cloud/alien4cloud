@@ -6,6 +6,11 @@ import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 
 import java.util.Map;
 
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.IValue;
 import org.alien4cloud.tosca.model.definitions.Interface;
@@ -30,7 +35,9 @@ public class AbstractInstantiableToscaType extends AbstractInheritableToscaType 
 
     @ObjectField(enabled = false)
     @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
-    @JsonDeserialize(contentUsing = AttributeDeserializer.class)
+    @ConditionalOnAttribute(value = { ConditionalAttributes.REST })
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = AttributeDeserializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, IValue> attributes;
 
     @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })

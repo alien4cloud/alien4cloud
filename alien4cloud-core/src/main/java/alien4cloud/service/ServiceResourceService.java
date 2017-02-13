@@ -10,7 +10,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.model.deployment.Deployment;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
@@ -22,6 +21,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
@@ -185,6 +185,10 @@ public class ServiceResourceService {
                     serviceResource.getNodeInstance().getTypeVersion());
             if (patch) {
                 nodeInstanceService.patch(nodeType, serviceResource.getNodeInstance(), nodeProperties, nodeCapabilities, nodeAttributeValues);
+                // FIXME if the state has changed we need validation of required properties
+                if (!ToscaNodeLifecycleConstants.INITIAL
+                        .equals(serviceResource.getNodeInstance().getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE))) {
+                }
             } else {
                 serviceResource.getNodeInstance().getNodeTemplate().setProperties(nodeProperties);
                 serviceResource.getNodeInstance().getNodeTemplate().setCapabilities(nodeCapabilities);

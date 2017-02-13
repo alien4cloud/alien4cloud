@@ -63,6 +63,12 @@ public class RestStepsDefinitions {
         Context.getInstance().registerRestResponse(getRestClientInstance().patchJSon(processedPath, postBody));
     }
 
+    @When("^I DELETE \"(.*?)\"$")
+    public void delete(String path) throws Throwable {
+        String processedPath = processPathForRegistryKeys(path);
+        Context.getInstance().registerRestResponse(getRestClientInstance().delete(processedPath));
+    }
+
     @And("^I register \"(.*?)\" as \"(.*?)\"$")
     public void register(String propertyPath, String key) throws Throwable {
         RestResponse restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
@@ -72,6 +78,23 @@ public class RestStepsDefinitions {
             value = beanWrapper.getPropertyValue(propertyPath);
         }
         REGISTRY.put(key, value);
+    }
+
+    @And("^I register path \"(.*?)\" with class \"(.*?)\" as \"(.*?)\"$")
+    public void deserAndRegister(String propertyPath, String className, String key) throws Throwable {
+        Class clazz = Class.forName(className);
+        RestResponse restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), clazz);
+        Object value = restResponse;
+        if (!"null".equals(propertyPath)) {
+            BeanWrapper beanWrapper = new BeanWrapperImpl(restResponse);
+            value = beanWrapper.getPropertyValue(propertyPath);
+        }
+        REGISTRY.put(key, value);
+    }
+
+    @And("^I register \"(.*?)\" for SPEL$")
+    public void registerForSPEL(String key) throws Throwable {
+        Context.getInstance().buildEvaluationContext(REGISTRY.get(key));
     }
 
     private String processPathForRegistryKeys(String path) {

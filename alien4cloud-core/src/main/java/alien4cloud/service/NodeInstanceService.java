@@ -73,7 +73,7 @@ public class NodeInstanceService {
             if (nodeCapabilities == null) {
                 throw new IllegalArgumentException("It is not allowed to set null to capabilities.");
             } else {
-                updateCapabilities(nodeType, nodeInstance.getNodeTemplate(), nodeCapabilities);
+                updateCapabilities(nodeInstance.getNodeTemplate(), nodeCapabilities);
             }
         }
 
@@ -102,7 +102,7 @@ public class NodeInstanceService {
         }
     }
 
-    private void updateCapabilities(NodeType nodeType, NodeTemplate nodeTemplate, Map<String, Capability> nodeCapabilities)
+    private void updateCapabilities(NodeTemplate nodeTemplate, Map<String, Capability> nodeCapabilities)
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         for (Map.Entry<String, Capability> entry : nodeCapabilities.entrySet()) {
             if (entry != null) {

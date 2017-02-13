@@ -108,12 +108,12 @@
               </h4>
             </legend>
             <table class="table table-condensed">
-              <tr ng-repeat="(attributeName, attributeDef) in component.attributes">
-                <td><strong>{{attributeName}}</strong>
+              <tr ng-repeat="propertyEntry in component.attributes">
+                <td><strong>{{propertyEntry.key}}</strong>
                 </td>
                 <td>
                   <span>
-                    {{attributeDef.description || '--' }}
+                    {{propertyEntry.value.description || '--' }}
                   </span>
                 </td>
               </tr>
