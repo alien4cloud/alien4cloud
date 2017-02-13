@@ -16,6 +16,7 @@
         <thead>
           <tr>
             <th></th>
+            <th ng-if="showCatalog">Icon</th>
             <th>{{'COMMON.NAME' | translate}}</th>
             <th>{{'COMMON.TYPE' | translate}}</th>
           </tr>
@@ -26,6 +27,11 @@
               class="clickable"
               ng-class="{'warning': selectedResourceTemplate == template}"
               ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.elementId">
+              <td ng-if="showCatalog">
+                <a ng-click="toggleTemplate(template)" class="ng-scope">
+                    <i class="fa fa-fw fa-square-o" ng-class="{'fa-check-square-o' : isSelected(template),  'fa-square-o': !isSelected(template)}"></i>
+                </a>
+              </td>
             <td ng-init="nodeIcon = getIcon(template.template.type)">
               <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
               <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
