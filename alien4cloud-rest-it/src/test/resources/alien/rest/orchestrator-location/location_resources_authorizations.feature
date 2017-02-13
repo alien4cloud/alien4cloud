@@ -21,7 +21,7 @@ Feature: Manage location resources authorizations
 
 
   @reset
-  Scenario: Add / Remove rights to a user on a location
+  Scenario: Add / Remove rights to a user on a location resource
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the user "frodon"
     Then I should have following list of users:
       | frodon |
@@ -47,7 +47,7 @@ Feature: Manage location resources authorizations
     Then I should not have any authorized users
 
   @reset
-  Scenario: Add / Remove rights to a group on a location
+  Scenario: Add / Remove rights to a group on a location resource
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the group "lordOfRing"
     Then I should have following list of groups:
       | lordOfRing |
@@ -72,7 +72,7 @@ Feature: Manage location resources authorizations
     Then I should not have any authorized groups
 
   @reset
-  Scenario: Add / Remove rights to a application on a location
+  Scenario: Add / Remove rights to a application on a location resource
     And I create an application with name "ALIEN", archive name "ALIEN", description "" and topology template id "null"
     When I create an application environment of type "DEVELOPMENT" with name "DEV-ALIEN" and description "" for the newly created application
     When I create an application environment of type "INTEGRATION_TESTS" with name "TST-ALIEN" and description "" for the newly created application
