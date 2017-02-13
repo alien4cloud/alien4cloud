@@ -235,6 +235,21 @@ define(function(require) {
             }
           };
         };
+
+        $scope.context.selectedResourceTemplates = {};
+
+        $scope.toggleTemplate = function(template) {
+          if ($scope.isSelected(template)) {
+            delete $scope.context.selectedResourceTemplates[template.id];
+          } else {
+            $scope.context.selectedResourceTemplates[template.id] = template;
+          }
+        };
+
+        $scope.isSelected = function(template) {
+          return _.defined($scope.context.selectedResourceTemplates[template.id]);
+        };
+
       }
     ]);
 });

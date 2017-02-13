@@ -47,6 +47,7 @@ define(function (require) {
             $scope.autoConfiguring=false;
           });
       };
+
     }
   ]);
 }); // define
