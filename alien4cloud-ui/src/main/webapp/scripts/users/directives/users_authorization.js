@@ -3,6 +3,7 @@ define(function (require) {
 
   var modules = require('modules');
   require('scripts/users/controllers/users_authorization_directive_ctrl');
+  require('scripts/users/controllers/users_authorization_modal_ctrl');
 
   modules.get('a4c-security').directive('alienUserAuthorization', function () {
     return {
