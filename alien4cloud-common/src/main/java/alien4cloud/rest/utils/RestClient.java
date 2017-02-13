@@ -17,7 +17,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
@@ -34,7 +33,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.BestMatchSpec;
 import org.apache.http.protocol.HttpContext;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -183,15 +181,15 @@ public class RestClient {
         return ResponseUtil.toString(response);
     }
 
-    public String deleteJSon(String path, String jSon) throws IOException {
-        log.debug("Send post json request to [" + path + "], jSon [" + jSon + "]");
-        HttpDelete httpDelete = new HttpDelete(applicationUrl + path);
-        StringEntity jsonInput = new StringEntity(jSon);
-        jsonInput.setContentType("application/json");
-        httpDelete.setEntity(jsonInput);
-        CloseableHttpResponse response = httpClient.execute(httpDelete);
-        return ResponseUtil.toString(response);
-    }
+    // public String deleteJSon(String path, String jSon) throws IOException {
+    // log.debug("Send post json request to [" + path + "], jSon [" + jSon + "]");
+    // HttpDelete httpDelete = new HttpDelete(applicationUrl + path);
+    // StringEntity jsonInput = new StringEntity(jSon);
+    // jsonInput.setContentType("application/json");
+    // httpDelete.setEntity(jsonInput);
+    // CloseableHttpResponse response = httpClient.execute(httpDelete);
+    // return ResponseUtil.toString(response);
+    // }
 
     public void close() throws IOException {
         log.debug("Close client");
@@ -209,17 +207,17 @@ public class RestClient {
     /**
      * DELETE request with a body
      */
-    @NoArgsConstructor
-    private class HttpDelete extends HttpEntityEnclosingRequestBase {
-
-        public HttpDelete(String uri) {
-            super();
-            setURI(URI.create(uri));
-        }
-
-        @Override
-        public String getMethod() {
-            return "DELETE";
-        }
-    }
+    // @NoArgsConstructor
+    // private class HttpDelete extends HttpEntityEnclosingRequestBase {
+    //
+    // public HttpDelete(String uri) {
+    // super();
+    // setURI(URI.create(uri));
+    // }
+    //
+    // @Override
+    // public String getMethod() {
+    // return "DELETE";
+    // }
+    // }
 }

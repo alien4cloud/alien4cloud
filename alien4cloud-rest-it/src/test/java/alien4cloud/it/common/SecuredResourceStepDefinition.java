@@ -318,7 +318,7 @@ public class SecuredResourceStepDefinition {
         String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
         url += "/users";
 
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().deleteJSon(url, JsonUtil.toString(request)));
+        // Context.getInstance().registerRestResponse(Context.getRestClientInstance().deleteJSon(url, JsonUtil.toString(request)));
 
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
@@ -348,7 +348,7 @@ public class SecuredResourceStepDefinition {
         String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
         url += "/groups";
 
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().deleteJSon(url, JsonUtil.toString(request)));
+        // Context.getInstance().registerRestResponse(Context.getRestClientInstance().deleteJSon(url, JsonUtil.toString(request)));
 
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }

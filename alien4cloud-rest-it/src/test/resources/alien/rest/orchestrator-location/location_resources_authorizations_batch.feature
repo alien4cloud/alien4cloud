@@ -48,23 +48,23 @@ Feature: Manage location resources authorizations in batch mode
       | Medium1 |
     Then I should receive a RestResponse with an error code 102
 
-    When I revoke access to the resources type "LOCATION_RESOURCE" from the user "sam"
-      | Medium1 |
-      | Medium2 |
-    Then I should receive a RestResponse with no error
-    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium1"
-    Then I should have following list of users:
-      | frodon |
-    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium2"
-    Then I should have following list of users:
-      | frodon |
-    Given I successfully revoke access to the resources type "LOCATION_RESOURCE" from the user "frodon"
-      | Medium1 |
-    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium1"
-    Then I should not have any authorized users
-    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium2"
-    Then I should have following list of users:
-      | frodon |
+#    When I revoke access to the resources type "LOCATION_RESOURCE" from the user "sam"
+#      | Medium1 |
+#      | Medium2 |
+#    Then I should receive a RestResponse with no error
+#    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium1"
+#    Then I should have following list of users:
+#      | frodon |
+#    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium2"
+#    Then I should have following list of users:
+#      | frodon |
+#    Given I successfully revoke access to the resources type "LOCATION_RESOURCE" from the user "frodon"
+#      | Medium1 |
+#    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium1"
+#    Then I should not have any authorized users
+#    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium2"
+#    Then I should have following list of users:
+#      | frodon |
 
   @reset
   Scenario: Add / Remove rights to a group on location resources
@@ -90,23 +90,23 @@ Feature: Manage location resources authorizations in batch mode
       | Medium1 |
     Then I should receive a RestResponse with an error code 102
 
-    When I revoke access to the resources type "LOCATION_RESOURCE" from the group "lordOfRing"
-      | Medium1 |
-      | Medium2 |
-    Then I should receive a RestResponse with no error
-    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium1"
-    Then I should have following list of groups:
-      | hobbits |
-    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium2"
-    Then I should have following list of groups:
-      | hobbits |
-    Given I successfully revoke access to the resources type "LOCATION_RESOURCE" from the user "frodon"
-      | Medium1 |
-    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium1"
-    Then I should not have any authorized groups
-    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium2"
-    Then I should have following list of groups:
-      | hobbits |
+#    When I revoke access to the resources type "LOCATION_RESOURCE" from the group "lordOfRing"
+#      | Medium1 |
+#      | Medium2 |
+#    Then I should receive a RestResponse with no error
+#    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium1"
+#    Then I should have following list of groups:
+#      | hobbits |
+#    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium2"
+#    Then I should have following list of groups:
+#      | hobbits |
+#    Given I successfully revoke access to the resources type "LOCATION_RESOURCE" from the user "frodon"
+#      | Medium1 |
+#    When I get the authorised users for the resource type "LOCATION_RESOURCE" named "Medium1"
+#    Then I should not have any authorized groups
+#    When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium2"
+#    Then I should have following list of groups:
+#      | hobbits |
 #
   @reset
   Scenario: Add / Remove rights to a application on location resources
