@@ -139,8 +139,7 @@ define(function (require) {
       // APPLICATIONS / ENVIRONMENTS
       // *****************************************************************************
 
-      $scope.openApplicationsdModal = function (app, service) {
-        $scope.application = app;
+      $scope.openApplicationsdModal = function (service) {
         $scope.preSelection = {};
         $scope.preSelectedApps = {};
         $scope.preSelectedEnvs = {};
@@ -182,6 +181,12 @@ define(function (require) {
 
         modalInstance.result.then(function (request) {
           request.resources =  Object.keys($scope.context.selectedResourceTemplates);
+          if (service === 'revoke') {
+            request.applicationsToDelete = request.applicationsToAdd;
+            request.environmentsToDelete = request.environmentsToAdd;
+            delete request.applicationsToAdd;
+            delete request.environmentsToAdd;
+          }
           locationResourcesSecurityService.updateEnvironmentsPerApplicationBatch.grant(params, angular.toJson(request), function(successResponse) {
             console.log(successResponse);
             //TODO: check if an error occur and add a refresh
