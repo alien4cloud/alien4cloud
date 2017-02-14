@@ -9,12 +9,9 @@ define(function (require) {
 
   require('scripts/orchestrators/controllers/orchestrator_location_resources');
   require('scripts/orchestrators/directives/orchestrator_location_resources');
-
   require('scripts/orchestrators/services/location_resources_security_service');
-
-
   require('scripts/users/controllers/users_authorization_modal_ctrl');
-
+  require('scripts/users/controllers/groups_authorization_modal_ctrl');
 
   states.state('admin.orchestrators.details.locations.nodes', {
     url: '/nodes',
@@ -91,21 +88,27 @@ define(function (require) {
           }
         });
 
-          modalInstance.result.then(function (users) {
-          var SubjectsAuthorizationRequest = {};
-          SubjectsAuthorizationRequest['resources'] = Object.keys($scope.context.selectedResourceTemplates);
-          SubjectsAuthorizationRequest['subjects'] = _.map(users, function (user) {return user.username;});
+        modalInstance.result.then(function (users) {
+          var request = {
+            'resources':  Object.keys($scope.context.selectedResourceTemplates),
+            'subjects': _.map(users, function (user) {return user.username;})
+          };
 
-          locationResourcesSecurityService.usersBatch[service](params, angular.toJson(SubjectsAuthorizationRequest), function(successResponse) {
-            //TODO: check if an error occur and add a refresh
-          });
+          if (service === 'grant') {
+            locationResourcesSecurityService.grantUsersBatch[service](params, angular.toJson(request), function(successResponse) {
+              console.log(successResponse);
+              //TODO: check if an error occur and add a refresh
+            });
+          } else if (service === 'revoke') {
+            locationResourcesSecurityService.revokeUsersBatch(params, request);
+          }
 
         });
       };
 
-// *****************************************************************************
-// GROUPS
-// *****************************************************************************
+      // *****************************************************************************
+      // GROUPS
+      // *****************************************************************************
 
       $scope.openGroupsdModal = function (service) {
         var modalInstance = $uibModal.open({
@@ -118,17 +121,22 @@ define(function (require) {
         });
 
         modalInstance.result.then(function (groups) {
-          var SubjectsAuthorizationRequest = {};
-          SubjectsAuthorizationRequest['resources'] = Object.keys($scope.context.selectedResourceTemplates);
-          SubjectsAuthorizationRequest['subjects'] = _.map(groups, function (group) {return group.id;});
+          var request = {
+            'resources':  Object.keys($scope.context.selectedResourceTemplates),
+            'subjects': _.map(groups, function (group) {return group.id;})
+          };
 
-          locationResourcesSecurityService.groupsBatch[service](params, angular.toJson(SubjectsAuthorizationRequest), function(successResponse) {
-            //TODO: check if an error occur and add a refresh
-          });
+          if (service === 'grant') {
+            locationResourcesSecurityService.grantGroupsBatch[service](params, angular.toJson(request), function(successResponse) {
+              console.log(successResponse);
+              //TODO: check if an error occur and add a refresh
+            });
+          } else if (service === 'revoke') {
+            locationResourcesSecurityService.revokeGroupsBatch(params, request);
+          }
 
         });
       };
-
 
 
     }
