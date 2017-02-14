@@ -8,12 +8,15 @@ define(function (require) {
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
 
-  modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationModalCtrl', ['$scope', '$uibModalInstance', 'searchServiceFactory', 'applicationEnvironmentServices', 'searchConfig',
-    function ($scope, $uibModalInstance, searchServiceFactory, applicationEnvironmentServices, searchConfig) {
+  modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationModalCtrl', ['$scope', '$uibModalInstance', 'searchServiceFactory', 'applicationEnvironmentServices', 'searchConfig', 'preSelection', 'preSelectedApps', 'preSelectedEnvs',
+    function ($scope, $uibModalInstance, searchServiceFactory, applicationEnvironmentServices, searchConfig, preSelection, preSelectedApps, preSelectedEnvs) {
       $scope.query = '';
       $scope.batchSize = 5;
       $scope.selectedApps = {};
       $scope.searchConfig = searchConfig;
+      $scope.preSelection = preSelection;
+      $scope.preSelectedApps = preSelectedApps;
+      $scope.preSelectedEnvs = preSelectedEnvs;
 
       // a map appId -> environment array
       $scope.environments = {};

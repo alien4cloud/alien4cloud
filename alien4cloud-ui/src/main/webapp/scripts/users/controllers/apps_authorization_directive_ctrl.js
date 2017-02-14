@@ -42,7 +42,10 @@ define(function (require) {
           templateUrl: 'views/users/apps_authorization_popup.html',
           controller: 'AppsAuthorizationModalCtrl',
           resolve:{
-            searchConfig:  $scope.buildSearchConfig()
+            searchConfig:  $scope.buildSearchConfig(),
+            preSelection: $scope.preSelection,
+            preSelectedApps:   $scope.preSelectedApps,
+            preSelectedEnvs:   $scope.preSelectedEnvs
           },
           scope: $scope
         });

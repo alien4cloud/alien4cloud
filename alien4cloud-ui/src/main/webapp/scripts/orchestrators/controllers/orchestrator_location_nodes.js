@@ -26,8 +26,8 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource', 'locationResourcesProcessor', '$uibModal', 'locationResourcesSecurityService',
-    function($scope, $resource, locationResourcesProcessor, $uibModal, locationResourcesSecurityService) {
+  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource', 'locationResourcesProcessor', '$uibModal', 'locationResourcesSecurityService', 'resourceSecurityFactory',
+    function($scope, $resource, locationResourcesProcessor, $uibModal, locationResourcesSecurityService, resourceSecurityFactory) {
 
       function removeGeneratedResources() {
           _.remove($scope.context.locationResources.nodeTemplates, function(locationResource){
@@ -145,8 +145,14 @@ define(function (require) {
         $scope.preSelectedApps = {};
         $scope.preSelectedEnvs = {};
 
+        var locationResourcesSecurityServiceBis = resourceSecurityFactory('rest/latest/orchestrators/:orchestratorId/locations/:locationId/', {
+          orchestratorId: $scope.context.orchestrator.id,
+          locationId: function(){ return $scope.context.location.id;},
+          resourceId: function(){ return _.get($scope.selectedResourceTemplate,'id');}
+        });
+
         $scope.searchAuthorizedEnvironmentsPerApplication = function () {
-          locationResourcesSecurityService.environmentsPerApplication.get({}, function (response) {
+          locationResourcesSecurityServiceBis.environmentsPerApplication.get({params}, function (response) {
             $scope.authorizedEnvironmentsPerApplication = response.data;
           });
         };
@@ -163,31 +169,24 @@ define(function (require) {
           });
         });
 
-
         var modalInstance = $uibModal.open({
           templateUrl: 'views/users/apps_authorization_popup.html',
           controller: 'AppsAuthorizationModalCtrl',
           resolve:{
-            searchConfig:  $scope.buildSecuritySearchConfig('applications')
+            searchConfig:      $scope.buildSecuritySearchConfig('applications'),
+            preSelection:      $scope.preSelection,
+            preSelectedApps:   $scope.preSelectedApps,
+            preSelectedEnvs:   $scope.preSelectedEnvs
           }
           });
 
-        // modalInstance.result.then(function (groups) {
-        //   var request = {
-        //     'resources':  Object.keys($scope.context.selectedResourceTemplates),
-        //     'subjects': _.map(groups, function (group) {return group.id;})
-        //   };
-        //
-        //   if (service === 'grant') {
-        //     locationResourcesSecurityService.grantGroupsBatch[service](params, angular.toJson(request), function(successResponse) {
-        //       console.log(successResponse);
-        //       //TODO: check if an error occur and add a refresh
-        //     });
-        //   } else if (service === 'revoke') {
-        //     locationResourcesSecurityService.revokeGroupsBatch(params, request);
-        //   }
-        //
-        // });
+        modalInstance.result.then(function (request) {
+          request.resources =  Object.keys($scope.context.selectedResourceTemplates);
+          locationResourcesSecurityService.updateEnvironmentsPerApplicationBatch.grant(params, angular.toJson(request), function(successResponse) {
+            console.log(successResponse);
+            //TODO: check if an error occur and add a refresh
+          });
+        });
       };
 
     }
