@@ -72,7 +72,16 @@ define(function (require) {
         };
       };
 
-      $scope.openNewUserAuthorizationModal = function (resources) {
+      var params = {
+        orchestratorId: $scope.context.orchestrator.id,
+        locationId: $scope.context.location.id,
+      };
+
+      // *****************************************************************************
+      // USERS
+      // *****************************************************************************
+
+      $scope.openUsersdModal = function (service) {
         var modalInstance = $uibModal.open({
           templateUrl: 'views/users/users_authorization_popup.html',
           controller: 'UsersAuthorizationModalCtrl',
@@ -82,34 +91,43 @@ define(function (require) {
           }
         });
 
-
-        var getUsernames = function(users) {
-          var result = [];
-          for (var index in users) {
-            if (users[index].hasOwnProperty('username')) {
-              result.push(users[index].username);
-            }
-          }
-          return result;
-        };
-
-        modalInstance.result.then(function (users) {
+          modalInstance.result.then(function (users) {
           var SubjectsAuthorizationRequest = {};
-          SubjectsAuthorizationRequest['resources'] = Object.keys(resources);
-          SubjectsAuthorizationRequest['subjects'] = getUsernames(users);
+          SubjectsAuthorizationRequest['resources'] = Object.keys($scope.context.selectedResourceTemplates);
+          SubjectsAuthorizationRequest['subjects'] = _.map(users, function (user) {return user.username;});
 
-          var params = {
-            orchestratorId: $scope.context.orchestrator.id,
-            locationId: $scope.context.location.id,
-          };
-
-          locationResourcesSecurityService.usersBatch.grant(params, angular.toJson(SubjectsAuthorizationRequest), function(successResponse) {
+          locationResourcesSecurityService.usersBatch[service](params, angular.toJson(SubjectsAuthorizationRequest), function(successResponse) {
             //TODO: check if an error occur and add a refresh
           });
 
         });
       };
 
+// *****************************************************************************
+// GROUPS
+// *****************************************************************************
+
+      $scope.openGroupsdModal = function (service) {
+        var modalInstance = $uibModal.open({
+          templateUrl: 'views/users/groups_authorization_popup.html',
+          controller: 'GroupsAuthorizationModalCtrl',
+          resolve:{
+            searchConfig:  $scope.buildSecuritySearchConfig('groups'),
+            authorizedGroups: function(){ return $scope.authorizedGroups; }
+          }
+        });
+
+        modalInstance.result.then(function (groups) {
+          var SubjectsAuthorizationRequest = {};
+          SubjectsAuthorizationRequest['resources'] = Object.keys($scope.context.selectedResourceTemplates);
+          SubjectsAuthorizationRequest['subjects'] = _.map(groups, function (group) {return group.id;});
+
+          locationResourcesSecurityService.groupsBatch[service](params, angular.toJson(SubjectsAuthorizationRequest), function(successResponse) {
+            //TODO: check if an error occur and add a refresh
+          });
+
+        });
+      };
 
 
 

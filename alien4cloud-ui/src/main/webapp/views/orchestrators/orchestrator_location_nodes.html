@@ -5,11 +5,11 @@
     Authorizations <span class="caret"></span>
   </button>
   <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="btn-append-to-body">
-    <li role="menuitem"><a ng-click="openNewUserAuthorizationModal(context.selectedResourceTemplates)">Authorize users</a></li>
-    <li role="menuitem"><a href="#">Revoke users</a></li>
+    <li role="menuitem"><a ng-click="openUsersdModal('grant')">Authorize users</a></li>
+    <li role="menuitem"><a ng-click="openUsersdModal('revoke')">Revoke users</a></li>
     <li class="divider"></li>
-    <li role="menuitem"><a href="#">Authorize groups</a></li>
-    <li role="menuitem"><a href="#">Revoke groups</a></li>
+    <li role="menuitem"><a ng-click="openGroupsdModal('grant')">Authorize groups</a></li>
+    <li role="menuitem"><a ng-click="openGroupsdModal('revoke')">Revoke groups</a></li>
     <li class="divider"></li>
     <li role="menuitem"><a href="#">Authorize applications / environments</a></li>
     <li role="menuitem"><a href="#">Revoke applications / environments</a></li>
