@@ -254,6 +254,22 @@ define(function(require) {
           return _.defined($scope.context.selectedResourceTemplates[template.id]);
         };
 
+        $scope.toggleAllTemplates = function() {
+          if (Object.keys($scope.context.selectedResourceTemplates).length === 0) {
+            for (var i in $scope.resourcesTemplates) {
+              $scope.toggleTemplate($scope.resourcesTemplates[i]);
+            }
+          } else {
+            for (var j in $scope.context.selectedResourceTemplates) {
+              $scope.toggleTemplate($scope.context.selectedResourceTemplates[j]);
+            }
+          }
+        };
+
+        $scope.allTemplatesAreSelected = function() {
+          return Object.keys($scope.context.selectedResourceTemplates).length === Object.keys($scope.resourcesTemplates).length;
+        };
+
       }
     ]);
 });

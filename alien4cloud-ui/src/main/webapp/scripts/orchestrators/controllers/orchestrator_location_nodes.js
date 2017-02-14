@@ -88,9 +88,8 @@ define(function (require) {
         modalInstance.result.then(function (users) {
           var request = {
             'resources':  Object.keys($scope.context.selectedResourceTemplates),
-            'subjects': _.map(users, function (user) {return user.username;})
+            'subjects': _.map(users.users, function (user) {return user.username;})
           };
-
           if (service === 'grant') {
             locationResourcesSecurityService.grantUsersBatch[service](params, angular.toJson(request), function(successResponse) {
               console.log(successResponse);
