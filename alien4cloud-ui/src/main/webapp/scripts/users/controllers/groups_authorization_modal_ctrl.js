@@ -19,21 +19,35 @@ define(function (require) {
         return _.findIndex(selectedGroups, {'id': group.id});
       };
 
+      var buildSeachService = function(){
+        var url;
+        var useParams ;
+        var params ;
+        if($scope.customSearchActive) {
+          url = _.get(searchConfig, 'url', 'rest/latest/groups/search');
+          useParams = _.get(searchConfig, 'useParams', false);
+          params = _.get(searchConfig, 'params', null);
+        }else {
+          url = 'rest/latest/groups/search';
+          useParams = false;
+          params = null;
+        }
+        $scope.searchService = searchServiceFactory(url, useParams, $scope, $scope.batchSize, null, null, null, params);
+        $scope.searchService.search();
+      };
+
       $scope.onSearchCompleted = function (searchResult) {
         $scope.groupsData = searchResult.data;
         $scope.selectedGroupsInCurrentPage = _.filter($scope.groupsData.data, function (searchedGroup) {
           return indexOf($scope.selectedGroups, searchedGroup) >= 0;
         });
       };
-      var url = _.get(searchConfig, 'url', 'rest/latest/groups/search');
-      var useParams = _.get(searchConfig, 'useParams', false);
-      var params = _.get(searchConfig, 'params', null);
-      $scope.searchService = searchServiceFactory(url, useParams, $scope, $scope.batchSize, null, null, null, params);
-      $scope.searchService.search();
 
-      $scope.ok = function () {
+      buildSeachService();
+
+      $scope.ok = function (force) {
         if ($scope.selectedGroups.length > 0) {
-          $uibModalInstance.close($scope.selectedGroups);
+          $uibModalInstance.close({groups:$scope.selectedGroups, force: force});
         }
       };
 
@@ -95,6 +109,11 @@ define(function (require) {
         }else {
           return 'fa-minus-square-o';
         }
+      };
+
+      $scope.toggleCustomSearch = function(){
+        $scope.customSearchActive = !$scope.customSearchActive;
+        buildSeachService();
       };
 
       $scope.cancel = function () {

@@ -237,7 +237,8 @@ define(function(require) {
         };
 
         $scope.authModalTemplates = {
-          users: 'views/orchestrators/resource_users_authorization_popup.html'
+          users: 'views/orchestrators/authorizations/resource_users_authorization_popup.html',
+          groups: 'views/orchestrators/authorizations/resource_groups_authorization_popup.html'
         };
 
         $scope.context.selectedResourceTemplates = {};

@@ -24,18 +24,17 @@ define(function (require) {
 
       $scope.openNewGroupAuthorizationModal = function () {
         var modalInstance = $uibModal.open({
-          templateUrl: 'views/users/groups_authorization_popup.html',
+          templateUrl: _.get($scope, 'authorizeModalTemplateUrl', 'views/users/groups_authorization_popup.html'),
           controller: 'GroupsAuthorizationModalCtrl',
           resolve:{
             searchConfig:  $scope.buildSearchConfig(),
             authorizedGroups: function(){ return $scope.authorizedGroups; }
-          }
+          },
+          scope: $scope
         });
 
-        modalInstance.result.then(function (groups) {
-          $scope.service.save({}, _.map(groups, function (group) {
-            return group.id;
-          }), refreshAuthorizedGroups);
+        modalInstance.result.then(function (result) {
+          $scope.service.save({force:result.force}, _.map(result.groups, 'id'), refreshAuthorizedGroups);
         });
       };
 

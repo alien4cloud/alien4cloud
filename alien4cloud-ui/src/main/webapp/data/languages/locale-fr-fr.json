@@ -891,8 +891,8 @@
         "GROUPS": {
           "ADD": "Autoriser group",
           "ADD_POPUP": {
-            "TITLE": "Selectionner groupes",
-            "OK": "Autoriser"
+            "LOC_AUTH_FILTER": "Autorisés sur la location",
+            "TITLE": "Selectionner groupes"
           }
         },
         "APPS": {

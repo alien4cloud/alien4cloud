@@ -891,8 +891,8 @@
         "GROUPS": {
           "ADD": "Authorize group",
           "ADD_POPUP": {
-            "TITLE": "Select groups",
-            "OK": "Authorize selected groups"
+            "LOC_AUTH_FILTER": "Location authorized",
+            "TITLE": "Select groups"
           }
         },
         "APPS": {

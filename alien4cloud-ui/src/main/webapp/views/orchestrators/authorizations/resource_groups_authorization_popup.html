@@ -17,6 +17,12 @@
             </div>
           </form>
         </div>
+        <div  class="filter-category">
+          <a ng-click="toggleCustomSearch()" class="pull-rigth">
+            <i class="fa fa-fw" ng-class="{'fa-check-square-o' : customSearchActive,  'fa-square-o': !customSearchActive}"></i>
+              {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD_POPUP.LOC_AUTH_FILTER' | translate}}
+          </a>
+        </div>
       </div>
       <div class="row" style="margin-top: 10px;">
         <div class="col-md-12">
@@ -64,6 +70,8 @@
   </div>
   <div class="modal-footer" style="margin-top: 10px;">
     <button ng-disabled="selectedGroups.length === 0" class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}
+    </button>
+    <button ng-disabled="selectedGroups.length === 0" class="btn btn-primary" ng-click="ok(true)">{{'FORCE' | translate}}
     </button>
     <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
   </div>

@@ -38,14 +38,7 @@ define(function (require) {
         });
 
         modalInstance.result.then(function (result) {
-          var params = {};
-          var force = _.get(result, 'force');
-          if(_.defined(force)){
-            params.force = force;
-          }
-          $scope.service.save(params, _.map(result.users, function (user) {
-            return user.username;
-          }), refreshAuthorizedUsers);
+          $scope.service.save({force: result.force}, _.map(result.users, 'username'), refreshAuthorizedUsers);
         });
       };
 

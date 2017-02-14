@@ -67,7 +67,7 @@ define(function (require) {
         return {
           url: 'rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/' + subject + '/search',
           useParams: true,
-          params: params
+          params: _.clone(params, true)
         };
       };
 
@@ -75,9 +75,9 @@ define(function (require) {
       // USERS
       // *****************************************************************************
 
-      $scope.openUsersdModal = function (service) {
+      $scope.openUsersdModal = function (action) {
         var modalInstance = $uibModal.open({
-          templateUrl: 'views/users/users_authorization_popup.html',
+          templateUrl: 'views/orchestrators/authorizations/resource_users_authorization_popup.html',
           controller: 'UsersAuthorizationModalCtrl',
           resolve:{
             searchConfig:  $scope.buildSecuritySearchConfig('users'),
@@ -85,17 +85,17 @@ define(function (require) {
           }
         });
 
-        modalInstance.result.then(function (users) {
+        modalInstance.result.then(function (result) {
           var request = {
             'resources':  Object.keys($scope.context.selectedResourceTemplates),
-            'subjects': _.map(users.users, function (user) {return user.username;})
+            'subjects': _.map(result.users, 'username')
           };
-          if (service === 'grant') {
-            locationResourcesSecurityService.grantUsersBatch[service](params, angular.toJson(request), function(successResponse) {
+          if (action === 'grant') {
+            locationResourcesSecurityService.grantUsersBatch[action](_.merge(params, {force: result.force}), angular.toJson(request), function(successResponse) {
               console.log(successResponse);
               //TODO: check if an error occur and add a refresh
             });
-          } else if (service === 'revoke') {
+          } else if (action === 'revoke') {
             locationResourcesSecurityService.revokeUsersBatch(params, request);
           }
 
@@ -106,9 +106,9 @@ define(function (require) {
       // GROUPS
       // *****************************************************************************
 
-      $scope.openGroupsdModal = function (service) {
+      $scope.openGroupsdModal = function (action) {
         var modalInstance = $uibModal.open({
-          templateUrl: 'views/users/groups_authorization_popup.html',
+          templateUrl: 'views/orchestrators/authorizations/resource_groups_authorization_popup.html',
           controller: 'GroupsAuthorizationModalCtrl',
           resolve:{
             searchConfig:  $scope.buildSecuritySearchConfig('groups'),
@@ -116,18 +116,18 @@ define(function (require) {
           }
         });
 
-        modalInstance.result.then(function (groups) {
+        modalInstance.result.then(function (result) {
           var request = {
             'resources':  Object.keys($scope.context.selectedResourceTemplates),
-            'subjects': _.map(groups, function (group) {return group.id;})
+            'subjects': _.map(result.groups, 'id')
           };
 
-          if (service === 'grant') {
-            locationResourcesSecurityService.grantGroupsBatch[service](params, angular.toJson(request), function(successResponse) {
+          if (action === 'grant') {
+            locationResourcesSecurityService.grantGroupsBatch[action](_.merge(params, {force:result.force}), angular.toJson(request), function(successResponse) {
               console.log(successResponse);
               //TODO: check if an error occur and add a refresh
             });
-          } else if (service === 'revoke') {
+          } else if (action === 'revoke') {
             locationResourcesSecurityService.revokeGroupsBatch(params, request);
           }
 
@@ -138,7 +138,7 @@ define(function (require) {
       // APPLICATIONS / ENVIRONMENTS
       // *****************************************************************************
 
-      $scope.openApplicationsdModal = function (service) {
+      $scope.openApplicationsdModal = function (action) {
         $scope.preSelection = {};
         $scope.preSelectedApps = {};
         $scope.preSelectedEnvs = {};
@@ -180,7 +180,7 @@ define(function (require) {
 
         modalInstance.result.then(function (request) {
           request.resources =  Object.keys($scope.context.selectedResourceTemplates);
-          if (service === 'revoke') {
+          if (action === 'revoke') {
             request.applicationsToDelete = request.applicationsToAdd;
             request.environmentsToDelete = request.environmentsToAdd;
             delete request.applicationsToAdd;
