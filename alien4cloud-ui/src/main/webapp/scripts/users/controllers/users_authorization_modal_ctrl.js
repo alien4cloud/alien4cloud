@@ -19,21 +19,35 @@ define(function (require) {
         return _.findIndex(selectedUsers, {'username': user.username});
       };
 
+      var buildSeachService = function(){
+        var url;
+        var useParams ;
+        var params ;
+        if($scope.customSearchActive) {
+          url = _.get(searchConfig, 'url', 'rest/latest/users/search');
+          useParams = _.get(searchConfig, 'useParams', false);
+          params = _.get(searchConfig, 'params', null);
+        }else {
+          url = 'rest/latest/users/search';
+          useParams = false;
+          params = null;
+        }
+        $scope.searchService = searchServiceFactory(url, useParams, $scope, $scope.batchSize, null, null, null, params);
+        $scope.searchService.search();
+      };
+
       $scope.onSearchCompleted = function (searchResult) {
         $scope.usersData = searchResult.data;
         $scope.selectedUsersInCurrentPage = _.filter($scope.usersData.data, function (searchedUser) {
           return indexOf($scope.selectedUsers, searchedUser) >= 0;
         });
       };
-      var url = _.get(searchConfig, 'url', 'rest/latest/users/search');
-      var useParams = _.get(searchConfig, 'useParams', false);
-      var params = _.get(searchConfig, 'params', null);
-      $scope.searchService = searchServiceFactory(url, useParams, $scope, $scope.batchSize, null, null, null, params);
-      $scope.searchService.search();
 
-      $scope.ok = function () {
+      buildSeachService();
+
+      $scope.ok = function (force) {
         if ($scope.selectedUsers.length > 0) {
-          $uibModalInstance.close($scope.selectedUsers);
+          $uibModalInstance.close({users:$scope.selectedUsers, force: force});
         }
       };
 
@@ -95,6 +109,11 @@ define(function (require) {
         }else {
           return 'fa-minus-square-o';
         }
+      };
+
+      $scope.toggleCustomSearch = function(){
+        $scope.customSearchActive = !$scope.customSearchActive;
+        buildSeachService();
       };
 
       $scope.cancel = function () {

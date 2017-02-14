@@ -780,6 +780,7 @@
   },
   "EXECUTE": "Execute",
   "FALSE": "False",
+  "FORCE": "Force",
   "GENERIC_FORM": {
     "ADD": "Add",
     "CANCEL": "Cancel",
@@ -883,8 +884,8 @@
         "USERS": {
           "ADD": "Authorize user",
           "ADD_POPUP": {
-            "TITLE": "Select users",
-            "OK": "Authorize selected users"
+            "LOC_AUTH_FILTER": "Location authorized",
+            "TITLE": "Select users"
           }
         },
         "GROUPS": {
@@ -899,7 +900,9 @@
           "ADD_POPUP": {
             "TITLE": "Select applications / environments"
           }
-        }
+        },
+        "FORCE_TITLE": "Force",
+        "FORCE_MESSAGE": "Do you really want to force authorizations on the resource? This will also grant authorizations on the location to unauthorized users! "
       },
       "AUTO_CONFIG": "Auto-config",
       "CONFIGURATION_RESOURCES": "Configuration resources",

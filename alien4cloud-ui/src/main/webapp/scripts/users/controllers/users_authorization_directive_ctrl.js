@@ -28,16 +28,22 @@ define(function (require) {
 
       $scope.openNewUserAuthorizationModal = function () {
         var modalInstance = $uibModal.open({
-          templateUrl: 'views/users/users_authorization_popup.html',
+          templateUrl: _.get($scope, 'authorizeModalTemplateUrl', 'views/users/users_authorization_popup.html'),
           controller: 'UsersAuthorizationModalCtrl',
           resolve:{
             searchConfig:  $scope.buildSearchConfig(),
             authorizedUsers: function() { return $scope.authorizedUsers; }
-          }
+          },
+          scope: $scope
         });
 
-        modalInstance.result.then(function (users) {
-          $scope.service.save({}, _.map(users, function (user) {
+        modalInstance.result.then(function (result) {
+          var params = {};
+          var force = _.get(result, 'force');
+          if(_.defined(force)){
+            params.force = force;
+          }
+          $scope.service.save(params, _.map(result.users, function (user) {
             return user.username;
           }), refreshAuthorizedUsers);
         });

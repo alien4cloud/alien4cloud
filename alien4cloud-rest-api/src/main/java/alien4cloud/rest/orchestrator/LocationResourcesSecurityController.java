@@ -11,12 +11,12 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Sets;
@@ -37,7 +37,6 @@ import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationDT
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
 import alien4cloud.rest.orchestrator.model.GroupDTO;
 import alien4cloud.rest.orchestrator.model.UserDTO;
-import alien4cloud.security.Permission;
 import alien4cloud.security.ResourcePermissionService;
 import alien4cloud.security.Subject;
 import io.swagger.annotations.Api;
@@ -63,19 +62,6 @@ public class LocationResourcesSecurityController {
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
 
-    /**
-     * Check if all subjects have the authorization on the location or failed.
-     * @param resource
-     * @param subjectType
-     * @param subjects
-     */
-    private void checkAuthorization(Location resource, Subject subjectType, String[] subjects) {
-        Set<String> unauthorizedNames = Arrays.stream(subjects).filter(name -> !resource.getPermissions(subjectType, name).contains(Permission.ADMIN))
-                .collect(Collectors.toSet());
-        if (!unauthorizedNames.isEmpty()) {
-            throw new AccessDeniedException("At least one of the current <" + subjectType + "> has no authorization on location <" + resource.getName() + "> to perform the requested operation: " + unauthorizedNames.toString());
-        }
-    }
 
     /*******************************************************************************************************************************
      *
@@ -96,9 +82,10 @@ public class LocationResourcesSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public synchronized RestResponse<List<UserDTO>> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId,
+            @RequestParam(required = false, defaultValue = "false") boolean force,
                                                                     @PathVariable String resourceId, @RequestBody String[] userNames) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        checkAuthorization(location, Subject.USER, userNames);
+        locationSecurityService.checkAuthorizations(location, Subject.USER, force, userNames);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         // prefer using locationResourceService.saveResource so that the location update date is update.
         // This will then trigger a deployment topology update
@@ -161,9 +148,10 @@ public class LocationResourcesSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public synchronized RestResponse<List<GroupDTO>> grantAccessToGroups(@PathVariable String orchestratorId, @PathVariable String locationId,
+            @RequestParam(required = false, defaultValue = "false") boolean force,
                                                                          @PathVariable String resourceId, @RequestBody String[] groupIds) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        checkAuthorization(location, Subject.GROUP, groupIds);
+        locationSecurityService.checkAuthorizations(location, Subject.GROUP, force, groupIds);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.grantPermission(resourceTemplate,
                 (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.GROUP, groupIds);
@@ -236,18 +224,13 @@ public class LocationResourcesSecurityController {
         return RestResponseBuilder.<Void>builder().build();
     }
 
-    private void checkAllAuthorizationsForApplicationsAndEnvironments(ApplicationEnvironmentAuthorizationUpdateRequest request, Location location) {
-        if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
-            checkAuthorization(location, Subject.APPLICATION, request.getApplicationsToDelete());
-        }
-        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToDelete())) {
-            checkAuthorization(location, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
-        }
+    private void checkAllAuthorizationsForApplicationsAndEnvironments(ApplicationEnvironmentAuthorizationUpdateRequest request, Location location,
+            boolean grantAccess) {
         if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
-            checkAuthorization(location, Subject.APPLICATION, request.getApplicationsToAdd());
+            locationSecurityService.checkAuthorizations(location, Subject.APPLICATION, grantAccess, request.getApplicationsToAdd());
         }
         if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
-            checkAuthorization(location, Subject.ENVIRONMENT, request.getEnvironmentsToAdd());
+            locationSecurityService.checkAuthorizations(location, Subject.ENVIRONMENT, grantAccess, request.getEnvironmentsToAdd());
         }
     }
 
@@ -258,9 +241,10 @@ public class LocationResourcesSecurityController {
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId,
+            @RequestParam(required = false, defaultValue = "false") boolean force,
                                                                                       @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        checkAllAuthorizationsForApplicationsAndEnvironments(request, location);
+        checkAllAuthorizationsForApplicationsAndEnvironments(request, location, force);
 
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {

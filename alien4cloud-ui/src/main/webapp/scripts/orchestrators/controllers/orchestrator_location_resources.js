@@ -144,7 +144,7 @@ define(function(require) {
               return;
             }
             // The template was a custom resource - if its still used do not delete it from the fav list
-            if (_.find($scope.resourcesTemplates, function (tplt) { return tplt.template.type === deletedType })) return;
+            if (_.find($scope.resourcesTemplates, function (tplt) { return tplt.template.type === deletedType;})) {return;}
             vm.favorites.splice(favIndex, 1);
           });
         };
@@ -234,6 +234,10 @@ define(function(require) {
               locationId: $scope.context.location.id,
             }
           };
+        };
+
+        $scope.authModalTemplates = {
+          users: 'views/orchestrators/resource_users_authorization_popup.html'
         };
 
         $scope.context.selectedResourceTemplates = {};

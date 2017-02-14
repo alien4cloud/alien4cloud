@@ -780,6 +780,7 @@
   },
   "EXECUTE": "Executer",
   "FALSE": "Faux",
+  "FORCE": "Forcer",
   "GENERIC_FORM": {
     "ADD": "Ajouter",
     "CANCEL": "Annuler",
@@ -883,8 +884,8 @@
         "USERS": {
           "ADD": "Autoriser utilisateur",
           "ADD_POPUP": {
-            "TITLE": "Selectionner utilisateurs",
-            "OK": "Autoriser"
+            "LOC_AUTH_FILTER": "Autorisés sur la location",
+            "TITLE": "Selectionner utilisateurs"
           }
         },
         "GROUPS": {
@@ -899,7 +900,9 @@
           "ADD_POPUP": {
             "TITLE": "Selectionner applications / environnements"
           }
-        }
+        },
+        "FORCE_MESSAGE": "Voulez-vous vraiment forcer cette action? Ceci donnera egalement des authorisations sur la location aux sujets non authorisés!",
+        "FORCE_TITLE": "Forcer"
       },
       "AUTO_CONFIG": "Auto-configuration",
       "CONFIGURATION_RESOURCES": "Configuration des ressources",

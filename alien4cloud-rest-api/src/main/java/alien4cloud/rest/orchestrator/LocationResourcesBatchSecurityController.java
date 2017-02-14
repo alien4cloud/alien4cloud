@@ -7,10 +7,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +21,6 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -35,7 +32,6 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
 import alien4cloud.rest.orchestrator.model.GroupDTO;
 import alien4cloud.rest.orchestrator.model.SubjectsAuthorizationRequest;
-import alien4cloud.security.Permission;
 import alien4cloud.security.ResourcePermissionService;
 import alien4cloud.security.Subject;
 import io.swagger.annotations.Api;
@@ -53,8 +49,6 @@ public class LocationResourcesBatchSecurityController {
     private LocationSecurityService locationSecurityService;
     @Resource
     private ILocationResourceService locationResourceService;
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
     @Resource
     private ResourcePermissionService resourcePermissionService;
 
@@ -200,13 +194,13 @@ public class LocationResourcesBatchSecurityController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    private void processGrantForSubjectType(Subject subjectType, String orchestratorId, String locationId, boolean grantAccess,
+    private void processGrantForSubjectType(Subject subjectType, String orchestratorId, String locationId, boolean force,
             SubjectsAuthorizationRequest request) {
         if (ArrayUtils.isEmpty(request.getResources())) {
             return;
         }
         Location location = locationService.getLocation(orchestratorId, locationId);
-        checkAuthorizations(location, subjectType, grantAccess, request.getSubjects());
+        locationSecurityService.checkAuthorizations(location, subjectType, force, request.getSubjects());
 
         Arrays.stream(request.getResources()).forEach(resourceId -> {
             LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
@@ -215,29 +209,6 @@ public class LocationResourcesBatchSecurityController {
             resourcePermissionService.grantPermission(resourceTemplate,
                     (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), subjectType, request.getSubjects());
         });
-    }
-
-    /**
-     * Check if all subjects have the authorization on the location .
-     *
-     * @param location The location on which to check
-     * @param subjectType The type of the subjects to check for authorizations
-     * @param grantAccess whether or not we want to grant access to unauthorized subjects. Fails with an {@link java.nio.file.AccessDeniedException} if set to
-     *            false.
-     * @param subjects The subjects to process
-     */
-    private void checkAuthorizations(Location location, Subject subjectType, boolean grantAccess, String... subjects) {
-        Set<String> unauthorized = Arrays.stream(subjects).filter(name -> !location.getPermissions(subjectType, name).contains(Permission.ADMIN))
-                .collect(Collectors.toSet());
-        if (CollectionUtils.isNotEmpty(unauthorized)) {
-            if (grantAccess) {
-                resourcePermissionService.grantPermission(location, subjectType, unauthorized.toArray(new String[unauthorized.size()]));
-            } else {
-                throw new AccessDeniedException("At least one of the current <" + subjectType + "> has no authorization on location <" + location.getName()
-                        + "> to perform the requested operation: " + unauthorized.toString());
-
-            }
-        }
     }
 
     private void processRevokeForSubjectType(Subject subjectType, SubjectsAuthorizationRequest request) {
@@ -254,10 +225,10 @@ public class LocationResourcesBatchSecurityController {
     private void checkAllAuthorizationsForApplicationsAndEnvironments(ApplicationEnvironmentAuthorizationUpdateRequest request, Location location,
             boolean grantAccess) {
         if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
-            checkAuthorizations(location, Subject.APPLICATION, grantAccess, request.getApplicationsToAdd());
+            locationSecurityService.checkAuthorizations(location, Subject.APPLICATION, grantAccess, request.getApplicationsToAdd());
         }
         if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
-            checkAuthorizations(location, Subject.ENVIRONMENT, grantAccess, request.getEnvironmentsToAdd());
+            locationSecurityService.checkAuthorizations(location, Subject.ENVIRONMENT, grantAccess, request.getEnvironmentsToAdd());
         }
     }
 

@@ -81,7 +81,8 @@
                     <alien-user-authorization
                       resource="selectedResourceTemplate"
                       service="locationResourcesSecurityService.users"
-                      search-config-builder="buildSecuritySearchConfig('users')">
+                      search-config-builder="buildSecuritySearchConfig('users')"
+                      authorize-modal-template-url="authModalTemplates.users">
                     </alien-user-authorization>
                   </uib-tab>
                   <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
