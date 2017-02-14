@@ -58,20 +58,17 @@ define(function (require) {
       *  For authorizations directives
       /************************************/
 
+      var params = {
+        orchestratorId: $scope.context.orchestrator.id,
+        locationId: $scope.context.location.id,
+      };
+
       $scope.buildSecuritySearchConfig = function(subject){
         return {
           url: 'rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/' + subject + '/search',
           useParams: true,
-          params: {
-            orchestratorId: $scope.context.orchestrator.id,
-            locationId: $scope.context.location.id,
-          }
+          params: params
         };
-      };
-
-      var params = {
-        orchestratorId: $scope.context.orchestrator.id,
-        locationId: $scope.context.location.id,
       };
 
       // *****************************************************************************
@@ -138,6 +135,60 @@ define(function (require) {
         });
       };
 
+      // *****************************************************************************
+      // APPLICATIONS / ENVIRONMENTS
+      // *****************************************************************************
+
+      $scope.openApplicationsdModal = function (app, service) {
+        $scope.application = app;
+        $scope.preSelection = {};
+        $scope.preSelectedApps = {};
+        $scope.preSelectedEnvs = {};
+
+        $scope.searchAuthorizedEnvironmentsPerApplication = function () {
+          locationResourcesSecurityService.environmentsPerApplication.get({}, function (response) {
+            $scope.authorizedEnvironmentsPerApplication = response.data;
+          });
+        };
+        $scope.searchAuthorizedEnvironmentsPerApplication();
+
+        _.forEach($scope.authorizedEnvironmentsPerApplication, function(authorizedApp) {
+          if (_.isEmpty(authorizedApp.environments)) {
+            $scope.preSelectedApps[authorizedApp.application.id] = 1;
+          }
+          $scope.preSelection[authorizedApp.application.id] = [];
+          _.forEach(authorizedApp.environments, function(environment) {
+            $scope.preSelectedEnvs[environment.id] = 1;
+            $scope.preSelection[authorizedApp.application.id].push(environment.id);
+          });
+        });
+
+
+        var modalInstance = $uibModal.open({
+          templateUrl: 'views/users/apps_authorization_popup.html',
+          controller: 'AppsAuthorizationModalCtrl',
+          resolve:{
+            searchConfig:  $scope.buildSecuritySearchConfig('applications')
+          }
+          });
+
+        // modalInstance.result.then(function (groups) {
+        //   var request = {
+        //     'resources':  Object.keys($scope.context.selectedResourceTemplates),
+        //     'subjects': _.map(groups, function (group) {return group.id;})
+        //   };
+        //
+        //   if (service === 'grant') {
+        //     locationResourcesSecurityService.grantGroupsBatch[service](params, angular.toJson(request), function(successResponse) {
+        //       console.log(successResponse);
+        //       //TODO: check if an error occur and add a refresh
+        //     });
+        //   } else if (service === 'revoke') {
+        //     locationResourcesSecurityService.revokeGroupsBatch(params, request);
+        //   }
+        //
+        // });
+      };
 
     }
   ]);

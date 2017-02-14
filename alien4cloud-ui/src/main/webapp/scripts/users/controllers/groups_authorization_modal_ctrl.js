@@ -11,8 +11,6 @@ define(function (require) {
 
   modules.get('a4c-security', ['a4c-search']).controller('GroupsAuthorizationModalCtrl', ['$scope', '$uibModalInstance', 'searchServiceFactory', 'searchConfig', 'authorizedGroups',
     function ($scope, $uibModalInstance, searchServiceFactory, searchConfig, authorizedGroups) {
-
-
       $scope.batchSize = 5;
       $scope.selectedGroups = [];
       $scope.query = '';

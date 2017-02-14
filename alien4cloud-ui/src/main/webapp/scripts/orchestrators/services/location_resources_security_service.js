@@ -18,9 +18,7 @@ define(function (require) {
         grant: {
           method: 'POST',
           isArray: false,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
+          headers: {'Content-Type': 'application/json; charset=UTF-8'}
         }
       });
 
@@ -28,9 +26,7 @@ define(function (require) {
         grant: {
           method: 'POST',
           isArray: false,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
+          headers: {'Content-Type': 'application/json; charset=UTF-8'}
         }
       });
 
@@ -38,18 +34,21 @@ define(function (require) {
           return $http({
               url: 'rest/latest/orchestrators/' + params.orchestratorId + '/locations/' + params.locationId + '/resources/security/' + type,
               method: 'DELETE',
-              data: {
-                  'resources': request.resources,
-                  'subjects': request.subjects
-              },
-              headers: {
-                  'Content-Type': 'application/json; charset=UTF-8'
-              }
+              data: request,
+              headers: {'Content-Type': 'application/json; charset=UTF-8'}
           });
       };
 
       var revokeUsersBatch = function(params, request) { return revoke('users', params, request);};
       var revokeGroupsBatch = function(params, request) { return revoke('groups', params, request);};
+
+      var updateEnvironmentsPerApplicationBatch = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/security/environmentsPerApplication', {}, {
+        grant: {
+          method: 'POST',
+          isArray: false,
+          headers: {'Content-Type': 'application/json; charset=UTF-8'}
+        }
+      });
 
       return {
         'users': users,
@@ -60,6 +59,7 @@ define(function (require) {
         'revokeUsersBatch': revokeUsersBatch,
         'grantGroupsBatch': grantGroupsBatch,
         'revokeGroupsBatch': revokeGroupsBatch,
+        'updateEnvironmentsPerApplicationBatch': updateEnvironmentsPerApplicationBatch
       };
     }]);
 });

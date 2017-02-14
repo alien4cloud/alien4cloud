@@ -8,11 +8,13 @@ define(function (require) {
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
 
-  modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationModalCtrl', ['$scope', '$uibModalInstance', 'searchServiceFactory', 'applicationEnvironmentServices',
-    function ($scope, $uibModalInstance, searchServiceFactory, applicationEnvironmentServices) {
+  modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationModalCtrl', ['$scope', '$uibModalInstance', 'searchServiceFactory', 'applicationEnvironmentServices', 'searchConfig',
+    function ($scope, $uibModalInstance, searchServiceFactory, applicationEnvironmentServices, searchConfig) {
       $scope.query = '';
       $scope.batchSize = 5;
       $scope.selectedApps = {};
+      $scope.searchConfig = searchConfig;
+
       // a map appId -> environment array
       $scope.environments = {};
       $scope.onSearchCompleted = function (searchResult) {
@@ -36,7 +38,6 @@ define(function (require) {
         }
       };
 
-      var searchConfig = $scope.buildSearchConfig();
       var url = _.get(searchConfig, 'url', '/rest/latest/applications/search');
       var useParams = _.get(searchConfig, 'useParams', false);
       var params = _.get(searchConfig, 'params', null);
