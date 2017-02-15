@@ -81,7 +81,7 @@ define(function (require) {
           controller: 'UsersAuthorizationModalCtrl',
           resolve:{
             searchConfig:  $scope.buildSecuritySearchConfig('users'),
-            authorizedUsers: function() { return $scope.authorizedUsers; }
+            authorizedUsers: {}
           }
         });
 
@@ -112,7 +112,7 @@ define(function (require) {
           controller: 'GroupsAuthorizationModalCtrl',
           resolve:{
             searchConfig:  $scope.buildSecuritySearchConfig('groups'),
-            authorizedGroups: function(){ return $scope.authorizedGroups; }
+            authorizedGroups: {}
           }
         });
 
@@ -148,7 +148,7 @@ define(function (require) {
             preSelectedApps:   {},
             preSelectedEnvs:   {}
           }
-          });
+        });
 
         modalInstance.result.then(function (result) {
           var request = result.request;
