@@ -2,17 +2,17 @@
 
 <div class="btn-sm btn-group" uib-dropdown>
   <button ng-disabled="_.isEmpty(context.selectedResourceTemplates)" id="multi-authorization" type="button" class="btn btn-default" uib-dropdown-toggle>
-    Authorizations <span class="caret"></span>
+    {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS' | translate}} <span class="caret"></span>
   </button>
   <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="btn-append-to-body">
-    <li role="menuitem"><a ng-click="openUsersdModal('grant')">Authorize users</a></li>
-    <li role="menuitem"><a ng-click="openUsersdModal('revoke')">Revoke users</a></li>
+    <li role="menuitem"><a ng-click="openUsersdModal('grant')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD' | translate}}</a></li>
+    <li role="menuitem"><a ng-click="openUsersdModal('revoke')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.REVOKE' | translate}}</a></li>
     <li class="divider"></li>
-    <li role="menuitem"><a ng-click="openGroupsdModal('grant')">Authorize groups</a></li>
-    <li role="menuitem"><a ng-click="openGroupsdModal('revoke')">Revoke groups</a></li>
+    <li role="menuitem"><a ng-click="openGroupsdModal('grant')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD' | translate}}</a></li>
+    <li role="menuitem"><a ng-click="openGroupsdModal('revoke')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.REVOKE' | translate}}</a></li>
     <li class="divider"></li>
-    <li role="menuitem"><a ng-click="openApplicationsdModal('grant')">Authorize applications / environments</a></li>
-    <li role="menuitem"><a ng-click="openApplicationsdModal('revoke')">Revoke applications / environments</a></li>
+    <li role="menuitem"><a ng-click="openApplicationsdModal('grant')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}</a></li>
+    <li role="menuitem"><a ng-click="openApplicationsdModal('revoke')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.REVOKE' | translate}}</a></li>
   </ul>
 </div>
 
