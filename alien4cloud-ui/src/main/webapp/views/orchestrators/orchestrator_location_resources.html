@@ -16,11 +16,11 @@
         <thead>
           <tr>
             <th>
-              <a ng-click="toggleAllTemplates()" ng-if="showCatalog" class="ng-scope">
+              <a ng-click="toggleAllTemplates()" ng-if="showMultiSelect" class="ng-scope">
                 <i class="fa fa-fw fa-check-square-o" ng-class="{'fa-check-square-o' : allTemplatesAreSelected(),  'fa-square-o': !allTemplatesAreSelected()}" style=""></i>
               </a>
             </th>
-            <th ng-if="showCatalog">Icon</th>
+            <th ng-if="showMultiSelect">Icon</th>
             <th>{{'COMMON.NAME' | translate}}</th>
             <th>{{'COMMON.TYPE' | translate}}</th>
           </tr>
@@ -31,7 +31,7 @@
               class="clickable"
               ng-class="{'warning': selectedResourceTemplate == template}"
               ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.elementId">
-              <td ng-if="showCatalog">
+              <td ng-if="showMultiSelect">
                 <a ng-click="toggleTemplate(template)" class="ng-scope">
                     <i class="fa fa-fw fa-square-o" ng-class="{'fa-check-square-o' : isSelected(template),  'fa-square-o': !isSelected(template)}"></i>
                 </a>
@@ -45,7 +45,7 @@
           </tr>
         </tbody>
       </table>
-      <div class="drop-box" ng-if="showCatalog" alien-droppable drag-on-drop="addResourceTemplate(data)">
+      <div class="drop-box" ng-if="showMultiSelect" alien-droppable drag-on-drop="addResourceTemplate(data)">
         <i class="fa fa-file-text"></i>&nbsp;<small>{{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.DROP' | translate }}</small>
       </div>
     </div>
