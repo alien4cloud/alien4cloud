@@ -272,6 +272,10 @@ define(function(require) {
           return Object.keys($scope.context.selectedResourceTemplates).length === Object.keys($scope.resourcesTemplates).length && Object.keys($scope.resourcesTemplates).length > 0;
         };
 
+        $scope.disableSecurity = function() {
+          return Object.keys($scope.context.selectedResourceTemplates).length !== 0;
+        };
+
       }
     ]);
 });
