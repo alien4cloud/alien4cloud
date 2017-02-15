@@ -23,7 +23,6 @@ define(function(require) {
                   deploymentTopology.topology.substitutedNodes[nodeId].template = deploymentTopology.topology.nodeTemplates[nodeId];
                 }
               }
-              //locationResourcesProcessor.processLocationResourceTemplatesMap(deploymentTopology.locationResourceTemplates);
             }
             this.processSubstitutionResources(deploymentTopology.availableSubstitutions);
           },

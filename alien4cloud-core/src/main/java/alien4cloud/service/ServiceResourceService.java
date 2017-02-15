@@ -177,7 +177,7 @@ public class ServiceResourceService {
         boolean isDeployed = !ToscaNodeLifecycleConstants.INITIAL
                 .equals(serviceResource.getNodeInstance().getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE));
 
-        String updatedState = nodeAttributeValues.get(ToscaNodeLifecycleConstants.ATT_STATE);
+        String updatedState = nodeAttributeValues == null ? null : nodeAttributeValues.get(ToscaNodeLifecycleConstants.ATT_STATE);
         if (!patch || updatedState != null) {
             // in case of an update or when patching the state: check that the new state is a valid state
             if (!ToscaNodeLifecycleConstants.TOSCA_STATES.contains(updatedState)) {
@@ -339,7 +339,7 @@ public class ServiceResourceService {
      */
     public ServiceResource[] searchByLocation(String locationId) {
         Map<String, String[]> filter = Maps.newHashMap();
-        filter.put("locationIds", new String [] {locationId});
+        filter.put("locationIds", new String[] { locationId });
         GetMultipleDataResult<ServiceResource> result = this.search("", filter, null, false, 0, Integer.MAX_VALUE);
         return result.getData();
     }
