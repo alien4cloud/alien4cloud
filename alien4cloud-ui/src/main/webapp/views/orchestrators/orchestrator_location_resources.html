@@ -77,7 +77,7 @@
           <uib-tab-heading >
             <i class="icon-folder-open"></i> {{'ORCHESTRATORS.LOCATIONS.SECURITY' | translate}}
           </uib-tab-heading>
-          <div>
+          <div ng-show="!disableSecurity()">
             <div class="row" id="app-user-role">
               <div class="col-md-12">
                 <uib-tabset>
