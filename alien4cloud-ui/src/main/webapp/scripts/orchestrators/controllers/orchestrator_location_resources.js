@@ -269,7 +269,7 @@ define(function(require) {
         };
 
         $scope.allTemplatesAreSelected = function() {
-          return Object.keys($scope.context.selectedResourceTemplates).length === Object.keys($scope.resourcesTemplates).length;
+          return Object.keys($scope.context.selectedResourceTemplates).length === Object.keys($scope.resourcesTemplates).length && Object.keys($scope.resourcesTemplates).length > 0;
         };
 
       }

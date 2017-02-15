@@ -139,42 +139,14 @@ define(function (require) {
       // *****************************************************************************
 
       $scope.openApplicationsdModal = function (action) {
-        $scope.preSelection = {};
-        $scope.preSelectedApps = {};
-        $scope.preSelectedEnvs = {};
-
-        var locationResourcesSecurityServiceBis = resourceSecurityFactory('rest/latest/orchestrators/:orchestratorId/locations/:locationId/', {
-          orchestratorId: $scope.context.orchestrator.id,
-          locationId: function(){ return $scope.context.location.id;},
-          resourceId: function(){ return _.get($scope.selectedResourceTemplate,'id');}
-        });
-
-        $scope.searchAuthorizedEnvironmentsPerApplication = function () {
-          locationResourcesSecurityServiceBis.environmentsPerApplication.get({params}, function (response) {
-            $scope.authorizedEnvironmentsPerApplication = response.data;
-          });
-        };
-        $scope.searchAuthorizedEnvironmentsPerApplication();
-
-        _.forEach($scope.authorizedEnvironmentsPerApplication, function(authorizedApp) {
-          if (_.isEmpty(authorizedApp.environments)) {
-            $scope.preSelectedApps[authorizedApp.application.id] = 1;
-          }
-          $scope.preSelection[authorizedApp.application.id] = [];
-          _.forEach(authorizedApp.environments, function(environment) {
-            $scope.preSelectedEnvs[environment.id] = 1;
-            $scope.preSelection[authorizedApp.application.id].push(environment.id);
-          });
-        });
-
         var modalInstance = $uibModal.open({
           templateUrl: 'views/orchestrators/authorizations/resource_apps_authorization_popup.html',
           controller: 'AppsAuthorizationModalCtrl',
           resolve:{
             searchConfig:      $scope.buildSecuritySearchConfig('applications'),
-            preSelection:      $scope.preSelection,
-            preSelectedApps:   $scope.preSelectedApps,
-            preSelectedEnvs:   $scope.preSelectedEnvs
+            preSelection:      {},
+            preSelectedApps:   {},
+            preSelectedEnvs:   {}
           }
           });
 
