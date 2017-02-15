@@ -1,11 +1,22 @@
 package alien4cloud.deployment.matching.services.nodes;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.model.service.ServiceResource;
+import alien4cloud.service.ServiceResourceService;
+import com.google.common.collect.Lists;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +47,16 @@ public class NodeMatcherService {
     @Inject
     private LocationService locationService;
     @Inject
+    private ServiceResourceService serviceResourceService;
+    @Inject
     @Lazy(true)
     private ILocationResourceService locationResourceService;
     @Inject
     private LocationMatchingConfigurationService locationMatchingConfigurationService;
+    @Inject
+    private IToscaTypeSearchService toscaTypeSearchService;
+    @Inject
+    private ICSARRepositorySearchService csarRepoSearchService;
 
     private INodeMatcherPlugin getNodeMatcherPlugin() {
         // TODO manage plugins
@@ -51,6 +68,10 @@ public class NodeMatcherService {
         Map<String, List<LocationResourceTemplate>> matchingResult = Maps.newHashMap();
         Location location = locationService.getOrFail(locationId);
         LocationResources locationResources = locationResourceService.getLocationResources(location);
+
+        ServiceResource[] services = serviceResourceService.searchByLocation(locationId);
+        populateLocationResourcesWithServiceResource(locationResources, services, locationId);
+
         Map<String, MatchingConfiguration> matchingConfigurations = locationMatchingConfigurationService.getMatchingConfiguration(location);
         Set<String> typesManagedByLocation = Sets.newHashSet();
         for (NodeType nodeType : locationResources.getNodeTypes().values()) {
@@ -71,4 +92,47 @@ public class NodeMatcherService {
         }
         return matchingResult;
     }
+
+    /**
+     * Populate this {@link LocationResources} using these {@link ServiceResource}s in order to make them available as {@link LocationResourceTemplate} for matching purpose.
+     *
+     * FIXME: ugly code to put ServiceResource in LocationResourceTemplates.
+     */
+    private void populateLocationResourcesWithServiceResource(LocationResources locationResources, ServiceResource[] services, String locationId) {
+        for (ServiceResource serviceResource : services) {
+            LocationResourceTemplate lrt = new LocationResourceTemplate();
+            lrt.setService(true);
+            lrt.setEnabled(true);
+            // for a service we also want to display the version, so just add it to the name
+            lrt.setName(serviceResource.getName() + ":" + serviceResource.getVersion());
+            lrt.setId(serviceResource.getId());
+            lrt.setTemplate(serviceResource.getNodeInstance().getNodeTemplate());
+            lrt.setLocationId(locationId);
+
+            String serviceTypeName = serviceResource.getNodeInstance().getNodeTemplate().getType();
+            List<String> types = Lists.newArrayList(serviceTypeName);
+            lrt.setTypes(types);
+            NodeType serviceType = toscaTypeSearchService.findOrFail(NodeType.class, serviceTypeName, serviceResource.getNodeInstance().getTypeVersion());
+            types.addAll(serviceType.getDerivedFrom());
+
+            locationResources.getNodeTypes().put(serviceTypeName, serviceType);
+
+            Csar csar = toscaTypeSearchService.getArchive(serviceType.getArchiveName(), serviceType.getArchiveVersion());
+            Set<CSARDependency> dependencies = Sets.newHashSet();
+            if (csar.getDependencies() != null) {
+                dependencies.addAll(csar.getDependencies());
+            }
+            dependencies.add(new CSARDependency(csar.getName(), csar.getVersion()));
+            if (serviceType.getCapabilities() != null && !serviceType.getCapabilities().isEmpty()) {
+                for (CapabilityDefinition capabilityDefinition : serviceType.getCapabilities()) {
+                    locationResources.getCapabilityTypes().put(capabilityDefinition.getType(), csarRepoSearchService
+                            .getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies));
+                }
+            }
+
+            locationResources.getNodeTemplates().add(lrt);
+        }
+
+    }
+
 }

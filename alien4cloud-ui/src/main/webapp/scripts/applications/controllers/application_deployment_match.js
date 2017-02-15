@@ -65,7 +65,8 @@ define(function(require) {
               appId: $scope.application.id,
               envId: $scope.deploymentContext.selectedEnvironment.id,
               nodeId: nodeName,
-              locationResourceTemplateId: template.id
+              locationResourceTemplateId: template.id,
+              isService: template.service
             }, undefined, function(response) {
               $scope.updateScopeDeploymentTopologyDTO(response.data);
               $scope.selectedResourceTemplate = $scope.getSubstitutedTemplate(nodeName);

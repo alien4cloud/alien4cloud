@@ -117,7 +117,7 @@ public class LocationResourceService implements ILocationResourceService {
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
         List<String> allExposedTypes = configuratorPlugin.getResourcesTypes();
-        setLocationResourceTypes(allExposedTypes, location, locationResources);
+        fillLocationResourceTypes(allExposedTypes, locationResources, location.getDependencies());
 
         List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
         setLocationRessource(locationResourceTemplates, locationResources);
@@ -133,19 +133,21 @@ public class LocationResourceService implements ILocationResourceService {
     public LocationResourceTypes getLocationResourceTypes(Collection<LocationResourceTemplate> resourceTemplates) {
         Map<String, Set<String>> resourceTypesByLocationId = Maps.newHashMap();
         for (LocationResourceTemplate resourceTemplate : resourceTemplates) {
-            Set<String> locationResourceTypes = resourceTypesByLocationId.get(resourceTemplate.getLocationId());
-            if (locationResourceTypes == null) {
-                locationResourceTypes = Sets.newHashSet();
-                resourceTypesByLocationId.put(resourceTemplate.getLocationId(), locationResourceTypes);
+            if (!resourceTemplate.isService()) {
+                Set<String> locationResourceTypes = resourceTypesByLocationId.get(resourceTemplate.getLocationId());
+                if (locationResourceTypes == null) {
+                    locationResourceTypes = Sets.newHashSet();
+                    resourceTypesByLocationId.put(resourceTemplate.getLocationId(), locationResourceTypes);
+                }
+                locationResourceTypes.add(resourceTemplate.getTemplate().getType());
             }
-            locationResourceTypes.add(resourceTemplate.getTemplate().getType());
         }
         LocationResourceTypes locationResourceTypes = new LocationResourceTypes();
         for (Map.Entry<String, Set<String>> resourceTypeByLocationIdEntry : resourceTypesByLocationId.entrySet()) {
             String locationId = resourceTypeByLocationIdEntry.getKey();
             Set<String> exposedTypes = resourceTypeByLocationIdEntry.getValue();
             Location location = locationService.getOrFail(locationId);
-            setLocationResourceTypes(exposedTypes, location, locationResourceTypes);
+            fillLocationResourceTypes(exposedTypes, locationResourceTypes, location.getDependencies());
         }
         return locationResourceTypes;
     }
@@ -153,10 +155,9 @@ public class LocationResourceService implements ILocationResourceService {
     /**
      * Put the exposed types to the appropriate List of locationResourceTypes passed as param
      */
-    private void setLocationResourceTypes(Collection<String> exposedTypes, Location location, LocationResourceTypes locationResourceTypes) {
+    public void fillLocationResourceTypes(Collection<String> exposedTypes, LocationResourceTypes locationResourceTypes, Set<CSARDependency> dependencies) {
         for (String exposedType : exposedTypes) {
-            NodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, exposedType,
-                    location.getDependencies());
+            NodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, exposedType, dependencies);
 
             if (exposedIndexedNodeType.isAbstract()) {
                 locationResourceTypes.getConfigurationTypes().put(exposedType, exposedIndexedNodeType);
@@ -167,7 +168,7 @@ public class LocationResourceService implements ILocationResourceService {
             if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
                 for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
                     locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(), csarRepoSearchService
-                            .getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), location.getDependencies()));
+                            .getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies));
                 }
             }
         }

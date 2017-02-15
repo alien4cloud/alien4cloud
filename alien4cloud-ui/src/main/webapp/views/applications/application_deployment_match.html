@@ -86,6 +86,7 @@
               <tr>
                 <th></th>
                 <th>Name</th>
+                <th></th>
                 <th>Type</th>
               </tr>
             </thead>
@@ -106,6 +107,14 @@
                 <td class="col-md-4" ng-click="selectTemplate(nodeName, template)">
                   {{template.name}}
                 </td>
+                <td>
+                  <i class="fa fa-fw"
+                     ng-class="{
+                                 'fa-globe' : template.service,
+                                 'fa-cubes': !template.service,
+                                 }">
+                  </i>
+                </td>
                 <td class="col-md-7" ng-click="selectTemplate(nodeName, template)">
                   {{template.template.type}}
                 </td>
@@ -116,7 +125,7 @@
       </uib-accordion>
     </div>
     <div class="col-md-6">
-      <div ng-if="selectedResourceTemplate">
+      <div ng-if="selectedResourceTemplate && !selectedResourceTemplate.service">
         <fieldset class="field">
           <legend>
             <h4><i class="fa fa-wrench"></i> {{'APPLICATIONS.DEPLOYMENT.MATCHING.CONFIGURATION' | translate}}</h4>

@@ -1,32 +1,5 @@
 package alien4cloud.service;
 
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.dao.FilterUtil.singleKeyFilter;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
-import com.google.common.collect.Sets;
-import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
-import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.context.event.EventListener;
-import org.springframework.security.access.AuthorizationServiceException;
-import org.springframework.stereotype.Service;
-
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -34,13 +7,31 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.service.ServiceResource;
+import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.PatchUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.context.event.EventListener;
+import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.*;
+
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 /**
  * Manages services.
@@ -88,6 +79,17 @@ public class ServiceResourceService {
      */
     public GetMultipleDataResult<ServiceResource> list(int from, int count) {
         return alienDAO.buildQuery(ServiceResource.class).prepareSearch().setFieldSort("name", false).search(from, count);
+    }
+
+    public Map<String, ServiceResource> getMultiple(Collection<String> ids) {
+        Map<String, ServiceResource> result = Maps.newHashMap();
+        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(ids)) {
+            List<ServiceResource> templates = alienDAO.findByIds(ServiceResource.class, ids.toArray(new String[ids.size()]));
+            for (ServiceResource template : templates) {
+                result.put(template.getId(), template);
+            }
+        }
+        return result;
     }
 
     /**
@@ -328,4 +330,18 @@ public class ServiceResourceService {
         // bulk update
         alienDAO.save(serviceResourceResult.getData());
     }
+
+    /**
+     * Search for services authorized for this location.
+     *
+     * @param locationId
+     * @return
+     */
+    public ServiceResource[] searchByLocation(String locationId) {
+        Map<String, String[]> filter = Maps.newHashMap();
+        filter.put("locationIds", new String [] {locationId});
+        GetMultipleDataResult<ServiceResource> result = this.search("", filter, null, false, 0, Integer.MAX_VALUE);
+        return result.getData();
+    }
+
 }

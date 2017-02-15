@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 public abstract class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserializer<T> {
     private Map<String, Map<String, Class<? extends T>>> registry = Maps.newHashMap();
     private Class<? extends T> valueStringClass = null;
+    private Class<? extends T> defaultClass = null;
 
     public AbstractDiscriminatorPolymorphicDeserializer(Class<T> clazz) {
         super(clazz);
@@ -47,6 +48,10 @@ public abstract class AbstractDiscriminatorPolymorphicDeserializer<T> extends St
      */
     protected void setValueStringClass(Class<? extends T> valueStringClass) {
         this.valueStringClass = valueStringClass;
+    }
+
+    public void setDefaultClass(Class<? extends T> defaultClass) {
+        this.defaultClass = defaultClass;
     }
 
     @Override
@@ -82,6 +87,9 @@ public abstract class AbstractDiscriminatorPolymorphicDeserializer<T> extends St
                     break;
                 }
             }
+        }
+        if (parameterClass == null) {
+            parameterClass = defaultClass;
         }
         if (parameterClass == null) {
             throw new JsonParseException("Failed to find implementation for node " + root + " from registry " + registry, jp.getCurrentLocation());

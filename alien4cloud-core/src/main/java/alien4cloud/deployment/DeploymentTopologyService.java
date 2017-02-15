@@ -14,13 +14,15 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.service.ServiceResource;
+import alien4cloud.orchestrators.locations.services.LocationResourceTypes;
+import alien4cloud.service.ServiceResourceService;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
 import org.alien4cloud.tosca.model.templates.AbstractPolicy;
 import org.alien4cloud.tosca.model.templates.Capability;
@@ -29,6 +31,7 @@ import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.annotation.Lazy;
@@ -96,8 +99,12 @@ public class DeploymentTopologyService {
     private IDeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
     @Inject
     private PropertyService propertyService;
+    @Inject
+    private ServiceResourceService serviceResourceService;
     @Resource
     private LocationSecurityService locationSecurityService;
+    @Inject
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     public void save(DeploymentTopology deploymentTopology) {
         deploymentTopology.setLastDeploymentTopologyUpdateDate(new Date());
@@ -216,7 +223,31 @@ public class DeploymentTopologyService {
         dsc.setAvailableSubstitutions(availableSubstitutionsIds);
         dsc.setSubstitutionsTemplates(templates);
         dsc.setSubstitutionTypes(locationResourceService.getLocationResourceTypes(templates.values()));
+        // enrich types with those comming from services
+        enrichSubstitutionTypesWithServicesDependencies(templates.values(), dsc.getSubstitutionTypes());
         return dsc;
+    }
+
+    /**
+     * Enrich {@link LocationResourceTypes} adding types coming from on demand service resources.
+     */
+    private void enrichSubstitutionTypesWithServicesDependencies(Collection<LocationResourceTemplate> resourceTemplates, LocationResourceTypes locationResourceTypes) {
+        Set<String> serviceTypes = Sets.newHashSet();
+        Set<CSARDependency> dependencies = Sets.newHashSet();
+        for (LocationResourceTemplate resourceTemplate : resourceTemplates) {
+            if (resourceTemplate.isService()) {
+                String serviceId = resourceTemplate.getId();
+                ServiceResource serviceResource = serviceResourceService.getOrFail(serviceId);
+                NodeType serviceType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(), serviceResource.getNodeInstance().getTypeVersion());
+                serviceTypes.add(serviceResource.getNodeInstance().getNodeTemplate().getType());
+                Csar csar = toscaTypeSearchService.getArchive(serviceType.getArchiveName(), serviceType.getArchiveVersion());
+                if (csar.getDependencies() != null) {
+                    dependencies.addAll(csar.getDependencies());
+                }
+                dependencies.add(new CSARDependency(csar.getName(), csar.getVersion()));
+            }
+        }
+        locationResourceService.fillLocationResourceTypes(serviceTypes, locationResourceTypes, dependencies);
     }
 
     private DeploymentTopology generateDeploymentTopology(String id, ApplicationEnvironment environment, Topology topology,
@@ -542,12 +573,16 @@ public class DeploymentTopologyService {
      * @param locationResourceTemplateId
      * @return The {@link DeploymentTopologyService} related to the specified environment
      */
-    public DeploymentConfiguration updateSubstitution(String environmentId, String nodeId, String locationResourceTemplateId) {
+    public DeploymentConfiguration updateSubstitution(String environmentId, String nodeId, String locationResourceTemplateId, boolean service) {
         // TODO maybe check if the substituted is compatible with the provided substitute and return a specific error for REST users?
         DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         // check if the resource exists
-        locationResourceService.getOrFail(locationResourceTemplateId);
+        if (service) {
+            // TODO check that this location has access to this service
+        } else {
+            locationResourceService.getOrFail(locationResourceTemplateId);
+        }
         deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplateId);
         // revert the old substituted to the original one. It will be updated when processing the substitutions in updateDeploymentTopology
         deploymentTopology.getNodeTemplates().put(nodeId, deploymentTopology.getOriginalNodes().get(nodeId));
