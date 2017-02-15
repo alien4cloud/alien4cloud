@@ -25,7 +25,12 @@ define(function (require) {
             useParams: // whether the remaining params after constructing the url shold be passed like param args or into the body of the request
         }
       */
-        'buildSearchConfig': '&searchConfigBuilder'
+        'buildSearchConfig': '&searchConfigBuilder',
+
+        /**
+          users authorization modal templateUrl
+        */
+        'authorizeModalTemplateUrl': '='
       }
     };
   });

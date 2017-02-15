@@ -39,7 +39,7 @@ define(function (require) {
         });
 
         var modalInstance = $uibModal.open({
-          templateUrl: 'views/users/apps_authorization_popup.html',
+          templateUrl: _.get($scope, 'authorizeModalTemplateUrl', 'views/users/apps_authorization_popup.html'),
           controller: 'AppsAuthorizationModalCtrl',
           resolve:{
             searchConfig:  $scope.buildSearchConfig(),
@@ -51,7 +51,7 @@ define(function (require) {
         });
 
         modalInstance.result.then(function (result) {
-          $scope.envService.save({}, result, $scope.searchAuthorizedEnvironmentsPerApplication);
+          $scope.envService.save({force: result.force}, result.request, $scope.searchAuthorizedEnvironmentsPerApplication);
         });
       };
 

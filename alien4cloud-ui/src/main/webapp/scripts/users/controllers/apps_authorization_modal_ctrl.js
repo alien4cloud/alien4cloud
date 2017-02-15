@@ -41,20 +41,33 @@ define(function (require) {
         }
       };
 
-      var url = _.get(searchConfig, 'url', '/rest/latest/applications/search');
-      var useParams = _.get(searchConfig, 'useParams', false);
-      var params = _.get(searchConfig, 'params', null);
-      $scope.searchService = searchServiceFactory(url, useParams, $scope, $scope.batchSize, null, null, null, params);
+      var buildSeachService = function(){
+        var url;
+        var useParams ;
+        var params ;
+        if($scope.customSearchActive) {
+          url = _.get(searchConfig, 'url', '/rest/latest/applications/search');
+          useParams = _.get(searchConfig, 'useParams', false);
+          params = _.get(searchConfig, 'params', null);
+        }else {
+          url = '/rest/latest/applications/search';
+          useParams = false;
+          params = null;
+        }
+        $scope.searchService = searchServiceFactory(url, useParams, $scope, $scope.batchSize, null, null, null, params);
+        $scope.searchService.search();
+      };
+
       if (_.isUndefined($scope.application)) {
         $scope.editionMode = false;
-        $scope.searchService.search();
+        buildSeachService();
       } else {
         $scope.editionMode = true;
         $scope.onSearchCompleted({ 'data': { 'data': [$scope.application] }});
         $scope.expandEnvironments($scope.application, false);
       }
 
-      $scope.ok = function () {
+      $scope.ok = function (force) {
         var result = { 'applicationsToDelete': [], 'environmentsToDelete': [], 'applicationsToAdd': [], 'environmentsToAdd': [] };
         _.forEach($scope.selectedApps, function(envs, appId) {
           if (envs.length > 0) {
@@ -81,7 +94,7 @@ define(function (require) {
         });
 
         if (result.applicationsToDelete.length + result.environmentsToDelete.length + result.applicationsToAdd.length + result.environmentsToAdd.length > 0) {
-          $uibModalInstance.close(result);
+          $uibModalInstance.close({request: result, force: force});
         }
       };
 
@@ -225,6 +238,11 @@ define(function (require) {
             // some app are fully selected, others not
             return 1;
         }
+      };
+
+      $scope.toggleCustomSearch = function(){
+        $scope.customSearchActive = !$scope.customSearchActive;
+        buildSeachService();
       };
 
       $scope.cancel = function () {

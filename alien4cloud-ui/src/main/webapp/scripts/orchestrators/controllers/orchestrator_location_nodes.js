@@ -168,7 +168,7 @@ define(function (require) {
         });
 
         var modalInstance = $uibModal.open({
-          templateUrl: 'views/users/apps_authorization_popup.html',
+          templateUrl: 'views/orchestrators/authorizations/resource_apps_authorization_popup.html',
           controller: 'AppsAuthorizationModalCtrl',
           resolve:{
             searchConfig:      $scope.buildSecuritySearchConfig('applications'),
@@ -178,7 +178,8 @@ define(function (require) {
           }
           });
 
-        modalInstance.result.then(function (request) {
+        modalInstance.result.then(function (result) {
+          var request = result.request;
           request.resources =  Object.keys($scope.context.selectedResourceTemplates);
           if (action === 'revoke') {
             request.applicationsToDelete = request.applicationsToAdd;
@@ -186,7 +187,7 @@ define(function (require) {
             delete request.applicationsToAdd;
             delete request.environmentsToAdd;
           }
-          locationResourcesSecurityService.updateEnvironmentsPerApplicationBatch.grant(params, angular.toJson(request), function(successResponse) {
+          locationResourcesSecurityService.updateEnvironmentsPerApplicationBatch.grant(_.merge(params, {force:result.force}), angular.toJson(request), function(successResponse) {
             console.log(successResponse);
             //TODO: check if an error occur and add a refresh
           });

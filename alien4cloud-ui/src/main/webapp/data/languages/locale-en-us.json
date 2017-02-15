@@ -898,6 +898,7 @@
         "APPS": {
           "ADD": "Authorize application",
           "ADD_POPUP": {
+            "LOC_AUTH_FILTER": "Location authorized",            
             "TITLE": "Select applications / environments"
           }
         },
