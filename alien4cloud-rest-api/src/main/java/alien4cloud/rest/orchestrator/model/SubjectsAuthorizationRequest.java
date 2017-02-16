@@ -12,5 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SubjectsAuthorizationRequest extends AbstractAuthorizationBatchRequest {
-    String[] subjects;
+    String[] create;
+
+    String[] delete;
 }

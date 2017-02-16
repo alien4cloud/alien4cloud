@@ -298,13 +298,12 @@ public class SecuredResourceStepDefinition {
             List<String> resourcesNames) throws Throwable {
         SubjectsAuthorizationRequest request = new SubjectsAuthorizationRequest();
         request.setResources(getResourcesIds(resourcesNames));
-        request.setSubjects(new String[] { username });
+        request.setCreate(new String[] { username });
         String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
         String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
         url += "/users?force=" + StringUtils.isNotBlank(forcefully);
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
-
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
@@ -313,13 +312,12 @@ public class SecuredResourceStepDefinition {
             throws Throwable {
         SubjectsAuthorizationRequest request = new SubjectsAuthorizationRequest();
         request.setResources(getResourcesIds(resourcesNames));
-        request.setSubjects(new String[] { username });
+        request.setDelete(new String[] { username });
         String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
         String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
         url += "/users";
 
-        // Context.getInstance().registerRestResponse(Context.getRestClientInstance().deleteJSon(url, JsonUtil.toString(request)));
-
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
@@ -328,13 +326,12 @@ public class SecuredResourceStepDefinition {
             List<String> resourcesNames) throws Throwable {
         SubjectsAuthorizationRequest request = new SubjectsAuthorizationRequest();
         request.setResources(getResourcesIds(resourcesNames));
-        request.setSubjects(new String[] { Context.getInstance().getGroupId(groupName) });
+        request.setCreate(new String[] { Context.getInstance().getGroupId(groupName) });
         String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
         String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
         url += "/groups?force=" + StringUtils.isNotBlank(forcefully);
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
-
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
@@ -343,13 +340,12 @@ public class SecuredResourceStepDefinition {
             throws Throwable {
         SubjectsAuthorizationRequest request = new SubjectsAuthorizationRequest();
         request.setResources(getResourcesIds(resourcesNames));
-        request.setSubjects(new String[] { Context.getInstance().getGroupId(groupName) });
+        request.setDelete(new String[] { Context.getInstance().getGroupId(groupName) });
         String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
         String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
         url += "/groups";
 
-        // Context.getInstance().registerRestResponse(Context.getRestClientInstance().deleteJSon(url, JsonUtil.toString(request)));
-
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
@@ -365,7 +361,6 @@ public class SecuredResourceStepDefinition {
         url += "/environmentsPerApplication?force=" + StringUtils.isNotBlank(forcefully);
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
-
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
@@ -381,7 +376,6 @@ public class SecuredResourceStepDefinition {
         url += "/environmentsPerApplication";
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
-
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
@@ -397,7 +391,6 @@ public class SecuredResourceStepDefinition {
         url += "/environmentsPerApplication?force=" + StringUtils.isNotBlank(forcefully);
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
-
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
@@ -413,7 +406,6 @@ public class SecuredResourceStepDefinition {
         url += "/environmentsPerApplication";
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
-
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 

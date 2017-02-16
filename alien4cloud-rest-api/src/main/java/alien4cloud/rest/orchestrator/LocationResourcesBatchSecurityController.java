@@ -62,34 +62,22 @@ public class LocationResourcesBatchSecurityController {
      *******************************************************************************************************************************/
 
     /**
-     * Grant access on the location resoures to the users (deploy on the location)
+     * Bulk access on the location resoures to the users (deploy on the location)
      *
      * @param locationId The location's id.
      * @return A {@link Void} {@link RestResponse}.
      */
-    @ApiOperation(value = "Batch api to grant permissions to multiple users on multiple location resources.", notes = "Only user with ADMIN role can grant access to another users.")
+    @ApiOperation(value = "Bulk api to grant/revoke permissions to multiple users on multiple location resources.", notes = "Only user with ADMIN role can grant access to another users.")
     @RequestMapping(value = "/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public synchronized RestResponse<Void> grantAccessToUsersOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
             @RequestParam(required = false, defaultValue = "false") boolean force, @RequestBody SubjectsAuthorizationRequest request) {
-        processGrantForSubjectType(Subject.USER, orchestratorId, locationId, force, request);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Revoke authorisations to access the provided resources for the provided users
-     *
-     * @param locationId The location's id.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Batch api to revoke permissions for multiple users on multiple location resources.", notes = "Only user with ADMIN role can revoke access to another users.")
-    @RequestMapping(value = "/users", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public synchronized RestResponse<Void> revokeAccessToUsersOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestBody SubjectsAuthorizationRequest request) {
-        processRevokeForSubjectType(Subject.USER, request);
+        if (ArrayUtils.isNotEmpty(request.getCreate())) {
+            processGrantForSubjectType(Subject.USER, orchestratorId, locationId, force, request.getResources(), request.getCreate());
+        } else if (ArrayUtils.isNotEmpty(request.getDelete())) {
+            processRevokeForSubjectType(Subject.USER, request.getResources(), request.getDelete());
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -100,34 +88,22 @@ public class LocationResourcesBatchSecurityController {
      *******************************************************************************************************************************/
 
     /**
-     * Grant access to the location resource to the groups
+     * Bulk access to the location resource to the groups
      *
      * @param locationId The location's id.
      * @return A {@link Void} {@link RestResponse}.
      */
-    @ApiOperation(value = "Batch api to revoke permissions for multiple groups on multiple location resources.", notes = "Only user with ADMIN role can grant access to a group.")
+    @ApiOperation(value = "Bulk api to grant/revoke permissions for multiple groups on multiple location resources.", notes = "Only user with ADMIN role can grant access to a group.")
     @RequestMapping(value = "/groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public synchronized RestResponse<List<GroupDTO>> grantAccessToGroupsOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
+    public synchronized RestResponse<Void> grantAccessToGroupsOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
             @RequestParam(required = false, defaultValue = "false") boolean force, @RequestBody SubjectsAuthorizationRequest request) {
-        processGrantForSubjectType(Subject.GROUP, orchestratorId, locationId, force, request);
-        return RestResponseBuilder.<List<GroupDTO>> builder().build();
-    }
-
-    /**
-     * Revoke authorisations to access the provided resources for the provided groups
-     *
-     * @param locationId The location's id.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Batch api to revoke permissions for multiple groups on multiple location resources.", notes = "Only user with ADMIN role can grant / revoke access to another users.")
-    @RequestMapping(value = "/groups", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public synchronized RestResponse<Void> revokeAccessToGroupsOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestBody SubjectsAuthorizationRequest request) {
-        processRevokeForSubjectType(Subject.GROUP, request);
+        if (ArrayUtils.isNotEmpty(request.getCreate())) {
+            processGrantForSubjectType(Subject.GROUP, orchestratorId, locationId, force, request.getResources(), request.getCreate());
+        } else if (ArrayUtils.isNotEmpty(request.getDelete())) {
+            processRevokeForSubjectType(Subject.GROUP, request.getResources(), request.getDelete());
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -195,30 +171,30 @@ public class LocationResourcesBatchSecurityController {
     }
 
     private void processGrantForSubjectType(Subject subjectType, String orchestratorId, String locationId, boolean force,
-            SubjectsAuthorizationRequest request) {
-        if (ArrayUtils.isEmpty(request.getResources())) {
+            String[] resources, String[] subjects) {
+        if (ArrayUtils.isEmpty(resources)) {
             return;
         }
         Location location = locationService.getLocation(orchestratorId, locationId);
-        locationSecurityService.checkAuthorizations(location, subjectType, force, request.getSubjects());
+        locationSecurityService.checkAuthorizations(location, subjectType, force, subjects);
 
-        Arrays.stream(request.getResources()).forEach(resourceId -> {
+        Arrays.stream(resources).forEach(resourceId -> {
             LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
             // prefer using locationResourceService.saveResource so that the location update date is update.
             // This will then trigger a deployment topology update
             resourcePermissionService.grantPermission(resourceTemplate,
-                    (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), subjectType, request.getSubjects());
+                    (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), subjectType, subjects);
         });
     }
 
-    private void processRevokeForSubjectType(Subject subjectType, SubjectsAuthorizationRequest request) {
-        if (ArrayUtils.isEmpty(request.getResources())) {
+    private void processRevokeForSubjectType(Subject subjectType, String[] resources, String[] subjects) {
+        if (ArrayUtils.isEmpty(resources)) {
             return;
         }
-        Arrays.stream(request.getResources()).forEach(resourceId -> {
+        Arrays.stream(resources).forEach(resourceId -> {
             LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
             resourcePermissionService.revokePermission(resourceTemplate,
-                    (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)), subjectType, request.getSubjects());
+                    (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)), subjectType, subjects);
         });
     }
 

@@ -9,18 +9,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections4.MapUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.ProtocolException;
+import org.apache.http.*;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.cookie.CookieSpec;
 import org.apache.http.entity.StringEntity;
@@ -69,7 +60,7 @@ public class RestClient {
 
     /**
      * Get the cookie header from the current cookie store
-     * 
+     *
      * @return
      */
     public Header getCookieHeader() {
@@ -181,16 +172,6 @@ public class RestClient {
         return ResponseUtil.toString(response);
     }
 
-    // public String deleteJSon(String path, String jSon) throws IOException {
-    // log.debug("Send post json request to [" + path + "], jSon [" + jSon + "]");
-    // HttpDelete httpDelete = new HttpDelete(applicationUrl + path);
-    // StringEntity jsonInput = new StringEntity(jSon);
-    // jsonInput.setContentType("application/json");
-    // httpDelete.setEntity(jsonInput);
-    // CloseableHttpResponse response = httpClient.execute(httpDelete);
-    // return ResponseUtil.toString(response);
-    // }
-
     public void close() throws IOException {
         log.debug("Close client");
         this.httpClient.close();
@@ -204,20 +185,4 @@ public class RestClient {
         return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
     }
 
-    /**
-     * DELETE request with a body
-     */
-    // @NoArgsConstructor
-    // private class HttpDelete extends HttpEntityEnclosingRequestBase {
-    //
-    // public HttpDelete(String uri) {
-    // super();
-    // setURI(URI.create(uri));
-    // }
-    //
-    // @Override
-    // public String getMethod() {
-    // return "DELETE";
-    // }
-    // }
 }
