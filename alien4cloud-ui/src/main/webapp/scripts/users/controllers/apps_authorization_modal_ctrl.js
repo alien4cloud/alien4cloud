@@ -8,15 +8,33 @@ define(function (require) {
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
 
-  modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationModalCtrl', ['$scope', '$uibModalInstance', 'searchServiceFactory', 'applicationEnvironmentServices', 'searchConfig', 'preSelection', 'preSelectedApps', 'preSelectedEnvs',
-    function ($scope, $uibModalInstance, searchServiceFactory, applicationEnvironmentServices, searchConfig, preSelection, preSelectedApps, preSelectedEnvs) {
+  modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationModalCtrl', ['$scope', '$uibModalInstance', 'searchServiceFactory', 'applicationEnvironmentServices',
+    function ($scope, $uibModalInstance, searchServiceFactory, applicationEnvironmentServices) {
+
+      var buildPreselections = function buildPreselections (){
+        $scope.preSelection =  {};
+        $scope.preSelectedApps = {};
+        $scope.preSelectedEnvs= {};
+
+        _.forEach($scope.authorizedSubjects, function(authorizedApp) {
+          if (_.isEmpty(authorizedApp.environments)) {
+            $scope.preSelectedApps[authorizedApp.application.id] = 1;
+          }
+          $scope.preSelection[authorizedApp.application.id] = [];
+          _.forEach(authorizedApp.environments, function(environment) {
+            $scope.preSelectedEnvs[environment.id] = 1;
+            $scope.preSelection[authorizedApp.application.id].push(environment.id);
+          });
+
+        });
+
+      };
+
+      $scope._ = _;
       $scope.query = '';
       $scope.batchSize = 5;
       $scope.selectedApps = {};
-      $scope.searchConfig = searchConfig;
-      $scope.preSelection = preSelection;
-      $scope.preSelectedApps = preSelectedApps;
-      $scope.preSelectedEnvs = preSelectedEnvs;
+      buildPreselections();
 
       // a map appId -> environment array
       $scope.environments = {};
@@ -45,6 +63,7 @@ define(function (require) {
         var url;
         var useParams ;
         var params ;
+        var searchConfig = _.isFunction($scope.buildSearchConfig) ? $scope.buildSearchConfig() : null;
         if($scope.customSearchActive) {
           url = _.get(searchConfig, 'url', '/rest/latest/applications/search');
           useParams = _.get(searchConfig, 'useParams', false);
@@ -58,7 +77,7 @@ define(function (require) {
         $scope.searchService.search();
       };
 
-      if (_.isUndefined($scope.application)) {
+      if (_.undefined($scope.application)) {
         $scope.editionMode = false;
         buildSeachService();
       } else {
@@ -94,7 +113,7 @@ define(function (require) {
         });
 
         if (result.applicationsToDelete.length + result.environmentsToDelete.length + result.applicationsToAdd.length + result.environmentsToAdd.length > 0) {
-          $uibModalInstance.close({request: result, force: force});
+          $uibModalInstance.close({subjects: result, force: force});
         }
       };
 
@@ -242,6 +261,7 @@ define(function (require) {
 
       $scope.toggleCustomSearch = function(){
         $scope.customSearchActive = !$scope.customSearchActive;
+        $scope.emptyPlaceHolder = $scope.customSearchActive ? 'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD_POPUP.EMPTY_PLACEHOLDER' : 'APPLICATIONS.APPLICATION';
         buildSeachService();
       };
 

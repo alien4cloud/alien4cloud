@@ -3,9 +3,8 @@
     <h3>{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD_POPUP.TITLE' | translate}}</h3>
   </div>
   <div class="modal-body">
-    <div>
-      <div class="row" style="margin-top: 10px;" ng-show="!editionMode">
-        <div class="col-md-12">
+    <div ng-if = "!editionMode">
+      <div class="form-horizontal">
           <form role="search" ng-submit="searchApp($event)">
             <div class="input-group">
               <input type="text" class="form-control" placeholder="..." ng-model="query">
@@ -17,115 +16,126 @@
             </div>
           </form>
         </div>
+      <div  class="filter-category">
+        <a ng-if = "displayForceOption" ng-click="toggleCustomSearch()" class="pull-rigth">
+          <i class="fa fa-fw" ng-class="{'fa-check-square-o' : customSearchActive,  'fa-square-o': !customSearchActive}"></i>
+            {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD_POPUP.LOC_AUTH_FILTER' | translate}}
+        </a>
       </div>
-      <div class="row" style="margin-top: 10px;">
-        <div class="col-md-12">
-          <empty-place-holder
-              for="'APPLICATIONS.APPLICATION'"
-              data="appsData.data">
-          </empty-place-holder>
-          <div class="table-responsive large-data-container" id="apps-table" ng-if="appsData.data.length > 0">
-            <table class="table table-hover">
-              <thead>
-              <tr>
-                <th class="text-center">
-                  <a ng-click="toggleSelectAll()" href="" ng-if="getSelectAllStatus() != -1">
+    </div>
+    <div class="row" style="margin-top: 10px;">
+      <div class="col-md-12">
+        <empty-place-holder ng-if = "customSearchActive"
+            for="'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD_POPUP.EMPTY_PLACEHOLDER'"
+            data="appsData.data">
+        </empty-place-holder>
+        <empty-place-holder ng-if = "!customSearchActive"
+            for="'APPLICATIONS.APPLICATION'"
+            data="appsData.data">
+        </empty-place-holder>
+        <div class="table-responsive large-data-container" id="apps-table" ng-if="appsData.data.length > 0">
+          <table class="table table-hover">
+            <thead>
+            <tr>
+              <th class="text-center">
+                <a ng-click="toggleSelectAll()" href="" ng-if="getSelectAllStatus() != -1">
+                  <i class="fa"
+                     ng-class="{
+                       'fa-check-square-o' : getSelectAllStatus() == 2,
+                       'fa-square-o': getSelectAllStatus() == 0,
+                       'fa-minus-square-o': getSelectAllStatus() == 1
+                       }"></i>
+                </a>
+                <i class="fa fa-minus-square-o text-muted" ng-if="getSelectAllStatus() == -1"></i>
+              </th>
+              <th>{{ 'APPLICATIONS.APPLICATION' | translate}}</th>
+              <th></th>
+              <th>{{ 'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</th>
+            </tr>
+            </thead>
+            <tbody>
+              <!-- Display all Applications -->
+              <tr ng-repeat="app in appsData.data" ng-init="isEnvironmentsCollapsed = !editionMode" ng-if="!appsData.data[0].application">
+                <td class="text-center">
+                  <a ng-click="toggleApplicationSelection(app)" href="" ng-if="getApplicationSelectionStatus(app) != 1">
                     <i class="fa"
-                       ng-class="{
-                         'fa-check-square-o' : getSelectAllStatus() == 2,
-                         'fa-square-o': getSelectAllStatus() == 0,
-                         'fa-minus-square-o': getSelectAllStatus() == 1
-                         }"></i>
+                       ng-init="selectionStatus = getApplicationSelectionStatus(app)"
+                       ng-class="{'fa-check-square-o' : getApplicationSelectionStatus(app) == 2, 'fa-minus-square-o': getApplicationSelectionStatus(app) == 1, 'fa-square-o': getApplicationSelectionStatus(app) == 0}"></i>
                   </a>
-                  <i class="fa fa-minus-square-o text-muted" ng-if="getSelectAllStatus() == -1"></i>
-                </th>
-                <th>{{ 'APPLICATIONS.APPLICATION' | translate}}</th>
-                <th></th>
-                <th>{{ 'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</th>
+                  <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(app) == 1"></i>
+                </td>
+                <td>{{ app.name }}</td>
+                <td ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; expandEnvironments(app, isEnvironmentsCollapsed);" class="clickable">
+                    <i class="pull-left fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
+                </td>
+                <td>
+                  <div ng-if="!isEnvironmentsCollapsed">
+                    <div class="row" ng-repeat="env in environments[app.id]">
+                      <div class="col-md-12">
+                        <a ng-click="toggleEnvironmentSelection(app, env)" href="" ng-if="getApplicationSelectionStatus(app) < 2">
+                          <i class="fa"
+                             ng-class="{'fa-check-square-o' : isEnvironmentSelected(app, env),  'fa-square-o': !isEnvironmentSelected(app, env)}"></i>
+                        </a>
+                        <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(app) == 2"></i>
+                        {{ env.name }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
               </tr>
-              </thead>
-              <tbody>
-                <!-- Display all Applications -->
-                <tr ng-repeat="app in appsData.data" ng-init="isEnvironmentsCollapsed = !editionMode" ng-if="!appsData.data[0].application">
-                  <td class="text-center">
-                    <a ng-click="toggleApplicationSelection(app)" href="" ng-if="getApplicationSelectionStatus(app) != 1">
-                      <i class="fa"
-                         ng-init="selectionStatus = getApplicationSelectionStatus(app)"
-                         ng-class="{'fa-check-square-o' : getApplicationSelectionStatus(app) == 2, 'fa-minus-square-o': getApplicationSelectionStatus(app) == 1, 'fa-square-o': getApplicationSelectionStatus(app) == 0}"></i>
-                    </a>
-                    <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(app) == 1"></i>
-                  </td>
-                  <td>{{ app.name }}</td>
-                  <td ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; expandEnvironments(app, isEnvironmentsCollapsed);" class="clickable">
-                      <i class="pull-left fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
-                  </td>
-                  <td>
-                    <div ng-if="!isEnvironmentsCollapsed">
-                      <div class="row" ng-repeat="env in environments[app.id]">
-                        <div class="col-md-12">
-                          <a ng-click="toggleEnvironmentSelection(app, env)" href="" ng-if="getApplicationSelectionStatus(app) < 2">
-                            <i class="fa"
-                               ng-class="{'fa-check-square-o' : isEnvironmentSelected(app, env),  'fa-square-o': !isEnvironmentSelected(app, env)}"></i>
-                          </a>
-                          <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(app) == 2"></i>
-                          {{ env.name }}
-                        </div>
+              <!-- Display all applicationEnvironmentDTOs -->
+              <tr ng-repeat="appEnvDTO in appsData.data" ng-init="isEnvironmentsCollapsed = !editionMode" ng-if="appsData.data[0].application">
+                <td class="text-center">
+                  <a ng-click="toggleApplicationSelection(appEnvDTO.application)" href="" ng-if="getApplicationSelectionStatus(appEnvDTO.application) != 1 && !appEnvDTO.environments">
+                    <i class="fa"
+                       ng-init="selectionStatus = getApplicationSelectionStatus(appEnvDTO.application)"
+                       ng-class="{'fa-check-square-o' : getApplicationSelectionStatus(appEnvDTO.application) == 2, 'fa-minus-square-o': getApplicationSelectionStatus(appEnvDTO.application) == 1, 'fa-square-o': getApplicationSelectionStatus(appEnvDTO.application) == 0}"></i>
+                  </a>
+                  <i class="fa fa-square-o text-muted" ng-if="appEnvDTO.environments"></i>
+                  <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(appEnvDTO.application) == 1 && !appEnvDTO.environments"></i>
+                </td>
+                <td>{{ appEnvDTO.application.name }}</td>
+                <td ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; expandEnvironments(appEnvDTO.application, isEnvironmentsCollapsed);" class="clickable">
+                    <i class="pull-left fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
+                </td>
+                <td>
+                  <div ng-if="!isEnvironmentsCollapsed">
+                    <!-- Display environments from the applicationEnvironmentDTOs -->
+                    <div class="row" ng-repeat="env in appEnvDTO.environments">
+                      <div class="col-md-12">
+                        <a ng-click="toggleEnvironmentSelection(appEnvDTO.application, env)" href="" ng-if="getApplicationSelectionStatus(appEnvDTO.application) < 2">
+                          <i class="fa"
+                             ng-class="{'fa-check-square-o' : isEnvironmentSelected(appEnvDTO.application, env),  'fa-square-o': !isEnvironmentSelected(appEnvDTO.application, env)}"></i>
+                        </a>
+                        <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(appEnvDTO.application) == 2"></i>
+                        {{ env.name }}
                       </div>
                     </div>
-                  </td>
-                </tr>
-                <!-- Display all applicationEnvironmentDTOs -->
-                <tr ng-repeat="appEnvDTO in appsData.data" ng-init="isEnvironmentsCollapsed = !editionMode" ng-if="appsData.data[0].application">
-                  <td class="text-center">
-                    <a ng-click="toggleApplicationSelection(appEnvDTO.application)" href="" ng-if="getApplicationSelectionStatus(appEnvDTO.application) != 1 && !appEnvDTO.environments">
-                      <i class="fa"
-                         ng-init="selectionStatus = getApplicationSelectionStatus(appEnvDTO.application)"
-                         ng-class="{'fa-check-square-o' : getApplicationSelectionStatus(appEnvDTO.application) == 2, 'fa-minus-square-o': getApplicationSelectionStatus(appEnvDTO.application) == 1, 'fa-square-o': getApplicationSelectionStatus(appEnvDTO.application) == 0}"></i>
-                    </a>
-                    <i class="fa fa-square-o text-muted" ng-if="appEnvDTO.environments"></i>
-                    <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(appEnvDTO.application) == 1 && !appEnvDTO.environments"></i>
-                  </td>
-                  <td>{{ appEnvDTO.application.name }}</td>
-                  <td ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; expandEnvironments(appEnvDTO.application, isEnvironmentsCollapsed);" class="clickable">
-                      <i class="pull-left fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
-                  </td>
-                  <td>
-                    <div ng-if="!isEnvironmentsCollapsed">
-                      <!-- Display environments from the applicationEnvironmentDTOs -->
-                      <div class="row" ng-repeat="env in appEnvDTO.environments">
-                        <div class="col-md-12">
-                          <a ng-click="toggleEnvironmentSelection(appEnvDTO.application, env)" href="" ng-if="getApplicationSelectionStatus(appEnvDTO.application) < 2">
-                            <i class="fa"
-                               ng-class="{'fa-check-square-o' : isEnvironmentSelected(appEnvDTO.application, env),  'fa-square-o': !isEnvironmentSelected(appEnvDTO.application, env)}"></i>
-                          </a>
-                          <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(appEnvDTO.application) == 2"></i>
-                          {{ env.name }}
-                        </div>
-                      </div>
-                      <!-- Display all environments of an Application -->
-                      <div class="row" ng-repeat="env in environments[appEnvDTO.application.id]">
-                        <div class="col-md-12"  ng-if="!appEnvDTO.environments">
-                          <a ng-click="toggleEnvironmentSelection(appEnvDTO.application, env)" href="" ng-if="getApplicationSelectionStatus(appEnvDTO.application) < 2">
-                            <i class="fa"
-                               ng-class="{'fa-check-square-o' : isEnvironmentSelected(appEnvDTO.application, env),  'fa-square-o': !isEnvironmentSelected(appEnvDTO.application, env)}"></i>
-                          </a>
-                          <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(appEnvDTO.application) == 2"></i>
-                          {{ env.name }}
-                        </div>
+                    <!-- Display all environments of an Application -->
+                    <div class="row" ng-repeat="env in environments[appEnvDTO.application.id]">
+                      <div class="col-md-12"  ng-if="!appEnvDTO.environments">
+                        <a ng-click="toggleEnvironmentSelection(appEnvDTO.application, env)" href="" ng-if="getApplicationSelectionStatus(appEnvDTO.application) < 2">
+                          <i class="fa"
+                             ng-class="{'fa-check-square-o' : isEnvironmentSelected(appEnvDTO.application, env),  'fa-square-o': !isEnvironmentSelected(appEnvDTO.application, env)}"></i>
+                        </a>
+                        <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(appEnvDTO.application) == 2"></i>
+                        {{ env.name }}
                       </div>
                     </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <pagination-directive pagination-info="searchService.pagination"/>
-          </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <pagination-directive pagination-info="searchService.pagination"/>
         </div>
       </div>
     </div>
   </div>
   <div class="modal-footer" style="margin-top: 10px;">
-    <button ng-disabled="selectedUsers.length === 0" class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}
+    <button  class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}
+    </button>
+    <button ng-if = "displayForceOption"  class="btn btn-primary" ng-click="ok(true)">{{'FORCE' | translate}}
     </button>
     <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
   </div>

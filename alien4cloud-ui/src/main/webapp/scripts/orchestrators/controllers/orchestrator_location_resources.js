@@ -236,12 +236,6 @@ define(function(require) {
           };
         };
 
-        $scope.authModalTemplates = {
-          users: 'views/orchestrators/authorizations/resource_users_authorization_popup.html',
-          groups: 'views/orchestrators/authorizations/resource_groups_authorization_popup.html',
-          applications: 'views/orchestrators/authorizations/resource_apps_authorization_popup.html'
-        };
-
         $scope.context.selectedResourceTemplates = {};
 
         $scope.toggleTemplate = function(template) {

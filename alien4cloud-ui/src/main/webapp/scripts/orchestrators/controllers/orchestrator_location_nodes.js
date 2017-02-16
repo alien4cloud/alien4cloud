@@ -10,8 +10,9 @@ define(function (require) {
   require('scripts/orchestrators/controllers/orchestrator_location_resources');
   require('scripts/orchestrators/directives/orchestrator_location_resources');
   require('scripts/orchestrators/services/location_resources_security_service');
-  require('scripts/users/controllers/users_authorization_modal_ctrl');
-  require('scripts/users/controllers/groups_authorization_modal_ctrl');
+  require('scripts/users/directives/authorize_users');
+  require('scripts/users/directives/authorize_groups');
+  require('scripts/users/directives/authorize_apps');
 
   states.state('admin.orchestrators.details.locations.nodes', {
     url: '/nodes',
@@ -26,8 +27,8 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource', 'locationResourcesProcessor', '$uibModal', 'locationResourcesSecurityService', 'resourceSecurityFactory',
-    function($scope, $resource, locationResourcesProcessor, $uibModal, locationResourcesSecurityService, resourceSecurityFactory) {
+  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource', 'locationResourcesProcessor', '$uibModal', 'locationResourcesSecurityService',
+    function($scope, $resource, locationResourcesProcessor, $uibModal, locationResourcesSecurityService) {
 
       function removeGeneratedResources() {
           _.remove($scope.context.locationResources.nodeTemplates, function(locationResource){
@@ -75,20 +76,10 @@ define(function (require) {
       // USERS
       // *****************************************************************************
 
-      $scope.openUsersdModal = function (action) {
-        var modalInstance = $uibModal.open({
-          templateUrl: 'views/orchestrators/authorizations/resource_users_authorization_popup.html',
-          controller: 'UsersAuthorizationModalCtrl',
-          resolve:{
-            searchConfig:  $scope.buildSecuritySearchConfig('users'),
-            authorizedUsers: {}
-          }
-        });
-
-        modalInstance.result.then(function (result) {
+      $scope.processUserAction = function (action, result) {
           var request = {
             'resources':  Object.keys($scope.context.selectedResourceTemplates),
-            'subjects': _.map(result.users, 'username')
+            'subjects': _.map(result.subjects, 'username')
           };
           if (action === 'grant') {
             locationResourcesSecurityService.grantUsersBatch[action](_.merge(params, {force: result.force}), angular.toJson(request), function(successResponse) {
@@ -98,28 +89,16 @@ define(function (require) {
           } else if (action === 'revoke') {
             locationResourcesSecurityService.revokeUsersBatch(params, request);
           }
-
-        });
       };
 
       // *****************************************************************************
       // GROUPS
       // *****************************************************************************
 
-      $scope.openGroupsdModal = function (action) {
-        var modalInstance = $uibModal.open({
-          templateUrl: 'views/orchestrators/authorizations/resource_groups_authorization_popup.html',
-          controller: 'GroupsAuthorizationModalCtrl',
-          resolve:{
-            searchConfig:  $scope.buildSecuritySearchConfig('groups'),
-            authorizedGroups: {}
-          }
-        });
-
-        modalInstance.result.then(function (result) {
+      $scope.processGroupAction = function (action, result) {
           var request = {
             'resources':  Object.keys($scope.context.selectedResourceTemplates),
-            'subjects': _.map(result.groups, 'id')
+            'subjects': _.map(result.subjects, 'id')
           };
 
           if (action === 'grant') {
@@ -130,42 +109,26 @@ define(function (require) {
           } else if (action === 'revoke') {
             locationResourcesSecurityService.revokeGroupsBatch(params, request);
           }
-
-        });
       };
 
       // *****************************************************************************
       // APPLICATIONS / ENVIRONMENTS
       // *****************************************************************************
 
-      $scope.openApplicationsdModal = function (action) {
-        var modalInstance = $uibModal.open({
-          templateUrl: 'views/orchestrators/authorizations/resource_apps_authorization_popup.html',
-          controller: 'AppsAuthorizationModalCtrl',
-          resolve:{
-            searchConfig:      $scope.buildSecuritySearchConfig('applications'),
-            preSelection:      {},
-            preSelectedApps:   {},
-            preSelectedEnvs:   {}
-          }
-        });
-
-        modalInstance.result.then(function (result) {
-          var request = result.request;
-          request.resources =  Object.keys($scope.context.selectedResourceTemplates);
-          if (action === 'revoke') {
-            request.applicationsToDelete = request.applicationsToAdd;
-            request.environmentsToDelete = request.environmentsToAdd;
-            delete request.applicationsToAdd;
-            delete request.environmentsToAdd;
-          }
-          locationResourcesSecurityService.updateEnvironmentsPerApplicationBatch.grant(_.merge(params, {force:result.force}), angular.toJson(request), function(successResponse) {
-            console.log(successResponse);
-            //TODO: check if an error occur and add a refresh
-          });
+      $scope.processAppsAction = function (action, result) {
+        var request = result.subjects;
+        request.resources =  Object.keys($scope.context.selectedResourceTemplates);
+        if (action === 'revoke') {
+          request.applicationsToDelete = request.applicationsToAdd;
+          request.environmentsToDelete = request.environmentsToAdd;
+          delete request.applicationsToAdd;
+          delete request.environmentsToAdd;
+        }
+        locationResourcesSecurityService.updateEnvironmentsPerApplicationBatch.grant(_.merge(params, {force:result.force}), angular.toJson(request), function(successResponse) {
+          console.log(successResponse);
+          //TODO: check if an error occur and add a refresh
         });
       };
-
     }
   ]);
 }); // define

@@ -73,7 +73,7 @@
         </uib-tab>
 
         <!-- Security-->
-        <uib-tab index="1" disable="disableSecurity()">
+        <uib-tab index="1" ng-show="!disableSecurity()">
           <uib-tab-heading >
             <i class="icon-folder-open"></i> {{'ORCHESTRATORS.LOCATIONS.SECURITY' | translate}}
           </uib-tab-heading>
@@ -86,7 +86,7 @@
                       resource="selectedResourceTemplate"
                       service="locationResourcesSecurityService.users"
                       search-config-builder="buildSecuritySearchConfig('users')"
-                      authorize-modal-template-url="authModalTemplates.users">
+                      display-force-option="true">
                     </alien-user-authorization>
                   </uib-tab>
                   <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
@@ -94,7 +94,7 @@
                       resource="selectedResourceTemplate"
                       service="locationResourcesSecurityService.groups"
                       search-config-builder="buildSecuritySearchConfig('groups')"
-                      authorize-modal-template-url="authModalTemplates.groups">
+                      display-force-option="true">
                     </alien-group-authorization>
                   </uib-tab>
                   <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
@@ -103,7 +103,7 @@
                       app-service="locationResourcesSecurityService.applications"
                       env-service="locationResourcesSecurityService.environmentsPerApplication"
                       search-config-builder="buildSecuritySearchConfig('applications')"
-                      authorize-modal-template-url="authModalTemplates.applications">
+                      display-force-option="true">
                     </alien-app-authorization>
                   </uib-tab>
                 </uib-tabset>

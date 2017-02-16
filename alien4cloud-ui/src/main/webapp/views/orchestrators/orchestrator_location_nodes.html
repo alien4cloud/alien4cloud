@@ -5,14 +5,38 @@
     {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS' | translate}} <span class="caret"></span>
   </button>
   <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="btn-append-to-body">
-    <li role="menuitem"><a ng-click="openUsersdModal('grant')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD' | translate}}</a></li>
-    <li role="menuitem"><a ng-click="openUsersdModal('revoke')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.REVOKE' | translate}}</a></li>
+    <li role="menuitem">
+      <a alien-authorize-users
+         on-close="processUserAction('grant', result)"
+         search-config-builder="buildSecuritySearchConfig('users')"
+         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD' | translate}}</a></li>
+    <li role="menuitem">
+      <a alien-authorize-users
+         on-close="processUserAction('revoke', result)"
+         search-config-builder="buildSecuritySearchConfig('users')"
+         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.REVOKE' | translate}}</a></li>
     <li class="divider"></li>
-    <li role="menuitem"><a ng-click="openGroupsdModal('grant')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD' | translate}}</a></li>
-    <li role="menuitem"><a ng-click="openGroupsdModal('revoke')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.REVOKE' | translate}}</a></li>
+    <li role="menuitem">
+      <a alien-authorize-groups
+         on-close="processGroupAction('grant', result)"
+         search-config-builder="buildSecuritySearchConfig('groups')"
+         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD' | translate}}</a></li>
+    <li role="menuitem">
+      <a alien-authorize-groups
+         on-close="processGroupAction('revoke', result)"
+         search-config-builder="buildSecuritySearchConfig('groups')"
+         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.REVOKE' | translate}}</a></li>
     <li class="divider"></li>
-    <li role="menuitem"><a ng-click="openApplicationsdModal('grant')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}</a></li>
-    <li role="menuitem"><a ng-click="openApplicationsdModal('revoke')">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.REVOKE' | translate}}</a></li>
+    <li role="menuitem">
+      <a alien-authorize-apps
+         on-close="processAppsAction('grant', result)"
+         search-config-builder="buildSecuritySearchConfig('applications')"
+         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}</a></li>
+    <li role="menuitem">
+      <a alien-authorize-apps
+         on-close="processAppsAction('revoke', result)"
+         search-config-builder="buildSecuritySearchConfig('applications')"
+         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.REVOKE' | translate}}</a></li>
   </ul>
 </div>
 
@@ -21,5 +45,6 @@
   resources-types-map="context.locationResources.nodeTypes"
   resources-templates="context.locationResources.nodeTemplates"
   context="context",
+  show-catalog="true"
   show-multi-select="true">
 </orchestrator-location-resources>

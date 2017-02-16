@@ -8,23 +8,33 @@
         <div class="form-horizontal">
           <form role="search" ng-submit="search($event)">
             <div class="input-group">
-              <input type="text" class="form-control" placeholder="..." ng-model="query"> <span
-                class="input-group-btn">
-                  <button type="submit" class="btn btn-default" data-loading-text="Loading...">
-                    <i class="fa fa-search"></i>
-                  </button>
-                </span>
+              <input type="text" class="form-control" placeholder="..." ng-model="query"/>
+              <span class="input-group-btn">
+                <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+                  <i class="fa fa-search"></i>
+                </button>
+              </span>
             </div>
           </form>
+        </div>
+        <div  ng-if = "displayForceOption" class="filter-category">
+          <a ng-click="toggleCustomSearch()" class="pull-rigth">
+            <i class="fa fa-fw" ng-class="{'fa-check-square-o' : customSearchActive,  'fa-square-o': !customSearchActive}"></i>
+              {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD_POPUP.LOC_AUTH_FILTER' | translate}}
+          </a>
         </div>
       </div>
       <div class="row" style="margin-top: 10px;">
         <div class="col-md-12">
-          <empty-place-holder
-              for="'ROLE_TABS.USERS'"
-              data="usersData.data">
+          <empty-place-holder ng-if="customSearchActive"
+              for="'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD_POPUP.EMPTY_PLACEHOLDER'"
+              data="searchedData.data">
           </empty-place-holder>
-          <div class="table-responsive large-data-container" id="users-table" ng-if="usersData.data.length > 0">
+          <empty-place-holder ng-if="!customSearchActive"
+              for="'ROLE_TABS.USERS'"
+              data="searchedData.data">
+          </empty-place-holder>
+          <div class="table-responsive large-data-container" id="users-table" ng-if="searchedData.data.length > 0">
             <table class="table table-hover">
               <thead>
               <tr>
@@ -40,7 +50,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr ng-repeat="user in usersData.data" ng-init = "isAuthorized = isAuthorized(user)" ng-class="{'option-selected text-muted': isAuthorized}">
+              <tr ng-repeat="user in searchedData.data" ng-init = "isAuthorized = isAuthorized(user)" ng-class="{'option-selected text-muted': isAuthorized}">
                 <td class="text-center">
                   <a ng-if = "!isAuthorized" ng-click="toggleSelection(user)">
                     <i class="fa fa-fw"
@@ -65,8 +75,17 @@
     </div>
   </div>
   <div class="modal-footer" style="margin-top: 10px;">
-    <button ng-disabled="selectedUsers.length === 0" class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}
-    </button>
-    <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+    <a ng-disabled="selectedSubjects.length === 0" class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}
+    <a ng-if = "displayForceOption" ng-disabled="selectedSubjects.length === 0" class="btn btn-primary" ng-click="ok(true)">{{'FORCE' | translate}}
+    </a>
+    <!-- <a ng-disabled="selectedSubjects.length === 0" class="btn btn-primary"
+      confirm-title="{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.FORCE_TITLE' | translate }}"
+      confirm="{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.FORCE_MESSAGE' | translate}}"
+      confirm-placement="left"
+      confirm-handler="ok(true)"
+      confirm-class="popover"
+      ng-click="$event.stopPropagation()">{{'FORCE' | translate}}
+    </a> -->
+    <a class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</a>
   </div>
 </div>

@@ -9,7 +9,12 @@
       </div>
     </div>
     <div class="col-md-8">
-      <button class="pull-right btn btn-sm btn-success" ng-click="openNewAppAuthorizationModal()">
+      <button class="pull-right btn btn-sm btn-success"
+        alien-authorize-apps
+        on-close="onModalClose(result)"
+        authorized-subjects = "authorizedEnvironmentsPerApplication"
+        search-config-builder="searchConfigBuilder()"
+        display-force-option="displayForceOption">
         <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}
       </button>
     </div>
@@ -42,7 +47,12 @@
               </div>
             </td>
             <td>
-              <button class="pull-left btn btn-xs btn-info" ng-click="openNewAppAuthorizationModal(application.application)">
+              <button class="pull-left btn btn-xs btn-info"
+                alien-authorize-apps
+                on-close="onModalClose(result)"
+                authorized-subjects = "authorizedEnvironmentsPerApplication"
+                application="application.application"
+                display-force-option="displayForceOption">
                 <i class="fa fa-edit"></i>
               </button>
             </td>

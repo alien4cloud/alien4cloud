@@ -1,4 +1,4 @@
-<div ng-controller="GroupsAuthorizationDirectiveCtrl">
+<div ng-controller="SubjectAuthorizationDirectiveCtrl">
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-4">
       <div class="input-group">
@@ -9,7 +9,12 @@
       </div>
     </div>
     <div class="col-md-8">
-      <button class="pull-right btn btn-sm btn-success" ng-click="openNewGroupAuthorizationModal()">
+      <button class="pull-right btn btn-sm btn-success"
+        alien-authorize-groups
+        on-close="onModalClose(result)"
+        authorized-subjects="authorizedSubjects"
+        search-config-builder="searchConfigBuilder()"
+        display-force-option="displayForceOption">
         <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD' | translate}}
       </button>
     </div>
@@ -18,9 +23,9 @@
     <div class="col-md-12">
       <empty-place-holder
           for="'GROUPS.AUTHORIZED'"
-          data="authorizedGroups">
+          data="authorizedSubjects">
       </empty-place-holder>
-      <div class="table-responsive large-data-container" id="groups-table" ng-if="authorizedGroups.length > 0">
+      <div class="table-responsive large-data-container" id="groups-table" ng-if="authorizedSubjects.length > 0">
         <table class="table table-hover">
           <thead>
           <tr>
@@ -31,7 +36,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr ng-repeat="group in authorizedGroups | filter:searchText"
+          <tr ng-repeat="group in authorizedSubjects | filter:searchText"
               id="group_{{group.id}}">
             <td>
               <i class="fa fa-group fa-2x" ng-if="!group.imageId"></i>

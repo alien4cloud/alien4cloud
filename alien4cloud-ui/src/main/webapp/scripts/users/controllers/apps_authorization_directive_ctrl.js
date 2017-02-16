@@ -8,8 +8,8 @@ define(function (require) {
   require('scripts/common/services/search_service_factory');
   require('scripts/common/directives/pagination');
 
-  modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationDirectiveCtrl', ['$scope', '$uibModal',
-    function ($scope, $uibModal) {
+  modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationDirectiveCtrl', ['$scope',
+    function ($scope) {
       // do nothin if there is no resource
       if(_.undefined($scope.resource)){
         return;
@@ -22,37 +22,8 @@ define(function (require) {
       };
       $scope.searchAuthorizedEnvironmentsPerApplication();
 
-      $scope.openNewAppAuthorizationModal = function (app) {
-        $scope.application = app;
-        $scope.preSelection = {};
-        $scope.preSelectedApps = {};
-        $scope.preSelectedEnvs = {};
-        _.forEach($scope.authorizedEnvironmentsPerApplication, function(authorizedApp) {
-          if (_.isEmpty(authorizedApp.environments)) {
-            $scope.preSelectedApps[authorizedApp.application.id] = 1;
-          }
-          $scope.preSelection[authorizedApp.application.id] = [];
-          _.forEach(authorizedApp.environments, function(environment) {
-            $scope.preSelectedEnvs[environment.id] = 1;
-            $scope.preSelection[authorizedApp.application.id].push(environment.id);
-          });
-        });
-
-        var modalInstance = $uibModal.open({
-          templateUrl: _.get($scope, 'authorizeModalTemplateUrl', 'views/users/apps_authorization_popup.html'),
-          controller: 'AppsAuthorizationModalCtrl',
-          resolve:{
-            searchConfig:  $scope.buildSearchConfig(),
-            preSelection: $scope.preSelection,
-            preSelectedApps:   $scope.preSelectedApps,
-            preSelectedEnvs:   $scope.preSelectedEnvs
-          },
-          scope: $scope
-        });
-
-        modalInstance.result.then(function (result) {
-          $scope.envService.save({force: result.force}, result.request, $scope.searchAuthorizedEnvironmentsPerApplication);
-        });
+      $scope.onModalClose = function(result){
+        $scope.envService.save({force: result.force}, result.subjects, $scope.searchAuthorizedEnvironmentsPerApplication);
       };
 
       $scope.revoke = function (application) {
