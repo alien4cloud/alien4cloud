@@ -29,6 +29,7 @@
       alien4cloud.paas.plan,
       alien4cloud.repository.*,
       alien4cloud.tosca,
+      alien4cloud.service,
       alien4cloud.suggestions,
       alien4cloud.plugin,
       alien4cloud.utils.services,

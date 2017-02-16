@@ -44,22 +44,32 @@ Feature: Patch service resource
 
   @reset
   Scenario: Patching a service state to started should succeed
+    And I PATCH "services/patch_service_properties.json" to "/rest/v1/services/{serviceId}"
     When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
-    Then I should receive a RestResponse with an error code 501
+    Then I should receive a RestResponse with no error
+
+  @reset
+  Scenario: Patching a service state to started with missing required properties should fail
+    When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
+    Then I should receive a RestResponse with an error code 500
 
   @reset
   Scenario: Patching a service state to initial when started should succeed
+    And I PATCH "services/patch_service_properties.json" to "/rest/v1/services/{serviceId}"
+    When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
     When I PATCH "services/patch_service_attr_state_initial.json" to "/rest/v1/services/{serviceId}"
-    Then I should receive a RestResponse with an error code 501
+    Then I should receive a RestResponse with no error
 
   @reset
   Scenario: Patching a service name for started service should fail
+    And I PATCH "services/patch_service_properties.json" to "/rest/v1/services/{serviceId}"
     When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
-    When I PATCH "services/patch_name_empty.json" to "/rest/v1/services/{serviceId}"
+    When I PATCH "services/patch_name.json" to "/rest/v1/services/{serviceId}"
     Then I should receive a RestResponse with an error code 102
 
   @reset
   Scenario: Patching a service version for started service should fail
+    And I PATCH "services/patch_service_properties.json" to "/rest/v1/services/{serviceId}"
     When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
     When I PATCH "services/patch_version.json" to "/rest/v1/services/{serviceId}"
     Then I should receive a RestResponse with an error code 102

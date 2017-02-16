@@ -5,19 +5,21 @@
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
 	http://www.mockito.org/spring/mockito http://www.mockito.org/spring/mockito.xsd">
 
-    <context:annotation-config/>
-    <context:component-scan base-package="alien4cloud.topology, alien4cloud.tosca.context, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*, alien4cloud.utils.services, alien4cloud.paas.wf">
-        <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyService"/>
-        <context:exclude-filter type="regex" expression="alien4cloud.utils.services.ApplicationUtil"/>
-        <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyValidationService"/>
-      <context:exclude-filter type="regex" expression="alien4cloud.topology.validation.*"/>
-    </context:component-scan>
+  <context:annotation-config/>
+  <context:component-scan
+    base-package="alien4cloud.topology,alien4cloud.tosca.context, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*, alien4cloud.utils.services, alien4cloud.paas.wf">
+    <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyService"/>
+    <context:exclude-filter type="regex" expression="alien4cloud.utils.services.ApplicationUtil"/>
+    <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyValidationService"/>
+    <context:exclude-filter type="regex" expression="alien4cloud.topology.validation.*"/>
+  </context:component-scan>
 
-    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
-    <bean id="matchingConfigurationsParser" class="alien4cloud.deployment.matching.services.nodes.MatchingConfigurationsParser"/>
+  <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
+  <bean id="matchingConfigurationsParser"
+        class="alien4cloud.deployment.matching.services.nodes.MatchingConfigurationsParser"/>
 
-    <mockito:mock id="alien-es-dao" class="alien4cloud.dao.IGenericSearchDAO"/>
-    <mockito:mock id="csar-service" class="org.alien4cloud.tosca.catalog.index.CsarService"/>
-    <mockito:mock id="csar-search-service" class="alien4cloud.component.ICSARRepositorySearchService"/>
-    <mockito:mock id="csar-indexer-service" class="org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService"/>
+  <mockito:mock id="alien-es-dao" class="alien4cloud.dao.IGenericSearchDAO"/>
+  <mockito:mock id="csar-service" class="org.alien4cloud.tosca.catalog.index.CsarService"/>
+  <mockito:mock id="csar-search-service" class="alien4cloud.component.ICSARRepositorySearchService"/>
+  <mockito:mock id="csar-indexer-service" class="org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService"/>
 </beans>
