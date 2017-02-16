@@ -32,7 +32,7 @@
               ng-class="{'warning': selectedResourceTemplate == template}"
               ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.elementId">
               <td ng-if="showMultiSelect">
-                <a ng-click="toggleTemplate(template)" class="ng-scope">
+                <a ng-click="toggleTemplate(template, $event)" class="ng-scope">
                     <i class="fa fa-fw fa-square-o" ng-class="{'fa-check-square-o' : isSelected(template),  'fa-square-o': !isSelected(template)}"></i>
                 </a>
               </td>

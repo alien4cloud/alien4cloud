@@ -238,7 +238,12 @@ define(function(require) {
 
         $scope.context.selectedResourceTemplates = {};
 
-        $scope.toggleTemplate = function(template) {
+        $scope.toggleTemplate = function(template, $event) {
+          //prevent selection of the template
+          if(_.defined($event)){
+            $event.stopPropagation();
+          }
+          delete $scope.selectedResourceTemplate;
           if ($scope.isSelected(template)) {
             delete $scope.context.selectedResourceTemplates[template.id];
           } else {
