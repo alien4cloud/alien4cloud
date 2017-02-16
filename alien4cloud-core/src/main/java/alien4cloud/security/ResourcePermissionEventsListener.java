@@ -93,7 +93,7 @@ public class ResourcePermissionEventsListener {
 
     private void deleteGroupPermissionOn(String groupId, Class<?>... resourceClasses) throws IOException, ClassNotFoundException {
         FilterBuilder resourceFilter = FilterBuilders.nestedFilter("groupPermissions", FilterBuilders.termFilter("groupPermissions.key", groupId));
-        deletePermissions(resourceFilter, groupId, ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.USER, subjectId)),
+        deletePermissions(resourceFilter, groupId, ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.GROUP, subjectId)),
                 resourceClasses);
     }
 
@@ -101,14 +101,14 @@ public class ResourcePermissionEventsListener {
         FilterBuilder resourceFilter = FilterBuilders.nestedFilter("applicationPermissions",
                 FilterBuilders.termFilter("applicationPermissions.key", applicationId));
         deletePermissions(resourceFilter, applicationId,
-                ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.USER, subjectId)), resourceClasses);
+                ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.APPLICATION, subjectId)), resourceClasses);
     }
 
     private void deleteEnvironmentPermissionOn(String environmentId, Class<?>... resourceClasses) throws IOException, ClassNotFoundException {
         FilterBuilder resourceFilter = FilterBuilders.nestedFilter("environmentPermissions",
                 FilterBuilders.termFilter("environmentPermissions.key", environmentId));
         deletePermissions(resourceFilter, environmentId,
-                ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.USER, subjectId)), resourceClasses);
+                ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.ENVIRONMENT, subjectId)), resourceClasses);
     }
 
     private interface ResourcePermissionCleaner {
