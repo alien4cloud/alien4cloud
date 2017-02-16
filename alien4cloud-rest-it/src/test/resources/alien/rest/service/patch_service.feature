@@ -43,6 +43,28 @@ Feature: Patch service resource
     Then I should receive a RestResponse with an error code 501
 
   @reset
+  Scenario: Patching a service state to started should succeed
+    When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
+    Then I should receive a RestResponse with an error code 501
+
+  @reset
+  Scenario: Patching a service state to initial when started should succeed
+    When I PATCH "services/patch_service_attr_state_initial.json" to "/rest/v1/services/{serviceId}"
+    Then I should receive a RestResponse with an error code 501
+
+  @reset
+  Scenario: Patching a service name for started service should fail
+    When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
+    When I PATCH "services/patch_name_empty.json" to "/rest/v1/services/{serviceId}"
+    Then I should receive a RestResponse with an error code 102
+
+  @reset
+  Scenario: Patching a service version for started service should fail
+    When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
+    When I PATCH "services/patch_version.json" to "/rest/v1/services/{serviceId}"
+    Then I should receive a RestResponse with an error code 102
+
+  @reset
   Scenario: Patching a service when not admin should fail
     Given There are these users in the system
       | sauron |
