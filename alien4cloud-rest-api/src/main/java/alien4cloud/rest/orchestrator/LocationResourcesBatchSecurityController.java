@@ -71,8 +71,8 @@ public class LocationResourcesBatchSecurityController {
     @RequestMapping(value = "/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public synchronized RestResponse<Void> grantAccessToUsersOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestParam(required = false, defaultValue = "false") boolean force, @RequestBody SubjectsAuthorizationRequest request) {
+    public synchronized RestResponse<Void> bulkAccessToUsersOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
+                                                                        @RequestParam(required = false, defaultValue = "false") boolean force, @RequestBody SubjectsAuthorizationRequest request) {
         if (ArrayUtils.isNotEmpty(request.getCreate())) {
             processGrantForSubjectType(Subject.USER, orchestratorId, locationId, force, request.getResources(), request.getCreate());
         } else if (ArrayUtils.isNotEmpty(request.getDelete())) {
@@ -97,8 +97,8 @@ public class LocationResourcesBatchSecurityController {
     @RequestMapping(value = "/groups", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public synchronized RestResponse<Void> grantAccessToGroupsOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestParam(required = false, defaultValue = "false") boolean force, @RequestBody SubjectsAuthorizationRequest request) {
+    public synchronized RestResponse<Void> bulkAccessToGroupsOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
+                                                                         @RequestParam(required = false, defaultValue = "false") boolean force, @RequestBody SubjectsAuthorizationRequest request) {
         if (ArrayUtils.isNotEmpty(request.getCreate())) {
             processGrantForSubjectType(Subject.GROUP, orchestratorId, locationId, force, request.getResources(), request.getCreate());
         } else if (ArrayUtils.isNotEmpty(request.getDelete())) {

@@ -95,7 +95,7 @@ define(function (require) {
           var request = {
             'resources':  Object.keys($scope.context.selectedResourceTemplates)
           };
-          request[action] = _.map(result.groups, 'id');
+          request[action] = _.map(result.subjects, 'id');
           locationResourcesSecurityService.bulkGroups(_.merge(params, {force:result.force}), angular.toJson(request), function(successResponse) {
             console.log(successResponse);
             //TODO: check if an error occur and add a refresh
