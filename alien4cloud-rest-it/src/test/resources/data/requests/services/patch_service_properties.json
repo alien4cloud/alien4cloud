@@ -1,0 +1,8 @@
+{
+  "nodeInstance": {
+    "properties": {
+      "name": "db",
+      "port": "22"
+    }
+  }
+}

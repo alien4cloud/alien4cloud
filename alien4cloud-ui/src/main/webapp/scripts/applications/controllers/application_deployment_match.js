@@ -16,7 +16,7 @@ define(function(require) {
     menu: {
       id: 'am.applications.detail.deployment.match',
       state: 'applications.detail.deployment.match',
-      key: 'APPLICATIONS.DEPLOYMENT.MATCHING',
+      key: 'APPLICATIONS.DEPLOYMENT.MATCHING.TITLE',
       icon: 'fa fa-exchange',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'],
       priority: 200,
@@ -65,7 +65,8 @@ define(function(require) {
               appId: $scope.application.id,
               envId: $scope.deploymentContext.selectedEnvironment.id,
               nodeId: nodeName,
-              locationResourceTemplateId: template.id
+              locationResourceTemplateId: template.id,
+              isService: template.service
             }, undefined, function(response) {
               $scope.updateScopeDeploymentTopologyDTO(response.data);
               $scope.selectedResourceTemplate = $scope.getSubstitutedTemplate(nodeName);
@@ -106,9 +107,16 @@ define(function(require) {
           }).$promise;
         };
 
+        $scope.isServiceRunning = function(resourceTemplate) {
+          return _.defined(resourceTemplate.template.attributeValues) && _.defined(resourceTemplate.template.attributeValues) && _.defined(resourceTemplate.template.attributeValues.state) && resourceTemplate.template.attributeValues.state !== 'initial';
+        };
 
         //property is editable only when not set in topology or in locationResource
-        $scope.isPropertyEditable = function(propertyPath){
+        $scope.isPropertyEditable = function(propertyPath) {
+          if($scope.selectedResourceTemplate.service) {
+            // do not edit servie properties
+            return false;
+          }
           if($scope.getSubstitutedTemplate($scope.selectedNodeName).id === $scope.selectedResourceTemplate.id){
             if(_.definedPath(propertyPath, 'capabilityName')){
               return isCapabilityPropertyEditable(propertyPath.capabilityName, propertyPath.propertyName);

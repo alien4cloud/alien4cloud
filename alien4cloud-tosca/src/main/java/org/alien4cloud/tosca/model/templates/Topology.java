@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.json.deserializer.NodeTemplateDeserializer;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
@@ -80,7 +82,8 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     @MapKeyValue
     @TermFilter(paths = "value.type")
     @ConditionalOnAttribute(ConditionalAttributes.ES)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    //@JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = NodeTemplateDeserializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, NodeTemplate> nodeTemplates;

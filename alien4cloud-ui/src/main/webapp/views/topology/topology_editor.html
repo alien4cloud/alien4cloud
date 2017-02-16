@@ -143,7 +143,7 @@
               </h4>
             </div>
             <span class="clearfix"></span>
-            <div id="node-details-groups-panel" uib-collapse="isGroupsCollapsed" class="topology-level facet-choice">
+            <div id="node-details-groups-panel" uib-collapse="isGroupsCollapsed" class="facet-choice">
               <ul class="nav facet-choice">
                 <li ng-repeat="groupId in selectedNodeTemplate.groups">
                   <a href="" id="removeGroup_{{groupId}}_from_{{selectedNodeTemplate.name}}"  confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
@@ -166,7 +166,7 @@
                 {{'COMMON.PROPERTIES' | translate}}
               </h4>
             </div>
-            <div id="node-details-properties-panel" uib-collapse="isPropertiesCollapsed" class="topology-level">
+            <div id="node-details-properties-panel" uib-collapse="isPropertiesCollapsed" >
               <table class="table table-condensed" id="nodeTemplateProperties">
                 <tr ng-repeat="propEntry in selectedNodeTemplate.properties">
                   <td class="topology-props-td-inp">
@@ -230,7 +230,7 @@
                 {{'COMMON.CAPABILITIES' | translate}}
               </h4>
             </div>
-            <div id="node-details-capabilities-panel" uib-collapse="isCapabilitiesCollapsed" class="topology-level">
+            <div id="node-details-capabilities-panel" uib-collapse="isCapabilitiesCollapsed" >
               <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
                    ng-init="isReqPropsCollapsed = {};">
                 <div class="clickable"
@@ -331,7 +331,7 @@
                 {{'COMMON.ATTRIBUTES' | translate}}
               </h4>
             </div>
-            <div id="node-details-attributes-panel" uib-collapse="isAttributesCollapsed" class="topology-level">
+            <div id="node-details-attributes-panel" uib-collapse="isAttributesCollapsed" >
               <table class="table table-condensed" id="nodeTemplateAttributes">
                 <tr ng-repeat="attrEntry in selectedNodeTemplate.attributes">
                   <td class="topology-props-td-inp">
@@ -359,7 +359,7 @@
                 {{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}
               </h4>
             </div>
-            <div id="node-details-requirements-panel" uib-collapse="isRequirementsCollapsed" class="topology-level">
+            <div id="node-details-requirements-panel" uib-collapse="isRequirementsCollapsed" >
               <div ng-repeat="requirementEntry in selectedNodeTemplate.requirements"
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(requirementEntry.value.properties)">
                 <div style="font-weight: normal"
@@ -406,7 +406,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="topology-level"
+                <div
                      ng-if="!emptyProps"
                      uib-collapse="isReqPropsCollapsed[requirementEntry.key]">
                   <table class="table table-condensed" id="requirement_{{requirementEntry.key}}_properties">
@@ -438,7 +438,7 @@
               </h4>
             </div>
             <div id="node-details-relationships-panel" uib-collapse="isRelationshipsCollapsed">
-              <div class="topology-level"
+              <div
                    ng-repeat="relationshipEntry in selectedNodeTemplate.relationships">
                 <div class="clickable editable-small"
                      ng-click="isRelationshipCollapsed = !isRelationshipCollapsed"
@@ -467,7 +467,7 @@
                     </button>
                   </span>
                 </div>
-                <div class="topology-level" uib-collapse="isRelationshipCollapsed">
+                <div  uib-collapse="isRelationshipCollapsed">
                   <div class="row">
                     <div class="col-md-3">{{'COMMON.TYPE' | translate}}</div>
                     <div class="col-md-9" uib-tooltip="{{relationshipEntry.value.type}}" tooltip-append-to-body="true">{{relationshipEntry.value.type | splitAndGet:'.':'last'}}</div>
@@ -544,7 +544,7 @@
               </h4>
             </div>
             <div id="node-details-artifacts-panel" uib-collapse="isArtifactsCollapsed">
-              <div class="topology-level clearfix"
+              <div class="clearfix"
                    ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
                 <div class="clickable"
                      ng-click="isArtifactCollapsed = !isArtifactCollapsed">
@@ -552,7 +552,7 @@
                      ng-class="{'fa-caret-down' : !isArtifactCollapsed, 'fa-caret-right': isArtifactCollapsed}"></i>
                   {{artifactId}}
                 </div>
-                <div class="topology-level" uib-collapse="isArtifactCollapsed">
+                <div  uib-collapse="isArtifactCollapsed">
                   <div class="row">
                     <div class="col-md-1 dropup" uib-dropdown>
                       <a id="p_input_art_{{artifactId}}"
@@ -804,7 +804,7 @@
                 </delete-confirm>
               </h4>
             </div>
-            <div id="group-details-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].main" class="topology-level">
+            <div id="group-details-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].main" >
               <div id="group-members-{{group.name}}-header" class="clickable"
                    ng-click="groupCollapsed[group.name].members = !groupCollapsed[group.name].members">
                 <h5>
@@ -812,7 +812,7 @@
                   {{'APPLICATIONS.TOPOLOGY.GROUPS.MEMBERS' | translate}}
                 </h5>
               </div>
-              <div id="group-members-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].members" class="facet-choice topology-level">
+              <div id="group-members-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].members" class="facet-choice">
                 <ul class="nav facet-choice">
                   <li ng-repeat="member in group.members">
                     <a href="" id="removeMember_{{member}}_from_{{group.name}}" confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
@@ -831,7 +831,7 @@
                   {{'APPLICATIONS.TOPOLOGY.GROUPS.POLICIES' | translate}}
                 </h5>
               </div>
-              <div id="group-policies-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].policies" class="topology-level">
+              <div id="group-policies-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].policies" >
                  <div ng-repeat="policy in group.policies">
                    <li>{{policy.type}}</li>
                  </div>

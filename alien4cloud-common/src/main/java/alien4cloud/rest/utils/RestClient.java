@@ -9,9 +9,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections4.MapUtils;
-import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.ProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.cookie.CookieSpec;
 import org.apache.http.entity.StringEntity;
@@ -148,12 +158,22 @@ public class RestClient {
     }
 
     public String putJSon(String path, String jSon) throws IOException {
-        log.debug("Send post json request to [" + path + "], jSon [" + jSon + "]");
+        log.debug("Send put json request to [" + path + "], jSon [" + jSon + "]");
         HttpPut httpPut = new HttpPut(applicationUrl + path);
         StringEntity jsonInput = new StringEntity(jSon);
         jsonInput.setContentType("application/json");
         httpPut.setEntity(jsonInput);
         CloseableHttpResponse response = httpClient.execute(httpPut);
+        return ResponseUtil.toString(response);
+    }
+
+    public String patchJSon(String path, String jSon) throws IOException {
+        log.debug("Send patch json request to [" + path + "], jSon [" + jSon + "]");
+        HttpPatch httpPatch = new HttpPatch(applicationUrl + path);
+        StringEntity jsonInput = new StringEntity(jSon);
+        jsonInput.setContentType("application/json");
+        httpPatch.setEntity(jsonInput);
+        CloseableHttpResponse response = httpClient.execute(httpPatch);
         return ResponseUtil.toString(response);
     }
 

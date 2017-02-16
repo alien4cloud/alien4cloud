@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.model.service.ServiceResource;
+import alien4cloud.service.ServiceResourceService;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,8 @@ public class DeploymentTopologyHelper implements IDeploymentTopologyHelper {
     private TopologyDTOBuilder topologyDTOBuilder;
     @Inject
     private DeploymentTopologyValidationService deploymentTopologyValidationService;
+    @Inject
+    private ServiceResourceService serviceResourceService;
 
     @Override
     public DeploymentTopologyDTO buildDeploymentTopologyDTO(DeploymentConfiguration deploymentConfiguration) {

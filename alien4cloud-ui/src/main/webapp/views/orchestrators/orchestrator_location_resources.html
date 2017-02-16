@@ -50,14 +50,23 @@
       </div>
     </div>
     <div class="col-md-6" ng-if="selectedResourceTemplate">
-      <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="selectTemplate(null)">
-            <i class="fa fa-remove close-panel"></i>
-      </span>
+      <div class="topology-column-content-head">
+        <span class="ng-binding">
+          <i class="fa fa-cubes"></i> {{'ORCHESTRATORS.LOCATIONS.RESOURCES.CONFIG' | translate}}
+        </span>
+        <a id="closeNodeTemplateDetails" class="pull-right" style="font-weight: 400;" ng-click="selectTemplate()">
+          <i class="fa fa-arrow-left"></i> {{'ORCHESTRATORS.LOCATIONS.RESOURCES.BACK' | translate}}
+        </a>
+      </div>
+
       <uib-tabset justified="true">
         <uib-tab index="0">
           <uib-tab-heading>
             Properties
           </uib-tab-heading>
+          <div class="row-margin">
+            {{'ORCHESTRATORS.LOCATIONS.RESOURCES.CONFIG_HELP' | translate}}
+          </div>
           <orchestrator-location-resource-template resource-template="selectedResourceTemplate"
                                                    resource-type="resourcesTypesMap[selectedResourceTemplate.template.type]"
                                                    resource-capability-types="context.locationResources.capabilityTypes"
@@ -71,7 +80,6 @@
                                                    on-portability-property-update="updatePortabilityProperty(propertyName, propertyValue)">
           </orchestrator-location-resource-template>
         </uib-tab>
-
         <!-- Security-->
         <uib-tab index="1" ng-show="!disableSecurity()">
           <uib-tab-heading >

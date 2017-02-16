@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.tosca.context.ToscaContextual;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.expression.Expression;
@@ -196,6 +197,7 @@ public class DeployService {
      * @param deploymentTopology The deployment topology to update for deployment.
      * @return The result of the topology validation.
      */
+    @ToscaContextual
     public TopologyValidationResult prepareForDeployment(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
         // finalize the deploymentTopology for deployment
         Map<String, PropertyValue> inputs = deploymentTopologyService.processForDeployment(deploymentTopology, environment);

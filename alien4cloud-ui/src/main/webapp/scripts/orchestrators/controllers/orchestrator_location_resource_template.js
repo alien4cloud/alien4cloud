@@ -4,7 +4,9 @@ define(function(require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-orchestrators', ['pascalprecht.translate']).controller('OrchestratorLocationResourceTemplateCtrl', ['$scope',
+  require('scripts/tosca/directives/node_template_edit');
+
+  modules.get('a4c-orchestrators').controller('OrchestratorLocationResourceTemplateCtrl', ['$scope',
     function($scope) {
       $scope.getCapabilityPropertyDefinition = function(capabilityTypeId, capabilityPropertyName) {
         var capabilityType = $scope.resourceCapabilityTypes[capabilityTypeId];
@@ -35,32 +37,17 @@ define(function(require) {
       };
 
       $scope.updateResourceProperty = function(propertyName, propertyValue) {
-        var updatePromise = $scope.onPropertyUpdate({
+        return $scope.onPropertyUpdate({
           propertyName: propertyName,
           propertyValue: propertyValue
-        });
-        return updatePromise.then(function(response) {
-          if (_.undefined(response.error)) { // update was performed on server side - impact js data.
-            $scope.resourceTemplate.template.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
-          }
-          return response; // dispatch response to property display
         });
       };
 
       $scope.updateResourceCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
-        var updatePromise = $scope.onCapabilityPropertyUpdate({
+        return $scope.onCapabilityPropertyUpdate({
           capabilityName: capabilityName,
           propertyName: propertyName,
           propertyValue: propertyValue
-        });
-        return updatePromise.then(function(response) {
-          if (_.undefined(response.error)) {
-            $scope.resourceTemplate.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
-              value: propertyValue,
-              definition: false
-            };
-          }
-          return response;
         });
       };
 

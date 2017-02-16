@@ -79,7 +79,7 @@ public class NodeTemplateBuilder {
     private static void fillDeploymentArtifactsMap(Map<String, DeploymentArtifact> deploymentArtifacts, Map<String, DeploymentArtifact> fromTypeArtifacts,
             Map<String, DeploymentArtifact> mapToMerge) {
         if (MapUtils.isEmpty(fromTypeArtifacts)) {
-            fromTypeArtifacts = new HashMap<>();
+            fromTypeArtifacts = Maps.newLinkedHashMap();
         }
         deploymentArtifacts.putAll(fromTypeArtifacts);
         if (mapToMerge != null) {

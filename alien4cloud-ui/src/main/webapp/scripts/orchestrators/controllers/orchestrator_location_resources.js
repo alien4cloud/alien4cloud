@@ -38,7 +38,9 @@ define(function(require) {
             $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
           }
           // Only show catalog in the on-demand resources tab
-          if (!$scope.showCatalog) {return;}
+          if (!$scope.showCatalog) {
+            return;
+          }
 
           $scope.dimensions = { width: 800, height: 500 };
           resizeServices.registerContainer(function (width, height) {
@@ -55,7 +57,11 @@ define(function(require) {
 
         $scope.addResourceTemplate = function(dragData) {
           const source = dragData ? angular.fromJson(dragData.source) : $scope.selectedConfigurationResourceType;
-          if (!source) {return;}
+
+          if (!source) {
+            return;
+          }
+
           const newResource = {
             'resourceType': source.elementId,
             'resourceName': 'New resource',
@@ -88,7 +94,7 @@ define(function(require) {
                     const p = componentService.getInArchives(capability.type, 'CAPABILITY_TYPE', updatedDependencies)
                       .then(function (res) {
                         const capabilityType = res.data.data;
-                        capabilityType['propertiesMap'] = _.indexBy(capabilityType.properties, 'key');
+                        capabilityType.propertiesMap = _.indexBy(capabilityType.properties, 'key');
                         $scope.context.locationResources.capabilityTypes[capability.type] = capabilityType;
                       });
                     promises.push(p);
@@ -104,7 +110,7 @@ define(function(require) {
                 });
 
                 // Compute properties map and update scope right after getting the resource type.
-                resourceType['propertiesMap'] = _.indexBy(resourceType.properties, 'key');
+                resourceType.propertiesMap = _.indexBy(resourceType.properties, 'key');
                 $scope.resourcesTypesMap[typeId] = resourceType;
                 $scope.resourcesTypes.push(resourceType);
                 $scope.resourcesTemplates.push(resourceTemplate);
@@ -144,7 +150,9 @@ define(function(require) {
               return;
             }
             // The template was a custom resource - if its still used do not delete it from the fav list
-            if (_.find($scope.resourcesTemplates, function (tplt) { return tplt.template.type === deletedType;})) {return;}
+            if (_.find($scope.resourcesTemplates, function (tplt) { return tplt.template.type === deletedType; })) {
+              return;
+            }
             vm.favorites.splice(favIndex, 1);
           });
         };

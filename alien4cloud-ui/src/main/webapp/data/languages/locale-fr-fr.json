@@ -9,7 +9,11 @@
     "DEPLOYMENT": {
       "DEPLOY": "Déployer",
       "INPUT": "Input",
-      "MATCHING": "Matching",
+      "MATCHING": {
+        "CONFIGURATION": "Configuration de la resource",
+        "CONFIGURATION_HELP": "Vous pouvez configurer la resource choisie. Notez que certaines propriétés ont été définies par l'administrateur de la location. Ces propriétés ne peuvent être surchargées.",
+        "TITLE": "Matching"
+      },
       "PROPERTIES": {
         "REQUIRED": "Obligatoire",
         "WARNING": "Alerte",
@@ -925,9 +929,12 @@
       "ON_DEMAND_RESOURCES": "Ressources à la demande",
       "POLICIES": "Policies",
       "RESOURCES": {
-        "TYPE": "Type de ressources",
+        "BACK": "Retour au catalogue",
+        "CONFIG": "Configuration de la resource",
+        "CONFIG_HELP": "Vous pouvez configurer le nom et les propriétés du template pour la resource à la demande. Les propriétés définies sont immutable, les propriétés non définies pourront être définie par l'utilisateur avant le déploiement.",
         "DROP": "Déposez des ressources ici ou dans le tableau au dessus",
-        "PROVIDED": "Type fourni par l'orchestrateur"
+        "PROVIDED": "Type fourni par l'orchestrateur",
+        "TYPE": "Type de ressources"
       },
       "SECURITY": "Sécurité",
       "SERVICES": "Services"

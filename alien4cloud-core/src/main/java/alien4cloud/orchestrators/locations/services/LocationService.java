@@ -1,5 +1,6 @@
 package alien4cloud.orchestrators.locations.services;
 
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienUtils.array;
 
 import java.util.Collection;
@@ -11,6 +12,10 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.dao.FilterUtil;
+import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
+import alien4cloud.orchestrators.locations.events.BeforeLocationDeleted;
+import org.alien4cloud.alm.events.BeforeApplicationVersionDeleted;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -20,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -270,6 +276,9 @@ public class LocationService {
         return locations;
     }
 
+    @Inject
+    private ApplicationEventPublisher publisher;
+
     /**
      * Delete a locations.
      *
@@ -278,19 +287,14 @@ public class LocationService {
      */
     public boolean delete(String orchestratorId, String id) {
         Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
-        if (!OrchestratorState.CONNECTED.equals(orchestrator.getState())) {
-            // we cannot configure locations for orchestrator that are not connected.
-            // TODO throw exception
-        }
 
-        Map<String, String[]> filters = Maps.newHashMap();
-        addFilter(filters, "locationIds", id);
-        addFilter(filters, "endDate", "null");
-        long count = alienDAO.count(Deployment.class, null, filters);
+        long count = alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("locationIds", id, "endDate", "null")).count();
         if (count > 0) {
             return false;
         }
         Location location = getOrFail(id);
+
+        publisher.publishEvent(new BeforeLocationDeleted(this, location.getId()));
 
         // delete all location resources for the given location
         alienDAO.delete(LocationResourceTemplate.class, QueryBuilders.termQuery("locationId", id));
@@ -302,6 +306,8 @@ public class LocationService {
             // TODO what to do when some archives were not deleted?
             log.warn("Some archives for location were not deleted! \n" + usages);
         }
+
+        publisher.publishEvent(new AfterLocationDeleted(this, location.getId()));
 
         return true;
     }

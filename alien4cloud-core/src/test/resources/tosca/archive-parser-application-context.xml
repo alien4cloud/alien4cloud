@@ -26,6 +26,11 @@
     <context:exclude-filter type="regex" expression="alien4cloud.topology.validation.*"/>
   </context:component-scan>
 
+  <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory"/>
+  <bean id="alienconfig" factory-bean="alienconfigFactory" factory-method="get"/>
+  <alias name="alienconfig" alias="elasticsearchConfig"/>
+  <context:property-placeholder properties-ref="alienconfig"/>
+
   <bean id="archiveParser" class="org.alien4cloud.tosca.catalog.ArchiveParser"/>
   <bean id="archivePostProcessor" class="org.alien4cloud.tosca.catalog.ArchivePostProcessor"/>
   <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>

@@ -20,8 +20,8 @@ import lombok.ToString;
 public class BasicSearchRequest {
     /* The component type to query */
     private String query;
-    private Integer from;
-    private Integer size;
+    private Integer from = 0;
+    private Integer size = AlienConstants.DEFAULT_ES_SEARCH_SIZE;
 
     /**
      * Set the value for 'from': start element in the request.

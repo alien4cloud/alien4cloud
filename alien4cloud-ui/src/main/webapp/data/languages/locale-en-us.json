@@ -9,7 +9,14 @@
     "DEPLOYMENT": {
       "DEPLOY": "Deploy",
       "INPUT": "Input",
-      "MATCHING": "Matching",
+      "MATCHING": {
+        "CONFIGURATION": "Resource configuration",
+        "CONFIGURATION_HELP": "You can configure properties of the selected matched resource. Note that some properties have been defined by the location administrator. These properties cannot be overriden.",
+        "SERVICE": "Service information",
+        "SERVICE_HELP": "Below are the defined properties and attributes of the matched service.",
+        "SERVICE_UNDEPLOYED_HELP": "The selected servie is undeployed, this may cause issues on deployment if you select it as matched resource.",
+        "TITLE": "Matching"
+      },
       "PROPERTIES": {
         "REQUIRED": "Required",
         "WARNING": "Warning",
@@ -925,9 +932,12 @@
       "ON_DEMAND_RESOURCES": "On demand resources",
       "POLICIES": "Policies",
       "RESOURCES": {
-        "TYPE": "Resource types",
+        "BACK": "Back to catalog",
+        "CONFIG": "Resource configuration",
+        "CONFIG_HELP": "You can configure the name and properties of the template for the on-demand resource. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
         "DROP": "Drop new resources here or on the table above",
-        "PROVIDED": "Provided type from the orchestrator"
+        "PROVIDED": "Provided type from the orchestrator",
+        "TYPE": "Resource types"
       },
       "SECURITY": "Security",
       "SERVICES": "Services"

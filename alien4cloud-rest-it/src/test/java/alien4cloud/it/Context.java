@@ -55,6 +55,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class Context {
+    public static final Path REQUESTS_PATH = Paths.get("src/test/resources/data/requests");
+
     public static final String FASTCONNECT_NEXUS = "http://fastconnect.org/maven/service/local/artifact/maven/redirect?";
 
     public static final String GIT_URL_SUFFIX = ".git";

@@ -3,7 +3,7 @@
     <i class="fa" ng-class="{'fa-caret-down' : !isScalabilityCollapsed , 'fa-caret-right': isScalabilityCollapsed }"></i>
     <span>{{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.LABEL' | translate}}</span>
   </h4>
-  <div uib-collapse="isScalabilityCollapsed " class="topology-level">
+  <div uib-collapse="isScalabilityCollapsed " >
     <table class="table table-condensed">
       <tbody>
         <tr ng-repeat="task in tasks">
