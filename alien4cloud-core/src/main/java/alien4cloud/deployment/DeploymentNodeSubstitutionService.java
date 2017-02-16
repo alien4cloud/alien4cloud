@@ -81,7 +81,9 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
         return availableSubstitutions;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.deployment.IDeploymentNodeSubstitutionService#getAvailableSubstitutions(alien4cloud.model.deployment.DeploymentTopology)
      */
     @Override
@@ -95,7 +97,9 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
      * @param deploymentTopology the deployment topology to process substitution
      */
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.deployment.IDeploymentNodeSubstitutionService#processNodesSubstitution(alien4cloud.model.deployment.DeploymentTopology, java.util.Map)
      */
     @Override
@@ -167,7 +171,9 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
     private void processServiceResourceSubstitution(String nodeId, String serviceResourceId, DeploymentTopology deploymentTopology) {
         ServiceResource serviceResource = serviceResourceService.getOrFail(serviceResourceId);
         NodeTemplate serviceNodeTemplate = serviceResource.getNodeInstance().getNodeTemplate();
-        ServiceNodeTemplate substitutionNodeTemplate = new ServiceNodeTemplate(serviceNodeTemplate.getType(), serviceNodeTemplate.getProperties(), serviceNodeTemplate.getAttributes(), serviceNodeTemplate.getRelationships(), serviceNodeTemplate.getRequirements(), serviceNodeTemplate.getCapabilities(), serviceNodeTemplate.getInterfaces(), serviceNodeTemplate.getArtifacts());
+        ServiceNodeTemplate substitutionNodeTemplate = new ServiceNodeTemplate(serviceNodeTemplate.getType(), serviceNodeTemplate.getProperties(),
+                serviceNodeTemplate.getAttributes(), serviceNodeTemplate.getRelationships(), serviceNodeTemplate.getRequirements(),
+                serviceNodeTemplate.getCapabilities(), serviceNodeTemplate.getInterfaces(), serviceNodeTemplate.getArtifacts());
 
         substitutionNodeTemplate.setServiceResourceId(serviceResource.getId());
         substitutionNodeTemplate.setAttributeValues(serviceResource.getNodeInstance().getAttributeValues());
@@ -176,7 +182,8 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
         substitutionNodeTemplate.setRelationships(abstractTopologyNode.getRelationships());
 
         // add all the necessary dependencies to the topology
-        NodeType serviceType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(), serviceResource.getNodeInstance().getTypeVersion());
+        NodeType serviceType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
+                serviceResource.getNodeInstance().getTypeVersion());
         Csar csar = toscaTypeSearchService.getArchive(serviceType.getArchiveName(), serviceType.getArchiveVersion());
         Set<CSARDependency> dependencies = Sets.newHashSet();
         if (csar.getDependencies() != null) {
@@ -187,7 +194,8 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
 
     }
 
-    private void processLocationResourceTemplateSubstitution(String nodeId, String locationResourceTemplateId, DeploymentTopology deploymentTopology, Map<String, NodeTemplate> nodesToMergeProperties) {
+    private void processLocationResourceTemplateSubstitution(String nodeId, String locationResourceTemplateId, DeploymentTopology deploymentTopology,
+            Map<String, NodeTemplate> nodesToMergeProperties) {
         NodeTemplate locationNode = locationResourceService.getOrFail(locationResourceTemplateId).getTemplate();
         NodeTemplate abstractTopologyNode = deploymentTopology.getNodeTemplates().put(nodeId, locationNode);
         NodeTemplate previousNode = null;

@@ -97,10 +97,7 @@
                 <td ng-click="changeSubstitution(nodeName, template)" class="col-md-1">
                   <a>
                     <i class="fa fa-fw"
-                       ng-class="{
-                                 'fa-dot-circle-o text-success' : getSubstitutedTemplate(nodeName).id === template.id ,
-                                 'fa-circle-o': getSubstitutedTemplate(nodeName).id !== template.id,
-                                 }">
+                      ng-class="getSubstitutedTemplate(nodeName).id === template.id ? 'fa-dot-circle-o text-success' : 'fa-circle-o'">
                     </i>
                   </a>
                 </td>
@@ -108,12 +105,7 @@
                   {{template.name}}
                 </td>
                 <td>
-                  <i class="fa fa-fw"
-                     ng-class="{
-                                 'fa-globe' : template.service,
-                                 'fa-cubes': !template.service,
-                                 }">
-                  </i>
+                  <i class="fa fa-fw" ng-class="template.service ? (isServiceRunning(template) ? 'fa-globe text-success' : 'fa-globe text-danger') : 'fa-cubes'"></i>
                 </td>
                 <td class="col-md-7" ng-click="selectTemplate(nodeName, template)">
                   {{template.template.type}}
@@ -125,12 +117,17 @@
       </uib-accordion>
     </div>
     <div class="col-md-6">
-      <div ng-if="selectedResourceTemplate && !selectedResourceTemplate.service">
+      <div ng-if="selectedResourceTemplate">
         <fieldset class="field">
           <legend>
-            <h4><i class="fa fa-wrench"></i> {{'APPLICATIONS.DEPLOYMENT.MATCHING.CONFIGURATION' | translate}}</h4>
+            <h4 ng-if="!selectedResourceTemplate.service"><i class="fa fa-wrench"></i> {{'APPLICATIONS.DEPLOYMENT.MATCHING.CONFIGURATION' | translate}}</h4>
+            <h4 ng-if="selectedResourceTemplate.service"><i class="fa fa-globe"></i> {{'APPLICATIONS.DEPLOYMENT.MATCHING.SERVICE' | translate}}</h4>
           </legend>
-          <div class="row-margin">{{'APPLICATIONS.DEPLOYMENT.MATCHING.CONFIGURATION_HELP' | translate}}</div>
+          <div ng-if="!selectedResourceTemplate.service" class="row-margin">{{'APPLICATIONS.DEPLOYMENT.MATCHING.CONFIGURATION_HELP' | translate}}</div>
+          <div ng-if="selectedResourceTemplate.service" class="row-margin">
+            <p ng-show="!isServiceRunning(selectedResourceTemplate)" class="text-danger">{{'APPLICATIONS.DEPLOYMENT.MATCHING.SERVICE_UNDEPLOYED_HELP' | translate}}</p>
+            <p>{{'APPLICATIONS.DEPLOYMENT.MATCHING.SERVICE_HELP' | translate}}</p>
+          </div>
           <a4c-node-template-edit
             node-template="selectedResourceTemplate.template"
             node-type="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
@@ -140,6 +137,29 @@
             on-property-update="updateSubstitutionProperty(propertyName, propertyValue)"
             on-capability-property-update="updateSubstitutionCapabilityProperty(capabilityName, propertyName, propertyValue)">
           </a4c-node-template-edit>
+          <!-- Attributes -->
+          <div ng-if="_.isNotEmpty(selectedResourceTemplate.template.attributeValues)">
+            <div id="node-details-attributes" class="clickable topology-column-content-head" ng-click="isAttributesCollapsed = !isAttributesCollapsed">
+              <i class="fa" ng-class="isAttributesCollapsed ? 'fa-caret-right' : 'fa-caret-down'"></i>
+              {{'COMMON.ATTRIBUTES' | translate}}
+            </div>
+            <div id="node-details-attributes-panel" uib-collapse="isAttributesCollapsed" >
+              <table class="table table-condensed" id="nodeAttributes">
+                <tr ng-repeat="(key, value) in selectedResourceTemplate.template.attributeValues">
+                  <td>
+                    <label>{{key}}</label>
+                  </td>
+                  <td>
+                    {{value}}
+                  </td>
+                  <td>
+                    <simple-modal class="pull-right" title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{attrEntry.value.description}}"
+                                  key="{{attrEntry.key}}"></simple-modal>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
         </fieldset>
       </div>
     </div>

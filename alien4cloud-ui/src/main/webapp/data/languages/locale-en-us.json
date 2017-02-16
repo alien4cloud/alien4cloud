@@ -11,7 +11,10 @@
       "INPUT": "Input",
       "MATCHING": {
         "CONFIGURATION": "Resource configuration",
-        "CONFIGURATION_HELP": "You can configure properties of the matched resource. Note that some properties have been defined by the location administrator. These properties cannot be overriden.",
+        "CONFIGURATION_HELP": "You can configure properties of the selected matched resource. Note that some properties have been defined by the location administrator. These properties cannot be overriden.",
+        "SERVICE": "Service information",
+        "SERVICE_HELP": "Below are the defined properties and attributes of the matched service.",
+        "SERVICE_UNDEPLOYED_HELP": "The selected servie is undeployed, this may cause issues on deployment if you select it as matched resource.",
         "TITLE": "Matching"
       },
       "PROPERTIES": {

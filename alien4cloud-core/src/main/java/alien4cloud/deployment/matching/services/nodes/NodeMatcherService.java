@@ -16,6 +16,7 @@ import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -63,8 +64,7 @@ public class NodeMatcherService {
         return defaultNodeMatcher;
     }
 
-    public Map<String, List<LocationResourceTemplate>> match(Map<String, NodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch,
-                                                             String locationId) {
+    public Map<String, List<LocationResourceTemplate>> match(Map<String, NodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch, String locationId) {
         Map<String, List<LocationResourceTemplate>> matchingResult = Maps.newHashMap();
         Location location = locationService.getOrFail(locationId);
         LocationResources locationResources = locationResourceService.getLocationResources(location);
@@ -94,7 +94,8 @@ public class NodeMatcherService {
     }
 
     /**
-     * Populate this {@link LocationResources} using these {@link ServiceResource}s in order to make them available as {@link LocationResourceTemplate} for matching purpose.
+     * Populate this {@link LocationResources} using these {@link ServiceResource}s in order to make them available as {@link LocationResourceTemplate} for
+     * matching purpose.
      *
      * FIXME: ugly code to put ServiceResource in LocationResourceTemplates.
      */
@@ -106,7 +107,9 @@ public class NodeMatcherService {
             // for a service we also want to display the version, so just add it to the name
             lrt.setName(serviceResource.getName() + ":" + serviceResource.getVersion());
             lrt.setId(serviceResource.getId());
-            lrt.setTemplate(serviceResource.getNodeInstance().getNodeTemplate());
+
+            ServiceNodeTemplate serviceNodeTemplate = new ServiceNodeTemplate(serviceResource.getNodeInstance());
+            lrt.setTemplate(serviceNodeTemplate);
             lrt.setLocationId(locationId);
 
             String serviceTypeName = serviceResource.getNodeInstance().getNodeTemplate().getType();
@@ -125,8 +128,8 @@ public class NodeMatcherService {
             dependencies.add(new CSARDependency(csar.getName(), csar.getVersion()));
             if (serviceType.getCapabilities() != null && !serviceType.getCapabilities().isEmpty()) {
                 for (CapabilityDefinition capabilityDefinition : serviceType.getCapabilities()) {
-                    locationResources.getCapabilityTypes().put(capabilityDefinition.getType(), csarRepoSearchService
-                            .getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies));
+                    locationResources.getCapabilityTypes().put(capabilityDefinition.getType(),
+                            csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies));
                 }
             }
 
