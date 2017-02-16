@@ -78,17 +78,13 @@ define(function (require) {
 
       $scope.processUserAction = function (action, result) {
           var request = {
-            'resources':  Object.keys($scope.context.selectedResourceTemplates),
-            'subjects': _.map(result.subjects, 'username')
+            'resources':  Object.keys($scope.context.selectedResourceTemplates)
           };
-          if (action === 'grant') {
-            locationResourcesSecurityService.grantUsersBatch[action](_.merge(params, {force: result.force}), angular.toJson(request), function(successResponse) {
-              console.log(successResponse);
-              //TODO: check if an error occur and add a refresh
-            });
-          } else if (action === 'revoke') {
-            locationResourcesSecurityService.revokeUsersBatch(params, request);
-          }
+          request[action] = _.map(result.subjects, 'username');
+          locationResourcesSecurityService.bulkUsers(_.merge(params, {force: result.force}), angular.toJson(request), function(successResponse) {
+            console.log(successResponse);
+            //TODO: check if an error occur and add a refresh
+          });
       };
 
       // *****************************************************************************
@@ -97,18 +93,13 @@ define(function (require) {
 
       $scope.processGroupAction = function (action, result) {
           var request = {
-            'resources':  Object.keys($scope.context.selectedResourceTemplates),
-            'subjects': _.map(result.subjects, 'id')
+            'resources':  Object.keys($scope.context.selectedResourceTemplates)
           };
-
-          if (action === 'grant') {
-            locationResourcesSecurityService.grantGroupsBatch[action](_.merge(params, {force:result.force}), angular.toJson(request), function(successResponse) {
-              console.log(successResponse);
-              //TODO: check if an error occur and add a refresh
-            });
-          } else if (action === 'revoke') {
-            locationResourcesSecurityService.revokeGroupsBatch(params, request);
-          }
+          request[action] = _.map(result.groups, 'id');
+          locationResourcesSecurityService.bulkGroups(_.merge(params, {force:result.force}), angular.toJson(request), function(successResponse) {
+            console.log(successResponse);
+            //TODO: check if an error occur and add a refresh
+          });
       };
 
       // *****************************************************************************

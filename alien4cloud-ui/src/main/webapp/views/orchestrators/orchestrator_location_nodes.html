@@ -7,23 +7,23 @@
   <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="btn-append-to-body">
     <li role="menuitem">
       <a alien-authorize-users
-         on-close="processUserAction('grant', result)"
+         on-close="processUserAction('create', result)"
          search-config-builder="buildSecuritySearchConfig('users')"
          display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD' | translate}}</a></li>
     <li role="menuitem">
       <a alien-authorize-users
-         on-close="processUserAction('revoke', result)"
+         on-close="processUserAction('delete', result)"
          search-config-builder="buildSecuritySearchConfig('users')"
          display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.REVOKE' | translate}}</a></li>
     <li class="divider"></li>
     <li role="menuitem">
       <a alien-authorize-groups
-         on-close="processGroupAction('grant', result)"
+         on-close="processGroupAction('create', result)"
          search-config-builder="buildSecuritySearchConfig('groups')"
          display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD' | translate}}</a></li>
     <li role="menuitem">
       <a alien-authorize-groups
-         on-close="processGroupAction('revoke', result)"
+         on-close="processGroupAction('delete', result)"
          search-config-builder="buildSecuritySearchConfig('groups')"
          display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.REVOKE' | translate}}</a></li>
     <li class="divider"></li>

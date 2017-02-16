@@ -3,8 +3,8 @@ define(function (require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-orchestrators').factory('locationResourcesSecurityService', ['$resource', '$alresource', '$http',
-    function ($resource, $alresource, $http) {
+  modules.get('a4c-orchestrators').factory('locationResourcesSecurityService', ['$resource', '$alresource',
+    function ($resource, $alresource) {
 
       var users = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:resourceId/security/users/:username');
 
@@ -14,33 +14,21 @@ define(function (require) {
 
       var environmentsPerApplication = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:resourceId/security/environmentsPerApplication');
 
-      var grantUsersBatch = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/security/users', {}, {
-        grant: {
+      var bulkUsers = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/security/users', {}, {
+        bulk: {
           method: 'POST',
           isArray: false,
           headers: {'Content-Type': 'application/json; charset=UTF-8'}
         }
       });
 
-      var grantGroupsBatch = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/security/groups', {}, {
-        grant: {
+      var bulkGroups = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/security/groups', {}, {
+        bulk: {
           method: 'POST',
           isArray: false,
           headers: {'Content-Type': 'application/json; charset=UTF-8'}
         }
       });
-
-      var revoke = function(type, params, request) {
-          return $http({
-              url: 'rest/latest/orchestrators/' + params.orchestratorId + '/locations/' + params.locationId + '/resources/security/' + type,
-              method: 'DELETE',
-              data: request,
-              headers: {'Content-Type': 'application/json; charset=UTF-8'}
-          });
-      };
-
-      var revokeUsersBatch = function(params, request) { return revoke('users', params, request);};
-      var revokeGroupsBatch = function(params, request) { return revoke('groups', params, request);};
 
       var updateEnvironmentsPerApplicationBatch = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/security/environmentsPerApplication', {}, {
         grant: {
@@ -55,10 +43,8 @@ define(function (require) {
         'groups': groups,
         'applications': applications,
         'environmentsPerApplication': environmentsPerApplication,
-        'grantUsersBatch': grantUsersBatch,
-        'revokeUsersBatch': revokeUsersBatch,
-        'grantGroupsBatch': grantGroupsBatch,
-        'revokeGroupsBatch': revokeGroupsBatch,
+        'bulkUsers': bulkUsers.bulk,
+        'bulkGroups': bulkGroups.bulk,
         'updateEnvironmentsPerApplicationBatch': updateEnvironmentsPerApplicationBatch
       };
     }]);
