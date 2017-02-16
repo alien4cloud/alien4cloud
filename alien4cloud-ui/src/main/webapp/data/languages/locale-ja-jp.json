@@ -881,26 +881,37 @@
     },
     "LOCATIONS": {
       "AUTHORIZATIONS": {
+        "AUTHORIZATIONS" : "Authorizations",
         "USERS": {
-          "ADD": "Authorize user",
+          "ADD": "Authorize users",
           "ADD_POPUP": {
-            "TITLE": "Select users",
-            "OK": "Authorize selected users"
-          }
+            "EMPTY_PLACEHOLDER" : "authorized users for this location",
+            "LOC_AUTH_FILTER": "Location authorized",
+            "TITLE": "Select users"
+          },
+          "REVOKE": "Revoke users"
         },
         "GROUPS": {
           "ADD": "Authorize group",
           "ADD_POPUP": {
-            "TITLE": "Select groups",
-            "OK": "Authorize selected groups"
-          }
+            "EMPTY_PLACEHOLDER" : "authorized groups for this location",
+            "LOC_AUTH_FILTER": "Location authorized",
+            "TITLE": "Select groups"
+          },
+          "REVOKE": "Revoke groups"
         },
         "APPS": {
-          "ADD": "Authorize application",
+          "ADD": "Authorize applications",
           "ADD_POPUP": {
+            "EMPTY_PLACEHOLDER" : "authorized applications / environments for this location",
+            "LOC_AUTH_FILTER": "Location authorized",
             "TITLE": "Select applications / environments"
-          }
-        }
+          },
+          "REVOKE": "Revoke applications"
+        },
+        "FORCE_TITLE": "Force",
+        "FORCE_MESSAGE": "Do you really want to force authorizations on the resource? This will also grant authorizations on the location to unauthorized users! ",
+        "LOCATION_SECURITY_CHANGES": "This tab allows you to manage authorizations on location. Giving access to a location is necessary to give access to the resources of this location."
       },
       "AUTO_CONFIG": "Auto-config",
       "CONFIGURATION_RESOURCES": "Configuration resources",

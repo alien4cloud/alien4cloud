@@ -73,10 +73,10 @@
                 <span ng-if="user.allRoles.size > 0">
                   <ul class="td_list">
                     <li ng-repeat="(role, from) in user.allRoles" ng-if="role!='size'">
-                      {{role}} <i ng-repeat="f in from" ng-class="{'fa fa-user': f=='u' , 'fa fa-users' : f=='g'}"><span ng-hide="$last">|</span>
-                </i>
-                </li>
-                </ul>
+                      {{role}}
+                      <i ng-repeat="f in from" ng-class="{'fa fa-user': f=='u' , 'fa fa-users' : f=='g'}"><span ng-hide="$last">|</span></i>
+                    </li>
+                  </ul>
                 </span>
                 <span ng-if="user.allRoles.size == 0">---</span>
               </td>

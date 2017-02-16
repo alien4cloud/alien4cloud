@@ -781,6 +781,7 @@
   },
   "EXECUTE": "Executer",
   "FALSE": "Faux",
+  "FORCE": "Forcer",
   "GENERIC_FORM": {
     "ADD": "Ajouter",
     "CANCEL": "Annuler",
@@ -881,26 +882,37 @@
     },
     "LOCATIONS": {
       "AUTHORIZATIONS": {
+        "AUTHORIZATIONS" : "Autorisations",
         "USERS": {
-          "ADD": "Autoriser utilisateur",
+          "ADD": "Autoriser certains utilisateurs",
           "ADD_POPUP": {
-            "TITLE": "Selectionner utilisateurs",
-            "OK": "Autoriser"
-          }
+            "EMPTY_PLACEHOLDER" : "d'utiliseurs autorisé pour cette location",
+            "LOC_AUTH_FILTER": "Autorisés sur la location",
+            "TITLE": "Selectionner utilisateurs"
+          },
+          "REVOKE": "Révoquer certains utilisateurs"
         },
         "GROUPS": {
-          "ADD": "Autoriser group",
+          "ADD": "Autoriser certains groupes",
           "ADD_POPUP": {
-            "TITLE": "Selectionner groupes",
-            "OK": "Autoriser"
-          }
+            "EMPTY_PLACEHOLDER" : "groupe autorisé pour cette location",
+            "LOC_AUTH_FILTER": "Autorisés sur la location",
+            "TITLE": "Selectionner groupes"
+          },
+          "REVOKE": "Révoquer certains groupes"
         },
         "APPS": {
-          "ADD": "Autoriser application",
+          "ADD": "Autoriser certaines applications",
           "ADD_POPUP": {
+            "EMPTY_PLACEHOLDER" : "d'applications ou d'environments autorisé pour cette location",
+            "LOC_AUTH_FILTER": "Autorisés sur la location",
             "TITLE": "Selectionner applications / environnements"
-          }
-        }
+          },
+          "REVOKE": "Révoquer certaines applications"
+        },
+        "FORCE_MESSAGE": "Voulez-vous vraiment forcer cette action? Ceci donnera egalement des authorisations sur la location aux sujets non authorisés!",
+        "FORCE_TITLE": "Forcer",
+        "LOCATION_SECURITY_CHANGES": "Cet onglet permet de gérer les droits sur la location. Donner l’accès à une location est nécessaire si l’on veux ensuite donner l’accès aux ressources de cette même location."
       },
       "AUTO_CONFIG": "Auto-configuration",
       "CONFIGURATION_RESOURCES": "Configuration des ressources",

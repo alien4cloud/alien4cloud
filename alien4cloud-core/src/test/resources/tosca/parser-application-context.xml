@@ -38,4 +38,7 @@
   <bean id="alienconfig" factory-bean="alienconfigFactory" factory-method="get"/>
   <alias name="alienconfig" alias="elasticsearchConfig"/>
   <context:property-placeholder properties-ref="alienconfig"/>
+
+  <mockito:mock id="group-dao" class="alien4cloud.security.groups.IAlienGroupDao"/>
+  <mockito:mock id="user-dao" class="alien4cloud.security.users.IAlienUserDao"/>
 </beans>

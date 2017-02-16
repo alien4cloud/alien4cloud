@@ -36,16 +36,12 @@ define(function(require) {
         listToMapService.process(locationResourceTemplate.template, 'properties');
         listToMapService.process(locationResourceTemplate.template, 'requirements');
         listToMapService.process(locationResourceTemplate.template, 'capabilities');
-        for (var nodeTemplateName in locationResourceTemplate) {
-          if (locationResourceTemplate.hasOwnProperty(nodeTemplateName)) {
-            this.processNodeRequirementCapability(locationResourceTemplate[nodeTemplateName], 'capabilities');
-            this.processNodeRequirementCapability(locationResourceTemplate[nodeTemplateName], 'requirements');
-          }
-        }
+        this.processNodeRequirementCapability(locationResourceTemplate.template, 'capabilities');
+        this.processNodeRequirementCapability(locationResourceTemplate.template, 'requirements');
       },
 
       processNodeRequirementCapability: function(nodeTemplate, propertyName) {
-        if (_.defined(nodeTemplate[propertyName])) {
+        if (_.definedPath(nodeTemplate, propertyName)) {
           for (var j = nodeTemplate[propertyName].length - 1; j >= 0; j--) {
             if (_.isNotEmpty(nodeTemplate[propertyName][j].value.properties)) {
               listToMapService.process(nodeTemplate[propertyName][j].value, 'properties');

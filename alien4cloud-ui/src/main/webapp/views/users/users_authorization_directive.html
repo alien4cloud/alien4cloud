@@ -1,4 +1,4 @@
-<div ng-controller="UsersAuthorizationDirectiveCtrl">
+<div ng-controller="SubjectAuthorizationDirectiveCtrl">
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-4">
       <div class="input-group">
@@ -9,7 +9,12 @@
       </div>
     </div>
     <div class="col-md-8">
-      <button class="pull-right btn btn-sm btn-success" ng-click="openNewUserAuthorizationModal()">
+      <button class="pull-right btn btn-sm btn-success"
+        alien-authorize-users
+        on-close="onModalClose(result)"
+        authorized-subjects="authorizedSubjects"
+        search-config-builder="searchConfigBuilder()"
+        display-force-option="displayForceOption">
         <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD' | translate}}
       </button>
     </div>
@@ -18,9 +23,9 @@
     <div class="col-md-12">
       <empty-place-holder
           for="'USERS.AUTHORIZED'"
-          data="authorizedUsers">
+          data="authorizedSubjects">
       </empty-place-holder>
-      <div class="table-responsive large-data-container" id="users-table" ng-if="authorizedUsers.length > 0">
+      <div class="table-responsive large-data-container" id="users-table" ng-if="authorizedSubjects.length > 0">
         <table class="table table-hover">
           <thead>
           <tr>
@@ -32,7 +37,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr ng-repeat="user in authorizedUsers | filter:searchText"
+          <tr ng-repeat="user in authorizedSubjects | filter:searchText"
               id="user_{{user.username}}">
             <td>
               <i class="fa fa-user fa-2x" ng-if="!user.imageId"></i>
@@ -42,9 +47,7 @@
             <td>{{user.lastName || '---' }}</td>
             <td>{{user.username || '---' }}</td>
             <td>
-              <button class="pull-left btn btn-xs btn-danger" ng-click="revoke(user)">
-                <i class="fa fa-trash"></i>
-              </button>
+              <delete-confirm id="btn-revoke-{{user.username}}" func="revoke(user)" position="left" bssize="btn-xs" fastyle="fa-trash-o"></delete-confirm>
             </td>
           </tr>
           </tbody>

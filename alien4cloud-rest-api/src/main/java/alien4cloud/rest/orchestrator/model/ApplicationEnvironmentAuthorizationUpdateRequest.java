@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ApplicationEnvironmentAuthorizationUpdateRequest {
+public class ApplicationEnvironmentAuthorizationUpdateRequest extends AbstractAuthorizationBatchRequest {
     private String[] applicationsToDelete;
     private String[] environmentsToDelete;
     private String[] applicationsToAdd;

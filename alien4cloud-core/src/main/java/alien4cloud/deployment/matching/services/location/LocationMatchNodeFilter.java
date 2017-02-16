@@ -24,7 +24,7 @@ import alien4cloud.orchestrators.services.OrchestratorService;
 import lombok.Getter;
 
 @Component
-public class LocationMatchNodeFilter extends AbstractLocationMatchFilterWithElector {
+public class LocationMatchNodeFilter {
     @Resource
     private IToscaTypeSearchService toscaTypeSearchService;
     @Resource
@@ -32,7 +32,6 @@ public class LocationMatchNodeFilter extends AbstractLocationMatchFilterWithElec
     @Inject
     private LocationMatchNodesArtifactsElector artifactsElector;
 
-    @Override
     public void filter(List<ILocationMatch> toFilter, Topology topology) {
 
         // create a context to keep requested tosca elements.

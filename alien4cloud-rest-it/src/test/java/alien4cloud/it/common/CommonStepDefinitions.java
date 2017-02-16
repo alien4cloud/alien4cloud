@@ -135,7 +135,7 @@ public class CommonStepDefinitions {
     }
 
     @Then("^I should receive a RestResponse with no error$")
-    public void I_should_receive_a_RestResponse_with_no_error() throws Throwable {
+    public static void I_should_receive_a_RestResponse_with_no_error() throws Throwable {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         if (restResponse.getError() != null) {
             log.error("Rest response was <" + Context.getInstance().getRestResponse() + ">");
@@ -237,5 +237,17 @@ public class CommonStepDefinitions {
     public void i_Should_Receive_A_RestResponse_With_A_Non_Empty_String_Data() throws Throwable {
         RestResponse<String> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
         Assert.assertTrue(StringUtils.isNotBlank(restResponse.getData()));
+    }
+
+    /**
+     * Validate that the last request made didn't throw any error
+     * 
+     * @param successfully
+     * @throws Throwable
+     */
+    public static void validateIfNeeded(Boolean successfully) throws Throwable {
+        if (successfully) {
+            I_should_receive_a_RestResponse_with_no_error();
+        }
     }
 }

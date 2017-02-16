@@ -17,6 +17,7 @@ Feature: Un-Deploy an application
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
     And I grant access to the resource type "LOCATION" named "Thark location" to the user "sangoku"
+    And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the user "sangoku"
     And I am authenticated with user named "sangoku"
 
     And I pre register orchestrator properties

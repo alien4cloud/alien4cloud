@@ -3,6 +3,8 @@ package alien4cloud.security.users;
 import java.util.List;
 import java.util.Map;
 
+import org.elasticsearch.index.query.FilterBuilder;
+
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.security.model.User;
@@ -59,4 +61,13 @@ public interface IAlienUserDao {
      * @param usernames an array of unique ids.
      */
     List<User> find(String... usernames);
+
+    /**
+     * Read users from the store, with pagination.
+     * 
+     * @param from offset from the first result you want to fetch.
+     * @param size maximum amount of {@link User} to be returned.*
+     * @param customFilter a customized filter.
+     */
+    GetMultipleDataResult<User> find(String searchQuery, int from, int size, FilterBuilder customFilter);
 }

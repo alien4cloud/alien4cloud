@@ -20,4 +20,7 @@
     <mockito:mock id="csar-service" class="org.alien4cloud.tosca.catalog.index.CsarService"/>
     <mockito:mock id="csar-search-service" class="alien4cloud.component.ICSARRepositorySearchService"/>
     <mockito:mock id="csar-indexer-service" class="org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService"/>
+
+    <mockito:mock id="group-dao" class="alien4cloud.security.groups.IAlienGroupDao"/>
+    <mockito:mock id="user-dao" class="alien4cloud.security.users.IAlienUserDao"/>
 </beans>

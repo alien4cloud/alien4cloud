@@ -47,10 +47,11 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
      * @param nodeTemplates the node template to check
      * @param dependencies dependencies of those node templates
      * @param locationGroups group of location policy
+     * @param environmentId The optional environment for whom we are trying to get substitutions
      * @return a map which contains mapping from node template id to its available substitutions
      */
     private Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
-            Map<String, NodeGroup> locationGroups) {
+            Map<String, NodeGroup> locationGroups, String environmentId) {
         Map<String, NodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromDependencies(nodeTemplates, dependencies, false, false, true);
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = Maps.newHashMap();
         for (final Map.Entry<String, NodeGroup> locationGroupEntry : locationGroups.entrySet()) {
@@ -71,7 +72,7 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
                 }
             }
             LocationPlacementPolicy locationPlacementPolicy = (LocationPlacementPolicy) locationGroupEntry.getValue().getPolicies().get(0);
-            availableSubstitutions.putAll(nodeMatcherService.match(nodeTypes, nodesToMatch, locationPlacementPolicy.getLocationId()));
+            availableSubstitutions.putAll(nodeMatcherService.match(nodeTypes, nodesToMatch, locationPlacementPolicy.getLocationId(), environmentId));
         }
         return availableSubstitutions;
     }
@@ -81,7 +82,8 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
      */
     @Override
     public Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(DeploymentTopology deploymentTopology) {
-        return getAvailableSubstitutions(deploymentTopology.getOriginalNodes(), deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups());
+        return getAvailableSubstitutions(deploymentTopology.getOriginalNodes(), deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups(),
+                deploymentTopology.getEnvironmentId());
     }
 
     /**
@@ -101,7 +103,7 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
         }
         deploymentTopology.getDependencies().addAll(deploymentTopology.getLocationDependencies());
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = getAvailableSubstitutions(deploymentTopology.getNodeTemplates(),
-                deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups());
+                deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups(), deploymentTopology.getEnvironmentId());
         Map<String, Set<String>> availableSubstitutionsIds = Maps.newHashMap();
         for (Map.Entry<String, List<LocationResourceTemplate>> availableSubstitutionEntry : availableSubstitutions.entrySet()) {
             Set<String> ids = Sets.newHashSet();

@@ -17,6 +17,13 @@ public interface ISecurityEnabledResource {
     String ENVIRONMENT = "environment";
 
     /**
+     * Get the Id of the secured resource
+     * 
+     * @return the Id of the secured resource
+     */
+    String getId();
+
+    /**
      * For the given subject get all of its permissions
      * 
      * @return the subject's permissions

@@ -3,6 +3,8 @@ package alien4cloud.security.groups;
 import java.util.List;
 import java.util.Map;
 
+import org.elasticsearch.index.query.FilterBuilder;
+
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.security.model.Group;
 
@@ -45,7 +47,6 @@ public interface IAlienGroupDao {
 
     /**
      * Search for groups.
-     * 
      * @param searchQuery the search query text.
      * @param filters filters to apply
      * @param from offset from the first result you want to fetch.
@@ -75,5 +76,14 @@ public interface IAlienGroupDao {
      * @return
      */
     Group findByName(String groupName);
+
+    /**
+     * Read groups from the store, with pagination.
+     *
+     * @param from offset from the first result you want to fetch.
+     * @param size maximum amount of {@link Group} to be returned.*
+     * @param customFilter a customized filter.
+     */
+    GetMultipleDataResult<Group> find(String searchQuery, int from, int size, FilterBuilder customFilter);
 
 }

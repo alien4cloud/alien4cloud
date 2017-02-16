@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.orchestrators.locations.services.LocationSecurityService;
+import alien4cloud.utils.AlienUtils;
 
 @Component
 public class LocationMatchAuthorizationFilter {
@@ -17,7 +18,7 @@ public class LocationMatchAuthorizationFilter {
     private LocationSecurityService locationSecurityService;
 
     public void filter(List<ILocationMatch> toFilter, ApplicationEnvironment applicationEnvironment) {
-        toFilter.removeIf(locationMatch -> !locationSecurityService.isAuthorised(locationMatch.getLocation(), applicationEnvironment));
+        AlienUtils.safe(toFilter).removeIf(locationMatch -> !locationSecurityService.isAuthorised(locationMatch.getLocation(), applicationEnvironment));
     }
 
 }

@@ -17,6 +17,7 @@ Feature: get runtime topology
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
     And I add a role "COMPONENTS_MANAGER" to user "sangoku"
     And I grant access to the resource type "LOCATION" named "Thark location" to the user "sangoku"
+    And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Medium_Ubuntu" to the user "sangoku"
     And I am authenticated with user named "sangoku"
     And I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error

@@ -17,6 +17,7 @@ Feature: Deploy an application
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
     And I grant access to the resource type "LOCATION" named "Thark location" to the user "sangoku"
+    And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the user "sangoku"
     And I am authenticated with user named "sangoku"
 
     And I pre register orchestrator properties
@@ -120,6 +121,7 @@ Feature: Deploy an application
     Given I revoke access to the resource type "LOCATION" named "Thark location" from the user "sangoku"
     When I create a new group in the system with name "lordOfRing" , a role "APPLICATIONS_MANAGER" and a user "sangoku"
     And I grant access to the resource type "LOCATION" named "Thark location" to the group "lordOfRing"
+    And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the group "lordOfRing"
     And I am authenticated with user named "sangoku"
     Given I create a new application with name "ALIEN" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
@@ -148,6 +150,7 @@ Feature: Deploy an application
     Given I am authenticated with "ADMIN" role
     Given I revoke access to the resource type "LOCATION" named "Thark location" from the user "sangoku"
     Then I grant access to the resource type "LOCATION" named "Thark location" to the application "ALIEN"
+    And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the application "ALIEN"
     And I am authenticated with user named "sangoku"
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
@@ -161,6 +164,7 @@ Feature: Deploy an application
     Then I am authenticated with "ADMIN" role
     And I revoke access to the resource type "LOCATION" named "Thark location" from the user "sangoku"
     And I grant access to the resource type "LOCATION" named "Thark location" to the environment "Environment" of the application "ALIEN"
+    And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the environment "Environment" of the application "ALIEN"
     Then I am authenticated with user named "sangoku"
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it

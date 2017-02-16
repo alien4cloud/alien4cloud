@@ -2,9 +2,6 @@ package alien4cloud.security.model;
 
 import java.util.Set;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
@@ -20,10 +17,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.collect.Sets;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 @ESObject
 @Getter
 @Setter
 @JsonInclude(Include.NON_NULL)
+@NoArgsConstructor
 public class User implements SocialUserDetails {
     private static final long serialVersionUID = 1L;
     @Id
@@ -52,6 +54,13 @@ public class User implements SocialUserDetails {
     @BooleanField(includeInAll = false, index = IndexType.no)
     private boolean enabled = true;
 
+    public User(String username, String lastName, String firstName, String email) {
+        this.username = username;
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.email = email;
+    }
+
     @JsonIgnore
     @Override
     public Set<SimpleGrantedAuthority> getAuthorities() {
@@ -61,6 +70,7 @@ public class User implements SocialUserDetails {
                 authorities.add(new SimpleGrantedAuthority(role));
             }
         }
+
         if (groupRoles != null) {
             for (String role : groupRoles) {
                 authorities.add(new SimpleGrantedAuthority(role));
@@ -74,4 +84,5 @@ public class User implements SocialUserDetails {
     public String getUserId() {
         return this.username;
     }
+
 }

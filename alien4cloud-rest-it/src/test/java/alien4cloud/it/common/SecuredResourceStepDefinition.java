@@ -2,9 +2,11 @@ package alien4cloud.it.common;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 
@@ -18,9 +20,11 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationDTO;
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
+import alien4cloud.rest.orchestrator.model.SubjectsAuthorizationRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.Group;
 import alien4cloud.security.model.User;
+import alien4cloud.utils.AlienUtils;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -30,11 +34,22 @@ public class SecuredResourceStepDefinition {
 
     private String getSecuredResourceBaseURL(String resourceType, String resourceName) throws Throwable {
         String url = null;
+        String orchestratorName = LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME;
         switch (resourceType) {
         case "LOCATION":
-            String orchestratorName = LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME;
             url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
                     + LocationsDefinitionsSteps.getLocationIdFromName(orchestratorName, resourceName) + "/security";
+            break;
+        case "LOCATION_RESOURCE":
+            // resrouceName == orchestratorName/locationName/resourceName
+            String[] decomposed = StringUtils.split(resourceName, "/");
+            orchestratorName = decomposed.length == 1 ? orchestratorName : decomposed[0].trim();
+            String locationName = decomposed.length == 1 ? LocationsDefinitionsSteps.DEFAULT_LOCATION_NAME : decomposed[1].trim();
+            resourceName = decomposed[decomposed.length - 1].trim();
+            String locationId = Context.getInstance().getLocationId(Context.getInstance().getOrchestratorId(orchestratorName), locationName);
+            String locationResourceId = Context.getInstance().getLocationResourceId(Context.getInstance().getOrchestratorId(orchestratorName), locationId, resourceName);
+            url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
+                    + locationId + "/resources/" + locationResourceId + "/security";
             break;
         default:
             Assert.fail("Dot not support resource type " + resourceType);
@@ -42,10 +57,29 @@ public class SecuredResourceStepDefinition {
         return url;
     }
 
-    @Given("^I grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the user \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourceTypeNamedToTheUser(String resourceType, String resourceName, String userName) throws Throwable {
+    private String getBatchSecuredResourceBaseURL(String resourceType, String resourceName) throws Throwable {
+        String url = null;
+        String orchestratorName = LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME;
+        switch (resourceType) {
+        case "LOCATION_RESOURCE":
+            // resrouceName == orchestratorName/locationName/resourceName
+            String[] decomposed = StringUtils.split(resourceName, "/");
+            orchestratorName = decomposed.length == 1 ? orchestratorName : decomposed[0].trim();
+            String locationName = decomposed.length == 1 ? LocationsDefinitionsSteps.DEFAULT_LOCATION_NAME : decomposed[1].trim();
+            String locationId = Context.getInstance().getLocationId(Context.getInstance().getOrchestratorId(orchestratorName), locationName);
+            url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/" + locationId + "/resources/security";
+            break;
+        default:
+            Assert.fail("Dot not support batch operation on resource type " + resourceType);
+        }
+        return url;
+    }
+
+    @Given("^I (successfully\\s)?grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the user \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourceTypeNamedToTheUser(String successfully, String resourceType, String resourceName, String userName) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/users",
                 JsonUtil.toString(new String[] { userName })));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
     @When("^I get the authorised users for the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
@@ -73,18 +107,20 @@ public class SecuredResourceStepDefinition {
         Assert.assertEquals(getExpectedNames(rawExpectedUsers), getAuthorizedUsers());
     }
 
-    @Given("^I grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the group \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourceTypeNamedToTheGroup(String resourceType, String resourceName, String groupName) throws Throwable {
+    @Given("^I (successfully\\s)?grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the group \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourceTypeNamedToTheGroup(String successfully, String resourceType, String resourceName, String groupName) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/groups",
                 JsonUtil.toString(new String[] { Context.getInstance().getGroupId(groupName) })));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
-    @Given("^I grant access to the location named \"([^\"]*)\"/\"([^\"]*)\" to the group \"([^\"]*)\"$")
-    public void iGrantAccessToTheLocationNamedToTheGroup(String orchestratorName, String locationName, String groupName) throws Throwable {
+    @Given("^I (successfully\\s)?grant access to the location named \"([^\"]*)\"/\"([^\"]*)\" to the group \"([^\"]*)\"$")
+    public void iGrantAccessToTheLocationNamedToTheGroup(String successfully, String orchestratorName, String locationName, String groupName) throws Throwable {
         String url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
                 + LocationsDefinitionsSteps.getLocationIdFromName(orchestratorName, locationName) + "/security/groups";
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon(url, JsonUtil.toString(new String[] { Context.getInstance().getGroupId(groupName) })));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
     @When("^I get the authorised groups for the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
@@ -112,12 +148,15 @@ public class SecuredResourceStepDefinition {
                 .delete(getSecuredResourceBaseURL(resourceType, resourceName) + "/groups/" + Context.getInstance().getGroupId(groupName)));
     }
 
-    @Given("^I grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the application \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourceTypeNamedToTheApplication(String resourceType, String resourceName, String applicationName) throws Throwable {
+    @Given("^I (successfully\\s)?grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the application \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourceTypeNamedToTheApplication(String successfully, String resourceType, String resourceName, String applicationName)
+            throws Throwable {
         ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
         request.setApplicationsToAdd(new String[] { Context.getInstance().getApplicationId(applicationName) });
         Context.getInstance().registerRestResponse(Context.getRestClientInstance()
                 .postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/environmentsPerApplication/", JsonUtil.toString(request)));
+
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
     @When("^I get the authorised applications for the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
@@ -161,13 +200,16 @@ public class SecuredResourceStepDefinition {
                 .postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/environmentsPerApplication/", JsonUtil.toString(request)));
     }
 
-    @Given("^I grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the environment \"([^\"]*)\" of the application \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourceTypeNamedToTheEnvironmentOfTheApplication(String resourceType, String resourceName, String environmentName,
+    @Given("^I (successfully\\s)?grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the environment \"([^\"]*)\" of the application \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourceTypeNamedToTheEnvironmentOfTheApplication(String successfully, String resourceType, String resourceName,
+            String environmentName,
             String applicationName) throws Throwable {
         ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
         request.setEnvironmentsToAdd(new String[] { Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName) });
         Context.getInstance().registerRestResponse(Context.getRestClientInstance()
                 .postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/environmentsPerApplication/", JsonUtil.toString(request)));
+
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
     @Then("^I should have following list of environments:$")
@@ -202,11 +244,6 @@ public class SecuredResourceStepDefinition {
     @Then("^I should not have any authorized groups$")
     public void iShouldNotHaveAnyAuthorizedGroups() throws Throwable {
         Assert.assertTrue(getAuthorizedGroups().isEmpty());
-    }
-
-    // Allowed resource types
-    private enum RESOURCE_TYPE {
-        APPLICATION, ENVIRONMENT, LOCATION, ORCHESTRATOR
     }
 
     @When("^I add a role \"([^\"]*)\" to group \"([^\"]*)\" on the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
@@ -246,6 +283,150 @@ public class SecuredResourceStepDefinition {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(request));
     }
 
+    /**
+     *
+     *
+     * @param successfully
+     * @param forcefully force by also granting access to the related location if not yet
+     * @param resourceType
+     * @param username
+     * @param resourcesNames
+     * @throws Throwable
+     */
+    @Given("^I (successfully\\s)?(forcefully\\s)?grant access to the resources type \"([^\"]*)\" to the user \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourcesTypeToTheUser(String successfully, String forcefully, String resourceType, String username,
+            List<String> resourcesNames) throws Throwable {
+        SubjectsAuthorizationRequest request = new SubjectsAuthorizationRequest();
+        request.setResources(getResourcesIds(resourcesNames));
+        request.setCreate(new String[] { username });
+        String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
+        String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
+        url += "/users?force=" + StringUtils.isNotBlank(forcefully);
+
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
+
+    @Given("^I (successfully\\s)?revoke access to the resources type \"([^\"]*)\" from the user \"([^\"]*)\"$")
+    public void iRevokeAccessToTheResourcesTypeToTheUser(String successfully, String resourceType, String username, List<String> resourcesNames)
+            throws Throwable {
+        SubjectsAuthorizationRequest request = new SubjectsAuthorizationRequest();
+        request.setResources(getResourcesIds(resourcesNames));
+        request.setDelete(new String[] { username });
+        String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
+        String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
+        url += "/users";
+
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
+
+    @Given("^I (successfully\\s)?(forcefully\\s)?grant access to the resources type \"([^\"]*)\" to the group \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourcesTypeToTheGroup(String successfully, String forcefully, String resourceType, String groupName,
+            List<String> resourcesNames) throws Throwable {
+        SubjectsAuthorizationRequest request = new SubjectsAuthorizationRequest();
+        request.setResources(getResourcesIds(resourcesNames));
+        request.setCreate(new String[] { Context.getInstance().getGroupId(groupName) });
+        String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
+        String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
+        url += "/groups?force=" + StringUtils.isNotBlank(forcefully);
+
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
+
+    @Given("^I (successfully\\s)?revoke access to the resources type \"([^\"]*)\" from the group \"([^\"]*)\"$")
+    public void iRevokeAccessToTheResourcesTypeToTheGroup(String successfully, String resourceType, String groupName, List<String> resourcesNames)
+            throws Throwable {
+        SubjectsAuthorizationRequest request = new SubjectsAuthorizationRequest();
+        request.setResources(getResourcesIds(resourcesNames));
+        request.setDelete(new String[] { Context.getInstance().getGroupId(groupName) });
+        String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
+        String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
+        url += "/groups";
+
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
+
+    @Given("^I (successfully\\s)?(forcefully\\s)?grant access to the resources type \"([^\"]*)\" to the application \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourcesTypeToTheApplication(String successfully, String forcefully, String resourceType, String applicationName,
+            List<String> resourcesNames) throws Throwable {
+
+        ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
+        request.setApplicationsToAdd(new String[] { Context.getInstance().getApplicationId(applicationName) });
+        request.setResources(getResourcesIds(resourcesNames));
+        String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
+        String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
+        url += "/environmentsPerApplication?force=" + StringUtils.isNotBlank(forcefully);
+
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
+
+    @Given("^I (successfully\\s)?revoke access to the resources type \"([^\"]*)\" from the application \"([^\"]*)\"$")
+    public void iRevokeAccessToTheResourcesTypeToTheApplication(String successfully, String resourceType, String applicationName, List<String> resourcesNames)
+            throws Throwable {
+
+        ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
+        request.setApplicationsToDelete(new String[] { Context.getInstance().getApplicationId(applicationName) });
+        request.setResources(getResourcesIds(resourcesNames));
+        String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
+        String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
+        url += "/environmentsPerApplication";
+
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
+
+    @Given("^I (successfully\\s)?(forcefully\\s)?grant access to the resources type \"([^\"]*)\" to the environment \"([^\"]*)\" of the application \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourcesTypeToTheApplicationEnvironment(String successfully, String forcefully, String resourceType, String environmentName,
+            String applicationName, List<String> resourcesNames) throws Throwable {
+
+        ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
+        request.setEnvironmentsToAdd(new String[] { Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName) });
+        request.setResources(getResourcesIds(resourcesNames));
+        String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
+        String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
+        url += "/environmentsPerApplication?force=" + StringUtils.isNotBlank(forcefully);
+
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
+
+    @Given("^I (successfully\\s)?revoke access to the resources type \"([^\"]*)\" from the environment \"([^\"]*)\" of the application \"([^\"]*)\"$")
+    public void iRevokeAccessToTheResourcesTypeToTheApplicationEnvironment(String successfully, String resourceType, String environmentName,
+            String applicationName, List<String> resourcesNames) throws Throwable {
+
+        ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
+        request.setEnvironmentsToDelete(new String[] { Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName) });
+        request.setResources(getResourcesIds(resourcesNames));
+        String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
+        String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
+        url += "/environmentsPerApplication";
+
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
+
+    private String[] getResourcesIds(List<String> resourcesNames) {
+        // resourceName == orchestratorName/locationName/resourceName
+        Set<String> ids = Sets.newHashSet();
+        AlienUtils.safe(resourcesNames).forEach(resourceName -> {
+            String[] decomposed = StringUtils.split(resourceName, "/");
+            String orchestratorName = decomposed.length == 1 ? LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME : decomposed[0].trim();
+            String locationName = decomposed.length == 1 ? LocationsDefinitionsSteps.DEFAULT_LOCATION_NAME : decomposed[1].trim();
+            resourceName = decomposed[decomposed.length - 1].trim();
+            String locationId = Context.getInstance().getLocationId(Context.getInstance().getOrchestratorId(orchestratorName), locationName);
+            String locationResourceId = Context.getInstance().getLocationResourceId(Context.getInstance().getOrchestratorId(orchestratorName), locationId,
+                    resourceName);
+            Assert.assertNotNull("Resource <" + resourceName + "> not found", locationResourceId);
+            ids.add(locationResourceId);
+        });
+
+        return ids.toArray(new String[ids.size()]);
+    }
+
     private String getResourceRequest(String resourceTypeId, String resourceName) throws Throwable {
         String request = null;
         String orchestratorName = LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME;
@@ -269,6 +450,11 @@ public class SecuredResourceStepDefinition {
         default:
         }
         return request;
+    }
+
+    // Allowed resource types
+    private enum RESOURCE_TYPE {
+        APPLICATION, ENVIRONMENT, LOCATION, ORCHESTRATOR
     }
 
 }

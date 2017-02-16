@@ -9,7 +9,12 @@
       </div>
     </div>
     <div class="col-md-8">
-      <button class="pull-right btn btn-sm btn-success" ng-click="openNewAppAuthorizationModal()">
+      <button class="pull-right btn btn-sm btn-success"
+        alien-authorize-apps
+        on-close="onModalClose(result)"
+        authorized-subjects = "authorizedEnvironmentsPerApplication"
+        search-config-builder="searchConfigBuilder()"
+        display-force-option="displayForceOption">
         <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}
       </button>
     </div>
@@ -42,14 +47,17 @@
               </div>
             </td>
             <td>
-              <button class="pull-left btn btn-xs btn-info" ng-click="openNewAppAuthorizationModal(application.application)">
+              <button class="pull-left btn btn-xs btn-info"
+                alien-authorize-apps
+                on-close="onModalClose(result)"
+                authorized-subjects = "authorizedEnvironmentsPerApplication"
+                application="application.application"
+                display-force-option="displayForceOption">
                 <i class="fa fa-edit"></i>
               </button>
             </td>
             <td>
-              <button class="pull-left btn btn-xs btn-danger" ng-click="revoke(application)">
-                <i class="fa fa-trash"></i>
-              </button>
+              <delete-confirm id="btn-revoke-{{application.application.name}}" func="revoke(application)" position="left" bssize="btn-xs" fastyle="fa-trash-o"></delete-confirm>
             </td>
           </tr>
           </tbody>

@@ -546,8 +546,9 @@ public class DeploymentTopologyService {
         // TODO maybe check if the substituted is compatible with the provided substitute and return a specific error for REST users?
         DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        // check if the resource exists
-        locationResourceService.getOrFail(locationResourceTemplateId);
+        // check if the resource exists, and if the context has authorizations
+        LocationResourceTemplate resource = locationResourceService.getOrFail(locationResourceTemplateId);
+        locationSecurityService.checkAuthorisation(resource, environmentId);
         deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplateId);
         // revert the old substituted to the original one. It will be updated when processing the substitutions in updateDeploymentTopology
         deploymentTopology.getNodeTemplates().put(nodeId, deploymentTopology.getOriginalNodes().get(nodeId));

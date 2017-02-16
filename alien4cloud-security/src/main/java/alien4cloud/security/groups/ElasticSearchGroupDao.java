@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.stereotype.Component;
@@ -73,6 +74,11 @@ public class ElasticSearchGroupDao extends ESGenericSearchDAO implements IAlienG
     @Override
     public Group findByName(String groupName) {
         return super.customFind(Group.class, QueryBuilders.termQuery("name", groupName));
+    }
+
+    @Override
+    public GetMultipleDataResult<Group> find(String searchQuery, int from, int size, FilterBuilder customFilter) {
+        return super.search(Group.class, searchQuery, null, customFilter, null, from, size, "name", false);
     }
 
 }
