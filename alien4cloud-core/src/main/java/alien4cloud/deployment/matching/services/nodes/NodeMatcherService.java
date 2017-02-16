@@ -64,6 +64,10 @@ public class NodeMatcherService {
         return defaultNodeMatcher;
     }
 
+    public Map<String, List<LocationResourceTemplate>> match(Map<String, NodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch, String locationId) {
+        return match(nodesTypes, nodesToMatch, locationId, null);
+    }
+
     public Map<String, List<LocationResourceTemplate>> match(Map<String, NodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch, String locationId,
             String environmentId) {
         Map<String, List<LocationResourceTemplate>> matchingResult = Maps.newHashMap();
