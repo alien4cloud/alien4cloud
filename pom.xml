@@ -517,6 +517,10 @@
       <id>repo.opensource.fastconnect.org</id>
       <url>https://fastconnect.org/maven/content/repositories/opensource</url>
     </pluginRepository>
+    <pluginRepository>
+      <id>repo.opensource.snapshot.fastconnect.org</id>
+      <url>https://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
+    </pluginRepository>
   </pluginRepositories>
 
   <distributionManagement>
