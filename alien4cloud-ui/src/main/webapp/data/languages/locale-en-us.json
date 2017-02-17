@@ -676,6 +676,9 @@
       "REMOTE": "Remote"
     },
     "GIT_HISTORY": "Git history",
+    "HISTORY": {
+      "DETAIL": "Details"
+    },
     "MENU_FILES": "Archive content",
     "MENU_HISTORY": "History",
     "MENU_TOPOLOGY": "Topology",
@@ -816,10 +819,10 @@
     }
   },
   "GROUPS": {
+    "AUTHORIZED": "group authorized",
     "EDIT_GROUPS": "Edit groups",
     "NEW": "New Group",
-    "ROLES": "Roles",
-    "AUTHORIZED": "group authorized"
+    "ROLES": "Roles"
   },
   "HOME": {
     "ADMIN": {
@@ -846,6 +849,7 @@
       "REQUIREMENT": "Requirement description"
     }
   },
+  "N/A": "N/A",
   "NAVADMIN": {
     "MENU_AUDIT": "Audit",
     "MENU_METRICS": "Metrics",
@@ -889,37 +893,37 @@
     },
     "LOCATIONS": {
       "AUTHORIZATIONS": {
-        "AUTHORIZATIONS" : "Authorizations",
-        "USERS": {
-          "ADD": "Authorize users",
-          "ADD_POPUP": {
-            "EMPTY_PLACEHOLDER" : "authorized users for this location",
-            "LOC_AUTH_FILTER": "Location authorized",
-            "TITLE": "Select users"
-          },
-          "REVOKE": "Revoke users"
-        },
-        "GROUPS": {
-          "ADD": "Authorize group",
-          "ADD_POPUP": {
-            "EMPTY_PLACEHOLDER" : "authorized groups for this location",
-            "LOC_AUTH_FILTER": "Location authorized",
-            "TITLE": "Select groups"
-          },
-          "REVOKE": "Revoke groups"
-        },
         "APPS": {
           "ADD": "Authorize applications",
           "ADD_POPUP": {
-            "EMPTY_PLACEHOLDER" : "authorized applications / environments for this location",
+            "EMPTY_PLACEHOLDER": "authorized applications / environments for this location",
             "LOC_AUTH_FILTER": "Location authorized",
             "TITLE": "Select applications / environments"
           },
           "REVOKE": "Revoke applications"
         },
-        "FORCE_TITLE": "Force",
+        "AUTHORIZATIONS": "Authorizations",
         "FORCE_MESSAGE": "Do you really want to force authorizations on the resource? This will also grant authorizations on the location to unauthorized users! ",
-        "LOCATION_SECURITY_CHANGES": "This tab allows you to manage authorizations on location. Giving access to a location is necessary to give access to the resources of this location."
+        "FORCE_TITLE": "Force",
+        "GROUPS": {
+          "ADD": "Authorize group",
+          "ADD_POPUP": {
+            "EMPTY_PLACEHOLDER": "authorized groups for this location",
+            "LOC_AUTH_FILTER": "Location authorized",
+            "TITLE": "Select groups"
+          },
+          "REVOKE": "Revoke groups"
+        },
+        "LOCATION_SECURITY_CHANGES": "This tab allows you to manage authorizations on location. Giving access to a location is necessary to give access to the resources of this location.",
+        "USERS": {
+          "ADD": "Authorize users",
+          "ADD_POPUP": {
+            "EMPTY_PLACEHOLDER": "authorized users for this location",
+            "LOC_AUTH_FILTER": "Location authorized",
+            "TITLE": "Select users"
+          },
+          "REVOKE": "Revoke users"
+        }
       },
       "AUTO_CONFIG": "Auto-config",
       "CONFIGURATION_RESOURCES": "Configuration resources",
@@ -1000,6 +1004,19 @@
     "USERS": "Users"
   },
   "SELECT": "Select",
+  "SERVICES": {
+    "DETAIL": {
+      "BACK": "Back to catalog",
+      "DETAIL": "Detail",
+      "TITLE": "Service configuration"
+    },
+    "INSTANCE": "Instance",
+    "NEW": {
+      "NODE_TYPE": "Type",
+      "NODE_TYPE_VERSION": "Type version",
+      "TITLE": "New service"
+    }
+  },
   "START_DATE": "Start date",
   "STATES": {
     "available": "Available",
@@ -1042,6 +1059,7 @@
     "COMPLETE": "Complete"
   },
   "USERS": {
+    "AUTHORIZED": "user authorized",
     "CONFIRM_PASSWORD_ERROR": "Passwords do not match.",
     "CONFIRM_PASSWORD_HOLDER": "Confirm",
     "EDIT_GROUPS": "Edit groups",
@@ -1050,8 +1068,7 @@
     "LAST_NAME": "Last Name",
     "NEW": "New User",
     "PASSWORD": "Password",
-    "ROLES": "Roles",
-    "AUTHORIZED": "user authorized"
+    "ROLES": "Roles"
   },
   "VALUE": "Value",
   "metrics": {
@@ -1107,7 +1124,9 @@
       },
       "title": "JVM Metrics"
     },
-    "refresh.button": "Refresh",
+    "refresh": {
+      "button": "Refresh"
+    },
     "title": "Alien4Cloud 's Metrics"
   },
   "operations": "Operations"
