@@ -856,6 +856,7 @@
     "MENU_ORCHESTRATORS" : "Orchestrateurs",
     "MENU_PLUGINS" : "Plugins",
     "MENU_TAGS" : "Méta-propriétés",
+    "MENU_SERVICES": "Services",
     "MENU_USERS" : "Utilisateurs"
   },
   "NAVAPPLICATIONS" : {
@@ -1005,12 +1006,14 @@
   },
   "SELECT" : "Selectionner",
   "SERVICES" : {
+    "CATALOG": "Catalogue des services",
     "DETAIL" : {
       "BACK" : "Retour au catalogue",
       "DETAIL" : "Détails",
       "TITLE" : "Configuration du service"
     },
     "INSTANCE" : "Instance",
+    "LIST": "Services actuels",
     "NEW" : {
       "NODE_TYPE" : "Type",
       "NODE_TYPE_VERSION" : "Version du type",

@@ -856,6 +856,7 @@
     "MENU_ORCHESTRATORS" : "オーケストレータ",
     "MENU_PLUGINS" : "プラグイン",
     "MENU_TAGS" : "メタプロパティ",
+    "MENU_SERVICES": "Services",
     "MENU_USERS" : "ユーザ"
   },
   "NAVAPPLICATIONS" : {
@@ -1004,17 +1005,19 @@
     "USERS" : "ユーザ"
   },
   "SELECT" : "Select",
-  "SERVICES" : {
-    "DETAIL" : {
-      "BACK" : "Back to catalog",
-      "DETAIL" : "Detail",
-      "TITLE" : "Service configuration"
+  "SERVICES": {
+    "CATALOG": "Services catalog",
+    "DETAIL": {
+      "BACK": "Back to catalog",
+      "DETAIL": "Detail",
+      "TITLE": "Service configuration"
     },
-    "INSTANCE" : "Instance",
-    "NEW" : {
-      "NODE_TYPE" : "Type",
-      "NODE_TYPE_VERSION" : "Type version",
-      "TITLE" : "New service"
+    "INSTANCE": "Instance",
+    "LIST": "Current services",
+    "NEW": {
+      "NODE_TYPE": "Type",
+      "NODE_TYPE_VERSION": "Type version",
+      "TITLE": "New service"
     }
   },
   "START_DATE" : "開始日",
