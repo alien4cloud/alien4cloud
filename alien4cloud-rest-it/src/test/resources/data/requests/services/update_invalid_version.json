@@ -3,6 +3,9 @@
   "version": "invalid",
   "nodeInstance": {
     "type": "tosca.nodes.Database",
-    "typeVersion": "1.0.0-SNAPSHOT"
+    "typeVersion": "1.0.0-SNAPSHOT",
+    "attributeValues": {
+      "state": "initial"
+    }
   }
 }

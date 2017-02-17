@@ -1,5 +1,30 @@
 package alien4cloud.service;
 
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.context.event.EventListener;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -12,27 +37,9 @@ import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.PatchUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.springframework.context.event.EventListener;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.AuthorizationServiceException;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import java.util.*;
-
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 /**
  * Manages services.
@@ -213,12 +220,7 @@ public class ServiceResourceService {
             if (patch) {
                 nodeInstanceService.patch(nodeType, serviceResource.getNodeInstance(), nodeProperties, nodeCapabilities, nodeAttributeValues);
             } else {
-                serviceResource.getNodeInstance().getNodeTemplate().setProperties(nodeProperties);
-                serviceResource.getNodeInstance().getNodeTemplate().setCapabilities(nodeCapabilities);
-                // performs property values validations and ensure the node template match the required type
-                serviceResource.getNodeInstance()
-                        .setNodeTemplate(NodeTemplateBuilder.buildNodeTemplate(nodeType, serviceResource.getNodeInstance().getNodeTemplate()));
-                serviceResource.getNodeInstance().setAttributeValues(nodeAttributeValues);
+                nodeInstanceService.update(nodeType, serviceResource.getNodeInstance(), nodeProperties, nodeCapabilities, nodeAttributeValues);
             }
         }
 

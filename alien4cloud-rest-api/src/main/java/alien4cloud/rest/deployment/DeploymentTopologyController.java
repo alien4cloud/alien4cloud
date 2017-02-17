@@ -148,9 +148,9 @@ public class DeploymentTopologyController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<DeploymentTopologyDTO> updateSubstitution(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
-            @RequestParam String locationResourceTemplateId, @RequestParam boolean isService) {
+            @RequestParam String locationResourceTemplateId) {
         checkAuthorizations(appId, environmentId);
-        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.updateSubstitution(environmentId, nodeId, locationResourceTemplateId, isService);
+        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.updateSubstitution(environmentId, nodeId, locationResourceTemplateId);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 

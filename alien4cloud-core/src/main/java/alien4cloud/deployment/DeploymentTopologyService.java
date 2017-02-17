@@ -1,6 +1,7 @@
 package alien4cloud.deployment;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.utils.AlienUtils.safe;
 
 import java.beans.IntrospectionException;
 import java.util.Arrays;
@@ -37,6 +38,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -576,15 +578,22 @@ public class DeploymentTopologyService {
      * @param locationResourceTemplateId
      * @return The {@link DeploymentTopologyService} related to the specified environment
      */
-    public DeploymentConfiguration updateSubstitution(String environmentId, String nodeId, String locationResourceTemplateId, boolean service) {
+    public DeploymentConfiguration updateSubstitution(String environmentId, String nodeId, String locationResourceTemplateId) {
         // TODO maybe check if the substituted is compatible with the provided substitute and return a specific error for REST users?
         DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
+
+        LocationResourceTemplate template = safe(deploymentConfiguration.getAvailableSubstitutions().getSubstitutionsTemplates())
+                .get(locationResourceTemplateId);
+        if (template == null) {
+            // not matching anymore
+            throw new AccessDeniedException("The resource <" + locationResourceTemplateId + "> is not anymore a valid match");
+        }
+
         // check if the resource exists
-        if (service) {
+        if (template.isService()) {
             // check that this location has access to this service
-            serviceResourceService.isLocationAuthorized(locationResourceTemplateId,
-                    deploymentConfiguration.getAvailableSubstitutions().getSubstitutionsTemplates().get(locationResourceTemplateId).getLocationId());
+            serviceResourceService.isLocationAuthorized(locationResourceTemplateId, template.getLocationId());
         } else {
             // check if the resource exists, and if the context has authorizations
             LocationResourceTemplate resource = locationResourceService.getOrFail(locationResourceTemplateId);

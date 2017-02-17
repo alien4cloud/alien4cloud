@@ -74,6 +74,17 @@ public class NodeInstanceService {
     }
 
     @ToscaContextual
+    public void update(NodeType nodeType, NodeInstance nodeInstance, Map<String, AbstractPropertyValue> nodeProperties,
+            Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues) {
+        nodeInstance.getNodeTemplate().setProperties(nodeProperties);
+        nodeInstance.getNodeTemplate().setCapabilities(nodeCapabilities);
+        // performs property values validations and ensure the node template match the required type
+
+        nodeInstance.setNodeTemplate(NodeTemplateBuilder.buildNodeTemplate(nodeType, nodeInstance.getNodeTemplate()));
+        nodeInstance.setAttributeValues(nodeAttributeValues);
+    }
+
+    @ToscaContextual
     public void patch(NodeType nodeType, NodeInstance nodeInstance, Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities,
             Map<String, String> nodeAttributeValues) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         if (nodeProperties != null) {
