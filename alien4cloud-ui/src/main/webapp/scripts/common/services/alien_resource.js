@@ -10,7 +10,7 @@ define(function (require) {
       var headers = {
         'Content-Type': 'application/json; charset=UTF-8'
       };
-      return function(url, operations) {
+      return function(url, operations, params) {
         var targetOperations = {
           'create': {
             method: 'POST',
@@ -27,6 +27,11 @@ define(function (require) {
             isArray: false,
             headers: headers
           },
+          'patch': {
+            method: 'PATCH',
+            isArray: false,
+            headers: headers
+          },
           'remove': {
             method: 'DELETE',
             isArray: false,
@@ -37,7 +42,7 @@ define(function (require) {
         if(_.defined(operations)) {
           _.merge(targetOperations, operations);
         }
-        return $resource(url, {}, targetOperations);
+        return $resource(url, _.defined(params)? params : {}, targetOperations);
       };
     }
   ]);

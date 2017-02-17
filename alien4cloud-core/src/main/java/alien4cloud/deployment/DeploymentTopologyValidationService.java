@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.tosca.context.ToscaContextual;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -67,6 +68,7 @@ public class DeploymentTopologyValidationService {
      * @param deploymentTopology The topology to check.
      * @return A DeploymentTopologyValidationResult with a list of errors and/or warnings er steps.
      */
+    @ToscaContextual
     public TopologyValidationResult validateDeploymentTopology(DeploymentTopology deploymentTopology) {
         Topology initialTopology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         // Before validation we inject the inputs into properties to ease validation. This is reverted after.

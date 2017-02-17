@@ -19,7 +19,6 @@ import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.utils.TestUtils;
 import alien4cloud.rest.application.model.CreateTopologyRequest;
-import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
@@ -161,7 +160,7 @@ public class TopologyTemplateStepDefinitions {
 
     @When("^I search for topologies from (\\d+) with result size of (\\d+)$")
     public void iSearchForTopologiesFromWithResultSizeOf(int from, int size) throws Throwable {
-        SearchRequest searchRequest = new SearchRequest();
+        FilteredSearchRequest searchRequest = new FilteredSearchRequest();
         searchRequest.setFrom(from);
         searchRequest.setSize(size);
         String response = Context.getRestClientInstance().postJSon("/rest/v1/catalog/topologies/search", JsonUtil.toString(searchRequest));

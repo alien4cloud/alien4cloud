@@ -5,7 +5,7 @@
   <uib-tab ng-show="archiveVersions">
     <uib-tab-heading>{{'APPLICATIONS.TOPOLOGY.INIT_FROM_VERSION' | translate}}</uib-tab-heading>
     <div>
-      {{'APPLICATIONS.TOPOLOGY.INIT_FROM_VERSION_TXT' | translate}}
+      <p>{{'APPLICATIONS.TOPOLOGY.INIT_FROM_VERSION_TXT' | translate}}</p>
       <div class="form-group">
         <div class="col-lg-6" ng-class="{'has-error': newForm.fromVersionid.$invalid}">
           <label for="fromVersionid" class="col-lg-6 control-label">
@@ -33,7 +33,7 @@
   <uib-tab>
     <uib-tab-heading>{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</uib-tab-heading>
     <div>
-      {{'APPLICATIONS.TOPOLOGY.INIT_FROM_TEMPLATE_TXT' | translate}}
+      <p>{{'APPLICATIONS.TOPOLOGY.INIT_FROM_TEMPLATE_TXT' | translate}}</p>
       <div ng-if="selectedTopologyWarning" class="alert alert-warning" role="alert">
         <span class="fa fa-warning" aria-hidden="true"></span> {{'ERRORS.' + selectedTopologyWarning | translate}}
       </div>

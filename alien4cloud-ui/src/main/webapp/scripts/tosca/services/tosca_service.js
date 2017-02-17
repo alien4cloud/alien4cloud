@@ -11,6 +11,7 @@ define(function (require) {
       var networkType = 'tosca.relationships.Network';
       var attachedToType = 'tosca.relationships.AttachTo';
       var computeType = 'tosca.nodes.Compute';
+      var dockerType = 'tosca.nodes.Container.Application.DockerContainer';
 
       var getScalingProperty = function(scalableCapability, propertyName) {
         var propertyEntry = scalableCapability.propertiesMap[propertyName];
@@ -88,6 +89,17 @@ define(function (require) {
         */
         isComputeType: function(nodeTypeName, nodeTypes) {
           return this.isOneOfType([computeType], nodeTypeName, nodeTypes);
+        },
+
+        /**
+        * Checks if a node type is a Compute node.
+        *
+        * @param nodeTypeName The name of the node type.
+        * @param nodeTypes A map of available node types. It must contains the actual nodeTypeName.
+        * @return true if the type is a tosca compute type.
+        */
+        isDockerType: function(nodeTypeName, nodeTypes) {
+          return this.isOneOfType([dockerType], nodeTypeName, nodeTypes);
         },
 
         /**

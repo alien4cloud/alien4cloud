@@ -1,23 +1,29 @@
 <div>
   <div class="row" id="app-user-role">
+    <span style="padding-bottom: 20px; padding-top: 10px; padding-left: 25px;" class="col-md-12">
+      <i class="fa fa-info-circle"></i>
+      {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.LOCATION_SECURITY_CHANGES' | translate}}</span>
+  </div>
+  <div class="row" id="app-user-role">
     <div class="col-md-12">
       <uib-tabset>
         <uib-tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
           <alien-user-authorization
-            orchestrator="orchestrator"
-            location="context.location">
+            resource="context.location"
+            service="locationSecurityService.users">
           </alien-user-authorization>
         </uib-tab>
         <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
           <alien-group-authorization
-              orchestrator="orchestrator"
-              location="context.location">
+              resource="context.location"
+              service="locationSecurityService.groups">
           </alien-group-authorization>
         </uib-tab>
         <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
           <alien-app-authorization
-                  orchestrator="orchestrator"
-                  location="context.location">
+                  resource="context.location"
+                  app-service="locationSecurityService.applications"
+                  env-service="locationSecurityService.environmentsPerApplication">
           </alien-app-authorization>
         </uib-tab>
       </uib-tabset>

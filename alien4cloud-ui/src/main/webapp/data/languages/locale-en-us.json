@@ -9,12 +9,20 @@
     "DEPLOYMENT": {
       "DEPLOY": "Deploy",
       "INPUT": "Input",
-      "MATCHING": "Matching",
+      "MATCHING": {
+        "CONFIGURATION": "Resource configuration",
+        "CONFIGURATION_HELP": "You can configure properties of the selected matched resource. Note that some properties have been defined by the location administrator. These properties cannot be overriden.",
+        "SERVICE": "Service information",
+        "SERVICE_HELP": "Below are the defined properties and attributes of the matched service.",
+        "SERVICE_UNDEPLOYED_HELP": "The selected servie is undeployed, this may cause issues on deployment if you select it as matched resource.",
+        "TITLE": "Matching"
+      },
       "PROPERTIES": {
         "REQUIRED": "Required",
         "WARNING": "Warning",
         "WARNING_MESSAGE": "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
-      }
+      },
+      "VERSION": "Deployed version"
     },
     "ENVIRONMENT": {
       "ALL": "All Environment",
@@ -668,6 +676,9 @@
       "REMOTE": "Remote"
     },
     "GIT_HISTORY": "Git history",
+    "HISTORY": {
+      "DETAIL": "Details"
+    },
     "MENU_FILES": "Archive content",
     "MENU_HISTORY": "History",
     "MENU_TOPOLOGY": "Topology",
@@ -780,6 +791,7 @@
   },
   "EXECUTE": "Execute",
   "FALSE": "False",
+  "FORCE": "Force",
   "GENERIC_FORM": {
     "ADD": "Add",
     "CANCEL": "Cancel",
@@ -807,10 +819,10 @@
     }
   },
   "GROUPS": {
+    "AUTHORIZED": "group authorized",
     "EDIT_GROUPS": "Edit groups",
     "NEW": "New Group",
-    "ROLES": "Roles",
-    "AUTHORIZED": "group authorized"
+    "ROLES": "Roles"
   },
   "HOME": {
     "ADMIN": {
@@ -837,12 +849,14 @@
       "REQUIREMENT": "Requirement description"
     }
   },
+  "N/A": "N/A",
   "NAVADMIN": {
     "MENU_AUDIT": "Audit",
     "MENU_METRICS": "Metrics",
     "MENU_ORCHESTRATORS": "Orchestrators",
     "MENU_PLUGINS": "Plugins",
     "MENU_TAGS": "Meta-properties",
+    "MENU_SERVICES": "Services",
     "MENU_USERS": "Users"
   },
   "NAVAPPLICATIONS": {
@@ -880,25 +894,36 @@
     },
     "LOCATIONS": {
       "AUTHORIZATIONS": {
-        "USERS": {
-          "ADD": "Authorize user",
+        "APPS": {
+          "ADD": "Authorize applications",
           "ADD_POPUP": {
-            "TITLE": "Select users",
-            "OK": "Authorize selected users"
-          }
+            "EMPTY_PLACEHOLDER": "authorized applications / environments for this location",
+            "LOC_AUTH_FILTER": "Location authorized",
+            "TITLE": "Select applications / environments"
+          },
+          "REVOKE": "Revoke applications"
         },
+        "AUTHORIZATIONS": "Authorizations",
+        "FORCE_MESSAGE": "Do you really want to force authorizations on the resource? This will also grant authorizations on the location to unauthorized users! ",
+        "FORCE_TITLE": "Force",
         "GROUPS": {
           "ADD": "Authorize group",
           "ADD_POPUP": {
-            "TITLE": "Select groups",
-            "OK": "Authorize selected groups"
-          }
+            "EMPTY_PLACEHOLDER": "authorized groups for this location",
+            "LOC_AUTH_FILTER": "Location authorized",
+            "TITLE": "Select groups"
+          },
+          "REVOKE": "Revoke groups"
         },
-        "APPS": {
-          "ADD": "Authorize application",
+        "LOCATION_SECURITY_CHANGES": "This tab allows you to manage authorizations on location. Giving access to a location is necessary to give access to the resources of this location.",
+        "USERS": {
+          "ADD": "Authorize users",
           "ADD_POPUP": {
-            "TITLE": "Select applications / environments"
-          }
+            "EMPTY_PLACEHOLDER": "authorized users for this location",
+            "LOC_AUTH_FILTER": "Location authorized",
+            "TITLE": "Select users"
+          },
+          "REVOKE": "Revoke users"
         }
       },
       "AUTO_CONFIG": "Auto-config",
@@ -912,9 +937,12 @@
       "ON_DEMAND_RESOURCES": "On demand resources",
       "POLICIES": "Policies",
       "RESOURCES": {
-        "TYPE": "Resource types",
+        "BACK": "Back to catalog",
+        "CONFIG": "Resource configuration",
+        "CONFIG_HELP": "You can configure the name and properties of the template for the on-demand resource. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
         "DROP": "Drop new resources here or on the table above",
-        "PROVIDED": "Provided type from the orchestrator"
+        "PROVIDED": "Provided type from the orchestrator",
+        "TYPE": "Resource types"
       },
       "SECURITY": "Security",
       "SERVICES": "Services"
@@ -977,6 +1005,21 @@
     "USERS": "Users"
   },
   "SELECT": "Select",
+  "SERVICES": {
+    "CATALOG": "Services catalog",
+    "DETAIL": {
+      "BACK": "Back to catalog",
+      "DETAIL": "Detail",
+      "TITLE": "Service configuration"
+    },
+    "INSTANCE": "Instance",
+    "LIST": "Current services",
+    "NEW": {
+      "NODE_TYPE": "Type",
+      "NODE_TYPE_VERSION": "Type version",
+      "TITLE": "New service"
+    }
+  },
   "START_DATE": "Start date",
   "STATES": {
     "available": "Available",
@@ -1019,6 +1062,7 @@
     "COMPLETE": "Complete"
   },
   "USERS": {
+    "AUTHORIZED": "user authorized",
     "CONFIRM_PASSWORD_ERROR": "Passwords do not match.",
     "CONFIRM_PASSWORD_HOLDER": "Confirm",
     "EDIT_GROUPS": "Edit groups",
@@ -1027,8 +1071,7 @@
     "LAST_NAME": "Last Name",
     "NEW": "New User",
     "PASSWORD": "Password",
-    "ROLES": "Roles",
-    "AUTHORIZED": "user authorized"
+    "ROLES": "Roles"
   },
   "VALUE": "Value",
   "metrics": {
@@ -1084,7 +1127,9 @@
       },
       "title": "JVM Metrics"
     },
-    "refresh.button": "Refresh",
+    "refresh": {
+      "button": "Refresh"
+    },
     "title": "Alien4Cloud 's Metrics"
   },
   "operations": "Operations"

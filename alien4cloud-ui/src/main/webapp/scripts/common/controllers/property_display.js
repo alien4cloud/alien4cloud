@@ -99,9 +99,9 @@ define(function(require) {
       /* method private to factorise all call to the serve and trigge errors */
       var callSaveService = function(propertyRequest) {
         var saveResult = $scope.onSave(propertyRequest);
-
         // If the callback return a promise
         if (_.defined(saveResult) && _.defined(saveResult.then)) {
+          saveResult.catch(function(cat) { console.log('cat', cat);});
           return saveResult.then(function(saveResult) {
             if (_.defined(saveResult.error)) {
               // Constraint error display + translation

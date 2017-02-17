@@ -1,0 +1,20 @@
+{
+  "id": "admin.services-hopscotch",
+  "i18n": {
+    "nextBtn": "Next",
+    "prevBtn": "Back",
+    "doneBtn": "Terminate",
+    "closeTooltip": "Stop the tour."
+  },
+  "steps": [{
+    "title": "Services list",
+    "content": "You can see services defined in alien4cloud here.",
+    "target": "services-container",
+    "placement": "right"
+  }, {
+    "title": "Catalog",
+    "content": "On the left is the tosca node types catalog, you can drag and drop types to the services list table on the right to add a new service based on the dragged type.",
+    "target": "catalog-container",
+    "placement": "left"
+  }]
+}

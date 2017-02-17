@@ -2,20 +2,18 @@ package alien4cloud.it.application;
 
 import java.io.IOException;
 
+import org.junit.Assert;
+
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.utils.TestUtils;
-import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
-import alien4cloud.rest.component.SearchRequest;
+import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.AlienConstants;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
-import org.junit.Assert;
-
-import static alien4cloud.it.Context.getRestClientInstance;
 
 public class ApplicationEnvironmentStepDefinitions {
     public static ApplicationEnvironmentDTO[] ALL_ENVIRONMENTS;
@@ -23,7 +21,7 @@ public class ApplicationEnvironmentStepDefinitions {
 
     @When("^I get all application environments for application \"([^\"]*)\"$")
     public void getAllApplicationEnvironments(String applicationId) throws Throwable {
-        SearchRequest request = new SearchRequest();
+        FilteredSearchRequest request = new FilteredSearchRequest();
         request.setFrom(0);
         request.setSize(AlienConstants.MAX_ES_SEARCH_SIZE); // This is actually the maximum search size in a4c (1000 by default)
         Context.getInstance().registerRestResponse(

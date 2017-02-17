@@ -4,9 +4,9 @@
   </div>
   <div class="modal-body">
     <div>
-      <div class="row" style="margin-top: 10px;">
-        <div class="col-md-12">
-          <form role="search" ng-submit="search(event)">
+      <div style="margin-top: 10px;">
+        <div class="form-horizontal">
+          <form role="search" ng-submit="search($event)">
             <div class="input-group">
               <input type="text" class="form-control" placeholder="..." ng-model="query"> <span
                 class="input-group-btn">
@@ -17,25 +17,30 @@
             </div>
           </form>
         </div>
+        <div  ng-if = "displayForceOption" class="filter-category">
+          <a ng-click="toggleCustomSearch()" class="pull-rigth">
+            <i class="fa fa-fw" ng-class="{'fa-check-square-o' : customSearchActive,  'fa-square-o': !customSearchActive}"></i>
+              {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD_POPUP.LOC_AUTH_FILTER' | translate}}
+          </a>
+        </div>
       </div>
       <div class="row" style="margin-top: 10px;">
         <div class="col-md-12">
-          <empty-place-holder
-              for="'ROLE_TABS.USERS'"
-              data="groupsData.data">
+          <empty-place-holder ng-if = "customSearchActive"
+              for="'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD_POPUP.EMPTY_PLACEHOLDER'"
+              data="searchedData.data">
           </empty-place-holder>
-          <div class="table-responsive large-data-container" id="groups-table" ng-if="groupsData.data.length > 0">
+          <empty-place-holder ng-if="!customSearchActive"
+              for="'COMMON.GROUPS'"
+              data="searchedData.data">
+          </empty-place-holder>
+          <div class="table-responsive large-data-container" id="groups-table" ng-if="searchedData.data.length > 0">
             <table class="table table-hover">
               <thead>
               <tr>
                 <th class="text-center">
-                  <a ng-click="toggleSelectAll()" href="" class="btn">
-                    <i class="fa fa-fw"
-                       ng-class="{
-                         'fa-check-square-o' : selectedGroupsInCurrentPage.length >= groupsData.data.length ,
-                         'fa-square-o': selectedGroupsInCurrentPage.length == 0,
-                         'fa-minus-square-o': selectedGroupsInCurrentPage.length < groupsData.data.length && selectedGroupsInCurrentPage.length > 0
-                         }"></i>
+                  <a ng-click="toggleSelectAll()">
+                    <i class="fa fa-fw" ng-class="getSelectAllClass()"></i>
                   </a>
                 </th>
                 <th></th>
@@ -44,12 +49,13 @@
               </tr>
               </thead>
               <tbody>
-              <tr ng-repeat="group in groupsData.data">
+              <tr ng-repeat="group in searchedData.data" ng-init = "isAuthorized = isAuthorized(group)" ng-class="{'option-selected text-muted': isAuthorized}">
                 <td class="text-center">
-                  <a ng-click="toggleSelection(group)" href="" class="btn">
+                  <a ng-if = "!isAuthorized" ng-click="toggleSelection(group)">
                     <i class="fa fa-fw"
                        ng-class="{'fa-check-square-o' : isSelected(group),  'fa-square-o': !isSelected(group)}"></i>
                   </a>
+                  <i ng-if = "isAuthorized" class="fa fa-fw fa-check-square-o"></i>
                 </td>
                 <td>
                   <i class="fa fa-group fa-2x" ng-if="!group.imageId"></i>
@@ -67,8 +73,10 @@
     </div>
   </div>
   <div class="modal-footer" style="margin-top: 10px;">
-    <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
-    <button ng-disabled="selectedGroups.length === 0" class="btn btn-primary" ng-click="ok()">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD_POPUP.OK' | translate}}
+    <button ng-disabled="selectedSubjects.length === 0" class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}
     </button>
+    <button  ng-if = "displayForceOption" ng-disabled="selectedSubjects.length === 0" class="btn btn-primary" ng-click="ok(true)">{{'FORCE' | translate}}
+    </button>
+    <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
   </div>
 </div>

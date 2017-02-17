@@ -1,6 +1,6 @@
 <div ng-controller="UploadCtrl">
   <div class="drop-box" ng-show="dropSupported" ngf-drop="uploadCtrl.onFileSelect($files)">
-    <i class="fa fa-file-text fa-2x"></i> {{ dragAndDropMessage | translate }}
+    <i class="fa fa-file-text"></i> {{ dragAndDropMessage | translate }}
   </div>
 
   <div class="fileUploadBtn btn btn-success" ng-show="!dropSupported" >

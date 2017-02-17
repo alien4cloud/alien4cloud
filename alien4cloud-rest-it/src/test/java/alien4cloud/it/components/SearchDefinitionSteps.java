@@ -30,7 +30,7 @@ import alien4cloud.dao.model.FacetedSearchFacet;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.rest.component.QueryComponentType;
-import alien4cloud.rest.component.SearchRequest;
+import alien4cloud.rest.component.ComponentSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.AlienConstants;
@@ -70,7 +70,7 @@ public class SearchDefinitionSteps {
 
     @When("^I search for \"([^\"]*)\" using query \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")
     public void I_search_for_with_query_from_with_result_size_of(String searchedComponentType, String query, int from, int size) throws Throwable {
-        SearchRequest req = new SearchRequest(QUERY_TYPES.get(searchedComponentType), query, from, size, null);
+        ComponentSearchRequest req = new ComponentSearchRequest(QUERY_TYPES.get(searchedComponentType), query, from, size, null);
         req.setType(req.getType());
 
         String jSon = JsonUtil.toString(req);
@@ -79,7 +79,7 @@ public class SearchDefinitionSteps {
 
     @When("^I search for \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")
     public void I_search_for_from_with_result_size_of(String searchedComponentType, int from, int size) throws Throwable {
-        SearchRequest req = new SearchRequest(QUERY_TYPES.get(searchedComponentType), null, from, size, null);
+        ComponentSearchRequest req = new ComponentSearchRequest(QUERY_TYPES.get(searchedComponentType), null, from, size, null);
         String jSon = JsonUtil.toString(req);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/components/search", jSon));
     }
@@ -87,7 +87,7 @@ public class SearchDefinitionSteps {
     @When("^I make a basic \"([^\"]*)\" search for \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")
     public void I_make_a_basic_search_for_from_with_result_size_of(String query, String searchedComponentType, int from, int size) throws Throwable {
         // BasicSearchRequest req = new BasicSearchRequest(query, from, size);
-        SearchRequest req = new SearchRequest(QUERY_TYPES.get(searchedComponentType), query, from, size, null);
+        ComponentSearchRequest req = new ComponentSearchRequest(QUERY_TYPES.get(searchedComponentType), query, from, size, null);
         String jSon = JsonUtil.toString(req);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/components/search", jSon));
     }
@@ -139,7 +139,7 @@ public class SearchDefinitionSteps {
             throws Throwable {
         Map<String, String[]> filters = Maps.newHashMap();
         filters.put(filterName, new String[]{filterValue.toLowerCase()});
-        SearchRequest req = new SearchRequest(QUERY_TYPES.get(searchedComponentType), null, from, size, filters);
+        ComponentSearchRequest req = new ComponentSearchRequest(QUERY_TYPES.get(searchedComponentType), null, from, size, filters);
         req.setType(req.getType());
 
         String jSon = JsonUtil.toString(req);

@@ -92,9 +92,9 @@ public class PropertyValueChecker {
             }
             problem.append(e.getMessage());
             ParsingError error = null;
-            if(propertyValueNode != null) {
-                error = new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, templateName, propertyValueNode.getStartMark(), problem.toString(),
-                        propertyValueNode.getEndMark(), propertyName);
+            if (propertyValueNode != null) {
+                error = new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, templateName, propertyValueNode.getStartMark(),
+                        problem.toString(), propertyValueNode.getEndMark(), propertyName);
             } else {
                 error = new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, templateName, null, problem.toString(), null, propertyName);
             }

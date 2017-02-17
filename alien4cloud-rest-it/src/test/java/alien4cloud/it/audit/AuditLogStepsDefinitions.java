@@ -7,16 +7,15 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
-import alien4cloud.audit.model.AuditTrace;
-import alien4cloud.audit.model.AuditedMethod;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.it.Context;
-import alien4cloud.audit.rest.AuditConfigurationDTO;
-import alien4cloud.rest.component.SearchRequest;
-import alien4cloud.rest.utils.JsonUtil;
-
 import com.google.common.collect.Lists;
 
+import alien4cloud.audit.model.AuditTrace;
+import alien4cloud.audit.model.AuditedMethod;
+import alien4cloud.audit.rest.AuditConfigurationDTO;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.it.Context;
+import alien4cloud.rest.model.FilteredSearchRequest;
+import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -28,7 +27,7 @@ public class AuditLogStepsDefinitions {
 
     @Then("^I should have no audit trace in Alien$")
     public void I_should_have_no_audit_trace_in_Alien() throws Throwable {
-        SearchRequest req = new SearchRequest(null, "", 0, 1, null);
+        FilteredSearchRequest req = new FilteredSearchRequest("", 0, 1, null);
         String jSon = JsonUtil.toString(req);
         String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/audit/search", jSon);
         FacetedSearchResult searchResult = JsonUtil.read(restResponse, FacetedSearchResult.class).getData();
@@ -37,7 +36,7 @@ public class AuditLogStepsDefinitions {
 
     @Then("^I should have (\\d+) audit traces in Alien:$")
     public void I_should_have_audit_traces_in_Alien(int numberOfResult, DataTable rawExpectedAuditTraces) throws Throwable {
-        SearchRequest req = new SearchRequest(null, "", 0, numberOfResult, null);
+        FilteredSearchRequest req = new FilteredSearchRequest("", 0, numberOfResult, null);
         String jSon = JsonUtil.toString(req);
         String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/audit/search", jSon);
         FacetedSearchResult searchResult = JsonUtil.read(restResponse, FacetedSearchResult.class).getData();

@@ -14,8 +14,8 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.model.common.Usage;
-import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.csar.CsarInfoDTO;
+import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.Given;
@@ -91,7 +91,7 @@ public class CrudCSARSStepDefinition {
 
     @Given("^I can find (\\d+) CSAR$")
     public void i_can_find_CSAR(int expectedSize) throws Throwable {
-        SearchRequest req = new SearchRequest(null, null, 0, 50, null);
+        FilteredSearchRequest req = new FilteredSearchRequest(null, 0, 50, null);
         String jSon = jsonMapper.writeValueAsString(req);
         String response = Context.getRestClientInstance().postJSon("/rest/v1/csars/search", jSon);
         RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);

@@ -5,6 +5,7 @@ import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpression;
 import java.nio.file.Files;
 import java.util.List;
 
+import alien4cloud.model.service.ServiceResource;
 import org.alien4cloud.exception.rest.FieldErrorDTO;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -69,6 +70,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
         indicesToClean.add(ElasticSearchDAO.SUGGESTION_INDEX);
         indicesToClean.add(Repository.class.getSimpleName().toLowerCase());
+        indicesToClean.add(ServiceResource.class.getSimpleName().toLowerCase());
 
         indicesToClean.add(Plugin.class.getSimpleName().toLowerCase());
         indicesToClean.add(PluginConfiguration.class.getSimpleName().toLowerCase());
@@ -135,7 +137,7 @@ public class CommonStepDefinitions {
     }
 
     @Then("^I should receive a RestResponse with no error$")
-    public void I_should_receive_a_RestResponse_with_no_error() throws Throwable {
+    public static void I_should_receive_a_RestResponse_with_no_error() throws Throwable {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         if (restResponse.getError() != null) {
             log.error("Rest response was <" + Context.getInstance().getRestResponse() + ">");
@@ -197,18 +199,30 @@ public class CommonStepDefinitions {
         Assert.assertEquals(expectedResponseStr, restResponse.getData());
     }
 
-    @Then("^The SPEL boolean expression \"([^\"]*)\" should return (true|false)$")
-    public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression, Boolean expected) {
-        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
-    }
-
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentContext(String spelExpression, String expected) {
         evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
     }
 
+    @Then("^The SPEL expression \"([^\"]*)\" should return (true|false)$")
+    public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, Boolean expected) {
+        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
+    }
+
+    @Then("^The SPEL expression \"([^\"]*)\" should return (\\d+)$")
+    public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, Integer expected) {
+        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
+    }
+
+    @Deprecated
     @Then("^The SPEL int expression \"([^\"]*)\" should return (\\d+)$")
     public void The_SPEL_int_expression_should_return(String spelExpression, int expected) throws Throwable {
+        evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
+    }
+
+    @Deprecated
+    @Then("^The SPEL boolean expression \"([^\"]*)\" should return (true|false)$")
+    public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression, Boolean expected) {
         evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
     }
 
@@ -237,5 +251,17 @@ public class CommonStepDefinitions {
     public void i_Should_Receive_A_RestResponse_With_A_Non_Empty_String_Data() throws Throwable {
         RestResponse<String> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
         Assert.assertTrue(StringUtils.isNotBlank(restResponse.getData()));
+    }
+
+    /**
+     * Validate that the last request made didn't throw any error
+     * 
+     * @param successfully
+     * @throws Throwable
+     */
+    public static void validateIfNeeded(Boolean successfully) throws Throwable {
+        if (successfully) {
+            I_should_receive_a_RestResponse_with_no_error();
+        }
     }
 }

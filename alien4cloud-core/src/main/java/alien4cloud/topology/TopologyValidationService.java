@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.context.ToscaContextual;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +50,7 @@ public class TopologyValidationService {
      * @param topology topology to be validated
      * @return the validation result
      */
+    @ToscaContextual
     public TopologyValidationResult validateTopology(Topology topology) {
         TopologyValidationResult dto = new TopologyValidationResult();
         if (topology.getNodeTemplates() == null || topology.getNodeTemplates().size() < 1) {

@@ -6,6 +6,7 @@ import java.util.Set;
 import com.google.common.collect.Maps;
 
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;

@@ -8,12 +8,13 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import alien4cloud.model.service.ServiceResource;
+import alien4cloud.service.ServiceResourceService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
-import org.alien4cloud.tosca.model.templates.NodeGroup;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.*;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.context.annotation.Lazy;
@@ -40,6 +41,10 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
     @Inject
     @Lazy(true)
     private ILocationResourceService locationResourceService;
+    @Inject
+    private ServiceResourceService serviceResourceService;
+    @Inject
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     /**
      * Get all available substitutions (LocationResourceTemplate) for the given node templates with given dependencies and location groups
@@ -47,10 +52,11 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
      * @param nodeTemplates the node template to check
      * @param dependencies dependencies of those node templates
      * @param locationGroups group of location policy
+     * @param environmentId The optional environment for whom we are trying to get substitutions
      * @return a map which contains mapping from node template id to its available substitutions
      */
     private Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
-            Map<String, NodeGroup> locationGroups) {
+            Map<String, NodeGroup> locationGroups, String environmentId) {
         Map<String, NodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromDependencies(nodeTemplates, dependencies, false, false, true);
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = Maps.newHashMap();
         for (final Map.Entry<String, NodeGroup> locationGroupEntry : locationGroups.entrySet()) {
@@ -71,17 +77,20 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
                 }
             }
             LocationPlacementPolicy locationPlacementPolicy = (LocationPlacementPolicy) locationGroupEntry.getValue().getPolicies().get(0);
-            availableSubstitutions.putAll(nodeMatcherService.match(nodeTypes, nodesToMatch, locationPlacementPolicy.getLocationId()));
+            availableSubstitutions.putAll(nodeMatcherService.match(nodeTypes, nodesToMatch, locationPlacementPolicy.getLocationId(), environmentId));
         }
         return availableSubstitutions;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.deployment.IDeploymentNodeSubstitutionService#getAvailableSubstitutions(alien4cloud.model.deployment.DeploymentTopology)
      */
     @Override
     public Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(DeploymentTopology deploymentTopology) {
-        return getAvailableSubstitutions(deploymentTopology.getOriginalNodes(), deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups());
+        return getAvailableSubstitutions(deploymentTopology.getOriginalNodes(), deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups(),
+                deploymentTopology.getEnvironmentId());
     }
 
     /**
@@ -90,7 +99,9 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
      * @param deploymentTopology the deployment topology to process substitution
      */
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.deployment.IDeploymentNodeSubstitutionService#processNodesSubstitution(alien4cloud.model.deployment.DeploymentTopology, java.util.Map)
      */
     @Override
@@ -101,7 +112,7 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
         }
         deploymentTopology.getDependencies().addAll(deploymentTopology.getLocationDependencies());
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = getAvailableSubstitutions(deploymentTopology.getNodeTemplates(),
-                deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups());
+                deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups(), deploymentTopology.getEnvironmentId());
         Map<String, Set<String>> availableSubstitutionsIds = Maps.newHashMap();
         for (Map.Entry<String, List<LocationResourceTemplate>> availableSubstitutionEntry : availableSubstitutions.entrySet()) {
             Set<String> ids = Sets.newHashSet();
@@ -126,7 +137,11 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
             }
         }
 
+        Map<String, LocationResourceTemplate> allAvailableResourceTemplate = Maps.newHashMap();
         for (Map.Entry<String, List<LocationResourceTemplate>> entry : availableSubstitutions.entrySet()) {
+            for (LocationResourceTemplate lrt : entry.getValue()) {
+                allAvailableResourceTemplate.put(lrt.getId(), lrt);
+            }
             // select default values
             if (!substitutedNodes.containsKey(entry.getKey())) {
                 deploymentTopology.getOriginalNodes().put(entry.getKey(), deploymentTopology.getNodeTemplates().get(entry.getKey()));
@@ -140,66 +155,108 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
         deploymentTopology.setSubstitutedNodes(substitutedNodes);
         for (Map.Entry<String, String> substitutedNodeEntry : substitutedNodes.entrySet()) {
             // Substitute the node template of the topology by those matched
-            NodeTemplate locationNode = locationResourceService.getOrFail(substitutedNodeEntry.getValue()).getTemplate();
-            NodeTemplate abstractTopologyNode = deploymentTopology.getNodeTemplates().put(substitutedNodeEntry.getKey(), locationNode);
-            NodeTemplate previousNode = null;
-            if (nodesToMergeProperties != null) {
-                previousNode = nodesToMergeProperties.get(substitutedNodeEntry.getKey());
+            String nodeId = substitutedNodeEntry.getKey();
+            String substitutionTemplateId = substitutedNodeEntry.getValue();
+            if (allAvailableResourceTemplate.get(substitutionTemplateId).isService()) {
+                // it's a service
+                processServiceResourceSubstitution(nodeId, substitutionTemplateId, deploymentTopology);
+            } else {
+                // it's a real location resource template
+                processLocationResourceTemplateSubstitution(nodeId, substitutionTemplateId, deploymentTopology, nodesToMergeProperties);
             }
-            // TODO define what need to be merged and what not to be merged
-            // Merge name, properties and capability properties
-            locationNode.setName(abstractTopologyNode.getName());
-            // Also merge relationships
-            locationNode.setRelationships(abstractTopologyNode.getRelationships());
+        }
+    }
+
+    /**
+     * In this {@link DeploymentTopology}, proceed the substitution of the given node using the given service.
+     */
+    private void processServiceResourceSubstitution(String nodeId, String serviceResourceId, DeploymentTopology deploymentTopology) {
+        ServiceResource serviceResource = serviceResourceService.getOrFail(serviceResourceId);
+        NodeTemplate serviceNodeTemplate = serviceResource.getNodeInstance().getNodeTemplate();
+        ServiceNodeTemplate substitutionNodeTemplate = new ServiceNodeTemplate(serviceNodeTemplate.getType(), serviceNodeTemplate.getProperties(),
+                serviceNodeTemplate.getAttributes(), serviceNodeTemplate.getRelationships(), serviceNodeTemplate.getRequirements(),
+                serviceNodeTemplate.getCapabilities(), serviceNodeTemplate.getInterfaces(), serviceNodeTemplate.getArtifacts());
+
+        substitutionNodeTemplate.setServiceResourceId(serviceResource.getId());
+        substitutionNodeTemplate.setAttributeValues(serviceResource.getNodeInstance().getAttributeValues());
+        NodeTemplate abstractTopologyNode = deploymentTopology.getNodeTemplates().put(nodeId, substitutionNodeTemplate);
+        substitutionNodeTemplate.setName(abstractTopologyNode.getName());
+        substitutionNodeTemplate.setRelationships(abstractTopologyNode.getRelationships());
+
+        // add all the necessary dependencies to the topology
+        NodeType serviceType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
+                serviceResource.getNodeInstance().getTypeVersion());
+        Csar csar = toscaTypeSearchService.getArchive(serviceType.getArchiveName(), serviceType.getArchiveVersion());
+        Set<CSARDependency> dependencies = Sets.newHashSet();
+        if (csar.getDependencies() != null) {
+            dependencies.addAll(csar.getDependencies());
+        }
+        dependencies.add(new CSARDependency(csar.getName(), csar.getVersion()));
+        deploymentTopology.getDependencies().addAll(dependencies);
+
+    }
+
+    private void processLocationResourceTemplateSubstitution(String nodeId, String locationResourceTemplateId, DeploymentTopology deploymentTopology,
+            Map<String, NodeTemplate> nodesToMergeProperties) {
+        NodeTemplate locationNode = locationResourceService.getOrFail(locationResourceTemplateId).getTemplate();
+        NodeTemplate abstractTopologyNode = deploymentTopology.getNodeTemplates().put(nodeId, locationNode);
+        NodeTemplate previousNode = null;
+        if (nodesToMergeProperties != null) {
+            previousNode = nodesToMergeProperties.get(nodeId);
+        }
+        // TODO define what need to be merged and what not to be merged
+        // Merge name, properties and capability properties
+        locationNode.setName(abstractTopologyNode.getName());
+        // Also merge relationships
+        locationNode.setRelationships(abstractTopologyNode.getRelationships());
+        if (MapUtils.isNotEmpty(locationNode.getProperties())) {
+            // Merge properties from previous values
+            Set<String> keysToConsider = locationNode.getProperties().keySet();
+            Map<String, AbstractPropertyValue> mergedProperties = Maps.newLinkedHashMap();
+            if (previousNode != null && MapUtils.isNotEmpty(previousNode.getProperties())) {
+                PropertyUtil.mergeProperties(previousNode.getProperties(), mergedProperties, keysToConsider);
+            }
+            // Merge properties from abstract topology
+            if (MapUtils.isNotEmpty(abstractTopologyNode.getProperties())) {
+                PropertyUtil.mergeProperties(abstractTopologyNode.getProperties(), mergedProperties, keysToConsider);
+            }
+            // Merge properties from location resources
             if (MapUtils.isNotEmpty(locationNode.getProperties())) {
-                // Merge properties from previous values
-                Set<String> keysToConsider = locationNode.getProperties().keySet();
-                Map<String, AbstractPropertyValue> mergedProperties = Maps.newLinkedHashMap();
-                if (previousNode != null && MapUtils.isNotEmpty(previousNode.getProperties())) {
-                    PropertyUtil.mergeProperties(previousNode.getProperties(), mergedProperties, keysToConsider);
-                }
-                // Merge properties from abstract topology
-                if (MapUtils.isNotEmpty(abstractTopologyNode.getProperties())) {
-                    PropertyUtil.mergeProperties(abstractTopologyNode.getProperties(), mergedProperties, keysToConsider);
-                }
-                // Merge properties from location resources
-                if (MapUtils.isNotEmpty(locationNode.getProperties())) {
-                    PropertyUtil.mergeProperties(locationNode.getProperties(), mergedProperties, keysToConsider);
-                }
-                locationNode.setProperties(mergedProperties);
+                PropertyUtil.mergeProperties(locationNode.getProperties(), mergedProperties, keysToConsider);
             }
-            if (MapUtils.isNotEmpty(locationNode.getCapabilities())) {
-                // The location node is the node from orchestrator which must be a child type of the abstract topology node so should loop on this node to do
-                // not miss any capability
-                for (Map.Entry<String, Capability> locationCapabilityEntry : locationNode.getCapabilities().entrySet()) {
-                    Capability locationCapability = locationCapabilityEntry.getValue();
-                    if (MapUtils.isEmpty(locationCapability.getProperties())) {
-                        continue;
-                    }
-                    Set<String> keysToConsider = locationCapability.getProperties().keySet();
-                    Map<String, AbstractPropertyValue> mergedCapabilityProperties = Maps.newLinkedHashMap();
-
-                    // Merge from previous existing nodes
-                    Capability previousCapability = null;
-                    if (previousNode != null && MapUtils.isNotEmpty(previousNode.getCapabilities())) {
-                        previousCapability = previousNode.getCapabilities().get(locationCapabilityEntry.getKey());
-                    }
-                    if (previousCapability != null && MapUtils.isNotEmpty(previousCapability.getProperties())) {
-                        PropertyUtil.mergeProperties(previousCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
-                    }
-                    // Merge from abstract topology
-                    Capability abstractCapability = null;
-                    if (MapUtils.isNotEmpty(abstractTopologyNode.getCapabilities())) {
-                        abstractCapability = abstractTopologyNode.getCapabilities().get(locationCapabilityEntry.getKey());
-                    }
-                    if (abstractCapability != null && MapUtils.isNotEmpty(abstractCapability.getProperties())) {
-                        PropertyUtil.mergeProperties(abstractCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
-                    }
-
-                    // Merge from location resources
-                    PropertyUtil.mergeProperties(locationCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
-                    locationCapability.setProperties(mergedCapabilityProperties);
+            locationNode.setProperties(mergedProperties);
+        }
+        if (MapUtils.isNotEmpty(locationNode.getCapabilities())) {
+            // The location node is the node from orchestrator which must be a child type of the abstract topology node so should loop on this node to do
+            // not miss any capability
+            for (Map.Entry<String, Capability> locationCapabilityEntry : locationNode.getCapabilities().entrySet()) {
+                Capability locationCapability = locationCapabilityEntry.getValue();
+                if (MapUtils.isEmpty(locationCapability.getProperties())) {
+                    continue;
                 }
+                Set<String> keysToConsider = locationCapability.getProperties().keySet();
+                Map<String, AbstractPropertyValue> mergedCapabilityProperties = Maps.newLinkedHashMap();
+
+                // Merge from previous existing nodes
+                Capability previousCapability = null;
+                if (previousNode != null && MapUtils.isNotEmpty(previousNode.getCapabilities())) {
+                    previousCapability = previousNode.getCapabilities().get(locationCapabilityEntry.getKey());
+                }
+                if (previousCapability != null && MapUtils.isNotEmpty(previousCapability.getProperties())) {
+                    PropertyUtil.mergeProperties(previousCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
+                }
+                // Merge from abstract topology
+                Capability abstractCapability = null;
+                if (MapUtils.isNotEmpty(abstractTopologyNode.getCapabilities())) {
+                    abstractCapability = abstractTopologyNode.getCapabilities().get(locationCapabilityEntry.getKey());
+                }
+                if (abstractCapability != null && MapUtils.isNotEmpty(abstractCapability.getProperties())) {
+                    PropertyUtil.mergeProperties(abstractCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
+                }
+
+                // Merge from location resources
+                PropertyUtil.mergeProperties(locationCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
+                locationCapability.setProperties(mergedCapabilityProperties);
             }
         }
     }

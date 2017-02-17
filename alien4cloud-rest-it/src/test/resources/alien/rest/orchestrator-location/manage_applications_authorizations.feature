@@ -7,11 +7,11 @@ Feature: Manage application's authorizations on location
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"
     And I create a location named "middle_earth" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
-    And I create a new application with name "ALIEN" and description ""
+    And I create an application with name "ALIEN", archive name "ALIEN", description "" and topology template id "null"
     When I create an application environment of type "DEVELOPMENT" with name "DEV-ALIEN" and description "" for the newly created application
     When I create an application environment of type "INTEGRATION_TESTS" with name "TST-ALIEN" and description "" for the newly created application
     When I create an application environment of type "PRODUCTION" with name "PRD-ALIEN" and description "" for the newly created application
-    And I create a new application with name "SDE" and description ""
+    And I create an application with name "SDE", archive name "SDE", description "" and topology template id "null"
 
   @reset
   Scenario: Add / Remove rights to a application on a location

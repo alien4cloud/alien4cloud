@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.4.0-SM2</version>
+  <version>1.4.0-SM3</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle
@@ -516,6 +516,10 @@
     <pluginRepository>
       <id>repo.opensource.fastconnect.org</id>
       <url>https://fastconnect.org/maven/content/repositories/opensource</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>repo.opensource.snapshot.fastconnect.org</id>
+      <url>https://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
     </pluginRepository>
   </pluginRepositories>
 

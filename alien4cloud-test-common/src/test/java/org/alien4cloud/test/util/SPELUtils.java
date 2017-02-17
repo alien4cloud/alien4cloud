@@ -19,6 +19,9 @@ public class SPELUtils {
             Assert.assertNull(String.format("The SPEL expression [%s] result should be null", spelExpression), result);
         } else {
             Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
+            if (result instanceof Long && expected instanceof Integer) {
+                expected = ((Integer) expected).longValue();
+            }
             Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result);
         }
     }

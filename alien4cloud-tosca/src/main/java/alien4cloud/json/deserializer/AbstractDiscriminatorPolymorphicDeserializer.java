@@ -19,9 +19,10 @@ import com.google.common.collect.Maps;
 /**
  * Manages polymorphism deserialization for Jackson through discriminator field (based on field exists).
  */
-public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserializer<T> {
+public abstract class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserializer<T> {
     private Map<String, Map<String, Class<? extends T>>> registry = Maps.newHashMap();
     private Class<? extends T> valueStringClass = null;
+    private Class<? extends T> defaultClass = null;
 
     public AbstractDiscriminatorPolymorphicDeserializer(Class<T> clazz) {
         super(clazz);
@@ -49,6 +50,10 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
         this.valueStringClass = valueStringClass;
     }
 
+    public void setDefaultClass(Class<? extends T> defaultClass) {
+        this.defaultClass = defaultClass;
+    }
+
     @Override
     public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
@@ -59,8 +64,9 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
                 Constructor constructor = this.valueStringClass.getConstructor(String.class);
                 return (T) constructor.newInstance(parameter);
             } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                throw new JsonParseException("Failed to create instance of <" + this.valueStringClass.getName() + "> from constructor using string parameter <"
-                        + parameter + ">", jp.getCurrentLocation(), e);
+                throw new JsonParseException(
+                        "Failed to create instance of <" + this.valueStringClass.getName() + "> from constructor using string parameter <" + parameter + ">",
+                        jp.getCurrentLocation(), e);
             }
         }
         ObjectNode root = mapper.readTree(jp);
@@ -83,8 +89,13 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
             }
         }
         if (parameterClass == null) {
+            parameterClass = defaultClass;
+        }
+        if (parameterClass == null) {
             throw new JsonParseException("Failed to find implementation for node " + root + " from registry " + registry, jp.getCurrentLocation());
         }
         return mapper.treeToValue(root, parameterClass);
     }
+
+    // protected abstract T nullInstance();
 }

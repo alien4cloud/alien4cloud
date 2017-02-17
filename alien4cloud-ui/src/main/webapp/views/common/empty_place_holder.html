@@ -1,3 +1,4 @@
 <div id="emptyPlaceHoler_{{for}}" ng-if="_.isEmpty(data)" class="empty-place-holder">
-    {{'PLACE_HOLDER_NO' | translate }} {{ for | translate }}. {{additionalMessage}}
+    <span ng-if = "message">{{ message | translate }}</span>
+    <span ng-if = "!message">{{'PLACE_HOLDER_NO' | translate }} {{ for | translate }}. {{additionalMessage}}</span>
 </div>

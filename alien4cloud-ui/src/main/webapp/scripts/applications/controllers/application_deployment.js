@@ -25,32 +25,9 @@ define(function(require) {
 
   var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID', 'PROPERTIES', 'NODE_FILTER_INVALID', 'ARTIFACT_INVALID', 'INPUT_ARTIFACT_INVALID'];
 
-  function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menus) {
-    return deploymentTopologyServices.get({
-      appId: application.id,
-      envId: deploymentContext.selectedEnvironment.id
-    }).$promise.then(function(response) {
-        deploymentTopologyProcessor.process(response.data);
-        deploymentContext.deploymentTopologyDTO = response.data;
-        tasksProcessor.processAll(deploymentContext.deploymentTopologyDTO.validation);
-        updateStepsStatuses(menus, deploymentContext.deploymentTopologyDTO.validation);
-        return deploymentContext;
-      });
-  }
-
   var setNextStepMenuEnabled = function(currentStepMenu, nextStepMenu){
     nextStepMenu.disabled = currentStepMenu.disabled || (_.get(currentStepMenu, 'step.status', 'SUCCESS')!=='SUCCESS');
   };
-
-  function buildMenuTree(menus) {
-    _.each(menus, function(menu){
-      if (_.definedPath(menu, 'step.nextStepId')){
-        menu.nextStep = _.find(menus, function(item){
-          return item.id===menu.step.nextStepId;
-        });
-      }
-    });
-  }
 
   function enabledOrDisableMenus(menus){
     _.each(menus, function(menu){
@@ -72,8 +49,30 @@ define(function(require) {
         });
       }
     });
-
     enabledOrDisableMenus(menus);
+  }
+
+  function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menus) {
+    return deploymentTopologyServices.get({
+      appId: application.id,
+      envId: deploymentContext.selectedEnvironment.id
+    }).$promise.then(function(response) {
+        deploymentTopologyProcessor.process(response.data);
+        deploymentContext.deploymentTopologyDTO = response.data;
+        tasksProcessor.processAll(deploymentContext.deploymentTopologyDTO.validation);
+        updateStepsStatuses(menus, deploymentContext.deploymentTopologyDTO.validation);
+        return deploymentContext;
+      });
+  }
+
+  function buildMenuTree(menus) {
+    _.each(menus, function(menu){
+      if (_.definedPath(menu, 'step.nextStepId')){
+        menu.nextStep = _.find(menus, function(item){
+          return item.id===menu.step.nextStepId;
+        });
+      }
+    });
   }
 
   states.state('applications.detail.deployment', {
@@ -186,14 +185,7 @@ define(function(require) {
           appEnvironments.select($scope.deploymentContext.selectedEnvironment.id, goToNextInvalidStep);
         };
 
-        if(_.defined($state.params.openOnEnvironment) && appEnvironments.selected.id !== $state.params.openOnEnvironment){
-          appEnvironments.select($state.params.openOnEnvironment, function(){
-            $scope.deploymentContext.selectedEnvironment = appEnvironments.selected;
-            goToNextInvalidStep();
-          });
-        }else{
-          goToNextInvalidStep(); // immediately go to the next invalid tab
-        }
+        goToNextInvalidStep(); // immediately go to the next invalid tab
 
         $scope.showTodoList = function() {
           return $scope.validTopologyDTOLoaded && !$scope.validTopologyDTO.valid && $scope.isManager;

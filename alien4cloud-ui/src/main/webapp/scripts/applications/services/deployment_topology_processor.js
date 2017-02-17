@@ -19,11 +19,10 @@ define(function(require) {
               for (var nodeId in deploymentTopology.topology.substitutedNodes) {
                 if (deploymentTopology.topology.substitutedNodes.hasOwnProperty(nodeId)) {
                   var locationResourceTemplateId = deploymentTopology.topology.substitutedNodes[nodeId];
-                  deploymentTopology.topology.substitutedNodes[nodeId] = _.clone(deploymentTopology.locationResourceTemplates[locationResourceTemplateId]);
+                  deploymentTopology.topology.substitutedNodes[nodeId] = _.clone(deploymentTopology.availableSubstitutions.substitutionsTemplates[locationResourceTemplateId]);
                   deploymentTopology.topology.substitutedNodes[nodeId].template = deploymentTopology.topology.nodeTemplates[nodeId];
                 }
               }
-              locationResourcesProcessor.processLocationResourceTemplatesMap(deploymentTopology.locationResourceTemplates);
             }
             this.processSubstitutionResources(deploymentTopology.availableSubstitutions);
           },

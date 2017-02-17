@@ -27,6 +27,7 @@ public class WorkflowUtils {
     public static final Pattern WORKFLOW_NAME_PATTERN = Pattern.compile("^\\w+$");
 
     private static final String NETWORK_TYPE = "tosca.nodes.Network";
+    private static final String DOCKER_TYPE = "tosca.nodes.Container.Application.DockerContainer";
 
     private static String getRootHostNode(String nodeId, TopologyContext topologyContext) {
         NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
@@ -34,7 +35,7 @@ public class WorkflowUtils {
             return null;
         }
         NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
-        if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE)) {
+        if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, DOCKER_TYPE)) {
             return nodeId;
         } else {
             if (nodeTemplate.getRelationships() != null) {

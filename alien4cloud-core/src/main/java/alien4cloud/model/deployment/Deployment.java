@@ -83,6 +83,11 @@ public class Deployment {
     @TermFilter
     private Date endDate;
 
+    /** Id of the services this deployment depends on. */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    private String[] serviceResourceIds;
+
     /**
      * The last PaaS execution id per workflow.
      */

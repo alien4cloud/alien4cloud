@@ -4,11 +4,7 @@ import static alien4cloud.it.Context.getRestClientInstance;
 import static alien4cloud.it.utils.TestUtils.nullable;
 
 import java.io.IOException;
-import java.util.UUID;
 
-import alien4cloud.rest.application.model.UpdateApplicationRequest;
-import alien4cloud.rest.application.model.UpdateApplicationVersionRequest;
-import org.alien4cloud.tosca.model.Csar;
 import org.junit.Assert;
 
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -16,11 +12,11 @@ import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.rest.application.model.CreateApplicationVersionRequest;
-import alien4cloud.rest.component.SearchRequest;
+import alien4cloud.rest.application.model.UpdateApplicationVersionRequest;
+import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.And;
-import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -74,7 +70,7 @@ public class ApplicationVersionStepDefinitions {
     @When("^I search for application versions$")
     public void I_search_for_application_versions() throws Throwable {
         Application app = Context.getInstance().getApplication();
-        SearchRequest request = new SearchRequest();
+        FilteredSearchRequest request = new FilteredSearchRequest();
         request.setFrom(0);
         request.setSize(10);
         Context.getInstance().registerRestResponse(

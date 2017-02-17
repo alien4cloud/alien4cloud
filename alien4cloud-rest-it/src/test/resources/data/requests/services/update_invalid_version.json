@@ -1,0 +1,11 @@
+{
+  "name": "new name",
+  "version": "invalid",
+  "nodeInstance": {
+    "type": "tosca.nodes.Database",
+    "typeVersion": "1.0.0-SNAPSHOT",
+    "attributeValues": {
+      "state": "initial"
+    }
+  }
+}

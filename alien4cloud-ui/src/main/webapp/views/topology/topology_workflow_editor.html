@@ -44,7 +44,7 @@
                 {{topology.topology.workflows[currentWorkflowName].errors.length}} {{'APPLICATIONS.WF.hasErrors' | translate}}
               </h5>
             </div>
-            <div id="wf-errors-panel" uib-collapse="isWfErrorsCollapsed" class="topology-level">
+            <div id="wf-errors-panel" uib-collapse="isWfErrorsCollapsed" >
               <span class="label label-danger wfLabelError" ng-repeat="error in topology.topology.workflows[currentWorkflowName].errors" ng-init="errorType = workflows.getErrorType(error)">
                 {{'APPLICATIONS.WF.errors.' + errorType | translate:error}}
               </span>

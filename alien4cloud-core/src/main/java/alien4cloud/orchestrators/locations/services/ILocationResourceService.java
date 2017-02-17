@@ -3,21 +3,23 @@ package alien4cloud.orchestrators.locations.services;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import alien4cloud.model.orchestrators.locations.LocationResources;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.plugin.aop.Overridable;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.model.CSARDependency;
 
 @Overridable
 public interface ILocationResourceService {
 
     /**
-     * Get the list of resources definitions for a given orchestrator.
+     * Get the list of resources definitions for a given location.
      *
      * @param location the location.
      * @return A list of resource definitions for the given location.
@@ -94,5 +96,8 @@ public interface ILocationResourceService {
     void saveResource(Location location, LocationResourceTemplate resourceTemplate);
 
     void saveResource(LocationResourceTemplate resourceTemplate);
+
+    void fillLocationResourceTypes(Collection<String> exposedTypes, LocationResourceTypes locationResourceTypes, Set<CSARDependency> dependencies);
+
 
 }

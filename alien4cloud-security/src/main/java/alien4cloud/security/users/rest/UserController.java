@@ -15,13 +15,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Sets;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -115,7 +118,7 @@ public class UserController {
      * Search for users.
      *
      * @param searchRequest The request that contains parameters of the search request.
-     * @return A {@link RestResponse} that contains a {@link GetMultipleDataResult} of {@link User}.
+     * @return A {@link RestResponse} that contains a {@link FacetedSearchResult} of {@link User}.
      */
     @ApiOperation(value = "Search for user's registered in alien.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

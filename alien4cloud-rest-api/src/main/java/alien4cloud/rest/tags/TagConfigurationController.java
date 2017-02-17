@@ -7,11 +7,15 @@ import javax.annotation.Resource;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
-import io.swagger.annotations.Api;
+import alien4cloud.rest.model.FilteredSearchRequest;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -26,7 +30,6 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -34,6 +37,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.tosca.container.validation.ToscaSequence;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
@@ -143,7 +147,7 @@ public class TagConfigurationController {
     @ApiOperation(value = "Search for tag configurations registered in ALIEN.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest request) {
+    public RestResponse<FacetedSearchResult> search(@RequestBody FilteredSearchRequest request) {
         FacetedSearchResult result = dao.facetedSearch(MetaPropConfiguration.class, request.getQuery(), request.getFilters(), null, request.getFrom(),
                 request.getSize());
         return RestResponseBuilder.<FacetedSearchResult> builder().data(result).build();

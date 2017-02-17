@@ -53,7 +53,7 @@
         </div>
         <div uib-collapse="isTargetCollapsed" name="{{match.template.name}}_capabilities">
           <div ng-repeat="capability in  match.capabilities"
-            class="topology-level clickable "
+            class="clickable "
             ng-click="onSelectedTarget(match.template.name, capability.id)"
             style="margin-bottom: 5px"
             name="{{match.template.name}}_{{capability.id}}">

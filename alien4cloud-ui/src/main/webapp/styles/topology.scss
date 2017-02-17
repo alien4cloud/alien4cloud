@@ -105,13 +105,8 @@
   background-color: whitesmoke;
 }
 
-.topology-level {
-  // padding-left:20px;
-}
-
 .cardinalities_show {
   cursor: text;
-/*   pointer-events: none; */
   opacity: 0.65;
   filter: alpha(opacity=65);
   box-shadow: none;
@@ -147,30 +142,37 @@ h4 .editable-error {
 }
 
 #editor-head-menu {
-  .ui-select-container {
-    min-width: 140px;
-    display: inline-block;
-    vertical-align: text-top;
+  margin-top: -10px;
+  padding: 2px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: #666666;
+  color: white;
+}
 
-    span {
-      height: 22px;
-      outline: 0px none;
-      padding: 0px;
-      font-size: 12px;
-      padding-top: 1px;
+#editor-head-menu .ui-select-container {
+  min-width: 140px;
+  display: inline-block;
+  vertical-align: text-top;
 
-      i {
-        left: 92%;
-      }
+  span {
+    height: 22px;
+    outline: 0px none;
+    padding: 0px;
+    font-size: 12px;
+    padding-top: 1px;
+
+    i {
+      left: 92%;
     }
+  }
 
-    input {
-      height: 22px;
-      outline: 0px none;
-      padding: 0px;
-      font-size: 12px;
-      padding-top: 1px;
-    }
+  input {
+    height: 22px;
+    outline: 0px none;
+    padding: 0px;
+    font-size: 12px;
+    padding-top: 1px;
   }
 }
 

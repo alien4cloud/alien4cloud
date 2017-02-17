@@ -1,0 +1,10 @@
+{
+  "name": "new name",
+  "version": "1.0.0-SNAPSHOT",
+  "nodeInstance": {
+    "typeVersion": "1.0.0-SNAPSHOT",
+    "attributeValues": {
+      "state": "initial"
+    }
+  }
+}

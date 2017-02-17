@@ -22,6 +22,7 @@ import cucumber.api.java.en.When;
 public class LocationsDefinitionsSteps {
 
     public static final String DEFAULT_ORCHESTRATOR_NAME = "Mount doom orchestrator";
+    public static final String DEFAULT_LOCATION_NAME = "middle_earth";
 
     private Map<String, String> currentMetaProperties = null;
 

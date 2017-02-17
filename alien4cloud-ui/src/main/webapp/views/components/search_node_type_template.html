@@ -4,8 +4,8 @@
     ng-class="{'search-columns search-filter-side':globalContext}">
     <!-- Search result column -->
     <div style="{{searchStyle}}">
-      <div class="well">
-        <div style="margin-bottom: 10px;">
+      <div ng-class="{'well': globalContext}">
+        <div style="margin-bottom: 10px;" ng-init="collapseAdvancedSearch=true">
           <form role="search" ng-submit="doSearch()">
             <div class="input-group">
               <input id = "component_query_input" type="text" class="form-control" placeholder="..."
@@ -14,20 +14,18 @@
                   data-loading-text="Loading..." id="btn-search-component">
                   <i class="fa fa-search"></i>
                 </button>
+                <button ng-show="!globalContext"
+                  id="displayFacetManagement"
+                  class="btn btn-default"
+                  ng-class="{'active': !collapseAdvancedSearch}"
+                  ng-click="collapseAdvancedSearch = !collapseAdvancedSearch">
+                  <i class="fa fa-filter"></i>
+                </button>
               </span>
             </div>
           </form>
         </div>
-
         <!-- Displaying active filters -->
-        <a ng-show="!globalContext"
-          id="displayFacetManagement"
-          class="advancedSearchLink"
-          ng-init="collapseAdvancedSearch=true"
-          ng-click="collapseAdvancedSearch = !collapseAdvancedSearch">
-          <span ng-if="collapseAdvancedSearch">{{'COMPONENTS.SEARCH.SHOW_ADV_SEARCH' | translate}}</span>
-          <span ng-if="!collapseAdvancedSearch">{{'COMPONENTS.SEARCH.SIMPLE_SEARCH' | translate}}</span>
-        </a>
         <div uib-collapse="collapseAdvancedSearch && !globalContext">
           <facets facet-filters="facetFilters"
                   default-filters="defaultFilters"

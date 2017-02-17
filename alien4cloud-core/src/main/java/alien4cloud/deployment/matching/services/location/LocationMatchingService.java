@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.deployment.matching.plugins.ILocationMatcher;
@@ -29,18 +31,19 @@ public class LocationMatchingService {
      * Given a topology, return a list of locations on which the topo can be deployed
      *
      * @param topology The topology to match against the location matcher.
+     * @param applicationEnvironment eventually the environment related to the topology to match.
      * @return A list of candidates Location Matches.
      */
     public List<ILocationMatch> match(Topology topology, ApplicationEnvironment applicationEnvironment) {
         List<ILocationMatch> matches;
-        // If no registered matcher found later on, then match with the default matcher
+        // If no registered matcher id found later on, then match with the default matcher
         ILocationMatcher matcher = defaultLocationMatcher;
 
         // TODO Now we just take the first matcher found. To fix. Later, use the configured matcher
         Map<String, Map<String, ILocationMatcher>> instancesByPlugins = locationMatcherFactoriesRegistry.getInstancesByPlugins();
-        if (!instancesByPlugins.isEmpty()) {
+        if (MapUtils.isNotEmpty(instancesByPlugins)) {
             Map<String, ILocationMatcher> matchers = instancesByPlugins.values().iterator().next();
-            if (!matchers.isEmpty()) {
+            if (MapUtils.isNotEmpty(matchers)) {
                 matcher = matchers.values().iterator().next();
             }
         }
@@ -49,7 +52,7 @@ public class LocationMatchingService {
         // keep only the authorized ones
         authorizationFilter.filter(matches, applicationEnvironment);
 
-        return matches.isEmpty() ? null : matches;
+        return CollectionUtils.isEmpty(matches) ? null : matches;
     }
 
     /**
