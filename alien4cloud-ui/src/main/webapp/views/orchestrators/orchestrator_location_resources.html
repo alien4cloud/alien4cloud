@@ -2,7 +2,7 @@
   <div ng-if="!showCatalog" class="row" style="margin-top: 10px">
     <div class="col-md-12">
       <span>{{'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate}}: </span>
-      <select ng-model="selectedConfigurationResourceType"
+      <select ng-model="selectedConfigurationResourceType.value"
               ng-options="type.elementId for type in resourcesTypes">
       </select>
       <button ng-class="{'active': applyFilter}" ng-click="applyFilter = !applyFilter" class="btn btn-default btn-sm"><i class="fa fa-filter"></i> {{'COMMON.FILTER' | translate}}
@@ -30,7 +30,7 @@
               ng-click="selectTemplate(template)"
               class="clickable"
               ng-class="{'warning': selectedResourceTemplate == template}"
-              ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.elementId">
+              ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.value.elementId">
               <td ng-if="showMultiSelect">
                 <a ng-click="toggleTemplate(template, $event)" class="ng-scope">
                     <i class="fa fa-fw fa-square-o" ng-class="{'fa-check-square-o' : isSelected(template),  'fa-square-o': !isSelected(template)}"></i>
