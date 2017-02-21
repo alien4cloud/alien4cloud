@@ -3,7 +3,7 @@
   <div class="col-md-6">
     <div class="topology-column-content-head">
       <span class="ng-binding">
-        <i class="fa fa-list"></i> {{'SERVICES.LIST' | translate}}
+        <i class="fa fa-list"></i> {{'SERVICES.LIST' | translate}}}
       </span>
     </div>
     <div class="row-margin">
@@ -52,7 +52,7 @@
     <div id="catalog-container" ng-if="!selectedService">
       <div class="topology-column-content-head">
         <span class="ng-binding">
-          <i class="fa fa-cubes"></i> {{'SERVICES.CATALOG' | translate}}
+          <i class="fa fa-cubes"></i> {{'SERVICES.CATALOG' | translate}}}
         </span>
       </div>
       <alien-search-node-type
@@ -184,7 +184,33 @@
           <uib-tab-heading>
             <i class="fa fa-lock" aria-hidden="true"></i>&nbsp;{{'ORCHESTRATORS.LOCATIONS.SECURITY' | translate}}
           </uib-tab-heading>
-          Service security
+          <div>
+            <div class="row" id="app-user-role">
+              <div class="col-md-12">
+                <uib-tabset>
+                  <uib-tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
+                    <alien-user-authorization
+                      resource="selectedService"
+                      service="servicesSecurityService.users">
+                    </alien-user-authorization>
+                  </uib-tab>
+                  <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
+                    <alien-group-authorization
+                        resource="selectedService"
+                        service="servicesSecurityService.groups">
+                    </alien-group-authorization>
+                  </uib-tab>
+                  <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
+                    <alien-app-authorization
+                            resource="selectedService"
+                            app-service="servicesSecurityService.applications"
+                            env-service="servicesSecurityService.environmentsPerApplication">
+                    </alien-app-authorization>
+                  </uib-tab>
+                </uib-tabset>
+              </div>
+            </div>
+          </div>
         </uib-tab>
       </uib-tabset>
     </div>

@@ -23,7 +23,7 @@ define(function (require) {
       **/
 
       // do nothin if there is no resource
-      if(_.undefined($scope.resource)){
+      if (_.undefined($scope.resource)) {
         return;
       }
       var refreshAuthorizedSubjects = function (response) {
@@ -35,7 +35,7 @@ define(function (require) {
       };
       searchAuthorizedSubjects();
 
-      $scope.onModalClose = function(result){
+      $scope.onModalClose = function(result) {
           $scope.service.save({force: result.force}, _.map(result.subjects, $scope.getId), refreshAuthorizedSubjects);
       };
 
@@ -43,8 +43,8 @@ define(function (require) {
         $scope.service.delete($scope.getRevokeParams(subject), refreshAuthorizedSubjects);
       };
 
-      $scope.$watch('resource.id', function(newValue, oldValue){
-        if(newValue === oldValue){
+      $scope.$watch('resource.id', function(newValue, oldValue) {
+        if (newValue === oldValue) {
           return;
         }
         searchAuthorizedSubjects();
