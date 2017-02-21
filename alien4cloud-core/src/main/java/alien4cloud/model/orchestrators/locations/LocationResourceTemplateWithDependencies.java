@@ -9,9 +9,6 @@ import org.alien4cloud.tosca.model.CSARDependency;
 
 import java.util.Set;
 
-/**
- * TODO javadoc + Api model
- */
 @Getter
 @Setter
 @AllArgsConstructor

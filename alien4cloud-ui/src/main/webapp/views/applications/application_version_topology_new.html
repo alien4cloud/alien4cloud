@@ -12,7 +12,7 @@
     <div class="form-group" ng-class="{'has-error': newForm.version.$invalid}">
       <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.TOPOLOGY.QUALIFIER' | translate}}</label>
       <div class="col-lg-5">
-        <input type="text" class="form-control" id="versionId" ng-model="appTopoVersion.qualifier"  name="version" required="" ng-pattern="qualifierPattern" placeholder="{{'COMMON.NAME' | translate}}">
+        <input type="text" class="form-control" id="versionId" ng-model="appTopoVersion.qualifier"  name="version" required="" ng-pattern="qualifierPattern" placeholder="{{'COMMON.NAME' | translate}}" autofocus>
         <span id="span-alert-pattern" ng-show="newForm.version.$error.pattern">{{'APPLICATIONS.VERSION.MODAL.PATTERN' | translate}}</span>
       </div>
       <div class="col-lg-4 control-label" style="text-align: left">

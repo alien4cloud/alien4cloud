@@ -8,7 +8,7 @@
         <label for="nameid" class="col-lg-2 control-label" ng-class="{'has-error': newForm.name.$invalid}">{{'COMMON.NAME' | translate}}</label>
         <div class="col-lg-4" ng-class="{'has-error': newForm.name.$invalid}">
           <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}" ng-change="nameChange()"
-          ng-pattern='namePattern'>
+          ng-pattern='namePattern' autofocus>
         </div>
         <label for="archiveNameId" class="col-lg-2 control-label" ng-class="{'has-error': newForm.archiveName.$invalid}">{{'APPLICATIONS.ARCHIVE_NAME' | translate}}</label>
         <div class="col-lg-4" ng-class="{'has-error': newForm.archiveName.$invalid}">

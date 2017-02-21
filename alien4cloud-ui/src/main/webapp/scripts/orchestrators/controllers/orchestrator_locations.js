@@ -34,6 +34,7 @@ define(function(require) {
         $scope.orchestrator = orchestrator;
         $scope.menu = menu;
         var locationSupport;
+        $scope.uiModel={};
         // query to get the location support informations for the orchestrator.
 
         $http.get('rest/latest/orchestrators/' + orchestrator.id + '/locationsupport').then(function(response) {
@@ -45,12 +46,12 @@ define(function(require) {
         });
 
         // get all locations (no need for paginations as we never expect a huge number of locations for an orchestrator)
-        function updateLocations() {
+        function updateLocations(toSelectName) {
           locationService.get({orchestratorId: orchestrator.id}, function(result) {
             $scope.locationsDTOs = result.data;
             if ($scope.locationsDTOs.length > 0) {
-              // For the moment show only first location
-              $scope.selectLocation($scope.locationsDTOs[0]);
+              var toSelect = toSelectName ? _.find($scope.locationsDTOs, {'location':{'name':toSelectName}}): undefined;
+              $scope.selectLocation(toSelect|| $scope.locationsDTOs[0]);
               $state.go('admin.orchestrators.details.locations.config');
             }
           });
@@ -62,7 +63,7 @@ define(function(require) {
 
         $scope.selectLocation = function(location) {
           locationResourcesProcessor.processLocationResources(location.resources);
-          $scope.locationDTO = location;
+          $scope.uiModel.locationDTO = location;
           $scope.context.location = location.location;
           $scope.context.locationResources = location.resources;
           $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
@@ -73,15 +74,15 @@ define(function(require) {
         $scope.deleteLocation = function(location){
           locationService.delete({orchestratorId: orchestrator.id, locationId: location.location.id}, null, function(result){
             if(result.data === true){
-              delete $scope.locationDTO;
+              delete $scope.uiModel.locationDTO;
               updateLocations();
             }
           });
         };
 
         $scope.updateLocation = function(request) {
-          if (request.name !== $scope.locationDTO.location.name || request.environmentType !== $scope.locationDTO.location.environmentType ) {
-            return locationService.update({orchestratorId: orchestrator.id, locationId: $scope.locationDTO.location.id}, angular.toJson(request)).$promise.then(
+          if (request.name !== $scope.uiModel.locationDTO.location.name || request.environmentType !== $scope.uiModel.locationDTO.location.environmentType ) {
+            return locationService.update({orchestratorId: orchestrator.id, locationId: $scope.uiModel.locationDTO.location.id}, angular.toJson(request)).$promise.then(
               function() {}, // Success
               function(errorResponse) {
                 return $translate.instant('ERRORS.' + errorResponse.data.error.code);
@@ -102,7 +103,7 @@ define(function(require) {
 
           modalInstance.result.then(function(newLocation) {
             locationService.create({orchestratorId: orchestrator.id}, angular.toJson(newLocation), function() {
-              updateLocations();
+              updateLocations(newLocation.name);
             });
           });
         };
