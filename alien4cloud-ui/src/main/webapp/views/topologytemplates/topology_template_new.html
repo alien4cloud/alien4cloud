@@ -6,7 +6,7 @@
     <div class="form-group" ng-class="{'has-error': newTopologyTemplate.name.$invalid}">
       <label for="topo-template-name" class="col-lg-3 control-label">{{'COMMON.NAME' | translate}}</label>
       <div class="col-lg-9">
-        <input type="text" class="form-control" id="topo-template-name" ng-model="topologytemplate.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}">
+        <input type="text" class="form-control" id="topo-template-name" ng-model="topologytemplate.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}" autofocus>
       </div>
     </div>
     <div class="form-group" ng-class="{'has-error': newTopologyTemplate.version.$invalid}">
