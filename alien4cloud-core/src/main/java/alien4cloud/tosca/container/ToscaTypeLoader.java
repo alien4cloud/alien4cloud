@@ -92,7 +92,6 @@ public class ToscaTypeLoader {
             return;
         }
         // Dependency that already existed
-        // FIXME clean this, as we do not allow dependencies versions override anymore
         if (VersionUtil.compare(dependency.getVersion(), currentDependency.getVersion()) > 0) {
             // The new version is more recent, we will override with new version with warning
             Set<String> typesLoadedByConflictingArchive = dependenciesMap.remove(currentDependency);
