@@ -53,7 +53,7 @@
     <context:property-placeholder properties-ref="alienconfig"/>
 
     <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
-    <bean id="resourcePermissionService" class="alien4cloud.security.ResourcePermissionService"/>
+    <bean id="resourcePermissionService" class="alien4cloud.authorization.ResourcePermissionService"/>
     <mockito:mock id="group-dao" class="alien4cloud.security.groups.IAlienGroupDao"/>
     <mockito:mock id="user-dao" class="alien4cloud.security.users.IAlienUserDao"/>
 </beans>

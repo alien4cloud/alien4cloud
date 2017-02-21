@@ -21,7 +21,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.security.AbstractSecurityEnabledResource;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Permission;
-import alien4cloud.security.ResourcePermissionService;
+import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.security.Subject;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;

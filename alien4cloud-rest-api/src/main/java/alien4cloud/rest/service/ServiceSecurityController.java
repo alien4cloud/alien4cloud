@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +24,7 @@ import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationDT
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
 import alien4cloud.rest.orchestrator.model.GroupDTO;
 import alien4cloud.rest.orchestrator.model.UserDTO;
-import alien4cloud.security.ResourcePermissionService;
+import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.security.Subject;
 import alien4cloud.service.ServiceResourceService;
 import io.swagger.annotations.Api;
@@ -43,7 +42,7 @@ public class ServiceSecurityController {
     private ResourcePermissionService resourcePermissionService;
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
-    
+
 
     /*******************************************************************************************************************************
      *
@@ -194,30 +193,8 @@ public class ServiceSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String serviceId, @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         ServiceResource service = serviceResourceService.getOrFail(serviceId);
-        if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
-            resourcePermissionService.revokePermission(service, Subject.APPLICATION, request.getApplicationsToDelete());
-        }
-        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToDelete())) {
-            resourcePermissionService.revokePermission(service, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
-        }
-        List<String> envIds = Lists.newArrayList();
-        if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
-            resourcePermissionService.grantPermission(service, Subject.APPLICATION, request.getApplicationsToAdd());
-            // when an app is added, all eventual existing env authorizations are removed
-            for (String applicationToAddId : request.getApplicationsToAdd()) {
-                ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationToAddId);
-                for (ApplicationEnvironment ae : aes) {
-                    envIds.add(ae.getId());
-                }
-            }
-            if (!envIds.isEmpty()) {
-                resourcePermissionService.revokePermission(service, Subject.ENVIRONMENT, envIds.toArray(new String[envIds.size()]));
-            }
-        }
-        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
-            List<String> envToAddSet = Arrays.stream(request.getEnvironmentsToAdd()).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
-            resourcePermissionService.grantPermission(service, Subject.ENVIRONMENT, envToAddSet.toArray(new String[envToAddSet.size()]));
-        }
+        resourcePermissionService.revokeAuthorizedEnvironmentsPerApplication(service, request.getApplicationsToDelete(), request.getEnvironmentsToDelete());
+        resourcePermissionService.grantAuthorizedEnvironmentsPerApplication(service, request.getApplicationsToAdd(), request.getEnvironmentsToAdd());
         return RestResponseBuilder.<Void> builder().build();
     }
 

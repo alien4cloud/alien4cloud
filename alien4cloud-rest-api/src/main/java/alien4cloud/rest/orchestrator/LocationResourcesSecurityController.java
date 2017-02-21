@@ -37,7 +37,7 @@ import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationDT
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
 import alien4cloud.rest.orchestrator.model.GroupDTO;
 import alien4cloud.rest.orchestrator.model.UserDTO;
-import alien4cloud.security.ResourcePermissionService;
+import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.security.Subject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

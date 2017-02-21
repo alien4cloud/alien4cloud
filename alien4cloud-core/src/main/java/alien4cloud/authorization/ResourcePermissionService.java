@@ -1,17 +1,25 @@
-package alien4cloud.security;
+package alien4cloud.authorization;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.security.AbstractSecurityEnabledResource;
+import alien4cloud.security.ISecurityEnabledResource;
+import alien4cloud.security.Permission;
+import alien4cloud.security.Subject;
 import org.alien4cloud.alm.events.AfterPermissionRevokedEvent;
 import org.alien4cloud.alm.events.BeforePermissionRevokedEvent;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -30,16 +38,19 @@ import alien4cloud.security.users.IAlienUserDao;
 @Service
 public class ResourcePermissionService {
     @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    IGenericSearchDAO alienDAO;
 
     @Resource
-    private IAlienUserDao alienUserDao;
+    IAlienUserDao alienUserDao;
 
     @Resource
-    private IAlienGroupDao alienGroupDao;
+    IAlienGroupDao alienGroupDao;
 
-    @Inject
-    private ApplicationEventPublisher publisher;
+    @Resource
+    ApplicationEnvironmentService applicationEnvironmentService;
+
+    @Resource
+    ApplicationEventPublisher publisher;
 
     /**
      * Add admin permission to the given resource for the given subject.
@@ -67,7 +78,7 @@ public class ResourcePermissionService {
 
     /**
      * Revoke admin permission from the given resource from the given subjects.
-     * 
+     *
      * @param resource the resource to revoke
      * @param subjectType the type of the subject
      * @param subjects the subjects from which the permissions are revoked
@@ -171,4 +182,52 @@ public class ResourcePermissionService {
         void save(ISecurityEnabledResource resource);
     }
 
+    public void revokeAuthorizedEnvironmentsPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToDelete,
+            String[] environmentsToDelete) {
+        boolean isModified = false;
+        IResourceSaver noSave = null;
+
+        if (ArrayUtils.isNotEmpty(applicationsToDelete)) {
+            isModified = true;
+            revokePermission(resource, noSave, Subject.APPLICATION, applicationsToDelete);
+        }
+        if (ArrayUtils.isNotEmpty(environmentsToDelete)) {
+            isModified = true;
+            revokePermission(resource, noSave, Subject.ENVIRONMENT, environmentsToDelete);
+        }
+
+        if (isModified) {
+            alienDAO.save(resource);
+        }
+    }
+
+    public void grantAuthorizedEnvironmentsPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToAdd, String[] environmentsToAdd) {
+        List<String> envIds = Lists.newArrayList();
+        boolean isModified = false;
+        IResourceSaver noSave = null;
+
+        if (ArrayUtils.isNotEmpty(applicationsToAdd)) {
+            isModified = true;
+            grantPermission(resource, noSave, Subject.APPLICATION, applicationsToAdd);
+            // when an app is added, all eventual existing env authorizations are removed
+            for (String applicationToAddId : applicationsToAdd) {
+                ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationToAddId);
+                for (ApplicationEnvironment ae : aes) {
+                    envIds.add(ae.getId());
+                }
+            }
+            if (!envIds.isEmpty()) {
+                revokePermission(resource, noSave, Subject.ENVIRONMENT, envIds.toArray(new String[envIds.size()]));
+            }
+        }
+        if (ArrayUtils.isNotEmpty(environmentsToAdd)) {
+            List<String> envToAddSet = Arrays.stream(environmentsToAdd).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
+            isModified = true;
+            grantPermission(resource, noSave, Subject.ENVIRONMENT, envToAddSet.toArray(new String[envToAddSet.size()]));
+        }
+
+        if (isModified) {
+            alienDAO.save(resource);
+        }
+    }
 }

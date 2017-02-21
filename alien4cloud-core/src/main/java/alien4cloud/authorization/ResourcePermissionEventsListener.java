@@ -1,4 +1,4 @@
-package alien4cloud.security;
+package alien4cloud.authorization;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import alien4cloud.security.AbstractSecurityEnabledResource;
+import alien4cloud.security.Subject;
 import org.alien4cloud.alm.events.AfterPermissionRevokedEvent;
 import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;

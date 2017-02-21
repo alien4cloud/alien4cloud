@@ -83,6 +83,7 @@
     <mockito.version>1.9.0</mockito.version>
     <springockito.version>1.0.4</springockito.version>
     <cucumber.version>1.2.2</cucumber.version>
+    <assertj-core.version>3.6.2</assertj-core.version>
 
     <!-- Build tools -->
     <java.version>1.8</java.version>
@@ -480,6 +481,12 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
         <version>${spring.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj-core.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
