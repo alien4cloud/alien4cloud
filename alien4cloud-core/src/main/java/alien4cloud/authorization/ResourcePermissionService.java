@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -21,6 +22,8 @@ import org.alien4cloud.alm.events.BeforePermissionRevokedEvent;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -37,20 +40,25 @@ import alien4cloud.security.users.IAlienUserDao;
  */
 @Service
 public class ResourcePermissionService {
-    @Resource(name = "alien-es-dao")
-    IGenericSearchDAO alienDAO;
+    private IGenericSearchDAO alienDAO;
 
-    @Resource
-    IAlienUserDao alienUserDao;
+    private IAlienUserDao alienUserDao;
 
-    @Resource
-    IAlienGroupDao alienGroupDao;
+    private IAlienGroupDao alienGroupDao;
 
-    @Resource
-    ApplicationEnvironmentService applicationEnvironmentService;
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
-    @Resource
-    ApplicationEventPublisher publisher;
+    private ApplicationEventPublisher publisher;
+
+    @Autowired
+    public ResourcePermissionService(@Qualifier("alien-es-dao") IGenericSearchDAO alienDAO, IAlienUserDao alienUserDao, IAlienGroupDao alienGroupDao,
+                                     ApplicationEnvironmentService applicationEnvironmentService, ApplicationEventPublisher publisher) {
+        this.alienDAO = alienDAO;
+        this.alienUserDao = alienUserDao;
+        this.alienGroupDao = alienGroupDao;
+        this.applicationEnvironmentService = applicationEnvironmentService;
+        this.publisher = publisher;
+    }
 
     /**
      * Add admin permission to the given resource for the given subject.
@@ -183,7 +191,7 @@ public class ResourcePermissionService {
     }
 
     public void revokeAuthorizedEnvironmentsPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToDelete,
-                                                           String[] environmentsToDelete) {
+            String[] environmentsToDelete) {
         IResourceSaver noSave = null;
 
         if (ArrayUtils.isNotEmpty(applicationsToDelete)) {

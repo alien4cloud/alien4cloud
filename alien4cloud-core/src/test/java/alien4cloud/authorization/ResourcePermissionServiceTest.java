@@ -47,10 +47,7 @@ public class ResourcePermissionServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        service = new ResourcePermissionService();
-        service.alienDAO = alienDAO;
-        service.publisher = publisher;
-        service.applicationEnvironmentService = applicationEnvironmentService;
+        service = new ResourcePermissionService(alienDAO, null, null, applicationEnvironmentService, publisher);
     }
 
     @Test
@@ -81,10 +78,11 @@ public class ResourcePermissionServiceTest {
         ApplicationEnvironment ae2 = new ApplicationEnvironment();
         ae2.setId("subject1_2");
 
-        Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[]{ae1, ae2});
+        Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[] { ae1, ae2 });
 
         // When
-        service.revokeAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[]{"subject1"}, new String[]{"subject1_1", "subject1_2"});
+        service.revokeAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
+                "subject1_1", "subject1_2" });
 
         // Then
         verify(alienDAO).save(resourceSecuredCaptor.capture());
@@ -140,10 +138,11 @@ public class ResourcePermissionServiceTest {
         ApplicationEnvironment ae2 = new ApplicationEnvironment();
         ae2.setId("subject1_2");
 
-        Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[]{ae1, ae2});
+        Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[] { ae1, ae2 });
 
         // When
-        service.grantAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[]{"subject1"}, new String[]{"subject1_1", "subject1_2"});
+        service.grantAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
+                "subject1_1", "subject1_2" });
 
         // Then
         verify(alienDAO).save(resourceSecuredCaptor.capture());
@@ -175,10 +174,11 @@ public class ResourcePermissionServiceTest {
         ApplicationEnvironment ae2 = new ApplicationEnvironment();
         ae2.setId("subject2_1");
 
-        Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[]{ae1});
+        Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[] { ae1 });
 
         // When
-        service.grantAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[]{"subject1"}, new String[]{"subject1_1", "subject2_1"});
+        service.grantAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
+                "subject1_1", "subject2_1" });
 
         // Then
         verify(alienDAO).save(resourceSecuredCaptor.capture());
