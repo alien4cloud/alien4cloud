@@ -110,11 +110,11 @@ public class ResourcePermissionService {
 
     /**
      * Check if the given subject has admin privilege on the given resource.
-     * 
+     *
      * @param resource the resource
      * @param subjectType subject's type
      * @param subject the subject's id
-     * 
+     *
      * @return true if the subject has admin privilege, false otherwise
      */
     private boolean hasPermission(ISecurityEnabledResource resource, Subject subjectType, String subject) {
@@ -123,7 +123,7 @@ public class ResourcePermissionService {
 
     /**
      * Checks if any of the given subjects has admin privilege on the given resource.
-     * 
+     *
      * @param resource the resource
      * @param subjects the subjects' ids
      * @return true if any of the subjects has admin privilege, false otherwise
@@ -183,31 +183,24 @@ public class ResourcePermissionService {
     }
 
     public void revokeAuthorizedEnvironmentsPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToDelete,
-            String[] environmentsToDelete) {
-        boolean isModified = false;
+                                                           String[] environmentsToDelete) {
         IResourceSaver noSave = null;
 
         if (ArrayUtils.isNotEmpty(applicationsToDelete)) {
-            isModified = true;
             revokePermission(resource, noSave, Subject.APPLICATION, applicationsToDelete);
         }
         if (ArrayUtils.isNotEmpty(environmentsToDelete)) {
-            isModified = true;
             revokePermission(resource, noSave, Subject.ENVIRONMENT, environmentsToDelete);
         }
 
-        if (isModified) {
-            alienDAO.save(resource);
-        }
+        alienDAO.save(resource);
     }
 
     public void grantAuthorizedEnvironmentsPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToAdd, String[] environmentsToAdd) {
         List<String> envIds = Lists.newArrayList();
-        boolean isModified = false;
         IResourceSaver noSave = null;
 
         if (ArrayUtils.isNotEmpty(applicationsToAdd)) {
-            isModified = true;
             grantPermission(resource, noSave, Subject.APPLICATION, applicationsToAdd);
             // when an app is added, all eventual existing env authorizations are removed
             for (String applicationToAddId : applicationsToAdd) {
@@ -222,12 +215,9 @@ public class ResourcePermissionService {
         }
         if (ArrayUtils.isNotEmpty(environmentsToAdd)) {
             List<String> envToAddSet = Arrays.stream(environmentsToAdd).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
-            isModified = true;
             grantPermission(resource, noSave, Subject.ENVIRONMENT, envToAddSet.toArray(new String[envToAddSet.size()]));
         }
 
-        if (isModified) {
-            alienDAO.save(resource);
-        }
+        alienDAO.save(resource);
     }
 }
