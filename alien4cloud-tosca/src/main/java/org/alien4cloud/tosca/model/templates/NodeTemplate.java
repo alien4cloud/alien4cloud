@@ -3,6 +3,7 @@ package org.alien4cloud.tosca.model.templates;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.ToString;
 import org.elasticsearch.annotation.MapKeyValue;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -31,6 +32,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class NodeTemplate extends AbstractTemplate {
     /**
      * The requirement that this node template defines
