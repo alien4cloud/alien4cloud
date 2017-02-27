@@ -321,11 +321,11 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         finalResponse.setTypes(resultTypes);
     }
 
-    private <T> T hitToObject(SearchHit hit) throws IOException {
+    public <T> T hitToObject(SearchHit hit) throws IOException {
         return hitToObject((Class<? extends T>) getClassFromType(hit.getType()), hit);
     }
 
-    private <T> T hitToObject(Class<T> clazz, SearchHit hit) throws IOException {
+    public <T> T hitToObject(Class<T> clazz, SearchHit hit) throws IOException {
         T obj = (T) getJsonMapper().readValue(hit.getSourceAsString(), clazz);
         Field generatedId = getClassTogeneratedIdFields().get(clazz);
         if (generatedId != null) {

@@ -1,5 +1,25 @@
 package alien4cloud.deployment;
 
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
+
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
@@ -7,22 +27,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Manage deployment operations on a cloud.
@@ -40,6 +45,15 @@ public class DeploymentService {
     private DeploymentContextService deploymentContextService;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
+
+    /**
+     * Get an array of all active deployments.
+     * 
+     * @return Array of all active deployments.
+     */
+    public Deployment[] getActiveDeployments() {
+        return alienDao.buildQuery(Deployment.class).prepareSearch().setFilters(fromKeyValueCouples("endDate", null)).search(0, Integer.MAX_VALUE).getData();
+    }
 
     /**
      * Get all deployments for a given orchestrator an application
