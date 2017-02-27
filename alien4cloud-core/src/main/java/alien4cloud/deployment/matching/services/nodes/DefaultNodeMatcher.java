@@ -68,8 +68,9 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
         for (LocationResourceTemplate candidate : candidates) {
             String candidateTypeName = candidate.getTemplate().getType();
             NodeType candidateType = locationResources.getNodeTypes().get(candidateTypeName);
+
             // For the moment only match by node type
-            if (isValidCandidate(nodeTemplate, candidate, candidateType, locationResources.getCapabilityTypes(), matchingConfigurations)) {
+            if (isValidCandidate(nodeTemplate, nodeType, candidate, candidateType, locationResources.getCapabilityTypes(), matchingConfigurations)) {
                 matchingResults.add(candidate);
             }
         }
@@ -82,17 +83,23 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
      * Checks if the type of a LocationResourceTemplate is matching the expected type.
      *
      * @param nodeTemplate The node template to match.
+     * @param nodeType the node type of the node template to match
      * @param candidateType The type of the candidate node.
      * @param candidate The candidate location resource.
      * @param capabilityTypes Map of capability types that may be used by the candidateType.
      * @return True if the candidate is a valid match for the node template.
      */
-    private boolean isValidCandidate(NodeTemplate nodeTemplate, LocationResourceTemplate candidate, NodeType candidateType,
+    private boolean isValidCandidate(NodeTemplate nodeTemplate, NodeType nodeType, LocationResourceTemplate candidate, NodeType candidateType,
                                      Map<String, CapabilityType> capabilityTypes, Map<String, MatchingConfiguration> matchingConfigurations) {
         // Check that the candidate node type is valid
         if (!isCandidateTypeValid(nodeTemplate, candidateType)) {
             return false;
         }
+
+		// Only abstract node type can be match against a service
+		if (!nodeType.isAbstract() && candidate.isService()) {
+			return false;
+		}
 
         // The matchingConfigurations can be null when the associate orchestrator is disabled
         if (matchingConfigurations == null)  {
@@ -142,7 +149,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
     /**
      * Add filters ent/ICSARRepositorySearchService.java from the matching configuration to the node filter that will be applied for matching only if a value is specified on the configuration
      * template.
-     * 
+     *
      * @param nodeTemplateValues The properties values from the node template to match.
      * @param sourceFilters The filtering map (based on constraints) from matching configuration.
      * @param propertyValues The values defined on the Location Template.
@@ -177,7 +184,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
 
     /**
      * Checks if the type of a LocationResourceTemplate is matching the expected type.
-     * 
+     *
      * @param nodeTemplate The node template to match.
      * @param candidateType The type of the candidate node.
      * @return True if the candidate type matches the node template type, false if not.
