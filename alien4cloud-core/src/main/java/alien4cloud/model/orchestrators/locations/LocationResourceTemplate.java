@@ -29,7 +29,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @ESObject
-@ToString
 public class LocationResourceTemplate  extends AbstractSecurityEnabledResource {
     @Id
     private String id;

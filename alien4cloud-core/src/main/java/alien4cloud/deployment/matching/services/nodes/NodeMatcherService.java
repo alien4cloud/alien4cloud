@@ -77,8 +77,8 @@ public class NodeMatcherService {
         // Authorization filtering of services resources
         filterOnAuthorization(locationResources, environmentId);
 
-        // TODO Services resources not yet have authorizations
-        ServiceResource[] services = serviceResourceService.searchByLocation(locationId);
+        List<ServiceResource> services = serviceResourceService.searchByLocation(locationId);
+        filterOnAuthorization(services, locationId);
         populateLocationResourcesWithServiceResource(locationResources, services, locationId);
 
         Map<String, MatchingConfiguration> matchingConfigurations = locationMatchingConfigurationService.getMatchingConfiguration(location);
@@ -107,13 +107,18 @@ public class NodeMatcherService {
                 .removeIf(locationResourceTemplate -> !locationSecurityService.isAuthorised(locationResourceTemplate, environmentId));
     }
 
+    private void filterOnAuthorization(List<ServiceResource> serviceResource, String environmentId) {
+        serviceResource
+                .removeIf(locationResourceTemplate -> !locationSecurityService.isAuthorised(locationResourceTemplate, environmentId));
+    }
+
     /**
      * Populate this {@link LocationResources} using these {@link ServiceResource}s in order to make them available as {@link LocationResourceTemplate} for
      * matching purpose.
      *
-     * TODO: Imrpove this ugly code to put ServiceResource in LocationResourceTemplates.
+     * TODO: Improve this ugly code to put ServiceResource in LocationResourceTemplates.
      */
-    private void populateLocationResourcesWithServiceResource(LocationResources locationResources, ServiceResource[] services, String locationId) {
+    private void populateLocationResourcesWithServiceResource(LocationResources locationResources, List<ServiceResource> services, String locationId) {
         for (ServiceResource serviceResource : services) {
             LocationResourceTemplate lrt = new LocationResourceTemplate();
             lrt.setService(true);

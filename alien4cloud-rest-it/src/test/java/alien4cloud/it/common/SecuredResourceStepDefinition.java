@@ -51,6 +51,11 @@ public class SecuredResourceStepDefinition {
             url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
                     + locationId + "/resources/" + locationResourceId + "/security";
             break;
+        case "SERVICE" :
+            String serviceId = Context.getInstance().getServiceId(resourceName);
+            url = "/rest/v1/services/" + serviceId + "/security";
+            break;
+
         default:
             Assert.fail("Dot not support resource type " + resourceType);
         }

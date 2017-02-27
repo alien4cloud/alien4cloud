@@ -27,8 +27,10 @@ public class ServiceStepDefinitions {
         CreateServiceResourceRequest request = new CreateServiceResourceRequest(nullable(serviceName), nullable(serviceVersion), nullable(type),
                 nullable(archiveVersion));
         Context.getInstance().registerRestResponse(getRestClientInstance().postJSon("/rest/v1/services/", JsonUtil.toString(request)));
+
         try {
             LAST_CREATED_ID = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
+            Context.getInstance().registerService(LAST_CREATED_ID, serviceName);
         } catch (Throwable t) {
         }
     }

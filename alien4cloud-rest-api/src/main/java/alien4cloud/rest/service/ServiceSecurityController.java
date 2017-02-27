@@ -214,7 +214,7 @@ public class ServiceSecurityController {
 
         if (service.getEnvironmentPermissions() != null && service.getEnvironmentPermissions().size() > 0) {
             environments = alienDAO.findByIds(ApplicationEnvironment.class, service.getEnvironmentPermissions().keySet().toArray(new String[service.getEnvironmentPermissions().size()]));
-            Set<String> environmentApplicationIds = environments.stream().map(ae -> new String(ae.getApplicationId())).collect(Collectors.toSet());
+            Set<String> environmentApplicationIds = environments.stream().map(ae -> ae.getApplicationId()).collect(Collectors.toSet());
             applicationsRelatedToEnvironment = alienDAO.findByIds(Application.class, environmentApplicationIds.toArray(new String[environmentApplicationIds.size()]));
         }
         if (service.getApplicationPermissions() != null && service.getApplicationPermissions().size() > 0) {

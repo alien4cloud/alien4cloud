@@ -44,29 +44,10 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
                                                     Map<String, MatchingConfiguration> matchingConfigurations) {
         List<LocationResourceTemplate> matchingResults = Lists.newArrayList();
 
-        List<LocationResourceTemplate> matchedServices = matchServices(nodeTemplate, nodeType, locationResources);
-        matchingResults.addAll(matchedServices);
-
-        List<LocationResourceTemplate> matchedOnDemands = matchedOnDemands(nodeTemplate, nodeType, locationResources, matchingConfigurations);
-        matchingResults.addAll(matchedOnDemands);
+        List<LocationResourceTemplate> matched = matchedOnDemandsAndServices(nodeTemplate, nodeType, locationResources, matchingConfigurations);
+        matchingResults.addAll(matched);
 
         return matchingResults;
-    }
-
-    /**
-     * Match a node against the services provided by a location.
-     * 
-     * @param nodeTemplate The node template to match.
-     * @param nodeType The node type that defines the type of the node template to match.
-     * @param locationResources The resources configured for the location against which we are matching the nodes.
-     */
-    private List<LocationResourceTemplate> matchServices(NodeTemplate nodeTemplate, NodeType nodeType, LocationResources locationResources) {
-        // TODO perform service matching
-
-        // check if the node template candidate has any specified operation or relation operations if so reject service matching for this node as it is not
-        // possible to execute operations on services
-
-        return Lists.newArrayList();
     }
 
     /**
@@ -76,8 +57,8 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
      * @param nodeType The node type that defines the type of the node template to match.
      * @param locationResources The resources configured for the location against which we are matching the nodes.
      */
-    private List<LocationResourceTemplate> matchedOnDemands(NodeTemplate nodeTemplate, NodeType nodeType, LocationResources locationResources,
-                                                            Map<String, MatchingConfiguration> matchingConfigurations) {
+    private List<LocationResourceTemplate> matchedOnDemandsAndServices(NodeTemplate nodeTemplate, NodeType nodeType, LocationResources locationResources,
+                                                                       Map<String, MatchingConfiguration> matchingConfigurations) {
         /*
          * TODO Refine node matching by considering specific matching rules for the node. If no constraint is specified in a matching configuration then equals
          * constraint is applied.

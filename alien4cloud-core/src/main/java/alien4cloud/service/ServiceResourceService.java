@@ -3,16 +3,12 @@ package alien4cloud.service;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
@@ -340,11 +336,11 @@ public class ServiceResourceService {
      * @param locationId
      * @return
      */
-    public ServiceResource[] searchByLocation(String locationId) {
+    public List<ServiceResource> searchByLocation(String locationId) {
         Map<String, String[]> filter = Maps.newHashMap();
         filter.put("locationIds", new String[] { locationId });
         GetMultipleDataResult<ServiceResource> result = this.search("", filter, null, false, 0, Integer.MAX_VALUE);
-        return result.getData();
+        return Lists.newArrayList(result.getData());
     }
 
     /**

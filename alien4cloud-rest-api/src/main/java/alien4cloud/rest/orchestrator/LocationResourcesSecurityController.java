@@ -301,7 +301,7 @@ public class LocationResourcesSecurityController {
 
         if (MapUtils.isNotEmpty(resourceTemplate.getEnvironmentPermissions())) {
             environments = alienDAO.findByIds(ApplicationEnvironment.class, resourceTemplate.getEnvironmentPermissions().keySet().toArray(new String[resourceTemplate.getEnvironmentPermissions().size()]));
-            Set<String> environmentApplicationIds = environments.stream().map(ae -> new String(ae.getApplicationId())).collect(Collectors.toSet());
+            Set<String> environmentApplicationIds = environments.stream().map(ApplicationEnvironment::getApplicationId).collect(Collectors.toSet());
             applicationsRelatedToEnvironment = alienDAO.findByIds(Application.class, environmentApplicationIds.toArray(new String[environmentApplicationIds.size()]));
         }
         if (resourceTemplate.getApplicationPermissions() != null && resourceTemplate.getApplicationPermissions().size() > 0) {

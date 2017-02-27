@@ -32,7 +32,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class NodeTemplate extends AbstractTemplate {
     /**
      * The requirement that this node template defines
