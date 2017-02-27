@@ -4,14 +4,16 @@ define(function (require) {
 
   var modules = require('modules');
   var _ = require('lodash');
+  // require('ace');
+  // var range = require('ace/range');
   require('angular-ui-ace');
 
   require('angular-tree-control');
   require('scripts/common/services/explorer_service');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('TopologyBrowserCtrl',
-    ['$scope', '$http', 'explorerService', '$stateParams', 'topoEditDisplay', 'uploadServiceFactory',
-    function($scope, $http, explorerService, $stateParams, topoEditDisplay, uploadServiceFactory) {
+    ['$scope', '$http', 'explorerService', '$stateParams', 'topoEditDisplay', 'uploadServiceFactory', '$translate',
+    function($scope, $http, explorerService, $stateParams, topoEditDisplay, uploadServiceFactory, $translate) {
     var openOnFile = $stateParams.file;
 
     $scope.displays = {
@@ -74,7 +76,6 @@ define(function (require) {
             transformResponse: function(d) { return d; },
             url: selectedUrl})
             .then(function(result) {
-              console.log(result);
               $scope.aceFilePath = dirName;
               aceEditor.getSession().setValue(result.data);
               $scope.mode = explorerService.getMode(node);
@@ -89,6 +90,25 @@ define(function (require) {
         $scope.showSelected(selected);
         explorerService.expand($scope.expandedNodes, $scope.selected.fullPath, root, false);
       }
+    }
+
+    function getAnnotations(errorsMap){
+      var parsingErrors = _.first(_.values(errorsMap));
+      if(_.undefined(parsingErrors)){
+        return;
+      }
+
+      var annotations = [];
+      _.each(parsingErrors, function(parsingError){
+        annotations.push({
+          row: _.get(parsingError, 'startMark.line', 1) - 1, // when no line defined, display on the first line
+          column: _.get(parsingError, 'startMark.column', 1) - 1, // when no column defined, display on the firs column
+          html: $translate.instant('COMPONENTS.UPLOAD_ERROR.'+parsingError.errorCode, parsingError),
+          type: parsingError.errorLevel.toLowerCase()
+        });
+      });
+
+      return annotations;
     }
     // Load archive content file
     $scope.$on('topologyRefreshedEvent', function() {
@@ -164,7 +184,13 @@ define(function (require) {
         content: aceEditor.getSession().getDocument().getValue()
       }, function (response) {
         if(_.defined(response.error)){
+          //get and set errors annotations
+          var annotations = getAnnotations(response.data.errors);
+          aceEditor.getSession().setAnnotations(annotations);
+          //also display a modal with erros.
           $scope.showParsingErrors(response);
+        }else{
+          aceEditor.getSession().clearAnnotations();
         }
       });
     };

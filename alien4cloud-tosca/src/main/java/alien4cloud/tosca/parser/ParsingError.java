@@ -62,6 +62,7 @@ public class ParsingError {
     }
 
     public ParsingError(ErrorCode errorCode, MarkedYAMLException cause) {
-        this(ParsingErrorLevel.ERROR, errorCode, cause.getContext(), cause.getProblemMark(), cause.getProblem(), cause.getContextMark(), null);
+        this(ParsingErrorLevel.ERROR, errorCode, cause.getContext(), cause.getContextMark() != null ? cause.getContextMark() : cause.getProblemMark(),
+                cause.getProblem(), cause.getProblemMark(), null);
     }
 }

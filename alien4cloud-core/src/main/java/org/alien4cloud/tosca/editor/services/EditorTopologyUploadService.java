@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.catalog.ArchiveParserUtil;
 import org.alien4cloud.tosca.catalog.IArchivePostProcessor;
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.exception.EditorToscaYamlInvalidException;
 import org.alien4cloud.tosca.editor.exception.EditorToscaYamlNotSupportedException;
 import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
 import org.alien4cloud.tosca.model.Csar;
@@ -44,7 +43,7 @@ public class EditorTopologyUploadService {
             processTopologyParseResult(archivePath, parsingResult, workspace);
         } catch (ParsingException e) {
             // Manage parsing error and dispatch them in the right editor exception
-            throw new EditorToscaYamlInvalidException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.");
+            throw new EditorToscaYamlParsingException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.", toParsingResult(e));
         }
     }
 
