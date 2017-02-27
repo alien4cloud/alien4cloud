@@ -5,7 +5,7 @@
         <i class="fa fa-file"></i> <b>{{'COMPONENTS.UPLOAD_ERROR.FILE_PATH' | translate}}</b> : {{filePath}}
       </div>
       <div class="panel-body table-responsive">
-        <table class="table table-condensed">
+        <table class="table table-condensed parsing-error-table">
           <tr ng-repeat="csarError in csrarErrors"
               ng-class="{'warning': csarError.errorLevel==='WARNING', 'info': csarError.errorLevel==='INFO', 'danger': csarError.errorLevel==='ERROR'}">
             <td><i class="fa"

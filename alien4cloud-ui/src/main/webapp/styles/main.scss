@@ -481,3 +481,9 @@ img.icon_32 {
 .content-body {
   padding-left: 0.5em;
 }
+
+
+/*parsing errors*/
+.parsing-error-table tr td:last-child {
+  white-space: pre-wrap;
+}
