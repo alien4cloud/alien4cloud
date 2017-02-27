@@ -1,9 +1,12 @@
 package org.alien4cloud.tosca.catalog;
 
+import java.util.List;
+
 import org.alien4cloud.tosca.model.Csar;
 
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingResult;
 
 public class ArchiveParserUtil {
@@ -25,5 +28,11 @@ public class ArchiveParserUtil {
         ParsingContext context = new ParsingContext(result.getContext().getFileName());
         context.getParsingErrors().addAll(result.getContext().getParsingErrors());
         return new ParsingResult<T>(null, context);
+    }
+
+    public static ParsingContext toParsingContext(String filename, List<ParsingError> parsingErrors) {
+        ParsingContext context = new ParsingContext(filename);
+        context.setParsingErrors(parsingErrors);
+        return context;
     }
 }
