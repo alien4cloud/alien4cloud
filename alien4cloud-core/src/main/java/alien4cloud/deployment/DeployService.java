@@ -88,10 +88,11 @@ public class DeployService {
      * @return The id of the generated deployment.
      */
     public String deploy(final DeploymentTopology deploymentTopology, IDeploymentSource deploymentSource) {
-        return deploymentLockService.doWithDeploymentWriteLock(() -> {
-            Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
-            Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-            final Location firstLocation = locations.values().iterator().next();
+        Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
+        Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
+        final Location firstLocation = locations.values().iterator().next();
+        String deploymentPaaSId = generateOrchestratorDeploymentId(deploymentTopology.getEnvironmentId(), firstLocation.getOrchestratorId());
+        return deploymentLockService.doWithDeploymentWriteLock(deploymentPaaSId, () -> {
             // FIXME check that all nodes to match are matched
             // FIXME check that all required properties are defined
             // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
@@ -106,7 +107,7 @@ public class DeployService {
             deployment.setId(UUID.randomUUID().toString());
             deployment.setOrchestratorId(firstLocation.getOrchestratorId());
             deployment.setLocationIds(locationIds.values().toArray(new String[locationIds.size()]));
-            deployment.setOrchestratorDeploymentId(generateOrchestratorDeploymentId(deploymentTopology.getEnvironmentId(), firstLocation.getOrchestratorId()));
+            deployment.setOrchestratorDeploymentId(deploymentPaaSId);
             deployment.setSourceId(deploymentSource.getId());
             String sourceName;
             if (deploymentSource.getName() == null) {

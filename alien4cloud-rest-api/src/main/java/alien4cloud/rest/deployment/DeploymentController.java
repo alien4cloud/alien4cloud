@@ -197,7 +197,7 @@ public class DeploymentController {
         Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
         if (deployment != null) {
             try {
-                return deploymentLockService.doWithDeploymentReadLock(() -> {
+                return deploymentLockService.doWithDeploymentReadLock(deployment.getOrchestratorDeploymentId(), () -> {
                     final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
                     deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
                         @Override

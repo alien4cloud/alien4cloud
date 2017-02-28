@@ -93,7 +93,7 @@ public class DeploymentRuntimeStateService {
      * @throws alien4cloud.paas.exception.OrchestratorDisabledException In case the cloud selected for the topology is disabled.
      */
     public void getDeploymentStatus(final Deployment deployment, final IPaaSCallback<DeploymentStatus> callback) throws OrchestratorDisabledException {
-        deploymentLockService.doWithDeploymentReadLock(() -> {
+        deploymentLockService.doWithDeploymentReadLock(deployment.getOrchestratorDeploymentId(), () -> {
             if (deployment == null) {
                 callback.onSuccess(DeploymentStatus.UNDEPLOYED);
                 return null;

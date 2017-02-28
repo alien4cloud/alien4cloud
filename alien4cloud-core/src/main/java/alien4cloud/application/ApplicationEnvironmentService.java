@@ -246,11 +246,11 @@ public class ApplicationEnvironmentService {
      * @throws alien4cloud.paas.exception.OrchestratorDisabledException
      */
     public DeploymentStatus getStatus(ApplicationEnvironment environment) throws Exception {
-        return deploymentLockService.doWithDeploymentReadLock(() -> {
-            final Deployment deployment = getActiveDeployment(environment.getId());
-            if (deployment == null) {
-                return DeploymentStatus.UNDEPLOYED;
-            }
+        final Deployment deployment = getActiveDeployment(environment.getId());
+        if (deployment == null) {
+            return DeploymentStatus.UNDEPLOYED;
+        }
+        return deploymentLockService.doWithDeploymentReadLock(deployment.getOrchestratorDeploymentId(), () -> {
             final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
             // update the deployment status from PaaS if it cannot be found.
             deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
