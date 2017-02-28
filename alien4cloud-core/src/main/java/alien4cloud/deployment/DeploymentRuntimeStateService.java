@@ -18,7 +18,15 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
 
 /**
@@ -40,6 +48,8 @@ public class DeploymentRuntimeStateService {
     private DeploymentContextService deploymentContextService;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
+    @Inject
+    private DeploymentLockService deploymentLockService;
 
     /**
      * Get the deployed (runtime) topology of an application from the environment id
@@ -83,28 +93,28 @@ public class DeploymentRuntimeStateService {
      * @throws alien4cloud.paas.exception.OrchestratorDisabledException In case the cloud selected for the topology is disabled.
      */
     public void getDeploymentStatus(final Deployment deployment, final IPaaSCallback<DeploymentStatus> callback) throws OrchestratorDisabledException {
-        if (deployment == null) {
-            callback.onSuccess(DeploymentStatus.UNDEPLOYED);
-            return;
-        }
-        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
+        deploymentLockService.doWithDeploymentReadLock(() -> {
+            if (deployment == null) {
+                callback.onSuccess(DeploymentStatus.UNDEPLOYED);
+                return null;
+            }
+            IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
 
-        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, getRuntimeTopology(deployment.getId()));
-        IPaaSCallback<DeploymentStatus> esCallback = new IPaaSCallback<DeploymentStatus>() {
-            @Override
-            public void onSuccess(DeploymentStatus data) {
-                if (data == DeploymentStatus.UNDEPLOYED) {
-                    deploymentService.markUndeployed(deployment);
+            PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, getRuntimeTopology(deployment.getId()));
+            IPaaSCallback<DeploymentStatus> esCallback = new IPaaSCallback<DeploymentStatus>() {
+                @Override
+                public void onSuccess(DeploymentStatus data) {
+                    callback.onSuccess(data);
                 }
-                callback.onSuccess(data);
-            }
 
-            @Override
-            public void onFailure(Throwable throwable) {
-                callback.onFailure(throwable);
-            }
-        };
-        orchestratorPlugin.getStatus(deploymentContext, esCallback);
+                @Override
+                public void onFailure(Throwable throwable) {
+                    callback.onFailure(throwable);
+                }
+            };
+            orchestratorPlugin.getStatus(deploymentContext, esCallback);
+            return null;
+        });
     }
 
     /**

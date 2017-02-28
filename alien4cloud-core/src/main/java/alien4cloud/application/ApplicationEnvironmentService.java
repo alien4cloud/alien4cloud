@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentLockService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
@@ -31,6 +32,7 @@ import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
+import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
@@ -56,6 +58,8 @@ public class ApplicationEnvironmentService {
     private ApplicationContext applicationContext;
     @Inject
     private DeploymentService deploymentService;
+    @Inject
+    private DeploymentLockService deploymentLockService;
 
     /**
      * Method used to create a default environment
@@ -242,28 +246,34 @@ public class ApplicationEnvironmentService {
      * @throws alien4cloud.paas.exception.OrchestratorDisabledException
      */
     public DeploymentStatus getStatus(ApplicationEnvironment environment) throws Exception {
-        final Deployment deployment = getActiveDeployment(environment.getId());
-        if (deployment == null) {
-            return DeploymentStatus.UNDEPLOYED;
-        }
-        final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
-        // update the deployment status from PaaS if it cannot be found.
-        deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
-            @Override
-            public void onSuccess(DeploymentStatus data) {
-                statusSettableFuture.set(data);
+        return deploymentLockService.doWithDeploymentReadLock(() -> {
+            final Deployment deployment = getActiveDeployment(environment.getId());
+            if (deployment == null) {
+                return DeploymentStatus.UNDEPLOYED;
             }
+            final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
+            // update the deployment status from PaaS if it cannot be found.
+            deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+                @Override
+                public void onSuccess(DeploymentStatus data) {
+                    statusSettableFuture.set(data);
+                }
 
-            @Override
-            public void onFailure(Throwable throwable) {
-                statusSettableFuture.setException(throwable);
+                @Override
+                public void onFailure(Throwable throwable) {
+                    statusSettableFuture.setException(throwable);
+                }
+            });
+            try {
+                DeploymentStatus currentStatus = statusSettableFuture.get();
+                if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
+                    deploymentService.markUndeployed(deployment);
+                }
+                return currentStatus;
+            } catch (Exception e) {
+                throw new PaaSTechnicalException("Could not retrieve status from PaaS", e);
             }
         });
-        DeploymentStatus currentStatus = statusSettableFuture.get();
-        if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
-            deploymentService.markUndeployed(deployment);
-        }
-        return currentStatus;
     }
 
     /**
