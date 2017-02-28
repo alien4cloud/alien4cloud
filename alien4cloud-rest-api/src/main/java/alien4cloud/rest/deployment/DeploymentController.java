@@ -20,16 +20,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.SettableFuture;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentLockService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.UndeployService;
@@ -40,6 +41,7 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
+import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
@@ -66,6 +68,8 @@ public class DeploymentController {
     private UndeployService undeployService;
     @Inject
     private LocationService locationService;
+    @Inject
+    private DeploymentLockService deploymentLockService;
 
     /**
      * Get all deployments for a cloud, including if asked some details of the related applications.
@@ -180,35 +184,43 @@ public class DeploymentController {
     @ApiOperation(value = "Get deployment status from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
     @RequestMapping(value = "/{deploymentId}/status", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public DeferredResult<RestResponse<DeploymentStatus>> getDeploymentStatus(
+    public RestResponse<DeploymentStatus> getDeploymentStatus(
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String deploymentId) {
 
         Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-        final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>(5L * 60L * 1000L);
         if (deployment != null) {
             try {
-                deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
-                    @Override
-                    public void onSuccess(DeploymentStatus result) {
-                        statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(result).build());
-                    }
+                return deploymentLockService.doWithDeploymentReadLock(() -> {
+                    final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
+                    deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+                        @Override
+                        public void onSuccess(DeploymentStatus result) {
+                            statusSettableFuture.set(result);
+                        }
 
-                    @Override
-                    public void onFailure(Throwable t) {
-                        statusResult.setErrorResult(t);
+                        @Override
+                        public void onFailure(Throwable t) {
+                            statusSettableFuture.setException(t);
+                        }
+                    });
+                    try {
+                        DeploymentStatus currentStatus = statusSettableFuture.get();
+                        if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
+                            deploymentService.markUndeployed(deployment);
+                        }
+                        return RestResponseBuilder.<DeploymentStatus> builder().data(currentStatus).build();
+                    } catch (Exception e) {
+                        throw new PaaSTechnicalException("Could not retrieve status from PaaS", e);
                     }
                 });
-                return statusResult;
             } catch (OrchestratorDisabledException e) {
-                statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(null)
-                        .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
+                return RestResponseBuilder.<DeploymentStatus> builder().data(null)
+                        .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
             }
         } else {
-            statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(null)
-                    .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Deployment with id <" + deploymentId + "> was not found.")).build());
+            return RestResponseBuilder.<DeploymentStatus> builder().data(null)
+                    .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Deployment with id <" + deploymentId + "> was not found.")).build();
         }
-
-        return statusResult;
     }
 
     @ApiOperation(value = "Undeploy deployment from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
