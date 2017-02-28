@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Sets;
@@ -82,10 +81,9 @@ public class LocationResourcesSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public synchronized RestResponse<List<UserDTO>> grantAccessToUsers(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestParam(required = false, defaultValue = "false") boolean force,
-                                                                    @PathVariable String resourceId, @RequestBody String[] userNames) {
+            @PathVariable String resourceId, @RequestBody String[] userNames) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        locationSecurityService.checkAuthorizations(location, Subject.USER, force, userNames);
+        locationSecurityService.grantAuthorizationOnLocationIfNecessary(location, Subject.USER, userNames);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         // prefer using locationResourceService.saveResource so that the location update date is update.
         // This will then trigger a deployment topology update
@@ -148,10 +146,9 @@ public class LocationResourcesSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public synchronized RestResponse<List<GroupDTO>> grantAccessToGroups(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestParam(required = false, defaultValue = "false") boolean force,
                                                                          @PathVariable String resourceId, @RequestBody String[] groupIds) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        locationSecurityService.checkAuthorizations(location, Subject.GROUP, force, groupIds);
+        locationSecurityService.grantAuthorizationOnLocationIfNecessary(location, Subject.GROUP, groupIds);
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.grantPermission(resourceTemplate,
                 (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.GROUP, groupIds);
@@ -224,16 +221,6 @@ public class LocationResourcesSecurityController {
         return RestResponseBuilder.<Void>builder().build();
     }
 
-    private void checkAllAuthorizationsForApplicationsAndEnvironments(ApplicationEnvironmentAuthorizationUpdateRequest request, Location location,
-            boolean grantAccess) {
-        if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
-            locationSecurityService.checkAuthorizations(location, Subject.APPLICATION, grantAccess, request.getApplicationsToAdd());
-        }
-        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
-            locationSecurityService.checkAuthorizations(location, Subject.ENVIRONMENT, grantAccess, request.getEnvironmentsToAdd());
-        }
-    }
-
     /**
      * Update applications/environments authorized to access the location resource.
      */
@@ -241,10 +228,9 @@ public class LocationResourcesSecurityController {
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId,
-            @RequestParam(required = false, defaultValue = "false") boolean force,
                                                                                       @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        checkAllAuthorizationsForApplicationsAndEnvironments(request, location, force);
+        locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), location);
 
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {

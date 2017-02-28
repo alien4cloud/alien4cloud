@@ -86,7 +86,7 @@ define(function (require) {
         $scope.expandEnvironments($scope.application, false);
       }
 
-      $scope.ok = function (force) {
+      $scope.ok = function () {
         var result = { 'applicationsToDelete': [], 'environmentsToDelete': [], 'applicationsToAdd': [], 'environmentsToAdd': [] };
         _.forEach($scope.selectedApps, function(envs, appId) {
           if (envs.length > 0) {
@@ -113,7 +113,7 @@ define(function (require) {
         });
 
         if (result.applicationsToDelete.length + result.environmentsToDelete.length + result.applicationsToAdd.length + result.environmentsToAdd.length > 0) {
-          $uibModalInstance.close({subjects: result, force: force});
+          $uibModalInstance.close({subjects: result});
         }
       };
 

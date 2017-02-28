@@ -292,21 +292,20 @@ public class SecuredResourceStepDefinition {
      *
      *
      * @param successfully
-     * @param forcefully force by also granting access to the related location if not yet
      * @param resourceType
      * @param username
      * @param resourcesNames
      * @throws Throwable
      */
-    @Given("^I (successfully\\s)?(forcefully\\s)?grant access to the resources type \"([^\"]*)\" to the user \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourcesTypeToTheUser(String successfully, String forcefully, String resourceType, String username,
+    @Given("^I (successfully\\s)?grant access to the resources type \"([^\"]*)\" to the user \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourcesTypeToTheUser(String successfully, String resourceType, String username,
             List<String> resourcesNames) throws Throwable {
         SubjectsAuthorizationRequest request = new SubjectsAuthorizationRequest();
         request.setResources(getResourcesIds(resourcesNames));
         request.setCreate(new String[] { username });
         String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
         String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
-        url += "/users?force=" + StringUtils.isNotBlank(forcefully);
+        url += "/users";
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
@@ -326,15 +325,15 @@ public class SecuredResourceStepDefinition {
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
-    @Given("^I (successfully\\s)?(forcefully\\s)?grant access to the resources type \"([^\"]*)\" to the group \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourcesTypeToTheGroup(String successfully, String forcefully, String resourceType, String groupName,
+    @Given("^I (successfully\\s)?grant access to the resources type \"([^\"]*)\" to the group \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourcesTypeToTheGroup(String successfully, String resourceType, String groupName,
             List<String> resourcesNames) throws Throwable {
         SubjectsAuthorizationRequest request = new SubjectsAuthorizationRequest();
         request.setResources(getResourcesIds(resourcesNames));
         request.setCreate(new String[] { Context.getInstance().getGroupId(groupName) });
         String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
         String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
-        url += "/groups?force=" + StringUtils.isNotBlank(forcefully);
+        url += "/groups";
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
@@ -354,8 +353,8 @@ public class SecuredResourceStepDefinition {
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
-    @Given("^I (successfully\\s)?(forcefully\\s)?grant access to the resources type \"([^\"]*)\" to the application \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourcesTypeToTheApplication(String successfully, String forcefully, String resourceType, String applicationName,
+    @Given("^I (successfully\\s)?grant access to the resources type \"([^\"]*)\" to the application \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourcesTypeToTheApplication(String successfully, String resourceType, String applicationName,
             List<String> resourcesNames) throws Throwable {
 
         ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
@@ -363,7 +362,7 @@ public class SecuredResourceStepDefinition {
         request.setResources(getResourcesIds(resourcesNames));
         String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
         String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
-        url += "/environmentsPerApplication?force=" + StringUtils.isNotBlank(forcefully);
+        url += "/environmentsPerApplication";
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
@@ -384,8 +383,8 @@ public class SecuredResourceStepDefinition {
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
-    @Given("^I (successfully\\s)?(forcefully\\s)?grant access to the resources type \"([^\"]*)\" to the environment \"([^\"]*)\" of the application \"([^\"]*)\"$")
-    public void iGrantAccessToTheResourcesTypeToTheApplicationEnvironment(String successfully, String forcefully, String resourceType, String environmentName,
+    @Given("^I (successfully\\s)?grant access to the resources type \"([^\"]*)\" to the environment \"([^\"]*)\" of the application \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourcesTypeToTheApplicationEnvironment(String successfully, String resourceType, String environmentName,
             String applicationName, List<String> resourcesNames) throws Throwable {
 
         ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
@@ -393,7 +392,7 @@ public class SecuredResourceStepDefinition {
         request.setResources(getResourcesIds(resourcesNames));
         String oneResourceName = CollectionUtils.isEmpty(resourcesNames) ? null : resourcesNames.get(0);
         String url = getBatchSecuredResourceBaseURL(resourceType, oneResourceName);
-        url += "/environmentsPerApplication?force=" + StringUtils.isNotBlank(forcefully);
+        url += "/environmentsPerApplication";
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(request)));
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));

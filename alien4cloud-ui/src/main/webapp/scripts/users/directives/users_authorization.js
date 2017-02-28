@@ -26,7 +26,7 @@ define(function (require) {
       /*
         display for option in add auth modal
       */
-        'displayForceOption': '='
+        'displayCustomSearch': '='
       },
       link: function(scope) {
         scope.authorizeModalTemplateUrl = 'views/users/users_authorization_popup.html';

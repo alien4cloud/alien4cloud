@@ -26,7 +26,7 @@ define(function (require) {
         }
       */
         'searchConfigBuilder': '&',
-        'displayForceOption': '='
+        'displayCustomSearch': '='
       }
     };
   });

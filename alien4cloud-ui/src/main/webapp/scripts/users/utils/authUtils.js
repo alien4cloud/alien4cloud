@@ -36,7 +36,7 @@ define(function (require) {
         /*
           display force option
         */
-        'displayForceOption': '='
+        'displayCustomSearch': '='
       },
       link: function(scope, element) {
 

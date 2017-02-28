@@ -94,7 +94,7 @@
                       resource="selectedResourceTemplate"
                       service="locationResourcesSecurityService.users"
                       search-config-builder="buildSecuritySearchConfig('users')"
-                      display-force-option="true">
+                      display-custom-search="true">
                     </alien-user-authorization>
                   </uib-tab>
                   <uib-tab heading="{{'COMMON.GROUPS' | translate}}" id="groups-tab">
@@ -102,7 +102,7 @@
                       resource="selectedResourceTemplate"
                       service="locationResourcesSecurityService.groups"
                       search-config-builder="buildSecuritySearchConfig('groups')"
-                      display-force-option="true">
+                      display-custom-search="true">
                     </alien-group-authorization>
                   </uib-tab>
                   <uib-tab heading="{{'NAVBAR.MENU_APPS' | translate}}" id="applications-tab">
@@ -111,7 +111,7 @@
                       app-service="locationResourcesSecurityService.applications"
                       env-service="locationResourcesSecurityService.environmentsPerApplication"
                       search-config-builder="buildSecuritySearchConfig('applications')"
-                      display-force-option="true">
+                      display-custom-search="true">
                     </alien-app-authorization>
                   </uib-tab>
                 </uib-tabset>

@@ -27,7 +27,7 @@ Feature: Manage location resources authorizations in batch mode
   @reset
   Scenario: Add / Remove rights to a user on location resources
     Given I successfully grant access to the resource type "LOCATION_RESOURCE" named "Medium1" to the user "frodon"
-    Given I forcefully grant access to the resources type "LOCATION_RESOURCE" to the user "sam"
+    Given I grant access to the resources type "LOCATION_RESOURCE" to the user "sam"
       | Medium1 |
       | Medium2 |
     Then I should receive a RestResponse with no error
@@ -43,10 +43,6 @@ Feature: Manage location resources authorizations in batch mode
     Then I should have following list of users:
       | frodon |
       | sam    |
-    # try to grant without forcing, it should fail as the user doesn't have rights on the location
-    When I grant access to the resources type "LOCATION_RESOURCE" to the user "gandalf"
-      | Medium1 |
-    Then I should receive a RestResponse with an error code 102
     When I revoke access to the resources type "LOCATION_RESOURCE" from the user "sam"
       | Medium1 |
       | Medium2 |
@@ -67,7 +63,7 @@ Feature: Manage location resources authorizations in batch mode
   @reset
   Scenario: Add / Remove rights to a group on location resources
     Given I successfully grant access to the resource type "LOCATION_RESOURCE" named "Medium1" to the group "lordOfRing"
-    When I forcefully grant access to the resources type "LOCATION_RESOURCE" to the group "hobbits"
+    When I grant access to the resources type "LOCATION_RESOURCE" to the group "hobbits"
       | Medium1 |
       | Medium2 |
     Then I should receive a RestResponse with no error
@@ -83,10 +79,6 @@ Feature: Manage location resources authorizations in batch mode
     Then I should have following list of groups:
       | lordOfRing |
       | hobbits    |
-    # try to grant without forcing, it should fail as the group doesn't have rights on the location
-    When I grant access to the resources type "LOCATION_RESOURCE" to the group "elves"
-      | Medium1 |
-    Then I should receive a RestResponse with an error code 102
     When I revoke access to the resources type "LOCATION_RESOURCE" from the group "lordOfRing"
       | Medium1 |
       | Medium2 |
@@ -116,7 +108,7 @@ Feature: Manage location resources authorizations in batch mode
     Given I grant access to the resource type "LOCATION" named "middle_earth" to the application "SMAUG"
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium1" to the application "SMAUG"
 
-    When I forcefully grant access to the resources type "LOCATION_RESOURCE" to the application "SDE"
+    When I grant access to the resources type "LOCATION_RESOURCE" to the application "SDE"
       | Medium1 |
       | Medium2 |
     Then I should receive a RestResponse with no error
@@ -132,11 +124,6 @@ Feature: Manage location resources authorizations in batch mode
     Then I should have following list of applications:
       | SMAUG |
       | SDE   |
-
-    When I grant access to the resources type "LOCATION_RESOURCE" to the application "ALIEN"
-      | Medium1 |
-    Then I should receive a RestResponse with an error code 102
-
     Given I successfully revoke access to the resources type "LOCATION_RESOURCE" from the application "SDE"
       | Medium1 |
       | Medium2 |
@@ -145,11 +132,7 @@ Feature: Manage location resources authorizations in batch mode
       | SMAUG |
 
   #Environments
-
     When I grant access to the resources type "LOCATION_RESOURCE" to the environment "DEV-ALIEN" of the application "ALIEN"
-      | Medium1 |
-    Then I should receive a RestResponse with an error code 102
-    When I forcefully grant access to the resources type "LOCATION_RESOURCE" to the environment "DEV-ALIEN" of the application "ALIEN"
       | Medium1 |
       | Medium2 |
     Then I should receive a RestResponse with no error
@@ -160,7 +143,7 @@ Feature: Manage location resources authorizations in batch mode
     Then I should have following list of environments:
       | DEV-ALIEN |
 
-    Given I forcefully grant access to the resources type "LOCATION_RESOURCE" to the environment "PRD-ALIEN" of the application "ALIEN"
+    Given I grant access to the resources type "LOCATION_RESOURCE" to the environment "PRD-ALIEN" of the application "ALIEN"
       | Medium1 |
       | Medium2 |
     When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium1"

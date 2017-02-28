@@ -25,7 +25,7 @@ define(function (require) {
       */
         'searchConfigBuilder': '&',
 
-        'displayForceOption': '='
+        'displayCustomSearch': '='
       },
       link: function(scope) {
         scope.authorizeModalTemplateUrl = 'views/users/groups_authorization_popup.html';

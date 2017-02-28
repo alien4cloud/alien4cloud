@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Sets;
@@ -71,9 +70,9 @@ public class LocationResourcesBatchSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public synchronized RestResponse<Void> bulkAccessToUsersOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
-                                                                        @RequestParam(required = false, defaultValue = "false") boolean force, @RequestBody SubjectsAuthorizationRequest request) {
+                                                                        @RequestBody SubjectsAuthorizationRequest request) {
         if (ArrayUtils.isNotEmpty(request.getCreate())) {
-            processGrantForSubjectType(Subject.USER, orchestratorId, locationId, force, request.getResources(), request.getCreate());
+            processGrantForSubjectType(Subject.USER, orchestratorId, locationId, request.getResources(), request.getCreate());
         } else if (ArrayUtils.isNotEmpty(request.getDelete())) {
             processRevokeForSubjectType(Subject.USER, request.getResources(), request.getDelete());
         }
@@ -97,9 +96,9 @@ public class LocationResourcesBatchSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public synchronized RestResponse<Void> bulkAccessToGroupsOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
-                                                                         @RequestParam(required = false, defaultValue = "false") boolean force, @RequestBody SubjectsAuthorizationRequest request) {
+                                                                         @RequestBody SubjectsAuthorizationRequest request) {
         if (ArrayUtils.isNotEmpty(request.getCreate())) {
-            processGrantForSubjectType(Subject.GROUP, orchestratorId, locationId, force, request.getResources(), request.getCreate());
+            processGrantForSubjectType(Subject.GROUP, orchestratorId, locationId, request.getResources(), request.getCreate());
         } else if (ArrayUtils.isNotEmpty(request.getDelete())) {
             processRevokeForSubjectType(Subject.GROUP, request.getResources(), request.getDelete());
         }
@@ -119,14 +118,14 @@ public class LocationResourcesBatchSecurityController {
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestParam(required = false, defaultValue = "false") boolean force, @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
+            @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
 
         if (ArrayUtils.isEmpty(request.getResources())) {
             return RestResponseBuilder.<Void> builder().build();
         }
 
         Location location = locationService.getLocation(orchestratorId, locationId);
-        checkAllAuthorizationsForApplicationsAndEnvironments(request, location, force);
+        locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), location);
 
         Arrays.stream(request.getResources()).forEach(resourceId -> {
             LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
@@ -169,13 +168,13 @@ public class LocationResourcesBatchSecurityController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    private void processGrantForSubjectType(Subject subjectType, String orchestratorId, String locationId, boolean force,
+    private void processGrantForSubjectType(Subject subjectType, String orchestratorId, String locationId,
             String[] resources, String[] subjects) {
         if (ArrayUtils.isEmpty(resources)) {
             return;
         }
         Location location = locationService.getLocation(orchestratorId, locationId);
-        locationSecurityService.checkAuthorizations(location, subjectType, force, subjects);
+        locationSecurityService.grantAuthorizationOnLocationIfNecessary(location, subjectType, subjects);
 
         Arrays.stream(resources).forEach(resourceId -> {
             LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
@@ -196,15 +195,4 @@ public class LocationResourcesBatchSecurityController {
                     (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)), subjectType, subjects);
         });
     }
-
-    private void checkAllAuthorizationsForApplicationsAndEnvironments(ApplicationEnvironmentAuthorizationUpdateRequest request, Location location,
-            boolean grantAccess) {
-        if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
-            locationSecurityService.checkAuthorizations(location, Subject.APPLICATION, grantAccess, request.getApplicationsToAdd());
-        }
-        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
-            locationSecurityService.checkAuthorizations(location, Subject.ENVIRONMENT, grantAccess, request.getEnvironmentsToAdd());
-        }
-    }
-
 }
