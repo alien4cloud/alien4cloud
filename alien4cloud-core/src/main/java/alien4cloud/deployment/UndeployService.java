@@ -34,23 +34,17 @@ public class UndeployService {
      * @param deploymentId deployment id to deploy
      */
     public void undeploy(String deploymentId) {
-        deploymentLockService.doWithDeploymentWriteLock(() -> {
-            Deployment deployment = deploymentService.getOrfail(deploymentId);
-            undeploy(deployment);
-            return null;
-        });
+        Deployment deployment = deploymentService.getOrfail(deploymentId);
+        undeploy(deployment);
     }
 
     public void undeployEnvironment(String environmentId) {
-        deploymentLockService.doWithDeploymentWriteLock(() -> {
-            Deployment deployment = deploymentService.getActiveDeployment(environmentId);
-            if (deployment != null) {
-                undeploy(deployment);
-            } else {
-                log.warn("No deployment found for environment " + environmentId);
-            }
-            return null;
-        });
+        Deployment deployment = deploymentService.getActiveDeployment(environmentId);
+        if (deployment != null) {
+            undeploy(deployment);
+        } else {
+            log.warn("No deployment found for environment " + environmentId);
+        }
     }
 
     /**
@@ -59,15 +53,12 @@ public class UndeployService {
      * @param deploymentTopology setup object containing information to deploy
      */
     public void undeploy(DeploymentTopology deploymentTopology) {
-        deploymentLockService.doWithDeploymentWriteLock(() -> {
-            Deployment activeDeployment = deploymentService.getActiveDeploymentOrFail(deploymentTopology.getEnvironmentId());
-            undeploy(activeDeployment);
-            return null;
-        });
+        Deployment activeDeployment = deploymentService.getActiveDeploymentOrFail(deploymentTopology.getEnvironmentId());
+        undeploy(activeDeployment);
     }
 
     private void undeploy(final Deployment deployment) {
-        deploymentLockService.doWithDeploymentWriteLock(() -> {
+        deploymentLockService.doWithDeploymentWriteLock(deployment.getOrchestratorDeploymentId(), () -> {
             log.info("Un-deploying deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
             DeploymentTopology deployedTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());

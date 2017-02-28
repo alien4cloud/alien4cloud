@@ -269,19 +269,31 @@ public class ApplicationEnvironmentService {
     }
 
     /**
-     * Get the environment status regarding the linked topology and cloud
-     * 
+     * Get the deployment status of the given environment.
+     *
      * @param environment The environment for which to get deployment status.
      * @return The deployment status of the environment. {@link DeploymentStatus}.
      * @throws ExecutionException In case there is a failure while communicating with the orchestrator.
      * @throws InterruptedException In case there is a failure while communicating with the orchestrator.
      */
     public DeploymentStatus getStatus(ApplicationEnvironment environment) {
-        return deploymentLockService.doWithDeploymentReadLock(() -> {
-            final Deployment deployment = getActiveDeployment(environment.getId());
-            if (deployment == null) {
-                return DeploymentStatus.UNDEPLOYED;
-            }
+        final Deployment deployment = getActiveDeployment(environment.getId());
+        return getStatus(deployment);
+    }
+
+    /**
+     * Get the deployment status of the given deployment.
+     *
+     * @param deployment The deployment for which to get deployment status.
+     * @return The deployment status of the environment. {@link DeploymentStatus}.
+     * @throws ExecutionException In case there is a failure while communicating with the orchestrator.
+     * @throws InterruptedException In case there is a failure while communicating with the orchestrator.
+     */
+    public DeploymentStatus getStatus(final Deployment deployment) {
+        if (deployment == null) {
+            return DeploymentStatus.UNDEPLOYED;
+        }
+        return deploymentLockService.doWithDeploymentReadLock(deployment.getOrchestratorDeploymentId(), () -> {
             final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
             // update the deployment status from PaaS if it cannot be found.
             deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {

@@ -52,9 +52,9 @@ public class ApplicationEnvironmentDTOBuilder {
         tempEnvDTO.setGroupRoles(env.getGroupRoles());
         tempEnvDTO.setCurrentVersionName(env.getTopologyVersion());
         try {
-            tempEnvDTO.setStatus(applicationEnvironmentService.getStatus(env));
+            Deployment deployment = applicationEnvironmentService.getActiveDeployment(env.getId());
+            tempEnvDTO.setStatus(applicationEnvironmentService.getStatus(deployment));
             if (!DeploymentStatus.UNDEPLOYED.equals(tempEnvDTO.getStatus())) {
-                Deployment deployment = applicationEnvironmentService.getActiveDeployment(env.getId());
                 tempEnvDTO.setDeployedVersion(deployment.getVersionId());
             }
         } catch (Exception e) {
