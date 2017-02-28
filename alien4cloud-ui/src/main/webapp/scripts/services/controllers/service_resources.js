@@ -202,7 +202,8 @@ define(function (require) {
       $scope.delete = function(serviceId) {
         serviceResourceService.delete({
           serviceId: serviceId
-        }, null, function(){
+        }, null, function() {
+          $scope.search();
           if (_.defined($scope.selectedService) && $scope.selectedService.id === serviceId) {
             $scope.selectedService = undefined;
           }
