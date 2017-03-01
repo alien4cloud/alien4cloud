@@ -151,7 +151,7 @@ public class ToscaPropertySerializerUtils {
         }
     }
 
-    private static String escapeDoubleQuote(String scalar) {
+    public static String escapeDoubleQuote(String scalar) {
         if (scalar != null && scalar.contains("\"")) {
             // escape double quote
             return scalar.replaceAll("\"", "\\\\\"");

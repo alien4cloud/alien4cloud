@@ -59,7 +59,7 @@ public class ToscaSerializerUtils {
             }
             return sw.toString();
         } else {
-            return description;
+            return "\"" + ToscaPropertySerializerUtils.escapeDoubleQuote(description) + "\"";
         }
     }
 
@@ -97,7 +97,7 @@ public class ToscaSerializerUtils {
         return false;
     }
 
-    public static  String getCsvToString(Collection<?> list) {
+    public static String getCsvToString(Collection<?> list) {
         return getCsvToString(list, false);
     }
 
