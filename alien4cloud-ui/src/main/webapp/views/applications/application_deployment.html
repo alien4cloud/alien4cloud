@@ -35,29 +35,37 @@
       </button>
     </div>
   </div>
-  <hr class="separator-h">
+
+  <div style="margin-top: 20px; margin-bottom: 50px">
+    <display-outputs collapsable="true"></display-outputs>
+  </div>
+
   <!-- DEPLOYMENT CONFIGURATION -->
-  <div class="row" style="margin-top: 10px"
-    ng-if="deploymentContext.selectedEnvironment && validTopologyDTO.valid">
-    <div class="col-md-12">
+  <div class="row">
+    <div class="col-md-12 content-head">
+      <i class="fa fa-cog"> </i>
+      {{'APPLICATIONS.DEPLOYMENT.SETUP' | translate}}
+    </div>
+    <!-- steps if topo valid-->
+    <div class="col-md-12" style="margin-bottom: 20px"
+      ng-if="deploymentContext.selectedEnvironment && validTopologyDTO.valid">
       <ul class="nav nav-tabs">
         <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active"
-            ng-class="{'disabled' : menuItem.disabled}">
+          ng-class="{'disabled' : menuItem.disabled}">
           <a id="{{menuItem.id}}"
-             ng-click="onItemClick($event, menuItem)"
-             ui-sref="{{menuItem.state}}">
+            ng-click="onItemClick($event, menuItem)"
+            ui-sref="{{menuItem.state}}">
             <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
             <i class="fa fa-exclamation-triangle" ng-if="showStatusIcon(menuItem)" ng-class="{'text-danger': menuItem.step.status==='ERROR',
-                                                             'text-warning': menuItem.step.status==='WARNING'}"></i>
+            'text-warning': menuItem.step.status==='WARNING'}"></i>
           </a>
         </li>
       </ul>
       <div class="tab-pane" ui-view></div>
     </div>
-  </div>
-  <!-- If there is validation issues they are displayed here. -->
-  <div class="row" style="margin-top: 10px">
-    <div class="col-md-12">
+    <!-- If there is validation issues they are displayed here. -->
+    <div class="col-md-12" ng-if="showTodoList() || showWarningList()">
+
       <!--  Task list -->
       <div class="row" ng-if="showTodoList()">
         <div id="deploymentTodoList" class="col-md-12">
@@ -74,13 +82,12 @@
           <h3 class="text-warning"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.WARNING.LABEL' | translate}}</h3>
 
           <div class="warning-list-box" ng-repeat="(taskCode, tasks) in validTopologyDTO.warningList" ng-switch="taskCode">
-
             <!--HA warning list -->
             <div ng-if="tasks.length>0" ng-switch-when="HA_INVALID">
               <h4 class="clickable" ng-init="isHAGroupWarningsCollapsed = false"
-                   ng-click="isHAGroupWarningsCollapsed = !isHAGroupWarningsCollapsed">
-                <i class="fa" ng-class="{'fa-caret-down' : !isHAGroupWarningsCollapsed , 'fa-caret-right': isHAGroupWarningsCollapsed }"></i>
-                <span>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.LABEL' | translate}}</span>
+              ng-click="isHAGroupWarningsCollapsed = !isHAGroupWarningsCollapsed">
+              <i class="fa" ng-class="{'fa-caret-down' : !isHAGroupWarningsCollapsed , 'fa-caret-right': isHAGroupWarningsCollapsed }"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.LABEL' | translate}}</span>
               </h4>
               <div uib-collapse="isHAGroupWarningsCollapsed" >
                 <table class="table table-condensed">
@@ -96,7 +103,7 @@
                       <td>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.' + haTask.errorCode | translate}}</td>
                     </tr>
                   </tbody>
-                </table>
+                  </table>
               </div>
             </div>
             <!-- End : HA warning -->
@@ -104,9 +111,9 @@
             <!-- Properties warning list -->
             <div ng-if="tasks.length>0" ng-switch-when="PROPERTIES">
               <h4 class="clickable" ng-init="isPropertiesGroupWarningsCollapsed = false"
-                   ng-click="isPropertiesGroupWarningsCollapsed = !isPropertiesGroupWarningsCollapsed">
+                ng-click="isPropertiesGroupWarningsCollapsed = !isPropertiesGroupWarningsCollapsed">
                 <i class="fa"
-                   ng-class="{'fa-caret-down' : !isPropertiesGroupWarningsCollapsed , 'fa-caret-right': isPropertiesGroupWarningsCollapsed }"></i>
+                ng-class="{'fa-caret-down' : !isPropertiesGroupWarningsCollapsed , 'fa-caret-right': isPropertiesGroupWarningsCollapsed }"></i>
                 <span>{{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.LABEL' | translate}}</span>
               </h4>
               <div uib-collapse="isPropertiesGroupWarningsCollapsed" >
@@ -127,9 +134,9 @@
                 </table>
               </div>
             </div>
-            <!-- End : properties warning -->
+          <!-- End : properties warning -->
           </div>
-          <!-- End : warning list display -->
+        <!-- End : warning list display -->
         </div>
       </div>
     </div>

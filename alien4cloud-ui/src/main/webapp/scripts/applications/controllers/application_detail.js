@@ -256,7 +256,7 @@ define(function (require) {
         }
       };
 
-      // fetch the topology to display intput/output properties and matching data
+      // fetch the topology to display intput properties and matching data
       $scope.processTopologyInformations = function processTopologyInformations(topologyId) {
         return topologyServices.dao.get({
           topologyId: topologyId

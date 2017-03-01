@@ -1,31 +1,10 @@
 <div class="row">
-  <div id="configurationsErrors" class="col-md-12" ng-if="validTopologyDTO.valid && showConfgurationsErrors()">
-    <!-- DEPLOYMENT TOPO CONFIGURATION ERRORS -->
-    <h4 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.ERRORS_LABEL' | translate}}</h4>
+  <div class="col-md-6 task-list-box">
+    <!--  Input artifact tasks  -->
+    <input-artifacts-errors-display
+            tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['INPUT_ARTIFACT_INVALID']">
+    </input-artifacts-errors-display>
 
-    <div class="task-list-box">
-      <!-- NODE FILTERS-->
-      <node-filters-errors-display
-        tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['NODE_FILTER_INVALID']"
-        input-column=true>
-      </node-filters-errors-display>
-
-      <!-- SCALABILITY ERRORS -->
-      <scalability-errors-display
-        tasks="deploymentContext.deploymentTopologyDTO.validation.taskList['SCALABLE_CAPABILITY_INVALID']">
-      </scalability-errors-display>
-
-      <!--  Required properties tasks  -->
-      <properties-errors-display
-        tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['PROPERTIES']">
-      </properties-errors-display>
-
-      <!--  Input artifact tasks  -->
-      <input-artifacts-errors-display
-              tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['INPUT_ARTIFACT_INVALID']">
-      </input-artifacts-errors-display>
-
-    </div>
   </div>
 </div>
 <div class="row">
@@ -49,7 +28,7 @@
                 property-name="inputId"
                 property-value="deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId]"
                 on-save="updateInputValue(propertyDefinition, propertyValue, inputId)"
-                editable="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'"
+                editable="true"
                 condensed="true">
               </property-display>
             </td>
@@ -101,33 +80,4 @@
       </div>
     </fieldset>
   </div>
-
-  <!-- Provider deployment properties -->
-  <div ng-if="_.isNotEmpty(deploymentContext.orchestratorDeploymentPropertyDefinitions)" class="col-md-6">
-    <fieldset class="detail-bloc">
-      <legend>
-        <h4 ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed" class="clickable">
-          <i class="fa fa-cog"></i> {{'APPLICATIONS.TOPOLOGY.ORCHESTRATOR_PROPERTIES' | translate}}
-          <i class="fa" ng-class="{'fa-caret-down' : !isOrchestratorDeploymentPropertiesCollapsed, 'fa-caret-right': isOrchestratorDeploymentPropertiesCollapsed}"></i>
-        </h4>
-      </legend>
-      <div uib-collapse="isOrchestratorDeploymentPropertiesCollapsed" >
-        <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
-          <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentContext.orchestratorDeploymentPropertyDefinitions">
-            <td id="p_deployment_{{propertyKey}}">
-              <property-display ng-init="condensed = true"
-                                definition="propertyDefinition"
-                                property-name="propertyKey"
-                                property-value="deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyKey]"
-                                on-save="updateDeploymentProperty(propertyDefinition, propertyKey, propertyValue)"
-                                editable="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'"
-                                condensed="condensed">
-              </property-display>
-            </td>
-          </tr>
-        </table>
-      </div>
-    </fieldset>
-  </div>
-
 </div>

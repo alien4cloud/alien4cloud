@@ -22,6 +22,7 @@
         "WARNING": "Warning",
         "WARNING_MESSAGE": "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
       },
+      "SETUP": "Deployment Setup",
       "VERSION": "Deployed version"
     },
     "ENVIRONMENT": {

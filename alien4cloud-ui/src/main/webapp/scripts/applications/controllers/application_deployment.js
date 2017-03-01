@@ -25,19 +25,21 @@ define(function(require) {
 
   var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID', 'PROPERTIES', 'NODE_FILTER_INVALID', 'ARTIFACT_INVALID', 'INPUT_ARTIFACT_INVALID'];
 
-  var setNextStepMenuEnabled = function(currentStepMenu, nextStepMenu){
+  var enableOrDisableNextStepMenu = function(currentStepMenu, nextStepMenu){
     nextStepMenu.disabled = currentStepMenu.disabled || (_.get(currentStepMenu, 'step.status', 'SUCCESS')!=='SUCCESS');
   };
 
   function enabledOrDisableMenus(menus){
     _.each(menus, function(menu){
+      //if there is a nextStep, then compute the status of this menu, otherwise it is enabled by default
       if (_.defined(menu.nextStep)){
-        setNextStepMenuEnabled(menu, menu.nextStep);
+        enableOrDisableNextStepMenu(menu, menu.nextStep);
       }
     });
   }
 
   function updateStepsStatuses(menus, validationDTO){
+    //set the status of each menu, based on the defined taskCodes and their presence in the validationDTO
     _.each(menus, function(menu){
       if(_.definedPath(menu, 'step.taskCodes')){
         delete menu.step.status;
@@ -49,6 +51,7 @@ define(function(require) {
         });
       }
     });
+    //then, set a menu enabled / disabled based on the computed status of its previous step
     enabledOrDisableMenus(menus);
   }
 
@@ -66,13 +69,10 @@ define(function(require) {
   }
 
   function buildMenuTree(menus) {
-    _.each(menus, function(menu){
-      if (_.definedPath(menu, 'step.nextStepId')){
-        menu.nextStep = _.find(menus, function(item){
-          return item.id===menu.step.nextStepId;
-        });
-      }
-    });
+    menus = _.sortBy(menus, 'priority');
+    for(var i=0; i<menus.length-1; i++){
+      menus[i].nextStep = menus[i+1];
+    }
   }
 
   states.state('applications.detail.deployment', {
@@ -140,11 +140,11 @@ define(function(require) {
           });
 
           $scope.processTopologyInformations($scope.topologyId).$promise.then(function() {
-            $scope.processDeploymentTopologyInformation().$promise.then(function() {
-              if ($scope.deploymentContext.selectedEnvironment.status === 'DEPLOYED') {
+            if($scope.deploymentContext.selectedEnvironment.status !== 'UNDEPLOYED'){
+              $scope.processDeploymentTopologyInformation().$promise.then(function() {
                 $scope.refreshInstancesStatuses($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, pageStateId);
-              }
-            });
+              });
+            }
           });
         };
 
@@ -152,10 +152,8 @@ define(function(require) {
         $scope.checkTopology = checkTopology;
 
         function doGoToNextInvalidStep(){
-          //first step is locations
-          var stepToGo = _.find($scope.menu, function(menu){
-            return menu.id==='am.applications.detail.deployment.locations';
-          });
+          //menus are sorted by priority. first step is the top one
+          var stepToGo = $scope.menu[0];
 
           //look for the first invalid step, or the last one if all are valid
           while(stepToGo.nextStep){
@@ -232,19 +230,12 @@ define(function(require) {
           return 'UNDEPLOYED';
         }, function(newValue) {
           var undeployedValue = $scope.deploymentContext.selectedEnvironment.id + '__UNDEPLOYED';
+          $scope.stopEvent();
           // no registration for this environement -> register if not undeployed!
-          if (newValue === undeployedValue) {
-            // if status the application is not undeployed we should register for events.
-            $scope.stopEvent();
-          } else {
-            $scope.stopEvent();
+          // if status the application is not undeployed we should register for events.
+          if (newValue !== undeployedValue) {
             $scope.setTopologyIdFromEnvironment($scope.deploymentContext.selectedEnvironment);
             checkTopology();
-            $scope.processTopologyInformations($scope.topologyId).$promise.then(function() {
-              $scope.processDeploymentTopologyInformation().$promise.then(function() {
-                $scope.refreshInstancesStatuses($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, pageStateId);
-              });
-            });
           }
         });
 

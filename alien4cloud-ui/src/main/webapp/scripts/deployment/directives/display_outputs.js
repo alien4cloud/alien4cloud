@@ -10,7 +10,9 @@ define(function (require) {
       templateUrl: 'views/deployment/display_outputs.html',
       // inherites scope from the parent
       scope: true,
-      link: function(scope) {
+      link: function(scope, element, attrs) {
+        scope._ = _;
+        scope.collapsable = scope.$eval(attrs.collapsable);
         if(_.defined(scope.deploymentContext)) {
           scope.selectedEnvironment = scope.deploymentContext.selectedEnvironment;
           scope.$watch('deploymentContext.selectedEnvironment', function(newEnv) {

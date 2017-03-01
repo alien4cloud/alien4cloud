@@ -36,6 +36,9 @@ public class DeploymentInputService {
     @Inject
     private OrchestratorDeploymentService orchestratorDeploymentService;
 
+    @Inject
+    private InputsPreProcessorService inputsPreProcessorService;
+
     /**
      * Fill-in the inputs properties definitions (and default values) based on the properties definitions from the topology.
      *
