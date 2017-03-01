@@ -72,14 +72,14 @@ public class DeploymentController {
     private DeploymentLockService deploymentLockService;
 
     /**
-     * Get all deployments for a cloud, including if asked some details of the related applications.
+     * Get the first 100 deployments for a cloud, including if asked some details of the related applications.
      *
      * @param orchestratorId Id of the orchestrator for which to get deployments (can be null to get deployments for all orchestrators).
      * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
      * @param includeSourceSummary include or not the sources (application or csar) summary in the results.
      * @return A {@link RestResponse} with as data a list of {@link DeploymentDTO} that contains deployments and applications info.
      */
-    @ApiOperation(value = "Get deployments for an orchestrator.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Get 100 last deployments for an orchestrator.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<List<DeploymentDTO>> get(
@@ -98,13 +98,16 @@ public class DeploymentController {
      * @return A list of {@link DeploymentDTO} that contains deployments and applications info.
      */
     private List<DeploymentDTO> buildDeploymentsDTO(String orchestratorId, String sourceId, boolean includeSourceSummary) {
-        List<Deployment> deployments = deploymentService.getDeployments(orchestratorId, sourceId);
+        Deployment[] deployments = deploymentService.getDeployments(orchestratorId, sourceId, 0, 100);
         List<DeploymentDTO> dtos = Lists.newArrayList();
-        if (deployments != null && deployments.size() > 0) {
+        if (deployments == null) {
+            return dtos;
+        }
+        if (deployments != null && deployments.length > 0) {
             Map<String, ? extends IDeploymentSource> sources = Maps.newHashMap();
             // get the app summaries if true
             if (includeSourceSummary) {
-                DeploymentSourceType sourceType = deployments.get(0).getSourceType();
+                DeploymentSourceType sourceType = deployments[0].getSourceType();
                 String[] sourceIds = getSourceIdsFromDeployments(deployments);
                 if (sourceIds[0] != null) { // can have no application deployed
                     switch (sourceType) {
@@ -113,13 +116,6 @@ public class DeploymentController {
                         if (appSources != null) {
                             sources = appSources;
                         }
-                        // FIXME Allow CSAR deployment again for testing and validation purpose.
-                        // break;
-                        // case CSAR:
-                        // Map<String, ? extends IDeploymentSource> csarSources = csarService.findByIds(FetchContext.SUMMARY, sourceIds);
-                        // if (csarSources != null) {
-                        // sources = csarSources;
-                        // }
                     }
                 }
             }
@@ -139,7 +135,7 @@ public class DeploymentController {
         return dtos;
     }
 
-    private Map<String, Location> getRelatedLocationsSummaries(List<Deployment> deployments) {
+    private Map<String, Location> getRelatedLocationsSummaries(Deployment[] deployments) {
         Set<String> locationIds = Sets.newHashSet();
         for (Deployment deployment : deployments) {
             if (ArrayUtils.isNotEmpty(deployment.getLocationIds())) {
@@ -168,8 +164,8 @@ public class DeploymentController {
         return locations;
     }
 
-    private String[] getSourceIdsFromDeployments(List<Deployment> deployments) {
-        List<String> sourceIds = new ArrayList<>(deployments.size());
+    private String[] getSourceIdsFromDeployments(Deployment[] deployments) {
+        List<String> sourceIds = new ArrayList<>(deployments.length);
         for (Deployment deployment : deployments) {
             if (deployment.getSourceId() != null) {// applicationId nul in "deployment" test case
                 sourceIds.add(deployment.getSourceId());

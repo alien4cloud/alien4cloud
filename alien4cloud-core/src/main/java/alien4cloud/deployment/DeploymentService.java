@@ -5,7 +5,6 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,12 +13,11 @@ import javax.inject.Inject;
 
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.dao.IESQueryBuilderHelper;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
@@ -62,18 +60,21 @@ public class DeploymentService {
      * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
      * @return A {@link GetMultipleDataResult} that contains deployments.
      */
-    public List<Deployment> getDeployments(String orchestratorId, String sourceId) {
-        QueryBuilder query = QueryBuilders.boolQuery();
+    public Deployment[] getDeployments(String orchestratorId, String sourceId, int from, int size) {
+        FilterBuilder filterBuilder = null;
         if (orchestratorId != null) {
-            query = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("orchestratorId", orchestratorId));
+            filterBuilder = FilterBuilders.termFilter("orchestratorId", orchestratorId);
         }
         if (sourceId != null) {
-            query = QueryBuilders.boolQuery().must(query).must(QueryBuilders.termsQuery("sourceId", sourceId));
+            FilterBuilder sourceFilter = FilterBuilders.termFilter("sourceId", sourceId);
+            filterBuilder = filterBuilder == null ? sourceFilter : FilterBuilders.andFilter(sourceFilter, filterBuilder);
         }
-        if (orchestratorId == null && sourceId == null) {
-            query = QueryBuilders.matchAllQuery();
+
+        IESQueryBuilderHelper<Deployment> queryBuilderHelper = alienDao.buildQuery(Deployment.class);
+        if (filterBuilder != null) {
+            queryBuilderHelper.setFilters(filterBuilder);
         }
-        return alienDao.customFindAll(Deployment.class, query);
+        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", false).search(from, size).getData();
     }
 
     /**
