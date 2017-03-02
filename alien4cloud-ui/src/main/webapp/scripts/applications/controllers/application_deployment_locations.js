@@ -24,9 +24,8 @@ define(function(require) {
       key: 'ORCHESTRATORS.NAV.LOCATIONS',
       icon: 'fa fa-cloud-upload',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
-      priority: 100,
+      priority: 200,
       step: {
-        nextStepId: 'am.applications.detail.deployment.match',
         // task code in validation DTO bound to this step
         taskCodes: ['LOCATION_POLICY', 'LOCATION_DISABLED', 'LOCATION_UNAUTHORIZED']
       }
@@ -36,6 +35,7 @@ define(function(require) {
   modules.get('a4c-applications').controller('ApplicationDeploymentLocationCtrl',
     ['$scope', 'locationsMatchingServices', '$state', 'menu', 'deploymentTopologyServices',
       function($scope, locationsMatchingServices, $state, menu, deploymentTopologyServices) {
+        var thisMenu = _.find(menu, {id:'am.applications.detail.deployment.locations' });
         if (_.has($scope, 'deploymentContext.deploymentTopologyDTO.topology.orchestratorId') && _.has($scope, 'deploymentContext.deploymentTopologyDTO.locationPolicies.' + GROUP_ALL)) {
           $scope.oldSelectedOrchestratorId = $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId;
           $scope.oldSelectedLocationId = $scope.deploymentContext.deploymentTopologyDTO.locationPolicies[GROUP_ALL];
@@ -48,18 +48,6 @@ define(function(require) {
           });
         }
 
-        var refreshLocationMatching = function() {
-          locationsMatchingServices.getLocationsMatches({topologyId: $scope.topologyId, environmentId: $scope.deploymentContext.selectedEnvironment.id}, function(result) {
-            formatLocationMatches(result.data);
-            initSelectedLocation();
-          });
-        };
-
-        // Watch over deployment topology to initialize selected location
-        $scope.$watch('deploymentContext.deploymentTopologyDTO', function() {
-          refreshLocationMatching();
-        });
-
         //check and fill selected location from deploymentTopologyDTO
         function initSelectedLocation() {
           delete $scope.deploymentContext.selectedLocation;
@@ -70,6 +58,17 @@ define(function(require) {
             }
           }
         }
+
+        var refreshLocationMatching = function() {
+          locationsMatchingServices.getLocationsMatches({topologyId: $scope.topologyId, environmentId: $scope.deploymentContext.selectedEnvironment.id}, function(result) {
+            formatLocationMatches(result.data);
+            initSelectedLocation();
+          });
+        };
+        // Watch over deployment topology to initialize selected location
+        $scope.$watch('deploymentContext.deploymentTopologyDTO', function() {
+          refreshLocationMatching();
+        });
 
         $scope.selectLocation = function(locationMatch) {
           var groupsToLocations = {};
@@ -86,13 +85,13 @@ define(function(require) {
           }, angular.toJson(configRequest), function(response) {
             $scope.updateScopeDeploymentTopologyDTO(response.data);
             $scope.deploymentContext.selectedLocation = locationMatch.location;
-            $state.go('applications.detail.deployment.match');
+            $state.go(thisMenu.nextStep.state);
           });
         };
 
         // checks if a location is the selected one for this deployment
         $scope.isLocationSelected = function(location) {
-          return _.has($scope, 'deploymentContext.selectedLocation') && $scope.deploymentContext.selectedLocation.id === location.id;
+          return _.get($scope, 'deploymentContext.selectedLocation.id') === location.id;
         };
 
       }

@@ -152,7 +152,7 @@
                 'fa-spinner fa-spin' : selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' || selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
               }"></i> {{selectedEnvironment.name}}
             </uib-tab-heading>
-            <div>
+            <div class = "row">
               <display-outputs></display-outputs>
             </div>
           </uib-tab>
@@ -180,8 +180,8 @@
             }"></i> <span ng-bind-html="e.name | highlight: $select.search"></span>
           </ui-select-choices>
         </ui-select>
-        <div>
-          <display-outputs></display-output>
+        <div style="margin-top: 1em">
+          <display-outputs></display-outputs>
         </div>
       </div>
     </fieldset>

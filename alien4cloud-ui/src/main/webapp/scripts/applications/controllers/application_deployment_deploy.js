@@ -4,6 +4,7 @@ define(function(require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   require('scripts/applications/services/application_services');
 
@@ -18,14 +19,15 @@ define(function(require) {
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
       priority: 400,
       step: {
-        taskCodes: []
+        taskCodes: ['NODE_FILTER_INVALID', 'ORCHESTRATOR_PROPERTY','PROPERTIES', 'SCALABLE_CAPABILITY_INVALID']
       }
     }
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentTriggerCtrl',
-    ['$scope', 'applicationServices',
-      function($scope, applicationServices) {
+    ['$scope', 'applicationServices', 'deploymentTopologyServices', '$resource',
+      function($scope, applicationServices, deploymentTopologyServices, $resource) {
+        $scope._ = _;
         // Deployment handler
         $scope.deploy = function() {
           // Application details with deployment properties
@@ -41,6 +43,58 @@ define(function(require) {
             $scope.isDeploying = false;
           });
         };
-      }
+
+        /**
+        * DEPLOYMENT PROPERTIES
+        **/
+        function refreshOrchestratorDeploymentPropertyDefinitions() {
+          return $resource('rest/latest/orchestrators/:orchestratorId/deployment-property-definitions')
+          .get({orchestratorId: $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId}, function (result) {
+            if (result.data) {
+              $scope.deploymentContext.orchestratorDeploymentPropertyDefinitions = result.data;
+            }
+          });
+        }
+        // if(_.definedPath($scope.deploymentContext, 'deploymentTopologyDTO.topology.orchestratorId')){
+        //   refreshOrchestratorDeploymentPropertyDefinitions();
+        // }
+
+        $scope.updateDeploymentProperty = function (propertyDefinition, propertyName, propertyValue) {
+          if (propertyValue === $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName]) {
+            return; // no change
+          }
+          var deploymentPropertyObject = {
+            'definitionId': propertyName,
+            'value': propertyValue
+          };
+
+          return applicationServices.checkProperty({
+            orchestratorId: $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId
+          }, angular.toJson(deploymentPropertyObject), function (data) {
+            if (data.error === null) {
+              $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName] = propertyValue;
+              // Update deployment setup when properties change
+              deploymentTopologyServices.updateInputProperties({
+                  appId: $scope.application.id,
+                  envId: $scope.deploymentContext.selectedEnvironment.id
+                }, angular.toJson({
+                  providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
+                }), function (result) {
+                  if (!result.error) {
+                    $scope.updateScopeDeploymentTopologyDTO(result.data);
+                  }
+                }
+              );
+            }
+          }).$promise;
+        };
+
+        $scope.$watch('deploymentContext.deploymentTopologyDTO.topology.orchestratorId', function(newValue){
+          if(_.undefined(newValue)){
+            return;
+          }
+          refreshOrchestratorDeploymentPropertyDefinitions();
+        });
+      } //function
     ]); //controller
 }); //Define

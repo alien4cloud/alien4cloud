@@ -54,6 +54,7 @@ define(function (require) {
         appEnvironments.select(environmentId, function() {
           $scope.selectedEnvironment = appEnvironments.selected;
           $scope.stopEvent(); // stop to listen for instance events
+          delete $scope.deployedContext.dto;
           if(appEnvironments.selected.status !== 'UNDEPLOYED') {
             // If the application is deployed then get informations to display.
             $scope.processDeploymentTopologyInformation().$promise.then(function() {

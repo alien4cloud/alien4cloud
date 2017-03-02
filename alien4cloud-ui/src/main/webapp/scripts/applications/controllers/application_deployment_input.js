@@ -16,10 +16,9 @@ define(function (require) {
       key: 'APPLICATIONS.DEPLOYMENT.INPUT',
       icon: 'fa fa-sign-in',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer,
-      priority: 300,
+      priority: 100,
       step: {
-        nextStepId: 'am.applications.detail.deployment.deploy',
-        taskCodes: ['INPUT_PROPERTY', 'INPUT_ARTIFACT_INVALID', 'ORCHESTRATOR_PROPERTY', 'NODE_FILTER_INVALID', 'PROPERTIES', 'SCALABLE_CAPABILITY_INVALID']
+        taskCodes: ['INPUT_PROPERTY', 'INPUT_ARTIFACT_INVALID']
       }
     }
   });
@@ -28,9 +27,8 @@ define(function (require) {
       ['$scope', 'Upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices', '$state',
         function ($scope, $upload, applicationServices, $http, $filter, deploymentTopologyServices) {
 
-          $scope._ = _;
           $scope.isAllowedInputDeployment = function () {
-            return !_.isEmpty($filter('allowedInputs')($scope.deploymentContext.deploymentTopologyDTO.topology.inputs));
+            return _.isNotEmpty($filter('allowedInputs')(_.get($scope, 'deploymentContext.deploymentTopologyDTO.topology.inputs')));
           };
 
           /* Handle properties inputs */
@@ -83,45 +81,6 @@ define(function (require) {
             var file = $files[0];
             $scope.doUploadArtifact(file, artifactName);
           };
-
-          $scope.refreshOrchestratorDeploymentPropertyDefinitions = function () {
-            return $http.get('rest/latest/orchestrators/' + $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId + '/deployment-property-definitions').then(function (result) {
-              if (result.data.data) {
-                $scope.deploymentContext.orchestratorDeploymentPropertyDefinitions = result.data.data;
-              }
-            });
-          };
-          $scope.refreshOrchestratorDeploymentPropertyDefinitions();
-
-          $scope.updateDeploymentProperty = function (propertyDefinition, propertyName, propertyValue) {
-            if (propertyValue === $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName]) {
-              return; // no change
-            }
-            var deploymentPropertyObject = {
-              'definitionId': propertyName,
-              'value': propertyValue
-            };
-
-            return applicationServices.checkProperty({
-              orchestratorId: $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId
-            }, angular.toJson(deploymentPropertyObject), function (data) {
-              if (data.error === null) {
-                $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName] = propertyValue;
-                // Update deployment setup when properties change
-                deploymentTopologyServices.updateInputProperties({
-                    appId: $scope.application.id,
-                    envId: $scope.deploymentContext.selectedEnvironment.id
-                  }, angular.toJson({
-                    providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
-                  }), function (result) {
-                    if (!result.error) {
-                      $scope.updateScopeDeploymentTopologyDTO(result.data);
-                    }
-                  }
-                );
-              }
-            }).$promise;
-          };
-        }
+        } // function
       ]); //controller
 }); //Define
