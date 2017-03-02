@@ -4,8 +4,11 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.beans.IntrospectionException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +24,7 @@ import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
@@ -39,6 +43,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -47,6 +52,8 @@ import com.google.common.collect.Sets;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.TopologyCompositionService;
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
+import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
@@ -110,6 +117,8 @@ public class DeploymentTopologyService {
     private LocationSecurityService locationSecurityService;
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
+    @Resource
+    private IFileRepository artifactRepository;
 
     public void save(DeploymentTopology deploymentTopology) {
         deploymentTopology.setLastDeploymentTopologyUpdateDate(new Date());
@@ -264,7 +273,7 @@ public class DeploymentTopologyService {
         deploymentTopology.setEnvironmentId(environment.getId());
         deploymentTopology.setInitialTopologyId(topology.getId());
         deploymentTopology.setId(id);
-        doUpdateDeploymentTopology(deploymentTopology, topology);
+        doUpdateDeploymentTopology(deploymentTopology, topology, environment);
         return deploymentTopology;
     }
 
@@ -275,18 +284,38 @@ public class DeploymentTopologyService {
      */
     public void updateDeploymentTopology(DeploymentTopology deploymentTopology) {
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
-        doUpdateDeploymentTopology(deploymentTopology, topology);
+        ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
+        doUpdateDeploymentTopology(deploymentTopology, topology, environment);
     }
 
-    private void doUpdateDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology) {
+    private void doUpdateDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
         Map<String, NodeTemplate> previousNodeTemplates = deploymentTopology.getNodeTemplates();
         ReflectionUtil.mergeObject(topology, deploymentTopology, "id");
         deploymentTopology.setSubstitutionMapping(topology.getSubstitutionMapping());
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
-        deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
+        injectInputAndProcessSubstitutionIfNeeded(deploymentTopology, topology, environment, previousNodeTemplates);
         save(deploymentTopology);
+    }
+
+    /**
+     * If a location has been selected, inject inputs, and process node substitutions
+     * 
+     * @param deploymentTopology
+     * @param topology
+     * @param environment
+     * @param previousNodeTemplates
+     */
+    private void injectInputAndProcessSubstitutionIfNeeded(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment,
+            Map<String, NodeTemplate> previousNodeTemplates) {
+        if (MapUtils.isEmpty(deploymentTopology.getLocationGroups())) {
+            // No location group is defined do nothing
+            return;
+        }
+        // injects inputs before processing substitutions
+        inputsPreProcessorService.injectInputValues(deploymentTopology, environment, topology);
+        deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
     }
 
     /**
@@ -297,6 +326,8 @@ public class DeploymentTopologyService {
     public void updateDeploymentTopologyInputsAndSave(DeploymentTopology deploymentTopology) {
         deploymentInputService.processInputProperties(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
+        injectInputAndProcessSubstitutionIfNeeded(deploymentTopology, topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId()),
+                appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId()), null);
         save(deploymentTopology);
     }
 
@@ -565,11 +596,9 @@ public class DeploymentTopologyService {
      * @return
      */
     public Map<String, PropertyValue> processForDeployment(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
-        Topology initialTopology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         // if a property defined as getInput didn't found a value after processing, set it to null
-        Map<String, PropertyValue> inputs = inputsPreProcessorService.injectInputValues(deploymentTopology, environment, initialTopology);
         inputsPreProcessorService.setUnprocessedGetInputToNullValue(deploymentTopology);
-        return inputs;
+        return inputsPreProcessorService.computeInputs(deploymentTopology, environment);
     }
 
     /**
@@ -607,5 +636,39 @@ public class DeploymentTopologyService {
         deploymentTopology.getNodeTemplates().put(nodeId, deploymentTopology.getOriginalNodes().get(nodeId));
         updateDeploymentTopology(deploymentTopology);
         return deploymentConfiguration;
+    }
+
+    /**
+     * Update an input artifact value in the deployment topology
+     *
+     * @param environmentId
+     * @param inputArtifactId
+     * @param artifactFile
+     * @throws IOException
+     */
+    public void updateInputArtifact(String environmentId, String inputArtifactId, MultipartFile artifactFile) throws IOException {
+        DeploymentTopology topology = getDeploymentTopology(environmentId);
+        if (topology.getInputArtifacts() == null || !topology.getInputArtifacts().containsKey(inputArtifactId)) {
+            throw new NotFoundException("Input Artifact with key [" + inputArtifactId + "] doesn't exist within the topology.");
+        }
+        Map<String, DeploymentArtifact> artifacts = topology.getUploadedInputArtifacts();
+        if (artifacts == null) {
+            artifacts = new HashMap<>();
+            topology.setUploadedInputArtifacts(artifacts);
+        }
+        DeploymentArtifact artifact = artifacts.get(inputArtifactId);
+        if (artifact == null) {
+            artifact = new DeploymentArtifact();
+            artifacts.put(inputArtifactId, artifact);
+        } else if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
+            artifactRepository.deleteFile(artifact.getArtifactRef());
+        }
+        try (InputStream artifactStream = artifactFile.getInputStream()) {
+            String artifactFileId = artifactRepository.storeFile(artifactStream);
+            artifact.setArtifactName(artifactFile.getOriginalFilename());
+            artifact.setArtifactRef(artifactFileId);
+            artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
+            save(topology);
+        }
     }
 }

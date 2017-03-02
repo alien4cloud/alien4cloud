@@ -256,7 +256,7 @@ define(function (require) {
         }
       };
 
-      // fetch the topology to display intput/output properties and matching data
+      // fetch the topology to display intput properties and matching data
       $scope.processTopologyInformations = function processTopologyInformations(topologyId) {
         return topologyServices.dao.get({
           topologyId: topologyId
@@ -276,6 +276,7 @@ define(function (require) {
           applicationEnvironmentId: appEnvironments.selected.id
         }, function(result) {
           topologyJsonProcessor.process(result.data);
+          $scope.deployedContext.dto = result.data;
           $scope.outputProperties = result.data.topology.outputProperties;
           $scope.outputCapabilityProperties = result.data.topology.outputCapabilityProperties;
           $scope.outputAttributes = result.data.topology.outputAttributes;
@@ -442,6 +443,9 @@ define(function (require) {
         }
       };
       $scope.doSubscribe = doSubscribe;
+
+      // context for the eventually deployed topology
+      $scope.deployedContext = {};
     }
   ]);
 });

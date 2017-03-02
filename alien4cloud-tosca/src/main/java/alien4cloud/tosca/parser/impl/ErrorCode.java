@@ -44,6 +44,8 @@ public enum ErrorCode {
     TYPE_NOT_FOUND,
     /** A TOSCA type defines a derived from on a type that also derives from it. */
     CYCLIC_DERIVED_FROM,
+    /** A correct tosca type must define from tosca.nodes.Root **/
+    DERIVED_FROM_NOTHING,
     /** The icon format is not supported. */
     INVALID_ICON_FORMAT,
     /** Error in Alien Mapping */

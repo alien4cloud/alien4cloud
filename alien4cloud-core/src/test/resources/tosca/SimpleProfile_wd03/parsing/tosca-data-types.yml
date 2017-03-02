@@ -7,8 +7,10 @@ template_version: 1.0.0.wd03-SNAPSHOT
 description: Contains the normative types definition.
 
 node_types:
-
+  tosca.nodes.Root:
+    description: root type
   alien.test.Command:
+    derived_from: tosca.nodes.Root
     properties:
       id:
         type: integer
@@ -26,8 +28,10 @@ node_types:
           type: string
 
 data_types:
-
+  tosca.datatypes.Root:
+    description: root type
   alien.test.Address:
+    derived_from: tosca.datatypes.Root
     properties:
       number:
         type: integer
@@ -43,6 +47,7 @@ data_types:
           - valid_values: ["France", "Germany", "Italy"]
 
   alien.test.Person:
+    derived_from: tosca.datatypes.Root
     properties:
       name:
         type: string

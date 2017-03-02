@@ -95,11 +95,8 @@ public abstract class AbstractToscaParserSimpleProfileTest {
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getNodeTypes().size());
         // check node type.
-        Entry<String, NodeType> entry = archiveRoot.getNodeTypes().entrySet().iterator().next();
-
-        Assert.assertEquals("my_company.my_types.MyAppNodeType", entry.getKey());
-        NodeType nodeType = entry.getValue();
-
+        NodeType nodeType = archiveRoot.getNodeTypes().get("my_company.my_types.MyAppNodeType");
+        Assert.assertNotNull(nodeType);
         Assert.assertEquals(Lists.newArrayList("tosca.nodes.SoftwareComponent", "tosca.nodes.Root"), nodeType.getDerivedFrom());
         Assert.assertEquals("My company’s custom applicaton", nodeType.getDescription());
 

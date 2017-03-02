@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
@@ -26,6 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -46,6 +49,61 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
     @Override
     protected String getToscaVersion() {
         return "alien_dsl_1_2_0";
+    }
+
+    @Resource
+    private ICSARRepositorySearchService repositorySearchService;
+
+    @Test
+    public void testCapabilities() throws ParsingException {
+        NodeType mockedResult = Mockito.mock(NodeType.class);
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                Mockito.any(Set.class))).thenReturn(mockedResult);
+        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+        CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
+                Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Container"),
+                Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+
+        RelationshipType connectsTo = new RelationshipType();
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.ConnectsTo"),
+                Mockito.any(Set.class))).thenReturn(connectsTo);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "requirement_capabilities.yaml"));
+        ArchiveParserTest.displayErrors(parsingResult);
+        parsingResult.getResult().getNodeTypes().values().forEach(nodeType -> {
+            nodeType.getRequirements().forEach(requirementDefinition -> {
+                switch (requirementDefinition.getId()) {
+                case "host":
+                    Assert.assertEquals("tosca.capabilities.Container", requirementDefinition.getType());
+                    break;
+                case "endpoint":
+                case "another_endpoint":
+                    Assert.assertEquals("tosca.capabilities.Endpoint", requirementDefinition.getType());
+                    Assert.assertEquals(0, requirementDefinition.getLowerBound());
+                    Assert.assertEquals(Integer.MAX_VALUE, requirementDefinition.getUpperBound());
+                    Assert.assertEquals("tosca.relationships.ConnectsTo", requirementDefinition.getRelationshipType());
+                    break;
+                }
+            });
+            nodeType.getCapabilities().forEach(capabilityDefinition -> {
+                switch (capabilityDefinition.getId()) {
+                case "host":
+                    Assert.assertEquals("tosca.capabilities.Container", capabilityDefinition.getType());
+                    break;
+                case "endpoint":
+                case "another_endpoint":
+                    Assert.assertEquals("tosca.capabilities.Endpoint", capabilityDefinition.getType());
+                    Assert.assertNotNull(capabilityDefinition.getDescription());
+                }
+            });
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -114,7 +172,7 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types-extends-native.yml"));
         ArchiveParserTest.displayErrors(parsingResult);
         Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
         Assert.assertEquals(1, parsingResult.getResult().getTopology().getNodeTemplates().size());
         NodeTemplate nodeTemplate = parsingResult.getResult().getTopology().getNodeTemplates().values().iterator().next();
@@ -147,7 +205,7 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types-extends-native-error1.yml"));
         ArchiveParserTest.displayErrors(parsingResult);
         Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 
@@ -156,7 +214,7 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types-extends-native-error2.yml"));
         ArchiveParserTest.displayErrors(parsingResult);
         Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 
@@ -165,7 +223,7 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types-extends-native-error3.yml"));
         ArchiveParserTest.displayErrors(parsingResult);
         Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 
@@ -173,8 +231,8 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
     public void testDataTypesComplexWithDefault() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types-complex-default.yml"));
         ArchiveParserTest.displayErrors(parsingResult);
-        Assert.assertEquals(1, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getDataTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
         NodeType commandType = parsingResult.getResult().getNodeTypes().get("alien.test.Command");
         Assert.assertNotNull(commandType);
@@ -212,8 +270,8 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
     public void testDataTypesVeryComplexWithDefault() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types-very-complex-default.yml"));
         ArchiveParserTest.displayErrors(parsingResult);
-        Assert.assertEquals(2, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
         NodeType commandType = parsingResult.getResult().getNodeTypes().get("alien.test.Command");
         Assert.assertNotNull(commandType);

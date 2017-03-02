@@ -42,8 +42,8 @@ public class ArchiveParserAlien120Test {
     public void testDataTypesVeryComplexWithDefaultError1() throws ParsingException, IOException {
         ParsingResult<ArchiveRoot> parsingResult = parse("tosca-data-types-very-complex-default-error1.yml");
         ArchiveParserTest.displayErrors(parsingResult);
-        Assert.assertEquals(2, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 
@@ -51,8 +51,8 @@ public class ArchiveParserAlien120Test {
     public void testDataTypesVeryComplexWithDefaultError2() throws ParsingException, IOException {
         ParsingResult<ArchiveRoot> parsingResult = parse("tosca-data-types-very-complex-default-error2.yml");
         ArchiveParserTest.displayErrors(parsingResult);
-        Assert.assertEquals(2, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 
@@ -60,8 +60,8 @@ public class ArchiveParserAlien120Test {
     public void testDataTypesVeryComplexWithDefaultError3() throws ParsingException, IOException {
         ParsingResult<ArchiveRoot> parsingResult = parse("tosca-data-types-very-complex-default-error3.yml");
         ArchiveParserTest.displayErrors(parsingResult);
-        Assert.assertEquals(2, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 
@@ -69,8 +69,8 @@ public class ArchiveParserAlien120Test {
     public void testDataTypesVeryComplexWithDefaultError4() throws ParsingException, IOException {
         ParsingResult<ArchiveRoot> parsingResult = parse("tosca-data-types-very-complex-default-error4.yml");
         ArchiveParserTest.displayErrors(parsingResult);
-        Assert.assertEquals(2, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(2, parsingResult.getContext().getParsingErrors().size());
     }
 

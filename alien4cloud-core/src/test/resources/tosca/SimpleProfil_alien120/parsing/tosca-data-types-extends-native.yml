@@ -7,7 +7,10 @@ template_version: 1.0.0.alien120
 description: Contains the normative types definition.
 
 node_types:
+  tosca.nodes.Root:
+    description: root type
   alien.test.Command:
+    derived_from: tosca.nodes.Root
     properties:
       url:
         type: url

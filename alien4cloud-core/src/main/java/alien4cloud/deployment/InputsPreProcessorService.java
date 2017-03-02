@@ -65,7 +65,7 @@ public class InputsPreProcessorService {
      */
     public Map<String, PropertyValue> injectInputValues(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
         topologyCompositionService.processTopologyComposition(topology);
-        Map<String, PropertyValue> inputs = getInputs(deploymentTopology, environment);
+        Map<String, PropertyValue> inputs = computeInputs(deploymentTopology, environment);
         if (deploymentTopology.getNodeTemplates() != null) {
             for (Entry<String, NodeTemplate> entry : deploymentTopology.getNodeTemplates().entrySet()) {
                 NodeTemplate nodeTemplate = entry.getValue();
@@ -167,7 +167,7 @@ public class InputsPreProcessorService {
      * @return A unified map of input for the topology containing the inputs from the deployment setup as well as the ones coming from location or application
      *         meta-properties.
      */
-    private Map<String, PropertyValue> getInputs(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
+    public Map<String, PropertyValue> computeInputs(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
         // initialize a map with input from the deployment setup
         Map<String, PropertyValue> inputs = Maps.newHashMap();
         if (!MapUtils.isEmpty(deploymentTopology.getInputProperties())) {

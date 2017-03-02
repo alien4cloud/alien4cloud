@@ -48,6 +48,7 @@ import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.security.model.Role;
 import alien4cloud.test.utils.SecurityTestUtils;
+import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.parser.AbstractToscaParserSimpleProfileTest;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.AlienConstants;
@@ -103,6 +104,8 @@ public class FunctionEvaluatorTest {
             Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
             FileUtil.zip(typesPath, typesZipPath);
             ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
+            ArchiveParserTest.displayErrors(result);
+
             AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
 
             typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");

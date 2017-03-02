@@ -427,6 +427,58 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     }
 
     @Test
+    public void testCapabilities() throws ParsingException {
+        NodeType mockedResult = Mockito.mock(NodeType.class);
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                Mockito.any(Set.class))).thenReturn(mockedResult);
+        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+        CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
+                Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Container"),
+                Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+
+        RelationshipType connectsTo = new RelationshipType();
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.ConnectsTo"),
+                Mockito.any(Set.class))).thenReturn(connectsTo);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "requirement_capabilities.yaml"));
+        ArchiveParserTest.displayErrors(parsingResult);
+        parsingResult.getResult().getNodeTypes().values().forEach(nodeType -> {
+            nodeType.getRequirements().forEach(requirementDefinition -> {
+                switch (requirementDefinition.getId()) {
+                case "host":
+                    Assert.assertEquals("tosca.capabilities.Container", requirementDefinition.getType());
+                    break;
+                case "endpoint":
+                case "another_endpoint":
+                    Assert.assertEquals("tosca.capabilities.Endpoint", requirementDefinition.getType());
+                    Assert.assertEquals(0, requirementDefinition.getLowerBound());
+                    Assert.assertEquals(Integer.MAX_VALUE, requirementDefinition.getUpperBound());
+                    Assert.assertEquals("tosca.relationships.ConnectsTo", requirementDefinition.getRelationshipType());
+                    break;
+                }
+            });
+            nodeType.getCapabilities().forEach(capabilityDefinition -> {
+                switch (capabilityDefinition.getId()) {
+                case "host":
+                    Assert.assertEquals("tosca.capabilities.Container", capabilityDefinition.getType());
+                    break;
+                case "endpoint":
+                case "another_endpoint":
+                    Assert.assertEquals("tosca.capabilities.Endpoint", capabilityDefinition.getType());
+                    Assert.assertNotNull(capabilityDefinition.getDescription());
+                }
+            });
+        });
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     public void testGetOperationOutputFunction() throws Throwable {
         Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
@@ -588,8 +640,8 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     public void testDataTypes() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types.yml"));
         ArchiveParserTest.displayErrors(parsingResult);
-        Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
-        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(4, parsingResult.getResult().getDataTypes().size());
+        Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
     }
 

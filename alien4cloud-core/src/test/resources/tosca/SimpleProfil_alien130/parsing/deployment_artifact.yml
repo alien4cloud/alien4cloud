@@ -14,8 +14,10 @@ repositories:
     type: maven
 
 artifact_types:
-
+  tosca.artifacts.Root:
+    description: root type
   tosca.artifacts.Deployment.War:
+    derived_from: tosca.artifacts.Root
     description: A web application archive
     file_ext: [ war ]
 
@@ -50,8 +52,10 @@ data_types:
         required: false
 
 node_types:
-
+  tosca.nodes.Root:
+    description: root type
   my.maven.component:
+    derived_from: tosca.nodes.Root
     artifacts:
       - simple_war: binary/myWar.war
       - remote_war:
@@ -62,8 +66,10 @@ node_types:
     derived_from: my.maven.component
 
 relationship_types:
-
+  tosca.relationships.Root:
+    description: root type
   my.maven.relationship:
+    derived_from: tosca.relationships.Root
     artifacts:
       - simple_war: binary/myWar.war
       - remote_war:
