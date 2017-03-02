@@ -140,9 +140,10 @@ topology_template:
 #end## if doesInterfaceContainsImplementedOperation
 #end## of interfaces iteration
 #end## if doesInterfacesContainsImplementedOperation
-#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.artifacts))
+#set($nodeTopologyArtifacts = $utils.getTopologyArtifacts($template_name, $template_version, $nodeTemplateEntry.value.artifacts))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTopologyArtifacts))
       artifacts:
-#foreach($artifactEntry in ${nodeTemplateEntry.value.artifacts.entrySet()})
+#foreach($artifactEntry in ${nodeTopologyArtifacts.entrySet()})
         $artifactEntry.key:
 ${utils.formatArtifact($artifactEntry.value, 5)}
 #end## of $artifactEntry iteration
