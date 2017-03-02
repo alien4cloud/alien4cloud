@@ -59,10 +59,10 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String[] locationIds;
 
-    /** Id of the deployment that has initialized this service (when the service is created from a deployment). */
+    /** If the service is managed by an application. Defines the environment for which the service is managed. */
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
-    private String deploymentId;
+    private String environmentId;
 
     @DateField(index = IndexType.no, includeInAll = false)
     private Date creationDate;

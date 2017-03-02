@@ -1,12 +1,10 @@
 package alien4cloud.authorization;
 
-import alien4cloud.application.ApplicationEnvironmentService;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.security.AbstractSecurityEnabledResource;
-import alien4cloud.security.ISecurityEnabledResource;
-import alien4cloud.security.Permission;
-import alien4cloud.security.Subject;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.verify;
+
+import java.util.HashSet;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,10 +15,13 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.util.HashSet;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.security.AbstractSecurityEnabledResource;
+import alien4cloud.security.ISecurityEnabledResource;
+import alien4cloud.security.Permission;
+import alien4cloud.security.Subject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResourcePermissionServiceTest {

@@ -31,6 +31,7 @@ import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.PatchUtil;
+import alien4cloud.service.exceptions.ServiceUsageException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.CollectionUtils;
@@ -54,15 +55,32 @@ public class ServiceResourceService {
      *
      * @param serviceName The unique name that defines the service from user point of view.
      * @param serviceVersion The id of the plugin used to communicate with the orchestrator.
+     * @param serviceNodeType The type of the node type used to create the service.
+     * @param serviceNodeVersion The version of the node type used to create the service.
      * @return The generated identifier for the service.
      */
     public String create(String serviceName, String serviceVersion, String serviceNodeType, String serviceNodeVersion) {
+        return create(serviceName, serviceVersion, serviceNodeType, serviceNodeVersion, null);
+    }
+
+    /**
+     * Create a service.
+     * 
+     * @param serviceName The unique name that defines the service from user point of view.
+     * @param serviceVersion The id of the plugin used to communicate with the orchestrator.
+     * @param serviceNodeType The type of the node type used to create the service.
+     * @param serviceNodeVersion The version of the node type used to create the service.
+     * @param environmentId In case the service is created out of an alien environment the id of the environment, null if not.
+     * @return The generated identifier for the service.
+     */
+    public String create(String serviceName, String serviceVersion, String serviceNodeType, String serviceNodeVersion, String environmentId) {
         ServiceResource serviceResource = new ServiceResource();
         // generate an unique id
         serviceResource.setId(UUID.randomUUID().toString());
         serviceResource.setName(serviceName);
         serviceResource.setVersion(serviceVersion);
         serviceResource.setCreationDate(new Date());
+        serviceResource.setEnvironmentId(environmentId);
 
         // build a node instance from the given type
         NodeType nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceNodeType, serviceNodeVersion);
@@ -258,7 +276,7 @@ public class ServiceResourceService {
     }
 
     private void failUpdateIfManaged(ServiceResource serviceResource) {
-        if (serviceResource.getDeploymentId() != null) {
+        if (serviceResource.getEnvironmentId() != null) {
             throw new AuthorizationServiceException("Alien managed services cannot be updated via Service API.");
         }
     }

@@ -19,7 +19,6 @@ define(function(require) {
   require('scripts/applications/controllers/application_deployment_input');
   require('scripts/applications/controllers/application_deployment_deploy');
 
-
   require('scripts/deployment/directives/display_outputs');
   require('scripts/applications/directives/topology_errors_display');
 
@@ -275,7 +274,6 @@ define(function(require) {
         $scope.goToTopologyValidation = function(){
           $state.go('applications.detail.topology.validation');
         };
-
       }
     ]); //controller
 }); //Define

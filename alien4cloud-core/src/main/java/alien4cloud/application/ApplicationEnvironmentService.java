@@ -196,17 +196,11 @@ public class ApplicationEnvironmentService {
     /**
      * Get an active deployment associated with an environment.
      *
-     * @param appEnvironmentId The id of the environment for which to get an active deployment.
+     * @param environmentId The id of the environment for which to get an active deployment.
      * @return The deployment associated with the environment.
      */
-    public Deployment getActiveDeployment(String appEnvironmentId) {
-        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(Deployment.class, null,
-                MapUtil.newHashMap(new String[] { "environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId }, new String[] { null } }),
-                1);
-        if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            return dataResult.getData()[0];
-        }
-        return null;
+    public Deployment getActiveDeployment(String environmentId) {
+        return alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("environmentId", environmentId, "endDate", null)).prepareSearch().find();
     }
 
     /**
