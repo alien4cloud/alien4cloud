@@ -1,29 +1,110 @@
 package alien4cloud.tosca.parser;
 
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Set;
 
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.ImplementationArtifact;
 import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.common.collect.Lists;
+
 import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.NormativeCredentialConstant;
+import alien4cloud.tosca.normative.NormativeTypesConstant;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:tosca/parser-application-context.xml")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSimpleProfileTest {
+
+    @Test
+    public void testDerivedFromNothing() throws ParsingException {
+        ArchiveParserTest.mockNormativeTypes(csarRepositorySearchService);
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "derived_from_nothing/template.yml"));
+        List<ParsingError> errors = parsingResult.getContext().getParsingErrors();
+        Assert.assertEquals(5, errors.size());
+        Assert.assertTrue(errors.stream()
+                .allMatch(error -> error.getErrorLevel() == ParsingErrorLevel.WARNING && error.getErrorCode() == ErrorCode.DERIVED_FROM_NOTHING));
+        Assert.assertTrue(parsingResult.getResult().getNodeTypes().values().stream()
+                .allMatch(nodeType -> nodeType.getDerivedFrom() != null && nodeType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_NODE_TYPE)));
+        Assert.assertTrue(parsingResult.getResult().getDataTypes().values().stream()
+                .allMatch(dataType -> dataType.getDerivedFrom() != null && dataType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_DATA_TYPE)));
+        Assert.assertTrue(parsingResult.getResult().getCapabilityTypes().values().stream().allMatch(capabilityType -> capabilityType.getDerivedFrom() != null
+                && capabilityType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_CAPABILITY_TYPE)));
+        Assert.assertTrue(
+                parsingResult.getResult().getRelationshipTypes().values().stream().allMatch(relationshipType -> relationshipType.getDerivedFrom() != null
+                        && relationshipType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_RELATIONSHIP_TYPE)));
+        Assert.assertTrue(parsingResult.getResult().getArtifactTypes().values().stream().allMatch(
+                artifactType -> artifactType.getDerivedFrom() != null && artifactType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_ARTIFACT_TYPE)));
+    }
+
+    @Test
+    public void testCapabilities() throws ParsingException {
+        NodeType mockedResult = Mockito.mock(NodeType.class);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                Mockito.any(Set.class))).thenReturn(mockedResult);
+        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+
+        Mockito.when(
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+        CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
+                Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Container"),
+                Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+
+        RelationshipType connectsTo = new RelationshipType();
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.ConnectsTo"),
+                Mockito.any(Set.class))).thenReturn(connectsTo);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "requirement_capabilities.yaml"));
+        ArchiveParserTest.displayErrors(parsingResult);
+        parsingResult.getResult().getNodeTypes().values().forEach(nodeType -> {
+            nodeType.getRequirements().forEach(requirementDefinition -> {
+                switch (requirementDefinition.getId()) {
+                case "host":
+                    Assert.assertEquals("tosca.capabilities.Container", requirementDefinition.getType());
+                    break;
+                case "endpoint":
+                case "another_endpoint":
+                    Assert.assertEquals("tosca.capabilities.Endpoint", requirementDefinition.getType());
+                    Assert.assertEquals(0, requirementDefinition.getLowerBound());
+                    Assert.assertEquals(Integer.MAX_VALUE, requirementDefinition.getUpperBound());
+                    Assert.assertEquals("tosca.relationships.ConnectsTo", requirementDefinition.getRelationshipType());
+                    break;
+                }
+            });
+            nodeType.getCapabilities().forEach(capabilityDefinition -> {
+                switch (capabilityDefinition.getId()) {
+                case "host":
+                    Assert.assertEquals("tosca.capabilities.Container", capabilityDefinition.getType());
+                    break;
+                case "endpoint":
+                case "another_endpoint":
+                    Assert.assertEquals("tosca.capabilities.Endpoint", capabilityDefinition.getType());
+                    Assert.assertNotNull(capabilityDefinition.getDescription());
+                }
+            });
+        });
+    }
 
     @Test
     public void testNodeTypeMissingRequirementType() throws ParsingException {
@@ -69,10 +150,10 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
-        Assert.assertEquals(1, archiveRoot.getArtifactTypes().size());
-        Assert.assertEquals(3, archiveRoot.getNodeTypes().size());
+        Assert.assertEquals(2, archiveRoot.getArtifactTypes().size());
+        Assert.assertEquals(4, archiveRoot.getNodeTypes().size());
         Assert.assertEquals(3, archiveRoot.getRepositories().size());
-        Assert.assertEquals(2, archiveRoot.getRelationshipTypes().size());
+        Assert.assertEquals(3, archiveRoot.getRelationshipTypes().size());
 
         NodeType httpComponent = archiveRoot.getNodeTypes().get("my.http.component");
         validateHttpArtifact(httpComponent);
@@ -147,10 +228,10 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getRepositories().size());
-        Assert.assertEquals(1, archiveRoot.getArtifactTypes().size());
-        Assert.assertEquals(2, archiveRoot.getNodeTypes().size());
-        Assert.assertEquals(2, archiveRoot.getNodeTypes().size());
-        Assert.assertEquals(2, archiveRoot.getRelationshipTypes().size());
+        Assert.assertEquals(2, archiveRoot.getArtifactTypes().size());
+        Assert.assertEquals(3, archiveRoot.getNodeTypes().size());
+        Assert.assertEquals(3, archiveRoot.getNodeTypes().size());
+        Assert.assertEquals(3, archiveRoot.getRelationshipTypes().size());
 
         NodeType mavenComponent = archiveRoot.getNodeTypes().get("my.maven.component");
         validateMavenDeploymentArtifact(mavenComponent);

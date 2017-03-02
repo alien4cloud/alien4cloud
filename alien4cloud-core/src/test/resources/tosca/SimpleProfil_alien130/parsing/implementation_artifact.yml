@@ -47,15 +47,19 @@ data_types:
         required: false
 
 artifact_types:
-
+  tosca.artifacts.Root:
+    description: root type
   tosca.artifacts.Implementation.Bash:
+    derived_from: tosca.artifacts.Root
     description: Script artifact for the Unix Bash shell
     mime_type: application/x-sh
     file_ext: [ sh ]
 
 node_types:
-
+  tosca.nodes.Root:
+    description: root type
   my.http.component:
+    derived_from: tosca.nodes.Root
     interfaces:
       tosca.interfaces.node.lifecycle.Standard:
         create: https://otherCompany/script/short_notation.sh
@@ -70,6 +74,7 @@ node_types:
   my.http.component.extended:
     derived_from: my.http.component
   my.git.component:
+    derived_from: tosca.nodes.Root
     interfaces:
       tosca.interfaces.node.lifecycle.Standard:
         create:
@@ -79,7 +84,10 @@ node_types:
             type: tosca.artifacts.Implementation.Bash
 
 relationship_types:
+  tosca.relationships.Root:
+    description: root type
   my.http.relationship:
+    derived_from: tosca.relationships.Root
     interfaces:
       Configure:
         create: https://otherCompany/script/short_notation.sh

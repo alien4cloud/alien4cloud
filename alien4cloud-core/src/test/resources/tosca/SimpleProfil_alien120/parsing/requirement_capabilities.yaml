@@ -1,0 +1,47 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: requirement-capabilities
+template_version: 1.0.0-SNAPSHOT
+template_author: alien4cloud
+
+description: This is an example of a single line description (no folding).
+
+imports:
+  - tosca-normative-types:*
+
+node_types:
+
+  alien.test.MyRequirementsListCapabilities:
+    derived_from: tosca.nodes.SoftwareComponent
+    capabilities:
+      - host: tosca.capabilities.Container
+      - endpoint:
+          type: tosca.capabilities.Endpoint
+          description: this is a capability
+    requirements:
+      - host: tosca.capabilities.Container
+      - endpoint: tosca.capabilities.Endpoint
+        relationship: tosca.relationships.ConnectsTo
+        occurrences: [0, unbounded]
+      - another_endpoint:
+          type: tosca.capabilities.Endpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [0, unbounded]
+
+  alien.test.MyRequirementsMapCapabilities:
+    derived_from: tosca.nodes.SoftwareComponent
+    capabilities:
+      host: tosca.capabilities.Container
+      endpoint:
+        type: tosca.capabilities.Endpoint
+        description: this is a capability
+    requirements:
+      host: tosca.capabilities.Container
+      endpoint:
+        type: tosca.capabilities.Endpoint
+        relationship: tosca.relationships.ConnectsTo
+        occurrences: [0, unbounded]
+      another_endpoint:
+        type: tosca.capabilities.Endpoint
+        relationship: tosca.relationships.ConnectsTo
+        occurrences: [0, unbounded]
