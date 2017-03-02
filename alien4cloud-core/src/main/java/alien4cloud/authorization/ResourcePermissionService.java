@@ -9,56 +9,52 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
-import javax.inject.Named;
 
-import alien4cloud.application.ApplicationEnvironmentService;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.security.AbstractSecurityEnabledResource;
-import alien4cloud.security.ISecurityEnabledResource;
-import alien4cloud.security.Permission;
-import alien4cloud.security.Subject;
 import org.alien4cloud.alm.events.AfterPermissionRevokedEvent;
 import org.alien4cloud.alm.events.BeforePermissionRevokedEvent;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Sets;
 
+import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.security.AbstractSecurityEnabledResource;
+import alien4cloud.security.ISecurityEnabledResource;
+import alien4cloud.security.Permission;
+import alien4cloud.security.Subject;
 import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.model.Group;
 import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  * Service managing permissions to resources
  */
 @Service
+@AllArgsConstructor
+@NoArgsConstructor
 public class ResourcePermissionService {
+    @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
+    @Inject
     private IAlienUserDao alienUserDao;
 
+    @Inject
     private IAlienGroupDao alienGroupDao;
 
+    @Inject
     private ApplicationEnvironmentService applicationEnvironmentService;
 
+    @Inject
     private ApplicationEventPublisher publisher;
-
-    @Autowired
-    public ResourcePermissionService(@Qualifier("alien-es-dao") IGenericSearchDAO alienDAO, IAlienUserDao alienUserDao, IAlienGroupDao alienGroupDao,
-                                     ApplicationEnvironmentService applicationEnvironmentService, ApplicationEventPublisher publisher) {
-        this.alienDAO = alienDAO;
-        this.alienUserDao = alienUserDao;
-        this.alienGroupDao = alienGroupDao;
-        this.applicationEnvironmentService = applicationEnvironmentService;
-        this.publisher = publisher;
-    }
 
     /**
      * Add admin permission to the given resource for the given subject.
