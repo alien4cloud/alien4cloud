@@ -294,10 +294,27 @@ public class DeploymentTopologyService {
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
-        /// injects inputs before processing substitutions
+        injectInputAndProcessSubstitutionIfNeeded(deploymentTopology, topology, environment, previousNodeTemplates);
+        save(deploymentTopology);
+    }
+
+    /**
+     * If a location has been selected, inject inputs, and process node substitutions
+     * 
+     * @param deploymentTopology
+     * @param topology
+     * @param environment
+     * @param previousNodeTemplates
+     */
+    private void injectInputAndProcessSubstitutionIfNeeded(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment,
+            Map<String, NodeTemplate> previousNodeTemplates) {
+        if (MapUtils.isEmpty(deploymentTopology.getLocationGroups())) {
+            // No location group is defined do nothing
+            return;
+        }
+        // injects inputs before processing substitutions
         inputsPreProcessorService.injectInputValues(deploymentTopology, environment, topology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
-        save(deploymentTopology);
     }
 
     /**
@@ -308,10 +325,8 @@ public class DeploymentTopologyService {
     public void updateDeploymentTopologyInputsAndSave(DeploymentTopology deploymentTopology) {
         deploymentInputService.processInputProperties(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
-        /// since inputs must be done before processing substitutions, we do it here
-        inputsPreProcessorService.injectInputValues(deploymentTopology, appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId()),
-                topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId()));
-        deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, null);
+        injectInputAndProcessSubstitutionIfNeeded(deploymentTopology, topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId()),
+                appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId()), null);
         save(deploymentTopology);
     }
 
