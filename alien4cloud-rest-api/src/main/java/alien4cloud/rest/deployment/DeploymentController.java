@@ -11,11 +11,14 @@ import javax.validation.Valid;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.mapping.MappingBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +31,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.ResponseUtil;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentLockService;
@@ -43,6 +47,7 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.rest.model.JsonRawRestResponse;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -249,4 +254,18 @@ public class DeploymentController {
         return RestResponseBuilder.<Void> builder().data(null).build();
     }
 
+    /**
+     * Bulk id request API.
+     */
+    @ApiOperation(value = "Get a list of deployments from their ids.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/bulk/ids", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public JsonRawRestResponse getByIds(@RequestBody String[] deploymentIds) {
+        // Check topology status for this deployment object
+        MultiGetResponse response = alienDAO.getClient().prepareMultiGet()
+                .add(alienDAO.getIndexForType(Deployment.class), MappingBuilder.indexTypeFromClass(Deployment.class), deploymentIds).get();
+        JsonRawRestResponse restResponse = new JsonRawRestResponse();
+        restResponse.setData(ResponseUtil.rawMultipleData(response));
+        return restResponse;
+    }
 }
