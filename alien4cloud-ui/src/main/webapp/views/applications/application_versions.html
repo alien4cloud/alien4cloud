@@ -35,7 +35,7 @@
           </thead>
           <tbody>
             <tr ng-repeat="version in searchAppVersionResult">
-              <td id="td-{{version.version}}"><span editable-text="version.version" onbeforesave="updateApplicationVersion('version',$data, version.id)" buttons="no" style="font-style:inherit;" blur="submit">{{version.version}} <i class="fa fa-edit"></i></span></td>
+              <td id="td-{{version.version}}"><span>{{version.version}} </span></td>
               <td><span editable-text="version.description" onbeforesave="updateApplicationVersion('description',$data, version.id)" buttons="no" style="font-style:inherit;" blur="submit">{{version.description}} <i class="fa fa-edit"></i></span></td>
               <td>
                 <delete-confirm class="pull-right" id='delete-version-{{version.version}}' func="delete(version.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
