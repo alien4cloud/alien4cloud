@@ -18,8 +18,8 @@ import lombok.ToString;
 public class BasicSearchRequest {
     /* The component type to query */
     private String query;
-    private Integer from;
-    private Integer size;
+    private Integer from = 0;
+    private Integer size = Constants.DEFAULT_ES_SEARCH_SIZE;
 
     public BasicSearchRequest(String query, Integer from, Integer size) {
         this.query = query;
