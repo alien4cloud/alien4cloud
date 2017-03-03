@@ -12,7 +12,7 @@ define(function (require) {
   states.state('applications.detail.runtime.workflow', {
     url: '/workflow',
     templateUrl: 'views/topology/topology_runtime_workflows.html',
-    controller: 'TopologyWorkflowEditorCtrl',
+    controller: 'TopologyWorkflowRuntimeCtrl',
     menu: {
       id: 'am.applications.detail.runtime.workflow',
       state: 'applications.detail.runtime.workflow',
