@@ -20,8 +20,6 @@ define(function(require) {
   require('scripts/applications/controllers/application_deployment_deploy');
 
   require('scripts/deployment/directives/display_inputs');
-
-
   require('scripts/deployment/directives/display_outputs');
   require('scripts/applications/directives/topology_errors_display');
 

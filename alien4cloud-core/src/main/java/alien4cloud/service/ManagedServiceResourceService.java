@@ -5,17 +5,18 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.deployment.DeploymentRuntimeStateService;
-import alien4cloud.model.deployment.Deployment;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.service.exceptions.MissingSubstitutionException;
@@ -24,6 +25,7 @@ import alien4cloud.topology.TopologyServiceCore;
 /**
  * This service handles the service resources managed by alien4cloud through deployments.
  */
+@Service
 public class ManagedServiceResourceService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
@@ -45,11 +47,8 @@ public class ManagedServiceResourceService {
      * @param serviceName The name of the service as it should appears.
      * @return the id of the created service
      */
-    public synchronized String create(String environmentId, String serviceName) {
-        ApplicationEnvironment environment = environmentService.getOrFail(environmentId);
-        Application application = applicationService.getOrFail(environment.getApplicationId());
-        // Only a user with deployment rôle on the environment can create an associated service.
-        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
+    public synchronized String create(String serviceName, String environmentId) {
+        ApplicationEnvironment environment = checkAndGetApplicationEnvironment(environmentId);
 
         // check that the service does not exists already for this environment/topologyVersion couple
         if (alienDAO.buildQuery(ServiceResource.class).setFilters(fromKeyValueCouples("environmentId", environmentId)).count() > 0) {
@@ -63,7 +62,7 @@ public class ManagedServiceResourceService {
             // If the environment is not deployed let's create the service from the topology currently associated with the environment (next deployment target)
             topology = topologyServiceCore.getOrFail(Csar.createId(environment.getApplicationId(), environment.getTopologyVersion()));
         } else {
-            // Else let's create the environment from the deployed topology
+            // Else let's create the service from the deployed topology
             topology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
         }
 
@@ -71,6 +70,7 @@ public class ManagedServiceResourceService {
             throw new MissingSubstitutionException("Substitution is required to expose a topology.");
         }
 
+        // TODO shouldn't we set the status of the created service to started if created from a deployed topology?
         // The elementId of the type created out of the substitution is currently the archive name.
         return serviceResourceService.create(serviceName, environment.getTopologyVersion(), topology.getArchiveName(), environment.getTopologyVersion(),
                 environmentId);
@@ -83,6 +83,22 @@ public class ManagedServiceResourceService {
      * @return A service resource instance if there is one associated with the environment or null if not.
      */
     public ServiceResource get(String environmentId) {
+        checkAndGetApplicationEnvironment(environmentId);
         return alienDAO.buildQuery(ServiceResource.class).setFilters(fromKeyValueCouples("environmentId", environmentId)).prepareSearch().find();
+    }
+
+    /**
+     * Get application environment, checks for DEPLOYMENT_MANAGEMENT rights on it.
+     *
+     * @param environmentId
+     * @return the environment if the current user has the proper rights on it
+     * @throws java.nio.file.AccessDeniedException if the current user doesn't have proper rights on the requested environment
+     */
+    private ApplicationEnvironment checkAndGetApplicationEnvironment(String environmentId) {
+        ApplicationEnvironment environment = environmentService.getOrFail(environmentId);
+        Application application = applicationService.getOrFail(environment.getApplicationId());
+        // Only a user with deployment rôle on the environment can create an associated service.
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
+        return environment;
     }
 }

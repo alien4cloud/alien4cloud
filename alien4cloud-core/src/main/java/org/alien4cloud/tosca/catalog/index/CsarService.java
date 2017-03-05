@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.exception.AlreadyExistException;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.events.AfterArchiveDeleted;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
@@ -32,13 +31,13 @@ import com.google.common.collect.Sets;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.utils.AlienConstants;
-import alien4cloud.utils.AlienUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -159,13 +158,31 @@ public class CsarService {
     }
 
     /**
-     * Set dependencies to an existing CSAR
+     * Set dependencies to an existing CSAR given its Id, and save it.
+     * <p>
+     * See {@link CsarService#setDependencies(String, Set)}
+     * </p>
+     *
      *
      * @param csarId id of the CSAR
      * @param dependencies the new dependencies
      */
     public void setDependencies(String csarId, Set<CSARDependency> dependencies) {
         Csar csar = getOrFail(csarId);
+        setDependencies(csar, dependencies);
+    }
+
+    /**
+     * Set the dependencies of a given csar to the provided set.
+     * <p>
+     * This method will remove ,if present, the provided <b>csar</b> from the provided set of <b>dependencies</b>, to avoid cyclic dependencies on itself.
+     * </p>
+     * Note that no saving operation is perform here
+     *
+     * @param csar: The csar we want to set the dependencies
+     * @param dependencies The provided dependencies to use.
+     */
+    public void setDependencies(Csar csar, Set<CSARDependency> dependencies) {
         csar.setDependencies(remove(csar, dependencies));
         save(csar);
     }
@@ -180,7 +197,7 @@ public class CsarService {
     private Set<CSARDependency> remove(Csar csar, Set<CSARDependency> from) {
         CSARDependency toRemove = new CSARDependency(csar.getName(), csar.getVersion());
         return from == null ? null
-                : AlienUtils.safe(from).stream().filter(csarDependency -> !Objects.equals(toRemove, csarDependency)).collect(Collectors.toSet());
+                : from.stream().filter(csarDependency -> !Objects.equals(toRemove, csarDependency)).collect(Collectors.toSet());
     }
 
     /**
@@ -226,7 +243,10 @@ public class CsarService {
     }
 
     /**
-     * Delete an archive if no topology depends from it.
+     * Delete an archive.
+     * <p>
+     * Unlike {@link CsarService#deleteCsar(String)}, the archive will be deleted regardless if it is used as a dependency somewhere.
+     * </p>
      *
      * @param csarId The id of the archive to delete.
      */
@@ -239,6 +259,7 @@ public class CsarService {
      * Delete an archive if no topology depends from it.
      *
      * @param csarId The id of the archive to delete.
+     * @throws DeleteReferencedObjectException If the csar is a dependency of another csar or topology
      */
     public void deleteCsar(String csarId) {
         Csar csar = getOrFail(csarId);

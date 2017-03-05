@@ -61,10 +61,11 @@ public class TopologySubstitutionService {
 
         // first we update the csar and the dependencies
         NodeType nodeType = ToscaContext.getOrFail(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType().getElementId());
-        csar.getDependencies().add(csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
-        // FIXME manage hash for substitution elements too (should we just generate based on type).
-        // csar.setHash("-1");
-        csarService.save(csar);
+        if (csar.getDependencies().add(csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()))) {
+            // FIXME manage hash for substitution elements too (should we just generate based on type).
+            // csar.setHash("-1");
+            csarService.save(csar);
+        }
 
         // We create the nodeType that will serve as substitute
         NodeType substituteNodeType = buildSubstituteNodeType(topology, csar, nodeType);

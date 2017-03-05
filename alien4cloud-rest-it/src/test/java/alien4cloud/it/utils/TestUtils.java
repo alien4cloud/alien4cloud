@@ -1,12 +1,11 @@
 package alien4cloud.it.utils;
 
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
-import alien4cloud.rest.utils.JsonUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
+
 import com.google.common.base.Joiner;
 
-import java.io.IOException;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.rest.utils.JsonUtil;
 
 /**
  */
@@ -25,6 +24,10 @@ public final class TestUtils {
 
     public static String nullable(String parameter) {
         return parameter == null || parameter.equals("null") ? null : parameter;
+    }
+
+    public static String nullAsString(String parameter) {
+        return parameter == null ? "null" : parameter;
     }
 
     public static <T> void convert(GetMultipleDataResult untyped, T[] target, Class<T> clazz) throws IOException {

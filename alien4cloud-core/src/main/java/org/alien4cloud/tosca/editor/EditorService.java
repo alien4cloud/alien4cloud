@@ -310,9 +310,10 @@ public class EditorService {
         Topology topology = EditionContextManager.getTopology();
         // Save the topology in elastic search
         topologyServiceCore.save(topology);
-        topologySubstitutionServive.updateSubstitutionType(topology, EditionContextManager.getCsar());
         // Topology has changed means that dependencies might have changed, must update the dependencies
-        csarService.setDependencies(topology.getId(), topology.getDependencies());
+        csarService.setDependencies(EditionContextManager.getCsar(), topology.getDependencies());
+        // update substitution type if needed
+        topologySubstitutionServive.updateSubstitutionType(topology, EditionContextManager.getCsar());
         // Local git commit
         repositoryService.commit(EditionContextManager.get().getCsar(), commitMessage.toString());
 
@@ -454,7 +455,7 @@ public class EditorService {
             initContext(topologyId, (String) null);
 
             // first we need to copy the content to a temporary location, unzip and parse the archive
-            tempPath = Files.createTempFile(tempUploadDir, null, null);
+            tempPath = Files.createTempFile(Paths.get(tempUploadDir), "", null);
             Files.copy(inputStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
             // This throws an exception if not successful
             topologyUploadService.processTopology(tempPath, EditionContextManager.get().getTopology().getWorkspace());

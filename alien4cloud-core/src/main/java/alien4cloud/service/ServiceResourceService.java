@@ -3,12 +3,15 @@ package alien4cloud.service;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
@@ -18,6 +21,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -35,8 +39,6 @@ import alien4cloud.service.exceptions.ServiceUsageException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.CollectionUtils;
-import alien4cloud.utils.VersionUtil;
-import alien4cloud.utils.version.Version;
 
 /**
  * Manages services.
@@ -79,7 +81,6 @@ public class ServiceResourceService {
         serviceResource.setId(UUID.randomUUID().toString());
         serviceResource.setName(serviceName);
         serviceResource.setVersion(serviceVersion);
-        serviceResource.setCreationDate(new Date());
         serviceResource.setEnvironmentId(environmentId);
 
         // build a node instance from the given type
@@ -277,7 +278,7 @@ public class ServiceResourceService {
 
     private void failUpdateIfManaged(ServiceResource serviceResource) {
         if (serviceResource.getEnvironmentId() != null) {
-            throw new AuthorizationServiceException("Alien managed services cannot be updated via Service API.");
+            throw new UnsupportedOperationException("Alien managed services cannot be updated via Service API.");
         }
     }
 
@@ -297,9 +298,6 @@ public class ServiceResourceService {
                         "A service with name <" + serviceResource.getName() + "> and version <" + serviceResource.getVersion() + "> already exists.");
             }
         }
-        // ensure that the nested version just reflects the version.
-        Version version = VersionUtil.parseVersion(serviceResource.getVersion());
-        serviceResource.setNestedVersion(version);
         alienDAO.save(serviceResource);
     }
 

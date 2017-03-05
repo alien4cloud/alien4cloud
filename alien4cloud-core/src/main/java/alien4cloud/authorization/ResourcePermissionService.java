@@ -38,7 +38,7 @@ import lombok.NoArgsConstructor;
  * Service managing permissions to resources
  */
 @Service
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @NoArgsConstructor
 public class ResourcePermissionService {
     @Resource(name = "alien-es-dao")

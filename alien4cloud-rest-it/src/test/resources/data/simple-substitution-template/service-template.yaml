@@ -1,0 +1,56 @@
+tosca_definitions_version: alien_dsl_1_3_0
+description:
+metadata:
+    template_name: WebApplicationTemplate
+    template_version: 0.1.0-SNAPSHOT
+    template_author: test
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+
+topology_template:
+  inputs:
+    context_root:
+      type: string
+      required: true
+      description: The web application’s context root which designates the application’s URL path within the web server it is hosted on.
+#  substitution_mappings:
+#    node_type: tosca.nodes.WebApplication
+#    capabilities:
+#      feature: [ WebApplication, feature ]
+#      app_endpoint: [ WebApplication, app_endpoint ]
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    WebApplication:
+      type: tosca.nodes.WebApplication
+      properties:
+        context_root: { get_input: context_root }
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        app_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+  outputs:
+    WebApplication_tosca_id:
+      value: { get_attribute: [ WebApplication, tosca_id ] }
