@@ -1,8 +1,6 @@
 package alien4cloud.rest.deployment.model;
 
-import java.util.Map;
-
-import alien4cloud.Constants;
+import alien4cloud.utils.AlienConstants;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -43,9 +41,9 @@ public class TimedRequest {
      */
     public void setSize(Integer size) {
         if (size == null) {
-            this.size = Constants.DEFAULT_ES_SEARCH_SIZE;
-        } else if (size > Constants.MAX_ES_SEARCH_SIZE) {
-            this.size = Constants.MAX_ES_SEARCH_SIZE;
+            this.size = AlienConstants.DEFAULT_ES_SEARCH_SIZE;
+        } else if (size > AlienConstants.MAX_ES_SEARCH_SIZE) {
+            this.size = AlienConstants.MAX_ES_SEARCH_SIZE;
         } else {
             this.size = size;
         }
