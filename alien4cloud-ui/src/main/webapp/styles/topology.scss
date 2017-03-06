@@ -79,7 +79,10 @@
 }
 
 .topology-column-content-head {
-  @extend .content-head;
+  font-weight: 500;
+  margin-bottom: 5px;
+  border-bottom: 1px solid $brand-primary;
+  padding-bottom: 5px;
   padding-left: 10px;
 }
 
