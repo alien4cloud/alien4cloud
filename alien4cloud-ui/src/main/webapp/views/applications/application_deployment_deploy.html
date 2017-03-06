@@ -1,9 +1,16 @@
 <div class="row" style="margin-bottom: 3em">
   <div class="col-md-6">
+    <managed-service
+      application="application"
+      topology="deploymentContext.deploymentTopologyDTO.topology"
+      environment="deploymentContext.selectedEnvironment">
+    </managed-service>
+  </div>
+  <div class="col-md-6">
     <!-- DEPLOY BUTTON -->
     <button id="btn-deploy"
             type="button"
-            class="btn btn-success application-deploy-button"
+            class="btn btn-success application-deploy-button pull-right"
             ng-disabled="!deploymentContext.deploymentTopologyDTO.validation.valid || isDeploying"
             ng-click="deploy()"
             ng-if="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'">
@@ -84,15 +91,5 @@
         </tr>
       </table>
     </div>
-  </div>
-
-  <div class="col-md-6" ng-if="deploymentContext.deploymentTopologyDTO.topology.substitutionMapping">
-    <div class="content-head">
-      <i class="fa fa-globe"></i> Service management
-    </div>
-    <p class="content-body">
-      <i class="fa" ng-class="(location) ? 'fa-check-square-o text-success' :'fa-square-o'" ng-click="item.checked = !item.checked"></i>
-      Deploy this environment as a service (other applications will be able to use it during matching phase).
-    </p>
   </div>
 </div>

@@ -14,6 +14,7 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.EnvironmentNotDeployedException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.Deployment;
@@ -45,9 +46,15 @@ public class ManagedServiceResourceService {
      * 
      * @param environmentId The environment to create a service for, the service version will be the one of the environment current associated version.
      * @param serviceName The name of the service as it should appears.
+     * @param fromRuntime If we should try to create the servic frm the runtime topology related to the environment.
      * @return the id of the created service
+     *
+     * @throws AlreadyExistException if a service with the given name, or related to the given environment already exists
+     * @throws EnvironmentNotDeployedException if <b>fromRuntime</b> is set to true, but the environment is not deployed
+     * @throws MissingSubstitutionException if topology related to the environment doesn't define a substitution type
+     *
      */
-    public synchronized String create(String serviceName, String environmentId) {
+    public synchronized String create(String serviceName, String environmentId, boolean fromRuntime) {
         ApplicationEnvironment environment = checkAndGetApplicationEnvironment(environmentId);
 
         // check that the service does not exists already for this environment/topologyVersion couple
@@ -56,15 +63,7 @@ public class ManagedServiceResourceService {
                     "A service resource for environment <" + environmentId + "> and version <" + environment.getTopologyVersion() + "> already exists.");
         }
 
-        Topology topology;
-        Deployment deployment = environmentService.getActiveDeployment(environmentId);
-        if (deployment == null) {
-            // If the environment is not deployed let's create the service from the topology currently associated with the environment (next deployment target)
-            topology = topologyServiceCore.getOrFail(Csar.createId(environment.getApplicationId(), environment.getTopologyVersion()));
-        } else {
-            // Else let's create the service from the deployed topology
-            topology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
-        }
+        Topology topology = getTopology(environment, fromRuntime);
 
         if (topology.getSubstitutionMapping() == null) {
             throw new MissingSubstitutionException("Substitution is required to expose a topology.");
@@ -74,6 +73,20 @@ public class ManagedServiceResourceService {
         // The elementId of the type created out of the substitution is currently the archive name.
         return serviceResourceService.create(serviceName, environment.getTopologyVersion(), topology.getArchiveName(), environment.getTopologyVersion(),
                 environmentId);
+    }
+
+    private Topology getTopology(ApplicationEnvironment environment, boolean runtimeTopology) {
+        if (runtimeTopology) {
+            Deployment deployment = environmentService.getActiveDeployment(environment.getId());
+            if (deployment == null) {
+                throw new EnvironmentNotDeployedException("The environment [" + environment.getId() + "] is not deployed.");
+            }
+            // Else let's create the service from the deployed topology
+            return deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
+        } else {
+            // If the environment is not deployed let's create the service from the topology currently associated with the environment (next deployment target)
+            return topologyServiceCore.getOrFail(Csar.createId(environment.getApplicationId(), environment.getTopologyVersion()));
+        }
     }
 
     /**

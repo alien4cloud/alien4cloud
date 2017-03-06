@@ -152,7 +152,14 @@
           input-properties = "deployedContext.dto.topology.inputProperties"
           orchestrator-properties = "deployedContext.dto.topology.providerDeploymentProperties">
         </display-inputs>
-
+        <div class="col-md-6">
+          <managed-service
+            application="application"
+            topology="deployedContext.dto.topology"
+            environment="deploymentContext.selectedEnvironment"
+            runtime="true">
+          </managed-service>
+        </div>
       </div>
     </uib-tab>
   </ui-tabset>

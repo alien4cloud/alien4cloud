@@ -48,8 +48,9 @@ define(function (require) {
       $scope.isRuntime = true;
 
       $scope.displays = {
-        details: { active: true, size: 500, selector: '#runtime-details-box', only: ['topology', 'details'] },
-        events: { active: false, size: 500, selector: '#runtime-events-box', only: ['topology', 'events'] }
+        details: { active: true, size: 500, selector: '#runtime-details-box', only: ['topology', 'details'], title: 'DETAILS', fa: 'fa-info' },
+        events: { active: false, size: 500, selector: '#runtime-events-box', only: ['topology', 'events'], title: 'APPLICATIONS.RUNTIME.EVENTS_TAB', fa: 'fa-tasks' },
+        service: { active: false, size: 500, selector: '#runtime-service-box', only: ['topology', 'service'], title: 'SERVICES.MANAGED.TITLE', fa: 'fa-globe' }
       };
       topoEditDisplay($scope, '#topology-editor');
       $scope.view = 'RENDERED';

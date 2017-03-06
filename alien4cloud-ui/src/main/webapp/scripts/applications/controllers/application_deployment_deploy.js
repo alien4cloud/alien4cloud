@@ -7,6 +7,7 @@ define(function(require) {
   var _ = require('lodash');
 
   require('scripts/applications/services/application_services');
+  require('scripts/services/directives/managed_service');
 
   states.state('applications.detail.deployment.deploy', {
     url: '/trigger',
@@ -25,8 +26,8 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentTriggerCtrl',
-    ['$scope', 'applicationServices', 'deploymentTopologyServices', '$resource',
-      function($scope, applicationServices, deploymentTopologyServices, $resource) {
+    ['$scope', 'applicationServices', 'deploymentTopologyServices', '$alresource',
+      function($scope, applicationServices, deploymentTopologyServices, $alresource) {
         $scope._ = _;
         // Deployment handler
         $scope.deploy = function() {
@@ -48,16 +49,13 @@ define(function(require) {
         * DEPLOYMENT PROPERTIES
         **/
         function refreshOrchestratorDeploymentPropertyDefinitions() {
-          return $resource('rest/latest/orchestrators/:orchestratorId/deployment-property-definitions')
+          return $alresource('rest/latest/orchestrators/:orchestratorId/deployment-property-definitions')
           .get({orchestratorId: $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId}, function (result) {
             if (result.data) {
               $scope.deploymentContext.orchestratorDeploymentPropertyDefinitions = result.data;
             }
           });
         }
-        // if(_.definedPath($scope.deploymentContext, 'deploymentTopologyDTO.topology.orchestratorId')){
-        //   refreshOrchestratorDeploymentPropertyDefinitions();
-        // }
 
         $scope.updateDeploymentProperty = function (propertyDefinition, propertyName, propertyValue) {
           if (propertyValue === $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName]) {

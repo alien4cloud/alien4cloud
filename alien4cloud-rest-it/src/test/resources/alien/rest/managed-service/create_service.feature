@@ -8,7 +8,7 @@ Feature: Create a service resource from an environment
     And I add a role "APPLICATIONS_MANAGER" to user "gandalf"
     And I add a role "ARCHITECT" to user "gandalf"
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
-    And I successfully upload the local archive "data/simple-substitution-template"
+    And I successfully upload the local archive "data/webbApp-template"
 
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
@@ -55,15 +55,20 @@ Feature: Create a service resource from an environment
     When I get the last created service
     Then The SPEL expression "environmentId != null" should return true
 
-  @reset
   #TODO improve this scenario later, since now there is no real difference between services created from deployed / undeployed environment
+  @reset
   Scenario: Creating a new service from a deployed environment should succeed
     Given I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
-    When I create a service with name "MyService", from the application "ALIEN", environment "Environment"
+    When I create a service with name "MyService", from the deployed application "ALIEN", environment "Environment"
     Then I should receive a RestResponse with no error
     Given I am authenticated with "ADMIN" role
     When I get the last created service
     Then The SPEL expression "environmentId != null" should return true
+
+  @reset
+  Scenario: Creating a new service from an deployed environment when this one is not deployed should fail
+    When I create a service with name "MyService", from the deployed application "ALIEN", environment "Environment"
+    Then I should receive a RestResponse with an error code 619
 
   @reset
   Scenario: Creating a new managed service with no name should fail
@@ -79,6 +84,13 @@ Feature: Create a service resource from an environment
   Scenario: Creating a new managed service with existing name should fail
     Given I successfully create a service with name "MyService", from the application "ALIEN", environment "Environment"
     When I create a service with name "MyService", from the application "ALIEN", environment "Environment"
+    Then I should receive a RestResponse with an error code 502
+
+  @reset
+  Scenario: Creating a new managed service when already created one on an environment should fail
+    Given I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
+    Given I successfully create a service with name "MyService", from the application "ALIEN", environment "Environment"
+    When I create a service with name "MyService_2", from the application "ALIEN", environment "Environment"
     Then I should receive a RestResponse with an error code 502
 
   @reset

@@ -1027,6 +1027,11 @@
       "NODE_TYPE": "Type",
       "NODE_TYPE_VERSION": "Type version",
       "TITLE": "New service"
+    },
+    "MANAGED": {
+      "TITLE": "Service management",
+      "DEPLOY_CREATE_MESSAGE": "Expose this deployment as a service (other applications will be able to use it during matching phase).",
+      "NO_SUBSTITUTION_MESSAGE": "The topology must define a substitution type for it to be exposed as a service."
     }
   },
   "START_DATE": "Start date",

@@ -41,7 +41,7 @@ public class ManagedServiceResourceController {
     @Audit
     public RestResponse<String> create(@PathVariable String environmentId,
             @ApiParam(value = "Create service", required = true) @Valid @RequestBody CreateManagedServiceResourceRequest createRequest) {
-        String serviceId = managedServiceResourceService.create(createRequest.getServiceName(), environmentId);
+        String serviceId = managedServiceResourceService.create(createRequest.getServiceName(), environmentId, createRequest.isFromRuntime());
         return RestResponseBuilder.<String> builder().data(serviceId).build();
     }
 
