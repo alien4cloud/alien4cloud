@@ -35,7 +35,6 @@ import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
-import alien4cloud.exception.EnvironmentNotDeployedException;
 import alien4cloud.exception.GitConflictException;
 import alien4cloud.exception.GitException;
 import alien4cloud.exception.GitMergingStateException;
@@ -511,11 +510,4 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build()).build();
     }
 
-    @ExceptionHandler(value = EnvironmentNotDeployedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public RestResponse<Void> environmentNotDeployedExceptionHandler(EnvironmentNotDeployedException e) {
-        log.error("Error in topology tosca yaml detected", e);
-        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.ENVIRONMENT_NOT_DEPLOYED_ERROR).build()).build();
-    }
 }
