@@ -1037,9 +1037,9 @@
         "CONFIRM_MESSAGE": "Voulez-vous vraiment exposer ce déploiement en tant que service?"
       },
       "UNBIND": {
-        "MESSAGE": "Dissocier ce service de cet environment. Le service existera toujours, mais ne sera mofidiable que par l'administrateur.",
+        "MESSAGE": "Dissocier ce service de cet environment.",
         "CONFIRM_TITLE": "Dissocier le service",
-        "CONFIRM_MESSAGE": "Voulez-vous vraiment dissocier ce service de cet environment? \nVous devrez alors contacter votre administrateur pour un nettoyage."
+        "CONFIRM_MESSAGE": "Voulez-vous vraiment dissocier ce service de cet environment?\nLe service sera supprimé s'il n'est utilisé par aucune resource. Sinon, Vous devrez alors contacter votre administrateur pour un nettoyage."
       }
     }
   },

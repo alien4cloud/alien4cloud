@@ -60,4 +60,12 @@ public class ManagedServiceResourceController {
         managedServiceResourceService.unbind(environmentId);
         return RestResponseBuilder.<Void> builder().build();
     }
+
+    @RequestMapping(method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete the managed service resource associated with an application environment.", notes = "The service can not be deleted if used by other resources.", authorizations = {
+            @Authorization("DEPLOYMENT_MANAGER") })
+    public RestResponse<Void> deleteServiceResource(@PathVariable String environmentId) {
+        managedServiceResourceService.delete(environmentId);
+        return RestResponseBuilder.<Void> builder().build();
+    }
 }

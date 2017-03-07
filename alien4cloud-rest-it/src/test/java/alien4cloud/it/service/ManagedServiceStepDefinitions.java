@@ -55,12 +55,22 @@ public class ManagedServiceStepDefinitions {
         }
     }
 
-    @When("^I (successfully\\s)?unbind service related to the application \"([^\"]*)\", environment \"([^\"]*)\"$")
-    public void iUnbindServiceRelatedToTheApplicationEnvironment(String successfully, String applicationName, String environmentName) throws Throwable {
+    @When("^I (successfully\\s)?unbind the service related to the application \"([^\"]*)\", environment \"([^\"]*)\"$")
+    public void iUnbindTheServiceRelatedToTheApplicationEnvironment(String successfully, String applicationName, String environmentName) throws Throwable {
         String applicationId = Context.getInstance().getApplicationId(applicationName);
         String environmentId = Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName);
         Context.getInstance().registerRestResponse(
                 getRestClientInstance().patch(String.format("/rest/applications/%s/environments/%s/services", applicationId, nullAsString(environmentId))));
+
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
+
+    @When("^I (successfully\\s)?delete the service related to the application \"([^\"]*)\", environment \"([^\"]*)\"$")
+    public void iDeleteTheServiceRelatedToTheApplicationEnvironment(String successfully, String applicationName, String environmentName) throws Throwable {
+        String applicationId = Context.getInstance().getApplicationId(applicationName);
+        String environmentId = Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName);
+        Context.getInstance().registerRestResponse(
+                getRestClientInstance().delete(String.format("/rest/applications/%s/environments/%s/services", applicationId, nullAsString(environmentId))));
 
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }

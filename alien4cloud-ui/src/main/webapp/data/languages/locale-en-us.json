@@ -1037,9 +1037,9 @@
         "CONFIRM_MESSAGE": "Do you really want to expose this as a service ?"
       },
       "UNBIND": {
-        "MESSAGE": "Unbind the service from this environment. The Service will still exists, but updatable only by the administrator.",
+        "MESSAGE": "Unbind the service from this environment.",
         "CONFIRM_TITLE": "Unbind service",
-        "CONFIRM_MESSAGE": "Do you really want to unbind the service from the environment?\nYou should then contact your administrator to clean it up if needed."
+        "CONFIRM_MESSAGE": "Do you really want to unbind the service from the environment?\n If not used anywhere, the service will be deleted. Otherwise, You should then contact your administrator to clean it up if needed."
       }
     }
   },

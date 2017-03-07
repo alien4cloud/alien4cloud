@@ -28,7 +28,7 @@
         confirm="{{'SERVICES.MANAGED.UNBIND.CONFIRM_MESSAGE' | translate}}"
         confirm-title="{{'SERVICES.MANAGED.UNBIND.CONFIRM_TITLE' | translate }}"
         confirm-placement="right"
-        confirm-handler="unbind()"
+        confirm-handler="tryDelete()"
         confirm-class="popover"
         ng-click="$event.stopPropagation();"></i>
       <span style="font-style: italic">{{serviceName}}</span>

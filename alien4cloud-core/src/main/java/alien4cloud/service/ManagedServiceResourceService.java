@@ -131,4 +131,16 @@ public class ManagedServiceResourceService {
         serviceResource.setEnvironmentId(null);
         serviceResourceService.save(serviceResource, false);
     }
+
+    /**
+     * Unbind the service resource from the application environment
+     *
+     * Note that the service will still exists, but will only be updatable via service api
+     *
+     * @param environmentId The environment for which to get the service resource.
+     */
+    public void delete(String environmentId) {
+        ServiceResource serviceResource = getOrFail(environmentId);
+        serviceResourceService.delete(serviceResource.getId());
+    }
 }

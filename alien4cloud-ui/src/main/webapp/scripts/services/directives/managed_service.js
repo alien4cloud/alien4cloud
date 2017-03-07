@@ -50,11 +50,27 @@ define(function(require) {
           }, angular.toJson(request), getManagedService);
         };
 
-        scope.unbind = function(){
+        var unbind =function(){
           managedServiceResourceService.patch({
             applicationId: scope.application.id,
             environmentId: scope.environment.id
           }, null, getManagedService);
+        };
+
+        scope.tryDelete = function(){
+          //first ty to delete
+          managedServiceResourceService.delete({
+            applicationId: scope.application.id,
+            environmentId: scope.environment.id
+          }, null, function(result){
+            if(_.undefined(result.error)){
+              console.log(result.data);
+              getManagedService();
+            }else {
+              //this could mean the service is used. try to unbind it instead
+              unbind();
+            }
+          });
         };
 
         scope.setName = function(name){

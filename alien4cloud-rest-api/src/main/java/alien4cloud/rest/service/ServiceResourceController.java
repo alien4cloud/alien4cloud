@@ -129,7 +129,7 @@ public class ServiceResourceController {
         }
     }
 
-    @ApiOperation(value = "Delete a service. Note: alien managed services (through application deployment) cannot be deleted via API.", authorizations = {
+    @ApiOperation(value = "Delete a service.", authorizations = {
             @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
