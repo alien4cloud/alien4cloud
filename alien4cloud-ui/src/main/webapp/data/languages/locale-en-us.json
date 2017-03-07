@@ -1030,8 +1030,17 @@
     },
     "MANAGED": {
       "TITLE": "Service management",
-      "DEPLOY_CREATE_MESSAGE": "Expose this deployment as a service (other applications will be able to use it during matching phase).",
-      "NO_SUBSTITUTION_MESSAGE": "The topology must define a substitution type for it to be exposed as a service."
+      "NO_SUBSTITUTION_MESSAGE": "The topology must define a substitution type for it to be exposed as a service.",
+      "CREATE": {
+        "MESSAGE": "Expose this deployment as a service (other applications will be able to use it during matching phase).",
+        "CONFIRM_TITLE": "Expose as service",
+        "CONFIRM_MESSAGE": "Do you really want to expose this as a service ?"
+      },
+      "UNBIND": {
+        "MESSAGE": "Unbind the service from this environment. The Service will still exists, but updatable only by the administrator.",
+        "CONFIRM_TITLE": "Unbind service",
+        "CONFIRM_MESSAGE": "Do you really want to unbind the service from the environment?\nYou should then contact your administrator to clean it up if needed."
+      }
     }
   },
   "START_DATE": "Start date",

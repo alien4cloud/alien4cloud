@@ -68,7 +68,7 @@ Feature: Create a service resource from an environment
   @reset
   Scenario: Creating a new service from an deployed environment when this one is not deployed should fail
     When I create a service with name "MyService", from the deployed application "ALIEN", environment "Environment"
-    Then I should receive a RestResponse with an error code 619
+    Then I should receive a RestResponse with an error code 504
 
   @reset
   Scenario: Creating a new managed service with no name should fail

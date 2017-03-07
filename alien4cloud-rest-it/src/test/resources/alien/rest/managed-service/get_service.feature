@@ -8,7 +8,7 @@ Feature: Get service resource associated to an application environement
     And I add a role "APPLICATIONS_MANAGER" to user "gandalf"
     And I add a role "ARCHITECT" to user "gandalf"
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
-    And I successfully upload the local archive "data/simple-substitution-template"
+    And I successfully upload the local archive "data/webbApp-template"
 
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"

@@ -5,6 +5,7 @@ import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,7 @@ import io.swagger.annotations.Authorization;
 @RequestMapping({ "/rest/applications/{applicationId:.+}/environments/{environmentId:.+}/services",
         "/rest/v1/applications/{applicationId:.+}/environments/{environmentId:.+}/services",
         "/rest/latest/applications/{applicationId:.+}/environments/{environmentId:.+}/services" })
+@PreAuthorize("isAuthenticated()")
 @Api(value = "Managed Services", description = "Allow to create/read/update/delete and search services linked to an application environment.")
 public class ManagedServiceResourceController {
     @Inject
@@ -49,5 +51,13 @@ public class ManagedServiceResourceController {
     @ApiOperation(value = "Get a service associated with an application environment.", authorizations = { @Authorization("DEPLOYMENT_MANAGER") })
     public RestResponse<ServiceResource> getServiceResource(@PathVariable String environmentId) {
         return RestResponseBuilder.<ServiceResource> builder().data(managedServiceResourceService.get(environmentId)).build();
+    }
+
+    @RequestMapping(method = RequestMethod.PATCH)
+    @ApiOperation(value = "Unbind the managed service resource from associated application environment.", notes = "This operation will only stop the management of the service via the application environment. The Service will still be present in Alien4Cloud, and updatable via service api or admin ui.", authorizations = {
+            @Authorization("DEPLOYMENT_MANAGER") })
+    public RestResponse<Void> unbindServiceResource(@PathVariable String environmentId) {
+        managedServiceResourceService.unbind(environmentId);
+        return RestResponseBuilder.<Void> builder().build();
     }
 }

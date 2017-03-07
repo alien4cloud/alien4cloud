@@ -1030,8 +1030,17 @@
     },
     "MANAGED": {
       "TITLE": "Service",
-      "DEPLOY_CREATE_MESSAGE": "Exposer ce déploiement en tant que service ( d'autres applications pourront l'utiliser pendant la phase de matching de resources ).",
-      "NO_SUBSTITUTION_MESSAGE": "La topologie doit définir un type de substitution afin d'être exposée en tant que service."
+      "NO_SUBSTITUTION_MESSAGE": "La topologie doit définir un type de substitution afin d'être exposée en tant que service.",
+      "CREATE": {
+        "MESSAGE": "Exposer ce déploiement en tant que service ( d'autres applications pourront l'utiliser pendant la phase de matching de resources ).",
+        "CONFIRM_TITLE": "Exposer",
+        "CONFIRM_MESSAGE": "Voulez-vous vraiment exposer ce déploiement en tant que service?"
+      },
+      "UNBIND": {
+        "MESSAGE": "Dissocier ce service de cet environment. Le service existera toujours, mais ne sera mofidiable que par l'administrateur.",
+        "CONFIRM_TITLE": "Dissocier le service",
+        "CONFIRM_MESSAGE": "Voulez-vous vraiment dissocier ce service de cet environment? \nVous devrez alors contacter votre administrateur pour un nettoyage."
+      }
     }
   },
   "START_DATE" : "Date de début",

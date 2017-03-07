@@ -54,4 +54,14 @@ public class ManagedServiceStepDefinitions {
         } catch (Throwable t) {
         }
     }
+
+    @When("^I (successfully\\s)?unbind service related to the application \"([^\"]*)\", environment \"([^\"]*)\"$")
+    public void iUnbindServiceRelatedToTheApplicationEnvironment(String successfully, String applicationName, String environmentName) throws Throwable {
+        String applicationId = Context.getInstance().getApplicationId(applicationName);
+        String environmentId = Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName);
+        Context.getInstance().registerRestResponse(
+                getRestClientInstance().patch(String.format("/rest/applications/%s/environments/%s/services", applicationId, nullAsString(environmentId))));
+
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
 }

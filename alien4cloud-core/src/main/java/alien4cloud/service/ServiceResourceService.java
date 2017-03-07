@@ -289,7 +289,7 @@ public class ServiceResourceService {
      * @param serviceResource The service to save.
      * @param ensureUniqueness True if we should process unicity check, false if not.
      */
-    private synchronized void save(ServiceResource serviceResource, boolean ensureUniqueness) {
+    public synchronized void save(ServiceResource serviceResource, boolean ensureUniqueness) {
         if (ensureUniqueness) {
             long count = alienDAO.buildQuery(ServiceResource.class)
                     .setFilters(fromKeyValueCouples("name", serviceResource.getName(), "version", serviceResource.getVersion())).count();

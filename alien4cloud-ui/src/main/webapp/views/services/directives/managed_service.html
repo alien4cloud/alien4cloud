@@ -6,13 +6,35 @@
 </div>
 <div class="content-body">
   <div ng-if = "topology.substitutionMapping">
-    <p>{{'SERVICES.MANAGED.DEPLOY_CREATE_MESSAGE' | translate}}</p>
-    <i class="fa" ng-class="(environment.service) ? 'fa-check-square-o text-success' :'fa-square-o clickable'" ng-click="!environment.service && createService()"></i>
-    <span ng-if = "!environment.service" id="srv-name" editable-text="serviceName" onbeforesave="setName($data)" e-class="editable-input-inline" e-required blur="submit" buttons="no">
-      {{serviceName}} <i class="fa fa-edit"></i>
-    </span>
-    <span ng-if="environment.service" style="font-style: italic">{{serviceName}}</span>
+    <!-- case no service bound yet-->
+    <div ng-if ="!environment.service">
+      <p>{{'SERVICES.MANAGED.CREATE.MESSAGE' | translate}}</p>
+      <i class="fa fa-square-o clickable padding-right"
+        confirm="{{'SERVICES.MANAGED.CREATE.CONFIRM_MESSAGE' | translate}}"
+        confirm-title="{{'SERVICES.MANAGED.CREATE.CONFIRM_TITLE' | translate }}"
+        confirm-placement="right"
+        confirm-handler="createService()"
+        confirm-class="popover"
+        ng-click="$event.stopPropagation();"></i>
+      <span  id="srv-name" editable-text="serviceName" onbeforesave="setName($data)" e-class="editable-input-inline" e-required blur="submit" buttons="no">
+        {{serviceName}} <i class="fa fa-edit"></i>
+      </span>
+    </div>
+
+    <!-- case service already bound -->
+    <div ng-if="environment.service">
+      <p>{{'SERVICES.MANAGED.UNBIND.MESSAGE' | translate}}</p>
+      <i class="fa fa-check-square-o text-success clickable padding-right"
+        confirm="{{'SERVICES.MANAGED.UNBIND.CONFIRM_MESSAGE' | translate}}"
+        confirm-title="{{'SERVICES.MANAGED.UNBIND.CONFIRM_TITLE' | translate }}"
+        confirm-placement="right"
+        confirm-handler="unbind()"
+        confirm-class="popover"
+        ng-click="$event.stopPropagation();"></i>
+      <span style="font-style: italic">{{serviceName}}</span>
+    </div>
   </div>
+  <!-- no substitution defined -->
   <span  class="text-danger" ng-if="!topology.substitutionMapping">
     <i class="fa fa-ban" ></i>
     <em>{{'SERVICES.MANAGED.NO_SUBSTITUTION_MESSAGE' | translate}}</em>

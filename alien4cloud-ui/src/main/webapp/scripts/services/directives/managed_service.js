@@ -44,13 +44,17 @@ define(function(require) {
             serviceName: scope.serviceName,
             fromRuntime: scope.runtime
           };
-          var params = {
+          managedServiceResourceService.create({
             applicationId: scope.application.id,
             environmentId: scope.environment.id
-          };
-          managedServiceResourceService.create(params, angular.toJson(request), function(){
-            getManagedService();
-          });
+          }, angular.toJson(request), getManagedService);
+        };
+
+        scope.unbind = function(){
+          managedServiceResourceService.patch({
+            applicationId: scope.application.id,
+            environmentId: scope.environment.id
+          }, null, getManagedService);
         };
 
         scope.setName = function(name){

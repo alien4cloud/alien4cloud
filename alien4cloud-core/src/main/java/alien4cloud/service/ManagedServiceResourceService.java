@@ -14,6 +14,7 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.service.ServiceResource;
@@ -107,5 +108,27 @@ public class ManagedServiceResourceService {
         // Only a user with deployment rôle on the environment can create an associated service.
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
         return environment;
+    }
+
+    private ServiceResource getOrFail(String environmentId) {
+        ServiceResource serviceResource = get(environmentId);
+        if (serviceResource == null) {
+            throw new NotFoundException("Service linked to the environement [" + environmentId + "] not found.");
+        }
+
+        return serviceResource;
+    }
+
+    /**
+     * Unbind the service resource from the application environment
+     *
+     * Note that the service will still exists, but will only be updatable via service api
+     * 
+     * @param environmentId The environment for which to get the service resource.
+     */
+    public void unbind(String environmentId) {
+        ServiceResource serviceResource = getOrFail(environmentId);
+        serviceResource.setEnvironmentId(null);
+        serviceResourceService.save(serviceResource, false);
     }
 }
