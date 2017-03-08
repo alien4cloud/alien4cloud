@@ -65,6 +65,11 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String environmentId;
 
+    /** The id of the current associated deployment. */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    private String deploymentId;
+
     @DateField(index = IndexType.no, includeInAll = false)
     private Date creationDate;
 

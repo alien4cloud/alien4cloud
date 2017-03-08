@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import com.google.common.util.concurrent.SettableFuture;
+import lombok.SneakyThrows;
 import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Service;
 
@@ -73,10 +75,34 @@ public class DeploymentRuntimeStateService {
     }
 
     /**
+     * Synchronously get the current deployment status for a topology.
+     *
+     * @param deployment deployment for which we want the status.
+     * @return The status of the topology.
+     */
+    @SneakyThrows
+    public DeploymentStatus getDeploymentStatus(Deployment deployment) {
+        final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
+        // update the deployment status from PaaS if it cannot be found.
+        getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+            @Override
+            public void onSuccess(DeploymentStatus data) {
+                statusSettableFuture.set(data);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                statusSettableFuture.setException(throwable);
+            }
+        });
+        return statusSettableFuture.get();
+    }
+
+    /**
      * Get the current deployment status for a topology.
      *
-     * @param deployment deployment for which we want the status
-     * @param callback that will be called when status is available*
+     * @param deployment deployment for which we want the status.
+     * @param callback that will be called when status is available
      * @return The status of the topology.
      * @throws alien4cloud.paas.exception.OrchestratorDisabledException In case the cloud selected for the topology is disabled.
      */

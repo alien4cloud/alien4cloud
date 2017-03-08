@@ -297,20 +297,7 @@ public class ApplicationEnvironmentService {
         if (deployment == null) {
             return DeploymentStatus.UNDEPLOYED;
         }
-        final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
-        // update the deployment status from PaaS if it cannot be found.
-        deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
-            @Override
-            public void onSuccess(DeploymentStatus data) {
-                statusSettableFuture.set(data);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                statusSettableFuture.setException(throwable);
-            }
-        });
-        DeploymentStatus currentStatus = statusSettableFuture.get();
+        DeploymentStatus currentStatus = deploymentRuntimeStateService.getDeploymentStatus(deployment);
         if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
             deploymentService.markUndeployed(deployment);
         }

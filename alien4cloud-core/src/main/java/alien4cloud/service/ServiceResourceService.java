@@ -12,10 +12,12 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.service.events.OnServiceChangedEvent;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -51,6 +53,8 @@ public class ServiceResourceService {
     private NodeInstanceService nodeInstanceService;
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     /**
      * Creates a service.
@@ -299,6 +303,7 @@ public class ServiceResourceService {
             }
         }
         alienDAO.save(serviceResource);
+        publisher.publishEvent(new OnServiceChangedEvent(this, serviceResource.getId()));
     }
 
     /**
