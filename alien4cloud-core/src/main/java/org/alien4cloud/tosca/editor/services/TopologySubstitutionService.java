@@ -2,12 +2,10 @@ package org.alien4cloud.tosca.editor.services;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
@@ -51,10 +49,6 @@ public class TopologySubstitutionService {
 
     @ToscaContextual
     public void updateSubstitutionType(final Topology topology, Csar csar) {
-        // FIXME we do not yet support substitution from application topology
-        if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION)) {
-            return;
-        }
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
             return;
         }
