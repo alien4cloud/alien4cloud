@@ -149,7 +149,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public RestResponse<Void> processDeleteReferencedObject(DeleteReferencedObjectException e) {
-        log.error("Object is still referenced and cannot be deleted", e);
+        log.error(" Resource still referenced, thus not deletable.", e);
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(e.getMessage()).build()).build();
     }
@@ -251,7 +251,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public RestResponse<Void> notFoundErrorHandler(NotFoundException e) {
-        log.error("Something not found", e);
+        log.error("Resource not found", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message(e.getMessage()).build()).build();
     }
 

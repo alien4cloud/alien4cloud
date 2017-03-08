@@ -64,7 +64,6 @@ define(function(require) {
             environmentId: scope.environment.id
           }, null, function(result){
             if(_.undefined(result.error)){
-              console.log(result.data);
               getManagedService();
             }else {
               //this could mean the service is used. try to unbind it instead

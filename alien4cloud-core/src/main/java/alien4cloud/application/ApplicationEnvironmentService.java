@@ -31,12 +31,14 @@ import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
+import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.service.ServiceResource;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
@@ -164,6 +166,8 @@ public class ApplicationEnvironmentService {
             throw new DeleteDeployedException("Application environment with id <" + id + "> cannot be deleted since it is deployed");
         }
 
+        failIfExposedAsService(applicationEnvironment);
+
         publisher.publishEvent(new BeforeApplicationEnvironmentDeleted(this, applicationEnvironment.getApplicationId(), applicationEnvironment.getId()));
         alienDAO.delete(ApplicationEnvironment.class, id);
         publisher.publishEvent(new AfterApplicationEnvironmentDeleted(this, applicationEnvironment.getApplicationId(), applicationEnvironment.getId()));
@@ -177,19 +181,29 @@ public class ApplicationEnvironmentService {
      */
     public void deleteByApplication(String applicationId) {
         List<String> deployedEnvironments = Lists.newArrayList();
+        List<String> exposedServiceEnvironments = Lists.newArrayList();
         ApplicationEnvironment[] environments = getByApplicationId(applicationId);
         for (ApplicationEnvironment environment : environments) {
-            if (!this.isDeployed(environment.getId())) {
+            try {
                 delete(environment.getId());
-            } else {
+            } catch (DeleteDeployedException e) {
                 // collect all deployed environment
                 deployedEnvironments.add(environment.getId());
+            } catch (DeleteReferencedObjectException e) {
+                // collect all exposed as service environment
+                exposedServiceEnvironments.add(environment.getId());
             }
         }
         // couln't delete deployed environment
         if (!deployedEnvironments.isEmpty()) {
             // error could not deployed all app environment for this applcation
             log.error("Cannot delete these deployed environments : {}", deployedEnvironments.toString());
+        }
+
+        // couln't delete exposed as service environment
+        if (!exposedServiceEnvironments.isEmpty()) {
+            // error could not deployed all app environment for this applcation
+            log.error("Cannot delete these environments exposed as service: {}", exposedServiceEnvironments.toString());
         }
     }
 
@@ -335,5 +349,12 @@ public class ApplicationEnvironmentService {
             environment = getOrFail(applicationEnvironmentId);
         }
         return environment;
+    }
+
+    private void failIfExposedAsService(ApplicationEnvironment environment) {
+        if (alienDAO.buildQuery(ServiceResource.class).setFilters(fromKeyValueCouples("environmentId", environment.getId())).prepareSearch().count() > 0) {
+            throw new DeleteReferencedObjectException("Environment " + environment.getApplicationId() + "/" + environment.getName() + "(" + environment.getId()
+                    + ") could not be deleted since it is exposed as a service.");
+        }
     }
 }
