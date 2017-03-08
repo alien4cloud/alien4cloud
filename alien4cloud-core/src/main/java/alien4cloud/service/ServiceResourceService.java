@@ -12,7 +12,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.service.events.OnServiceChangedEvent;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
@@ -37,6 +36,7 @@ import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.PatchUtil;
+import alien4cloud.service.events.OnServiceChangedEvent;
 import alien4cloud.service.exceptions.ServiceUsageException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -358,9 +358,7 @@ public class ServiceResourceService {
      * @return
      */
     public List<ServiceResource> searchByLocation(String locationId) {
-        Map<String, String[]> filter = Maps.newHashMap();
-        filter.put("locationIds", new String[] { locationId });
-        GetMultipleDataResult<ServiceResource> result = this.search("", filter, null, false, 0, Integer.MAX_VALUE);
+        GetMultipleDataResult<ServiceResource> result = this.search("", singleKeyFilter("locationIds", locationId), null, false, 0, Integer.MAX_VALUE);
         return Lists.newArrayList(result.getData());
     }
 

@@ -61,7 +61,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
                                                                        Map<String, MatchingConfiguration> matchingConfigurations) {
         /*
          * TODO Refine node matching by considering specific matching rules for the node. If no constraint is specified in a matching configuration then equals
-         * constraint is applied.
+         * TODO constraint is applied.
          */
         List<LocationResourceTemplate> matchingResults = Lists.newArrayList();
         List<LocationResourceTemplate> candidates = locationResources.getNodeTemplates();
