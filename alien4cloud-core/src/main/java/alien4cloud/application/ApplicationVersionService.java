@@ -35,6 +35,7 @@ import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.ReleaseReferencingSnapshotException;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
@@ -182,7 +183,7 @@ public class ApplicationVersionService {
 
         String version = getTopologyVersion(applicationVersion.getVersion(), qualifier);
         if (applicationVersion.getTopologyVersions().get(version) != null) {
-            throw new AlreadyExistException("The topology version <" + versionId + "> already exists for application <" + applicationId + ">");
+            throw new AlreadyExistException("The topology version [" + versionId + "] already exists for application [" + applicationId + "]");
         }
         // Create a new application version based on an existing topology.
         ApplicationTopologyVersion applicationTopologyVersion = createTopologyVersion(applicationId, version, qualifier, description, topology);
@@ -357,11 +358,13 @@ public class ApplicationVersionService {
         if (alienDAO.buildQuery(ApplicationVersion.class).setFilters(fromKeyValueCouples("applicationId", applicationVersion.getApplicationId()))
                 .count() == 1) {
             throw new DeleteLastApplicationVersionException(
-                    "Application version with id <" + applicationVersionId + "> can't be be deleted as it is the last application version.");
+                    "Application version with id [" + applicationVersionId + "] can't be be deleted as it is the last application version.");
         }
-        // check that the version is not deployed
-        if (isApplicationVersionDeployed(applicationVersion)) {
-            throw new DeleteReferencedObjectException("Application version with id <" + applicationVersionId + "> could not be deleted as it is used");
+        // check that the version is not used
+        ApplicationEnvironment usage = findAnyApplicationVersionUsage(applicationVersion.getApplicationId(), applicationVersion.getVersion());
+        if (usage != null) {
+            throw new DeleteReferencedObjectException(
+                    "Application version with id [" + applicationVersionId + "] could not be deleted as it is used by environment [" + usage.getName() + "]");
         }
         deleteVersion(applicationVersion);
     }
@@ -395,17 +398,18 @@ public class ApplicationVersionService {
         ApplicationVersion applicationVersion = getOrFail(versionId);
         ApplicationTopologyVersion applicationTopologyVersion = applicationVersion.getTopologyVersions().get(topologyVersion);
         if (applicationTopologyVersion == null) {
-            throw new NotFoundException("Topology version <" + topologyVersion + "> does not exist in the application version <" + versionId
-                    + "> for application <" + applicationId + ">");
+            throw new NotFoundException("Topology version [" + topologyVersion + "] does not exist in the application version [" + versionId
+                    + "] for application [" + applicationId + "]");
         }
 
         if (applicationVersion.getTopologyVersions().size() == 1) {
-            throw new DeleteLastApplicationVersionException("Application topology version <" + topologyVersion + "> for application version <" + versionId
-                    + "> can't be be deleted as it is the last topology version for this application version.");
+            throw new DeleteLastApplicationVersionException("Application topology version [" + topologyVersion + "] for application version [" + versionId
+                    + "] can't be be deleted as it is the last topology version for this application version.");
         }
-
-        if (isApplicationTopologyVersionDeployed(applicationTopologyVersion)) {
-            throw new DeleteReferencedObjectException("Application topology version with id <" + topologyVersion + "> could not be deleted as it is used");
+        ApplicationEnvironment usage = findAnyApplicationTopologyVersionUsage(applicationId, topologyVersion);
+        if (usage != null) {
+            throw new DeleteReferencedObjectException("Application topology version with id [" + topologyVersion
+                    + "] could not be deleted as it is used by environment [" + usage.getName() + "]");
         }
 
         ApplicationTopologyVersion deleted = applicationVersion.getTopologyVersions().remove(topologyVersion);
@@ -428,8 +432,8 @@ public class ApplicationVersionService {
         ApplicationVersion applicationVersion = getOrFail(applicationVersionId);
 
         if (!applicationId.equals(applicationVersion.getApplicationId())) {
-            throw new AuthorizationServiceException("It is not authorize to change an application with a wrong application id: request application id <"
-                    + applicationId + "> version application id: <" + applicationVersion.getApplicationId() + ">");
+            throw new AuthorizationServiceException("It is not authorize to change an application with a wrong application id: request application id ["
+                    + applicationId + "] version application id: [" + applicationVersion.getApplicationId() + "]");
         }
 
         if (newDescription != null) {
@@ -446,9 +450,12 @@ public class ApplicationVersionService {
                 throw new AlreadyExistException("An application version already exist for this application with the version :" + newVersion);
             }
 
-            // it is not possible to update the version number of a deployed version
-            if (isApplicationVersionDeployed(applicationVersion)) {
-                throw new DeleteReferencedObjectException("Application version with id <" + applicationVersionId + "> could not be deleted as it is used");
+            // it is not possible to update the version number of a used version
+            // check that the version is not used
+            ApplicationEnvironment usage = findAnyApplicationVersionUsage(applicationVersion.getApplicationId(), applicationVersion.getVersion());
+            if (usage != null) {
+                throw new DeleteReferencedObjectException("Application version with id [" + applicationVersionId
+                        + "] could not be deleted as it is used by environment [" + usage.getName() + "]");
             }
 
             // When changing the version number we actually perform a full version creation and then delete the previous one.
@@ -492,7 +499,7 @@ public class ApplicationVersionService {
     public ApplicationVersion getOrFail(String id) {
         ApplicationVersion v = get(id);
         if (v == null) {
-            throw new NotFoundException("Version with id <" + id + "> does not exist");
+            throw new NotFoundException("Version with id [" + id + "] does not exist");
         }
         return v;
     }
@@ -507,7 +514,7 @@ public class ApplicationVersionService {
         ApplicationVersion v = alienDAO.buildQuery(ApplicationVersion.class).setFilters(fromKeyValueCouples("topologyVersions.value.archiveId", archiveId))
                 .prepareSearch().find();
         if (v == null) {
-            throw new NotFoundException("No application version found for archive <" + archiveId + ">");
+            throw new NotFoundException("No application version found for archive [" + archiveId + "]");
         }
         return v;
     }
@@ -523,9 +530,21 @@ public class ApplicationVersionService {
     public ApplicationTopologyVersion getOrFail(String applicationVersionId, String topologyVersion) {
         ApplicationTopologyVersion v = getOrFail(applicationVersionId).getTopologyVersions().get(topologyVersion);
         if (v == null) {
-            throw new NotFoundException("Topology Version with id <" + topologyVersion + "> does not exist");
+            throw new NotFoundException("Topology Version with id [" + topologyVersion + "] does not exist");
         }
         return v;
+    }
+
+    public ApplicationEnvironment findAnyApplicationTopologyVersionUsage(String applicationId, String applicationTopologyVersion) {
+        // Verify if the qualified topology is linked to an environment
+        return alienDAO.buildQuery(ApplicationEnvironment.class)
+                .setFilters(fromKeyValueCouples("applicationId", applicationId, "topologyVersion", applicationTopologyVersion)).prepareSearch().find();
+    }
+
+    public ApplicationEnvironment findAnyApplicationVersionUsage(String applicationId, String applicationVersion) {
+        // Verify if the version is linked to an environment
+        return alienDAO.buildQuery(ApplicationEnvironment.class).setFilters(fromKeyValueCouples("applicationId", applicationId, "version", applicationVersion))
+                .prepareSearch().find();
     }
 
     /**
@@ -535,8 +554,8 @@ public class ApplicationVersionService {
      * @return true if the version is deployed, false if not.
      */
     public boolean isApplicationVersionDeployed(ApplicationVersion applicationVersion) {
-        String[] topologyVersionsIds = applicationVersion.getTopologyVersions().values().stream()
-                .map(applicationTopologyVersion -> applicationTopologyVersion.getArchiveId()).toArray(String[]::new);
+        String[] topologyVersionsIds = applicationVersion.getTopologyVersions().values().stream().map(ApplicationTopologyVersion::getArchiveId)
+                .toArray(String[]::new);
         Map<String, String[]> versionsFilter = MapUtil.newHashMap(new String[] { "versionId" }, new String[][] { topologyVersionsIds });
         return alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples(versionsFilter, "endDate", null)).count() > 0;
     }

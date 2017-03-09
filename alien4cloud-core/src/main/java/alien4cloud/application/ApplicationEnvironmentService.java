@@ -223,10 +223,7 @@ public class ApplicationEnvironmentService {
      * @return true if the environment is currently deployed
      */
     public boolean isDeployed(String appEnvironmentId) {
-        if (getActiveDeployment(appEnvironmentId) == null) {
-            return false;
-        }
-        return true;
+        return getActiveDeployment(appEnvironmentId) != null;
     }
 
     /**
