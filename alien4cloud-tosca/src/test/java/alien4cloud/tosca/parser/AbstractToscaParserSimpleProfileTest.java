@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
@@ -23,23 +22,52 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.hateoas.HypermediaAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import com.google.common.collect.Lists;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.services.ConstraintPropertyService;
 
 /**
  * Test tosca parsing for Tosca Simple profile in YAML wd03
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:tosca/parser-application-context.xml")
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ActiveProfiles("AbstractToscaParserSimpleProfileTest")
 public abstract class AbstractToscaParserSimpleProfileTest {
+
+    @Profile("AbstractToscaParserSimpleProfileTest")
+    @Configuration
+    @EnableAutoConfiguration(exclude = { HypermediaAutoConfiguration.class })
+    @EnableAspectJAutoProxy(proxyTargetClass = true)
+    @ComponentScan(basePackages = { "alien4cloud.tosca.context", "alien4cloud.tosca.parser", "alien4cloud.paas.wf" })
+    static class ContextConfiguration {
+        @Bean
+        public ConstraintPropertyService constraintPropertyService() {
+            return new ConstraintPropertyService();
+        }
+
+        @Bean
+        public ICSARRepositorySearchService repositorySearchService() {
+            return Mockito.mock(ICSARRepositorySearchService.class);
+        }
+    }
 
     protected abstract String getRootDirectory();
 
@@ -88,7 +116,7 @@ public abstract class AbstractToscaParserSimpleProfileTest {
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-node-type.yml"));
 
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());

@@ -21,20 +21,26 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 
-import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.NormativeCredentialConstant;
 import alien4cloud.tosca.normative.NormativeTypesConstant;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:tosca/parser-application-context.xml")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSimpleProfileTest {
+
+    @Override
+    protected String getRootDirectory() {
+        return "src/test/resources/tosca/SimpleProfile_alien130/parsing/";
+    }
+
+    @Override
+    protected String getToscaVersion() {
+        return "alien_dsl_1_3_0";
+    }
 
     @Test
     public void testDerivedFromNothing() throws ParsingException {
-        ArchiveParserTest.mockNormativeTypes(csarRepositorySearchService);
+        ParserTestUtil.mockNormativeTypes(csarRepositorySearchService);
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "derived_from_nothing/template.yml"));
         List<ParsingError> errors = parsingResult.getContext().getParsingErrors();
         Assert.assertEquals(5, errors.size());
@@ -76,7 +82,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
                 Mockito.any(Set.class))).thenReturn(connectsTo);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "requirement_capabilities.yaml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         parsingResult.getResult().getNodeTypes().values().forEach(nodeType -> {
             nodeType.getRequirements().forEach(requirementDefinition -> {
                 switch (requirementDefinition.getId()) {
@@ -145,7 +151,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
     @Test
     public void testParseImplementationArtifactWithRepository() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "implementation_artifact.yml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         Assert.assertTrue(parsingResult.getContext().getParsingErrors().isEmpty());
         ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
@@ -222,7 +228,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
     @Test
     public void testParseDeploymentArtifactWithRepository() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "deployment_artifact.yml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         Assert.assertTrue(parsingResult.getContext().getParsingErrors().isEmpty());
         ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
@@ -271,15 +277,5 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
 
     private DeploymentArtifact getDeploymentArtifact(AbstractInstantiableToscaType component, String artifactName) {
         return component.getArtifacts().get(artifactName);
-    }
-
-    @Override
-    protected String getRootDirectory() {
-        return "src/test/resources/tosca/SimpleProfil_alien130/parsing/";
-    }
-
-    @Override
-    protected String getToscaVersion() {
-        return "alien_dsl_1_3_0";
     }
 }

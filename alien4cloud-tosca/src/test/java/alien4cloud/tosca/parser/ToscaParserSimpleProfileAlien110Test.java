@@ -19,15 +19,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.google.common.collect.Lists;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 
 /**
  * Test tosca parsing for Tosca Simple profile in YAML alien_dsl_1_1_0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:tosca/parser-application-context.xml")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ToscaParserSimpleProfileAlien110Test extends AbstractToscaParserSimpleProfileTest {
 
     @Override
@@ -68,7 +64,7 @@ public class ToscaParserSimpleProfileAlien110Test extends AbstractToscaParserSim
                 Mockito.any(Set.class))).thenReturn(connectsTo);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "requirement_capabilities.yaml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         parsingResult.getResult().getNodeTypes().values().forEach(nodeType -> {
             nodeType.getRequirements().forEach(requirementDefinition -> {
                 switch (requirementDefinition.getId()) {

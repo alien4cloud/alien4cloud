@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.ParserTestUtil;
 import org.alien4cloud.tosca.catalog.ArchiveParser;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.ArtifactType;
@@ -41,26 +42,6 @@ public class ArchiveParserTest {
     @Resource
     private ArchiveParser archiveParser;
 
-    public static void mockNormativeTypes(ICSARRepositorySearchService repositorySearchService) {
-        Csar csar = new Csar("tosca-normative-types", "1.0.0-ALIEN12");
-        Mockito.when(repositorySearchService.getArchive(csar.getName(), csar.getVersion())).thenReturn(csar);
-        NodeType mockedNodeRoot = new NodeType();
-        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq(NormativeTypesConstant.ROOT_NODE_TYPE),
-                Mockito.any(Set.class))).thenReturn(mockedNodeRoot);
-        RelationshipType mockedRelationshipRoot = new RelationshipType();
-        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class),
-                Mockito.eq(NormativeTypesConstant.ROOT_RELATIONSHIP_TYPE), Mockito.any(Set.class))).thenReturn(mockedRelationshipRoot);
-        CapabilityType mockedCapabilityType = new CapabilityType();
-        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq(NormativeTypesConstant.ROOT_CAPABILITY_TYPE),
-                Mockito.any(Set.class))).thenReturn(mockedCapabilityType);
-        DataType mockedDataType = new DataType();
-        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(DataType.class), Mockito.eq(NormativeTypesConstant.ROOT_DATA_TYPE),
-                Mockito.any(Set.class))).thenReturn(mockedDataType);
-        ArtifactType mockedArtifactType = new ArtifactType();
-        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(ArtifactType.class), Mockito.eq(NormativeTypesConstant.ROOT_ARTIFACT_TYPE),
-                Mockito.any(Set.class))).thenReturn(mockedArtifactType);
-    }
-
     @Test
     public void parseNormativeTypesWd03() throws ParsingException, IOException {
         String localName = "tosca-normative-types";
@@ -74,32 +55,8 @@ public class ArchiveParserTest {
         // Path normativeTypesZipPath = Paths.get("../target/it-artifacts/zipped/apache-lb-types-0.1.csar");
         ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(normativeTypesZipPath, AlienConstants.GLOBAL_WORKSPACE_ID);
 
-        displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
 
         Assert.assertFalse(parsingResult.hasError(ParsingErrorLevel.ERROR));
-    }
-
-    public static void displayErrors(ParsingResult<?> parsingResult) {
-        System.out.println("\n\nERRORS: \n");
-        for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
-            ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
-            if (error.getErrorLevel().equals(ParsingErrorLevel.ERROR)) {
-                System.out.println(parsingResult.getContext().getFileName() + "\n" + error);
-            }
-        }
-        System.out.println("\n\nWARNING: \n");
-        for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
-            ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
-            if (error.getErrorLevel().equals(ParsingErrorLevel.WARNING)) {
-                System.out.println(parsingResult.getContext().getFileName() + "\n" + error);
-            }
-        }
-        System.out.println("\n\nINFO: \n");
-        for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
-            ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
-            if (error.getErrorLevel().equals(ParsingErrorLevel.INFO)) {
-                System.out.println(parsingResult.getContext().getFileName() + "\n" + error);
-            }
-        }
     }
 }

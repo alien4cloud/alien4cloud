@@ -48,8 +48,8 @@ import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.security.model.Role;
 import alien4cloud.test.utils.SecurityTestUtils;
-import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.parser.AbstractToscaParserSimpleProfileTest;
+import alien4cloud.tosca.parser.ParserTestUtil;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.FileUtil;
@@ -98,13 +98,13 @@ public class FunctionEvaluatorTest {
             String sampleLocalName = "samples";
             repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/samples.git", "master", sampleLocalName);
             String extendedLocalName = "alien-extended-types";
-            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "1.3.0", extendedLocalName);
+            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master", extendedLocalName);
 
             Path typesPath = artifactsDirectory.resolve(normativeLocalName);
             Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
             FileUtil.zip(typesPath, typesZipPath);
             ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
-            ArchiveParserTest.displayErrors(result);
+            ParserTestUtil.displayErrors(result);
 
             AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
 

@@ -97,7 +97,7 @@ public class ToscaSerializerUtilsTest {
 
     @Test
     public void testRenderDescription() throws IOException {
-        Assert.assertEquals("a single line description", utils.renderDescription("a single line description", "  "));
+        Assert.assertEquals("\"a single line description\"", utils.renderDescription("a single line description", "  "));
         Assert.assertEquals("|\n  a multi line \n  description", utils.renderDescription("a multi line \ndescription", "  "));
     }
 

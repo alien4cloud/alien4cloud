@@ -19,7 +19,7 @@
     "type" : {
       "_type" : "string",
       "_notNull" : true,
-      "_validValues" : [ "boolean", "string", "float", "integer", "version" ]
+      "_validValues" : [ "string", "integer", "float", "boolean", "version" ]
     },
     "required" : {
       "_type" : "boolean",

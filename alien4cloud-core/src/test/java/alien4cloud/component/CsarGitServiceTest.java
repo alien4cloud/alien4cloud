@@ -24,7 +24,7 @@ import alien4cloud.csar.services.CsarGitService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
 import alien4cloud.model.git.CsarGitRepository;
-import alien4cloud.tosca.ArchiveParserTest;
+import alien4cloud.tosca.parser.ParserTestUtil;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
@@ -137,7 +137,7 @@ public class CsarGitServiceTest {
         for (ParsingResult<Csar> csarParsingResult : sampleResult) {
             boolean hasError = csarParsingResult.hasError(ParsingErrorLevel.ERROR);
             if (hasError) {
-                ArchiveParserTest.displayErrors(csarParsingResult);
+                ParserTestUtil.displayErrors(csarParsingResult);
             }
             Assert.assertFalse(hasError);
         }
