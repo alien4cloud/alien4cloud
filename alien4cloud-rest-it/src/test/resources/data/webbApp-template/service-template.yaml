@@ -55,3 +55,5 @@ topology_template:
   outputs:
     WebApplication_tosca_id:
       value: { get_attribute: [ WebApplication, tosca_id ] }
+    Compute_ip_address:
+      value: { get_attribute: [ Compute, ip_address ] }

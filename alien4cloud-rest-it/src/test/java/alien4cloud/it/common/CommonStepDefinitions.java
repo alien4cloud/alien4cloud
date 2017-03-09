@@ -5,7 +5,6 @@ import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpression;
 import java.nio.file.Files;
 import java.util.List;
 
-import alien4cloud.model.service.ServiceResource;
 import org.alien4cloud.exception.rest.FieldErrorDTO;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -32,6 +31,7 @@ import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.repository.Repository;
+import alien4cloud.model.service.ServiceResource;
 import alien4cloud.paas.model.PaaSDeploymentLog;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
@@ -41,6 +41,7 @@ import alien4cloud.security.model.Group;
 import alien4cloud.security.model.User;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import lombok.extern.slf4j.Slf4j;
@@ -263,5 +264,16 @@ public class CommonStepDefinitions {
         if (successfully) {
             I_should_receive_a_RestResponse_with_no_error();
         }
+    }
+
+    @And("^I should wait for (\\d+) seconds before continuing the test$")
+    public void I_should_wait_for_seconds_before_continuing_the_test(int sleepTimeInSeconds) throws Throwable {
+        I_wait_for_seconds_before_continuing_the_test(sleepTimeInSeconds);
+    }
+
+    @And("^I wait for (\\d+) seconds before continuing the test$")
+    public void I_wait_for_seconds_before_continuing_the_test(int sleepTimeInSeconds) throws Throwable {
+        log.info("Begin sleeping to wait before continuing the test");
+        Thread.sleep(sleepTimeInSeconds * 1000L);
     }
 }
