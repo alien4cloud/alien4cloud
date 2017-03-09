@@ -11,25 +11,30 @@ import javax.validation.Valid;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.mapping.MappingBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.SettableFuture;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.ResponseUtil;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentLockService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.UndeployService;
@@ -40,7 +45,9 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
+import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.rest.model.JsonRawRestResponse;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -66,16 +73,18 @@ public class DeploymentController {
     private UndeployService undeployService;
     @Inject
     private LocationService locationService;
+    @Inject
+    private DeploymentLockService deploymentLockService;
 
     /**
-     * Get all deployments for a cloud, including if asked some details of the related applications.
+     * Get the first 100 deployments for a cloud, including if asked some details of the related applications.
      *
      * @param orchestratorId Id of the orchestrator for which to get deployments (can be null to get deployments for all orchestrators).
      * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
      * @param includeSourceSummary include or not the sources (application or csar) summary in the results.
      * @return A {@link RestResponse} with as data a list of {@link DeploymentDTO} that contains deployments and applications info.
      */
-    @ApiOperation(value = "Get deployments for an orchestrator.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Get 100 last deployments for an orchestrator.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<DeploymentDTO>> get(
@@ -94,13 +103,16 @@ public class DeploymentController {
      * @return A list of {@link DeploymentDTO} that contains deployments and applications info.
      */
     private List<DeploymentDTO> buildDeploymentsDTO(String orchestratorId, String sourceId, boolean includeSourceSummary) {
-        List<Deployment> deployments = deploymentService.getDeployments(orchestratorId, sourceId);
+        Deployment[] deployments = deploymentService.getDeployments(orchestratorId, sourceId, 0, 100);
         List<DeploymentDTO> dtos = Lists.newArrayList();
-        if (deployments != null && deployments.size() > 0) {
+        if (deployments == null) {
+            return dtos;
+        }
+        if (deployments != null && deployments.length > 0) {
             Map<String, ? extends IDeploymentSource> sources = Maps.newHashMap();
             // get the app summaries if true
             if (includeSourceSummary) {
-                DeploymentSourceType sourceType = deployments.get(0).getSourceType();
+                DeploymentSourceType sourceType = deployments[0].getSourceType();
                 String[] sourceIds = getSourceIdsFromDeployments(deployments);
                 if (sourceIds[0] != null) { // can have no application deployed
                     switch (sourceType) {
@@ -128,7 +140,7 @@ public class DeploymentController {
         return dtos;
     }
 
-    private Map<String, Location> getRelatedLocationsSummaries(List<Deployment> deployments) {
+    private Map<String, Location> getRelatedLocationsSummaries(Deployment[] deployments) {
         Set<String> locationIds = Sets.newHashSet();
         for (Deployment deployment : deployments) {
             if (ArrayUtils.isNotEmpty(deployment.getLocationIds())) {
@@ -157,8 +169,8 @@ public class DeploymentController {
         return locations;
     }
 
-    private String[] getSourceIdsFromDeployments(List<Deployment> deployments) {
-        List<String> sourceIds = new ArrayList<>(deployments.size());
+    private String[] getSourceIdsFromDeployments(Deployment[] deployments) {
+        List<String> sourceIds = new ArrayList<>(deployments.length);
         for (Deployment deployment : deployments) {
             if (deployment.getSourceId() != null) {// applicationId nul in "deployment" test case
                 sourceIds.add(deployment.getSourceId());
@@ -180,35 +192,43 @@ public class DeploymentController {
     @ApiOperation(value = "Get deployment status from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
     @RequestMapping(value = "/{deploymentId}/status", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public DeferredResult<RestResponse<DeploymentStatus>> getDeploymentStatus(
+    public RestResponse<DeploymentStatus> getDeploymentStatus(
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String deploymentId) {
 
         Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-        final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>(5L * 60L * 1000L);
         if (deployment != null) {
             try {
-                deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
-                    @Override
-                    public void onSuccess(DeploymentStatus result) {
-                        statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(result).build());
-                    }
+                return deploymentLockService.doWithDeploymentReadLock(deployment.getOrchestratorDeploymentId(), () -> {
+                    final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
+                    deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+                        @Override
+                        public void onSuccess(DeploymentStatus result) {
+                            statusSettableFuture.set(result);
+                        }
 
-                    @Override
-                    public void onFailure(Throwable t) {
-                        statusResult.setErrorResult(t);
+                        @Override
+                        public void onFailure(Throwable t) {
+                            statusSettableFuture.setException(t);
+                        }
+                    });
+                    try {
+                        DeploymentStatus currentStatus = statusSettableFuture.get();
+                        if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
+                            deploymentService.markUndeployed(deployment);
+                        }
+                        return RestResponseBuilder.<DeploymentStatus> builder().data(currentStatus).build();
+                    } catch (Exception e) {
+                        throw new PaaSTechnicalException("Could not retrieve status from PaaS", e);
                     }
                 });
-                return statusResult;
             } catch (OrchestratorDisabledException e) {
-                statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(null)
-                        .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
+                return RestResponseBuilder.<DeploymentStatus> builder().data(null)
+                        .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
             }
         } else {
-            statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(null)
-                    .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Deployment with id <" + deploymentId + "> was not found.")).build());
+            return RestResponseBuilder.<DeploymentStatus> builder().data(null)
+                    .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Deployment with id <" + deploymentId + "> was not found.")).build();
         }
-
-        return statusResult;
     }
 
     @ApiOperation(value = "Undeploy deployment from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
@@ -234,4 +254,18 @@ public class DeploymentController {
         return RestResponseBuilder.<Void> builder().data(null).build();
     }
 
+    /**
+     * Bulk id request API.
+     */
+    @ApiOperation(value = "Get a list of deployments from their ids.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/bulk/ids", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public JsonRawRestResponse getByIds(@RequestBody String[] deploymentIds) {
+        // Check topology status for this deployment object
+        MultiGetResponse response = alienDAO.getClient().prepareMultiGet()
+                .add(alienDAO.getIndexForType(Deployment.class), MappingBuilder.indexTypeFromClass(Deployment.class), deploymentIds).get();
+        JsonRawRestResponse restResponse = new JsonRawRestResponse();
+        restResponse.setData(ResponseUtil.rawMultipleData(response));
+        return restResponse;
+    }
 }

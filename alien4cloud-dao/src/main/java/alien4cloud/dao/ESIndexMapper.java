@@ -157,7 +157,7 @@ public abstract class ESIndexMapper {
     }
 
     @SneakyThrows({ ExecutionException.class, InterruptedException.class })
-    private boolean indexExist(String indexName) {
+    protected boolean indexExist(String indexName) {
         // check if existing before
         final ActionFuture<IndicesExistsResponse> indexExistFuture = esClient.getClient().admin().indices().exists(new IndicesExistsRequest(indexName));
         IndicesExistsResponse response;

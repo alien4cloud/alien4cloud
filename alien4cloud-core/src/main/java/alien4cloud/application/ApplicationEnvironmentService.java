@@ -22,10 +22,10 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.SettableFuture;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentLockService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
@@ -39,7 +39,6 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
-import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
@@ -65,6 +64,8 @@ public class ApplicationEnvironmentService {
     private ApplicationEventPublisher publisher;
     @Inject
     private DeploymentService deploymentService;
+    @Inject
+    private DeploymentLockService deploymentLockService;
 
     /**
      * Method used to create a default environment
@@ -270,35 +271,37 @@ public class ApplicationEnvironmentService {
     }
 
     /**
-     * Get the environment status regarding the linked topology and cloud
-     * 
+     * Get the deployment status of the given environment.
+     *
      * @param environment The environment for which to get deployment status.
      * @return The deployment status of the environment. {@link DeploymentStatus}.
      * @throws ExecutionException In case there is a failure while communicating with the orchestrator.
      * @throws InterruptedException In case there is a failure while communicating with the orchestrator.
      */
-    public DeploymentStatus getStatus(ApplicationEnvironment environment) throws ExecutionException, InterruptedException {
+    public DeploymentStatus getStatus(ApplicationEnvironment environment) {
         final Deployment deployment = getActiveDeployment(environment.getId());
         return getStatus(deployment);
     }
 
     /**
-     * Get the status of the given deployment.
-     * 
-     * @param deployment The deployment for which to get status.
+     * Get the deployment status of the given deployment.
+     *
+     * @param deployment The deployment for which to get deployment status.
      * @return The deployment status of the environment. {@link DeploymentStatus}.
      * @throws ExecutionException In case there is a failure while communicating with the orchestrator.
      * @throws InterruptedException In case there is a failure while communicating with the orchestrator.
      */
-    public DeploymentStatus getStatus(final Deployment deployment) throws ExecutionException, InterruptedException {
+    public DeploymentStatus getStatus(final Deployment deployment) {
         if (deployment == null) {
             return DeploymentStatus.UNDEPLOYED;
         }
-        DeploymentStatus currentStatus = deploymentRuntimeStateService.getDeploymentStatus(deployment);
-        if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
-            deploymentService.markUndeployed(deployment);
-        }
-        return currentStatus;
+        return deploymentLockService.doWithDeploymentReadLock(deployment.getOrchestratorDeploymentId(), () -> {
+            DeploymentStatus currentStatus = deploymentRuntimeStateService.getDeploymentStatus(deployment);
+            if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
+                deploymentService.markUndeployed(deployment);
+            }
+            return currentStatus;
+        });
     }
 
     /**

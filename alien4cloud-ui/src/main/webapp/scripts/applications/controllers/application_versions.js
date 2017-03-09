@@ -84,12 +84,13 @@ define(function (require) {
     };
   }];
 
-  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$translate', '$uibModal', '$alresource', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify',
-    function($scope, $translate, $uibModal, $alresource, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify) {
+  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$translate', '$uibModal', '$alresource', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify', 'appEnvironments',
+    function($scope, $translate, $uibModal, $alresource, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify, appEnvironments) {
       var topoVersionService = $alresource('rest/latest/applications/:appId/versions/:versionId/topologyVersions/:topoVersionId');
 
       $scope.isManager = userCanModify;
       $scope.archiveVersions = archiveVersions.data;
+      $scope.appEnvironments = appEnvironments;
       $scope.searchAppVersionResult = archiveVersions.data;
       $scope.versionPattern = versionServices.pattern;
       $scope.searchService = searchServiceFactory(searchServiceUrl, false, $scope, 12);
@@ -142,14 +143,26 @@ define(function (require) {
         }
       };
 
-      $scope.updateApplicationVersion = function(fieldName, fieldValue, versionId) {
+      $scope.updateApplicationVersion = function(fieldName, fieldValue, version) {
         var applicationVersionUpdateRequest = {};
         applicationVersionUpdateRequest[fieldName] = fieldValue;
         return versionServices.update({
           delegateId: delegateId,
-          versionId: versionId
+          versionId: version.id
         }, angular.toJson(applicationVersionUpdateRequest), undefined).$promise.then(
-          function() {}, function(errorResponse) {
+          function() {
+            // success
+            if (fieldName === 'version') {
+              _.each($scope.appEnvironments.environments, function(env) {
+                  if (env.applicationId === version.applicationId && env.currentVersionName === version.version) {
+                    env.currentVersionName = fieldValue;
+                    return;
+                  }
+                });
+            }
+            $scope.searchService.search();
+            refreshAllAppVersions();
+          }, function(errorResponse) {
             return $translate.instant('ERRORS.' + errorResponse.data.error.code);
           }
         );

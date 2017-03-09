@@ -1,4 +1,4 @@
-package alien4cloud.tosca.properties.constraints;
+package org.alien4cloud.tosca.model.definitions.constraints;
 
 import org.junit.Test;
 

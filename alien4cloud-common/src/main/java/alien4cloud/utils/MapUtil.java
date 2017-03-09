@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,6 +19,25 @@ import com.google.common.collect.Maps;
  */
 public final class MapUtil {
     private MapUtil() {
+    }
+
+    /**
+     * Converts an array of values into a map based on the given extractor function to get the key out of the objects.
+     * 
+     * @param values The values of the map.
+     * @param keyExtractor The function to extract a key from values.
+     * @param <K> The key type.
+     * @param <V> The value type.
+     * @return A new hashmap that contains all values associated with their keys.
+     */
+    public static <K, V> Map<K, V> newHashMap(V[] values, Function<V, K> keyExtractor) {
+        Map<K, V> map = Maps.newHashMap();
+        if (values != null) {
+            for (V value : values) {
+                map.put(keyExtractor.apply(value), value);
+            }
+        }
+        return map;
     }
 
     /**

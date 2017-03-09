@@ -69,22 +69,6 @@ public final class AuthorizationUtil {
 
     /**
      * Check that the user has one of the requested rights for the given application environment
-     *
-     * @deprecated use {@link AuthorizationUtil#checkAuthorizationForEnvironment(ISecuredResource, ISecuredResource, IResourceRoles...)} instead
-     *
-     * @param resource
-     * @param expectedRoles
-     */
-    @Deprecated
-    public static void checkAuthorizationForEnvironment(ISecuredResource resource, IResourceRoles... expectedRoles) {
-        if (!hasAuthorizationForEnvironment(resource, expectedRoles)) {
-            throw new AccessDeniedException("user <" + SecurityContextHolder.getContext().getAuthentication().getName()
-                    + "> has no authorization to perform the requested operation on this cloud.");
-        }
-    }
-
-    /**
-     * Check that the user has one of the requested rights for the given application environment
      * The APPLICATION_MANAGER and DEPLOYMENT_MANAGER are gods of the environment
      *
      * @param application
@@ -100,17 +84,6 @@ public final class AuthorizationUtil {
 
     public static boolean hasAuthorizationForApplication(ISecuredResource resource, IResourceRoles... expectedRoles) {
         return hasAuthorization(getCurrentUser(), resource, ApplicationRole.APPLICATION_MANAGER, expectedRoles);
-    }
-
-    /**
-     * @deprecated use {@link AuthorizationUtil#hasAuthorizationForEnvironment(ISecuredResource, ISecuredResource, IResourceRoles...)} instead
-     * @param resource
-     * @param expectedRoles
-     * @return
-     */
-    @Deprecated
-    public static boolean hasAuthorizationForEnvironment(ISecuredResource resource, IResourceRoles... expectedRoles) {
-        return hasAuthorization(getCurrentUser(), resource, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER, expectedRoles);
     }
 
     public static boolean hasAuthorizationForEnvironment(ISecuredResource application, ISecuredResource resource, IResourceRoles... expectedRoles) {

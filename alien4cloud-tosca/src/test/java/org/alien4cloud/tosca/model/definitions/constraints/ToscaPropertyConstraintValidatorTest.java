@@ -1,4 +1,4 @@
-package alien4cloud.tosca.container.validation;
+package org.alien4cloud.tosca.model.definitions.constraints;
 
 import java.util.List;
 import java.util.Set;
@@ -7,6 +7,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
+import alien4cloud.tosca.container.validation.ToscaSequence;
 import org.junit.Assert;
 import org.junit.Test;
 

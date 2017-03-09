@@ -82,6 +82,8 @@ public class DeployService {
     private DeploymentInputService deploymentInputService;
     @Inject
     private ApplicationEventPublisher eventPublisher;
+    @Inject
+    private DeploymentLockService deploymentLockService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -94,82 +96,85 @@ public class DeployService {
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
         final Location firstLocation = locations.values().iterator().next();
-        // FIXME check that all nodes to match are matched
-        // FIXME check that all required properties are defined
-        // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
+        String deploymentPaaSId = generateOrchestratorDeploymentId(deploymentTopology.getEnvironmentId(), firstLocation.getOrchestratorId());
+        return deploymentLockService.doWithDeploymentWriteLock(deploymentPaaSId, () -> {
+            // FIXME check that all nodes to match are matched
+            // FIXME check that all required properties are defined
+            // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
 
-        // Get the orchestrator that will perform the deployment
-        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
+            // Get the orchestrator that will perform the deployment
+            IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
 
-        String deploymentTopologyId = deploymentTopology.getId();
+            String deploymentTopologyId = deploymentTopology.getId();
 
-        // Create a deployment object to be kept in ES.
-        final Deployment deployment = new Deployment();
-        deployment.setId(UUID.randomUUID().toString());
-        deployment.setOrchestratorId(firstLocation.getOrchestratorId());
-        deployment.setLocationIds(locationIds.values().toArray(new String[locationIds.size()]));
-        deployment.setOrchestratorDeploymentId(generateOrchestratorDeploymentId(deploymentTopology.getEnvironmentId(), firstLocation.getOrchestratorId()));
-        deployment.setSourceId(deploymentSource.getId());
-        String sourceName;
-        if (deploymentSource.getName() == null) {
-            sourceName = UUID.randomUUID().toString();
-        } else {
-            sourceName = deploymentSource.getName();
-        }
-        deployment.setSourceName(sourceName);
-        deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
-        deployment.setStartDate(new Date());
-        // mandatory for the moment since we could have deployment with no environment (csar test)
-        deployment.setEnvironmentId(deploymentTopology.getEnvironmentId());
-        deployment.setVersionId(deploymentTopology.getVersionId());
-
-        alienDao.save(deployment);
-        // publish an event for the eventual managed service
-        eventPublisher.publishEvent(new DeploymentCreatedEvent(this, deployment.getId()));
-
-        // save the topology as a deployed topology.
-        // change the Id before saving
-        deploymentTopology.setId(deployment.getId());
-        deploymentTopology.setDeployed(true);
-        alienMonitorDao.save(deploymentTopology);
-        // put back the old Id for deployment
-        deploymentTopology.setId(deploymentTopologyId);
-        // Process all input artifact, replace all artifact inside the topology with input artifact
-        deploymentInputService.processInputArtifacts(deploymentTopology);
-        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology);
-        // Download and process all remote artifacts before deployment
-        artifactProcessorService.processArtifacts(deploymentContext);
-        // Build the context for deployment and deploy
-        orchestratorPlugin.deploy(deploymentContext, new IPaaSCallback<Object>() {
-            @Override
-            public void onSuccess(Object data) {
-                log.info("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
-                        firstLocation.getId(), deployment.getId());
+            // Create a deployment object to be kept in ES.
+            final Deployment deployment = new Deployment();
+            deployment.setId(UUID.randomUUID().toString());
+            deployment.setOrchestratorId(firstLocation.getOrchestratorId());
+            deployment.setLocationIds(locationIds.values().toArray(new String[locationIds.size()]));
+            deployment.setOrchestratorDeploymentId(deploymentPaaSId);
+            deployment.setSourceId(deploymentSource.getId());
+            String sourceName;
+            if (deploymentSource.getName() == null) {
+                sourceName = UUID.randomUUID().toString();
+            } else {
+                sourceName = deploymentSource.getName();
             }
+            deployment.setSourceName(sourceName);
+            deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
+            deployment.setStartDate(new Date());
+            // mandatory for the moment since we could have deployment with no environment (csar test)
+            deployment.setEnvironmentId(deploymentTopology.getEnvironmentId());
+            deployment.setVersionId(deploymentTopology.getVersionId());
+            alienDao.save(deployment);
+            // publish an event for the eventual managed service
+            eventPublisher.publishEvent(new DeploymentCreatedEvent(this, deployment.getId()));
 
-            @Override
-            public void onFailure(Throwable t) {
-                log.error("Deployment failed with cause", t);
-                PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
-                deploymentLog.setDeploymentId(deployment.getId());
-                deploymentLog.setDeploymentPaaSId(deployment.getOrchestratorDeploymentId());
-                deploymentLog.setContent(t.getMessage() + "\n" + ExceptionUtils.getStackTrace(t));
-                deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
-                deploymentLog.setTimestamp(new Date());
-                alienMonitorDao.save(deploymentLog);
+            // save the topology as a deployed topology.
+            // change the Id before saving
+            deploymentTopology.setId(deployment.getId());
+            deploymentTopology.setDeployed(true);
+            alienMonitorDao.save(deploymentTopology);
+            // put back the old Id for deployment
+            deploymentTopology.setId(deploymentTopologyId);
+            // Process all input artifact, replace all artifact inside the topology with input artifact
+            deploymentInputService.processInputArtifacts(deploymentTopology);
+            PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations,
+                    deploymentTopology);
+            // Download and process all remote artifacts before deployment
+            artifactProcessorService.processArtifacts(deploymentContext);
+            // Build the context for deployment and deploy
+            orchestratorPlugin.deploy(deploymentContext, new IPaaSCallback<Object>() {
+                @Override
+                public void onSuccess(Object data) {
+                    log.info("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
+                            firstLocation.getId(), deployment.getId());
+                }
 
-                PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
-                messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
-                messageMonitorEvent.setOrchestratorId(deploymentLog.getDeploymentPaaSId());
-                messageMonitorEvent.setMessage(t.getMessage());
-                messageMonitorEvent.setDate(deploymentLog.getTimestamp().getTime());
-                alienMonitorDao.save(messageMonitorEvent);
+                @Override
+                public void onFailure(Throwable t) {
+                    log.error("Deployment failed with cause", t);
+                    PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
+                    deploymentLog.setDeploymentId(deployment.getId());
+                    deploymentLog.setDeploymentPaaSId(deployment.getOrchestratorDeploymentId());
+                    deploymentLog.setContent(t.getMessage() + "\n" + ExceptionUtils.getStackTrace(t));
+                    deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
+                    deploymentLog.setTimestamp(new Date());
+                    alienMonitorDao.save(deploymentLog);
 
-            }
+                    PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
+                    messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
+                    messageMonitorEvent.setOrchestratorId(deploymentLog.getDeploymentPaaSId());
+                    messageMonitorEvent.setMessage(t.getMessage());
+                    messageMonitorEvent.setDate(deploymentLog.getTimestamp().getTime());
+                    alienMonitorDao.save(messageMonitorEvent);
+
+                }
+            });
+            log.debug("Triggered deployment of topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
+                    firstLocation.getId(), deployment.getId());
+            return deployment.getId();
         });
-        log.debug("Triggered deployment of topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
-                firstLocation.getId(), deployment.getId());
-        return deployment.getId();
     }
 
     /**

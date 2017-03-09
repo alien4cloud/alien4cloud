@@ -27,13 +27,8 @@ import alien4cloud.ui.form.annotation.FormValidValues;
 import lombok.*;
 
 /**
- *
- * Only parameter exposed as property definitions can be used for "custom" operations.
- *
- * @author 'Igor Ngouagna'
- *
+ * A TOSCA property definition.
  */
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -47,7 +42,7 @@ import lombok.*;
 public class PropertyDefinition implements IValue {
     @StringField(indexType = IndexType.not_analyzed)
     @ToscaPropertyType
-    @FormValidValues({ "boolean", "string", "float", "integer", "version" })
+    @FormValidValues({ "string", "integer", "float", "boolean", "version" })
     @NotNull
     private String type;
 
@@ -147,5 +142,4 @@ public class PropertyDefinition implements IValue {
             }
         }
     }
-
 }

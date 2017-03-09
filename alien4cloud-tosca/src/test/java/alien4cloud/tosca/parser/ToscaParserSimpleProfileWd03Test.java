@@ -48,7 +48,6 @@ import com.google.common.collect.Lists;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.AlienConstants;
@@ -57,9 +56,6 @@ import alien4cloud.utils.MapUtil;
 /**
  * Test tosca parsing for Tosca Simple profile in YAML wd03
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:tosca/parser-application-context.xml")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleProfileTest {
 
     @Override
@@ -258,7 +254,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
                 Mockito.any(Set.class))).thenReturn(hostedOn);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-node-type.yml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
@@ -448,7 +444,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
                 Mockito.any(Set.class))).thenReturn(connectsTo);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "requirement_capabilities.yaml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         parsingResult.getResult().getNodeTypes().values().forEach(nodeType -> {
             nodeType.getRequirements().forEach(requirementDefinition -> {
                 switch (requirementDefinition.getId()) {
@@ -639,7 +635,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     @Test
     public void testDataTypes() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types.yml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         Assert.assertEquals(4, parsingResult.getResult().getDataTypes().size());
         Assert.assertEquals(2, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
@@ -648,28 +644,28 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     @Test
     public void testDataTypesWithError1() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types-error1.yml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 
     @Test
     public void testDataTypesWithError2() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types-error2.yml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 
     @Test
     public void testDataTypesWithError3() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types-error3.yml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 
     @Test
     public void testDataTypesWithError4() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-data-types-error4.yml"));
-        ArchiveParserTest.displayErrors(parsingResult);
+        ParserTestUtil.displayErrors(parsingResult);
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 

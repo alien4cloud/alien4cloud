@@ -5,15 +5,29 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
-import org.alien4cloud.tosca.model.definitions.constraints.*;
+import org.alien4cloud.tosca.model.definitions.constraints.AbstractPropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.GreaterOrEqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.GreaterThanConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.InRangeConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LessOrEqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -21,7 +35,12 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.paas.wf.*;
+import alien4cloud.paas.wf.AbstractActivity;
+import alien4cloud.paas.wf.AbstractStep;
+import alien4cloud.paas.wf.DelegateWorkflowActivity;
+import alien4cloud.paas.wf.NodeActivityStep;
+import alien4cloud.paas.wf.OperationCallActivity;
+import alien4cloud.paas.wf.SetStateActivity;
 
 /**
  * Tools for serializing in YAML/TOSCA. ALl methods should be static but did not found how to use statics from velocity.
@@ -59,7 +78,7 @@ public class ToscaSerializerUtils {
             }
             return sw.toString();
         } else {
-            return description;
+            return "\"" + ToscaPropertySerializerUtils.escapeDoubleQuote(description) + "\"";
         }
     }
 
@@ -97,7 +116,7 @@ public class ToscaSerializerUtils {
         return false;
     }
 
-    public static  String getCsvToString(Collection<?> list) {
+    public static String getCsvToString(Collection<?> list) {
         return getCsvToString(list, false);
     }
 
@@ -325,4 +344,19 @@ public class ToscaSerializerUtils {
         return buffer.toString();
     }
 
+    private static final Pattern GET_INPUT_ARTIFACT_PATTERN = Pattern.compile("\\{ *get_input_artifact: +[^}]+}");
+
+    public Map<String, DeploymentArtifact> getTopologyArtifacts(String topologyArchiveName, String topologyArchiveVersion,
+            Map<String, DeploymentArtifact> artifacts) {
+        if (artifacts == null) {
+            return Collections.emptyMap();
+        }
+        // Only generate artifacts that are really stored inside the topology
+        return artifacts.entrySet().stream()
+                .filter(artifact -> (topologyArchiveName.equals(artifact.getValue().getArchiveName())
+                        && topologyArchiveVersion.equals(artifact.getValue().getArchiveVersion()))
+                        || "alien_topology".equals(artifact.getValue().getArtifactRepository())
+                        || (artifact.getValue().getArtifactRef() != null && GET_INPUT_ARTIFACT_PATTERN.matcher(artifact.getValue().getArtifactRef()).matches()))
+                .collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry::getValue)));
+    }
 }
