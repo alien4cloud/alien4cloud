@@ -611,7 +611,6 @@ public class DeploymentTopologyService {
      * @return The {@link DeploymentTopologyService} related to the specified environment
      */
     public DeploymentConfiguration updateSubstitution(String environmentId, String nodeId, String locationResourceTemplateId) {
-        // TODO maybe check if the substituted is compatible with the provided substitute and return a specific error for REST users?
         DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
 

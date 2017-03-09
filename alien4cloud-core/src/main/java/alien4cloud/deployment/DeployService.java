@@ -9,9 +9,9 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.tosca.context.ToscaContextual;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -24,6 +24,7 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
+import alien4cloud.events.DeploymentCreatedEvent;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
@@ -44,6 +45,7 @@ import alien4cloud.paas.model.PaaSDeploymentLogLevel;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.PropertyUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -78,6 +80,8 @@ public class DeployService {
     private ArtifactProcessorService artifactProcessorService;
     @Inject
     private DeploymentInputService deploymentInputService;
+    @Inject
+    private ApplicationEventPublisher eventPublisher;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -118,7 +122,10 @@ public class DeployService {
         // mandatory for the moment since we could have deployment with no environment (csar test)
         deployment.setEnvironmentId(deploymentTopology.getEnvironmentId());
         deployment.setVersionId(deploymentTopology.getVersionId());
+
         alienDao.save(deployment);
+        // publish an event for the eventual managed service
+        eventPublisher.publishEvent(new DeploymentCreatedEvent(this, deployment.getId()));
 
         // save the topology as a deployed topology.
         // change the Id before saving

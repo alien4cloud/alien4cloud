@@ -64,6 +64,7 @@ Feature: Create a service resource from an environment
     Given I am authenticated with "ADMIN" role
     When I get the last created service
     Then The SPEL expression "environmentId != null" should return true
+    Then The SPEL expression "getState()" should return "started"
 
   @reset
   Scenario: Creating a new service from an deployed environment when this one is not deployed should fail
@@ -108,7 +109,6 @@ Feature: Create a service resource from an environment
     Given I am authenticated with "ADMIN" role
     And There are these users in the system
       | sauron |
-    And I am authenticated with user named "gandalf"
     And I add a role "APPLICATION_MANAGER" to user "sauron" on the application "ALIEN"
     And I am authenticated with user named "sauron"
     When I create a service with name "MyService", from the application "ALIEN", environment "Environment"

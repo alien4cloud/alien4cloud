@@ -101,16 +101,6 @@ public class ManagedServiceResourceService {
         return serviceId;
     }
 
-    private Topology getTopology(ApplicationEnvironment environment, boolean runtimeTopology) {
-        if (runtimeTopology) {
-            // let's get the deployed topology
-            return deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(environment.getId());
-        } else {
-            // Else let's get the topology currently associated with the environment (next deployment target)
-            return topologyServiceCore.getOrFail(Csar.createId(environment.getApplicationId(), environment.getTopologyVersion()));
-        }
-    }
-
     /**
      * Get the service resource associated with an environment.
      * 
@@ -156,11 +146,11 @@ public class ManagedServiceResourceService {
     public void unbind(String environmentId) {
         ServiceResource serviceResource = getOrFail(environmentId);
         serviceResource.setEnvironmentId(null);
-        serviceResourceService.save(serviceResource, false);
+        serviceResourceService.save(serviceResource);
     }
 
     /**
-     * Unbind the service resource from the application environment
+     * Delete the managed service resource
      *
      * Note that the service will still exists, but will only be updatable via service api
      *

@@ -11,8 +11,10 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import alien4cloud.model.common.IDatableResource;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
@@ -82,11 +84,21 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
     }
 
     public void start() {
-        nodeInstance.setAttribute(ToscaNodeLifecycleConstants.ATT_STATE, ToscaNodeLifecycleConstants.STARTED);
+        setState(ToscaNodeLifecycleConstants.STARTED);
     }
 
     public void stop() {
-        nodeInstance.setAttribute(ToscaNodeLifecycleConstants.ATT_STATE, ToscaNodeLifecycleConstants.STOPPED);
+        setState(ToscaNodeLifecycleConstants.STOPPED);
+    }
+
+    @JsonIgnore
+    public void setState(String state) {
+        nodeInstance.setAttribute(ToscaNodeLifecycleConstants.ATT_STATE, state);
+    }
+
+    @JsonProperty
+    public String getState() {
+        return nodeInstance.getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE);
     }
 
 }

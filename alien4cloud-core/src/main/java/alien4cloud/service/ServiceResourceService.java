@@ -36,7 +36,7 @@ import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.PatchUtil;
-import alien4cloud.service.events.OnServiceChangedEvent;
+import alien4cloud.service.events.ServiceChangedEvent;
 import alien4cloud.service.exceptions.ServiceUsageException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -303,7 +303,11 @@ public class ServiceResourceService {
             }
         }
         alienDAO.save(serviceResource);
-        publisher.publishEvent(new OnServiceChangedEvent(this, serviceResource.getId()));
+        publisher.publishEvent(new ServiceChangedEvent(this, serviceResource.getId()));
+    }
+
+    public synchronized void save(ServiceResource serviceResource) {
+        save(serviceResource, false);
     }
 
     /**
