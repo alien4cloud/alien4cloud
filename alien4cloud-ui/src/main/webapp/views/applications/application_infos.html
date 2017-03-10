@@ -2,8 +2,8 @@
   <div class=col-md-6>
     <div class="col-md-4" style="text-align: center;">
       <!-- Image section -->
-      <div id="am.applications.detail.drag-and-drop" class="drop-box" ng-show="!application.imageId && isManager" ng-file-drop="onImageSelected($files)">{{'APPLICATIONS.IMAGE_UPLOAD' | translate}}</div>
-      <img ng-show="noshow = (application.imageId && isManager)" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ng-file-drop="onImageSelected($files)" />
+      <div id="am.applications.detail.drag-and-drop" class="drop-box" ng-show="!application.imageId && isManager" ngf-drop="onImageSelected($files)">{{'APPLICATIONS.IMAGE_UPLOAD' | translate}}</div>
+      <img ng-show="noshow = (application.imageId && isManager)" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ngf-drop="onImageSelected($files)" />
       <img ng-show="!noshow && application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" />
     </div>
     <!-- Details section -->
