@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import alien4cloud.model.common.IDatableResource;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.security.AbstractSecurityEnabledResource;
-import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
@@ -77,11 +76,6 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
 
     @DateField(index = IndexType.no, includeInAll = false)
     private Date lastUpdateDate;
-
-    public void setVersion(String version) {
-        this.version = version;
-        this.nestedVersion = this.version == null ? null : VersionUtil.parseVersion(this.version);
-    }
 
     public void start() {
         setState(ToscaNodeLifecycleConstants.STARTED);

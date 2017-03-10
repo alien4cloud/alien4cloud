@@ -41,6 +41,8 @@ import alien4cloud.service.exceptions.ServiceUsageException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.CollectionUtils;
+import alien4cloud.utils.VersionUtil;
+import alien4cloud.utils.version.Version;
 
 /**
  * Manages services.
@@ -302,6 +304,9 @@ public class ServiceResourceService {
                         "A service with name <" + serviceResource.getName() + "> and version <" + serviceResource.getVersion() + "> already exists.");
             }
         }
+        // ensure that the nested version just reflects the version.
+        Version version = VersionUtil.parseVersion(serviceResource.getVersion());
+        serviceResource.setNestedVersion(version);
         alienDAO.save(serviceResource);
         publisher.publishEvent(new ServiceChangedEvent(this, serviceResource.getId()));
     }
