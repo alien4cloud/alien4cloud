@@ -11,7 +11,8 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Updating an application version with a new version should succeedd
-    When I update the application version for application "watchmiddleearth" version id "watchmiddleearth:0.1.0-SNAPSHOT" with new version "0.2.0-SNAPSHOT" and description "null"
+    And I create an application version for application "watchmiddleearth" with version "0.2.0-SNAPSHOT", description "null", topology template id "null" and previous version id "null"
+    When I update the application version for application "watchmiddleearth" version id "watchmiddleearth:0.2.0-SNAPSHOT" with new version "0.3.0-SNAPSHOT" and description "null"
     Then I should receive a RestResponse with no error
 
 #  @reset

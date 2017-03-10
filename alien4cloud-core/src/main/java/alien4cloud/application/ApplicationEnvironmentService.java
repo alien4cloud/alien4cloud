@@ -12,11 +12,9 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.events.AfterApplicationEnvironmentDeleted;
-import org.alien4cloud.alm.events.AfterApplicationTopologyVersionDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.tosca.model.Csar;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -120,26 +118,6 @@ public class ApplicationEnvironmentService {
         GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
                 MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } }), Integer.MAX_VALUE);
         return result.getData();
-    }
-
-    @EventListener
-    public void handleDeleteVersion(AfterApplicationTopologyVersionDeleted event) {
-        GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.buildQuery(ApplicationEnvironment.class)
-                .setFilters(fromKeyValueCouples("applicationId", event.getApplicationId(), "topologyVersion", event.getTopologyVersion())).prepareSearch()
-                .search(0, Integer.MAX_VALUE);
-        if (result.getData() == null || result.getData().length == 0) {
-            return;
-        }
-        ApplicationVersion version = applicationVersionService.getLatest(event.getApplicationId());
-        if (version == null) {
-            return;
-        }
-        // assign the latest version and save
-        for (ApplicationEnvironment environment : result.getData()) {
-            environment.setVersion(version.getVersion());
-            environment.setTopologyVersion(version.getTopologyVersions().keySet().iterator().next());
-            alienDAO.save(environment);
-        }
     }
 
     /**
