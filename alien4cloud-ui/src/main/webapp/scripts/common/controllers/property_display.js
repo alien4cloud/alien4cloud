@@ -278,6 +278,7 @@ define(function(require) {
           if (constraints[i].hasOwnProperty('validValues')) {
             $scope.definitionObject.uiName = 'select';
             $scope.definitionObject.uiValue = shownValue;
+            $scope.definitionObject.uiSelectValue = shownValue;
             $scope.definitionObject.uiSelectValues = constraints[i].validValues;
             return $scope.definitionObject;
           }
