@@ -48,6 +48,7 @@ import alien4cloud.exception.ReleaseReferencingSnapshotException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.exception.VersionRenameNotPossibleException;
 import alien4cloud.images.exception.ImageUploadException;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.paas.exception.ComputeConflictNameException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
@@ -64,6 +65,7 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
+import alien4cloud.service.exceptions.ServiceUsageException;
 import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
@@ -147,7 +149,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public RestResponse<Void> processDeleteReferencedObject(DeleteReferencedObjectException e) {
-        log.error("Object is still referenced and cannot be deleted", e);
+        log.error(" Resource still referenced, thus not deletable.", e);
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(e.getMessage()).build()).build();
     }
@@ -249,7 +251,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public RestResponse<Void> notFoundErrorHandler(NotFoundException e) {
-        log.error("Something not found", e);
+        log.error("Resource not found", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message(e.getMessage()).build()).build();
     }
 
@@ -509,4 +511,13 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<CsarUploadResult> builder().data(CsarUploadUtil.toUploadResult(e.getParsingResult()))
                 .error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build()).build();
     }
+
+    @ExceptionHandler(value = ServiceUsageException.class)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public RestResponse<Usage[]> serviceUsageExceptionHandler(ServiceUsageException e) {
+        log.error("Error on service deletion", e);
+        return RestResponseBuilder.<Usage[]> builder().data(e.convert()).error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build()).build();
+    }
+
 }

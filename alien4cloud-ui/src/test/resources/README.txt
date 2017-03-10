@@ -279,3 +279,5 @@ curl -X POST "http://localhost:9200/application/_search?pretty=true" -d '
             }
 }
 '
+
+find . -type d -name 'bower_components' -exec rm -rf {} \;

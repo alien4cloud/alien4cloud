@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.4.0-SM3</version>
+    <version>1.4.0-SM4</version>
   </parent>
   <artifactId>alien4cloud-core</artifactId>
   <name>Alien 4 Cloud Core</name>
@@ -104,6 +104,18 @@
       <version>${project.version}</version>
       <scope>test</scope>
       <classifier>tests</classifier>
+    </dependency>
+    <dependency>
+      <groupId>alien4cloud</groupId>
+      <artifactId>alien4cloud-tosca</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <classifier>tests</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
     </dependency>
 
     <dependency>
@@ -206,8 +218,11 @@
                 <filteredField>alien4cloud.model.deployment.DeploymentTopology.locationDependencies</filteredField>
                 <filteredField>alien4cloud.model.deployment.DeploymentTopology.originalNodes</filteredField>
                 <filteredField>alien4cloud.model.deployment.DeploymentTopology.inputProperties</filteredField>
-                <filteredField>org.alien4cloud.tosca.model.templates.SubstitutionMapping.substitutionType</filteredField>
-                <filteredField>alien4cloud.model.orchestrators.locations.LocationResourceTemplate.portabilityDefinitions</filteredField>
+                <filteredField>org.alien4cloud.tosca.model.templates.SubstitutionMapping.substitutionType
+                </filteredField>
+                <filteredField>
+                  alien4cloud.model.orchestrators.locations.LocationResourceTemplate.portabilityDefinitions
+                </filteredField>
               </filteredFields>
             </configuration>
           </execution>

@@ -8,7 +8,7 @@
         {{'COMMON.USERNAME' | translate}}
       </label>
       <div class="col-lg-9">
-        <input type="text" class="form-control" id="username_id" ng-model="user.username" name="username" required="" placeholder="{{'COMMON.USERNAME' | translate}}">
+        <input type="text" class="form-control" id="username_id" ng-model="user.username" name="username" required="" placeholder="{{'COMMON.USERNAME' | translate}}" autofocus>
       </div>
     </div>
     <div class="form-group" ng-class="{'has-error': newUser.password.$invalid || newUser.confirmPwd.$invalid}">

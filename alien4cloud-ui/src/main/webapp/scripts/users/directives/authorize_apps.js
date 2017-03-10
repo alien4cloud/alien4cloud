@@ -33,7 +33,7 @@ define(function (require) {
         /*
           display force option
         */
-        'displayForceOption': '=',
+        'displayCustomSearch': '=',
 
         /**
         application: if we want to open the modal on an application only

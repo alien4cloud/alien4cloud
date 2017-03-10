@@ -333,10 +333,15 @@ relationship_types:
     valid_targets: [ tosca.capabilities.Connectivity ]
 
 artifact_types:
+  tosca.artifacts.Root:
+    description: Root type
   tosca.artifacts.ShellScript:
+    derived_from: tosca.artifacts.Root
     description: A shell script (.sh file)
     file_ext: [ sh ]
   tosca.artifacts.TarGzFile:
+    derived_from: tosca.artifacts.Root
     description: A tar gz distribution
   tosca.artifacts.WarFile:
+    derived_from: tosca.artifacts.Root
     description: A war file

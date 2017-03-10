@@ -301,7 +301,16 @@ public class TopologyService {
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);
         typeLoader.loadType(type, toLoadDependency);
         ToscaContext.get().resetDependencies(typeLoader.getLoadedDependencies());
-        // TODO update csar dependencies also ?
+        // Validate does not induce missing types.
+        try {
+            this.checkForMissingTypes(topology);
+        } catch (NotFoundException e) {
+            // Revert changes made to the Context then throw.
+            ToscaContext.get().resetDependencies(topology.getDependencies());
+            throw new VersionConflictException("Adding the type ["+ element.getId() + "] from archive ["
+                    + element.getArchiveName() + ":" + element.getArchiveVersion() +"] changes the topology dependencies and induces missing types. " +
+                    "Try with another version instead. Not found : [" + e.getMessage() + "].", e);
+        }
         topology.setDependencies(typeLoader.getLoadedDependencies());
         return element;
     }
@@ -354,7 +363,7 @@ public class TopologyService {
 
         // Validate that the dependency change does not induce missing types.
         try {
-            this.checkForMissingTypes(context);
+            this.checkForMissingTypes(context.getTopology());
         } catch (NotFoundException e) {
             // Revert changes made to the Context then throw.
             context.getToscaContext().resetDependencies(oldDependencies);
@@ -369,14 +378,14 @@ public class TopologyService {
 
     /**
      * Check for missing types in the Topology
-     * @param context
+     * @param topology the topology
      * @throws NotFoundException if the Type is used in the topology and not found in its context.
      */
-    private void checkForMissingTypes(EditionContext context) {
+    private void checkForMissingTypes(Topology topology) {
         /* TODO: Cache the result or do not use TopologyDTOBuilder
          * because it is then called again at the end of the operation execution (EditorController.execute)
          */
-        TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(context);
+        TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(topology);
         topologyDTO.getNodeTypes().forEach(throwTypeNotFound());
         topologyDTO.getRelationshipTypes().forEach(throwTypeNotFound());
         topologyDTO.getCapabilityTypes().forEach(throwTypeNotFound());

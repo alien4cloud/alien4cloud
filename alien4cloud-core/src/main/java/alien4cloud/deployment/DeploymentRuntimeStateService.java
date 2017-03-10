@@ -9,6 +9,7 @@ import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.SettableFuture;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -18,8 +19,17 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
+import lombok.SneakyThrows;
 
 /**
  * Manage runtime operations on deployments.
@@ -38,6 +48,8 @@ public class DeploymentRuntimeStateService {
     private DeploymentContextService deploymentContextService;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
+    @Inject
+    private DeploymentLockService deploymentLockService;
 
     /**
      * Get the deployed (runtime) topology of an application from the environment id
@@ -73,36 +85,60 @@ public class DeploymentRuntimeStateService {
     }
 
     /**
-     * Get the current deployment status for a topology.
+     * Synchronously get the current deployment status for a topology.
      *
-     * @param deployment deployment for which we want the status
-     * @param callback that will be called when status is available*
+     * @param deployment deployment for which we want the status.
      * @return The status of the topology.
-     * @throws alien4cloud.paas.exception.OrchestratorDisabledException In case the cloud selected for the topology is disabled.
      */
-    public void getDeploymentStatus(final Deployment deployment, final IPaaSCallback<DeploymentStatus> callback) throws OrchestratorDisabledException {
-        if (deployment == null) {
-            callback.onSuccess(DeploymentStatus.UNDEPLOYED);
-            return;
-        }
-        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
-
-        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, getRuntimeTopology(deployment.getId()));
-        IPaaSCallback<DeploymentStatus> esCallback = new IPaaSCallback<DeploymentStatus>() {
+    @SneakyThrows
+    public DeploymentStatus getDeploymentStatus(Deployment deployment) {
+        final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
+        // update the deployment status from PaaS if it cannot be found.
+        getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
             @Override
             public void onSuccess(DeploymentStatus data) {
-                if (data == DeploymentStatus.UNDEPLOYED) {
-                    deploymentService.markUndeployed(deployment);
-                }
-                callback.onSuccess(data);
+                statusSettableFuture.set(data);
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-                callback.onFailure(throwable);
+                statusSettableFuture.setException(throwable);
             }
-        };
-        orchestratorPlugin.getStatus(deploymentContext, esCallback);
+        });
+        return statusSettableFuture.get();
+    }
+
+    /**
+     * Get the current deployment status for a topology.
+     *
+     * @param deployment deployment for which we want the status.
+     * @param callback that will be called when status is available
+     * @return The status of the topology.
+     * @throws alien4cloud.paas.exception.OrchestratorDisabledException In case the cloud selected for the topology is disabled.
+     */
+    public void getDeploymentStatus(final Deployment deployment, final IPaaSCallback<DeploymentStatus> callback) throws OrchestratorDisabledException {
+        deploymentLockService.doWithDeploymentReadLock(deployment.getOrchestratorDeploymentId(), () -> {
+            if (deployment == null) {
+                callback.onSuccess(DeploymentStatus.UNDEPLOYED);
+                return null;
+            }
+            IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
+
+            PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, getRuntimeTopology(deployment.getId()));
+            IPaaSCallback<DeploymentStatus> esCallback = new IPaaSCallback<DeploymentStatus>() {
+                @Override
+                public void onSuccess(DeploymentStatus data) {
+                    callback.onSuccess(data);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    callback.onFailure(throwable);
+                }
+            };
+            orchestratorPlugin.getStatus(deploymentContext, esCallback);
+            return null;
+        });
     }
 
     /**

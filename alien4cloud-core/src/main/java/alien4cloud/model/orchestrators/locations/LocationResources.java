@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
 @NoArgsConstructor
 @ApiModel("Contains the types and templates of elements configured for a given location.")
 public class LocationResources extends LocationResourceTypes {
-    @ApiModelProperty(value = "List of configuration templates already configured for the location. Usually abstract  types.")
+    @ApiModelProperty(value = "List of configuration templates already configured for the location. Usually abstract types.")
     private List<LocationResourceTemplate> configurationTemplates = Lists.newArrayList();
     @ApiModelProperty(value = "List of node templates already configured for the location.")
     private List<LocationResourceTemplate> nodeTemplates = Lists.newArrayList();

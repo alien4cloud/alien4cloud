@@ -1,7 +1,6 @@
 package alien4cloud.rest.model;
 
 import alien4cloud.utils.AlienConstants;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,12 +15,17 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
 public class BasicSearchRequest {
     /* The component type to query */
     private String query;
     private Integer from = 0;
     private Integer size = AlienConstants.DEFAULT_ES_SEARCH_SIZE;
+
+    public BasicSearchRequest(String query, Integer from, Integer size) {
+        this.query = query;
+        setFrom(from);
+        setSize(size);
+    }
 
     /**
      * Set the value for 'from': start element in the request.

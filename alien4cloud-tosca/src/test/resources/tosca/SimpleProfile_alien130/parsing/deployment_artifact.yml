@@ -1,0 +1,99 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: deployment-artifact
+template_author: FC
+template_version: 1.0.0-SNAPSHOT
+
+repositories:
+
+  maven_repo:
+    url: https://fastconnect.org/maven/content/repositories/fastconnect
+    credential:
+      user: good_user
+      token: real_secured_password
+    type: maven
+
+artifact_types:
+  tosca.artifacts.Root:
+    description: root type
+  tosca.artifacts.Deployment.War:
+    derived_from: tosca.artifacts.Root
+    description: A web application archive
+    file_ext: [ war ]
+
+data_types:
+
+  tosca.datatypes.Root:
+    description: The TOSCA root Data Type all other TOSCA base Data Types derive from.
+  tosca.datatypes.Credential:
+    derived_from: tosca.datatypes.Root
+    description: The Credential type is a complex TOSCA data Type used when describing authorization credentials used to access network accessible resources.
+    properties:
+      protocol:
+        type: string
+        description: The optional protocol name.
+        required: false
+      token_type:
+        type: string
+        description: The required token type.
+        default: password
+      token:
+        type: string
+        description: The required token used as a credential for authorization or access to a networked resource.
+      keys:
+        type: map
+        description: The optional list of protocol-specific keys or assertions.
+        required: false
+        entry_schema:
+          type: string
+      user:
+        type: string
+        description: The optional user (name or ID) used for non-token based credentials.
+        required: false
+
+node_types:
+  tosca.nodes.Root:
+    description: root type
+  my.maven.component:
+    derived_from: tosca.nodes.Root
+    artifacts:
+      - simple_war: binary/myWar.war
+      - remote_war:
+          file: alien4cloud:alien4cloud-ui:1.3.0-SM3
+          type: tosca.artifacts.Deployment.War
+          repository: maven_repo
+  my.maven.component.extended:
+    derived_from: my.maven.component
+
+relationship_types:
+  tosca.relationships.Root:
+    description: root type
+  my.maven.relationship:
+    derived_from: tosca.relationships.Root
+    artifacts:
+      - simple_war: binary/myWar.war
+      - remote_war:
+          file: alien4cloud:alien4cloud-ui:1.3.0-SM3
+          type: tosca.artifacts.Deployment.War
+          repository: maven_repo
+  my.maven.relationship.extended:
+    derived_from: my.maven.relationship
+
+topology_template:
+
+  input_artifacts:
+    simple_war: binary/myWar.war
+    remote_war:
+      file: alien4cloud:alien4cloud-ui:1.3.0-SM3
+      type: tosca.artifacts.Deployment.War
+      repository: maven_repo
+
+  node_templates:
+    my_node:
+      type: my.maven.component
+      artifacts:
+        simple_war: binary/myWar.war
+        remote_war:
+          file: alien4cloud:alien4cloud-ui:1.3.0-SM3
+          type: tosca.artifacts.Deployment.War
+          repository: maven_repo

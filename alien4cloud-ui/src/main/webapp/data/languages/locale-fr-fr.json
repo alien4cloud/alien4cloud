@@ -22,6 +22,14 @@
         "WARNING" : "Alerte",
         "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
       },
+      "SETUP": {
+        "TITLE": "Configuration du déployment",
+        "MESSAGE": "Configurez et préparez le prochain déployment."
+      },
+      "DEPLOYED_INFOS": {
+        "TITLE": "Déployment actif",
+        "MESSAGE": "Informations concernant le déployment actif."
+      },
       "VERSION" : "Version déployée"
     },
     "ENVIRONMENT" : {
@@ -475,6 +483,7 @@
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT" : "Une topologie ayant une dépendence vers une archive de ce nom et cette version est déployée. Afin de garantir la stabilité des déploiements, cette archive ne peut être modifiée.",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE" : "La dépendance [ {{note}} ] n'est pas visible depuis le workspace cible",
       "DEPENDENCY_VERSION_CONFLICT" : "La dependence [{{problem}}] est en conflit avec la dépendance [{{context}}]. Le conflit a été résolu en utilisant la version la plus récente.",
+      "DERIVED_FROM_NOTHING": "Le type tosca [{{note}}] doit hériter explicitement du type de base [{{context}}], Alien a automatiquement ajouté [{{context}}] comme son parent",
       "DUPLICATED_ELEMENT_DECLARATION" : "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
       "ENTRY_DEFINITION_NOT_FOUND" : "Le fichier de définitions n'a pas été trouvé. Le fichier de définitions yaml doit se trouver à la racine de l'archive",
       "ERRONEOUS_ARCHIVE_FILE" : "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",
@@ -1018,6 +1027,20 @@
       "NODE_TYPE" : "Type",
       "NODE_TYPE_VERSION" : "Version du type",
       "TITLE" : "Nouveau service"
+    },
+    "MANAGED": {
+      "TITLE": "Service",
+      "NO_SUBSTITUTION_MESSAGE": "La topologie doit définir un type de substitution afin d'être exposée en tant que service.",
+      "CREATE": {
+        "MESSAGE": "Exposer ce déploiement en tant que service ( d'autres applications pourront l'utiliser pendant la phase de matching de resources ).",
+        "CONFIRM_TITLE": "Exposer",
+        "CONFIRM_MESSAGE": "Voulez-vous vraiment exposer ce déploiement en tant que service?"
+      },
+      "UNBIND": {
+        "MESSAGE": "Dissocier ce service de cet environment.",
+        "CONFIRM_TITLE": "Dissocier le service",
+        "CONFIRM_MESSAGE": "Voulez-vous vraiment dissocier ce service de cet environment?\nLe service sera supprimé s'il n'est utilisé par aucune resource. Sinon, Vous devrez alors contacter votre administrateur pour un nettoyage."
+      }
     }
   },
   "START_DATE" : "Date de début",

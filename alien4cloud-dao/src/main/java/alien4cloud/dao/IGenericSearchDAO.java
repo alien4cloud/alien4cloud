@@ -3,6 +3,7 @@ package alien4cloud.dao;
 import java.util.List;
 import java.util.Map;
 
+import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.FilterValuesStrategy;
@@ -17,6 +18,13 @@ import alien4cloud.dao.model.GetMultipleDataResult;
  * A Dao that supports search and/or filter based queries.
  */
 public interface IGenericSearchDAO extends IGenericIdDAO {
+
+    /**
+     * Get the elasticsearch client. Note use directly the elasticsearch client only for specific queries.
+     * 
+     * @return The elasticsearch client.
+     */
+    Client getClient();
 
     /**
      * Return the dao {@link QueryHelper}

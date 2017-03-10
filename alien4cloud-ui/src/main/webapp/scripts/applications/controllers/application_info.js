@@ -37,7 +37,7 @@ define(function (require) {
       var pageStateId = $state.current.name;
 
       $scope.isManager = authService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
-      $scope.isDeployer = authService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
+      $scope.isDeployer = authService.hasResourceRole($scope.application, 'APPLICATION_DEPLOYER');
       $scope.isDevops = authService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
       $scope.isUser = authService.hasResourceRole($scope.application, 'APPLICATION_USER');
       $scope.newAppName = $scope.application.name;
@@ -46,7 +46,7 @@ define(function (require) {
       $scope.appEnvironments = appEnvironments;
 
       $scope.setEnvironment = function setEnvironment(environmentId) {
-        if(_.undefined(environmentId)) {
+        if (_.undefined(environmentId)) {
           environmentId = $scope.selectedEnvironment.id;
         }
 
@@ -54,7 +54,8 @@ define(function (require) {
         appEnvironments.select(environmentId, function() {
           $scope.selectedEnvironment = appEnvironments.selected;
           $scope.stopEvent(); // stop to listen for instance events
-          if(appEnvironments.selected.status !== 'UNDEPLOYED') {
+          delete $scope.deployedContext.dto;
+          if (appEnvironments.selected.status !== 'UNDEPLOYED') {
             // If the application is deployed then get informations to display.
             $scope.processDeploymentTopologyInformation().$promise.then(function() {
               $scope.refreshInstancesStatuses($scope.application.id, appEnvironments.selected.id, pageStateId);
@@ -62,7 +63,10 @@ define(function (require) {
           }
         }, true);
       };
-      $scope.setEnvironment(appEnvironments.selected.id);
+
+      if (_.defined(appEnvironments.selected)) {
+        $scope.setEnvironment(appEnvironments.selected.id);
+      }
 
       $scope.$on('$destroy', function() { // routing to another page
         $scope.stopEvent(); // stop to listen for instance events

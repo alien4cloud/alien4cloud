@@ -9,7 +9,7 @@
             <label for="nameid" class="col-md-3 control-label">{{'COMMON.NAME' | translate}}</label>
             <div class="col-md-9">
                 <input type="text" class="form-control" id="nameid" ng-model="repository.name" name="name"
-                       placeholder="{{'COMMON.NAME' | translate}}" required>
+                       placeholder="{{'COMMON.NAME' | translate}}" required autofocus>
             </div>
         </div>
         <div class="form-group" ng-class="{'has-error': newRepositoryForm.name.$invalid}">

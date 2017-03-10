@@ -19,9 +19,8 @@ define(function(require) {
       key: 'APPLICATIONS.DEPLOYMENT.MATCHING.TITLE',
       icon: 'fa fa-exchange',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'],
-      priority: 200,
+      priority: 300,
       step: {
-        nextStepId: 'am.applications.detail.deployment.input',
         taskCodes: ['NODE_NOT_SUBSTITUTED', 'IMPLEMENT', 'REPLACE']
       }
     }

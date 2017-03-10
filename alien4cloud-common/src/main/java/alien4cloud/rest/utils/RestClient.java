@@ -167,6 +167,13 @@ public class RestClient {
         return ResponseUtil.toString(response);
     }
 
+    public String patch(String path) throws IOException {
+        log.debug("Send patch request to [" + path + "]");
+        HttpPatch httpPatch = new HttpPatch(applicationUrl + path);
+        CloseableHttpResponse response = httpClient.execute(httpPatch);
+        return ResponseUtil.toString(response);
+    }
+
     public String patchJSon(String path, String jSon) throws IOException {
         log.debug("Send patch json request to [" + path + "], jSon [" + jSon + "]");
         HttpPatch httpPatch = new HttpPatch(applicationUrl + path);

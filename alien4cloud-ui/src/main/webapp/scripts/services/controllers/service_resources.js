@@ -9,6 +9,10 @@ define(function (require) {
   require('scripts/common/services/alien_resource');
   require('scripts/tosca/directives/node_template_edit');
   require('scripts/services/controllers/service_resource_new');
+  require('scripts/users/directives/users_authorization');
+  require('scripts/users/directives/groups_authorization');
+  require('scripts/users/directives/apps_authorization');
+  require('scripts/common/services/resource_security_factory');
 
   states.state('admin.services', {
     url: '/services',
@@ -24,8 +28,8 @@ define(function (require) {
   });
 
   modules.get('a4c-services', ['ui.router', 'ui.bootstrap','a4c-common']).controller('a4cServiceResourcesCtrl',
-    ['$scope', '$uibModal', '$alresource', 'searchServiceFactory', 'resizeServices',
-    function($scope, $uibModal, $alresource, searchServiceFactory, resizeServices) {
+    ['$scope', '$uibModal', '$alresource', 'searchServiceFactory', 'resizeServices', 'resourceSecurityFactory',
+    function($scope, $uibModal, $alresource, searchServiceFactory, resizeServices, resourceSecurityFactory) {
       const serviceResourceService = $alresource('rest/latest/services/:serviceId');
       const orchestratorsService = $alresource('rest/latest/orchestrators/:id');
       const locationsService = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:id');
@@ -180,7 +184,7 @@ define(function (require) {
         }, angular.toJson(updateRequest)).$promise;
       };
 
-      $scope.updateAttribute= function(attributeName, attributeValue) {
+      $scope.updateAttribute = function(attributeName, attributeValue) {
         var updateRequest = { nodeInstance: { attributeValues:{} } };
         updateRequest.nodeInstance.attributeValues[attributeName] = attributeValue;
         return serviceResourceService.patch({
@@ -198,12 +202,19 @@ define(function (require) {
       $scope.delete = function(serviceId) {
         serviceResourceService.delete({
           serviceId: serviceId
-        }, null, function(){
-          if(_.defined($scope.selectedService) && $scope.selectedService.id === serviceId) {
+        }, null, function() {
+          $scope.search();
+          if (_.defined($scope.selectedService) && $scope.selectedService.id === serviceId) {
             $scope.selectedService = undefined;
           }
         });
       };
+
+      $scope.servicesSecurityService = resourceSecurityFactory('rest/latest/services/:serviceId', {
+        serviceId: function () {
+          return $scope.selectedService.id;
+        }
+      });
     }
   ]); // controller
 }); // define

@@ -1,0 +1,55 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: test-data-types
+template_author: TOSCA TC
+template_version: 1.0.0.wd03-SNAPSHOT
+
+description: Contains the normative types definition.
+
+node_types:
+  tosca.nodes.Root:
+    description: root type
+  alien.test.Command:
+    derived_from: tosca.nodes.Root
+    properties:
+      url:
+        type: url
+      ipv6_addresses:
+        type: list
+        entry_schema:
+          type: ipv6_address
+      passwords:
+        type: map
+        entry_schema:
+          type: password
+
+data_types:
+  url:
+    derived_from: string
+    description: A data type that defines a url string.
+    constraints:
+      - pattern: ^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$
+  ipv6_address:
+    derived_from: string
+    description: A data type that defines a ip v6 address string.
+    constraints:
+      - pattern: ^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$
+  password:
+    derived_from: string
+    constraints:
+      - min_length: 8
+      - max_length: 12
+
+topology_template:
+  node_templates:
+    command:
+      type: alien.test.Command
+      properties:
+        url: https://kikoo.com
+        ipv6_addresses:
+          - 192.168.0.10
+          - 10.0.0.10
+        passwords:
+          # doesn't respect the constraint
+          user1: 12
+          user2: abcdefghij

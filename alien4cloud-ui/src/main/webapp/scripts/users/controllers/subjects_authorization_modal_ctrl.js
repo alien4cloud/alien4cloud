@@ -57,9 +57,9 @@ define(function (require) {
 
       buildSeachService();
 
-      $scope.ok = function (force) {
+      $scope.ok = function () {
         if ($scope.selectedSubjects.length > 0) {
-          $uibModalInstance.close({subjects:$scope.selectedSubjects, force: force});
+          $uibModalInstance.close({subjects:$scope.selectedSubjects});
         }
       };
 

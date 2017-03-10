@@ -1,13 +1,11 @@
 package alien4cloud.rest.service;
 
+import java.util.Map;
+
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.groups.Default;
 
-import alien4cloud.model.common.Usage;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.service.model.UpdateValidationGroup;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -34,6 +31,7 @@ import alien4cloud.rest.model.SortedSearchRequest;
 import alien4cloud.rest.service.model.CreateServiceResourceRequest;
 import alien4cloud.rest.service.model.PatchServiceResourceRequest;
 import alien4cloud.rest.service.model.UpdateServiceResourceRequest;
+import alien4cloud.rest.service.model.UpdateValidationGroup;
 import alien4cloud.service.ServiceResourceService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -45,16 +43,13 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * Controller to access services.
  */
 @Slf4j
 @RestController
 @RequestMapping({ "/rest/services", "/rest/v1/services", "/rest/latest/services" })
-@Api(value = "Services", description = "Allow to create/read/update/delete and search services.", authorizations = { @Authorization("COMPONENTS_MANAGER") })
+@Api(value = "Services", description = "Allow to create/read/update/delete and search services.", authorizations = { @Authorization("ADMIN") })
 public class ServiceResourceController {
     @Resource
     private ServiceResourceService serviceResourceService;
@@ -118,7 +113,7 @@ public class ServiceResourceController {
     @Audit
     public RestResponse<ConstraintInformation> patch(
             @ApiParam(value = "Id of the service to update.", required = true) @PathVariable @Valid @NotEmpty String id,
-            @ApiParam(value = "ServiceResource update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody PatchServiceResourceRequest request) {
+            @ApiParam(value = "ServiceResource patch request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody PatchServiceResourceRequest request) {
         try {
             String nodeType = request.getNodeInstance() == null ? null : request.getNodeInstance().getType();
             String nodeTypeVersion = request.getNodeInstance() == null ? null : request.getNodeInstance().getTypeVersion();
@@ -134,7 +129,7 @@ public class ServiceResourceController {
         }
     }
 
-    @ApiOperation(value = "Delete a service. Note: alien managed services (through application deployment) cannot be deleted via API.", authorizations = {
+    @ApiOperation(value = "Delete a service.", authorizations = {
             @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")

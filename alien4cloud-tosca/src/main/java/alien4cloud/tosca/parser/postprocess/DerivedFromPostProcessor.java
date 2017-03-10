@@ -2,21 +2,28 @@ package alien4cloud.tosca.parser.postprocess;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.model.components.IndexedModelUtils;
-import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.normative.NormativeTypesConstant;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +45,7 @@ public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? ex
     }
 
     private void process(Map<AbstractInheritableToscaType, String> processed, Map<AbstractInheritableToscaType, String> processing,
-                         AbstractInheritableToscaType instance, Map<String, ? extends AbstractInheritableToscaType> instances) {
+            AbstractInheritableToscaType instance, Map<String, ? extends AbstractInheritableToscaType> instances) {
         if (processed.containsKey(instance)) {
             // Already processed
             return;
@@ -55,9 +62,38 @@ public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? ex
         }
 
         List<String> derivedFrom = instance.getDerivedFrom();
-        if (derivedFrom == null || derivedFrom.isEmpty() || derivedFrom.size() > 1) {
-            // Either the type has no parents, either it has been already processed.
+        if (derivedFrom != null && derivedFrom.size() > 1) {
+            // The type has been already processed.
             return;
+        }
+        if (derivedFrom == null || derivedFrom.isEmpty()) {
+            // If the user forgot to derive from Root, automatically do it but make an alert
+            String defaultDerivedFrom = null;
+            if (instance instanceof NodeType && !NormativeTypesConstant.ROOT_NODE_TYPE.equals(instance.getElementId())) {
+                defaultDerivedFrom = NormativeTypesConstant.ROOT_NODE_TYPE;
+            } else if (instance instanceof RelationshipType && !NormativeTypesConstant.ROOT_RELATIONSHIP_TYPE.equals(instance.getElementId())) {
+                defaultDerivedFrom = NormativeTypesConstant.ROOT_RELATIONSHIP_TYPE;
+            } else if (instance instanceof DataType && !NormativeTypesConstant.ROOT_DATA_TYPE.equals(instance.getElementId())) {
+                defaultDerivedFrom = NormativeTypesConstant.ROOT_DATA_TYPE;
+            } else if (instance instanceof CapabilityType && !NormativeTypesConstant.ROOT_CAPABILITY_TYPE.equals(instance.getElementId())) {
+                defaultDerivedFrom = NormativeTypesConstant.ROOT_CAPABILITY_TYPE;
+            } else if (instance instanceof ArtifactType && !NormativeTypesConstant.ROOT_ARTIFACT_TYPE.equals(instance.getElementId())) {
+                defaultDerivedFrom = NormativeTypesConstant.ROOT_ARTIFACT_TYPE;
+            }
+            if (defaultDerivedFrom != null) {
+                derivedFrom = new ArrayList<>();
+                derivedFrom.add(defaultDerivedFrom);
+                instance.setDerivedFrom(derivedFrom);
+                Node node = ParsingContextExecution.getObjectToNodeMap().get(instance);
+                ParsingContextExecution.getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.DERIVED_FROM_NOTHING, defaultDerivedFrom,
+                                node.getStartMark(), "The " + instance.getClass().getSimpleName() + " " + instance.getElementId()
+                                        + " derives from nothing, default " + defaultDerivedFrom + " will be set as parent type.",
+                                node.getEndMark(), instance.getElementId()));
+            } else {
+                // Non managed default parent type then returns
+                return;
+            }
         }
 
         String parentElementType = derivedFrom.get(0);
@@ -86,7 +122,7 @@ public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? ex
             processing.remove(instance);
         }
         if (parent == null) {
-            Node node = ParsingContextExecution.getObjectToNodeMap().get(derivedFrom);
+            Node node = ParsingContextExecution.getObjectToNodeMap().get(instance);
             ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "Derived_from type not found", node.getStartMark(),
                     "The type specified as parent is not found neither in the archive or its dependencies.", node.getEndMark(), parentElementType));
             return;

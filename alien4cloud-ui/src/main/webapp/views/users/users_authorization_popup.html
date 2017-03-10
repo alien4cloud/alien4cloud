@@ -17,7 +17,7 @@
             </div>
           </form>
         </div>
-        <div  ng-if = "displayForceOption" class="filter-category">
+        <div ng-if="displayCustomSearch" class="filter-category">
           <a ng-click="toggleCustomSearch()" class="pull-rigth">
             <i class="fa fa-fw" ng-class="{'fa-check-square-o' : customSearchActive,  'fa-square-o': !customSearchActive}"></i>
               {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD_POPUP.LOC_AUTH_FILTER' | translate}}
@@ -75,17 +75,7 @@
     </div>
   </div>
   <div class="modal-footer" style="margin-top: 10px;">
-    <a ng-disabled="selectedSubjects.length === 0" class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}
-    <a ng-if = "displayForceOption" ng-disabled="selectedSubjects.length === 0" class="btn btn-primary" ng-click="ok(true)">{{'FORCE' | translate}}
-    </a>
-    <!-- <a ng-disabled="selectedSubjects.length === 0" class="btn btn-primary"
-      confirm-title="{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.FORCE_TITLE' | translate }}"
-      confirm="{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.FORCE_MESSAGE' | translate}}"
-      confirm-placement="left"
-      confirm-handler="ok(true)"
-      confirm-class="popover"
-      ng-click="$event.stopPropagation()">{{'FORCE' | translate}}
-    </a> -->
+    <a ng-disabled="selectedSubjects.length === 0" class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}</a>
     <a class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</a>
   </div>
 </div>

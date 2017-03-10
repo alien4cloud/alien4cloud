@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.security.AbstractSecurityEnabledResource;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Permission;
-import alien4cloud.security.ResourcePermissionService;
+import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.security.Subject;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
@@ -94,31 +95,26 @@ public class LocationSecurityService {
     }
 
     /**
-     * Check if all subjects have the authorization on the location .
+     * Grant authorization on location if a subject doesnt have authorization on location.
      *
-     * @param location The location on which to check
-     * @param subjectType The type of the subjects to check for authorizations
-     * @param grantAccess whether or not we want to grant access to unauthorized subjects. Fails with an {@link java.nio.file.AccessDeniedException} if set to
-     *            false.
+     * @param location The location on which to check / grant
+     * @param subjectType The type of the subjects to grant
      * @param subjects The subjects to process
      */
-    public void checkAuthorizations(Location location, Subject subjectType, boolean grantAccess, String... subjects) {
-        Set<String> unauthorized = Arrays.stream(subjects).filter(name -> !location.getPermissions(subjectType, name).contains(Permission.ADMIN))
-                .collect(Collectors.toSet());
+    public void grantAuthorizationOnLocationIfNecessary(Location location, Subject subjectType, String... subjects) {
+        Set<String> unauthorized = Arrays.stream(subjects).filter(name -> //
+                !location.getPermissions(subjectType, name).contains(Permission.ADMIN)).collect(Collectors.toSet());
         if (CollectionUtils.isNotEmpty(unauthorized)) {
-            if (grantAccess) {
-                resourcePermissionService.grantPermission(location, subjectType, unauthorized.toArray(new String[unauthorized.size()]));
-            } else {
-                throw new AccessDeniedException("At least one of the current <" + subjectType + "> has no authorization on location <" + location.getName()
-                        + "> to perform the requested operation: " + unauthorized.toString());
-            }
+            resourcePermissionService.grantPermission(location, subjectType, unauthorized.toArray(new String[unauthorized.size()]));
         }
     }
 
-    public void checkAuthorisation(LocationResourceTemplate resourceTemplate, ApplicationEnvironment environment) {
-        if (!isAuthorised(resourceTemplate, environment)) {
-            throw new AccessDeniedException("Current context does not have access to the location resource [" + resourceTemplate.getLocationId() + "]["
-                    + resourceTemplate.getName() + "]");
+    public void grantAuthorizationOnLocationIfNecessary(String[] applications, String[] environments, Location location) {
+        if (ArrayUtils.isNotEmpty(applications)) {
+            grantAuthorizationOnLocationIfNecessary(location, Subject.APPLICATION, applications);
+        }
+        if (ArrayUtils.isNotEmpty(environments)) {
+            grantAuthorizationOnLocationIfNecessary(location, Subject.ENVIRONMENT, environments);
         }
     }
 

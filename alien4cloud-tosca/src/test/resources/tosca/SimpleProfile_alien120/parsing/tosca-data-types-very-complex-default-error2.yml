@@ -1,0 +1,79 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: test-data-types
+template_author: TOSCA TC
+template_version: 1.0.0.alien120
+
+description: Contains the normative types definition.
+
+data_types:
+  tosca.datatypes.Root:
+    description: The root type
+  sample.datatypes.Address:
+    derived_from: tosca.datatypes.Root
+    description: an address
+    properties:
+      street_name:
+        type: string
+        description: The street name.
+        required: true    
+      zipcode:
+        type: integer
+        description: The zip code.
+        required: true
+      city_name:
+        type: string
+        description: The city name.
+        required: true
+  sample.datatypes.Citizen:
+    derived_from: tosca.datatypes.Root
+    description: a citizen
+    properties:
+      first_name:
+        type: string
+        description: The citizen first name.
+        required: true
+      last_name:
+        type: string
+        description: The citizen first name.
+        required: true        
+      address:
+        type: sample.datatypes.Address
+        description: the address.
+        required: true
+      emails:
+        type: list
+        entry_schema:
+          type: string
+      accounts:
+        type: map
+        entry_schema:
+          type: string
+          
+node_types:
+  tosca.nodes.Root:
+    description: The root type
+  alien.test.Command:
+    derived_from: tosca.nodes.Root
+    properties:
+      customer:
+        type: sample.datatypes.Citizen
+        default:
+          first_name: Foo
+          last_name: Bar
+          address:
+            # the street name is required
+            #street_name: rue des peupliers
+            zipcode: 92130
+            city_name: ISSY LES MOULES
+          emails:
+            - contact@fastconnect.fr
+            - info@fastconnect.fr
+          accounts:
+            main: root
+            secondary: user
+
+topology_template:
+  node_templates:
+    command:
+      type: alien.test.Command

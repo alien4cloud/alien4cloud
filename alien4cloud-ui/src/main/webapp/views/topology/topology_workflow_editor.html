@@ -85,7 +85,8 @@
                 confirm="{{'CONFIRM_MESSAGE' | translate}}"
                 confirm-title="{{'CONFIRM' | translate }}"
                 confirm-handler="workflows.reinitWorkflow()"
-                confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.reinit' | translate}}</a>
+                confirm-placement="top" ng-click="$event.stopPropagation();"
+                confirm-class="popover">{{'APPLICATIONS.WF.reinit' | translate}}</a>
             </div>
             <div>
               <a class="btn btn-default btn-md"
@@ -156,7 +157,7 @@
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
                   confirm-handler="workflows.removeEdge(wfPinnedEdge.from, wfPinnedEdge.to)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnect' | translate}}</a>
+                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnect' | translate}}</a>
               </div>
           </div>
           <!-- The pinned step to be edited -->
@@ -190,7 +191,7 @@
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
                   confirm-handler="workflows.removeEdge(precedingNodeId, pinnedWorkflowStep.name)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectFrom' | translate}} {{precedingNodeId}}</a>
+                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectFrom' | translate}} {{precedingNodeId}}</a>
               </div>
               <div
                 ng-repeat="followingNodeId in pinnedWorkflowStep.followingSteps">
@@ -200,7 +201,7 @@
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
                   confirm-handler="workflows.removeEdge(pinnedWorkflowStep.name, followingNodeId)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectTo' | translate}} {{followingNodeId}}</a>
+                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectTo' | translate}} {{followingNodeId}}</a>
               </div>
               <div ng-if="workflowCurrentStepSelection.length > 0">
                 <a class="btn btn-default btn-md"
@@ -209,7 +210,7 @@
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
                   confirm-handler="workflows.connectFrom()"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.connectFromSelection' | translate}}</a>
+                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.connectFromSelection' | translate}}</a>
               </div>
               <div ng-if="workflowCurrentStepSelection.length > 0">
                 <a class="btn btn-default btn-md"
@@ -218,7 +219,7 @@
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
                   confirm-handler="workflows.connectTo()"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.connectToSelection' | translate}}</a>
+                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.connectToSelection' | translate}}</a>
               </div>
               <div
                 ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
@@ -228,7 +229,7 @@
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
                   confirm-handler="workflows.swap(precedingNodeId, pinnedWorkflowStep.name)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapLeft' | translate}} ({{precedingNodeId}})</a>
+                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapLeft' | translate}} ({{precedingNodeId}})</a>
               </div>
               <div
                 ng-repeat="followingNodeId in pinnedWorkflowStep.followingSteps">
@@ -238,7 +239,7 @@
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
                   confirm-handler="workflows.swap(pinnedWorkflowStep.name, followingNodeId)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapRigth' | translate}} ({{followingNodeId}})</a>
+                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapRigth' | translate}} ({{followingNodeId}})</a>
               </div>
               <div>
                 <a class="btn btn-default btn-md"
@@ -247,7 +248,7 @@
                   confirm="{{'DELETE_CONFIRM' | translate}}"
                   confirm-title="{{'DELETE' | translate }}"
                   confirm-handler="workflows.removeStep(pinnedWorkflowStep.name)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.removeStep' | translate}}</a>
+                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.removeStep' | translate}}</a>
               </div>
               <div>
                 <a class="btn btn-default btn-md"

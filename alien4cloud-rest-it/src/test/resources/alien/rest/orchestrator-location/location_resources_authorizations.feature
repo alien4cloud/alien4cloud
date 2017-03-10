@@ -29,9 +29,6 @@ Feature: Manage location resources authorizations
     Then I should have following list of users:
       | frodon |
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the user "sam"
-    Then I should receive a RestResponse with an error code 102
-    Given I grant access to the resource type "LOCATION" named "middle_earth" to the user "sam"
-    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the user "sam"
     Then I should have following list of users:
       | frodon |
       | sam    |
@@ -54,9 +51,6 @@ Feature: Manage location resources authorizations
     When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium"
     Then I should have following list of groups:
       | lordOfRing |
-    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the group "hobbits"
-    Then I should receive a RestResponse with an error code 102
-    Given I grant access to the resource type "LOCATION" named "middle_earth" to the group "hobbits"
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the group "hobbits"
     When I get the authorised groups for the resource type "LOCATION_RESOURCE" named "Medium"
     Then I should have following list of groups:
@@ -84,9 +78,6 @@ Feature: Manage location resources authorizations
     Then I should have following list of applications:
       | ALIEN |
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the application "SDE"
-    Then I should receive a RestResponse with an error code 102
-    Given I grant access to the resource type "LOCATION" named "middle_earth" to the application "SDE"
-    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the application "SDE"
     When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium"
     Then I should have following list of applications:
       | ALIEN |
@@ -95,9 +86,6 @@ Feature: Manage location resources authorizations
     When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium"
     Then I should have following list of applications:
       | SDE |
-    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the environment "DEV-ALIEN" of the application "ALIEN"
-    Then I should receive a RestResponse with an error code 102
-    Given I grant access to the resource type "LOCATION" named "middle_earth" to the environment "DEV-ALIEN" of the application "ALIEN"
     Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the environment "DEV-ALIEN" of the application "ALIEN"
     When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium"
     Then I should have following list of environments:

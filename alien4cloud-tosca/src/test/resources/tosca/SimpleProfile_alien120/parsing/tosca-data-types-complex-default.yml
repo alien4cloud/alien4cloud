@@ -1,0 +1,40 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: test-data-types
+template_author: TOSCA TC
+template_version: 1.0.0.alien120
+
+description: Contains the normative types definition.
+
+data_types:
+  tosca.datatypes.Root:
+    description: root type
+  sample.datatypes.Citizen:
+    derived_from: tosca.datatypes.Root
+    description: a citizen
+    properties:
+      first_name:
+        type: string
+        description: The citizen first name.
+        required: true
+      last_name:
+        type: string
+        description: The citizen first name.
+        required: true        
+
+node_types:
+  tosca.nodes.Root:
+    description: root type
+  alien.test.Command:
+    derived_from: tosca.nodes.Root
+    properties:
+      customer:
+        type: sample.datatypes.Citizen
+        default:
+          first_name: Foo
+          last_name: Bar
+        
+topology_template:
+  node_templates:
+    command:
+      type: alien.test.Command

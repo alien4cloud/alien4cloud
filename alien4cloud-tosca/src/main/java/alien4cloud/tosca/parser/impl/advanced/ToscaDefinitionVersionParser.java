@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -16,7 +17,7 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 
 @Component
 public class ToscaDefinitionVersionParser implements INodeParser<String> {
-    private static ThreadLocal<Boolean> recursiveCall = new ThreadLocal<>();
+    private static ThreadLocal<Boolean> loadingNormative = new ThreadLocal<>();
 
     @Override
     public String parse(Node node, ParsingContextExecution context) {
@@ -25,24 +26,29 @@ public class ToscaDefinitionVersionParser implements INodeParser<String> {
         if (toscaDefinitionVersion != null) {
             CSARDependency dependency = ToscaNormativeImports.IMPORTS.get(toscaDefinitionVersion);
             if (dependency != null) {
-                if (ToscaNormativeImports.TOSCA_NORMATIVE_TYPES.equals(dependency.getName())) {
-                    if (recursiveCall.get() == null) {
-                        recursiveCall.set(true);
-                    } else {
-                        return toscaDefinitionVersion;
-                    }
+                // File based parsing implementation of the requirement of normative types will load them from file (meaning basically that we will loop here)
+                if (loadingNormative.get() == null) {
+                    loadingNormative.set(true);
+                } else {
+                    return toscaDefinitionVersion;
                 }
+
+                Csar csar = ToscaContext.get().getArchive(dependency.getName(), dependency.getVersion());
+                if (csar == null) {
+                    return toscaDefinitionVersion;
+                }
+
+                // Normative imports are automatically injected and supposed to be accessible, no specific validation is performed here.
+                dependency.setHash(csar.getHash());
+                ToscaContext.get().addDependency(dependency);
 
                 Set<CSARDependency> dependencies = archiveRoot.getArchive().getDependencies();
                 if (dependencies == null) {
                     dependencies = new HashSet<>();
                     archiveRoot.getArchive().setDependencies(dependencies);
                 }
-
-                // Normative imports are automatically injected and supposed to be accessible, no specific validation is performed here.
-                ToscaContext.get().addDependency(dependency);
                 dependencies.add(dependency);
-                recursiveCall.remove();
+                loadingNormative.remove();
             }
         }
         return toscaDefinitionVersion;

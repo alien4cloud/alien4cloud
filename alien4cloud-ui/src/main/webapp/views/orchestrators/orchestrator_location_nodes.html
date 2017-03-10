@@ -9,34 +9,34 @@
       <a alien-authorize-users
          on-close="processUserAction('create', result)"
          search-config-builder="buildSecuritySearchConfig('users')"
-         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD' | translate}}</a></li>
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD' | translate}}</a></li>
     <li role="menuitem">
       <a alien-authorize-users
          on-close="processUserAction('delete', result)"
          search-config-builder="buildSecuritySearchConfig('users')"
-         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.REVOKE' | translate}}</a></li>
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.REVOKE' | translate}}</a></li>
     <li class="divider"></li>
     <li role="menuitem">
       <a alien-authorize-groups
          on-close="processGroupAction('create', result)"
          search-config-builder="buildSecuritySearchConfig('groups')"
-         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD' | translate}}</a></li>
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD' | translate}}</a></li>
     <li role="menuitem">
       <a alien-authorize-groups
          on-close="processGroupAction('delete', result)"
          search-config-builder="buildSecuritySearchConfig('groups')"
-         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.REVOKE' | translate}}</a></li>
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.REVOKE' | translate}}</a></li>
     <li class="divider"></li>
     <li role="menuitem">
       <a alien-authorize-apps
          on-close="processAppsAction('grant', result)"
          search-config-builder="buildSecuritySearchConfig('applications')"
-         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}</a></li>
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}</a></li>
     <li role="menuitem">
       <a alien-authorize-apps
          on-close="processAppsAction('revoke', result)"
          search-config-builder="buildSecuritySearchConfig('applications')"
-         display-force-option="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.REVOKE' | translate}}</a></li>
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.REVOKE' | translate}}</a></li>
   </ul>
 </div>
 

@@ -1,4 +1,4 @@
-Feature: Create / Delete operations on application environment
+Feature: Create application environment
 
   Background:
     Given I am authenticated with "ADMIN" role
@@ -51,31 +51,14 @@ Feature: Create / Delete operations on application environment
     Then I should receive a RestResponse with no error
 
   @reset
-  Scenario: Delete an application environment from its id
-    Given I create an application with name "watchmiddleearth-3", archive name "watchmiddleearth3", description "Use my great eye to find frodo and the ring." and topology template id "null"
-    Then I should receive a RestResponse with no error
-    And The application should have a user "frodon" having "APPLICATION_MANAGER" role
-    And I should receive a RestResponse with a string data "watchmiddleearth3"
-    Given I create an application environment of type "DEVELOPMENT" with name "watchmiddleearth-env-mock-3" and description "Mock App Env 3" for the newly created application
-    Then I should receive a RestResponse with no error
-    When I delete the registered application environment named "watchmiddleearth-env-mock-3" from its id
-    Then I should receive a RestResponse with no error
-    And I should receive a RestResponse with a boolean data "true"
-
-  @reset
-  Scenario: APPLICATION_MANAGER should be able to create/ delete an environment, others can't
+  Scenario: APPLICATION_MANAGER should be able to create an environment, others can't
     Given I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "..." and topology template id "null"
     And I should receive a RestResponse with no error
     And I add a role "APPLICATION_MANAGER" to user "golum" on the resource type "APPLICATION" named "watchmiddleearth"
     And I add a role "APPLICATION_DEVOPS" to user "sauron" on the resource type "APPLICATION" named "watchmiddleearth"
-    And I am authenticated with user named "golum"
-    When I create an application environment of type "OTHER" with name "other" and description "" for the newly created application
-    Then I should receive a RestResponse with no error
     When I am authenticated with user named "sauron"
     And I create an application environment of type "OTHER" with name "SHOULD_FAIL" and description "" for the newly created application
     Then I should receive a RestResponse with an error code 102
-    When I delete the registered application environment named "other" from its id
-    Then I should receive a RestResponse with an error code 102
-    When I am authenticated with user named "golum"
-    When I delete the registered application environment named "other" from its id
+    And I am authenticated with user named "golum"
+    When I create an application environment of type "OTHER" with name "other" and description "" for the newly created application
     Then I should receive a RestResponse with no error

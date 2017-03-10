@@ -3,14 +3,10 @@ package alien4cloud.rest.deployment;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,8 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.component.repository.ArtifactRepositoryConstants;
-import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.deployment.OrchestratorPropertiesValidationService;
 import alien4cloud.deployment.model.DeploymentConfiguration;
@@ -73,8 +67,6 @@ public class DeploymentTopologyController {
     public PropertyService propertyService;
     @Inject
     private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
-    @Resource
-    private IFileRepository artifactRepository;
 
     /**
      * Get the deployment topology of an application given an environment
@@ -109,31 +101,9 @@ public class DeploymentTopologyController {
             @PathVariable String inputArtifactId, @RequestParam("file") MultipartFile artifactFile) throws IOException {
         // Get the artifact to update
         checkAuthorizations(appId, environmentId);
-        DeploymentTopology topology = deploymentTopologyService.getDeploymentTopology(environmentId);
-        if (topology.getInputArtifacts() == null || !topology.getInputArtifacts().containsKey(inputArtifactId)) {
-            throw new NotFoundException("Artifact with key [" + inputArtifactId + "] do not exist");
-        }
-        Map<String, DeploymentArtifact> artifacts = topology.getUploadedInputArtifacts();
-        if (artifacts == null) {
-            artifacts = new HashMap<>();
-            topology.setUploadedInputArtifacts(artifacts);
-        }
-        DeploymentArtifact artifact = artifacts.get(inputArtifactId);
-        if (artifact == null) {
-            artifact = new DeploymentArtifact();
-            artifacts.put(inputArtifactId, artifact);
-        } else if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
-            artifactRepository.deleteFile(artifact.getArtifactRef());
-        }
-        try (InputStream artifactStream = artifactFile.getInputStream()) {
-            String artifactFileId = artifactRepository.storeFile(artifactStream);
-            artifact.setArtifactName(artifactFile.getOriginalFilename());
-            artifact.setArtifactRef(artifactFileId);
-            artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
-            deploymentTopologyService.updateDeploymentTopologyInputsAndSave(topology);
+        deploymentTopologyService.updateInputArtifact(environmentId, inputArtifactId, artifactFile);
             return RestResponseBuilder.<DeploymentTopologyDTO> builder()
                     .data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
-        }
     }
 
     /**
@@ -227,8 +197,7 @@ public class DeploymentTopologyController {
         // check rights on related environment
         checkAuthorizations(appId, environmentId);
 
-        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
-        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
+        DeploymentTopology deploymentTopology = deploymentTopologyService.getDeploymentTopology(environmentId);
 
         try {
             ToscaContext.init(deploymentTopology.getDependencies());
@@ -242,7 +211,7 @@ public class DeploymentTopologyController {
                         inputPropertyValue.getKey(), inputPropertyValue.getValue());
             }
 
-            // update
+            // update provider deployment properties
             if (MapUtils.isNotEmpty(updateRequest.getProviderDeploymentProperties())) {
                 deploymentTopology.getProviderDeploymentProperties().putAll(updateRequest.getProviderDeploymentProperties());
                 orchestratorPropertiesValidationService.checkConstraints(deploymentTopology.getOrchestratorId(),
@@ -260,7 +229,8 @@ public class DeploymentTopologyController {
             ToscaContext.destroy();
         }
 
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentConfiguration)).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder()
+                .data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(deploymentTopology))).build();
     }
 
     /**

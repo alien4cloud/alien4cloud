@@ -1,0 +1,42 @@
+<div ng-class="_.isFuntion(close)? 'topology-column-content-head' : 'content-head'">
+  <i class="fa fa-globe"></i> {{'SERVICES.MANAGED.TITLE' | translate}}
+  <span ng-if="_.isFuntion(close)" id='closeService' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="close()">
+    <i class="fa fa-remove close-panel"></i>
+  </span>
+</div>
+<div class="content-body">
+  <div ng-if = "topology.substitutionMapping">
+    <!-- case no service bound yet-->
+    <div ng-if ="!environment.service">
+      <p>{{'SERVICES.MANAGED.CREATE.MESSAGE' | translate}}</p>
+      <i class="fa fa-square-o clickable padding-right"
+        confirm="{{'SERVICES.MANAGED.CREATE.CONFIRM_MESSAGE' | translate}}"
+        confirm-title="{{'SERVICES.MANAGED.CREATE.CONFIRM_TITLE' | translate }}"
+        confirm-placement="right"
+        confirm-handler="createService()"
+        confirm-class="popover"
+        ng-click="$event.stopPropagation();"></i>
+      <span  id="srv-name" editable-text="serviceName" onbeforesave="setName($data)" e-class="editable-input-inline" e-required blur="submit" buttons="no">
+        {{serviceName}} <i class="fa fa-edit"></i>
+      </span>
+    </div>
+
+    <!-- case service already bound -->
+    <div ng-if="environment.service">
+      <p>{{'SERVICES.MANAGED.UNBIND.MESSAGE' | translate}}</p>
+      <i class="fa fa-check-square-o text-success clickable padding-right"
+        confirm="{{'SERVICES.MANAGED.UNBIND.CONFIRM_MESSAGE' | translate}}"
+        confirm-title="{{'SERVICES.MANAGED.UNBIND.CONFIRM_TITLE' | translate }}"
+        confirm-placement="right"
+        confirm-handler="tryDelete()"
+        confirm-class="popover"
+        ng-click="$event.stopPropagation();"></i>
+      <span style="font-style: italic">{{serviceName}}</span>
+    </div>
+  </div>
+  <!-- no substitution defined -->
+  <span ng-if="!topology.substitutionMapping">
+    <i class="fa fa-ban" ></i>
+    <em>{{'SERVICES.MANAGED.NO_SUBSTITUTION_MESSAGE' | translate}}</em>
+  </span>
+</div>

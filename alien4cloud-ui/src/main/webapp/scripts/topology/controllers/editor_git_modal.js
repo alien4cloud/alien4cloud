@@ -11,7 +11,7 @@ define(function (require) {
         $uibModalInstance.close($scope.remoteGit.remoteUrl);
       };
 
-      $scope.close = function() {
+      $scope.cancel = function() {
         $uibModalInstance.dismiss('close');
       };
     }
@@ -23,7 +23,7 @@ define(function (require) {
       $scope.gitPushPullForm.credentials = {};
       $scope.action = action;
 
-      $scope.push = function() {
+      $scope.ok = function() {
         var form = {
           'credentials': {
             'username': $scope.gitPushPullForm.credentials.username,
@@ -34,17 +34,7 @@ define(function (require) {
         $uibModalInstance.close(form);
       };
 
-      $scope.pull = function() {
-        var form = {
-          'credentials': {
-            'username': $scope.gitPushPullForm.credentials.username,
-            'password': $scope.gitPushPullForm.credentials.password
-          },
-          'remoteBranch': $scope.gitPushPullForm.remoteBranch
-        };
-        $uibModalInstance.close(form);
-      };
-      $scope.close = function() {
+      $scope.cancel = function() {
         $uibModalInstance.dismiss('close');
       };
     }

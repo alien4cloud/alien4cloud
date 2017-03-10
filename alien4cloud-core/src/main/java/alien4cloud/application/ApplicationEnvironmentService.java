@@ -12,32 +12,31 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.events.AfterApplicationEnvironmentDeleted;
-import org.alien4cloud.alm.events.AfterApplicationTopologyVersionDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.tosca.model.Csar;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.SettableFuture;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentLockService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
+import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.paas.IPaaSCallback;
+import alien4cloud.model.service.ServiceResource;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
@@ -63,6 +62,8 @@ public class ApplicationEnvironmentService {
     private ApplicationEventPublisher publisher;
     @Inject
     private DeploymentService deploymentService;
+    @Inject
+    private DeploymentLockService deploymentLockService;
 
     /**
      * Method used to create a default environment
@@ -119,26 +120,6 @@ public class ApplicationEnvironmentService {
         return result.getData();
     }
 
-    @EventListener
-    public void handleDeleteVersion(AfterApplicationTopologyVersionDeleted event) {
-        GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.buildQuery(ApplicationEnvironment.class)
-                .setFilters(fromKeyValueCouples("applicationId", event.getApplicationId(), "topologyVersion", event.getTopologyVersion())).prepareSearch()
-                .search(0, Integer.MAX_VALUE);
-        if (result.getData() == null || result.getData().length == 0) {
-            return;
-        }
-        ApplicationVersion version = applicationVersionService.getLatest(event.getApplicationId());
-        if (version == null) {
-            return;
-        }
-        // assign the latest version and save
-        for (ApplicationEnvironment environment : result.getData()) {
-            environment.setVersion(version.getVersion());
-            environment.setTopologyVersion(version.getTopologyVersions().keySet().iterator().next());
-            alienDAO.save(environment);
-        }
-    }
-
     /**
      * Get all environments for a given application
      *
@@ -164,6 +145,8 @@ public class ApplicationEnvironmentService {
             throw new DeleteDeployedException("Application environment with id <" + id + "> cannot be deleted since it is deployed");
         }
 
+        failIfExposedAsService(applicationEnvironment);
+
         publisher.publishEvent(new BeforeApplicationEnvironmentDeleted(this, applicationEnvironment.getApplicationId(), applicationEnvironment.getId()));
         alienDAO.delete(ApplicationEnvironment.class, id);
         publisher.publishEvent(new AfterApplicationEnvironmentDeleted(this, applicationEnvironment.getApplicationId(), applicationEnvironment.getId()));
@@ -177,13 +160,17 @@ public class ApplicationEnvironmentService {
      */
     public void deleteByApplication(String applicationId) {
         List<String> deployedEnvironments = Lists.newArrayList();
+        List<String> exposedServiceEnvironments = Lists.newArrayList();
         ApplicationEnvironment[] environments = getByApplicationId(applicationId);
         for (ApplicationEnvironment environment : environments) {
-            if (!this.isDeployed(environment.getId())) {
+            try {
                 delete(environment.getId());
-            } else {
+            } catch (DeleteDeployedException e) {
                 // collect all deployed environment
                 deployedEnvironments.add(environment.getId());
+            } catch (DeleteReferencedObjectException e) {
+                // collect all exposed as service environment
+                exposedServiceEnvironments.add(environment.getId());
             }
         }
         // couln't delete deployed environment
@@ -191,22 +178,22 @@ public class ApplicationEnvironmentService {
             // error could not deployed all app environment for this applcation
             log.error("Cannot delete these deployed environments : {}", deployedEnvironments.toString());
         }
+
+        // couln't delete exposed as service environment
+        if (!exposedServiceEnvironments.isEmpty()) {
+            // error could not deployed all app environment for this applcation
+            log.error("Cannot delete these environments exposed as service: {}", exposedServiceEnvironments.toString());
+        }
     }
 
     /**
      * Get an active deployment associated with an environment.
      *
-     * @param appEnvironmentId The id of the environment for which to get an active deployment.
+     * @param environmentId The id of the environment for which to get an active deployment.
      * @return The deployment associated with the environment.
      */
-    public Deployment getActiveDeployment(String appEnvironmentId) {
-        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(Deployment.class, null,
-                MapUtil.newHashMap(new String[] { "environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId }, new String[] { null } }),
-                1);
-        if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            return dataResult.getData()[0];
-        }
-        return null;
+    public Deployment getActiveDeployment(String environmentId) {
+        return alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("environmentId", environmentId, "endDate", null)).prepareSearch().find();
     }
 
     /**
@@ -215,10 +202,7 @@ public class ApplicationEnvironmentService {
      * @return true if the environment is currently deployed
      */
     public boolean isDeployed(String appEnvironmentId) {
-        if (getActiveDeployment(appEnvironmentId) == null) {
-            return false;
-        }
-        return true;
+        return getActiveDeployment(appEnvironmentId) != null;
     }
 
     /**
@@ -265,48 +249,37 @@ public class ApplicationEnvironmentService {
     }
 
     /**
-     * Get the environment status regarding the linked topology and cloud
-     * 
+     * Get the deployment status of the given environment.
+     *
      * @param environment The environment for which to get deployment status.
      * @return The deployment status of the environment. {@link DeploymentStatus}.
      * @throws ExecutionException In case there is a failure while communicating with the orchestrator.
      * @throws InterruptedException In case there is a failure while communicating with the orchestrator.
      */
-    public DeploymentStatus getStatus(ApplicationEnvironment environment) throws ExecutionException, InterruptedException {
+    public DeploymentStatus getStatus(ApplicationEnvironment environment) {
         final Deployment deployment = getActiveDeployment(environment.getId());
         return getStatus(deployment);
     }
 
     /**
-     * Get the status of the given deployment.
-     * 
-     * @param deployment The deployment for which to get status.
+     * Get the deployment status of the given deployment.
+     *
+     * @param deployment The deployment for which to get deployment status.
      * @return The deployment status of the environment. {@link DeploymentStatus}.
      * @throws ExecutionException In case there is a failure while communicating with the orchestrator.
      * @throws InterruptedException In case there is a failure while communicating with the orchestrator.
      */
-    public DeploymentStatus getStatus(final Deployment deployment) throws ExecutionException, InterruptedException {
+    public DeploymentStatus getStatus(final Deployment deployment) {
         if (deployment == null) {
             return DeploymentStatus.UNDEPLOYED;
         }
-        final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
-        // update the deployment status from PaaS if it cannot be found.
-        deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
-            @Override
-            public void onSuccess(DeploymentStatus data) {
-                statusSettableFuture.set(data);
+        return deploymentLockService.doWithDeploymentReadLock(deployment.getOrchestratorDeploymentId(), () -> {
+            DeploymentStatus currentStatus = deploymentRuntimeStateService.getDeploymentStatus(deployment);
+            if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
+                deploymentService.markUndeployed(deployment);
             }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                statusSettableFuture.setException(throwable);
-            }
+            return currentStatus;
         });
-        DeploymentStatus currentStatus = statusSettableFuture.get();
-        if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
-            deploymentService.markUndeployed(deployment);
-        }
-        return currentStatus;
     }
 
     /**
@@ -341,5 +314,12 @@ public class ApplicationEnvironmentService {
             environment = getOrFail(applicationEnvironmentId);
         }
         return environment;
+    }
+
+    private void failIfExposedAsService(ApplicationEnvironment environment) {
+        if (alienDAO.buildQuery(ServiceResource.class).setFilters(fromKeyValueCouples("environmentId", environment.getId())).prepareSearch().count() > 0) {
+            throw new DeleteReferencedObjectException("Environment " + environment.getApplicationId() + "/" + environment.getName() + "(" + environment.getId()
+                    + ") could not be deleted since it is exposed as a service.");
+        }
     }
 }

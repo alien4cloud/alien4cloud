@@ -5,18 +5,19 @@ import static alien4cloud.it.utils.TestUtils.nullable;
 
 import java.io.IOException;
 
+import org.apache.http.message.BasicNameValuePair;
+
+import com.google.common.collect.Lists;
+
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.service.model.CreateServiceResourceRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import com.google.common.collect.Lists;
-import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.message.BasicNameValuePair;
 
 @Slf4j
 public class ServiceStepDefinitions {
@@ -27,8 +28,10 @@ public class ServiceStepDefinitions {
         CreateServiceResourceRequest request = new CreateServiceResourceRequest(nullable(serviceName), nullable(serviceVersion), nullable(type),
                 nullable(archiveVersion));
         Context.getInstance().registerRestResponse(getRestClientInstance().postJSon("/rest/v1/services/", JsonUtil.toString(request)));
+
         try {
             LAST_CREATED_ID = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
+            Context.getInstance().registerService(LAST_CREATED_ID, serviceName);
         } catch (Throwable t) {
         }
     }
@@ -41,15 +44,8 @@ public class ServiceStepDefinitions {
     @When("^I get a service with id \"(.*?)\"$")
     public void getService(String id) throws Throwable {
         Context.getInstance().registerRestResponse(getRestClientInstance().get("/rest/v1/services/" + id));
-        // register for SPEL
-        try {
-            RestResponse<ServiceResource> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), ServiceResource.class);
-            if (restResponse.getData() != null) {
-                Context.getInstance().buildEvaluationContext(restResponse.getData());
-            }
-        } catch (IOException e) {
-            // Registration is optional
-        }
+        registerServiceResultForSPEL();
+
     }
 
     @When("^I create (\\d+) services each of them having (\\d+) versions from type \"(.*?)\", archive version \"(.*?)\"$")
@@ -84,6 +80,17 @@ public class ServiceStepDefinitions {
             RestResponse<GetMultipleDataResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), GetMultipleDataResult.class);
             Context.getInstance().buildEvaluationContext(restResponse.getData());
         } catch (Throwable e) {
+            // Registration is optional
+        }
+    }
+
+    public static void registerServiceResultForSPEL() {
+        try {
+            RestResponse<ServiceResource> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), ServiceResource.class, Context.getJsonMapper());
+            if (restResponse.getData() != null) {
+                Context.getInstance().buildEvaluationContext(restResponse.getData());
+            }
+        } catch (IOException e) {
             // Registration is optional
         }
     }

@@ -256,7 +256,7 @@
                         </span>
                         <simple-modal ng-if="capaComp.data.description" title="{{ 'MODAL.TITLE.CAPABILITY' | translate}}" content="{{capaComp.data.description}}" key="{{capabilityEntry.value.type}}"> </simple-modal>
                         <button id="btn-expose-{{capabilityEntry.value.type}}"
-                                ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
+                                ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
                                 ng-click="substitution.exposeCapability(capabilityEntry.key); $event.stopPropagation()"
                                 class="btn btn-default btn-xs"
                                 ng-class="{'active' : substitution.isCapabilityExposed(capabilityEntry.key)}"
@@ -394,7 +394,7 @@
                       <simple-modal title="{{ 'MODAL.TITLE.REQUIREMENT' | translate}}" content="{{reqComp.data.description}}" key="{{requirementEntry.key}}"> </simple-modal>
                       <button id="btn-expose-{{requirementEntry.key}}"
                               ng-disabled="!requirementEntry.value.canAddRel.yes"
-                              ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
+                              ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
                               ng-click="substitution.exposeRequirement(requirementEntry.key); $event.stopPropagation()"
                               ng-class="{'active' : substitution.isRequirementExposed(requirementEntry.key)}"
                               class="btn btn-default btn-xs"
@@ -699,6 +699,7 @@
                           confirm="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.CONFIRM' | translate}}"
                           confirm-title="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate }}"
                           confirm-placement="bottom"
+                          confirm-class="popover"
                           confirm-handler="dependencies.changeDependencyVersion(dependency.name, dependency.version, version)">
                         {{version}}
                       </a>
@@ -888,7 +889,7 @@
     </div>
 
     <!-- Substitution -->
-    <div id="substitutions-box" ng-show="isTopologyTemplate && displays.substitutions.active" class="topology-column ui-resizable" style="width: {{displays.substitutions.size}}px;">
+    <div id="substitutions-box" ng-show="displays.substitutions.active" class="topology-column ui-resizable" style="width: {{displays.substitutions.size}}px;">
       <div class="topology-column-box">
         <resizable-bar
           id="substitutions-box-handler"
@@ -1015,7 +1016,7 @@
             <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
           </span>
         </li>
-        <li ng-show="isTopologyTemplate && !displays.substitutions.active" ng-click="display.toggle('substitutions')">
+        <li ng-show="!displays.substitutions.active" ng-click="display.toggle('substitutions')">
           <span id="topology-substitutions" >
             <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
           </span>

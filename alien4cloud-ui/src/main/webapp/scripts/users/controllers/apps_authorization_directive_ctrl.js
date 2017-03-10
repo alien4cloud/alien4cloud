@@ -23,7 +23,7 @@ define(function (require) {
       $scope.searchAuthorizedEnvironmentsPerApplication();
 
       $scope.onModalClose = function(result){
-        $scope.envService.save({force: result.force}, result.subjects, $scope.searchAuthorizedEnvironmentsPerApplication);
+        $scope.envService.save(result.subjects, $scope.searchAuthorizedEnvironmentsPerApplication);
       };
 
       $scope.revoke = function (application) {

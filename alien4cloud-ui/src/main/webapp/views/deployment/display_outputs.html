@@ -1,20 +1,17 @@
-<div class="row">
-  <div class="col-md-12">
-    <span ng-if="!isNotEmpty(outputPropertiesValue) && !isNotEmpty(outputAttributesValue)">
-      <strong>{{'APPLICATIONS.TOPOLOGY.NO_OUTPUTS' | translate}}</strong>
+<div class="{{classes}}" ng-class="{'col-md-12': !classes}">
+  <div class="content-head" ng-class = "{'clickable': collapsable}" ng-click=" collapsable && (isoutputsCollapsed = !isoutputsCollapsed)">
+    <span>
+      <i class="fa fa-sign-out"> </i>
+      <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
     </span>
-    <table class="table table-condensed" id="outputPropertiesTable">
-      <span ng-if="isNotEmpty(outputPropertiesValue) || isNotEmpty(outputAttributesValue)">
-        <i class="fa fa-sign-out padding-right"> </i>
-        <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
-      </span>
-      <span ng-if="selectedEnvironment.deployedVersion" class="pull-right">
-        <strong>{{ 'APPLICATIONS.DEPLOYMENT.VERSION' | translate }}:</strong>
-        <span class="text-primary">{{selectedEnvironment.deployedVersion | idToVersion}}</span>
-      </span>
-      <tr>
-        <td colspan="2"></td>
-      </tr>
+    <span style="margin-left: 2em" ng-if="selectedEnvironment.deployedVersion">
+      <strong>{{ 'APPLICATIONS.DEPLOYMENT.VERSION' | translate }}:</strong>
+      <span class="text-primary">{{selectedEnvironment.deployedVersion | idToVersion}}</span>
+    </span>
+  </div>
+  <div uib-collapse="isoutputsCollapsed" class="content-body">
+    <span ng-if="!isNotEmpty(outputPropertiesValue) && !isNotEmpty(outputAttributesValue)" class="empty-place-holder" style="padding: 0px">{{'APPLICATIONS.TOPOLOGY.NO_OUTPUTS' | translate}}</span>
+    <table ng-if="_.isNotEmpty(outputPropertiesValue) || _.isNotEmpty(outputAttributesValue)" class="table table-condensed" id="outputPropertiesTable">
       <tr ng-repeat="nodeId in outputNodes" ng-if="outputAttributesValue[nodeId] || outputPropertiesValue[nodeId] || outputCapabilityPropertiesValue[nodeId]">
         <td>
           <span>{{nodeId}}</span>

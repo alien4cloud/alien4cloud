@@ -1,0 +1,103 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: implementation-artifact
+template_author: FC
+template_version: 1.0.0-SNAPSHOT
+
+repositories:
+
+  script_repo:
+    url: https://myCompany/script
+    credential:
+      user: good_user
+      token: real_secured_password
+  git_repo:
+    url: https://github.com/myId/myRepo.git
+    type: git
+  short_notation: https://github.com/myId/myRepo.git
+
+data_types:
+
+  tosca.datatypes.Root:
+    description: The TOSCA root Data Type all other TOSCA base Data Types derive from.
+  tosca.datatypes.Credential:
+    derived_from: tosca.datatypes.Root
+    description: The Credential type is a complex TOSCA data Type used when describing authorization credentials used to access network accessible resources.
+    properties:
+      protocol:
+        type: string
+        description: The optional protocol name.
+        required: false
+      token_type:
+        type: string
+        description: The required token type.
+        default: password
+      token:
+        type: string
+        description: The required token used as a credential for authorization or access to a networked resource.
+      keys:
+        type: map
+        description: The optional list of protocol-specific keys or assertions.
+        required: false
+        entry_schema:
+          type: string
+      user:
+        type: string
+        description: The optional user (name or ID) used for non-token based credentials.
+        required: false
+
+artifact_types:
+  tosca.artifacts.Root:
+    description: root type
+  tosca.artifacts.Implementation.Bash:
+    derived_from: tosca.artifacts.Root
+    description: Script artifact for the Unix Bash shell
+    mime_type: application/x-sh
+    file_ext: [ sh ]
+
+node_types:
+  tosca.nodes.Root:
+    description: root type
+  my.http.component:
+    derived_from: tosca.nodes.Root
+    interfaces:
+      tosca.interfaces.node.lifecycle.Standard:
+        create: https://otherCompany/script/short_notation.sh
+        start:
+          inputs:
+            TOTO: tata
+            TITI: tutu
+          implementation:
+            file: myScript.abc
+            repository: script_repo
+            type: tosca.artifacts.Implementation.Bash
+  my.http.component.extended:
+    derived_from: my.http.component
+  my.git.component:
+    derived_from: tosca.nodes.Root
+    interfaces:
+      tosca.interfaces.node.lifecycle.Standard:
+        create:
+          implementation:
+            file: master:myGitScript.xyz
+            repository: git_repo
+            type: tosca.artifacts.Implementation.Bash
+
+relationship_types:
+  tosca.relationships.Root:
+    description: root type
+  my.http.relationship:
+    derived_from: tosca.relationships.Root
+    interfaces:
+      Configure:
+        create: https://otherCompany/script/short_notation.sh
+        start:
+          inputs:
+            TOTO: tata
+            TITI: tutu
+          implementation:
+            file: myScript.abc
+            repository: script_repo
+            type: tosca.artifacts.Implementation.Bash
+  my.http.relationship.extended:
+    derived_from: my.http.relationship

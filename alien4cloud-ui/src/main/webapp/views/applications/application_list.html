@@ -42,7 +42,7 @@
             </div>
             <div class="col-md-4">
               <i class="vertical-center fa fa-desktop fa-2x" style="margin-right: .4em;" ng-if="!application.imageId"></i>
-              <img class="pull-left media-object fa img-circle" style="height: 46px;" ng-if="application.imageId" ng-src="img?id={{application.imageId}}&quality=QUALITY_64" />
+              <img class="pull-left media-object fa img-rounded" style="max-height:46px; max-width:46px; height:auto; width:auto;" ng-if="application.imageId" ng-src="img?id={{application.imageId}}&quality=QUALITY_64" />
               {{application.name}}</div>
             <div class="col-md-5" class="">{{application.description}}</div>
             <div class="col-md-2">

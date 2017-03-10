@@ -38,6 +38,7 @@ node_types:
 
   # Grouping node
   tosca.nodes.Tier:
+    derived_from: tosca.nodes.Root
     description: A logical node that allows to group several nodes together.
     properties:
       name:
@@ -120,8 +121,11 @@ node_types:
     derived_from: tosca.nodes.Middleware
 
 capability_types:
+  tosca.capabilities.Root:
+    description: the root type
   tosca.capabilities.Feature:
-      description: a custom feature of my company’s application
+    derived_from: tosca.capabilities.Root
+    description: a custom feature of my company’s application
   tosca.capabilities.Container:
     derived_from: tosca.capabilities.Feature
   tosca.capabilities.Endpoint:
@@ -130,7 +134,10 @@ capability_types:
     derived_from: tosca.capabilities.Feature
 
 relationship_types:
+  tosca.relationships.Root:
+    description: the root type
   tosca.relations.DependsOn:
+    derived_from: tosca.relationships.Root
     valid_targets: [tosca.nodes.Root]
   tosca.relations.HostedOn:
     derived_from: tosca.relations.DependsOn
@@ -138,9 +145,14 @@ relationship_types:
     derived_from: tosca.relations.DependsOn
 
 artifact_types:
+  tosca.artifacts.Root:
+    description: the root type
   tosca.artifacts.ShellScript:
+    derived_from: tosca.artifacts.Root
     description: A shell script (.sh file)
   tosca.artifacts.TarGzFile:
+    derived_from: tosca.artifacts.Root
     description: A tar gz distribution
   tosca.artifacts.WarFile:
+    derived_from: tosca.artifacts.Root
     description: A war file

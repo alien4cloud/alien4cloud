@@ -9,10 +9,8 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.tosca.context.ToscaContextual;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
@@ -33,6 +31,7 @@ import alien4cloud.topology.validation.LocationPolicyValidationService;
 import alien4cloud.topology.validation.NodeFilterValidationService;
 import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
 import alien4cloud.topology.validation.TopologyPropertiesValidationService;
+import alien4cloud.tosca.context.ToscaContextual;
 
 /**
  * Perform validation of a topology before deployment.
@@ -70,15 +69,10 @@ public class DeploymentTopologyValidationService {
      */
     @ToscaContextual
     public TopologyValidationResult validateDeploymentTopology(DeploymentTopology deploymentTopology) {
-        Topology initialTopology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
-        // Before validation we inject the inputs into properties to ease validation. This is reverted after.
-        Map<String, PropertyValue> inputs = inputsPreProcessorService.injectInputValues(deploymentTopology,
-                environmentService.getOrFail(deploymentTopology.getEnvironmentId()), initialTopology);
+        Map<String, PropertyValue> inputs = inputsPreProcessorService.computeInputs(deploymentTopology,
+                environmentService.getOrFail(deploymentTopology.getEnvironmentId()));
 
         TopologyValidationResult result = validateProcessedDeploymentTopology(deploymentTopology, inputs);
-
-        // And after we revert the injection
-        inputsPreProcessorService.cleanInputValues(deploymentTopology, initialTopology);
 
         return result;
     }

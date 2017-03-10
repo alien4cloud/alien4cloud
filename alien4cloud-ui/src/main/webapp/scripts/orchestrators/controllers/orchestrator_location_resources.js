@@ -35,7 +35,7 @@ define(function(require) {
 
         var init = function(){
           if (_.isNotEmpty($scope.resourcesTypes)) {
-            $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
+            $scope.selectedConfigurationResourceType = {value: $scope.resourcesTypes[0]};
           }
           // Only show catalog in the on-demand resources tab
           if (!$scope.showCatalog) {
@@ -56,7 +56,7 @@ define(function(require) {
         });
 
         $scope.addResourceTemplate = function(dragData) {
-          const source = dragData ? angular.fromJson(dragData.source) : $scope.selectedConfigurationResourceType;
+          const source = dragData ? angular.fromJson(dragData.source) : $scope.selectedConfigurationResourceType.value;
 
           if (!source) {
             return;

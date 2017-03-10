@@ -4,7 +4,6 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,11 +16,13 @@ import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -35,6 +36,8 @@ import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.PatchUtil;
+import alien4cloud.service.events.ServiceChangedEvent;
+import alien4cloud.service.exceptions.ServiceUsageException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.CollectionUtils;
@@ -52,21 +55,39 @@ public class ServiceResourceService {
     private NodeInstanceService nodeInstanceService;
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     /**
      * Creates a service.
      *
      * @param serviceName The unique name that defines the service from user point of view.
      * @param serviceVersion The id of the plugin used to communicate with the orchestrator.
+     * @param serviceNodeType The type of the node type used to create the service.
+     * @param serviceNodeVersion The version of the node type used to create the service.
      * @return The generated identifier for the service.
      */
     public String create(String serviceName, String serviceVersion, String serviceNodeType, String serviceNodeVersion) {
+        return create(serviceName, serviceVersion, serviceNodeType, serviceNodeVersion, null);
+    }
+
+    /**
+     * Create a service.
+     * 
+     * @param serviceName The unique name that defines the service from user point of view.
+     * @param serviceVersion The id of the plugin used to communicate with the orchestrator.
+     * @param serviceNodeType The type of the node type used to create the service.
+     * @param serviceNodeVersion The version of the node type used to create the service.
+     * @param environmentId In case the service is created out of an alien environment the id of the environment, null if not.
+     * @return The generated identifier for the service.
+     */
+    public String create(String serviceName, String serviceVersion, String serviceNodeType, String serviceNodeVersion, String environmentId) {
         ServiceResource serviceResource = new ServiceResource();
         // generate an unique id
         serviceResource.setId(UUID.randomUUID().toString());
         serviceResource.setName(serviceName);
         serviceResource.setVersion(serviceVersion);
-        serviceResource.setCreationDate(new Date());
+        serviceResource.setEnvironmentId(environmentId);
 
         // build a node instance from the given type
         NodeType nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceNodeType, serviceNodeVersion);
@@ -262,8 +283,8 @@ public class ServiceResourceService {
     }
 
     private void failUpdateIfManaged(ServiceResource serviceResource) {
-        if (serviceResource.getDeploymentId() != null) {
-            throw new AuthorizationServiceException("Alien managed services cannot be updated via Service API.");
+        if (serviceResource.getEnvironmentId() != null) {
+            throw new UnsupportedOperationException("Alien managed services cannot be updated via Service API.");
         }
     }
 
@@ -274,7 +295,7 @@ public class ServiceResourceService {
      * @param serviceResource The service to save.
      * @param ensureUniqueness True if we should process unicity check, false if not.
      */
-    private synchronized void save(ServiceResource serviceResource, boolean ensureUniqueness) {
+    public synchronized void save(ServiceResource serviceResource, boolean ensureUniqueness) {
         if (ensureUniqueness) {
             long count = alienDAO.buildQuery(ServiceResource.class)
                     .setFilters(fromKeyValueCouples("name", serviceResource.getName(), "version", serviceResource.getVersion())).count();
@@ -287,6 +308,11 @@ public class ServiceResourceService {
         Version version = VersionUtil.parseVersion(serviceResource.getVersion());
         serviceResource.setNestedVersion(version);
         alienDAO.save(serviceResource);
+        publisher.publishEvent(new ServiceChangedEvent(this, serviceResource.getId()));
+    }
+
+    public synchronized void save(ServiceResource serviceResource) {
+        save(serviceResource, false);
     }
 
     /**
@@ -340,11 +366,9 @@ public class ServiceResourceService {
      * @param locationId
      * @return
      */
-    public ServiceResource[] searchByLocation(String locationId) {
-        Map<String, String[]> filter = Maps.newHashMap();
-        filter.put("locationIds", new String[] { locationId });
-        GetMultipleDataResult<ServiceResource> result = this.search("", filter, null, false, 0, Integer.MAX_VALUE);
-        return result.getData();
+    public List<ServiceResource> searchByLocation(String locationId) {
+        GetMultipleDataResult<ServiceResource> result = this.search("", singleKeyFilter("locationIds", locationId), null, false, 0, Integer.MAX_VALUE);
+        return Lists.newArrayList(result.getData());
     }
 
     /**

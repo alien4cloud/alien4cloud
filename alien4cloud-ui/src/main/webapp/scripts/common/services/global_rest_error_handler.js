@@ -26,6 +26,7 @@ define(function (require) {
           usageList += usage.resourceType + ' : ' + usage.resourceName;
           usageList += '</li>';
         });
+        usageList+='</ul>';
         return usageList;
       }
 

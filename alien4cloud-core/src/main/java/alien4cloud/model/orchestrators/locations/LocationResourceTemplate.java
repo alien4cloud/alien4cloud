@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import alien4cloud.security.AbstractSecurityEnabledResource;
+import lombok.ToString;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.ObjectField;

@@ -177,6 +177,8 @@ public class Context {
 
     private Map<String, String> orchestratorIds;
 
+    private Map<String, String> serviceIds;
+
     private Map<String, Map<String, String>> orchestratorLocationIds;
 
     /* orchestratorId -> { locationID -> { resourceName -> resourceId } } */
@@ -469,6 +471,17 @@ public class Context {
     public void buildEvaluationContext(Object object) {
         log.debug("Building evaluation context with object of class [" + object.getClass() + "] and keep it in the context");
         spelEvaluationContext = new StandardEvaluationContext(object);
+    }
+
+    public void registerService(String serviceId, String serviceName) {
+        if(serviceIds == null){
+            serviceIds = Maps.newHashMap();
+        }
+        serviceIds.put(serviceName, serviceId);
+    }
+
+    public String getServiceId(String serviceName) {
+        return serviceIds.get(serviceName);
     }
 
     public void registerOrchestrator(String orchestratorId, String orchestratorName) {

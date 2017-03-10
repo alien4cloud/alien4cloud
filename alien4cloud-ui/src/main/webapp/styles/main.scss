@@ -129,6 +129,10 @@ a {
   display: block !important;
 }
 
+.popover-content[ng-bind] {
+  white-space: pre-line;
+}
+
 /*pagination*/
 .pagination-div {
   text-align: center;
@@ -425,6 +429,7 @@ img.icon_32 {
 .empty-place-holder {
   font-weight: bold;
   font-style: italic;
+  padding: 0.5em;
 }
 
 .location-match {
@@ -464,4 +469,15 @@ img.icon_32 {
   font-weight: 500;
   color: #333333;
   cursor: default;
+}
+
+.content-head {
+  font-weight: 500;
+  margin-bottom: 5px;
+  border-bottom: 1px solid $brand-primary;
+  padding-bottom: 5px;
+}
+
+.content-body {
+  padding-left: 0.5em;
 }

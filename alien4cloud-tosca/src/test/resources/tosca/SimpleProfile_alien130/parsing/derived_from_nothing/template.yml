@@ -1,0 +1,85 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: derived-from-nothing
+template_version: 1.0.0-SNAPSHOT
+template_author: alien4cloud
+
+description: This is an example of a single line description (no folding).
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN12
+
+data_types:
+
+  alien.test.MyDataTypeDerivedFromNothing:
+    properties:
+      simple:
+        type: string
+      another_simple:
+        type: string
+
+capability_types:
+
+  alien.test.MyCapabilityTypeDerivedFromNothing:
+    description: This is a capability derive from nothing
+
+node_types:
+
+  alien.test.MySoftwareDerivedFromNothing:
+    properties:
+      complex:
+        type: alien.test.MyDataTypeDerivedFromNothing
+        required: false
+    interfaces:
+      Standard:
+        create: scripts/myscript.sh
+    requirements:
+      - dependency:
+          capability: alien.test.MyCapabilityTypeDerivedFromNothing
+          relationship: alien.test.MyRelationshipDerivedFromNothing
+          occurrences: [ 0, UNBOUNDED ]
+#      - host:
+#          capability: tosca.capabilities.Container
+#          relationship: tosca.relationships.HostedOn
+    capabilities:
+      feature:
+        type: alien.test.MyCapabilityTypeDerivedFromNothing
+
+relationship_types:
+
+  alien.test.MyRelationshipDerivedFromNothing:
+    valid_target_types: [ alien.test.MyCapabilityTypeDerivedFromNothing ]
+    interfaces:
+      Configure:
+        pre_configure_source: scripts/myscript.sh
+
+topology_template:
+
+  node_templates:
+#
+#    compute:
+#      type: tosca.nodes.Compute
+
+    derived_from_nothing:
+      type: alien.test.MySoftwareDerivedFromNothing
+      properties:
+        complex:
+          simple: hello
+          another_simple: world
+#      requirements:
+#        - host: compute
+
+    another_derived_from_nothing:
+      type: alien.test.MySoftwareDerivedFromNothing
+      requirements:
+#        - host: compute
+        - dependency:
+            node: derived_from_nothing
+            capability: alien.test.MyCapabilityTypeDerivedFromNothing
+
+artifact_types:
+
+  tosca.artifacts.Implementation.Bash:
+    description: Script artifact for the Unix Bash shell
+    mime_type: application/x-sh
+    file_ext: [ sh ]

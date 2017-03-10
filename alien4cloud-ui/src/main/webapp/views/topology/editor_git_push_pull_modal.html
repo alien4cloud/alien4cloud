@@ -1,4 +1,4 @@
-<form name="newOrchestratorForm" class="form-horizontal" role="form" novalidate>
+<form name="remote" class="form-horizontal" role="form" novalidate>
   <div class="modal-header">
     <h3>{{'EDITOR.GIT.MODAL.' + action | translate}}</h3>
   </div>
@@ -8,7 +8,7 @@
         {{'EDITOR.GIT.MODAL.REMOTE_BRANCH' | translate}}
       </label>
       <div class="col-lg-9">
-        <input type="text" class="form-control" id="remoteBranch" ng-model="gitPushPullForm.remoteBranch" name="remoteBranch" required placeholder="{{'EDITOR.GIT.MODAL.REMOTE_BRANCH_VALUE' | translate}}">
+        <input type="text" class="form-control" id="remoteBranch" ng-model="gitPushPullForm.remoteBranch" name="remoteBranch" placeholder="{{'EDITOR.GIT.MODAL.REMOTE_BRANCH_VALUE' | translate}}" autofocus>
       </div>
     </div>
     <div class="form-group">
@@ -16,21 +16,21 @@
         {{'EDITOR.GIT.MODAL.USERNAME' | translate}}
       </label>
       <div class="col-lg-9">
-        <input type="text" class="form-control" id="username" ng-model="gitPushPullForm.credentials.username" name="username" required placeholder="{{'EDITOR.GIT.MODAL.USERNAME' | translate}}">
+        <input type="text" class="form-control" id="username" ng-model="gitPushPullForm.credentials.username" name="username" placeholder="{{'EDITOR.GIT.MODAL.USERNAME' | translate}}">
       </div>
       <label for="password" class="col-lg-3 control-label">
         {{'EDITOR.GIT.MODAL.PASSWORD' | translate}}
       </label>
       <div class="col-lg-9">
-        <input type="password" class="form-control" id="password" ng-model="gitPushPullForm.credentials.password" name="password" required placeholder="{{'EDITOR.GIT.MODAL.PASSWORD' | translate}}">
+        <input type="password" class="form-control" id="password" ng-model="gitPushPullForm.credentials.password" name="password" placeholder="{{'EDITOR.GIT.MODAL.PASSWORD' | translate}}">
       </div>
     </div>
   </div>
   <div class="modal-footer">
-    <button id="modal-push-button" class="btn btn-primary" ng-click="push()">
+    <button id="modal-push-button" class="btn btn-primary" ng-click="ok()">
       {{ 'EDITOR.GIT.' + action | translate}}
     </button>
-    <button id="modal-close-button" class="btn btn-default" ng-click="close()">
+    <button id="modal-close-button" class="btn btn-default" ng-click="cancel()">
       {{'GENERIC_FORM.CANCEL' | translate}}
     </button>
   </div>

@@ -9,7 +9,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.IdsFilterBuilder;
@@ -36,7 +35,7 @@ import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationDT
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
 import alien4cloud.rest.orchestrator.model.GroupDTO;
 import alien4cloud.rest.orchestrator.model.UserDTO;
-import alien4cloud.security.ResourcePermissionService;
+import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.security.Subject;
 import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.model.Group;
@@ -266,30 +265,8 @@ public class LocationSecurityController {
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
             @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
-            resourcePermissionService.revokePermission(location, Subject.APPLICATION, request.getApplicationsToDelete());
-        }
-        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToDelete())) {
-            resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT, request.getEnvironmentsToDelete());
-        }
-        List<String> envIds = Lists.newArrayList();
-        if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
-            resourcePermissionService.grantPermission(location, Subject.APPLICATION, request.getApplicationsToAdd());
-            // when an app is added, all eventual existing env authorizations are removed
-            for (String applicationToAddId : request.getApplicationsToAdd()) {
-                ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationToAddId);
-                for (ApplicationEnvironment ae : aes) {
-                    envIds.add(ae.getId());
-                }
-            }
-            if (!envIds.isEmpty()) {
-                resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT, envIds.toArray(new String[envIds.size()]));
-            }
-        }
-        if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
-            List<String> envToAddSet = Arrays.stream(request.getEnvironmentsToAdd()).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
-            resourcePermissionService.grantPermission(location, Subject.ENVIRONMENT, envToAddSet.toArray(new String[envToAddSet.size()]));
-        }
+        resourcePermissionService.revokeAuthorizedEnvironmentsPerApplication(location, request.getApplicationsToDelete(), request.getEnvironmentsToDelete());
+        resourcePermissionService.grantAuthorizedEnvironmentsPerApplication(location, request.getApplicationsToAdd(), request.getEnvironmentsToAdd());
         return RestResponseBuilder.<Void> builder().build();
     }
 

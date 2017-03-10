@@ -2,8 +2,8 @@
   <div class=col-md-6>
     <div class="col-md-4" style="text-align: center;">
       <!-- Image section -->
-      <div id="am.applications.detail.drag-and-drop" class="drop-box" ng-show="!application.imageId && isManager" ng-file-drop="onImageSelected($files)">{{'APPLICATIONS.IMAGE_UPLOAD' | translate}}</div>
-      <img ng-show="noshow = (application.imageId && isManager)" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ng-file-drop="onImageSelected($files)" />
+      <div id="am.applications.detail.drag-and-drop" class="drop-box" ng-show="!application.imageId && isManager" ngf-drop="onImageSelected($files)">{{'APPLICATIONS.IMAGE_UPLOAD' | translate}}</div>
+      <img ng-show="noshow = (application.imageId && isManager)" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ngf-drop="onImageSelected($files)" />
       <img ng-show="!noshow && application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" />
     </div>
     <!-- Details section -->
@@ -133,7 +133,7 @@
   </div>
 </div>
 
-<div class="row" style="margin-top: 10px;">
+<div ng-if="isManager || isDeployer" class="row" style="margin-top: 10px;">
   <div class="col-md-12">
     <fieldset>
       <legend style="text-align: center;">
@@ -152,7 +152,7 @@
                 'fa-spinner fa-spin' : selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' || selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
               }"></i> {{selectedEnvironment.name}}
             </uib-tab-heading>
-            <div>
+            <div class = "row">
               <display-outputs></display-outputs>
             </div>
           </uib-tab>
@@ -180,8 +180,8 @@
             }"></i> <span ng-bind-html="e.name | highlight: $select.search"></span>
           </ui-select-choices>
         </ui-select>
-        <div>
-          <display-outputs></display-output>
+        <div style="margin-top: 1em">
+          <display-outputs></display-outputs>
         </div>
       </div>
     </fieldset>

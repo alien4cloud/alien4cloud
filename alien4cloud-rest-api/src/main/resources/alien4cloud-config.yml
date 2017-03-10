@@ -5,6 +5,10 @@ server:
   #  key-store: keystore.jks
   #  key-store-password: ******
   #  key-password: ******
+  #session:
+  #  cookie:
+  #    http-only: true
+  #    secure: true
 
 # Configuration of alien4cloud's CSAR repository, temporary folder and upload settings.
 directories:
