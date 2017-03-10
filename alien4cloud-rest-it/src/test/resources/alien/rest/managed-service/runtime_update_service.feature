@@ -60,7 +60,7 @@ Feature: Create a service resource from an environment
     #deploy the appli
     Given I am authenticated with user named "gandalf"
     And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
-    And I wait for 20 seconds before continuing the test
+    And I wait for 10 seconds before continuing the test
     #check the service state and attributes
     And I am authenticated with "ADMIN" role
     When I get the last created service
@@ -104,7 +104,7 @@ Feature: Create a service resource from an environment
     #deploy the appli
     Given I am authenticated with user named "gandalf"
     And I deploy the application "BAD-APPLICATION" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
-    And I wait for 20 seconds before continuing the test
+    And I wait for 10 seconds before continuing the test
     #check the service state and attributes
     And I am authenticated with "ADMIN" role
     When I get the last created service
@@ -143,7 +143,7 @@ Feature: Create a service resource from an environment
 #deploy the appli
     Given I am authenticated with user named "gandalf"
     And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
-    And I wait for 20 seconds before continuing the test
+    And I wait for 10 seconds before continuing the test
 #check the service state and attributes
     And I am authenticated with "ADMIN" role
     When I get the last created service
@@ -154,8 +154,8 @@ Feature: Create a service resource from an environment
 
     #undeploy
     Given I am authenticated with user named "gandalf"
-    And I undeploy all environments for applications
-    And I wait for 20 seconds before continuing the test
+    And I undeploy application "ALIEN", environment "Environment"
+    And I wait for 10 seconds before continuing the test
     And I am authenticated with "ADMIN" role
     When I get the last created service
     Then The SPEL expression "environmentId != null" should return true

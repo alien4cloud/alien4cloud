@@ -20,6 +20,7 @@ import alien4cloud.audit.AuditESDAO;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
+import alien4cloud.it.application.ApplicationStepDefinitions;
 import alien4cloud.it.security.AuthenticationStepDefinitions;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -135,6 +136,8 @@ public class CommonStepDefinitions {
         Context.getInstance().takeApplication();
         Context.getRestClientInstance().clearCookies();
         Context.getInstance().takePreRegisteredOrchestratorProperties();
+        ApplicationStepDefinitions.CURRENT_APPLICATIONS.clear();
+        ApplicationStepDefinitions.CURRENT_APPLICATION = null;
     }
 
     @Then("^I should receive a RestResponse with no error$")

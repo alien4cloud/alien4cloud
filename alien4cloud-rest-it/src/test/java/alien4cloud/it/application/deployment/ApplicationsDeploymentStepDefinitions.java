@@ -74,9 +74,16 @@ public class ApplicationsDeploymentStepDefinitions {
         I_undeploy_it(ApplicationStepDefinitions.CURRENT_APPLICATION, false);
     }
 
-    public void I_undeploy_it(Application application, boolean failsafe) throws Throwable {
-        String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
-        String statusRequest = "/rest/v1/applications/" + application.getId() + "/environments/" + envId + "/status";
+    @When("^I undeploy application \"([^\"]*)\", environment \"([^\"]*)\"$")
+    public void I_undeploy_application_environment(String applicationName, String environmentName) throws Throwable {
+        doUndeployApplication(applicationName, environmentName, false);
+    }
+
+    private void doUndeployApplication(String applicationName, String environmentName, boolean failsafe) throws Throwable {
+        String applicationId = Context.getInstance().getApplicationId(applicationName);
+        String envId = environmentName == null ? Context.getInstance().getDefaultApplicationEnvironmentId(applicationName)
+                : Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName);
+        String statusRequest = "/rest/v1/applications/" + applicationId + "/environments/" + envId + "/status";
         RestResponse<String> statusResponse = JsonUtil.read(Context.getRestClientInstance().get(statusRequest), String.class);
         if (failsafe) {
             if (statusResponse.getError() != null) {
@@ -88,10 +95,14 @@ public class ApplicationsDeploymentStepDefinitions {
         DeploymentStatus deploymentStatus = DeploymentStatus.valueOf(statusResponse.getData());
         if (!DeploymentStatus.UNDEPLOYED.equals(deploymentStatus) || !DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS.equals(deploymentStatus)) {
             Context.getInstance().registerRestResponse(
-                    Context.getRestClientInstance().delete("/rest/v1/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
+                    Context.getRestClientInstance().delete("/rest/v1/applications/" + applicationId + "/environments/" + envId + "/deployment"));
         }
-        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, Sets.newHashSet(DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS), 10 * 60L * 1000L, null,
+        assertStatus(applicationName, DeploymentStatus.UNDEPLOYED, Sets.newHashSet(DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS), 10 * 60L * 1000L, null,
                 failsafe);
+    }
+
+    public void I_undeploy_it(Application application, boolean failsafe) throws Throwable {
+        doUndeployApplication(application.getName(), null, failsafe);
     }
 
     @When("^I deploy it$")
