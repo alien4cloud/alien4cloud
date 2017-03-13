@@ -4,11 +4,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.context.ToscaContextual;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.task.AbstractRelationshipTask;
 import alien4cloud.topology.task.AbstractTask;
@@ -25,6 +25,7 @@ import alien4cloud.topology.validation.TopologyAbstractRelationshipValidationSer
 import alien4cloud.topology.validation.TopologyArtifactsValidationService;
 import alien4cloud.topology.validation.TopologyPropertiesValidationService;
 import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
+import alien4cloud.tosca.context.ToscaContextual;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -53,7 +54,7 @@ public class TopologyValidationService {
     @ToscaContextual
     public TopologyValidationResult validateTopology(Topology topology) {
         TopologyValidationResult dto = new TopologyValidationResult();
-        if (topology.getNodeTemplates() == null || topology.getNodeTemplates().size() < 1) {
+        if (MapUtils.isEmpty(topology.getNodeTemplates())) {
             dto.setValid(false);
             return dto;
         }

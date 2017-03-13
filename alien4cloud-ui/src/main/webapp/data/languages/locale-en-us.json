@@ -699,7 +699,7 @@
     "UNDO": "Undo",
     "VALIDATION": {
       "CURRENT_TOPOLOGY": "Current topology",
-      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology haven't changed.",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology hasn't changed.",
       "LAST_SAVED_TOPOLOGY": "Last saved topology"
     }
   },
