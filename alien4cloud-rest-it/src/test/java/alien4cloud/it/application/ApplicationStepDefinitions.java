@@ -2,6 +2,7 @@ package alien4cloud.it.application;
 
 import static alien4cloud.it.Context.getInstance;
 import static alien4cloud.it.Context.getRestClientInstance;
+import static alien4cloud.it.utils.TestUtils.nullAsString;
 import static alien4cloud.it.utils.TestUtils.nullable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -515,7 +516,6 @@ public class ApplicationStepDefinitions {
     @When("^I create an application environment of type \"([^\"]*)\" with name \"([^\"]*)\" and description \"([^\"]*)\" for the newly created application$")
     public void I_create_an_application_environment_of_type_with_name_and_description_for_the_newly_created_application(String appEnvType, String appEnvName,
             String appEnvDescription) throws Throwable {
-        Assert.assertNotNull(CURRENT_APPLICATION.getId());
         Assert.assertTrue(EnvironmentType.valueOf(appEnvType).toString().equals(appEnvType));
         Assert.assertNotNull(appEnvName);
 
@@ -525,7 +525,8 @@ public class ApplicationStepDefinitions {
         appEnvRequest.setDescription(appEnvDescription);
         appEnvRequest.setVersionId("0.1.0-SNAPSHOT");
         Context.getInstance().registerRestResponse(
-                getRestClientInstance().postJSon("/rest/v1/applications/" + CURRENT_APPLICATION.getId() + "/environments", JsonUtil.toString(appEnvRequest)));
+                getRestClientInstance().postJSon("/rest/v1/applications/" + nullAsString(CURRENT_APPLICATION.getId()) + "/environments",
+                        JsonUtil.toString(appEnvRequest)));
         RestResponse<String> appEnvId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
         if (appEnvId.getData() != null) {
             Context.getInstance().registerApplicationEnvironmentId(CURRENT_APPLICATION.getName(), appEnvName, appEnvId.getData());
