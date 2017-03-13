@@ -525,10 +525,11 @@ public class ApplicationStepDefinitions {
         appEnvRequest.setDescription(appEnvDescription);
         appEnvRequest.setVersionId("0.1.0-SNAPSHOT");
         Context.getInstance().registerRestResponse(
-                getRestClientInstance().postJSon("/rest/v1/applications/" + nullAsString(CURRENT_APPLICATION.getId()) + "/environments",
+                getRestClientInstance().postJSon(
+                        "/rest/v1/applications/" + nullAsString(CURRENT_APPLICATION == null ? null : CURRENT_APPLICATION.getId()) + "/environments",
                         JsonUtil.toString(appEnvRequest)));
         RestResponse<String> appEnvId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
-        if (appEnvId.getData() != null) {
+        if (appEnvId.getError() == null && appEnvId.getData() != null) {
             Context.getInstance().registerApplicationEnvironmentId(CURRENT_APPLICATION.getName(), appEnvName, appEnvId.getData());
         }
     }
