@@ -229,12 +229,14 @@ public class TopologyUtils {
      */
     private static void updateOnNodeTemplateNameChange(String oldNodeTemplateName, String newNodeTemplateName, Topology topology) {
         // Output properties
-        if (topology.getOutputProperties() != null) {
-            Set<String> oldPropertiesOutputs = topology.getOutputProperties().remove(oldNodeTemplateName);
-            if (oldPropertiesOutputs != null) {
-                topology.getOutputProperties().put(newNodeTemplateName, oldPropertiesOutputs);
-            }
-        }
+        updateKey(topology.getOutputProperties(), oldNodeTemplateName, newNodeTemplateName);
+
+        // output capabilities properties
+        updateKey(topology.getOutputCapabilityProperties(), oldNodeTemplateName, newNodeTemplateName);
+
+        // output attributes
+        updateKey(topology.getOutputAttributes(), oldNodeTemplateName, newNodeTemplateName);
+
         // substitution mapping
         if (topology.getSubstitutionMapping() != null) {
             if (topology.getSubstitutionMapping().getCapabilities() != null) {
@@ -251,6 +253,17 @@ public class TopologyUtils {
                     }
                 }
             }
+        }
+    }
+
+    private static <V> void updateKey(Map<String, V> map, String oldKey, String newKey) {
+        if (MapUtils.isEmpty(map)) {
+            return;
+        }
+
+        V value = map.remove(oldKey);
+        if (value != null) {
+            map.put(newKey, value);
         }
     }
 
