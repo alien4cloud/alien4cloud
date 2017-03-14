@@ -124,15 +124,9 @@ public class ApplicationDeploymentController {
         if (isEnvironmentDeployed) {
             throw new AlreadyExistException("Environment with id <" + environmentId + "> for application <" + applicationId + "> is already deployed");
         }
-        // Get the deployment configurations
-        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environment.getId());
-        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        // Check authorization on the location
-        // get the target locations of the deployment topology
-        Map<String, Location> locationMap = deploymentTopologyService.getLocations(deploymentTopology);
-        for (Location location : locationMap.values()) {
-            locationSecurityService.checkAuthorisation(location, environment);
-        }
+
+        DeploymentTopology deploymentTopology = getDeploymentTopologyAndCheckAuthorization(environment);
+
         // prepare the deployment
         TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);
 
@@ -147,6 +141,10 @@ public class ApplicationDeploymentController {
         // process with the deployment
         deployService.deploy(deploymentTopology, application);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    private void qsdsqdkjh() {
+
     }
 
     /**
@@ -187,6 +185,73 @@ public class ApplicationDeploymentController {
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();
+    }
+
+    @ApiOperation(value = "Update the active deployment for the given application on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/update-deployment", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public DeferredResult<RestResponse<Void>> updateDeployment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+        final DeferredResult<RestResponse<Void>> result = new DeferredResult<>(15L * 60L * 1000L);
+
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        // get the topology from the version and the cloud from the environment
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        if (!environment.getApplicationId().equals(applicationId)) {
+            throw new NotFoundException("Unable to find environment with id <" + applicationEnvironmentId + "> for application <" + applicationId + ">");
+        }
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
+        // check that the environment is not already deployed
+        boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
+        if (!isEnvironmentDeployed) {
+            // the topology must be deployed in order to update it
+            throw new NotFoundException("Application <" + applicationId + "> is not deployed for environment with id <" + applicationEnvironmentId + ">, can't update it");
+        }
+
+        Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
+        if (deployment == null) {
+            throw new NotFoundException("Unable to find deployment for environment with id <" + applicationEnvironmentId + "> application <" + applicationId + ">, can't update it");
+        }
+
+        DeploymentTopology deploymentTopology = getDeploymentTopologyAndCheckAuthorization(environment);
+
+        // prepare the deployment
+        TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);
+
+        // if not valid, then return validation errors
+        if (!validation.isValid()) {
+            result.setErrorResult(
+                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.INVALID_DEPLOYMENT_TOPOLOGY.getCode(), "The deployment topology for the application <"
+                            + application.getName() + "> on the environment <" + environment.getName() + "> is not valid.")).build());
+        }
+
+        // process with the deployment
+        deployService.update(deploymentTopology, application, deployment, new IPaaSCallback<Object>() {
+            @Override
+            public void onSuccess(Object data) {
+                result.setResult(RestResponseBuilder.<Void> builder().build());
+            }
+
+            @Override
+            public void onFailure(Throwable e) {
+                result.setErrorResult(
+                        RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.UNCATEGORIZED_ERROR.getCode(), e.getMessage())).build());
+            }
+        });
+
+        return result;
+    }
+
+    private DeploymentTopology getDeploymentTopologyAndCheckAuthorization(ApplicationEnvironment environment) {
+        // Get the deployment configurations
+        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environment.getId());
+        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
+        // Check authorization on the location
+        // get the target locations of the deployment topology
+        Map<String, Location> locationMap = deploymentTopologyService.getLocations(deploymentTopology);
+        for (Location location : locationMap.values()) {
+            locationSecurityService.checkAuthorisation(location, environment);
+        }
+        return deploymentTopology;
     }
 
     /**

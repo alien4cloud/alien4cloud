@@ -21,6 +21,14 @@ public enum DeploymentStatus {
      */
     DEPLOYMENT_IN_PROGRESS,
     /**
+     * A deployment update has been triggered, it's in progress
+     */
+    UPDATE_IN_PROGRESS,
+    /**
+     * A deployment has been updated
+     */
+    UPDATED,
+    /**
      * An undeployment has been triggered, it's in progress
      */
     UNDEPLOYMENT_IN_PROGRESS,
@@ -32,6 +40,10 @@ public enum DeploymentStatus {
      * Application is in abnormal state
      */
     FAILURE,
+    /**
+     * An update has failed.
+     */
+    UPDATE_FAILURE,
     /**
      * Paas Provider not reachable, error ...
      */

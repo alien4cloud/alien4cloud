@@ -43,6 +43,11 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
+    public void update(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
+
+    }
+
+    @Override
     public void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
 
     }

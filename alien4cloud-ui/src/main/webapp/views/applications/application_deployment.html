@@ -12,12 +12,12 @@
     <div class="col-md-3">
       <i class="fa fa-2x vertical-center" uib-tooltip="{{'DEPLOYMENT.STATUS.' + deploymentContext.selectedEnvironment.status | translate }}"
          tooltip-append-to-body="true" ng-class="{
-            'fa-circle text-success' : deploymentContext.selectedEnvironment.status === 'DEPLOYED',
+            'fa-circle text-success' : deploymentContext.selectedEnvironment.status === 'DEPLOYED' || deploymentContext.selectedEnvironment.status === 'UPDATED',
             'fa-circle text-muted' : deploymentContext.selectedEnvironment.status === 'UNDEPLOYED',
-            'fa-warning text-warning' : deploymentContext.selectedEnvironment.status === 'WARNING',
+            'fa-warning text-warning' : deploymentContext.selectedEnvironment.status === 'WARNING' || deploymentContext.selectedEnvironment.status === 'UPDATE_FAILURE',
             'fa-circle text-danger' : deploymentContext.selectedEnvironment.status === 'FAILURE',
             'fa-question-circle text-muted' : deploymentContext.selectedEnvironment.status === 'UNKNOWN',
-            'fa-spinner fa-spin' : deploymentContext.selectedEnvironment.status === 'INIT_DEPLOYMENT' || deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
+            'fa-spinner fa-spin' : deploymentContext.selectedEnvironment.status === 'INIT_DEPLOYMENT' || deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status === 'UPDATE_IN_PROGRESS' || deploymentContext.selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
           }">
       </i>
 

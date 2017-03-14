@@ -130,19 +130,8 @@ public class DeployService {
             // publish an event for the eventual managed service
             eventPublisher.publishEvent(new DeploymentCreatedEvent(this, deployment.getId()));
 
-            // save the topology as a deployed topology.
-            // change the Id before saving
-            deploymentTopology.setId(deployment.getId());
-            deploymentTopology.setDeployed(true);
-            alienMonitorDao.save(deploymentTopology);
-            // put back the old Id for deployment
-            deploymentTopology.setId(deploymentTopologyId);
-            // Process all input artifact, replace all artifact inside the topology with input artifact
-            deploymentInputService.processInputArtifacts(deploymentTopology);
-            PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations,
-                    deploymentTopology);
-            // Download and process all remote artifacts before deployment
-            artifactProcessorService.processArtifacts(deploymentContext);
+            PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, deployment, locations);
+
             // Build the context for deployment and deploy
             orchestratorPlugin.deploy(deploymentContext, new IPaaSCallback<Object>() {
                 @Override
@@ -175,6 +164,53 @@ public class DeployService {
                     firstLocation.getId(), deployment.getId());
             return deployment.getId();
         });
+    }
+
+    public void update(final DeploymentTopology deploymentTopology, final IDeploymentSource deploymentSource, final Deployment existingDeployment, final IPaaSCallback<Object> callback) {
+        Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
+        Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
+        final Location firstLocation = locations.values().iterator().next();
+
+        deploymentLockService.doWithDeploymentWriteLock(existingDeployment.getOrchestratorDeploymentId(), () -> {
+            // FIXME check that all nodes to match are matched
+            // FIXME check that all required properties are defined
+            // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
+
+            // Get the orchestrator that will perform the deployment
+            IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
+
+            String deploymentTopologyId = deploymentTopology.getId();
+
+            // Create a deployment object to be kept in ES.
+            final Deployment deployment = existingDeployment;
+
+            PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, deployment, locations);
+
+            // Build the context for deployment and deploy
+            orchestratorPlugin.update(deploymentContext, callback);
+            log.debug("Triggered deployment of topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
+                    firstLocation.getId(), deployment.getId());
+
+            return null;
+        });
+    }
+
+    private PaaSTopologyDeploymentContext saveDeploymentTopologyAndGenerateDeploymentContext(final DeploymentTopology deploymentTopology, final Deployment deployment, final Map<String, Location> locations) {
+        String deploymentTopologyId = deploymentTopology.getId();
+        // save the topology as a deployed topology.
+        // change the Id before saving
+        deploymentTopology.setId(deployment.getId());
+        deploymentTopology.setDeployed(true);
+        alienMonitorDao.save(deploymentTopology);
+        // put back the old Id for deployment
+        deploymentTopology.setId(deploymentTopologyId);
+        // Process all input artifact, replace all artifact inside the topology with input artifact
+        deploymentInputService.processInputArtifacts(deploymentTopology);
+        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology);
+        // Download and process all remote artifacts before deployment
+        artifactProcessorService.processArtifacts(deploymentContext);
+
+        return deploymentContext;
     }
 
     /**
@@ -216,6 +252,7 @@ public class DeployService {
         // perform validation of the processed deployment topology.
         return deploymentTopologyValidationService.validateProcessedDeploymentTopology(deploymentTopology, inputs);
     }
+
 
     // Inner class used to build context for generation of the orchestrator id.
     @Getter

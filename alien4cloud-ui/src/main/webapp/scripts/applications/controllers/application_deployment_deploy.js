@@ -26,8 +26,8 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentTriggerCtrl',
-    ['$scope', 'applicationServices', 'deploymentTopologyServices', '$alresource',
-      function($scope, applicationServices, deploymentTopologyServices, $alresource) {
+    ['$scope', 'applicationServices', 'deploymentTopologyServices', '$alresource', 'toaster', '$translate',
+      function($scope, applicationServices, deploymentTopologyServices, $alresource, toaster, $translate) {
         $scope._ = _;
         // Deployment handler
         $scope.deploy = function() {
@@ -40,6 +40,33 @@ define(function(require) {
           applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
             $scope.deploymentContext.selectedEnvironment.status = 'INIT_DEPLOYMENT';
             $scope.isDeploying = false;
+          }, function() {
+            $scope.isDeploying = false;
+          });
+        };
+
+        $scope.update_deployment = function() {
+          $scope.isDeploying = true;
+          applicationServices.deploymentUpdate({
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.deploymentContext.selectedEnvironment.id
+          }, undefined, function(data) {
+            if (data.error === null) {
+              $scope.deploymentContext.selectedEnvironment.status = 'UPDATE_IN_PROGRESS';
+              $scope.isDeploying = false;
+            } else {
+              $scope.deploymentContext.selectedEnvironment.status = 'UPDATE_FAILURE';
+              $scope.isDeploying = false;
+              toaster.pop(
+                'error',
+                $translate.instant('DEPLOYMENT.STATUS.UPDATE_FAILURE'),
+                $translate.instant('DEPLOYMENT.TOASTER_STATUS.UPDATE_FAILURE', {
+                  envName : $scope.deploymentContext.selectedEnvironment.name,
+                  appName : $scope.application.name
+                }),
+                6000, 'trustedHtml', null
+              );
+            }
           }, function() {
             $scope.isDeploying = false;
           });

@@ -101,6 +101,7 @@ define(function (require) {
 
         var colors = {
           'DEPLOYED': '#398439',
+          'UPDATED': '#398439',
           'UNDEPLOYED': '#D8D8D8',
           'UNKNOWN': '#505050',
           'WARNING': '#DE9600',
@@ -142,7 +143,7 @@ define(function (require) {
                     app.countDeployedEnvironment = 0;
                   }
 
-                  if (segment.label === 'DEPLOYED') {
+                  if (segment.label === 'DEPLOYED' || segment.label === 'UPDATED') {
                     app.countDeployedEnvironment++;
                     app.isDeployed = true;
                   }

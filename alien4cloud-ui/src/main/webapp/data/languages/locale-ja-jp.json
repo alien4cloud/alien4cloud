@@ -616,6 +616,10 @@
       "DEPLOYMENT_IN_PROGRESS" : "Deployment in progress",
       "FAILURE" : "Failed",
       "INIT_DEPLOYMENT" : "Deployment init",
+      "UPDATE_DEPLOYMENT": "Deployment update",
+      "UPDATE_IN_PROGRESS" : "Updating deployment",
+      "UPDATE_FAILURE" : "Update failed",
+      "UPDATED" : "Updated",
       "UNDEPLOYED" : "Undeployed",
       "UNDEPLOYMENT_IN_PROGRESS" : "Undeployment in progress",
       "UNKNOWN" : "Unknown",
@@ -623,7 +627,8 @@
     },
     "TOASTER_STATUS" : {
       "DEPLOYED" : "The environment < {{envName}} > of application < {{appName}} > is deployed.",
-      "FAILURE" : "A failure has occurred during the deployment of the environment < {{envName}} > of application < {{appName}} >. See logs deployment for more informations."
+      "FAILURE" : "A failure has occurred during the deployment of the environment < {{envName}} > of application < {{appName}} >. See logs deployment for more informations.",
+      "UPDATE_FAILURE" : "A failure has occurred during the deployment update for the environment < {{envName}} > and application < {{appName}} >. See logs deployment for more informations."
     }
   },
   "DETAILS" : "Details",

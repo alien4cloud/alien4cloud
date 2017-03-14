@@ -78,6 +78,11 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
     }
 
     @Override
+    public void update(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
+        // TODO: mock something
+    }
+
+    @Override
     public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
         callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), deploymentContext.getDeploymentTopology()));
     }
