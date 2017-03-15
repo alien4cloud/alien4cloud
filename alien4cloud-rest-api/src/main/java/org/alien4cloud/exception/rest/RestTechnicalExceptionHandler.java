@@ -337,7 +337,7 @@ public class RestTechnicalExceptionHandler {
         log.error("Uncategorized error", e);
         String stackTrace = ExceptionUtils.getFullStackTrace(e);
         return RestResponseBuilder.<String> builder().data(stackTrace)
-                .error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Uncategorized error " + e.getMessage()).build()).build();
+                .error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message(e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = InvalidVersionException.class)
@@ -499,7 +499,7 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> unsupportedOperationErrorHandler(UnsupportedOperationException e) {
         log.error("Operation not supported", e);
         return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_OPERATION_ERROR).message("Operation not supported: " + e.getMessage()).build())
+                .error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_OPERATION_ERROR).message(e.getMessage()).build())
                 .build();
     }
 
@@ -517,7 +517,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Usage[]> serviceUsageExceptionHandler(ServiceUsageException e) {
         log.error("Error on service deletion", e);
-        return RestResponseBuilder.<Usage[]> builder().data(e.convert()).error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build()).build();
+        return RestResponseBuilder.<Usage[]> builder().data(e.convert()).error(RestErrorBuilder.builder(RestErrorCode.RESOURCE_USED_ERROR).build()).build();
     }
 
 }
