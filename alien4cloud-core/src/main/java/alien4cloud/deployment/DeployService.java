@@ -186,8 +186,22 @@ public class DeployService {
 
             PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, deployment, locations);
 
+            // enrich the callback
+            IPaaSCallback<Object> callbackWrapper = new IPaaSCallback<Object>() {
+                @Override
+                public void onSuccess(Object data) {
+                    deployment.setVersionId(deploymentTopology.getVersionId());
+                    alienDao.save(deployment);
+                    callback.onSuccess(data);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    callback.onFailure(throwable);
+                }
+            };
             // Build the context for deployment and deploy
-            orchestratorPlugin.update(deploymentContext, callback);
+            orchestratorPlugin.update(deploymentContext, callbackWrapper);
             log.debug("Triggered deployment of topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
                     firstLocation.getId(), deployment.getId());
 
