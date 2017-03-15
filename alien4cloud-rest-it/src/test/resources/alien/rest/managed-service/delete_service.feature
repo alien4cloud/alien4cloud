@@ -22,7 +22,7 @@ Feature: Delete service resource associated to an application environment
     And I update the property "imageId" to "img1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "flavorId" to "1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
 
-    And I grant access to the resource type "LOCATION" named "Thark location" to the user "gandalf"
+    And I successfully grant access to the resource type "LOCATION" named "Thark location" to the user "gandalf"
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the user "gandalf"
 
     And I am authenticated with user named "gandalf"

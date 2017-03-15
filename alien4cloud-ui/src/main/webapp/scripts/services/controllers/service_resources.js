@@ -138,9 +138,12 @@ define(function (require) {
         var updateRequest = { nodeInstance: { attributeValues:{ state: newState} } };
         return serviceResourceService.patch({
           serviceId: $scope.selectedService.id
-        }, angular.toJson(updateRequest), function() {
-          $scope.selectedService.nodeInstance.attributeValues.state = newState;
-          $scope.stateDisabled = !$scope.stateDisabled;
+        }, angular.toJson(updateRequest), function(result) {
+          globalRestErrorHandler.handle(result);
+          if(_.undefined(result.error)){
+            $scope.selectedService.nodeInstance.attributeValues.state = newState;
+            $scope.stateDisabled = !$scope.stateDisabled;
+          }
         });
       };
 

@@ -100,17 +100,12 @@ public class DeploymentTopologyStepDefinitions {
     @When("^I substitute on the current application the node \"(.*?)\" with the location resource \"(.*?)\"/\"(.*?)\"/\"(.*?)\"$")
     public void I_substitute_on_the_current_application_the_node_with_the_location_resource(String nodeName, String orchestratorName, String locationName,
             String resourceName) throws Throwable {
+
         Context context = Context.getInstance();
-        Application application = context.getApplication();
-        String envId = context.getDefaultApplicationEnvironmentId(application.getName());
         String orchestratorId = context.getOrchestratorId(orchestratorName);
         String locationId = context.getLocationId(orchestratorId, locationName);
         String resourceId = context.getLocationResourceId(orchestratorId, locationId, resourceName);
-
-        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s", application.getId(), envId, nodeName);
-        NameValuePair resourceParam = new BasicNameValuePair("locationResourceTemplateId", resourceId);
-        String response = Context.getRestClientInstance().postUrlEncoded(restUrl, Lists.newArrayList(resourceParam));
-        context.registerRestResponse(response);
+        doSubstitution(nodeName, resourceId);
     }
 
     private DeploymentTopologyDTO getDTOAndassertNotNull() throws IOException {
@@ -276,8 +271,7 @@ public class DeploymentTopologyStepDefinitions {
                 .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation();
         for (List<String> expectedRow : expectedInputArtifactsTable.raw()) {
             boolean missingFound = topologyValidationResult.getTaskList().stream()
-                    .filter(task -> task instanceof InputArtifactTask && ((InputArtifactTask) task).getInputArtifactName().equals(expectedRow.get(0)))
-                    .findFirst().isPresent();
+                    .anyMatch(task -> task instanceof InputArtifactTask && ((InputArtifactTask) task).getInputArtifactName().equals(expectedRow.get(0)));
             Assert.assertTrue(expectedRow.get(0) + " does not appear in the task list for the deployment topology", missingFound);
         }
     }
@@ -290,6 +284,22 @@ public class DeploymentTopologyStepDefinitions {
                 inputArtifactName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postMultipart(url, Paths.get(localFile).getFileName().toString(), Files.newInputStream(Paths.get(localFile))));
+    }
+
+    @When("^I substitute on the current application the node \"([^\"]*)\" with the service resource \"([^\"]*)\"$")
+    public void iSubstituteOnTheCurrentApplicationTheNodeWithTheServiceResource(String nodeName, String serviceName) throws Throwable {
+        String resourceId = Context.getInstance().getServiceId(serviceName);
+        doSubstitution(nodeName, resourceId);
+    }
+
+    public void doSubstitution(String nodeName, String resourceId) throws IOException {
+        Context context = Context.getInstance();
+        Application application = context.getApplication();
+        String envId = context.getDefaultApplicationEnvironmentId(application.getName());
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s", application.getId(), envId, nodeName);
+        NameValuePair resourceParam = new BasicNameValuePair("locationResourceTemplateId", resourceId);
+        String response = Context.getRestClientInstance().postUrlEncoded(restUrl, Lists.newArrayList(resourceParam));
+        context.registerRestResponse(response);
     }
 
     @Getter

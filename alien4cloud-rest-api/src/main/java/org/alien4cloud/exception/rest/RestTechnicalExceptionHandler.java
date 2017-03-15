@@ -517,7 +517,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Usage[]> serviceUsageExceptionHandler(ServiceUsageException e) {
         log.error("Error on service deletion", e);
-        return RestResponseBuilder.<Usage[]> builder().data(e.convert()).error(RestErrorBuilder.builder(RestErrorCode.RESOURCE_USED_ERROR).build()).build();
+        return RestResponseBuilder.<Usage[]> builder().data(e.getUsages())
+                .error(RestErrorBuilder.builder(RestErrorCode.RESOURCE_USED_ERROR).message(e.getMessage()).build()).build();
     }
 
 }

@@ -618,6 +618,7 @@ public class DeploymentTopologyService {
                 .get(locationResourceTemplateId);
         if (template == null) {
             // not matching anymore
+            // WHY ACCESS DENIED
             throw new AccessDeniedException("The resource <" + locationResourceTemplateId + "> is not anymore a valid match");
         }
 

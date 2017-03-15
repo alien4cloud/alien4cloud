@@ -82,7 +82,6 @@ public class NodeMatcherService {
         filterOnAuthorization(locationResources.getNodeTemplates(), environmentId);
 
         // fetch service resources
-        // TODO shouldn't we get only started services?
         List<ServiceResource> services = serviceResourceService.searchByLocation(locationId);
         // self filtering: remove managed service linked to this location
         filterSelfManagedService(services, environmentId);

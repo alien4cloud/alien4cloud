@@ -7,15 +7,20 @@ import static alien4cloud.it.utils.TestUtils.nullable;
 import java.io.IOException;
 import java.util.List;
 
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
+import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.service.model.CreateServiceResourceRequest;
+import alien4cloud.rest.service.model.NodeInstanceDTO;
 import alien4cloud.rest.service.model.PatchServiceResourceRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.And;
@@ -26,17 +31,19 @@ import lombok.extern.slf4j.Slf4j;
 public class ServiceStepDefinitions {
     public static String LAST_CREATED_ID;
 
-    @When("^I create a service with name \"(.*?)\", version \"(.*?)\", type \"(.*?)\", archive version \"(.*?)\"$")
-    public void createService(String serviceName, String serviceVersion, String type, String archiveVersion) throws Throwable {
+    @When("^I (successfully\\s)?create a service with name \"(.*?)\", version \"(.*?)\", type \"(.*?)\", archive version \"(.*?)\"$")
+    public void createService(String successfully, String serviceName, String serviceVersion, String type, String archiveVersion) throws Throwable {
         CreateServiceResourceRequest request = new CreateServiceResourceRequest(nullable(serviceName), nullable(serviceVersion), nullable(type),
                 nullable(archiveVersion));
         Context.getInstance().registerRestResponse(getRestClientInstance().postJSon("/rest/v1/services/", JsonUtil.toString(request)));
 
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
         try {
             LAST_CREATED_ID = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
             Context.getInstance().registerService(LAST_CREATED_ID, serviceName);
         } catch (Throwable t) {
         }
+
     }
 
     @When("^I get the last created service$")
@@ -59,7 +66,7 @@ public class ServiceStepDefinitions {
             String serviceName = nameRoot + i;
             for (int j = 0; j < versionCount; j++) {
                 String serviceVersion = versionRoot + j;
-                createService(serviceName, serviceVersion, type, archiveVersion);
+                createService("successfully", serviceName, serviceVersion, type, archiveVersion);
             }
         }
     }
@@ -112,5 +119,29 @@ public class ServiceStepDefinitions {
         String serviceId = Context.getInstance().getServiceId(serviceName);
         String response = Context.getRestClientInstance().patchJSon("/rest/v1/services/" + nullAsString(serviceId), JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(response);
+    }
+
+    @And("^I set the property \"([^\"]*)\" to \"([^\"]*)\" for the service \"([^\"]*)\"$")
+    public void iSetThePropertyToForTheService(String propertyName, String propertyValue, String serviceName) throws Throwable {
+        String serviceId = Context.getInstance().getServiceId(serviceName);
+        PatchServiceResourceRequest request = new PatchServiceResourceRequest();
+        NodeInstanceDTO nodeInstance = new NodeInstanceDTO();
+        nodeInstance.setProperties(Maps.newHashMap());
+        nodeInstance.getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
+        request.setNodeInstance(nodeInstance);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().patchJSon("/rest/v1/services/" + serviceId, JsonUtil.toString(request)));
+    }
+
+    @And("^I (successfully\\s)?start the service \"([^\"]*)\"$")
+    public void iStartTheService(String successfully, String serviceName) throws Throwable {
+        String serviceId = Context.getInstance().getServiceId(serviceName);
+        PatchServiceResourceRequest request = new PatchServiceResourceRequest();
+        NodeInstanceDTO nodeInstance = new NodeInstanceDTO();
+        nodeInstance.setAttributeValues(Maps.newHashMap());
+        nodeInstance.getAttributeValues().put("state", "started");
+        request.setNodeInstance(nodeInstance);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().patchJSon("/rest/v1/services/" + serviceId, JsonUtil.toString(request)));
+
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 }

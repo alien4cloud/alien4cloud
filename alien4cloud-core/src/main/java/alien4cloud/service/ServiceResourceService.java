@@ -3,6 +3,7 @@ package alien4cloud.service;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +26,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.service.ServiceResource;
@@ -56,6 +60,8 @@ public class ServiceResourceService {
     private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
     private ApplicationEventPublisher publisher;
+    @Inject
+    private ApplicationEnvironmentService environmentService;
 
     /**
      * Creates a service.
@@ -334,8 +340,16 @@ public class ServiceResourceService {
     private void failIdUsed(String id) {
         GetMultipleDataResult<Deployment> usageResult = usage(id);
         if (usageResult.getTotalResults() > 0) {
-            throw new ServiceUsageException("Used services cannot be updated or deleted.", usageResult.getData());
+            throw new ServiceUsageException("Used services cannot be updated or deleted.", buildServiceUsage(usageResult.getData()));
         }
+    }
+
+    private Usage[] buildServiceUsage(Deployment[] data) {
+        return Arrays.stream(data).map(deployment -> {
+            ApplicationEnvironment environment = environmentService.getOrFail(deployment.getEnvironmentId());
+            String usageName = "App (" + deployment.getSourceName() + "), Env (" + environment.getName() + ")";
+            return new Usage(usageName, "Deployment", deployment.getId(), null);
+        }).toArray(Usage[]::new);
     }
 
     /**
