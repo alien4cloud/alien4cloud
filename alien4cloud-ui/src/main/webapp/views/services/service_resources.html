@@ -21,10 +21,10 @@
       <empty-place-holder for="'services'" data="serviceResources"></empty-place-holder>
       <table ng-if="serviceResources && serviceResources.length > 0" class="table table-hover">
         <thead>
-          <th>Name</th>
-          <th>Version</th>
-          <th>Type</th>
-          <th>State</th>
+          <th>{{'COMMON.NAME' | translate}}</th>
+          <th>{{'COMMON.VERSION' | translate}}</th>
+          <th>{{'COMMON.TYPE' | translate}}</th>
+          <th>{{'COMMON.STATE' | translate}}</th>
           <th></th>
         </thead>
         <tbody>
@@ -165,9 +165,9 @@
           <empty-place-holder for="'locations'" data="locations"></empty-place-holder>
           <table ng-if="locations.length > 0" class="table table-hover">
             <thead>
-              <th>Orchestrator</th>
-              <th>Location</th>
-              <th>Authorized</th>
+              <th>{{'ORCHESTRATORS.ORCHESTRATOR' | translate}}</th>
+              <th>{{'ORCHESTRATORS.LOCATIONS.LOCATION' | translate}}</th>
+              <th>{{'COMMON.AUTHORIZED' | translate}}</th>
             </thead>
             <tbody>
               <tr ng-repeat="location in locations track by location.id">
