@@ -21,7 +21,7 @@
             </property-display>
           </td>
           <td>
-            <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{properties.getPropertyDescription(propEntry.key)}}"
+            <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{nodeType.propertiesMap[propEntry.key].value.description}}"
                           key="{{propEntry.key}}"></simple-modal>
           </td>
         </tr>
@@ -74,7 +74,7 @@
               </td>
               <td>
                 <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}"
-                              content="{{topology.nodeCapabilityTypes[capabilityEntry.value.type].propertiesMap[propertyEntry.key].value.description}}"
+                              content="{{getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key).description}}"
                               key="{{propertyEntry.key}}"></simple-modal>
               </td>
             </tr>
