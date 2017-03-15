@@ -1,6 +1,4 @@
-Feature: Delete service resource associated to an application environment
-
-  Background:
+Feature: Update a service resource associated to an application environment on deployment process
 
   Background:
     Given I am authenticated with "ADMIN" role
@@ -17,6 +15,8 @@ Feature: Delete service resource associated to an application environment
     And I enable the orchestrator "Mount doom orchestrator"
 
     And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
+    And I create a location named "Thark location 2" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
+    And I create a location named "Thark location 3" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
 
     And I create a resource of type "alien.nodes.mock.Compute" named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "imageId" to "img1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
@@ -49,32 +49,46 @@ Feature: Delete service resource associated to an application environment
       | managerEmail  | admin@alien.fr          |
 
     And I successfully create a service with name "MyService", from the application "ALIEN", environment "Environment"
+    And I register "data" as "serviceId"
+    And I am authenticated with "ADMIN" role
 
   @reset
-  Scenario: Deleting an unused managed service  should succeed
-    When I delete the service related to the application "ALIEN", environment "Environment"
+  Scenario: Should be able to update locations authorizations on managed services
+    #update when service is not started
+    When I authorize these locations to use the service "MyService"
+      | Mount doom orchestrator / Thark location 2 |
     Then I should receive a RestResponse with no error
+    And I get the last created service
+    Then The SPEL expression "getState()" should return "initial"
+    And The SPEL expression "locationIds.length" should return 1
 
-    ## no service bound to the environment
-    When I get service related to the application "ALIEN", environment "Environment"
-    Then I should receive a RestResponse with no error
-    And I should receive a RestResponse with no data
-
-        ##The service shouild not exists anymore
-    Given I am authenticated with "ADMIN" role
+    #deploy the appli
+    Given I am authenticated with user named "gandalf"
+    And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
+    And I wait for 10 seconds before continuing the test
+    #check the service authorized locations
+    And I am authenticated with "ADMIN" role
     When I get the last created service
-    Then I should receive a RestResponse with an error code 504
+    Then The SPEL expression "getState()" should return "started"
+    And The SPEL expression "locationIds.length" should return 2
 
-#  @reset
-  #TODO
-#  Scenario: Deleting a used managed service should fail
+    # try to authorize a location when the service is stated
+    When I authorize these locations to use the service "MyService"
+      | Mount doom orchestrator / Thark location 3 |
+      | Mount doom orchestrator / Thark location 2 |
+      | Mount doom orchestrator / Thark location   |
+    And I get the last created service
+    Then The SPEL expression "getState()" should return "started"
+    And The SPEL expression "locationIds.length" should return 3
 
   @reset
-  Scenario: Deleting a managed service when not DEPLOYMENT_MANAGER / APPLICATION_MANAGER should fail
-    Given I am authenticated with "ADMIN" role
-    And There are these users in the system
-      | sauron |
-    And I add a role "APPLICATIONS_MANAGER" to user "sauron"
-    And I am authenticated with user named "sauron"
-    When I delete the service related to the application "ALIEN", environment "Environment"
-    Then I should receive a RestResponse with an error code 102
+  Scenario: Patching anything other than locations on a managed service should fail
+    When I PATCH "services/patch_service_properties.json" to "/rest/v1/services/{serviceId}"
+    Then I should receive a RestResponse with an error code 509
+    When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
+    Then I should receive a RestResponse with an error code 509
+    When I PATCH "services/patch_name.json" to "/rest/v1/services/{serviceId}"
+    Then I should receive a RestResponse with an error code 509
+    When I PATCH "services/patch_version.json" to "/rest/v1/services/{serviceId}"
+    Then I should receive a RestResponse with an error code 509
+

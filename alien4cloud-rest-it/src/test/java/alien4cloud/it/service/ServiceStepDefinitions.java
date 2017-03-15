@@ -1,9 +1,11 @@
 package alien4cloud.it.service;
 
 import static alien4cloud.it.Context.getRestClientInstance;
+import static alien4cloud.it.utils.TestUtils.nullAsString;
 import static alien4cloud.it.utils.TestUtils.nullable;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.message.BasicNameValuePair;
 
@@ -14,6 +16,7 @@ import alien4cloud.it.Context;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.service.model.CreateServiceResourceRequest;
+import alien4cloud.rest.service.model.PatchServiceResourceRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
@@ -93,5 +96,21 @@ public class ServiceStepDefinitions {
         } catch (IOException e) {
             // Registration is optional
         }
+    }
+
+    @When("^I authorize these locations to use the service \"([^\"]*)\"$")
+    public void iAuthorizeTheseLocationsToUseTheService(String serviceName, List<String> locations) throws Throwable {
+        PatchServiceResourceRequest request = new PatchServiceResourceRequest();
+        request.setLocationIds(locations.stream().map(name -> {
+            String orchestratorId = Context.getInstance().getOrchestratorId(name.split("/")[0].trim());
+            if (orchestratorId == null) {
+                return nullAsString(null);
+            }
+            String locationName = name.split("/")[1].trim();
+            return nullAsString(Context.getInstance().getLocationId(orchestratorId, locationName));
+        }).toArray(String[]::new));
+        String serviceId = Context.getInstance().getServiceId(serviceName);
+        String response = Context.getRestClientInstance().patchJSon("/rest/v1/services/" + nullAsString(serviceId), JsonUtil.toString(request));
+        Context.getInstance().registerRestResponse(response);
     }
 }

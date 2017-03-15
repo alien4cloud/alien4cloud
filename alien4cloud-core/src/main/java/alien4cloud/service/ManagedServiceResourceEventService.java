@@ -19,6 +19,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
@@ -139,8 +140,8 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         // update deploymentId, in case it is not yet (when creating the service from an already started deployment)
         serviceResource.setDeploymentId(deployment.getId());
 
-        // available location
-        serviceResource.setLocationIds(deployment.getLocationIds());
+        // ensure the service is available on all of the deployment locations
+        updateLocations(serviceResource, deployment.getLocationIds());
 
         // Map attributes from the instances to the actual service resource node.
         for (Entry<String, Set<String>> nodeOutputAttrEntry : safe(topology.getOutputAttributes()).entrySet()) {
@@ -195,6 +196,22 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         }
 
         serviceResourceService.save(serviceResource);
+    }
+
+    /**
+     * add if not yet present the given locations ids into the serviceResource
+     * 
+     * @param serviceResource
+     * @param locationsToAdd
+     */
+    private void updateLocations(ServiceResource serviceResource, String[] locationsToAdd) {
+        if (serviceResource.getLocationIds() == null) {
+            serviceResource.setLocationIds(locationsToAdd);
+        } else {
+            Set<String> locations = Sets.newHashSet(serviceResource.getLocationIds());
+            locations.addAll(Sets.newHashSet(locationsToAdd));
+            serviceResource.setLocationIds(locations.toArray(new String[locations.size()]));
+        }
     }
 
     /**

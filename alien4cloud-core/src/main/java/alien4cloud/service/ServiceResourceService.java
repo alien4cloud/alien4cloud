@@ -19,7 +19,6 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -199,7 +198,7 @@ public class ServiceResourceService {
             Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues,
             String[] locations, boolean patch) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         ServiceResource serviceResource = getOrFail(resourceId);
-        failUpdateIfManaged(serviceResource);
+        failUpdateIfManaged(serviceResource, patch, name, version, nodeTypeStr, nodeTypeVersion, nodeProperties, nodeCapabilities, nodeAttributeValues);
 
         boolean ensureUniqueness = false;
 
@@ -224,7 +223,7 @@ public class ServiceResourceService {
             // Patch operation is allowed only on the service description or locations authorized for matching.
             if (!patch || name != null || version != null || nodeTypeStr != null || nodeTypeVersion != null || nodeProperties != null
                     || nodeCapabilities != null || nodeAttributeValues != null) {
-                throw new AuthorizationServiceException(
+                throw new UnsupportedOperationException(
                         "Update is not allowed on a running service, please use patch if you wish to change locations or authorizations.");
             }
         } else {
@@ -282,9 +281,16 @@ public class ServiceResourceService {
         serviceResource.setLocationIds(newLocations.toArray(new String[newLocations.size()]));
     }
 
-    private void failUpdateIfManaged(ServiceResource serviceResource) {
+    private void failUpdateIfManaged(ServiceResource serviceResource, boolean patch, String name, String version, String nodeTypeStr, String nodeTypeVersion,
+            Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues) {
+        // Update operation is not allowed for managed services.
+        // Patch operation is allowed only on the service description or locations authorized for matching.
         if (serviceResource.getEnvironmentId() != null) {
-            throw new UnsupportedOperationException("Alien managed services cannot be updated via Service API.");
+            if (!patch || name != null || version != null || nodeTypeStr != null || nodeTypeVersion != null || nodeProperties != null
+                    || nodeCapabilities != null || nodeAttributeValues != null) {
+                throw new UnsupportedOperationException(
+                        "Alien managed services cannot be updated via Service API. Please use patch if you wish to change locations or authorizations.");
+            }
         }
     }
 
