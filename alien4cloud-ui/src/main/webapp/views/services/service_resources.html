@@ -21,24 +21,28 @@
       <empty-place-holder for="'services'" data="serviceResources"></empty-place-holder>
       <table ng-if="serviceResources && serviceResources.length > 0" class="table table-hover">
         <thead>
-          <th>Name</th>
-          <th>Version</th>
-          <th>Type</th>
-          <th>State</th>
+          <th>{{'COMMON.NAME' | translate}}</th>
+          <th>{{'COMMON.VERSION' | translate}}</th>
+          <th>{{'COMMON.TYPE' | translate}}</th>
+          <th>{{'COMMON.STATE' | translate}}</th>
           <th></th>
         </thead>
         <tbody>
           <tr ng-repeat="serviceResource in serviceResources" id='service_{{serviceResource.id}}' class="clickable" ng-click="selectService(serviceResource)"
           ng-class="{'warning': selectedService.id === serviceResource.id}">
-            <td>{{serviceResource.name}}</td>
+            <td>
+              <!-- <img ng-if = "serviceResource.environmentId.length" ng-src="images/cloudalien.png" style="height: 17px; width: 17px;"> -->
+              {{serviceResource.name}}
+              <i ng-if="serviceResource.environmentId" class="fa fa-star" uib-tooltip="{{ 'SERVICES.MANAGED.NAME' | translate }}"></i>
+            </td>
             <td>{{serviceResource.version}}</td>
             <td>{{serviceResource.nodeInstance.nodeTemplate.type}}</td>
             <td>{{serviceResource.nodeInstance.attributeValues.state}}</td>
             <td>
               <delete-confirm id='delete-service_{{serviceResource.id}}' func="delete(serviceResource.id)"
-                              position="right" bssize="btn-xs" fastyle="fa-trash-o"
-                              disable="serviceResource.nodeInstance.attributeValues.state !== 'initial'">
-            </delete-confirm></td>
+                              position="right" bssize="btn-xs" fastyle="fa-trash-o">
+              </delete-confirm>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -69,7 +73,7 @@
         <span class="ng-binding">
           <i class="fa fa-globe"></i> {{'SERVICES.DETAIL.TITLE' | translate}}
         </span>
-        <a id="closeSelection" class="pull-right" style="font-weight: 400;" ng-click="selectService()">
+        <a id="closeSelection" class="pull-right" style="font-weight: 400;" ng-click="clearSelection()">
           <i class="fa fa-arrow-left"></i> {{'SERVICES.DETAIL.BACK' | translate}}
         </a>
       </div>
@@ -83,20 +87,22 @@
               <div class="col-md-3">
                 <strong>{{'COMMON.NAME' | translate}}</strong>
               </div>
-              <div class="col-md-9">
-                <div id="srv-name" editable-text="selectedService.name" onbeforesave="update({'name': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">
+              <div class="col-md-9" id="srv-name">
+                <div ng-if="isPropertyEditable()" editable-text="selectedService.name" onbeforesave="update({'name': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">
                   {{selectedService.name}} <i class="fa fa-edit"></i>
                 </div>
+                <em ng-if="!isPropertyEditable()">{{selectedService.name}}</em>
               </div>
             </div>
             <div class="row row-margin">
               <div class="col-md-3">
                 <strong>{{'COMMON.VERSION' | translate}}</strong>
               </div>
-              <div class="col-md-9">
-                <div id="srv-version" editable-text="selectedService.version" onbeforesave="update({'version': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">
+              <div class="col-md-9" id="srv-version" >
+                <div ng-if="isPropertyEditable()" editable-text="selectedService.version" onbeforesave="update({'version': $data})" e-class="editable-input-lg" e-required blur="submit" buttons="no">
                   {{selectedService.version}} <i class="fa fa-edit"></i>
                 </div>
+                <em ng-if="!isPropertyEditable()">{{selectedService.version}}</em>
               </div>
             </div>
             <div class="row row-margin">
@@ -112,7 +118,7 @@
                 <strong>{{'COMMON.STATE' | translate}}</strong>
               </div>
               <div class="col-md-9">
-                <div class="switch" ng-click="toggleState()">
+                <div id="srv-state" class="switch" ng-click="!selectedService.environmentId && toggleState()">
                   <div class="switch-slider" ng-class="stateDisabled ? 'disabled' : 'enabled'"></div>
                 </div>
               </div>
@@ -145,9 +151,12 @@
                     <label>{{attrEntry.key}}</label>
                   </td>
                   <td>
-                    <span editable-text="selectedService.nodeInstance.attributeValues[attrEntry.key]" buttons="no" onbeforesave="updateAttribute(attrEntry.key, $data)" blur="submit" class="editable editable-click">
+                    <span ng-if = "isPropertyEditable()" editable-text="selectedService.nodeInstance.attributeValues[attrEntry.key]" buttons="no" onbeforesave="updateAttribute(attrEntry.key, $data)" blur="submit" class="editable editable-click">
                       {{selectedService.nodeInstance.attributeValues[attrEntry.key]}} <i class="fa fa-pencil-square-o"></i>
                     </span>
+                    <em ng-if="!isPropertyEditable()">
+                      {{selectedService.nodeInstance.attributeValues[attrEntry.key] || '...'}}
+                    </em>
                   </td>
                   <td>
                     <simple-modal class="pull-right" title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{attrEntry.value.description}}"
@@ -165,9 +174,9 @@
           <empty-place-holder for="'locations'" data="locations"></empty-place-holder>
           <table ng-if="locations.length > 0" class="table table-hover">
             <thead>
-              <th>Orchestrator</th>
-              <th>Location</th>
-              <th>Authorized</th>
+              <th>{{'ORCHESTRATORS.ORCHESTRATOR' | translate}}</th>
+              <th>{{'ORCHESTRATORS.LOCATIONS.LOCATION' | translate}}</th>
+              <th>{{'COMMON.AUTHORIZED' | translate}}</th>
             </thead>
             <tbody>
               <tr ng-repeat="location in locations track by location.id">

@@ -406,6 +406,7 @@
     "ADD": "Add",
     "ATTRIBUTES": "Attributes",
     "AUTHOR": "Author",
+    "AUTHORIZED": "Authorized",
     "CAPABILITIES": "Capabilities",
     "DATA": "Data",
     "DATE": "Date",
@@ -899,6 +900,7 @@
   "OK": "OK",
   "OPTIONAL": "Optional",
   "ORCHESTRATORS": {
+    "ORCHESTRATOR": "Orchestrator",
     "ARTIFACTS": {
       "MANAGED": "Managed Artifacts"
     },
@@ -908,6 +910,7 @@
       "UNLOCK-BTN-TITLE": "Unlock"
     },
     "LOCATIONS": {
+      "LOCATION": "Location",
       "AUTHORIZATIONS": {
         "APPS": {
           "ADD": "Authorize applications",
@@ -1035,6 +1038,7 @@
       "TITLE": "New service"
     },
     "MANAGED": {
+      "NAME": "Managed service",
       "TITLE": "Service management",
       "NO_SUBSTITUTION_MESSAGE": "The topology must define a substitution type for it to be exposed as a service.",
       "CREATE": {

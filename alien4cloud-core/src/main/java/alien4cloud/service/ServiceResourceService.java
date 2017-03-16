@@ -3,6 +3,7 @@ package alien4cloud.service;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -19,17 +20,19 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.service.ServiceResource;
@@ -57,6 +60,8 @@ public class ServiceResourceService {
     private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
     private ApplicationEventPublisher publisher;
+    @Inject
+    private ApplicationEnvironmentService environmentService;
 
     /**
      * Creates a service.
@@ -199,7 +204,7 @@ public class ServiceResourceService {
             Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues,
             String[] locations, boolean patch) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         ServiceResource serviceResource = getOrFail(resourceId);
-        failUpdateIfManaged(serviceResource);
+        failUpdateIfManaged(serviceResource, patch, name, version, nodeTypeStr, nodeTypeVersion, nodeProperties, nodeCapabilities, nodeAttributeValues);
 
         boolean ensureUniqueness = false;
 
@@ -224,7 +229,7 @@ public class ServiceResourceService {
             // Patch operation is allowed only on the service description or locations authorized for matching.
             if (!patch || name != null || version != null || nodeTypeStr != null || nodeTypeVersion != null || nodeProperties != null
                     || nodeCapabilities != null || nodeAttributeValues != null) {
-                throw new AuthorizationServiceException(
+                throw new UnsupportedOperationException(
                         "Update is not allowed on a running service, please use patch if you wish to change locations or authorizations.");
             }
         } else {
@@ -282,9 +287,16 @@ public class ServiceResourceService {
         serviceResource.setLocationIds(newLocations.toArray(new String[newLocations.size()]));
     }
 
-    private void failUpdateIfManaged(ServiceResource serviceResource) {
+    private void failUpdateIfManaged(ServiceResource serviceResource, boolean patch, String name, String version, String nodeTypeStr, String nodeTypeVersion,
+            Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues) {
+        // Update operation is not allowed for managed services.
+        // Patch operation is allowed only on the service description or locations authorized for matching.
         if (serviceResource.getEnvironmentId() != null) {
-            throw new UnsupportedOperationException("Alien managed services cannot be updated via Service API.");
+            if (!patch || name != null || version != null || nodeTypeStr != null || nodeTypeVersion != null || nodeProperties != null
+                    || nodeCapabilities != null || nodeAttributeValues != null) {
+                throw new UnsupportedOperationException(
+                        "Alien managed services cannot be updated via Service API. Please use patch if you wish to change locations or authorizations.");
+            }
         }
     }
 
@@ -328,8 +340,16 @@ public class ServiceResourceService {
     private void failIdUsed(String id) {
         GetMultipleDataResult<Deployment> usageResult = usage(id);
         if (usageResult.getTotalResults() > 0) {
-            throw new ServiceUsageException("Used services cannot be updated or deleted.", usageResult.getData());
+            throw new ServiceUsageException("Used services cannot be updated or deleted.", buildServiceUsage(usageResult.getData()));
         }
+    }
+
+    private Usage[] buildServiceUsage(Deployment[] data) {
+        return Arrays.stream(data).map(deployment -> {
+            ApplicationEnvironment environment = environmentService.getOrFail(deployment.getEnvironmentId());
+            String usageName = "App (" + deployment.getSourceName() + "), Env (" + environment.getName() + ")";
+            return new Usage(usageName, "Deployment", deployment.getId(), null);
+        }).toArray(Usage[]::new);
     }
 
     /**

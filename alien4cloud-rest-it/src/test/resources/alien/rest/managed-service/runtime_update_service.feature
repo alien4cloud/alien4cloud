@@ -1,4 +1,4 @@
-Feature: Create a service resource from an environment
+Feature: Update a service resource associated to an application environment on deployment process
 
   Background:
     Given I am authenticated with "ADMIN" role

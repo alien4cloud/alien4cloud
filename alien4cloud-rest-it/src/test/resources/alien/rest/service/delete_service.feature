@@ -7,7 +7,7 @@ Feature: Delete service resource
     And I register "data" as "serviceId"
 
   @reset
-  Scenario: Deleting a service name should succeed
+  Scenario: Deleting a service should succeed
     When I DELETE "/rest/v1/services/{serviceId}"
     Then I should receive a RestResponse with no error
     When I GET "/rest/v1/services/"

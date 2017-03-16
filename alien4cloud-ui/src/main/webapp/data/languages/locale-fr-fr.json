@@ -406,6 +406,7 @@
     "ADD" : "Ajouter",
     "ATTRIBUTES" : "Attributs",
     "AUTHOR" : "Auteur",
+    "AUTHORIZED": "Authorisé",
     "CAPABILITIES" : "Capacités",
     "DATA" : "Données",
     "DATE" : "Date",
@@ -899,6 +900,7 @@
   "OK" : "OK",
   "OPTIONAL" : "Optionnel",
   "ORCHESTRATORS" : {
+    "ORCHESTRATOR": "Orchestrator",
     "ARTIFACTS" : {
       "MANAGED" : "Artefacts supportés"
     },
@@ -908,6 +910,7 @@
       "UNLOCK-BTN-TITLE" : "Déverrouiller"
     },
     "LOCATIONS" : {
+      "LOCATION": "Location",
       "AUTHORIZATIONS" : {
         "APPS" : {
           "ADD" : "Autoriser certaines applications",
@@ -1035,6 +1038,7 @@
       "TITLE" : "Nouveau service"
     },
     "MANAGED": {
+      "NAME": "Service exposé",
       "TITLE": "Service",
       "NO_SUBSTITUTION_MESSAGE": "La topologie doit définir un type de substitution afin d'être exposée en tant que service.",
       "CREATE": {

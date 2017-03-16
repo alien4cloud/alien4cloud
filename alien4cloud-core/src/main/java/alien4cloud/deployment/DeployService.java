@@ -10,8 +10,11 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -34,6 +37,7 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.IPaaSCallback;
@@ -44,6 +48,7 @@ import alien4cloud.paas.model.PaaSDeploymentLog;
 import alien4cloud.paas.model.PaaSDeploymentLogLevel;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.service.ServiceResourceService;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.PropertyUtil;
@@ -84,6 +89,11 @@ public class DeployService {
     private ApplicationEventPublisher eventPublisher;
     @Inject
     private DeploymentLockService deploymentLockService;
+    @Inject
+    private ServiceResourceService serviceResourceService;
+    @Inject
+    @Lazy(true)
+    private ILocationResourceService locationResourceService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -122,10 +132,11 @@ public class DeployService {
             }
             deployment.setSourceName(sourceName);
             deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
-            deployment.setStartDate(new Date());
             // mandatory for the moment since we could have deployment with no environment (csar test)
             deployment.setEnvironmentId(deploymentTopology.getEnvironmentId());
             deployment.setVersionId(deploymentTopology.getVersionId());
+            deployment.setStartDate(new Date());
+            setUsedServicesResourcesIds(deploymentTopology, deployment);
             alienDao.save(deployment);
             // publish an event for the eventual managed service
             eventPublisher.publishEvent(new DeploymentCreatedEvent(this, deployment.getId()));
@@ -225,6 +236,22 @@ public class DeployService {
         artifactProcessorService.processArtifacts(deploymentContext);
 
         return deploymentContext;
+    }
+
+    /**
+     * From the substitutedNodes values, find out which are services and populate the {@link Deployment#serviceResourceIds}
+     * 
+     * @param deployment
+     * @param deploymentTopology
+     */
+    private void setUsedServicesResourcesIds(DeploymentTopology deploymentTopology, Deployment deployment) {
+        String[] serviceResourcesIds = deploymentTopology.getSubstitutedNodes().entrySet().stream()
+                .filter(entry -> deploymentTopology.getNodeTemplates().get(entry.getKey()) instanceof ServiceNodeTemplate).map(entry -> entry.getValue())
+                .toArray(String[]::new);
+
+        if (ArrayUtils.isNotEmpty(serviceResourcesIds)) {
+            deployment.setServiceResourceIds(serviceResourcesIds);
+        }
     }
 
     /**
