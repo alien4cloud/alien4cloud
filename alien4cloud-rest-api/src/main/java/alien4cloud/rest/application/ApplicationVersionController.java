@@ -144,6 +144,13 @@ public class ApplicationVersionController {
         Application application = applicationService.getOrFail(appVersion.getApplicationId());
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
 
+        if (request.getVersion() != null) {
+            throw new IllegalArgumentException("Version update has been disabled in 1.3.3 as it may cause issues within the application.\n"
+                    + "The feature will be restored in version 1.4.0.\n"
+                    + "The workaround is to create a new version from the version you want to rename and then delete the old version."
+                    + "If you triggered this operation from the UI you should delete your browser cache as you may not have the valid html templates.\n");
+        }
+
         if (appVersion.isReleased()) {
             throw new UpdateApplicationVersionException("The application version " + appVersion.getId() + " is released and cannot be update.");
         } else if (request.getVersion() != null && !VersionUtil.isValid(request.getVersion())) {
