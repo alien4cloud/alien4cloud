@@ -122,7 +122,7 @@ define(function(require) {
         $scope.isUpdatable = function() {
           return _.includes(['DEPLOYED', 'UPDATED'], $scope.deploymentContext.selectedEnvironment.status) &&
                  _.definedPath($scope.deploymentContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') &&
-                 _.get($scope.deployedContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') === _.get($scope.deployedContext, 'dto.topology.locationGroups._A4C_ALL.policies[0].locationId');
+                 _.get($scope.deploymentContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') === _.get($scope.deployedContext, 'dto.topology.locationGroups._A4C_ALL.policies[0].locationId');
         };
 
         $scope.$watch('deploymentContext.deploymentTopologyDTO.topology.orchestratorId', function(newValue){
