@@ -409,7 +409,8 @@ define(function (require) {
           }, function() {
             proceedToStateChange();
           });
-      });
-    }
-  ]);
-}); // define
+        });
+      }
+    ]);
+  }
+); // define

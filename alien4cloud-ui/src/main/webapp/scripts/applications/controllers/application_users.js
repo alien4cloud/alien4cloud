@@ -213,9 +213,9 @@ define(function (require) {
             username: user.username,
             role: role
           }, function() {
-          if (!userMap[user.username]) {
-            userMap[user.username] = user;
-          }
+            if (!userMap[user.username]) {
+              userMap[user.username] = user;
+            }
             $scope.selectedEnvironment.userRoles[user.username] = updateRoles(envUserRoles, role, 'add', $scope.usersByRole, user);
           });
 

@@ -21,8 +21,7 @@ define(function (require) {
           var scope = this.scope;
           topologyServices.availableRepositories({
             topologyId: scope.topologyId
-            }, 
-            function(result) {
+          }, function(result) {
               scope.availableRepositories = result.data;
               var modalInstance = $uibModal.open({
                 templateUrl: 'views/topology/editor_artifact_modal.html',
@@ -36,7 +35,7 @@ define(function (require) {
                   },
                   artifact: function() {
                     return artifact;
-                  }                  
+                  }
                 }
               });
 
@@ -53,7 +52,7 @@ define(function (require) {
                 );
               });
             }
-          );           
+          );
 
         },
 

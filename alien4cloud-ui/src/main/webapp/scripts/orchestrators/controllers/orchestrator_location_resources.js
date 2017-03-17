@@ -1,3 +1,4 @@
+/** global Promise */
 define(function(require) {
   'use strict';
 

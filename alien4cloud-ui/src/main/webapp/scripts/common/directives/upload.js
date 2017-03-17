@@ -31,12 +31,12 @@ define(function (require) {
     };
 
     function setInfoType(uploadInfos, errors, statesToClasses) {
-        if(_.defined(_.find(_.flatten(_.values(errors)), {'errorLevel': 'WARNING'}))){
-            //change the displayed class into warning if there is a warning
-            uploadInfos.infoType = statesToClasses.warn;
-        }else{
-            uploadInfos.infoType = statesToClasses.success;
-        }
+      if (_.defined(_.find(_.flatten(_.values(errors)), {'errorLevel': 'WARNING'}))) {
+        //change the displayed class into warning if there is a warning
+        uploadInfos.infoType = statesToClasses.warn;
+      } else {
+        uploadInfos.infoType = statesToClasses.success;
+      }
     }
 
     FileUploadManager.prototype = {
