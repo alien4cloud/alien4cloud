@@ -20,8 +20,8 @@
             type="button"
             class="btn btn-primary application-deploy-button pull-right"
             ng-disabled="!deploymentContext.deploymentTopologyDTO.validation.valid || isDeploying"
-            ng-click="update_deployment()"
-            ng-if="deploymentContext.selectedEnvironment.status === 'DEPLOYED' || deploymentContext.selectedEnvironment.status === 'UPDATED'">
+            ng-click="updateDeployment()"
+            ng-if="isUpdatable()">
       <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.UPDATE_DEPLOYMENT' | translate}}
     </button>
   </div>

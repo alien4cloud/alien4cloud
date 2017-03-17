@@ -8,8 +8,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
-import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -52,6 +50,7 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.model.DeployApplicationRequest;
 import alien4cloud.rest.application.model.EnvironmentStatusDTO;
 import alien4cloud.rest.model.RestError;
@@ -213,6 +212,8 @@ public class ApplicationDeploymentController {
         }
 
         DeploymentTopology deploymentTopology = getDeploymentTopologyAndCheckAuthorization(environment);
+
+        deploymentService.checkDeploymentUpdateFeasibility(deployment, deploymentTopology);
 
         // prepare the deployment
         TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);

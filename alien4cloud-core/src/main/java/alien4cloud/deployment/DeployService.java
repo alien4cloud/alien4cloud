@@ -177,7 +177,8 @@ public class DeployService {
         });
     }
 
-    public void update(final DeploymentTopology deploymentTopology, final IDeploymentSource deploymentSource, final Deployment existingDeployment, final IPaaSCallback<Object> callback) {
+    public void update(final DeploymentTopology deploymentTopology, final IDeploymentSource deploymentSource, final Deployment existingDeployment,
+            final IPaaSCallback<Object> callback) {
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
         final Location firstLocation = locations.values().iterator().next();
@@ -190,19 +191,15 @@ public class DeployService {
             // Get the orchestrator that will perform the deployment
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
 
-            String deploymentTopologyId = deploymentTopology.getId();
-
-            // Create a deployment object to be kept in ES.
-            final Deployment deployment = existingDeployment;
-
-            PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, deployment, locations);
+            PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, existingDeployment,
+                    locations);
 
             // enrich the callback
             IPaaSCallback<Object> callbackWrapper = new IPaaSCallback<Object>() {
                 @Override
                 public void onSuccess(Object data) {
-                    deployment.setVersionId(deploymentTopology.getVersionId());
-                    alienDao.save(deployment);
+                    existingDeployment.setVersionId(deploymentTopology.getVersionId());
+                    alienDao.save(existingDeployment);
                     callback.onSuccess(data);
                 }
 
@@ -214,13 +211,14 @@ public class DeployService {
             // Build the context for deployment and deploy
             orchestratorPlugin.update(deploymentContext, callbackWrapper);
             log.debug("Triggered deployment of topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
-                    firstLocation.getId(), deployment.getId());
+                    firstLocation.getId(), existingDeployment.getId());
 
             return null;
         });
     }
 
-    private PaaSTopologyDeploymentContext saveDeploymentTopologyAndGenerateDeploymentContext(final DeploymentTopology deploymentTopology, final Deployment deployment, final Map<String, Location> locations) {
+    private PaaSTopologyDeploymentContext saveDeploymentTopologyAndGenerateDeploymentContext(final DeploymentTopology deploymentTopology,
+            final Deployment deployment, final Map<String, Location> locations) {
         String deploymentTopologyId = deploymentTopology.getId();
         // save the topology as a deployed topology.
         // change the Id before saving
@@ -293,7 +291,6 @@ public class DeployService {
         // perform validation of the processed deployment topology.
         return deploymentTopologyValidationService.validateProcessedDeploymentTopology(deploymentTopology, inputs);
     }
-
 
     // Inner class used to build context for generation of the orchestrator id.
     @Getter

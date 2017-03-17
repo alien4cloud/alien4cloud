@@ -45,7 +45,7 @@ define(function(require) {
           });
         };
 
-        $scope.update_deployment = function() {
+        $scope.updateDeployment = function() {
           $scope.isDeploying = true;
           applicationServices.deploymentUpdate({
             applicationId: $scope.application.id,
@@ -64,7 +64,7 @@ define(function(require) {
                   envName : $scope.deploymentContext.selectedEnvironment.name,
                   appName : $scope.application.name
                 }),
-                6000, 'trustedHtml', null
+                0, 'trustedHtml', null
               );
             }
           }, function() {
@@ -112,6 +112,15 @@ define(function(require) {
               );
             }
           }).$promise;
+        };
+
+        // the topology deployment is updatable if:
+        // - the status is one of DEPLOYED , UPDATED,
+        // - the current selectedlocation is the same as the one of the deployed topology
+        $scope.isUpdatable = function() {
+          return _.includes(['DEPLOYED', 'UPDATED'], $scope.deploymentContext.selectedEnvironment.status) &&
+                 _.definedPath($scope.deploymentContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') &&
+                 _.get($scope.deployedContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') === _.get($scope.deployedContext, 'dto.topology.locationGroups._A4C_ALL.policies[0].locationId');
         };
 
         $scope.$watch('deploymentContext.deploymentTopologyDTO.topology.orchestratorId', function(newValue){
