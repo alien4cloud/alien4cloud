@@ -79,7 +79,7 @@
                     'text-muted' : environment.status == 'UNKNOWN',
                     'text-info' : environment.status == 'DEPLOYMENT_IN_PROGRESS' || environment.status == 'UNDEPLOYMENT_IN_PROGRESS'
                   }">
-                    {{environment.deployedVersion | idToVersion}}
+                    {{(environment.deployedVersion | idToVersion) || 'N/A'}}
                   </div>
                 </div>
               </div>

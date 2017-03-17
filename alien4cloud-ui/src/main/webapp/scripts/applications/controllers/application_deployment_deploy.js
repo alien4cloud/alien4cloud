@@ -39,6 +39,8 @@ define(function(require) {
           $scope.isDeploying = true;
           applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
             $scope.deploymentContext.selectedEnvironment.status = 'INIT_DEPLOYMENT';
+            // the deployed version is the current one
+            $scope.deploymentContext.selectedEnvironment.deployedVersion = $scope.deploymentContext.selectedEnvironment.currentVersionName;
             $scope.isDeploying = false;
           }, function() {
             $scope.isDeploying = false;
