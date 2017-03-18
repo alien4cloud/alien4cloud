@@ -16,11 +16,12 @@ import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
  * The configuration to launch the full A4C context.
  */
 @Configuration
-@ComponentScan(basePackages = { "alien4cloud", "org.alien4cloud.tosca", "org.alien4cloud.workspace" }, excludeFilters = {
+@ComponentScan(basePackages = { "alien4cloud", "org.alien4cloud" }, excludeFilters = {
         @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.webconfiguration\\..*"),
         @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.security\\..*"), @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.audit\\..*"),
         @Filter(type = FilterType.REGEX, pattern = "org\\.elasticsearch\\.mapping\\..*"), @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.dao\\..*"),
-        @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.servlet\\..*"), @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.images\\..*") })
+        @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.servlet\\..*"), @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.images\\..*"),
+        @Filter(type = FilterType.REGEX, pattern = "org\\.alien4cloud\\.bootstrap\\..*") })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class FullApplicationConfiguration {
 
