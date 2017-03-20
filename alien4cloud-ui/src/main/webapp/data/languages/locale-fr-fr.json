@@ -425,6 +425,7 @@
     "NODE" : "Noeud",
     "PROPERTIES" : "Propriétés",
     "SOURCE" : "Source",
+    "RESOURCES": "Ressources",
     "STATE" : "Etat",
     "TARGET" : "Cible",
     "TYPE" : "Type",

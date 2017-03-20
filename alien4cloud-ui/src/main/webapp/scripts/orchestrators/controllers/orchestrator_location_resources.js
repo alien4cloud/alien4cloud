@@ -23,9 +23,11 @@ define(function(require) {
                locationResourcesPortabilityService, resizeServices, componentService, resourceSecurityFactory) {
         const vm = this;
 
+        $scope.resourcesTypes = _.values($scope.resourcesTypesMap);
+
         function computeTypes() {
           // pick all resource types from the location - this will include orchestrator & custom types
-          const provided = $scope.context.locationResources.providedTypes;
+          const provided = $scope.providedTypes || _.map($scope.resourcesTypes, 'elementId');
           return _.map($scope.resourcesTypes, function (res) {
             return _.assign(
               _.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id'),
@@ -38,11 +40,6 @@ define(function(require) {
           if (_.isNotEmpty($scope.resourcesTypes)) {
             $scope.selectedConfigurationResourceType = {value: $scope.resourcesTypes[0]};
           }
-          // Only show catalog in the on-demand resources tab
-          if (!$scope.showCatalog) {
-            return;
-          }
-
           $scope.dimensions = { width: 800, height: 500 };
           resizeServices.registerContainer(function (width, height) {
             $scope.dimensions = { width: width, height: height };
