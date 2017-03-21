@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Map;
 
 import org.alien4cloud.tosca.normative.primitives.Frequency;
-import org.alien4cloud.tosca.normative.primitives.Range;
 import org.alien4cloud.tosca.normative.primitives.Size;
 import org.alien4cloud.tosca.normative.primitives.Time;
 
