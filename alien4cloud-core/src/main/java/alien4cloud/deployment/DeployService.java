@@ -84,6 +84,9 @@ public class DeployService {
     private ApplicationEventPublisher eventPublisher;
     @Inject
     private DeploymentLockService deploymentLockService;
+    @Inject
+    private DeploymentLoggingService deploymentLoggingService;
+
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -160,7 +163,7 @@ public class DeployService {
                     deploymentLog.setContent(t.getMessage() + "\n" + ExceptionUtils.getStackTrace(t));
                     deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
                     deploymentLog.setTimestamp(new Date());
-                    alienMonitorDao.save(deploymentLog);
+                    deploymentLoggingService.save(deploymentLog);
 
                     PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
                     messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
