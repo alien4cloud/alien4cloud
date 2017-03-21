@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -27,6 +26,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.events.LocationArchiveDeleteRequested;
 import alien4cloud.events.LocationTypeIndexed;
@@ -45,6 +45,7 @@ import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -74,28 +75,52 @@ public class PluginArchiveIndexer {
      * @param location The location of the orchestrator for which to index archives.
      */
     public Set<CSARDependency> indexLocationArchives(Orchestrator orchestrator, Location location) {
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
-        ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
-
-        // ensure that the plugin archives for this location are imported in the catalog
-        List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
-        Set<CSARDependency> dependencies = Sets.newHashSet();
-
-        if (pluginArchives == null) {
-            return dependencies;
+        // get archive that are not already indexed, and the full dependencies list
+        ArchiveToIndex archiveToIndex = getArchivesToIndex(orchestrator, location);
+        // index archive here if not already indexed
+        for (PluginArchive pluginArchive : archiveToIndex.pluginArchives) {
+            indexArchive(pluginArchive, orchestrator, location);
         }
 
-        // index archive here if not already indexed
-        for (PluginArchive pluginArchive : pluginArchives) {
+        return archiveToIndex.allDependencies;
+    }
+
+    /**
+     * Get the natives dependencies of the location. This is, the dependencies of the plugin archives it exposes
+     *
+     * @param orchestrator
+     * @param location
+     * @return A Set<{@link CSARDependency}> containing the native dependencies
+     */
+    public Set<CSARDependency> getNativeDependencies(Orchestrator orchestrator, Location location) {
+        return getArchivesToIndex(orchestrator, location).allDependencies;
+    }
+
+    /**
+     * From all exposed plugin archives of the location, get the one that are not yet indexed
+     * 
+     * @param orchestrator
+     * @param location
+     * @return an object of type {@link ArchiveToIndex} with the indexable archives and the full list of dependencies
+     */
+    private ArchiveToIndex getArchivesToIndex(Orchestrator orchestrator, Location location) {
+        Set<CSARDependency> dependencies = Sets.newHashSet();
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
+        ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+        List<PluginArchive> allPluginArchives = configuratorPlugin.pluginArchives();
+        Set<PluginArchive> archivesToIndex = Sets.newHashSet();
+        if (allPluginArchives == null) {
+            return new ArchiveToIndex(dependencies, archivesToIndex);
+        }
+
+        for (PluginArchive pluginArchive : allPluginArchives) {
             ArchiveRoot archive = pluginArchive.getArchive();
             Csar csar = csarService.get(archive.getArchive().getName(), archive.getArchive().getVersion());
             String lastParsedHash = null;
-
-            if (csar == null) {
-                // index the required archive
-                indexArchive(pluginArchive, orchestrator, location);
+            if (csar == null) { // the archive does not exist into the repository: should be indexed
                 lastParsedHash = archive.getArchive().getHash();
-            } else {
+                archivesToIndex.add(pluginArchive);
+            } else { // Else, just take the hash
                 lastParsedHash = csar.getHash();
             }
             if (archive.getArchive().getDependencies() != null) {
@@ -103,8 +128,7 @@ public class PluginArchiveIndexer {
             }
             dependencies.add(new CSARDependency(archive.getArchive().getName(), archive.getArchive().getVersion(), lastParsedHash));
         }
-
-        return dependencies;
+        return new ArchiveToIndex(dependencies, archivesToIndex);
     }
 
     /**
@@ -263,5 +287,11 @@ public class PluginArchiveIndexer {
         }
 
         return archiveIds;
+    }
+
+    @AllArgsConstructor
+    private static class ArchiveToIndex {
+        private Set<CSARDependency> allDependencies;
+        private Set<PluginArchive> pluginArchives;
     }
 }
