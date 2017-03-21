@@ -3,30 +3,19 @@ package alien4cloud.tosca;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
 import alien4cloud.tosca.parser.ParserTestUtil;
 import org.alien4cloud.tosca.catalog.ArchiveParser;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.types.ArtifactType;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.normative.NormativeTypesConstant;
-import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;

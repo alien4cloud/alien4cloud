@@ -29,7 +29,7 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import alien4cloud.utils.TagUtil;
 import lombok.extern.slf4j.Slf4j;
 

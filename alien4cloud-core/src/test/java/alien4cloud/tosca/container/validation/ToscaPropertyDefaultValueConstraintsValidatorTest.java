@@ -25,7 +25,7 @@ import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 
 import com.google.common.collect.Lists;
 
@@ -112,55 +112,55 @@ public class ToscaPropertyDefaultValueConstraintsValidatorTest {
     @Test
     public void validStringEqualsShouldNotCreateViolations() {
         Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(
-                createEqualDefinition(ToscaType.STRING.toString(), "constrainted value", "constrainted value"), ToscaSequence.class);
+                createEqualDefinition(ToscaTypes.STRING.toString(), "constrainted value", "constrainted value"), ToscaSequence.class);
         Assert.assertEquals(0, violations.size());
     }
 
     @Test
     public void invalidStringEqualsShouldCreateViolations() {
         Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(
-                createEqualDefinition(ToscaType.STRING.toString(), "constrainted value", "not matching value"), ToscaSequence.class);
+                createEqualDefinition(ToscaTypes.STRING.toString(), "constrainted value", "not matching value"), ToscaSequence.class);
         Assert.assertEquals(1, violations.size());
     }
 
     @Test
     public void validIntegerEqualsShouldNotCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaType.INTEGER.toString(), "10", "10"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaTypes.INTEGER.toString(), "10", "10"),
                 ToscaSequence.class);
         Assert.assertEquals(0, violations.size());
     }
 
     @Test
     public void invalidIntegerEqualsShouldCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaType.INTEGER.toString(), "10", "40"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaTypes.INTEGER.toString(), "10", "40"),
                 ToscaSequence.class);
         Assert.assertEquals(1, violations.size());
     }
 
     @Test
     public void validFloatEqualsShouldNotCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaType.FLOAT.toString(), "10.56", "10.56"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaTypes.FLOAT.toString(), "10.56", "10.56"),
                 ToscaSequence.class);
         Assert.assertEquals(0, violations.size());
     }
 
     @Test
     public void invalidFloatEqualsShouldCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaType.FLOAT.toString(), "10.56", "40.56"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaTypes.FLOAT.toString(), "10.56", "40.56"),
                 ToscaSequence.class);
         Assert.assertEquals(1, violations.size());
     }
 
     @Test
     public void validBooleanEqualsShouldNotCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaType.BOOLEAN.toString(), "true", "true"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaTypes.BOOLEAN.toString(), "true", "true"),
                 ToscaSequence.class);
         Assert.assertEquals(0, violations.size());
     }
 
     @Test
     public void invalidBooleanEqualsShouldCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaType.BOOLEAN.toString(), "true", "false"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createEqualDefinition(ToscaTypes.BOOLEAN.toString(), "true", "false"),
                 ToscaSequence.class);
         Assert.assertEquals(1, violations.size());
     }
@@ -169,17 +169,17 @@ public class ToscaPropertyDefaultValueConstraintsValidatorTest {
 
     @Test
     public void validIntegerGreaterOrEqualShouldNotCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterOrEqualDefinition(ToscaType.INTEGER.toString(), 10l, "10"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterOrEqualDefinition(ToscaTypes.INTEGER.toString(), 10l, "10"),
                 ToscaSequence.class);
         Assert.assertEquals(0, violations.size());
 
-        violations = validator.validate(createGreaterOrEqualDefinition(ToscaType.INTEGER.toString(), 10l, "20"), ToscaSequence.class);
+        violations = validator.validate(createGreaterOrEqualDefinition(ToscaTypes.INTEGER.toString(), 10l, "20"), ToscaSequence.class);
         Assert.assertEquals(0, violations.size());
     }
 
     @Test
     public void invalidIntegerGreaterOrEqualShouldCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterOrEqualDefinition(ToscaType.INTEGER.toString(), 10l, "5"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterOrEqualDefinition(ToscaTypes.INTEGER.toString(), 10l, "5"),
                 ToscaSequence.class);
         Assert.assertEquals(1, violations.size());
     }
@@ -187,17 +187,17 @@ public class ToscaPropertyDefaultValueConstraintsValidatorTest {
     @Test
     public void validFloatGreaterOrEqualShouldNotCreateViolations() {
         Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(
-                createGreaterOrEqualDefinition(ToscaType.FLOAT.toString(), 10.56d, "10.56"), ToscaSequence.class);
+                createGreaterOrEqualDefinition(ToscaTypes.FLOAT.toString(), 10.56d, "10.56"), ToscaSequence.class);
         Assert.assertEquals(0, violations.size());
 
-        violations = validator.validate(createGreaterOrEqualDefinition(ToscaType.FLOAT.toString(), 10.56d, "20.56"), ToscaSequence.class);
+        violations = validator.validate(createGreaterOrEqualDefinition(ToscaTypes.FLOAT.toString(), 10.56d, "20.56"), ToscaSequence.class);
         Assert.assertEquals(0, violations.size());
     }
 
     @Test
     public void invalidFloatGreaterOrEqualShouldCreateViolations() {
         Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(
-                createGreaterOrEqualDefinition(ToscaType.FLOAT.toString(), 10.56d, "5.56"), ToscaSequence.class);
+                createGreaterOrEqualDefinition(ToscaTypes.FLOAT.toString(), 10.56d, "5.56"), ToscaSequence.class);
         Assert.assertEquals(1, violations.size());
     }
 
@@ -205,35 +205,35 @@ public class ToscaPropertyDefaultValueConstraintsValidatorTest {
 
     @Test
     public void validIntegerGreaterThanShouldNotCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterThanDefinition(ToscaType.INTEGER.toString(), 10l, "20"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterThanDefinition(ToscaTypes.INTEGER.toString(), 10l, "20"),
                 ToscaSequence.class);
         Assert.assertEquals(0, violations.size());
     }
 
     @Test
     public void invalidIntegerGreaterThanShouldCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterThanDefinition(ToscaType.INTEGER.toString(), 10l, "5"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterThanDefinition(ToscaTypes.INTEGER.toString(), 10l, "5"),
                 ToscaSequence.class);
         Assert.assertEquals(1, violations.size());
 
-        violations = validator.validate(createGreaterThanDefinition(ToscaType.INTEGER.toString(), 10l, "10"), ToscaSequence.class);
+        violations = validator.validate(createGreaterThanDefinition(ToscaTypes.INTEGER.toString(), 10l, "10"), ToscaSequence.class);
         Assert.assertEquals(1, violations.size());
     }
 
     @Test
     public void validFloatGreaterThanShouldNotCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterThanDefinition(ToscaType.FLOAT.toString(), 10.56d, "20.56"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterThanDefinition(ToscaTypes.FLOAT.toString(), 10.56d, "20.56"),
                 ToscaSequence.class);
         Assert.assertEquals(0, violations.size());
     }
 
     @Test
     public void invalidFloatGreaterThanShouldCreateViolations() {
-        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterThanDefinition(ToscaType.FLOAT.toString(), 10.56d, "5.56"),
+        Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(createGreaterThanDefinition(ToscaTypes.FLOAT.toString(), 10.56d, "5.56"),
                 ToscaSequence.class);
         Assert.assertEquals(1, violations.size());
 
-        violations = validator.validate(createGreaterThanDefinition(ToscaType.FLOAT.toString(), 10.56d, "10.56"), ToscaSequence.class);
+        violations = validator.validate(createGreaterThanDefinition(ToscaTypes.FLOAT.toString(), 10.56d, "10.56"), ToscaSequence.class);
         Assert.assertEquals(1, violations.size());
     }
 }

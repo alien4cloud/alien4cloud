@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
@@ -21,17 +21,12 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
 /**
  * Service to set and check constraints on properties.
  */
 @Service
 public class PropertyService {
-    @Inject
-    private ConstraintPropertyService constraintPropertyService;
-
     public <T extends AbstractPropertyValue> void setPropertyValue(Map<String, T> properties, PropertyDefinition propertyDefinition, String propertyName,
             Object propertyValue) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         // take the default value
@@ -41,7 +36,7 @@ public class PropertyService {
             return;
         }
 
-        constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
         if (propertyValue instanceof PropertyValue) {
             properties.put(propertyName, (T) propertyValue);
         } else if (propertyValue instanceof String) {

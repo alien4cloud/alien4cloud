@@ -18,7 +18,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
 import alien4cloud.utils.services.PropertyService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

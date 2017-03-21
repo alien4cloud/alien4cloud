@@ -25,7 +25,7 @@ import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import alien4cloud.utils.PropertyUtil;
 import lombok.extern.slf4j.Slf4j;
 

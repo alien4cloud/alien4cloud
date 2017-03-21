@@ -41,7 +41,6 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.MapUtil;
-import alien4cloud.utils.services.ConstraintPropertyService;
 
 /**
  * Test tosca parsing for Tosca Simple profile in YAML wd03
@@ -58,11 +57,6 @@ public abstract class AbstractToscaParserSimpleProfileTest {
     @EnableAspectJAutoProxy(proxyTargetClass = true)
     @ComponentScan(basePackages = { "alien4cloud.tosca.context", "alien4cloud.tosca.parser", "alien4cloud.paas.wf" })
     static class ContextConfiguration {
-        @Bean
-        public ConstraintPropertyService constraintPropertyService() {
-            return new ConstraintPropertyService();
-        }
-
         @Bean
         public ICSARRepositorySearchService repositorySearchService() {
             return Mockito.mock(ICSARRepositorySearchService.class);

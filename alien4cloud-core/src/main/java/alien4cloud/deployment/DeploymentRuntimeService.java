@@ -22,7 +22,7 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.OperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.tosca.normative.NormativeComputeConstants;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 
 /**
  * Manages operations performed on a running deployment.

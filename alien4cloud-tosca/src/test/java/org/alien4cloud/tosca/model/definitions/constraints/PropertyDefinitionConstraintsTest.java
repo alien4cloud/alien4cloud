@@ -8,11 +8,8 @@ import org.junit.Test;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.InRangeConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
-import alien4cloud.tosca.normative.ToscaType;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 
 public class PropertyDefinitionConstraintsTest {
 
@@ -20,8 +17,8 @@ public class PropertyDefinitionConstraintsTest {
     public void testCheckIfCompatibleOrFailConstraintSatisfiedAllNull() throws ConstraintViolationException, IncompatiblePropertyDefinitionException {
         PropertyDefinition propDef1 = new PropertyDefinition();
         PropertyDefinition propDef2 = new PropertyDefinition();
-        propDef1.setType(ToscaType.STRING);
-        propDef2.setType(ToscaType.STRING);
+        propDef1.setType(ToscaTypes.STRING);
+        propDef2.setType(ToscaTypes.STRING);
         propDef1.checkIfCompatibleOrFail(propDef2);
     }
 
@@ -29,8 +26,8 @@ public class PropertyDefinitionConstraintsTest {
     public void testCheckIfCompatibleOrFailConstraintNotSatisfiedNull() throws ConstraintViolationException, IncompatiblePropertyDefinitionException {
         PropertyDefinition propDef1 = new PropertyDefinition();
         PropertyDefinition propDef2 = new PropertyDefinition();
-        propDef1.setType(ToscaType.STRING);
-        propDef2.setType(ToscaType.STRING);
+        propDef1.setType(ToscaTypes.STRING);
+        propDef2.setType(ToscaTypes.STRING);
 
         List<PropertyConstraint> constraints = Lists.newArrayList();
         constraints.add(new EqualConstraint());
@@ -50,8 +47,8 @@ public class PropertyDefinitionConstraintsTest {
         PropertyDefinition propDef1 = new PropertyDefinition();
         PropertyDefinition propDef2 = new PropertyDefinition();
         List<PropertyConstraint> constraints = Lists.newArrayList();
-        propDef1.setType(ToscaType.STRING);
-        propDef2.setType(ToscaType.STRING);
+        propDef1.setType(ToscaTypes.STRING);
+        propDef2.setType(ToscaTypes.STRING);
 
         EqualConstraint constraint1 = new EqualConstraint();
         constraint1.setEqual("test");
@@ -74,8 +71,8 @@ public class PropertyDefinitionConstraintsTest {
         PropertyDefinition propDef2 = new PropertyDefinition();
         List<PropertyConstraint> constraintsProp1 = Lists.newArrayList();
         List<PropertyConstraint> constraintsProp2 = Lists.newArrayList();
-        propDef1.setType(ToscaType.STRING);
-        propDef2.setType(ToscaType.STRING);
+        propDef1.setType(ToscaTypes.STRING);
+        propDef2.setType(ToscaTypes.STRING);
 
         EqualConstraint constraint11 = new EqualConstraint();
         constraint11.setEqual("test");
@@ -108,8 +105,8 @@ public class PropertyDefinitionConstraintsTest {
         PropertyDefinition propDef2 = new PropertyDefinition();
         List<PropertyConstraint> constraintsProp1 = Lists.newArrayList();
         List<PropertyConstraint> constraintsProp2 = Lists.newArrayList();
-        propDef1.setType(ToscaType.STRING);
-        propDef2.setType(ToscaType.INTEGER);
+        propDef1.setType(ToscaTypes.STRING);
+        propDef2.setType(ToscaTypes.INTEGER);
 
         EqualConstraint constraint1 = new EqualConstraint();
         constraint1.setEqual("test");
@@ -139,8 +136,8 @@ public class PropertyDefinitionConstraintsTest {
         PropertyDefinition propDef2 = new PropertyDefinition();
         List<PropertyConstraint> constraintsProp1 = Lists.newArrayList();
         List<PropertyConstraint> constraintsProp2 = Lists.newArrayList();
-        propDef1.setType(ToscaType.STRING);
-        propDef2.setType(ToscaType.INTEGER);
+        propDef1.setType(ToscaTypes.STRING);
+        propDef2.setType(ToscaTypes.INTEGER);
 
         EqualConstraint constraint1 = new EqualConstraint();
         constraint1.setEqual("test");

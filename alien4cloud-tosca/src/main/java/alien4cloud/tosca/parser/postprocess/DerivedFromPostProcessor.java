@@ -19,8 +19,8 @@ import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.normative.NormativeTypesConstant;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -99,7 +99,7 @@ public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? ex
         String parentElementType = derivedFrom.get(0);
 
         // Merge the type with it's parent except for primitive data types.
-        if (instance instanceof DataType && ToscaType.isSimple(parentElementType)) {
+        if (instance instanceof DataType && ToscaTypes.isSimple(parentElementType)) {
             if (instance instanceof PrimitiveDataType) {
                 log.debug("Do not merge data type instance with parent as it extends from a primitive type.");
             } else {

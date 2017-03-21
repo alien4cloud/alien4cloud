@@ -10,7 +10,7 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.paas.wf.util.WorkflowUtils;
-import alien4cloud.tosca.normative.NormativeRelationshipConstants;
+import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 
 @Component
 @Slf4j

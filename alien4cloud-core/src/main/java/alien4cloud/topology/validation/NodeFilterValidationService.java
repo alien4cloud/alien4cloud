@@ -34,10 +34,10 @@ import alien4cloud.topology.task.NodeFilterToSatisfy;
 import alien4cloud.topology.task.NodeFilterToSatisfy.Violations;
 import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.TaskCode;
-import alien4cloud.tosca.normative.IPropertyType;
-import alien4cloud.tosca.normative.ToscaType;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.normative.types.IPropertyType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 
 /**
  * Performs validation of node filters for all relationship of topology.
@@ -169,7 +169,7 @@ public class NodeFilterValidationService {
                 }
 
                 // the constraint need to be initiazed with the type of the property (to check that actual value type matches the definition type).
-                IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinitionMap.get(propertyEntry.getKey()).getType());
+                IPropertyType<?> toscaType = ToscaTypes.fromYamlTypeName(propertyDefinitionMap.get(propertyEntry.getKey()).getType());
                 try {
                     constraint.initialize(toscaType);
                     constraint.validate(toscaType, propertyValue);

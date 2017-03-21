@@ -2,7 +2,8 @@ package alien4cloud.tosca;
 
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.tosca.normative.NormativeComputeConstants;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

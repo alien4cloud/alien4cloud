@@ -6,9 +6,9 @@ import javax.validation.ConstraintValidatorContext;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
-import alien4cloud.tosca.normative.IPropertyType;
-import alien4cloud.tosca.normative.InvalidPropertyValueException;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.types.IPropertyType;
+import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 
 public class ToscaPropertyDefaultValueTypeValidator implements ConstraintValidator<ToscaPropertyDefaultValueType, PropertyDefinition> {
 
@@ -27,7 +27,7 @@ public class ToscaPropertyDefaultValueTypeValidator implements ConstraintValidat
             // No constraint can be made on other thing than scalar values
             return false;
         }
-        IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(value.getType());
+        IPropertyType<?> toscaType = ToscaTypes.fromYamlTypeName(value.getType());
 
         if (toscaType == null) {
             return false;

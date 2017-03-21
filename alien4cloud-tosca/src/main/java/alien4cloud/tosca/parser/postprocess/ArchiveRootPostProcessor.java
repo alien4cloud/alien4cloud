@@ -25,7 +25,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.normative.NormativeCredentialConstant;
+import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;

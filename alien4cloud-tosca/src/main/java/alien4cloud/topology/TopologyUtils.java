@@ -25,8 +25,8 @@ import org.yaml.snakeyaml.nodes.Node;
 import com.google.common.collect.Maps;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.tosca.ToscaNormativeUtil;
-import alien4cloud.tosca.normative.NormativeComputeConstants;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;

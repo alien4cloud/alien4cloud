@@ -1,7 +1,7 @@
 package alien4cloud.tosca.parser;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.tosca.normative.NormativeTypesConstant;
+import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.ArtifactType;

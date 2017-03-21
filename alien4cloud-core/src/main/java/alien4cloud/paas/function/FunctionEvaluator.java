@@ -31,9 +31,9 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.ToscaNormativeUtil;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
@@ -335,7 +335,7 @@ public final class FunctionEvaluator {
                 AbstractPropertyValue rawValue;
                 if (propertyDefinition == null) {
                     return null;
-                } else if (ToscaType.isSimple(propertyDefinition.getType())) {
+                } else if (ToscaTypes.isSimple(propertyDefinition.getType())) {
                     // It's a complex path (with '.') but the type in definition is finally simple
                     return null;
                 } else if (properties != null && (rawValue = properties.get(propertyName)) != null) {

@@ -10,7 +10,7 @@ import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.normative.ToscaNormativeImports;
+import org.alien4cloud.tosca.normative.ToscaNormativeImports;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;

@@ -1,9 +1,9 @@
 package org.alien4cloud.tosca.model.definitions.constraints;
 
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
-import alien4cloud.tosca.normative.IPropertyType;
-import alien4cloud.tosca.normative.InvalidPropertyValueException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.normative.types.IPropertyType;
+import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 
 public abstract class AbstractPropertyConstraint implements PropertyConstraint {
 

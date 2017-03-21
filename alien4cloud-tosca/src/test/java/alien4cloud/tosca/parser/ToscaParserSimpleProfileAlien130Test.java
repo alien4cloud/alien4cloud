@@ -13,17 +13,13 @@ import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.normative.NormativeCredentialConstant;
-import alien4cloud.tosca.normative.NormativeTypesConstant;
+import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
+import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
 public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSimpleProfileTest {

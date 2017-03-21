@@ -2,11 +2,10 @@ package alien4cloud.tosca.topology;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
 import alien4cloud.utils.services.ConstraintPropertyService;
 import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.types.CapabilityType;

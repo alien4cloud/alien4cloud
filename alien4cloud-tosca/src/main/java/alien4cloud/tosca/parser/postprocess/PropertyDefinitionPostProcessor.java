@@ -3,26 +3,24 @@ package alien4cloud.tosca.parser.postprocess;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.normative.types.IPropertyType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import com.google.common.collect.Sets;
 
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.normative.IPropertyType;
-import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 /**
@@ -32,9 +30,6 @@ import alien4cloud.utils.services.ConstraintPropertyService;
  */
 @Component
 public class PropertyDefinitionPostProcessor implements IPostProcessor<Map.Entry<String, PropertyDefinition>> {
-    @Resource
-    private ConstraintPropertyService constraintPropertyService;
-
     @Override
     public void process(Map.Entry<String, PropertyDefinition> instance) {
         PropertyDefinition propertyDefinition = instance.getValue();
@@ -58,7 +53,7 @@ public class PropertyDefinitionPostProcessor implements IPostProcessor<Map.Entry
 
     private void checkDefaultValue(String propertyName, PropertyDefinition propertyDefinition) {
         try {
-            constraintPropertyService.checkPropertyConstraint(propertyName, propertyDefinition.getDefault().getValue(), propertyDefinition);
+            ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyDefinition.getDefault().getValue(), propertyDefinition);
         } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
             Node node = ParsingContextExecution.getObjectToNodeMap().get(propertyDefinition.getDefault());
             StringBuilder problem = new StringBuilder("Validation issue ");
@@ -77,8 +72,8 @@ public class PropertyDefinitionPostProcessor implements IPostProcessor<Map.Entry
             Node node = ParsingContextExecution.getObjectToNodeMap().get(propertyType);
             ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyType", node.getStartMark(),
                     "Property type must be defined", node.getEndMark(), "type"));
-        } else if (!ToscaType.isSimple(propertyType)) {
-            if (ToscaType.LIST.equals(propertyType) || ToscaType.MAP.equals(propertyType)) {
+        } else if (!ToscaTypes.isSimple(propertyType)) {
+            if (ToscaTypes.LIST.equals(propertyType) || ToscaTypes.MAP.equals(propertyType)) {
                 PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
                 if (entrySchema == null) {
                     Node node = ParsingContextExecution.getObjectToNodeMap().get(propertyDefinition);
@@ -103,7 +98,7 @@ public class PropertyDefinitionPostProcessor implements IPostProcessor<Map.Entry
     }
 
     private void validate(PropertyDefinition propertyDefinition, PropertyConstraint constraint) {
-        IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
+        IPropertyType<?> toscaType = ToscaTypes.fromYamlTypeName(propertyDefinition.getType());
         if (toscaType == null) {
             Node node = ParsingContextExecution.getObjectToNodeMap().get(propertyDefinition.getType());
             ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.INVALID_CONSTRAINT, "Constraint parsing issue",

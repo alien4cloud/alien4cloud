@@ -34,7 +34,7 @@ import alien4cloud.topology.task.ScalableTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.normative.NormativeComputeConstants;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import alien4cloud.utils.PropertyUtil;
 import lombok.extern.slf4j.Slf4j;
 
