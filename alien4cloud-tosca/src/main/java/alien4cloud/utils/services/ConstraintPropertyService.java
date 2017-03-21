@@ -99,11 +99,11 @@ public final class ConstraintPropertyService {
             }
         } else if (value instanceof List) {
             // Range type is a specific primitive type that is actually wrapped
-            if (ToscaTypes.RANGE.equals(propertyDefinition.getType())) {
-                checkRangePropertyConstraint(propertyName, (List<Object>) value, propertyDefinition);
-            } else {
-                checkListPropertyConstraint(propertyName, (List<Object>) value, propertyDefinition, missingPropertyConsumer);
-            }
+            // if (ToscaTypes.RANGE.equals(propertyDefinition.getType())) {
+            // checkRangePropertyConstraint(propertyName, (List<Object>) value, propertyDefinition);
+            // } else {
+            checkListPropertyConstraint(propertyName, (List<Object>) value, propertyDefinition, missingPropertyConsumer);
+            // }
         } else {
             throw new InvalidArgumentException(
                     "Not expecting to receive constraint validation for other types than String, Map or List as " + value.getClass().getName());
@@ -145,27 +145,27 @@ public final class ConstraintPropertyService {
         }
     }
 
-    private static void checkRangePropertyConstraint(final String propertyName, final List<Object> rangeValue, final PropertyDefinition propertyDefinition)
-            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
-        if (rangeValue.size() == 2) {
-            try {
-                Long.parseLong((String) rangeValue.get(0));
-                Long.parseLong((String) rangeValue.get(1));
-            } catch (ClassCastException | NumberFormatException e) {
-                rangeTypeError(propertyName, rangeValue);
-            }
-            String rangeAsString = String.format("[%s,%s]", rangeValue.get(0), rangeValue.get(1));
-            checkSimplePropertyConstraint(propertyName, rangeAsString, propertyDefinition);
-        } else {
-            rangeTypeError(propertyName, rangeValue);
-        }
-    }
+    // private static void checkRangePropertyConstraint(final String propertyName, final List<Object> rangeValue, final PropertyDefinition propertyDefinition)
+    // throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+    // if (rangeValue.size() == 2) {
+    // try {
+    // Long.parseLong((String) rangeValue.get(0));
+    // Long.parseLong((String) rangeValue.get(1));
+    // } catch (ClassCastException | NumberFormatException e) {
+    // rangeTypeError(propertyName, rangeValue);
+    // }
+    // String rangeAsString = String.format("[%s,%s]", rangeValue.get(0), rangeValue.get(1));
+    // checkSimplePropertyConstraint(propertyName, rangeAsString, propertyDefinition);
+    // } else {
+    // rangeTypeError(propertyName, rangeValue);
+    // }
+    // }
 
-    private static void rangeTypeError(final String propertyName, final List<Object> rangeValue) throws ConstraintValueDoNotMatchPropertyTypeException {
-        log.debug("The property value for property {} is not of type {}: {}", propertyName, ToscaTypes.RANGE, rangeValue);
-        ConstraintInformation consInformation = new ConstraintInformation(propertyName, null, rangeValue.toString(), ToscaTypes.RANGE);
-        throw new ConstraintValueDoNotMatchPropertyTypeException("Range type must define numeric min and max values of the range.", null, consInformation);
-    }
+    // private static void rangeTypeError(final String propertyName, final List<Object> rangeValue) throws ConstraintValueDoNotMatchPropertyTypeException {
+    // log.debug("The property value for property {} is not of type {}: {}", propertyName, ToscaTypes.RANGE, rangeValue);
+    // ConstraintInformation consInformation = new ConstraintInformation(propertyName, null, rangeValue.toString(), ToscaTypes.RANGE);
+    // throw new ConstraintValueDoNotMatchPropertyTypeException("Range type must define numeric min and max values of the range.", null, consInformation);
+    // }
 
     /**
      * Check constraints defined on a property which has a type derived from a primitive.
