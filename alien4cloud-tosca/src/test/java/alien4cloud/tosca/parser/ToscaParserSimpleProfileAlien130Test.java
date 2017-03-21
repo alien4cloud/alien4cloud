@@ -274,4 +274,36 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
     private DeploymentArtifact getDeploymentArtifact(AbstractInstantiableToscaType component, String artifactName) {
         return component.getArtifacts().get(artifactName);
     }
+
+    @Test
+    public void testRangeType() throws ParsingException {
+        ParserTestUtil.mockNormativeTypes(csarRepositorySearchService);
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "range_type.yml"));
+        List<ParsingError> errors = parsingResult.getContext().getParsingErrors();
+        Assert.assertEquals(0, errors.size());
+    }
+
+    @Test
+    public void testRangeTypeConstraint() throws ParsingException {
+        ParserTestUtil.mockNormativeTypes(csarRepositorySearchService);
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "range_type_constraint.yml"));
+        List<ParsingError> errors = parsingResult.getContext().getParsingErrors();
+        Assert.assertEquals(0, errors.size());
+    }
+
+    @Test
+    public void testRangeTypeConstraintFailMin() throws ParsingException {
+        ParserTestUtil.mockNormativeTypes(csarRepositorySearchService);
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "range_type_constraint_fail_min.yml"));
+        List<ParsingError> errors = parsingResult.getContext().getParsingErrors();
+        Assert.assertEquals(0, errors.size());
+    }
+
+    @Test
+    public void testRangeTypeConstraintFailMax() throws ParsingException {
+        ParserTestUtil.mockNormativeTypes(csarRepositorySearchService);
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "range_type_constraint_fail_max.yml"));
+        List<ParsingError> errors = parsingResult.getContext().getParsingErrors();
+        Assert.assertEquals(0, errors.size());
+    }
 }
