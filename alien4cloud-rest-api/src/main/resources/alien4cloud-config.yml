@@ -144,7 +144,3 @@ ha:
 
 logs_deployment_appender:
   enable: false
-  # directory in which alien4cloud stores logs archives
-  directory: deployments-logs
-  # pattern used to save the logs, see org.apache.log4j.PatternLayout for more information
-  pattern_layout: "%r [%t] %p %c %x - %m%n"

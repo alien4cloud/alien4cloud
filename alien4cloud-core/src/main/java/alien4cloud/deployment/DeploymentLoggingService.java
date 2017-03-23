@@ -2,7 +2,8 @@ package alien4cloud.deployment;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,32 +23,11 @@ public class DeploymentLoggingService {
     @Value("${logs_deployment_appender.enable}")
     private boolean isEnable;
 
-    @Value("${directories.alien}/${logs_deployment_appender.directory}")
-    private String logsRepository;
-
-    @Value("${logs_deployment_appender.pattern_layout}")
-    private String patternLayout;
-
-    private Appender createAppenderForAnDeployment(String deploymentPaasId) {
-        DailyRollingFileAppender appender = new DailyRollingFileAppender();
-        appender.setName(deploymentPaasId);
-        appender.setFile(logsRepository + "/" + deploymentPaasId + ".log");
-        appender.setLayout(new PatternLayout(patternLayout));
-        appender.activateOptions();
-        return appender;
-    }
-
     public synchronized void save(final PaaSDeploymentLog deploymentLog) {
         try {
-            if (isEnable && deploymentLog.getDeploymentPaaSId() != null) {
-                Logger currentLogger = Logger.getLogger(deploymentLog.getDeploymentPaaSId());
-                if (currentLogger.getLevel() == null) {
-                    currentLogger.setLevel(Level.INFO);
-                }
-                if (currentLogger.getAppender(deploymentLog.getDeploymentPaaSId()) == null) {
-                    currentLogger.addAppender(createAppenderForAnDeployment(deploymentLog.getDeploymentPaaSId()));
-                }
-                currentLogger.info(deploymentLog.toString());
+            if (isEnable) {
+                Logger currentLogger = LogManager.getLogger("DEPLOYMENT_LOGS_LOGGER");
+                currentLogger.info(deploymentLog.toCompactString());
             }
         } finally {
             alienMonitorDao.save(deploymentLog);
