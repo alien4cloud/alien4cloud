@@ -70,6 +70,9 @@ public class PropertyDefinitionPostProcessor implements IPostProcessor<Map.Entry
         String propertyType = propertyDefinition.getType();
         if (propertyType == null) {
             Node node = ParsingContextExecution.getObjectToNodeMap().get(propertyType);
+            if (node == null) {
+                node = ParsingContextExecution.getObjectToNodeMap().get(propertyDefinition);
+            }
             ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyType", node.getStartMark(),
                     "Property type must be defined", node.getEndMark(), "type"));
         } else if (!ToscaTypes.isSimple(propertyType)) {

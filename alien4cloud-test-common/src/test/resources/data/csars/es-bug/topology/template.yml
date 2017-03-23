@@ -1,13 +1,15 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: es_bug_template
+  template_version: 1.1.0-SNAPSHOT
+  template_author: FastConnect
+
 description: Test es schema free bug.
-template_name: es_bug_template
-template_version: 1.1.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
-  - "tosca-normative-types:1.0.0-SNAPSHOT"
-  - "es_bug_types:1.1.0-SNAPSHOT"
-
+  - tosca-normative-types:1.0.0-SNAPSHOT
+  - es_bug_types:1.1.0-SNAPSHOT
 
 topology_template:
 

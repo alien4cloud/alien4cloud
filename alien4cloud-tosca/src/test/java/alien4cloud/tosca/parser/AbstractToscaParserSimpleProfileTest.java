@@ -168,13 +168,6 @@ public abstract class AbstractToscaParserSimpleProfileTest {
         Assert.assertEquals("other", rd1.getId());
         Assert.assertEquals(0, rd1.getLowerBound());
         Assert.assertEquals(Integer.MAX_VALUE, rd1.getUpperBound());
-
-        // validate attributes parsing
-
-        // nodeType.getAttributes()
-        // nodeType.getInterfaces()
-        // nodeType.getCapabilities()
-        // nodeType.get
     }
 
     public static int countErrorByLevelAndCode(ParsingResult<?> parsingResult, ParsingErrorLevel errorLevel, ErrorCode errorCode) {

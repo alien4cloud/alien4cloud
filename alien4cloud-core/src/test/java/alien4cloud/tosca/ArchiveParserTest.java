@@ -32,7 +32,7 @@ public class ArchiveParserTest {
     private ArchiveParser archiveParser;
 
     @Test
-    public void parseNormativeTypesWd03() throws ParsingException, IOException {
+    public void parseNormativeTypes() throws ParsingException, IOException {
         String localName = "tosca-normative-types";
         repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "master", localName);
 
@@ -41,7 +41,6 @@ public class ArchiveParserTest {
         // Update zip
         FileUtil.zip(normativeTypesPath, normativeTypesZipPath);
 
-        // Path normativeTypesZipPath = Paths.get("../target/it-artifacts/zipped/apache-lb-types-0.1.csar");
         ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(normativeTypesZipPath, AlienConstants.GLOBAL_WORKSPACE_ID);
 
         ParserTestUtil.displayErrors(parsingResult);

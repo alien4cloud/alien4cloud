@@ -1,0 +1,49 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+tosca_default_namespace: Tosca default namespace value
+template_name: Template name value
+template_author: Temlate author value
+template_version: 1.0.0-SNAPSHOT
+
+description: A single topology with only one compute node and 2 bad get_input references
+
+node_types:
+  tosca.nodes.Compute:
+    properties:
+      os_type:
+        type: string
+        constraints:
+          - valid_values: ["linux", "aix", "mac os", "windows"]
+        description: The host Operating System (OS) type.
+      os_distribution:
+        type: string
+        required: false
+        description: The host Operating System (OS) distribution.
+      os_version:
+        type: string
+        required: false
+        description: The host Operating System version.
+      size:
+        type: scalar-unit.size
+      size_good:
+        type: scalar-unit.size
+
+topology_template:
+  inputs:
+    linux_type:
+      type: string
+      default: linux
+    size:
+      type: scalar-unit.size
+      required: true
+      default: 30 GiB
+  node_templates:
+    compute:
+      type: tosca.nodes.Compute
+      properties:
+        # incorrect get_input for os_type and size
+        os_type: { get_input: linux_type }
+        os_distribution: { get_input: toto }
+        os_version: 14.10
+        size: { get_input: greatsize }
+        size_good: { get_input: size }

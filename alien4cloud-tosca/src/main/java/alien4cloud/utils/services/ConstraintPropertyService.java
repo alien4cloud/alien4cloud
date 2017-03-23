@@ -154,7 +154,7 @@ public final class ConstraintPropertyService {
             } catch (ClassCastException | NumberFormatException e) {
                 rangeTypeError(propertyName, rangeValue);
             }
-            String rangeAsString = String.format("[%s,%s]", rangeValue.get(0), rangeValue.get(1));
+            String rangeAsString = String.format("%s,%s", rangeValue.get(0), rangeValue.get(1));
             checkSimplePropertyConstraint(propertyName, rangeAsString, propertyDefinition);
         } else {
             rangeTypeError(propertyName, rangeValue);

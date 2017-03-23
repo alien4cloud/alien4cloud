@@ -1,0 +1,56 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: test-wf-name
+template_author: Alien4cloud
+template_version: 1.0.0-SNAPSHOT
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+
+node_types:
+  alien.nodes.test.TestWorkflow:
+    derived_from: tosca.nodes.SoftwareComponent
+
+topology_template:
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+
+    TestWorkflow:
+      type: alien.nodes.test.TestWorkflow
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+  workflows:
+    validName:
+      steps:
+        configure_TestWorkflow:
+          node: TestWorkflow
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+    valid_Name:
+      steps:
+        configure_TestWorkflow:
+          node: TestWorkflow
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+    invalidName*:
+      steps:
+        configure_TestWorkflow:
+          node: TestWorkflow
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+    invalid_Namé:
+      steps:
+        configure_TestWorkflow:
+          node: TestWorkflow
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+    invalid$Name:
+      steps:
+        configure_TestWorkflow:
+          node: TestWorkflow
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure

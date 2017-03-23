@@ -22,7 +22,7 @@ public class MatchingConfigurationsParserTest {
     public void testParsing() throws FileNotFoundException, ParsingException {
         MatchingConfigurations configurations = parser.parseFile(Paths.get("src/test/resources/matching/mock-resources-matching-config.yml")).getResult();
         Assert.assertEquals(1, configurations.getMatchingConfigurations().size());
-        MatchingConfiguration computeConf = configurations.getMatchingConfigurations().get("alien.nodes.mock.Compute");
+        MatchingConfiguration computeConf = configurations.getMatchingConfigurations().get("org.alien4cloud.nodes.mock.Compute");
         Assert.assertNotNull(computeConf);
         Assert.assertEquals(0, computeConf.getProperties().size());
         Assert.assertEquals(2, computeConf.getCapabilities().size());

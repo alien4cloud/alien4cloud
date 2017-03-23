@@ -1,0 +1,55 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+tosca_default_namespace: Tosca default namespace value
+template_name: Template name value
+template_author: Temlate author value
+template_version: 1.0.0-SNAPSHOT
+
+description: This is an example of a single line description (no folding).
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT-wd03
+
+dsl_definitions:
+  # list of YAML alias anchors (or macros)
+
+topology_template:
+  inputs:
+    # list of global input parameters
+
+  node_templates:
+    # list of node templates
+
+  groups:
+    # list of groups defined in service template
+
+  outputs:
+    # list of output parameters
+
+node_types:
+  alien.test.TestComputeConcat:
+    derived_from: tosca.nodes.Compute
+    properties:
+      customHostName:
+        type: string
+      serviceEndPoint:
+        type: string
+    attributes:
+      simple_definition:
+        type: integer
+      ip_address:
+        type: string
+        description: >
+          The primary IP address assigned by the cloud provider that applications may use to access the Compute node.
+          Note: This is used by the platform provider to convey the primary address used to access the compute node.  Future working drafts will address implementations that support floating or multiple IP addresses.
+      simple_concat: { concat: [http, get_property: [SELF, serviceEndPoint], port] }
+      complex_concat: { concat: [ concat : [get_property: [SELF, serviceEndPoint], test], get_property: [SELF, serviceEndPoint], port] }
+
+capability_types:
+  # list of capability type definitions
+
+relationship_types:
+  # list of relationship type definitions
+
+artifact_types:
+  # list of artifact type definitions

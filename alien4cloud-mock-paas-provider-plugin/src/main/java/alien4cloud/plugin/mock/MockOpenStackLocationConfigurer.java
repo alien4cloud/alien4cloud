@@ -83,8 +83,8 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
 
     @Override
     public List<String> getResourcesTypes() {
-        return Lists.newArrayList("alien.nodes.mock.openstack.Image", "alien.nodes.mock.openstack.Flavor", "alien.nodes.mock.Compute",
-                "alien.nodes.mock.BlockStorage", "alien.nodes.mock.Network");
+        return Lists.newArrayList("org.alien4cloud.nodes.mock.openstack.Image", "org.alien4cloud.nodes.mock.openstack.Flavor", "org.alien4cloud.nodes.mock.Compute",
+                "org.alien4cloud.nodes.mock.BlockStorage", "org.alien4cloud.nodes.mock.Network");
     }
 
     @Override
@@ -101,8 +101,8 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
 
     @Override
     public List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor) {
-        ImageFlavorContext imageContext = resourceGeneratorService.buildContext("alien.nodes.mock.openstack.Image", "id", resourceAccessor);
-        ImageFlavorContext flavorContext = resourceGeneratorService.buildContext("alien.nodes.mock.openstack.Flavor", "id", resourceAccessor);
+        ImageFlavorContext imageContext = resourceGeneratorService.buildContext("org.alien4cloud.nodes.mock.openstack.Image", "id", resourceAccessor);
+        ImageFlavorContext flavorContext = resourceGeneratorService.buildContext("org.alien4cloud.nodes.mock.openstack.Flavor", "id", resourceAccessor);
         boolean canProceed = true;
         if (CollectionUtils.isEmpty(imageContext.getTemplates())) {
             log.warn("At least one configured image resource is required for the auto-configuration");
@@ -116,7 +116,7 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
             log.warn("Skipping auto configuration");
             return null;
         }
-        ComputeContext computeContext = resourceGeneratorService.buildComputeContext("alien.nodes.mock.Compute", null, IMAGE_ID_PROP, FLAVOR_ID_PROP,
+        ComputeContext computeContext = resourceGeneratorService.buildComputeContext("org.alien4cloud.nodes.mock.Compute", null, IMAGE_ID_PROP, FLAVOR_ID_PROP,
                 resourceAccessor);
 
         return resourceGeneratorService.generateComputeFromImageAndFlavor(imageContext, flavorContext, computeContext, resourceAccessor);

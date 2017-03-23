@@ -1,29 +1,36 @@
-tosca_definitions_version: alien_dsl_1_2_0
+tosca_definitions_version: alien_dsl_1_3_0
 
-template_name: test-topo-recovery-types
-template_author: alien
-template_version: 0.1-SNAPSHOT
-description: Contains the normative types definition.
+metadata:
+  template_name: test-topo-recovery-types
+  template_author: alien
+  template_version: 0.1-SNAPSHOT
+
+description: Test types for topology recovery.
 
 imports:
-  - "tosca-normative-types:1.0.0-SNAPSHOT"
+  - tosca-normative-types:1.0.0-SNAPSHOT
 
 node_types:
   alien.test.nodes.TestComponentSource:
     derived_from: tosca.nodes.SoftwareComponent
     requirements:
-      - connect: alien.test.capabilities.TestComponentConnects
-        occurrences: [1, 1]
-      - capa_upperbound_test: alien.test.capabilities.CapaUpperBoundTest
-        type: alien.test.relationships.CapaUpperBoundTest
-        occurrences: [1, 2]
-      - req_upperbound_test: alien.test.capabilities.ReqUpperBoundTest
-        type: alien.test.relationships.ReqUpperBoundTest
-        occurrences: [1, 2]
-      - capa_to_be_deleted: alien.test.capabilities.CapaToBeDeleted
-        type: alien.test.relationships.CapaToBeDeleted
-      - req_to_be_deleted: alien.test.capabilities.ReqToBeDeleted
-        type: alien.test.relationships.ReqToBeDeleted
+      - connect:
+          capability: alien.test.capabilities.TestComponentConnects
+          occurrences: [1, 1]
+      - capa_upperbound_test:
+          capability: alien.test.capabilities.CapaUpperBoundTest
+          relationship: alien.test.relationships.CapaUpperBoundTest
+          occurrences: [1, 2]
+      - req_upperbound_test:
+          capability: alien.test.capabilities.ReqUpperBoundTest
+          relationship: alien.test.relationships.ReqUpperBoundTest
+          occurrences: [1, 2]
+      - capa_to_be_deleted:
+          capability: alien.test.capabilities.CapaToBeDeleted
+          relationship: alien.test.relationships.CapaToBeDeleted
+      - req_to_be_deleted:
+          capability: alien.test.capabilities.ReqToBeDeleted
+          relationship: alien.test.relationships.ReqToBeDeleted
 
   alien.test.nodes.TestComponent:
     derived_from: tosca.nodes.SoftwareComponent
