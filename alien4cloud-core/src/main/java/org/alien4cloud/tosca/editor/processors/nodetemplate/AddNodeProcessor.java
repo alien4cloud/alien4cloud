@@ -18,6 +18,7 @@ import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.NameValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +32,8 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
     private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
     private TopologyService topologyService;
+    @Inject
+    private TopologyServiceCore topologyServiceCore;
     @Inject
     private TopologyCompositionService topologyCompositionService;
     @Inject
@@ -65,7 +68,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
 
         log.debug("Create node template <{}>", operation.getNodeName());
         indexedNodeType = topologyService.loadType(topology, indexedNodeType);
-        NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(topology.getDependencies(), indexedNodeType, null);
+        NodeTemplate nodeTemplate = topologyServiceCore.buildNodeTemplate(topology.getDependencies(), indexedNodeType, null);
         nodeTemplate.setName(operation.getNodeName());
         topology.getNodeTemplates().put(operation.getNodeName(), nodeTemplate);
 

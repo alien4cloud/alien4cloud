@@ -10,7 +10,7 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN12
 
 node_types:
-  alien.nodes.mock.openstack.Image:
+  org.alien4cloud.nodes.mock.openstack.Image:
     abstract: true
     derived_from: tosca.nodes.Root
     properties:
@@ -20,7 +20,7 @@ node_types:
       os:
         type: tosca.capabilities.OperatingSystem
 
-  alien.nodes.mock.openstack.Flavor:
+  org.alien4cloud.nodes.mock.openstack.Flavor:
     abstract: true
     derived_from: tosca.nodes.Root
     properties:

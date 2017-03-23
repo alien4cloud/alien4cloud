@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: apache-type
+  template_version: 1.1.0-SNAPSHOT
+  template_author: FastConnect
+
 description: TOSCA simple profile with Apache.
-template_name: apache-type
-template_version: 1.1.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
   - "tosca-base-types:1.0"
@@ -22,8 +25,8 @@ topology_template:
         port: 8080
         document_root: "/var/www"
       requirements:
-        # this requirement doesn't exists 
-        - hosted: 
+        # this requirement doesn't exists
+        - hosted:
             node: compute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
@@ -40,7 +43,7 @@ node_types:
       host:
         type: alien.capabilities.ApacheContainer
         properties:
-          valid_node_types: [ tosca.nodes.WebApplication ]
+          valid_node_types: tosca.nodes.WebApplication
     properties:
       version:
         type: version
@@ -77,5 +80,6 @@ capability_types:
 
 artifact_types:
   tosca.artifacts.GroovyScript:
+    derived_from: tosca.artifacts.Root
     description: A groovy script (.groovy file)
     file_ext: [groovy]

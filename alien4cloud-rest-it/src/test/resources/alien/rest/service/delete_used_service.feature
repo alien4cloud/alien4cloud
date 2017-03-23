@@ -13,14 +13,14 @@ Feature: Delete a service used in a deployment
 
     And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
 
-    And I create a resource of type "alien.nodes.mock.Compute" named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.Compute" named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "imageId" to "img1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "flavorId" to "1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
 
     And I successfully grant access to the resource type "LOCATION" named "Thark location" to the user "gandalf"
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the user "gandalf"
 
-    And I successfully create a service with name "MyStorage", version "1.0.0", type "alien.nodes.mock.BlockStorage", archive version "1.0"
+    And I successfully create a service with name "MyStorage", version "1.0.0", type "org.alien4cloud.nodes.mock.BlockStorage", archive version "1.0"
     And I register "data" as "serviceId"
     And I set the property "size" to "1 gib" for the service "MyStorage"
     And I successfully start the service "MyStorage"

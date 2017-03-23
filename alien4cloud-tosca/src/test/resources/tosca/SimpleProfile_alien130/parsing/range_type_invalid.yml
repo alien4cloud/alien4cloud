@@ -1,0 +1,14 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: a4c_test_dsl140_range_type
+template_author: alien4cloud
+template_version: 1.0.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.tests.nodes.RangeProperty:
+    derived_from: tosca.nodes.Root
+    properties:
+      range_property:
+        type: range
+        default: 14
+        required: false

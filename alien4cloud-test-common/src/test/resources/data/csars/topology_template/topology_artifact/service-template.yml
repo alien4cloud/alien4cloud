@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: topology_artifact
+  template_version: 1.0.0-SNAPSHOT
+  template_author: FastConnect
+
 description: TOSCA simple profile including a topology
-template_name: topology_artifact
-template_version: 1.0.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
   - "tosca-base-types:1.0"

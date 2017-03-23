@@ -93,7 +93,7 @@ public class NodeTemplateBuilder {
     }
 
     private static void fillCapabilitiesMap(Map<String, Capability> map, List<CapabilityDefinition> elements, Map<String, Capability> mapToMerge,
-                                            boolean adaptToType) {
+            boolean adaptToType) {
         if (elements == null) {
             return;
         }
@@ -102,7 +102,12 @@ public class NodeTemplateBuilder {
             Map<String, AbstractPropertyValue> capaProperties = null;
             CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capa.getType());
             if (capabilityType != null && capabilityType.getProperties() != null) {
+                // Inject all default values from the type.
                 capaProperties = PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(capabilityType.getProperties());
+                // Override them with values as defined in the actual Capability Definition of the node type.
+                if (capa.getProperties() != null) {
+                    capaProperties.putAll(capa.getProperties());
+                }
             }
             if (toAddCapa == null) {
                 toAddCapa = new Capability();
@@ -127,7 +132,7 @@ public class NodeTemplateBuilder {
     }
 
     private static void fillRequirementsMap(Map<String, Requirement> map, List<RequirementDefinition> elements, Map<String, Requirement> mapToMerge,
-                                            boolean adaptToType) {
+            boolean adaptToType) {
         if (elements == null) {
             return;
         }
@@ -169,7 +174,7 @@ public class NodeTemplateBuilder {
                 try {
                     ConstraintPropertyService.checkPropertyConstraint(entry.getKey(), originalValue, entry.getValue());
                     properties.put(entry.getKey(), originalValue);
-                } catch(ConstraintFunctionalException e) {
+                } catch (ConstraintFunctionalException e) {
                     log.debug("Not able to merge property <" + entry.getKey() + "> value due to a type check exception", e);
                 }
             }

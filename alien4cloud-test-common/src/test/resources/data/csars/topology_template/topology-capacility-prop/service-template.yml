@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: topology-capacility-prop
+  template_version: 1.1.0-SNAPSHOT
+  template_author: FastConnect
+
 description: TOSCA simple profile with Apache.
-template_name: topology-capacility-prop
-template_version: 1.1.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
   - "tosca-base-types:1.0"
@@ -16,12 +19,12 @@ topology_template:
     compute1:
       type: tosca.nodes.Compute
       capabilities:
-        compute: 
+        compute:
           properties:
             containee_types: something
     compute2:
       type: tosca.nodes.Compute
       capabilities:
-        compute: 
+        compute:
           properties:
             containee_types: { get_input: an_input }

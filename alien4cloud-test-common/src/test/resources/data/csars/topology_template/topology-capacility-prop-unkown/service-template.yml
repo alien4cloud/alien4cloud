@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: topology-capacility-prop-unkown
+  template_version: 1.1.0-SNAPSHOT
+  template_author: FastConnect
+
 description: TOSCA simple profile with Apache.
-template_name: topology-capacility-prop-unkown
-template_version: 1.1.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
   - "tosca-base-types:1.0"
@@ -13,7 +16,7 @@ topology_template:
     compute:
       type: tosca.nodes.Compute
       capabilities:
-        compute: 
+        compute:
           properties:
             # this capability property is not known
             stuff: something

@@ -1613,7 +1613,7 @@
   }, {
     "key" : "Compute",
     "value" : {
-      "type" : "alien.nodes.mock.Compute",
+      "type" : "org.alien4cloud.nodes.mock.Compute",
       "name" : "Compute",
       "properties" : {
         "imageId" : {

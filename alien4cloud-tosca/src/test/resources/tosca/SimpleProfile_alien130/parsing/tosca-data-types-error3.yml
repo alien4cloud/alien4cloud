@@ -1,0 +1,129 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: test-data-types
+template_author: TOSCA TC
+template_version: 1.0.0.wd03-SNAPSHOT
+
+description: Contains the normative types definition.
+
+node_types:
+  tosca.nodes.Root:
+    description: root type
+  alien.test.Command:
+    derived_from: tosca.nodes.Root
+    properties:
+      id:
+        type: integer
+        constraints:
+          - greater_than: 0
+      client:
+        type: alien.test.Client
+      client_family:
+        type: list
+        entry_schema:
+          type: alien.test.Client
+      tags:
+        type: map
+        entry_schema:
+          type: string
+
+data_types:
+  tosca.datatypes.Root:
+    description: root type
+  alien.test.Address:
+    derived_from: tosca.datatypes.Root
+    properties:
+      number:
+        type: integer
+        constraints:
+          - greater_than: 0
+      street:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+        constraints:
+          - valid_values: ["France", "Germany", "Italy"]
+
+  alien.test.Person:
+    derived_from: tosca.datatypes.Root
+    properties:
+      name:
+        type: string
+      address:
+        type: alien.test.Address
+        required: false
+      friends:
+        type: list
+        entry_schema:
+          type: alien.test.Person
+        required: false
+      emails:
+        type: list
+        entry_schema:
+          type: string
+          constraints:
+            - pattern: ".+@.+"
+        required: false
+      misc:
+        type: map
+        entry_schema:
+          type: string
+          constraints:
+            - min_length: 10
+        required: false
+      hierarchy:
+        type: map
+        entry_schema:
+          type: alien.test.Person
+        required: false
+
+  alien.test.Client:
+    derived_from: alien.test.Person
+    properties:
+      id:
+        type: integer
+        constraints:
+          - greater_than: 0
+
+topology_template:
+
+  node_templates:
+    command:
+      type: alien.test.Command
+      properties:
+        id: 5
+        client:
+          id: 1
+          name: alien
+          address:
+            number: 1
+            street: Peupliers
+            city: Issy Les Moulineaux
+            country: France
+          emails:
+            - hello@hi.com
+            - goodbye@hi.com
+          friends:
+            - name: big alien
+              address:
+                number: 2
+                street: Peupliers
+                city: Issy Les Moulineaux
+                country: France
+            - name: little alien
+              address:
+                number: 3
+                street: Peupliers
+                city: Issy Les Moulineaux
+                # not a valid country
+                country: Faransaoui
+          misc:
+            favorite_song: I like to move it move it
+            dog_name: Milou milou milou
+          hierarchy:
+            n_plug_one:
+              name: chief alien
+            n_plus_two:
+              name: chief predator

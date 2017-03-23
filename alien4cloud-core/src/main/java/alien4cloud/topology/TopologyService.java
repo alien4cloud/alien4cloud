@@ -271,18 +271,6 @@ public class TopologyService {
     }
 
     /**
-     * Build a node template
-     *
-     * @param dependencies the dependencies on which new node will be constructed
-     * @param indexedNodeType the type of the node
-     * @param templateToMerge the template that can be used to merge into the new node template
-     * @return new constructed node template
-     */
-    public NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, NodeType indexedNodeType, NodeTemplate templateToMerge) {
-        return topologyServiceCore.buildNodeTemplate(dependencies, indexedNodeType, templateToMerge);
-    }
-
-    /**
      * Load a type into the topology (add dependency for this new type, upgrade if necessary ...)
      *
      * @param topology the topology
@@ -307,9 +295,9 @@ public class TopologyService {
         } catch (NotFoundException e) {
             // Revert changes made to the Context then throw.
             ToscaContext.get().resetDependencies(topology.getDependencies());
-            throw new VersionConflictException("Adding the type ["+ element.getId() + "] from archive ["
-                    + element.getArchiveName() + ":" + element.getArchiveVersion() +"] changes the topology dependencies and induces missing types. " +
-                    "Try with another version instead. Not found : [" + e.getMessage() + "].", e);
+            throw new VersionConflictException("Adding the type [" + element.getId() + "] from archive [" + element.getArchiveName() + ":"
+                    + element.getArchiveVersion() + "] changes the topology dependencies and induces missing types. "
+                    + "Try with another version instead. Not found : [" + e.getMessage() + "].", e);
         }
         topology.setDependencies(typeLoader.getLoadedDependencies());
         return element;
@@ -368,8 +356,8 @@ public class TopologyService {
             // Revert changes made to the Context then throw.
             context.getToscaContext().resetDependencies(oldDependencies);
             context.getTopology().setDependencies(oldDependencies);
-            throw new VersionConflictException("Changing the dependency ["+ newDependency.getName() + "] to version ["
-                    + newDependency.getVersion() + "] induces missing types in the topology. Not found : [" + e.getMessage() + "].", e);
+            throw new VersionConflictException("Changing the dependency [" + newDependency.getName() + "] to version [" + newDependency.getVersion()
+                    + "] induces missing types in the topology. Not found : [" + e.getMessage() + "].", e);
         }
 
         // Perform the dependency update on the topology.
@@ -378,11 +366,13 @@ public class TopologyService {
 
     /**
      * Check for missing types in the Topology
+     * 
      * @param topology the topology
      * @throws NotFoundException if the Type is used in the topology and not found in its context.
      */
     private void checkForMissingTypes(Topology topology) {
-        /* TODO: Cache the result or do not use TopologyDTOBuilder
+        /*
+         * TODO: Cache the result or do not use TopologyDTOBuilder
          * because it is then called again at the end of the operation execution (EditorController.execute)
          */
         TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(topology);

@@ -7,9 +7,9 @@ Feature: get runtime topology
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"
     And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
-    And I create a resource of type "alien.nodes.mock.openstack.Flavor" named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.openstack.Flavor" named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "2" for the resource named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
-    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
     And There are these users in the system
@@ -76,7 +76,7 @@ Feature: get runtime topology
     When I ask the runtime topology of the application "ALIEN" on the location "Thark location" of "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
     And The RestResponse should contain a nodetemplate named "apacheLBGroovy" and type "fastconnect.nodes.apacheLBGroovy"
-    And The RestResponse should contain a nodetemplate named "Compute" and type "alien.nodes.mock.Compute"
+    And The RestResponse should contain a nodetemplate named "Compute" and type "org.alien4cloud.nodes.mock.Compute"
     When I try to retrieve the created topology
     Then I should receive a RestResponse with no error
     And The RestResponse should contain a nodetemplate named "Compute" and type "tosca.nodes.Compute"
