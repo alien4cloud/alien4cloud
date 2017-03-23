@@ -113,6 +113,7 @@ public class CsarGitService {
 
         return results;
     }
+
     private List<ParsingResult<Csar>> doImport(CsarGitRepository csarGitRepository, CsarGitCheckoutLocation csarGitCheckoutLocation) {
         Git git = null;
         try {
@@ -144,7 +145,10 @@ public class CsarGitService {
         // find all the archives under the given hierarchy and zip them to create archives
         Path archiveZipRoot = tempZipDirPath.resolve(csarGitRepository.getId());
         Path archiveGitRoot = tempDirPath.resolve(csarGitRepository.getId());
-        Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot, csarGitCheckoutLocation.getSubPath());
+        if (csarGitCheckoutLocation.getSubPath() != null && !csarGitCheckoutLocation.getSubPath().isEmpty()) {
+            archiveGitRoot = archiveGitRoot.resolve(csarGitCheckoutLocation.getSubPath());
+        }
+        Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot);
 
         List<ParsingResult<Csar>> parsingResult = Lists.newArrayList();
         try {
@@ -152,10 +156,10 @@ public class CsarGitService {
             List<CsarDependenciesBean> sorted = sort(csarDependenciesBeans);
             for (CsarDependenciesBean csarBean : sorted) {
                 if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(gitHash)
-                    && csarService.get(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
-                        // no commit since last import and the archive still exist in the repo, so do not import
-                        // TODO notify the user that the archive has already been imported
-                        continue;
+                        && csarService.get(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
+                    // no commit since last import and the archive still exist in the repo, so do not import
+                    // TODO notify the user that the archive has already been imported
+                    continue;
                 }
                 // FIXME Add possibility to choose an workspace
                 ParsingResult<Csar> result = uploadService.upload(csarBean.getPath(), CSARSource.GIT, AlienConstants.GLOBAL_WORKSPACE_ID);
