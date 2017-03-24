@@ -29,7 +29,6 @@ import springfox.documentation.annotations.ApiIgnore;
 public class PropertiesController {
     @ApiIgnore
     @RequestMapping(value = "/check", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'APPLICATIONS_MANAGER')")
     public RestResponse<ConstraintInformation> checkPropertyDefinition(@RequestBody PropertyValidationRequest propertyValidationRequest) {
         if (propertyValidationRequest.getPropertyDefinition() != null) {
             try {
