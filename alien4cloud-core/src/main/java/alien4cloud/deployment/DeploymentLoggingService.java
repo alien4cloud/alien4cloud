@@ -23,20 +23,27 @@ public class DeploymentLoggingService {
     @Value("${logs_deployment_appender.enable}")
     private boolean isEnable;
 
+    private final Logger deployments_logger = LogManager.getLogger("DEPLOYMENT_LOGS_LOGGER");
+
     public synchronized void save(final PaaSDeploymentLog deploymentLog) {
         try {
             if (isEnable) {
-                Logger currentLogger = LogManager.getLogger("DEPLOYMENT_LOGS_LOGGER");
-                currentLogger.info(deploymentLog.toCompactString());
+                deployments_logger.info(deploymentLog.toCompactString());
             }
         } finally {
             alienMonitorDao.save(deploymentLog);
         }
     }
 
-    public void save(final PaaSDeploymentLog[] deploymentLogs) {
-        for (PaaSDeploymentLog log : deploymentLogs) {
-            save(log);
+    public synchronized void save(final PaaSDeploymentLog[] deploymentLogs) {
+        try {
+            if (isEnable) {
+                for (PaaSDeploymentLog log : deploymentLogs) {
+                    deployments_logger.info(log.toCompactString());
+                }
+            }
+        } finally {
+            alienMonitorDao.save(deploymentLogs);
         }
     }
 
