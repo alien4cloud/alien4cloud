@@ -259,6 +259,13 @@
           "GROUP" : "Groupe",
           "LABEL" : "HA politique est invalide"
         },
+        "ILLEGAL_OPERATIONS": {
+          "OPERATION": "Opération",
+          "SERVICE": "Service",
+          "RELATIONSHIP_TYPE": "Type de relation",
+          "LABEL": "Opérations ignorées",
+          "LABEL_DETAILS": "Certaines opérations d'une relation impliquant un service ne sont pas autorisées. Un client ne peut pas modifier directement la configuration d'un service et vice et versa."
+        },
         "LABEL" : "Alertes",
         "PROPERTIES" : {
           "LABEL" : "Propriétés de noeuds"

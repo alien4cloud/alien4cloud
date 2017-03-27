@@ -251,6 +251,13 @@
           "GROUP" : "グループ",
           "LABEL" : "無効なHAポリシー"
         },
+        "ILLEGAL_OPERATIONS": {
+          "OPERATION": "Operation",
+          "SERVICE": "Service",
+          "LABEL": "Ignored operations",
+          "RELATIONSHIP_TYPE": "Relationship type",
+          "LABEL_DETAILS": "Not all relationship operations are allowed when involving a service. Client cannot modify a service configuration on its own and vice and versa."
+        },
         "LABEL" : "警告",
         "PROPERTIES" : {
           "LABEL" : "ノードプロパティ"

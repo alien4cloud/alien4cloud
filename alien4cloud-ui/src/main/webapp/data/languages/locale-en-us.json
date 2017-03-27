@@ -259,6 +259,13 @@
           "GROUP": "Group",
           "LABEL": "Invalid HA policy"
         },
+        "ILLEGAL_OPERATIONS": {
+          "OPERATION": "Operation",
+          "SERVICE": "Service",
+          "LABEL": "Ignored operations",
+          "RELATIONSHIP_TYPE": "Relationship type",
+          "LABEL_DETAILS": "Not all relationship operations are allowed when involving a service. Client cannot modify a service configuration on its own and vice and versa."
+        },
         "LABEL": "Warnings",
         "PROPERTIES": {
           "LABEL": "Nodes properties"

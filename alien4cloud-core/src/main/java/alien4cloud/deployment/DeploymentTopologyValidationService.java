@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.topology.task.*;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.apache.commons.collections4.CollectionUtils;
@@ -24,13 +25,7 @@ import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.TopologyValidationService;
-import alien4cloud.topology.task.PropertiesTask;
-import alien4cloud.topology.task.TaskCode;
-import alien4cloud.topology.task.TaskLevel;
-import alien4cloud.topology.validation.LocationPolicyValidationService;
-import alien4cloud.topology.validation.NodeFilterValidationService;
-import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
-import alien4cloud.topology.validation.TopologyPropertiesValidationService;
+import alien4cloud.topology.validation.*;
 import alien4cloud.tosca.context.ToscaContextual;
 
 /**
@@ -60,7 +55,8 @@ public class DeploymentTopologyValidationService {
     private ApplicationEnvironmentService environmentService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
-
+    @Inject
+    private TopologyServiceInterfaceOverrideCheckerService topologyServiceInterfaceOverrideCheckerService;
     /**
      * Perform validation of a deployment topology.
      *
@@ -94,6 +90,8 @@ public class DeploymentTopologyValidationService {
         // If a policy is not matched on the location this is a warning as we allow deployment but some features may be missing
         // If a policy requires a configuration or cannot be applied du to any reason the policy implementation itself can trigger some errors (see Orchestrator
         // plugins)
+
+        dto.addWarnings(topologyServiceInterfaceOverrideCheckerService.findWarnings(deploymentTopology));
 
         // validate workflows
         dto.addTasks(workflowBuilderService.validateWorkflows(deploymentTopology));
