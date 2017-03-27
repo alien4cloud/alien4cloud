@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
-    <Properties>
-        <Property name="deployment_path">deployment_logs</Property>
-    </Properties>
     <Appenders>
         <Console name="STDOUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
@@ -10,25 +7,13 @@
         <File name="FILE" fileName="alien4cloud.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
         </File>
-        <RollingFile name="DEPLOYMENT_LOGS_APPENDER" fileName="${deployment_path}/deployments.log"
-                     filePattern="${deployment_path}/deployments-%d{yyyy-MM-dd}.log.gz">
-            <PatternLayout pattern="%d{HH:mm:ss}{GMT+0} %m%n" />
-            <TimeBasedTriggeringPolicy />
-            <DefaultRolloverStrategy>
-                <Delete basePath="${deployment_path}" maxDepth="2">
-                    <IfFileName glob="deployments-*.log.gz" />
-                    <IfLastModified age="30d" />
-                </Delete>
-            </DefaultRolloverStrategy>
-        </RollingFile>
     </Appenders>
     <Loggers>
         <root level="info">
             <AppenderRef ref="STDOUT" />
             <AppenderRef ref="FILE" />
         </root>
-        <logger name="DEPLOYMENT_LOGS_LOGGER" level="info" additivity="false">
-            <AppenderRef ref="DEPLOYMENT_LOGS_APPENDER" />
-        </logger>
+        <logger name="springfox.documentation" level="warn" />
+        <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="warn" />
     </Loggers>
 </Configuration>
