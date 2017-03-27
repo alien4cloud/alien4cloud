@@ -89,8 +89,6 @@ public class TopologyDTOBuilder {
         TopologyDTO topologyDTO = new TopologyDTO();
         if (topology != null) {
             buildAbstractTopologyDTO(topology, topologyDTO);
-            // This contains the value ouf output properties. This has nothing to do with capability somehow..
-            topologyDTO.setOutputCapabilityProperties(topology.getOutputCapabilityProperties());
         }
         return topologyDTO;
     }

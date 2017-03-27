@@ -2,7 +2,6 @@ package alien4cloud.topology;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -30,7 +29,7 @@ public class TopologyDTO extends AbstractTopologyDTO<Topology> {
     private List<DependencyConflictDTO> dependencyConflicts;
 
     public TopologyDTO(Topology topology, Map<String, NodeType> nodeTypes, Map<String, RelationshipType> relationshipTypes,
-            Map<String, CapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties, Map<String, DataType> dataTypes) {
-        super(topology, nodeTypes, relationshipTypes, capabilityTypes, dataTypes, outputCapabilityProperties);
+            Map<String, CapabilityType> capabilityTypes, Map<String, DataType> dataTypes) {
+        super(topology, nodeTypes, relationshipTypes, capabilityTypes, dataTypes);
     }
 }

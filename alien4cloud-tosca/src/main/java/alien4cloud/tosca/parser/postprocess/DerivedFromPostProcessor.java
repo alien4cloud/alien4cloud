@@ -14,13 +14,14 @@ import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
+import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.tosca.context.ToscaContext;
-import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
-import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -75,8 +76,8 @@ public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? ex
                 defaultDerivedFrom = NormativeTypesConstant.ROOT_RELATIONSHIP_TYPE;
             } else if (instance instanceof DataType && !NormativeTypesConstant.ROOT_DATA_TYPE.equals(instance.getElementId())) {
                 defaultDerivedFrom = NormativeTypesConstant.ROOT_DATA_TYPE;
-            } else if (instance instanceof CapabilityType && !NormativeTypesConstant.ROOT_CAPABILITY_TYPE.equals(instance.getElementId())) {
-                defaultDerivedFrom = NormativeTypesConstant.ROOT_CAPABILITY_TYPE;
+            } else if (instance instanceof CapabilityType && !NormativeCapabilityTypes.ROOT.equals(instance.getElementId())) {
+                defaultDerivedFrom = NormativeCapabilityTypes.ROOT;
             } else if (instance instanceof ArtifactType && !NormativeTypesConstant.ROOT_ARTIFACT_TYPE.equals(instance.getElementId())) {
                 defaultDerivedFrom = NormativeTypesConstant.ROOT_ARTIFACT_TYPE;
             }

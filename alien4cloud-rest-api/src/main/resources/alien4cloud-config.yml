@@ -141,3 +141,6 @@ ha:
   serverProtocol: "http"
   # The minimum free space to consider the system healthy (in bytes). Let's set the default to 10Mo
   health_disk_space_threshold: 10485760
+
+logs_deployment_appender:
+  enable: false

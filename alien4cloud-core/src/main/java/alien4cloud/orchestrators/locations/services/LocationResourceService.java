@@ -83,6 +83,7 @@ public class LocationResourceService implements ILocationResourceService {
     private ICsarDependencyLoader csarDependencyLoader;
     @Inject
     private PluginArchiveIndexer pluginArchiveIndexer;
+
     /*
      * (non-Javadoc)
      *
@@ -99,7 +100,8 @@ public class LocationResourceService implements ILocationResourceService {
         // Also get resource templates from outside of the orchestrator definition - eg custom resources
         List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
         LocationResources locationResources = new LocationResources(getLocationResourceTypes(locationResourceTemplates));
-        /* If the orchestrator is present, take node types computed from the resources template
+        /*
+         * If the orchestrator is present, take node types computed from the resources template
          * as "Custom resources types". If not, consider this is an orchestrator-free location.
          */
         locationResourcesFromOrchestrator.ifPresent(orchestratorResources -> {
@@ -178,8 +180,8 @@ public class LocationResourceService implements ILocationResourceService {
 
             if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
                 for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
-                    locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(), csarRepoSearchService
-                            .getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies));
+                    locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(),
+                            csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies));
                 }
             }
         }
@@ -290,8 +292,7 @@ public class LocationResourceService implements ILocationResourceService {
 
     private LocationResourceTemplate addResourceTemplate(Location location, String resourceName, String resourceTypeName) {
         LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
-        NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName,
-                location.getDependencies());
+        NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName, location.getDependencies());
 
         NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(location.getDependencies(), resourceType, null);
         // FIXME Workaround to remove default scalable properties from compute
@@ -322,7 +323,8 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#addResourceTemplate(java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public LocationResourceTemplateWithDependencies addResourceTemplateFromArchive(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion) {
+    public LocationResourceTemplateWithDependencies addResourceTemplateFromArchive(String locationId, String resourceName, String resourceTypeName,
+            String archiveName, String archiveVersion) {
         Location location = locationService.getOrFail(locationId);
 
         // If an archive is specified, update the location dependencies accordingly. Dependencies are in a Set so there is no duplication issue.
@@ -335,7 +337,8 @@ public class LocationResourceService implements ILocationResourceService {
         }
 
         // Return a wrapper object with the template and location dependencies
-        return new LocationResourceTemplateWithDependencies(this.addResourceTemplate(location, resourceName, resourceTypeName), Sets.newHashSet(location.getDependencies()));
+        return new LocationResourceTemplateWithDependencies(this.addResourceTemplate(location, resourceName, resourceTypeName),
+                Sets.newHashSet(location.getDependencies()));
 
     }
 
@@ -413,8 +416,8 @@ public class LocationResourceService implements ILocationResourceService {
                 location.getDependencies());
         Capability capability = getOrFailCapability(resourceTemplate.getTemplate(), capabilityName);
         CapabilityDefinition capabilityDefinition = getOrFailCapabilityDefinition(resourceType, capabilityName);
-        CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class,
-                capabilityDefinition.getType(), location.getDependencies());
+        CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(),
+                location.getDependencies());
         PropertyDefinition propertyDefinition = getOrFailCapabilityPropertyDefinition(capabilityType, propertyName);
         propertyService.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
     }

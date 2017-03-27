@@ -46,3 +46,6 @@ elasticSearch:
 
 audit:
   ttl: 1d
+
+logs_deployment_appender:
+  enable: false

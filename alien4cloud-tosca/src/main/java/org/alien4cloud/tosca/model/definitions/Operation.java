@@ -4,18 +4,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import org.apache.commons.collections4.CollectionUtils;
-
-import alien4cloud.json.deserializer.OperationParameterDeserializer;
-import alien4cloud.ui.form.annotation.FormProperties;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Sets;
+
+import alien4cloud.json.deserializer.OperationParameterDeserializer;
+import alien4cloud.ui.form.annotation.FormProperties;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Defines an operation available to manage particular aspects of the Node Type.
@@ -47,14 +46,21 @@ public class Operation {
     private Set<OperationOutput> outputs = Sets.newHashSet();
 
     /**
-     * <p>
      * Jackson DeSerialization workaround constructor to create an operation with no arguments.
-     * </p>
-     *
+     * 
      * @param emptyString The empty string provided by jackson.
      */
     @SuppressWarnings("PMD.UnusedFormalParameterRule")
     public Operation(String emptyString) {
+    }
+
+    /**
+     * Create an operation from an implementation artifact.
+     * 
+     * @param implementationArtifact The operation's implementation artifact.
+     */
+    public Operation(ImplementationArtifact implementationArtifact) {
+        this.implementationArtifact = implementationArtifact;
     }
 
     @JsonIgnore

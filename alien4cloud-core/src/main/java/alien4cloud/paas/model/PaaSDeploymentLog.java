@@ -145,9 +145,12 @@ public class PaaSDeploymentLog {
 
     @Override
     public String toString() {
-        return "PaaSDeploymentLog{" + "deploymentPaaSId='" + deploymentPaaSId + '\'' + ", level=" + level + ", type='" + type + '\'' + ", timestamp="
+        return "PaaSDeploymentLog{" + toCompactString() + '}';
+    }
+
+    public String toCompactString() {
+        return "deploymentPaaSId='" + deploymentPaaSId + '\'' + ", level=" + level + ", type='" + type + '\'' + ", timestamp="
                 + timestamp + ", workflowId='" + workflowId + '\'' + ", executionId='" + executionId + '\'' + ", nodeId='" + nodeId + '\'' + ", instanceId='"
-                + instanceId + '\'' + ", interfaceName='" + interfaceName + '\'' + ", operationName='" + operationName + '\'' + ", content='" + content + '\''
-                + '}';
+                + instanceId + '\'' + ", interfaceName='" + interfaceName + '\'' + ", operationName='" + operationName + '\'' + ", content='" + content;
     }
 }

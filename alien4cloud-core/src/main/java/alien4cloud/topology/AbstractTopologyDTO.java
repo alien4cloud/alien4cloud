@@ -23,7 +23,4 @@ public class AbstractTopologyDTO<T extends Topology> {
     private Map<String, RelationshipType> relationshipTypes;
     private Map<String, CapabilityType> capabilityTypes;
     private Map<String, DataType> dataTypes;
-
-    // FIXME this is already in the topology, let's just remove that from the DTO as it create heavier and useless json
-    private Map<String, Map<String, Set<String>>> outputCapabilityProperties;
 }

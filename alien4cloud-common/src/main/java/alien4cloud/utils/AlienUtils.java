@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.helpers.FormattingTuple;
@@ -93,6 +94,20 @@ public final class AlienUtils {
             throw new NotFoundException(ft.getMessage());
         }
         return value;
+    }
+
+    /**
+     * Put the value map in the target map using the given key only if the value map is not empty.
+     * 
+     * @param targetMap The map in which to insert the value map.
+     * @param key The key to be inserted.
+     * @param valueMap The map to put in the target map at the given key.
+     * @param <K> The key type.
+     */
+    public static <K, KK, VV> void putIfNotEmpty(Map<K, Map<KK, VV>> targetMap, K key, Map<KK, VV> valueMap) {
+        if (MapUtils.isNotEmpty(valueMap)) {
+            targetMap.put(key, valueMap);
+        }
     }
 
     /**
