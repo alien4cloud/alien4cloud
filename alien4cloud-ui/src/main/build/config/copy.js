@@ -42,7 +42,9 @@ module.exports = {
         'bower_components/es5-shim/es5-shim.min.js',
         'bower_components/json3/lib/json3.min.js',
         'bower_components/requirejs/require.js',
-        'bower_components/font-awesome/**/*'
+        'bower_components/font-awesome/**/*',
+        'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/**/*',
+        'bower_components/roboto-fontface/**/*'
       ]
     }]
   }
