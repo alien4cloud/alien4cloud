@@ -33,6 +33,7 @@ import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
 import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
 import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
 import org.elasticsearch.common.collect.ImmutableMap;
@@ -643,8 +644,8 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
                 .allMatch(nodeType -> nodeType.getDerivedFrom() != null && nodeType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_NODE_TYPE)));
         Assert.assertTrue(parsingResult.getResult().getDataTypes().values().stream()
                 .allMatch(dataType -> dataType.getDerivedFrom() != null && dataType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_DATA_TYPE)));
-        Assert.assertTrue(parsingResult.getResult().getCapabilityTypes().values().stream().allMatch(capabilityType -> capabilityType.getDerivedFrom() != null
-                && capabilityType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_CAPABILITY_TYPE)));
+        Assert.assertTrue(parsingResult.getResult().getCapabilityTypes().values().stream().allMatch(
+                capabilityType -> capabilityType.getDerivedFrom() != null && capabilityType.getDerivedFrom().contains(NormativeCapabilityTypes.ROOT)));
         Assert.assertTrue(
                 parsingResult.getResult().getRelationshipTypes().values().stream().allMatch(relationshipType -> relationshipType.getDerivedFrom() != null
                         && relationshipType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_RELATIONSHIP_TYPE)));

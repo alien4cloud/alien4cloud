@@ -12,7 +12,6 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
-import alien4cloud.utils.TypeMap;
 
 /**
  * Utility to build the deployment context.
@@ -27,27 +26,10 @@ public class DeploymentContextService {
      *
      * @param deployment The deployment object.
      * @param topology The topology that will be processed.
-     * @return A PaaSTopologyDeploymentContext that contians
+     * @return A PaaSTopologyDeploymentContext matching the input topology.
      */
     public PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Map<String, Location> locations, DeploymentTopology topology) {
-        return buildTopologyDeploymentContext(deployment, locations, topology, topologyTreeBuilderService.buildPaaSTopology(topology));
-    }
-
-    /**
-     * Build a topology deployment context from a given topology and deployment and with a type cache.
-     *
-     * @param deployment The deployment object.
-     * @param topology The topology that will be processed.
-     * @param cache type cache
-     * @return A PaaSTopologyDeploymentContext that contians
-     */
-    public PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Map<String, Location> locations, DeploymentTopology topology,
-            TypeMap cache) {
-        return buildTopologyDeploymentContext(deployment, locations, topology, topologyTreeBuilderService.buildPaaSTopology(topology, cache));
-    }
-
-    private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Map<String, Location> locations, DeploymentTopology topology,
-            PaaSTopology paaSTopology) {
+        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         PaaSTopologyDeploymentContext topologyDeploymentContext = new PaaSTopologyDeploymentContext();
         topologyDeploymentContext.setLocations(locations);
         topologyDeploymentContext.setDeployment(deployment);

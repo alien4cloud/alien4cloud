@@ -20,6 +20,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -120,7 +121,7 @@ public class TopologyPropertiesValidationService {
             }
             addRequiredPropertyIdToTaskProperties("capabilities[" + capabilityEntry.getKey() + "]", capability.getProperties(),
                     getCapabilitiesPropertyDefinition(nodeTemplate), task, skipInputProperties);
-            if (capability.getType().equals(NormativeComputeConstants.SCALABLE_CAPABILITY_TYPE)) {
+            if (capability.getType().equals(NormativeCapabilityTypes.SCALABLE)) {
                 Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
                 verifyScalableProperties(scalableProperties, toReturnTaskList, nodeTempalteName, skipInputProperties);
             }

@@ -21,13 +21,13 @@ public class DeploymentLoggingService {
     private IGenericSearchDAO alienMonitorDao;
 
     @Value("${logs_deployment_appender.enable}")
-    private boolean isEnable;
+    private boolean isEnabled;
 
     private final Logger deployments_logger = LogManager.getLogger("DEPLOYMENT_LOGS_LOGGER");
 
     public synchronized void save(final PaaSDeploymentLog deploymentLog) {
         try {
-            if (isEnable) {
+            if (isEnabled) {
                 deployments_logger.info(deploymentLog.toCompactString());
             }
         } finally {
@@ -37,7 +37,7 @@ public class DeploymentLoggingService {
 
     public synchronized void save(final PaaSDeploymentLog[] deploymentLogs) {
         try {
-            if (isEnable) {
+            if (isEnabled) {
                 for (PaaSDeploymentLog log : deploymentLogs) {
                     deployments_logger.info(log.toCompactString());
                 }

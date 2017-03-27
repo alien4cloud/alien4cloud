@@ -1,17 +1,19 @@
 package alien4cloud.tosca.parser;
 
-import alien4cloud.component.ICSARRepositorySearchService;
-import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Set;
+
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
+import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
 import org.mockito.Mockito;
 
-import java.util.Set;
+import alien4cloud.component.ICSARRepositorySearchService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class for parsers tests.
@@ -62,7 +64,7 @@ public class ParserTestUtil {
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class),
                 Mockito.eq(NormativeTypesConstant.ROOT_RELATIONSHIP_TYPE), Mockito.any(Set.class))).thenReturn(mockedRelationshipRoot);
         CapabilityType mockedCapabilityType = new CapabilityType();
-        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq(NormativeTypesConstant.ROOT_CAPABILITY_TYPE),
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq(NormativeCapabilityTypes.ROOT),
                 Mockito.any(Set.class))).thenReturn(mockedCapabilityType);
         DataType mockedDataType = new DataType();
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(DataType.class), Mockito.eq(NormativeTypesConstant.ROOT_DATA_TYPE),

@@ -89,7 +89,6 @@ public class DeployService {
     @Inject
     private DeploymentLoggingService deploymentLoggingService;
 
-
     /**
      * Deploy a topology and return the deployment ID.
      *
