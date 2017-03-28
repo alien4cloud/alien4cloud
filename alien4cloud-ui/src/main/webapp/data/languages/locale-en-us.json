@@ -6,6 +6,13 @@
     "ARCHIVE_NAME_HELP": "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
     "AUTHORIZED": "application authorized",
     "DEPLOY": "Deploy",
+    "DEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Are you sure you want to deploy the {{application}} application with {{type}} type and {{version}} version with the following matching:",
+        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
+      },
+      "TITLE": "Deployment informations"
+    },
     "DEPLOYMENT": {
       "DEPLOY": "Deploy",
       "INPUT": "Input",
@@ -274,6 +281,13 @@
       "YAML": "yaml"
     },
     "UNDEPLOY": "Undeploy",
+    "UNDEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Are you sure you want to uninstall the {{application}} application in {{version}} version?",
+        "FOOTER": "The following node(s) will be deleted:"
+      },
+      "TITLE": "Uninstall reminder"
+    },
     "VERSION": {
       "LABEL": "Application version",
       "MODAL": {

@@ -1,0 +1,22 @@
+<div id="informationModal">
+  <div class="modal-header">
+    <h4>{{'APPLICATIONS.UNDEPLOY_MODAL.TITLE' | translate}}</h4>
+  </div>
+  <div class="modal-body">
+    <div>
+      {{content}}
+    </div>
+    <br/>
+    <div>
+      {{'APPLICATIONS.UNDEPLOY_MODAL.CONTENT.FOOTER' | translate}}
+      <div style="overflow: auto; max-height: 300px;">
+        <div ng-repeat="(key, value) in nodeTemplates" style="padding-left: 20px;">
+          - {{key}}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()">{{'CLOSE' | translate}}</button>
+    <button class="btn btn-danger" ng-click="undeploy()">{{'APPLICATIONS.UNDEPLOY' | translate}}</button>
+</div>
