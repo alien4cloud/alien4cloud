@@ -33,22 +33,12 @@ public class FunctionPropertyValue extends AbstractPropertyValue {
         return parameters.get(0);
     }
 
-    @JsonIgnore
-    public String setTemplateName(String templateName) {
-        return parameters.set(0, templateName);
-    }
-
     /**
      * get the name of the property or attribute or the output we want to retrieve, represented by the last parameter in the list
      */
     @JsonIgnore
     public String getElementNameToFetch() {
         return parameters.get(parameters.size() - 1);
-    }
-
-    @JsonIgnore
-    public String setElementNameToFetch(String value) {
-        return parameters.set(parameters.size() - 1, value);
     }
 
     /**
