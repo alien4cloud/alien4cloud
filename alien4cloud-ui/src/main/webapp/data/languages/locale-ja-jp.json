@@ -35,11 +35,15 @@
       "ALL" : "All Environment",
       "ENV" : "環境",
       "ENV_ROLES" : "環境のロール",
+      "SELECT_INPUT_CANDIDATE": "Select environment to copy inputs",
       "FORM" : {
         "ENV_TYPE" : "環境タイプ",
         "ENV_TYPE_SELECT" : "-- 環境タイプの選択 --",
         "ENV_VERSION" : "アプリケーションバージョン",
-        "ENV_VERSION_SELECT" : "-- アプリケーションバージョンの選択 --"
+        "ENV_VERSION_SELECT" : "-- アプリケーションバージョンの選択 --",
+        "ENV_INPUT_CANDIDATE_LABEL": "Inputs",
+        "ENV_INPUT_CANDIDATE_SELECT": "-- Select the environment to copy inputs --",
+        "DONT_COPY_INPUT": "-- Don't copy inputs --"
       },
       "NEW" : "新規環境",
       "STATUS" : "ステータス"

@@ -43,11 +43,15 @@
       "ALL" : "All Environment",
       "ENV" : "Environnement",
       "ENV_ROLES" : "Rôles d'environment",
+      "SELECT_INPUT_CANDIDATE": "Selectionner l'environment pour copier les inputs",
       "FORM" : {
         "ENV_TYPE" : "Type d'environnement",
         "ENV_TYPE_SELECT" : "-- Sélectionner le type d'environnement --",
         "ENV_VERSION" : "Version de l'application",
-        "ENV_VERSION_SELECT" : "-- Sélectionner la version de l'application --"
+        "ENV_VERSION_SELECT" : "-- Sélectionner la version de l'application --",
+        "ENV_INPUT_CANDIDATE_LABEL": "Inputs",
+        "ENV_INPUT_CANDIDATE_SELECT": "-- Selectionner l'environment pour copier les inputs --",
+        "DONT_COPY_INPUT": "-- Ne pas copier les inputs --"
       },
       "NEW" : "Nouvel environnement",
       "STATUS" : "Etat"

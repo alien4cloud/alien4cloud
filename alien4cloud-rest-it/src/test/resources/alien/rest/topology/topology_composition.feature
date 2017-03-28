@@ -310,7 +310,7 @@ Feature: Topology composition
     When I deploy it
     Then I should receive a RestResponse with no error
     And The application's deployment must succeed
-    When I get the deployment toology for the current application
+    When I get the deployment topology for the current application
     Then I should receive a RestResponse with no error
     When I register the rest response data as SPEL context of type "alien4cloud.rest.deployment.DeploymentTopologyDTO"
     Then The SPEL int expression "topology.nodeTemplates.size()" should return 5
@@ -569,7 +569,7 @@ Feature: Topology composition
     When I deploy it
     Then I should receive a RestResponse with no error
     And The application's deployment must succeed
-    When I get the deployment toology for the current application
+    When I get the deployment topology for the current application
     Then I should receive a RestResponse with no error
     When I register the rest response data as SPEL context of type "alien4cloud.rest.deployment.DeploymentTopologyDTO"
     Then The SPEL int expression "topology.nodeTemplates.size()" should return 6
@@ -802,7 +802,7 @@ Feature: Topology composition
     When I deploy it
     Then I should receive a RestResponse with no error
     And The application's deployment must succeed
-    When I get the deployment toology for the current application
+    When I get the deployment topology for the current application
     Then I should receive a RestResponse with no error
     When I register the rest response data as SPEL context of type "alien4cloud.rest.deployment.DeploymentTopologyDTO"
     Then The SPEL int expression "topology.nodeTemplates.size()" should return 5

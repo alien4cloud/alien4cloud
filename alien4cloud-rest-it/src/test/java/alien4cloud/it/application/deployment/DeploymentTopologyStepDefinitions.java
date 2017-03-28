@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
@@ -88,10 +89,19 @@ public class DeploymentTopologyStepDefinitions {
                 MapUtil.newHashMap(new String[] { AlienConstants.GROUP_ALL }, new String[] { locationName }));
     }
 
-    @When("^I get the deployment toology for the current application$")
+    @When("^I get the deployment topology for the current application$")
     public void I_get_the_deployment_toology_for_the_current_application() throws Throwable {
         Application application = Context.getInstance().getApplication();
         String environmentId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/", application.getId(), environmentId);
+        String response = Context.getRestClientInstance().get(restUrl);
+        Context.getInstance().registerRestResponse(response);
+    }
+
+    @When("^I get the deployment topology for the current application on the environment \"(.*?)\"$")
+    public void I_get_the_deployment_topology_for_the_current_application(String environment) throws Throwable {
+        Application application = Context.getInstance().getApplication();
+        String environmentId = Context.getInstance().getApplicationEnvironmentId(application.getName(), environment);
         String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/", application.getId(), environmentId);
         String response = Context.getRestClientInstance().get(restUrl);
         Context.getInstance().registerRestResponse(response);
@@ -115,7 +125,7 @@ public class DeploymentTopologyStepDefinitions {
         return dto;
     }
 
-    @Then("^The deployment topology sould have the substituted nodes$")
+    @Then("^The deployment topology should have the substituted nodes$")
     public void The_deployment_topology_sould_have_the_substituted_nodes(List<NodeSubstitutionSetting> expectedSubstitutionSettings) throws Throwable {
         DeploymentTopologyDTO dto = getDTOAndassertNotNull();
         Map<String, String> substitutions = dto.getTopology().getSubstitutedNodes();
@@ -300,6 +310,36 @@ public class DeploymentTopologyStepDefinitions {
         NameValuePair resourceParam = new BasicNameValuePair("locationResourceTemplateId", resourceId);
         String response = Context.getRestClientInstance().postUrlEncoded(restUrl, Lists.newArrayList(resourceParam));
         context.registerRestResponse(response);
+    }
+
+    @Then("^the deployment topology should not have any location policies$")
+    public void theDeploymentTopologyShouldNotHaveAnyLocationPolicies() throws Throwable {
+        DeploymentTopologyDTO dto = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData();
+        assertNotNull(dto);
+        Assert.assertTrue(MapUtils.isEmpty(dto.getLocationPolicies()));
+    }
+
+    @Then("^the deployment topology should not have any input properties$")
+    public void theDeploymentTopologyShouldNotHaveAnyInputProperties() throws Throwable {
+        DeploymentTopologyDTO dto = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData();
+        assertNotNull(dto);
+        Assert.assertTrue(MapUtils.isEmpty(dto.getTopology().getInputProperties()));
+    }
+
+    @Then("^the deployment topology should not have any input artifacts$")
+    public void theDeploymentTopologyShouldNotHaveAnyInputArtifacts() throws Throwable {
+        DeploymentTopologyDTO dto = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData();
+        assertNotNull(dto);
+        Assert.assertTrue(MapUtils.isEmpty(dto.getTopology().getUploadedInputArtifacts()));
+    }
+
+    @Then("^the deployment topology should have the following inputs artifacts$")
+    public void theDeploymentTopologyShouldHaveTheFollowingInputsArtifacts(Map<String, String> expectedArtifacts) throws Throwable {
+        DeploymentTopologyDTO dto = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData();
+        assertNotNull(dto);
+        Map<String, String> uploadedArtifacts = dto.getTopology().getUploadedInputArtifacts().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getArtifactName()));
+        Assert.assertEquals(expectedArtifacts, uploadedArtifacts);
     }
 
     @Getter
