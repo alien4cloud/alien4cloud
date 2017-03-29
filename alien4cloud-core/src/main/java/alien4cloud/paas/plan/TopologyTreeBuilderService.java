@@ -55,6 +55,7 @@ import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyUtils;
+import alien4cloud.tosca.PaaSUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
@@ -234,6 +235,9 @@ public class TopologyTreeBuilderService {
         }
         // check and register possible operation outputs
         processOperationsOutputs(nodeTemplates);
+
+        // inject all properties as operation inputs for related interfaces
+        PaaSUtils.injectPropertiesAsOperationInputs(nodeTemplates);
 
         return new PaaSTopology(computes, networks, volumes, nonNatives, nodeTemplates, groups);
     }
