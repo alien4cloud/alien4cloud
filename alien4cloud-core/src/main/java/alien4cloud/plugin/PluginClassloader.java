@@ -42,4 +42,13 @@ public class PluginClassloader extends URLClassLoader {
 
         return super.loadClass(name);
     }
+
+    public URL getResource(String name) {
+        URL url = findResource(name);
+        // if local search failed, delegate to parent
+        if (url == null) {
+            url = getParent().getResource(name);
+        }
+        return url;
+    }
 }
