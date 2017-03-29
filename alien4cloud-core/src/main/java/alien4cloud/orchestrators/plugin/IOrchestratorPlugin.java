@@ -4,12 +4,11 @@ import java.util.List;
 
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
 import alien4cloud.paas.IConfigurablePaaSProvider;
-import alien4cloud.paas.IPaaSProvider;
 
 /**
  * Interface used to communicate with an orchestrator.
  */
-public interface IOrchestratorPlugin<T> extends IConfigurablePaaSProvider<T>, IPaaSProvider {
+public interface IOrchestratorPlugin<T> extends IConfigurablePaaSProvider<T> {
     /**
      * Return a configurator instance for a given location type.
      * 

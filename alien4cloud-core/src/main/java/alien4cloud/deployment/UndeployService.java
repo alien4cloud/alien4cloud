@@ -59,7 +59,7 @@ public class UndeployService {
 
     private void undeploy(final Deployment deployment) {
         deploymentLockService.doWithDeploymentWriteLock(deployment.getOrchestratorDeploymentId(), () -> {
-            log.info("Un-deploying deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
+            log.info("Un-deploying deployment [{}] on orchestrator [{}]", deployment.getId(), deployment.getOrchestratorId());
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
             DeploymentTopology deployedTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
             PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deployedTopology);
@@ -67,12 +67,12 @@ public class UndeployService {
                 @Override
                 public void onSuccess(ResponseEntity data) {
                     deploymentService.markUndeployed(deployment);
-                    log.info("Un-deployed deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
+                    log.info("Un-deployed deployment [{}] on orchestrator [{}]", deployment.getId(), deployment.getOrchestratorId());
                 }
 
                 @Override
                 public void onFailure(Throwable throwable) {
-                    log.warn("Fail while Undeploying deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
+                    log.warn("Fail while Undeploying deployment [{}] on orchestrator [{}]", deployment.getId(), deployment.getOrchestratorId());
                 }
             });
             return null;
