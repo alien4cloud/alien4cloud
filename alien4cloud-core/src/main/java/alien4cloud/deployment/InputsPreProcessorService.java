@@ -9,11 +9,14 @@ import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Requirement;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
+import org.alien4cloud.tosca.utils.FunctionEvaluator;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +32,7 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
-import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.TagUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,6 +66,7 @@ public class InputsPreProcessorService {
      * @param topology The original topology.
      * @return The full inputs map used to actually inject inputs. This includes both the user inputs as well as location meta and applications meta and tags.
      */
+    @ToscaContextual
     public Map<String, PropertyValue> injectInputValues(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
         topologyCompositionService.processTopologyComposition(topology);
         Map<String, PropertyValue> inputs = computeInputs(deploymentTopology, environment);
@@ -71,7 +75,7 @@ public class InputsPreProcessorService {
                 NodeTemplate nodeTemplate = entry.getValue();
                 NodeTemplate initialNodeTemplate = topology.getNodeTemplates().get(entry.getKey());
                 mergeGetInputProperties(initialNodeTemplate.getProperties(), nodeTemplate.getProperties());
-                processGetInput(inputs, nodeTemplate.getProperties());
+                processGetInput(deploymentTopology, nodeTemplate, null, inputs, nodeTemplate.getProperties());
 
                 // process relationships
                 if (nodeTemplate.getRelationships() != null) {
@@ -79,7 +83,7 @@ public class InputsPreProcessorService {
                         RelationshipTemplate relationshipTemplate = relEntry.getValue();
                         Map<String, AbstractPropertyValue> initialProperties = getInitialRelationshipProperties(relEntry.getKey(), initialNodeTemplate);
                         mergeGetInputProperties(initialProperties, relationshipTemplate.getProperties());
-                        processGetInput(inputs, relationshipTemplate.getProperties());
+                        processGetInput(deploymentTopology, relationshipTemplate, null, inputs, relationshipTemplate.getProperties());
                     }
                 }
                 if (nodeTemplate.getCapabilities() != null) {
@@ -87,7 +91,7 @@ public class InputsPreProcessorService {
                         Capability capability = capaEntry.getValue();
                         Map<String, AbstractPropertyValue> capaInitialProps = getInitialCapabilityProperties(capaEntry.getKey(), initialNodeTemplate);
                         mergeGetInputProperties(capaInitialProps, capability.getProperties());
-                        processGetInput(inputs, capability.getProperties());
+                        processGetInput(deploymentTopology, nodeTemplate, capability, inputs, capability.getProperties());
                     }
                 }
             }
@@ -109,8 +113,8 @@ public class InputsPreProcessorService {
     private Map<String, AbstractPropertyValue> getInitialRelationshipProperties(String relationShipName, NodeTemplate nodeTemplate) {
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
         if (nodeTemplate.getRelationships() != null && nodeTemplate.getRelationships().get(relationShipName) != null
-            && nodeTemplate.getRelationships().get(relationShipName).getProperties() != null) {
-                properties = nodeTemplate.getRelationships().get(relationShipName).getProperties();
+                && nodeTemplate.getRelationships().get(relationShipName).getProperties() != null) {
+            properties = nodeTemplate.getRelationships().get(relationShipName).getProperties();
         }
         return properties;
     }
@@ -118,8 +122,8 @@ public class InputsPreProcessorService {
     private Map<String, AbstractPropertyValue> getInitialCapabilityProperties(String capabilityName, NodeTemplate nodeTemplate) {
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
         if (nodeTemplate.getCapabilities() != null && nodeTemplate.getCapabilities().get(capabilityName) != null
-            && nodeTemplate.getCapabilities().get(capabilityName).getProperties() != null) {
-                properties = nodeTemplate.getCapabilities().get(capabilityName).getProperties();
+                && nodeTemplate.getCapabilities().get(capabilityName).getProperties() != null) {
+            properties = nodeTemplate.getCapabilities().get(capabilityName).getProperties();
         }
         return properties;
     }
@@ -127,8 +131,8 @@ public class InputsPreProcessorService {
     private Map<String, AbstractPropertyValue> getInitialRequirementProperties(String requirementName, NodeTemplate nodeTemplate) {
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
         if (nodeTemplate.getRequirements() != null && nodeTemplate.getRequirements().get(requirementName) != null
-            && nodeTemplate.getRequirements().get(requirementName).getProperties() != null) {
-                properties = nodeTemplate.getRequirements().get(requirementName).getProperties();
+                && nodeTemplate.getRequirements().get(requirementName).getProperties() != null) {
+            properties = nodeTemplate.getRequirements().get(requirementName).getProperties();
         }
         return properties;
     }
@@ -244,7 +248,8 @@ public class InputsPreProcessorService {
         }
     }
 
-    private void processGetInput(Map<String, PropertyValue> inputs, Map<String, AbstractPropertyValue> properties) {
+    private void processGetInput(Topology topology, AbstractTemplate template, Capability capability, Map<String, PropertyValue> inputs,
+            Map<String, AbstractPropertyValue> properties) {
         if (properties != null) {
             for (Map.Entry<String, AbstractPropertyValue> propEntry : properties.entrySet()) {
                 if (propEntry.getValue() instanceof FunctionPropertyValue) {
@@ -256,9 +261,17 @@ public class InputsPreProcessorService {
                         if (value != null) {
                             propEntry.setValue(value);
                         }
+                    } else if (ToscaFunctionConstants.GET_PROPERTY.equals(function.getFunction()) && template instanceof NodeTemplate) {
+                        AbstractPropertyValue propertyValue = FunctionEvaluator.getProperty(topology, (NodeTemplate) template, capability, function);
+                        if (propertyValue instanceof PropertyValue) {
+                            propEntry.setValue(propertyValue);
+                        } else {
+                            log.warn("Function <{}> detected for property <{}> while only <get_input and get_property> should be authorized.",
+                                    function.getFunction(), propEntry.getKey());
+                        }
                     } else {
-                        log.warn("Function <{}> detected for property <{}> while only <get_input> should be authorized.", function.getFunction(),
-                                propEntry.getKey());
+                        log.warn("Function <{}> detected for property <{}> while only <get_input and get_property(limited on nodes)> should be authorized.",
+                                function.getFunction(), propEntry.getKey());
                     }
                 }
             }

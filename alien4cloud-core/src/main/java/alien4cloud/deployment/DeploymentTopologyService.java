@@ -310,10 +310,11 @@ public class DeploymentTopologyService {
     private void injectInputAndProcessSubstitutionIfNeeded(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment,
             Map<String, NodeTemplate> previousNodeTemplates) {
         if (MapUtils.isEmpty(deploymentTopology.getLocationGroups())) {
-            // No location group is defined do nothing
+            // No location matching has been yet performed, do nothing.
             return;
         }
-        // injects inputs before processing substitutions
+        // Injects inputs (get_input) before processing substitutions and internal get_properties (basically a property that get a property out of another node/
+        // property).
         inputsPreProcessorService.injectInputValues(deploymentTopology, environment, topology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
     }
