@@ -87,16 +87,12 @@ define(function(require) {
             }
           });
 
-          if (_.defined(event)) {
-            event.stopPropagation();
-          }
-
           var modalInstance = $uibModal.open({
             templateUrl: 'views/applications/deploy_confirm_modal.html',
             controller: DeployConfirmationModalCtrl,
             resolve: {
               nodeTemplates: function() {
-                return $scope.deploymentContext.deploymentTopologyDTO.topology.nodeTemplates;
+                return $scope.deploymentContext.deploymentTopologyDTO.topology.substitutedNodes;
               },
               locationName: function() {
                 return $scope.deploymentContext.selectedLocation.name;

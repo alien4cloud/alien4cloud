@@ -6,7 +6,7 @@
     {{content}}
     <div style="overflow: auto; max-height: 300px;">
       <div ng-repeat="(key, value) in nodeTemplates" style="padding-left: 20px;">
-        - {{value.name}} : {{value.type}}
+        - {{key}} : {{value.types[0]}}
       </div>
     </div>
     <br/>
