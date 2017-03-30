@@ -14,6 +14,13 @@
     "ARCHIVE_NAME_HELP": "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
     "AUTHORIZED": "application authorized",
     "DEPLOY": "Deploy",
+    "DEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Are you sure you want to deploy the {{application}} application with {{type}} type and {{version}} version with the following matching:",
+        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
+      },
+      "TITLE": "Deployment informations"
+    },
     "DEPLOYMENT": {
       "DEPLOY": "Deploy",
       "INPUT": "Input",
@@ -44,11 +51,15 @@
       "ALL": "All Environment",
       "ENV": "Environment",
       "ENV_ROLES": "Environment roles",
+      "SELECT_INPUT_CANDIDATE": "Select environment to copy inputs",
       "FORM": {
         "ENV_TYPE": "Environment type",
         "ENV_TYPE_SELECT": "-- Select the environment type --",
         "ENV_VERSION": "Application version",
-        "ENV_VERSION_SELECT": "-- Select the application version --"
+        "ENV_VERSION_SELECT": "-- Select the application version --",
+        "ENV_INPUT_CANDIDATE_LABEL": "Inputs",
+        "ENV_INPUT_CANDIDATE_SELECT": "-- Select the environment to copy inputs --",
+        "DONT_COPY_INPUT": "-- Don't copy inputs --"
       },
       "NEW": "New environment",
       "STATUS": "Status"
@@ -282,6 +293,13 @@
       "YAML": "yaml"
     },
     "UNDEPLOY": "Undeploy",
+    "UNDEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Are you sure you want to uninstall the {{application}} application in {{version}} version?",
+        "FOOTER": "The following node(s) will be deleted:"
+      },
+      "TITLE": "Uninstall reminder"
+    },
     "VERSION": {
       "LABEL": "Application version",
       "MODAL": {

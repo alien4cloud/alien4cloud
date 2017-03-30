@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.catalog.index;
 
 import java.util.Map;
 
+import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 
 import alien4cloud.component.ICSARRepositorySearchService;
@@ -41,6 +42,16 @@ public interface IToscaTypeSearchService extends ICSARRepositorySearchService {
      * @return Return the matching type or throw a NotFoundException
      */
     <T extends AbstractToscaType> T findOrFail(Class<T> elementType, String elementId, String version);
+
+    /**
+     * Find an element based on it's element id (that contains both type and version) or throw a NotFoundException.
+     *
+     * @param elementType The element type.
+     * @param toscaTypeId The id of the tosca type (elementId:version).
+     * @param <T> The class of the type.
+     * @return The instance of the requested tosca type.
+     */
+    <T extends AbstractToscaType> T findByIdOrFail(Class<T> elementType, String toscaTypeId);
 
     /**
      * Find the most recent element from a given id.

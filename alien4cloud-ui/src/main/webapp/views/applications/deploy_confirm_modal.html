@@ -1,0 +1,20 @@
+<div id="informationModal">
+  <div class="modal-header">
+    <h4>{{'APPLICATIONS.DEPLOY_MODAL.TITLE' | translate}}</h4>
+  </div>
+  <div class="modal-body">
+    {{content}}
+    <div style="overflow: auto; max-height: 300px;">
+      <div ng-repeat="(key, value) in nodeTemplates" style="padding-left: 20px;">
+        - {{key}} : {{value.name}}
+      </div>
+    </div>
+    <br/>
+    <div>
+      {{footer}}
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()">{{'CLOSE' | translate}}</button>
+    <button class="btn btn-success" ng-click="deploy()"><i class="fa fa-play"></i> {{'APPLICATIONS.DEPLOY' | translate}}</button>
+</div>

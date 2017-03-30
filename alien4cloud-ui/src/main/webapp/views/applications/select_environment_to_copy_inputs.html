@@ -1,0 +1,21 @@
+<form name="selectEnvironmentToCopyInputs" class="form-horizontal" role="form" novalidate>
+  <div class="modal-header">
+    <h3>{{'APPLICATIONS.ENVIRONMENT.SELECT_INPUT_CANDIDATE' | translate}}</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-group" ng-show="inputCandidates.length > 0">
+      <label for="inputcandidateslistid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_INPUT_CANDIDATE_LABEL'
+        | translate}}</label>
+      <div class="col-lg-9">
+        <select name="inputCandidates" required class="form-control" id="inputcandidateslistid"
+                ng-model="inputCandidate" ng-options="inputCandidate.name for inputCandidate in inputCandidates">
+          <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.DONT_COPY_INPUT' | translate}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button id="btn-create" class="btn btn-primary" ng-click="ok(inputCandidate)">{{'OK' | translate}}</button>
+    <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+  </div>
+</form>

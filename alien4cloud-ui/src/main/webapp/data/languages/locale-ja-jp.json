@@ -14,6 +14,13 @@
     "ARCHIVE_NAME_HELP" : "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
     "AUTHORIZED" : "application authorized",
     "DEPLOY" : "デプロイ",
+    "DEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Are you sure you want to deploy the {{application}} application with {{type}} type and {{version}} version with the following matching:",
+        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
+      },
+      "TITLE": "Deployment informations"
+    },
     "DEPLOYMENT" : {
       "DEPLOY" : "デプロイ",
       "INPUT" : "入力",
@@ -36,11 +43,15 @@
       "ALL" : "All Environment",
       "ENV" : "環境",
       "ENV_ROLES" : "環境のロール",
+      "SELECT_INPUT_CANDIDATE": "Select environment to copy inputs",
       "FORM" : {
         "ENV_TYPE" : "環境タイプ",
         "ENV_TYPE_SELECT" : "-- 環境タイプの選択 --",
         "ENV_VERSION" : "アプリケーションバージョン",
-        "ENV_VERSION_SELECT" : "-- アプリケーションバージョンの選択 --"
+        "ENV_VERSION_SELECT" : "-- アプリケーションバージョンの選択 --",
+        "ENV_INPUT_CANDIDATE_LABEL": "Inputs",
+        "ENV_INPUT_CANDIDATE_SELECT": "-- Select the environment to copy inputs --",
+        "DONT_COPY_INPUT": "-- Don't copy inputs --"
       },
       "NEW" : "新規環境",
       "STATUS" : "ステータス"
@@ -274,6 +285,13 @@
       "YAML" : "yaml"
     },
     "UNDEPLOY" : "デプロイ解除",
+    "UNDEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Are you sure you want to uninstall the {{application}} application in {{version}} version?",
+        "FOOTER": "The following node(s) will be deleted:"
+      },
+      "TITLE": "Uninstall reminder"
+    },
     "VERSION" : {
       "LABEL" : "Application version",
       "MODAL" : {

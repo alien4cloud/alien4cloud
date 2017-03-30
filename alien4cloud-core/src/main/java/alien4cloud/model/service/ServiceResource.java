@@ -79,6 +79,17 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
     @DateField(index = IndexType.no, includeInAll = false)
     private Date lastUpdateDate;
 
+    /**
+     * Map capability name -> relationship type id that optionally defines a relationship type to use to perform the service side operations to connect to the
+     * service on a given capability.
+     */
+    private Map<String, String> capabilitiesRelationshipTypes;
+    /**
+     * Map requirement name -> relationship type id that optionally defines a relationship type to use to perform the service side operations to connect to the
+     * service on a given requirement.
+     */
+    private Map<String, String> requirementsRelationshipTypes;
+
     public void start() {
         setState(ToscaNodeLifecycleConstants.STARTED);
     }
@@ -97,14 +108,4 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
         return nodeInstance.getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE);
     }
 
-    /**
-     * Map capability name -> relationship type id that optionally defines a relationship type to use to perform the service side operations to connect to the
-     * service on a given capability.
-     */
-    private Map<String, String> capabilitiesRelationshipTypes;
-    /**
-     * Map requirement name -> relationship type id that optionally defines a relationship type to use to perform the service side operations to connect to the
-     * service on a given requirement.
-     */
-    private Map<String, String> requirementsRelationshipTypes;
 }

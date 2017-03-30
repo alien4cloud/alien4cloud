@@ -7,13 +7,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.events.AfterApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +35,8 @@ import alien4cloud.deployment.DeploymentLockService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
+import alien4cloud.deployment.OrchestratorPropertiesValidationService;
+import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteReferencedObjectException;
@@ -36,11 +46,13 @@ import alien4cloud.model.application.ApplicationTopologyVersion;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.services.ConstraintPropertyService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -64,6 +76,8 @@ public class ApplicationEnvironmentService {
     private DeploymentService deploymentService;
     @Inject
     private DeploymentLockService deploymentLockService;
+    @Inject
+    private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
 
     /**
      * Method used to create a default environment
@@ -238,7 +252,7 @@ public class ApplicationEnvironmentService {
      * Check rights on the related application and get the application environment
      * If no roles mentioned, all {@link ApplicationRole} values will be used
      * 
-     * @param applicationEnvironmentId
+     * @param applicationEnvironmentId application's environment id
      * @param roles {@link ApplicationRole} to check right on the underlying application
      * @return the corresponding application environment
      */
@@ -246,6 +260,121 @@ public class ApplicationEnvironmentService {
         ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
         applicationService.checkAndGetApplication(applicationEnvironment.getApplicationId(), roles);
         return applicationEnvironment;
+    }
+
+    /**
+     * Synchronize inputs between two environments
+     * 
+     * @param source the source environment
+     * @param target the target environment
+     */
+    public void synchronizeEnvironmentInputs(ApplicationEnvironment source, ApplicationEnvironment target) {
+        copyLocationPolicies(source, target);
+        copySubstitutions(source, target);
+        copyInputs(source, target);
+    }
+
+    /**
+     * Copy location policies from source environment to target environment
+     * 
+     * @param source the source environment
+     * @param target the target environment
+     */
+    private void copyLocationPolicies(ApplicationEnvironment source, ApplicationEnvironment target) {
+        DeploymentTopology sourceDeploymentTopology = deploymentTopologyService.getDeploymentTopologyIfExist(source);
+        if (sourceDeploymentTopology != null) {
+            if (MapUtils.isNotEmpty(sourceDeploymentTopology.getLocationGroups())) {
+                Map<String, String> sourceLocationPolicies = sourceDeploymentTopology.getLocationGroups().entrySet().stream()
+                        .filter(entry -> entry.getValue().getPolicies() != null && entry.getValue().getPolicies().size() > 0
+                                && entry.getValue().getPolicies().iterator().next() instanceof LocationPlacementPolicy)
+                        .collect(Collectors.toMap(Map.Entry::getKey,
+                                entry -> ((LocationPlacementPolicy) entry.getValue().getPolicies().iterator().next()).getLocationId()));
+                // Choose the same location policy as the environment to copy from
+                deploymentTopologyService.setLocationPolicies(target, sourceDeploymentTopology.getOrchestratorId(), sourceLocationPolicies);
+            }
+            DeploymentTopology targetDeploymentTopology = deploymentTopologyService.getDeploymentTopology(target);
+            if (MapUtils.isNotEmpty(sourceDeploymentTopology.getProviderDeploymentProperties())) {
+                targetDeploymentTopology.setProviderDeploymentProperties(sourceDeploymentTopology.getProviderDeploymentProperties());
+                deploymentTopologyService.updateDeploymentTopologyInputsAndSave(targetDeploymentTopology);
+            }
+        }
+    }
+
+    /**
+     * Copy inputs from the source environment to the target environment
+     * 
+     * @param source the source environment
+     * @param target the target environment
+     */
+    private void copyInputs(ApplicationEnvironment source, ApplicationEnvironment target) {
+        DeploymentTopology sourceDeploymentTopology = deploymentTopologyService.getDeploymentTopologyIfExist(source);
+        if (sourceDeploymentTopology != null) {
+            boolean inputsHasChanged = false;
+            DeploymentTopology targetDeploymentTopology = deploymentTopologyService.getDeploymentTopology(target);
+            if (MapUtils.isNotEmpty(sourceDeploymentTopology.getInputProperties())) {
+                if (MapUtils.isNotEmpty(targetDeploymentTopology.getInputs())) {
+                    Map<String, PropertyDefinition> inputsDefinitions = targetDeploymentTopology.getInputs();
+                    Map<String, PropertyValue> inputsToCopy = sourceDeploymentTopology.getInputProperties().entrySet().stream()
+                            // Copy only inputs which exist in new topology's definition
+                            .filter(inputEntry -> inputsDefinitions.containsKey(inputEntry.getKey())).filter(inputEntry -> {
+                                // Copy only inputs which satisfy the new input definition
+                                try {
+                                    ConstraintPropertyService.checkPropertyConstraint(inputEntry.getKey(), inputEntry.getValue().getValue(),
+                                            inputsDefinitions.get(inputEntry.getKey()));
+                                    return true;
+                                } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
+                                    return false;
+                                }
+                            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    if (MapUtils.isNotEmpty(inputsToCopy)) {
+                        // There's something to copy
+                        targetDeploymentTopology.setInputProperties(inputsToCopy);
+                        inputsHasChanged = true;
+                    }
+                }
+            }
+            if (MapUtils.isNotEmpty(sourceDeploymentTopology.getUploadedInputArtifacts())) {
+                if (MapUtils.isNotEmpty(targetDeploymentTopology.getInputArtifacts())) {
+                    Map<String, DeploymentArtifact> inputsArtifactsDefinitions = targetDeploymentTopology.getInputArtifacts();
+                    // Copy only artifacts which exists in the new topology's definition
+                    Map<String, DeploymentArtifact> inputsArtifactsToCopy = sourceDeploymentTopology.getUploadedInputArtifacts().entrySet().stream()
+                            .filter(inputEntry -> inputsArtifactsDefinitions.containsKey(inputEntry.getKey()))
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    if (MapUtils.isNotEmpty(inputsArtifactsToCopy)) {
+                        // There's something to copy
+                        targetDeploymentTopology.setUploadedInputArtifacts(inputsArtifactsToCopy);
+                        inputsHasChanged = true;
+                    }
+                }
+            }
+            if (inputsHasChanged) {
+                deploymentTopologyService.updateDeploymentTopologyInputsAndSave(targetDeploymentTopology);
+            }
+        }
+    }
+
+    /**
+     * Copy substitution from the source environment to the target environment
+     *
+     * @param source the source environment
+     * @param target the target environment
+     */
+    private void copySubstitutions(ApplicationEnvironment source, ApplicationEnvironment target) {
+        DeploymentTopology sourceDeploymentTopology = deploymentTopologyService.getDeploymentTopologyIfExist(source);
+        if (sourceDeploymentTopology != null && MapUtils.isNotEmpty(sourceDeploymentTopology.getSubstitutedNodes())) {
+            DeploymentTopology targetDeploymentTopology = deploymentTopologyService.getDeploymentTopology(target);
+            if (MapUtils.isNotEmpty(targetDeploymentTopology.getNodeTemplates())) {
+                DeploymentSubstitutionConfiguration substitutionConfiguration = deploymentTopologyService
+                        .getAvailableNodeSubstitutions(targetDeploymentTopology);
+                // Update the substitution on the target if available substitution is always compatible
+                sourceDeploymentTopology.getSubstitutedNodes().entrySet().stream()
+                        .filter(entry -> substitutionConfiguration.getAvailableSubstitutions().containsKey(entry.getKey())
+                                && substitutionConfiguration.getAvailableSubstitutions().get(entry.getKey()).contains(entry.getValue()))
+                        .forEach(entry -> {
+                            deploymentTopologyService.updateSubstitution(target.getId(), entry.getKey(), entry.getValue());
+                        });
+            }
+        }
     }
 
     /**

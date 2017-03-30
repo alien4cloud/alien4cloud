@@ -160,8 +160,7 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
             }
         }
 
-        // data such as attributes!
-        // Map properties
+        // Map properties data such as attributes!
         serviceResource.getNodeInstance().getNodeTemplate().setProperties(Maps.newLinkedHashMap());
         for (Entry<String, Set<String>> nodeOutputPropEntry : safe(topology.getOutputProperties()).entrySet()) {
             NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeOutputPropEntry.getKey());
@@ -184,8 +183,13 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         serviceResource.getNodeInstance().getNodeTemplate().setCapabilities(Maps.newLinkedHashMap());
         // Map capabilities exposed as is for the service node.
         for (Entry<String, SubstitutionTarget> capabilityMapping : safe(topology.getSubstitutionMapping().getCapabilities()).entrySet()) {
-            serviceResource.getNodeInstance().getNodeTemplate().getCapabilities().put(capabilityMapping.getKey(), topology.getNodeTemplates()
-                    .get(capabilityMapping.getValue().getNodeTemplateName()).getCapabilities().get(capabilityMapping.getValue().getTargetId()));
+            Capability deployedCapability = topology.getNodeTemplates().get(capabilityMapping.getValue().getNodeTemplateName()).getCapabilities()
+                    .get(capabilityMapping.getValue().getTargetId());
+            serviceResource.getNodeInstance().getNodeTemplate().getCapabilities().put(capabilityMapping.getKey(), deployedCapability);
+            // TODO improve while capabilities attributes will be really supported
+            // Workaround to support capabilities attributes is to use node attributes with keys in format capabilities.capaName.attributeName
+            mapCapabilityRequirementAttributes(serviceResource, instanceInformation, capabilityMapping.getValue().getNodeTemplateName(), "capabilities",
+                    capabilityMapping.getValue().getTargetId());
         }
 
         serviceResource.getNodeInstance().getNodeTemplate().setRequirements(Maps.newLinkedHashMap());
@@ -193,9 +197,36 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         for (Entry<String, SubstitutionTarget> requirementMapping : safe(topology.getSubstitutionMapping().getRequirements()).entrySet()) {
             serviceResource.getNodeInstance().getNodeTemplate().getRequirements().put(requirementMapping.getKey(), topology.getNodeTemplates()
                     .get(requirementMapping.getValue().getNodeTemplateName()).getRequirements().get(requirementMapping.getValue().getTargetId()));
+            // TODO improve while requirements attributes will be really supported
+            // Workaround to support requirements attributes is to use node attributes with keys in format capabilities.capaName.attributeName
+            mapCapabilityRequirementAttributes(serviceResource, instanceInformation, requirementMapping.getValue().getNodeTemplateName(), "requirements",
+                    requirementMapping.getValue().getTargetId());
         }
 
         serviceResourceService.save(serviceResource);
+    }
+
+    private void mapCapabilityRequirementAttributes(ServiceResource serviceResource, Map<String, Map<String, InstanceInformation>> instanceInformation,
+            String nodeTemplateName, String prefix, String capaReqName) {
+        Map<String, InstanceInformation> instances = instanceInformation.get(nodeTemplateName);
+        if (instances == null) {
+            log.error("Failed to map attributes from node <{}> capability for service <id: {}, name: {}>. The node cannot be found in deployed topology.",
+                    nodeTemplateName, serviceResource.getId(), serviceResource.getName());
+        } else if (instances.size() > 1) {
+            log.error("Services substitution does not yet supports the exposure of multiple instances");
+        } else {
+            InstanceInformation instance = instances.values().iterator().next();
+            // Map attributes that belongs the exposed capability
+            String attributePrefix = prefix + "." + capaReqName;
+            // TODO filter to avoid display of properties values here.
+            // String newPrefix = "capabilities." + capabilityMapping.getKey();
+            for (Entry<String, String> attributeEntry : instance.getAttributes().entrySet()) {
+                if (attributeEntry.getKey().startsWith(attributePrefix)) {
+                    // String newKey = newPrefix + attributeEntry.getKey().substring(attributePrefix.length());
+                    serviceResource.getNodeInstance().setAttribute(attributeEntry.getKey(), attributeEntry.getValue());
+                }
+            }
+        }
     }
 
     /**

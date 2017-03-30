@@ -13,6 +13,7 @@ define(function(require) {
   require('scripts/applications/services/deployment_topology_services');
   require('scripts/applications/services/deployment_topology_processor.js');
   require('scripts/applications/services/tasks_processor.js');
+  require('scripts/applications/services/deployment_context_utils');
 
   states.state('applications.detail.deployment.locations', {
     url: '/locations',
@@ -33,36 +34,18 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentLocationCtrl',
-    ['$scope', 'locationsMatchingServices', '$state', 'menu', 'deploymentTopologyServices',
-      function($scope, locationsMatchingServices, $state, menu, deploymentTopologyServices) {
+    ['$scope', 'locationsMatchingServices', '$state', 'menu', 'deploymentTopologyServices', 'deploymentContextUtils',
+      function($scope, locationsMatchingServices, $state, menu, deploymentTopologyServices, deploymentContextUtils) {
         var thisMenu = _.find(menu, {id:'am.applications.detail.deployment.locations' });
         if (_.has($scope, 'deploymentContext.deploymentTopologyDTO.topology.orchestratorId') && _.has($scope, 'deploymentContext.deploymentTopologyDTO.locationPolicies.' + GROUP_ALL)) {
           $scope.oldSelectedOrchestratorId = $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId;
           $scope.oldSelectedLocationId = $scope.deploymentContext.deploymentTopologyDTO.locationPolicies[GROUP_ALL];
         }
 
-        function formatLocationMatches(locationMatches) {
-          $scope.deploymentContext.locationMatches = {};
-          _.each(locationMatches, function(locationMatch) {
-            $scope.deploymentContext.locationMatches[locationMatch.location.id] = locationMatch;
-          });
-        }
-
-        //check and fill selected location from deploymentTopologyDTO
-        function initSelectedLocation() {
-          delete $scope.deploymentContext.selectedLocation;
-          if (_.has($scope, 'deploymentContext.deploymentTopologyDTO.locationPolicies.' + GROUP_ALL)) {
-            var selectedLocationId = $scope.deploymentContext.deploymentTopologyDTO.locationPolicies[GROUP_ALL];
-            if ($scope.deploymentContext.locationMatches && $scope.deploymentContext.locationMatches[selectedLocationId]) {
-              $scope.deploymentContext.selectedLocation = $scope.deploymentContext.locationMatches[selectedLocationId].location;
-            }
-          }
-        }
-
         var refreshLocationMatching = function() {
           locationsMatchingServices.getLocationsMatches({topologyId: $scope.topologyId, environmentId: $scope.deploymentContext.selectedEnvironment.id}, function(result) {
-            formatLocationMatches(result.data);
-            initSelectedLocation();
+            deploymentContextUtils.formatLocationMatches($scope, result.data);
+            deploymentContextUtils.initSelectedLocation($scope);
           });
         };
         // Watch over deployment topology to initialize selected location
