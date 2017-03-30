@@ -12,6 +12,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
+
 /**
  * Update a Service Resource.
  */
@@ -34,4 +36,8 @@ public class UpdateServiceResourceRequest {
     private NodeInstanceDTO nodeInstance;
     @ApiModelProperty(value = "The list of locations.")
     private String[] locationIds;
+    @ApiModelProperty(value = "Map capability name -> relationship type id that optionally defines a relationship type to use to perform the service side operations to connect to the service on a given capability")
+    private Map<String, String> capabilitiesRelationshipTypes;
+    @ApiModelProperty(value = "Map requirement name -> relationship type id that optionally defines a relationship type to use to perform the service side operations to connect to the service on a given requirement.")
+    private Map<String, String> requirementsRelationshipTypes;
 }

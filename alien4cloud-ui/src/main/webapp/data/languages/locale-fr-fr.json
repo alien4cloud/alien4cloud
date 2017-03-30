@@ -1,4 +1,12 @@
 {
+  "SERVICE":{
+    "HALF_RELATIONSHIP" : {
+      "CAPABILITY_LABEL" : "Demi-relation",
+      "CAPABILITY_DESCRIPTION" : "Une relationsthip type peut être utilisée pour définir les opérations à executer coté service.",
+      "REQUIREMENT_LABEL" : "Demi-relation",
+      "REQUIREMENT_DESCRIPTION" : "Une relationsthip type peut être utilisée pour définir les opérations à executer coté service."
+    }
+  },
   "APPLICATIONS" : {
     "APPLICATION" : "Application",
     "APPLICATION_ROLES" : "Rôles d'application",

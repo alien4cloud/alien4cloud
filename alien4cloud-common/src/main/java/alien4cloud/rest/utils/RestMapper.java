@@ -32,11 +32,14 @@ public class RestMapper extends ObjectMapper {
     public static final ThreadLocal<String> REQUEST_OPERATION = new ThreadLocal<>();
     public static final String PATCH = "PATCH";
 
+    static {
+        NULL_INSTANCES.put(String.class, "null");
+    }
+
     public RestMapper() {
         super();
         this._serializationConfig = this._serializationConfig.withAttribute(ConditionalAttributes.REST, "true");
         this._deserializationConfig = this._deserializationConfig.withAttribute(ConditionalAttributes.REST, "true");
-        NULL_INSTANCES.put(String.class, "null");
 
         this.registerModule(new DeserializerModule(new PatchBeanDeserializerModifier()));
     }

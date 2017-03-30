@@ -20,7 +20,11 @@ define(function(require) {
         'dependencies': '=', // dependencies
         'isPropertyEditable': '&', // callback operation that should return true if a property or a capability property can be edited.
         'onPropertyUpdate': '&', // callback operation triggered when a property is actually updated
-        'onCapabilityPropertyUpdate': '&' // callback operation triggered when a capability property is actually updated
+        'onCapabilityPropertyUpdate': '&', // callback operation triggered when a capability property is actually updated
+        'onHalfRelationshipTypeUpdate' : '&?', // callback operation triggered when an half relationship type is updated (isService should be true)
+        'capabilitiesRelationshipTypes' : '=?', // list of relationship type by capabilities (isService should be true)
+        'requirementsRelationshipTypes' : '=?', // list of relationship type by requirements (isService should be true)
+        'isService': '=?' // is it a service ?
       },
       link: {}
     };
