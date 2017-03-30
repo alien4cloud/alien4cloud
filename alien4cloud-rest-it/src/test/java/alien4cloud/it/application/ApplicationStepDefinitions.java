@@ -524,7 +524,9 @@ public class ApplicationStepDefinitions {
         appEnvRequest.setName(appEnvName);
         appEnvRequest.setDescription(appEnvDescription);
         appEnvRequest.setVersionId("0.1.0-SNAPSHOT");
-        appEnvRequest.setInputCandidate(Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), copyInputsFrom));
+        if (CURRENT_APPLICATION != null) {
+            appEnvRequest.setInputCandidate(Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), copyInputsFrom));
+        }
         Context.getInstance()
                 .registerRestResponse(getRestClientInstance().postJSon(
                         "/rest/v1/applications/" + nullAsString(CURRENT_APPLICATION == null ? null : CURRENT_APPLICATION.getId()) + "/environments",
