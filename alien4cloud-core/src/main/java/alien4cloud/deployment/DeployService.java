@@ -88,6 +88,8 @@ public class DeployService {
     private DeploymentLockService deploymentLockService;
     @Inject
     private DeploymentLoggingService deploymentLoggingService;
+    @Inject
+    private ServiceResourceRelationshipService serviceResourceRelationshipService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -146,6 +148,8 @@ public class DeployService {
             deploymentInputService.processInputArtifacts(deploymentTopology);
             PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations,
                     deploymentTopology);
+            // Process services relationships to inject the service side based on the service resource.
+            serviceResourceRelationshipService.process(deploymentContext);
             // Download and process all remote artifacts before deployment
             artifactProcessorService.processArtifacts(deploymentContext);
             // Build the context for deployment and deploy
