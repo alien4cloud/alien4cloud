@@ -134,21 +134,86 @@
             node-template="selectedService.nodeInstance.nodeTemplate"
             node-type="selectedNodeType"
             node-capability-types="selectedCapabilityTypes"
-            on-half-relationship-type-update="updateHalfRelationshipType(type,name,relationshipTypeId)"
+            on-half-relationship-type-update="updateHalfRelationshipType(type, name, relationshipTypeId)"
             capabilities-relationship-types="selectedService.capabilitiesRelationshipTypes"
-            requirements-relationship-types="selectedService.requirementsRelationshipTypes"
             dependencies="selectedDependencies"
             is-property-editable="isPropertyEditable()"
             on-property-update="updateProperty(propertyName, propertyValue)"
             on-capability-property-update="updateCapabilityProperty(capabilityName, propertyName, propertyValue)">
           </a4c-node-template-edit>
+          <!-- Requirements -->
+          <div ng-if="selectedService.nodeInstance.nodeTemplate.requirements.length > 0">
+            <div id="node-details-requirements" class="clickable topology-column-content-head" ng-click="isRequirementsCollapsed = !isRequirementsCollapsed">
+              <i class="fa" ng-class="{'fa-caret-down' : !isRequirementsCollapsed, 'fa-caret-right': isRequirementsCollapsed}"></i>
+              {{'COMPONENTS.REQUIREMENTS.TYPE' | translate}}
+            </div>
+            <div id="node-details-requirements-panel" class="indent" uib-collapse="isRequirementsCollapsed" >
+              <div id="node-details-capabilities-{{requirementEntry.key}}-block" class="row-margin" ng-repeat="requirementEntry in selectedService.nodeInstance.nodeTemplate.requirements"
+                   ng-init="isReqPropsCollapsed = {};">
+                <div class="topology-column-content-head clickable"
+                     ng-click="(isReqPropsCollapsed[requirementEntry.key] = !isReqPropsCollapsed[requirementEntry.key])">
+                  <div class="row">
+                    <div class="col-md-5">
+                      <i class="fa fa-fw"
+                         ng-class="{'fa-caret-down' : !isReqPropsCollapsed[requirementEntry.key], 'fa-caret-right': isReqPropsCollapsed[requirementEntry.key]}">
+                      </i>{{requirementEntry.key}}
+                    </div>
+                    <div style="font-weight: normal" class="col-md-6 text-info" id="capability-{{requirementEntry.key}}">
+                      {{requirementEntry.value.type}}
+                    </div>
+                    <div class="col-md-1" ng-init="capaComp = getComponent(nodeTemplate, requirementEntry.value.type)">
+                      <simple-modal title="{{ 'MODAL.TITLE.CAPABILITY' | translate}}" content="{{capaComp.data.description}}"
+                                    key="{{requirementEntry.value.type}}"></simple-modal>
+                    </div>
+                  </div>
+                </div>
+                <div class="indent" ng-if="!isReqPropsCollapsed[requirementEntry.key]">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label id="p_name_{{propertyName}}"
+                             class="property-display-label-ellipsed control-label"
+                             uib-tooltip="{{SERVICE.RELATIONSHIP.LABEL | translate}}"
+                             tooltip-append-to-body="true">
+                        <i class="fa fa-link"></i> {{'SERVICE.RELATIONSHIP.LABEL'| translate}}
+                      </label>
+                    </div>
+                    <div class="col-md-8" ng-if="isPropertyEditable()" >
+                      <span class="typeahead"
+                            ng-click="switchLongTextChoice(true)"
+                            editable-text="selectedService.requirementsRelationshipTypes[requirementEntry.key]"
+                            buttons="no"
+                            onbeforesave="updateHalfRelationshipType('requirement', requirementEntry.key, $data)" blur="submit"
+                            onhide="switchLongTextChoice(false)"
+                            e-uib-typeahead="item for item in relationshipTypeQuickSearchHandler.doQuickSearch($viewValue)"
+                            e-typeahead-min-length="relationshipTypeQuickSearchHandler.minLength"
+                            e-typeahead-wait-ms="relationshipTypeQuickSearchHandler.waitBeforeRequest"
+                            e-typeahead-loading="searching">
+                      {{selectedService.requirementsRelationshipTypes[requirementEntry.key] | truncate:30}}
+                      <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
+                      </span>
+                    </div>
+                    <div class="col-md-8" ng-if="!isPropertyEditable()" >
+                      <span>
+                      {{selectedService.requirementsRelationshipTypes[requirementEntry.key] | truncate:30}}
+                      </span>
+                    </div>
+                    <div class="col-md-1">
+                      <simple-modal title="{{ 'SERVICE.RELATIONSHIP.LABEL' | translate}}"
+                                    content="{{ 'SERVICE.RELATIONSHIP.REQUIREMENT_DESCRIPTION' | translate}}"
+                                    key="half_relationship_type_{{requirementEntry.key}}"></simple-modal>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <!-- Attributes -->
           <div ng-if="selectedNodeType.attributes.length > 0">
             <div id="node-details-attributes" class="clickable topology-column-content-head" ng-click="isAttributesCollapsed = !isAttributesCollapsed">
               <i class="fa" ng-class="{'fa-caret-down' : !isAttributesCollapsed, 'fa-caret-right': isAttributesCollapsed}"></i>
               {{'COMMON.ATTRIBUTES' | translate}}
             </div>
-            <div id="node-details-attributes-panel" uib-collapse="isAttributesCollapsed" >
+            <div id="node-details-attributes-panel" class="indent" uib-collapse="isAttributesCollapsed" >
               <table class="table table-condensed" id="nodeAttributes">
                 <tr ng-repeat="attrEntry in selectedNodeType.attributes">
                   <td>

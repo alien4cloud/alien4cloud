@@ -29,8 +29,8 @@ define(function (require) {
   });
 
   modules.get('a4c-services', ['ui.router', 'ui.bootstrap','a4c-common']).controller('a4cServiceResourcesCtrl',
-    ['$scope', '$uibModal', '$alresource', 'searchServiceFactory', 'resizeServices', 'resourceSecurityFactory', 'globalRestErrorHandler',
-    function($scope, $uibModal, $alresource, searchServiceFactory, resizeServices, resourceSecurityFactory, globalRestErrorHandler) {
+    ['$scope', '$uibModal', '$alresource', 'searchServiceFactory', 'resizeServices', 'resourceSecurityFactory', 'globalRestErrorHandler', 'relationshipTypeQuickSearchService',
+    function($scope, $uibModal, $alresource, searchServiceFactory, resizeServices, resourceSecurityFactory, globalRestErrorHandler, relationshipTypeQuickSearchService) {
       const serviceResourceService = $alresource('rest/latest/services/:serviceId');
       const orchestratorsService = $alresource('rest/latest/orchestrators/:id');
       const locationsService = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:id');
@@ -41,6 +41,12 @@ define(function (require) {
         $scope.dimensions = { width: width, height: height };
         $scope.$digest();
       }, '#catalog-container');
+
+      $scope.relationshipTypeQuickSearchHandler = {
+        'doQuickSearch': relationshipTypeQuickSearchService.doQuickSearch,
+        'waitBeforeRequest': 500,
+        'minLength': 3
+      };
 
       $scope.locations = [];
       // Fetch all orchestrators and locations for display
@@ -192,22 +198,21 @@ define(function (require) {
       };
 
       $scope.updateHalfRelationshipType = function(type, name, relationshipTypeId) {
-         switch(type){
-            case 'capability':
-                var updateRequest = {
-                    capabilitiesRelationshipTypes: {}
-                };
-                updateRequest.capabilitiesRelationshipTypes[name] = relationshipTypeId;
-                break;
-
-            case 'requirement':
-                var updateRequest = {
-                    requirementsRelationshipTypes:{}
-                }
-                updateRequest.requirementsRelationshipTypes[name] = relationshipTypeId;
-                break;
-         }
-
+        var updateRequest;
+        switch(type){
+          case 'capability':
+            updateRequest = {
+              capabilitiesRelationshipTypes: {}
+            };
+            updateRequest.capabilitiesRelationshipTypes[name] = relationshipTypeId;
+            break;
+          case 'requirement':
+            updateRequest = {
+              requirementsRelationshipTypes:{}
+            };
+            updateRequest.requirementsRelationshipTypes[name] = relationshipTypeId;
+            break;
+        }
         return serviceResourceService.patch({
           serviceId: $scope.selectedService.id
         }, angular.toJson(updateRequest)).$promise;

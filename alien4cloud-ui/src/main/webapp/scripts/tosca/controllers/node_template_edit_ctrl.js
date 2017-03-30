@@ -12,7 +12,7 @@ define(function(require) {
       a4cToscaProcessor.processNodeTemplate($scope.nodeTemplate);
       a4cToscaProcessor.processCapabilityTypes($scope.nodeCapabilityTypes);
 
-      $scope.isService = angular.isDefined($scope.isService) ? $scope.isService : false;
+      $scope.isService = _.defined($scope.isService) ? $scope.isService : false;
 
       $scope.getCapabilityPropertyDefinition = function(capabilityTypeId, capabilityPropertyName) {
         var capabilityType = $scope.nodeCapabilityTypes[capabilityTypeId];
@@ -29,31 +29,18 @@ define(function(require) {
         return _.defined(map) && Object.keys(map).length > 0;
       };
 
-      $scope.updateHalfRelationshipType = function(type, name, relationshipTypeId) {
-        if(relationshipTypeId == ""){
+      $scope.updateHalfRelationshipType = function(name, relationshipTypeId) {
+        if(relationshipTypeId === '') {
             relationshipTypeId = null;
         }
-
         var updatePromise = $scope.onHalfRelationshipTypeUpdate({
-          type:type,
-          name:name,
-          relationshipTypeId:relationshipTypeId
+          type: 'capability',
+          name: name,
+          relationshipTypeId: relationshipTypeId
         });
         return updatePromise.then(function(response) {
           if (_.undefined(response.error)) { // update was performed on server side - impact js data.
-            var map;
-            switch(type){
-            case 'requirement':
-            map = $scope.requirementsRelationshipTypes;
-            break;
-
-            case 'capability':
-            map = $scope.capabilitiesRelationshipTypes;
-            break;
-            }
-            map[name] = relationshipTypeId;
-          }else{
-            map[name] = null;
+            $scope.capabilitiesRelationshipTypes[name] = relationshipTypeId;
           }
           return response; // dispatch response to property display
         });

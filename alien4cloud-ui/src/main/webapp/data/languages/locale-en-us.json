@@ -1,9 +1,8 @@
 {
   "SERVICE":{
-    "HALF_RELATIONSHIP" : {
-      "CAPABILITY_LABEL" : "Half relationship type",
+    "RELATIONSHIP" : {
+      "LABEL" : "Relationship type",
       "CAPABILITY_DESCRIPTION" : "Relationship type used to define operations that run on the service side.",
-      "REQUIREMENT_LABEL" : "Half relationship type",
       "REQUIREMENT_DESCRIPTION" : "Relationship type used to define operations that run on the service side."
     }
   },
