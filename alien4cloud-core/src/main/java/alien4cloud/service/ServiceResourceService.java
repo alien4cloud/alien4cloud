@@ -13,10 +13,12 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.utils.AlienUtils;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.access.AccessDeniedException;
@@ -242,8 +244,17 @@ public class ServiceResourceService {
             PatchUtil.set(serviceResource.getNodeInstance().getNodeTemplate(), "type", nodeTypeStr, patch);
             PatchUtil.set(serviceResource.getNodeInstance(), "typeVersion", nodeTypeVersion, patch);
 
+            // update half-relationship type
             serviceResource.setCapabilitiesRelationshipTypes(PatchUtil.setMap(serviceResource.getCapabilitiesRelationshipTypes(), capabilitiesRelationshipTypes, patch));
             serviceResource.setRequirementsRelationshipTypes(PatchUtil.setMap(serviceResource.getRequirementsRelationshipTypes(), requirementsRelationshipTypes, patch));
+            // validate the half-relationship types exist
+            AlienUtils.safe(serviceResource.getCapabilitiesRelationshipTypes()).forEach((k,v) -> {
+                toscaTypeSearchService.findByIdOrFail(RelationshipType.class, v);
+            });
+            AlienUtils.safe(serviceResource.getRequirementsRelationshipTypes()).forEach((k,v) -> {
+                toscaTypeSearchService.findByIdOrFail(RelationshipType.class, v);
+            });
+
 
             // Node instance properties update
             nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
