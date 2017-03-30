@@ -10,10 +10,11 @@ import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.REMOVE_S
 import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.REMOVE_TARGET;
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.Map.Entry;
+
 import javax.inject.Inject;
 
-import com.google.common.collect.Maps;
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -21,14 +22,14 @@ import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Maps;
+
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.service.ServiceResourceService;
-
-import java.util.Map.Entry;
 
 /**
  * Process the deployment topology to override service side of relationships (when node are matched againts services).
@@ -38,7 +39,7 @@ public class ServiceResourceRelationshipService {
     @Inject
     private ServiceResourceService serviceResourceService;
     @Inject
-    private ToscaTypeSearchService toscaTypeSearchService;
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     public void process(PaaSTopologyDeploymentContext deploymentContext) {
         for (PaaSNodeTemplate paaSNodeTemplate : deploymentContext.getPaaSTopology().getNonNatives()) {
