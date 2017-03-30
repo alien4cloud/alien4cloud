@@ -1,13 +1,14 @@
 package alien4cloud.paas.wf.validation;
 
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
@@ -22,6 +23,7 @@ import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.paas.wf.exception.WorkflowException;
 import alien4cloud.paas.wf.util.WorkflowGraphUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This rule will check that for a given node, the 'set state' operations are done in the
@@ -108,10 +110,10 @@ public class StateSequenceValidation implements Rule {
             AbstractStep step = steps.next();
             if (step instanceof NodeActivityStep && ((NodeActivityStep) step).getNodeId().equals(nodeId)
                     && ((NodeActivityStep) step).getActivity() instanceof SetStateActivity) {
-                String stateName = ((SetStateActivity)((NodeActivityStep) step).getActivity()).getStateName();
+                String stateName = ((SetStateActivity) ((NodeActivityStep) step).getActivity()).getStateName();
                 Integer stateIdx = stateSequence.get(stateName);
                 if (stateIdx == null) {
-                 // if the state is null, it can be a custom state, we don't care about it
+                    // if the state is null, it can be a custom state, we don't care about it
                     continue;
                 }
                 if (lastDetectedStep == null) {
@@ -193,13 +195,13 @@ public class StateSequenceValidation implements Rule {
     private Map<String, Integer> getStateSequence(Workflow workflow) {
         if (!workflow.isStandard()) {
             return null;
-        } else if (workflow.getName().equals(Workflow.INSTALL_WF)) {
+        } else if (workflow.getName().equals(INSTALL)) {
             return INSTALL_STATES_SEQUENCE;
-        } else if (workflow.getName().equals(Workflow.UNINSTALL_WF)) {
+        } else if (workflow.getName().equals(UNINSTALL)) {
             return UNINSTALL_STATES_SEQUENCE;
         } else {
             return null;
         }
     }
-    
+
 }
