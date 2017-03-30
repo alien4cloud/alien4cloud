@@ -191,6 +191,28 @@ define(function (require) {
         }, angular.toJson(updateRequest)).$promise;
       };
 
+      $scope.updateHalfRelationshipType = function(type, name, relationshipTypeId) {
+         switch(type){
+            case 'capability':
+                var updateRequest = {
+                    capabilitiesRelationshipTypes: {}
+                };
+                updateRequest.capabilitiesRelationshipTypes[name] = relationshipTypeId;
+                break;
+
+            case 'requirement':
+                var updateRequest = {
+                    requirementsRelationshipTypes:{}
+                }
+                updateRequest.requirementsRelationshipTypes[name] = relationshipTypeId;
+                break;
+         }
+
+        return serviceResourceService.patch({
+          serviceId: $scope.selectedService.id
+        }, angular.toJson(updateRequest)).$promise;
+      };
+
       $scope.updateCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
         var updateRequest = { nodeInstance: { capabilities:{} } };
         updateRequest.nodeInstance.capabilities[capabilityName] = {properties:{}};

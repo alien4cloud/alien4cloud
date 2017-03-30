@@ -17,14 +17,9 @@ import alien4cloud.model.orchestrators.locations.Location;
 @Setter
 @ToString(callSuper = true)
 public class PaaSTopologyDeploymentContext extends PaaSDeploymentContext {
-
-    /**
-     * The parsed PaaS topology
-     */
+    /** The parsed PaaS topology */
     private PaaSTopology paaSTopology;
 
-    /**
-     * Locations map id of the location --> the location it-self
-     */
+    /** Locations map id of the location --> the location it-self */
     private Map<String, Location> locations;
 }

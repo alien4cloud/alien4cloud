@@ -2,11 +2,10 @@ package org.alien4cloud.tosca.model.definitions.constraints;
 
 import org.junit.Test;
 
-import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
-import alien4cloud.tosca.normative.InvalidPropertyValueException;
-import alien4cloud.tosca.normative.ToscaType;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 
 public class EqualConstraintTest {
     @Test
@@ -20,7 +19,7 @@ public class EqualConstraintTest {
     public void testEqualConstraintFailNullValue() throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual("value");
-        constraint.initialize(ToscaType.STRING_TYPE);
+        constraint.initialize(ToscaTypes.STRING_TYPE);
         constraint.validate(null);
     }
 
@@ -42,7 +41,7 @@ public class EqualConstraintTest {
     public void testEqualConstraintSatisfiedString() throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual("value");
-        constraint.initialize(ToscaType.STRING_TYPE);
+        constraint.initialize(ToscaTypes.STRING_TYPE);
         constraint.validate("value");
     }
 
@@ -57,7 +56,7 @@ public class EqualConstraintTest {
     public void testEqualConstraintSatisfiedInteger() throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual("1");
-        constraint.initialize(ToscaType.INTEGER_TYPE);
+        constraint.initialize(ToscaTypes.INTEGER_TYPE);
         constraint.validate(1l);
     }
 
@@ -65,7 +64,7 @@ public class EqualConstraintTest {
     public void testEqualConstraintFailInteger() throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual("1");
-        constraint.initialize(ToscaType.INTEGER_TYPE);
+        constraint.initialize(ToscaTypes.INTEGER_TYPE);
         constraint.validate(2l);
     }
 
@@ -73,7 +72,7 @@ public class EqualConstraintTest {
     public void testEqualConstraintSatisfiedFloat() throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual("1");
-        constraint.initialize(ToscaType.FLOAT_TYPE);
+        constraint.initialize(ToscaTypes.FLOAT_TYPE);
         constraint.validate(1.0d);
     }
 
@@ -81,7 +80,7 @@ public class EqualConstraintTest {
     public void testEqualConstraintFailFloat() throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual("1");
-        constraint.initialize(ToscaType.FLOAT_TYPE);
+        constraint.initialize(ToscaTypes.FLOAT_TYPE);
         constraint.validate(2.0d);
     }
 
@@ -89,8 +88,8 @@ public class EqualConstraintTest {
     public void testEqualConstraintSatisfiedTime() throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException, InvalidPropertyValueException {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual("1 m");
-        constraint.initialize(ToscaType.TIME_TYPE);
-        constraint.validate(ToscaType.TIME_TYPE.parse("1 m"));
+        constraint.initialize(ToscaTypes.TIME_TYPE);
+        constraint.validate(ToscaTypes.TIME_TYPE.parse("1 m"));
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -98,8 +97,8 @@ public class EqualConstraintTest {
             InvalidPropertyValueException {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual("1 m");
-        constraint.initialize(ToscaType.TIME_TYPE);
-        constraint.validate(ToscaType.TIME_TYPE.parse("2 d"));
+        constraint.initialize(ToscaTypes.TIME_TYPE);
+        constraint.validate(ToscaTypes.TIME_TYPE.parse("2 d"));
     }
 
     // TODO test with version

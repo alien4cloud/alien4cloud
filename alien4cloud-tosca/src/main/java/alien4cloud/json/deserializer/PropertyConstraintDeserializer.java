@@ -11,7 +11,7 @@ import java.util.Set;
 
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.InRangeConstraint;
-import alien4cloud.tosca.properties.constraints.exception.InvalidPropertyConstraintImplementationException;
+import org.alien4cloud.tosca.exceptions.InvalidPropertyConstraintImplementationException;
 import alien4cloud.utils.TypeScanner;
 
 import com.fasterxml.jackson.core.JsonParser;

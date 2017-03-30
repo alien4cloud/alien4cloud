@@ -14,7 +14,6 @@ import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -37,7 +36,6 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.IPaaSCallback;
@@ -48,7 +46,6 @@ import alien4cloud.paas.model.PaaSDeploymentLog;
 import alien4cloud.paas.model.PaaSDeploymentLogLevel;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
-import alien4cloud.service.ServiceResourceService;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.PropertyUtil;
@@ -90,10 +87,9 @@ public class DeployService {
     @Inject
     private DeploymentLockService deploymentLockService;
     @Inject
-    private ServiceResourceService serviceResourceService;
+    private DeploymentLoggingService deploymentLoggingService;
     @Inject
-    @Lazy(true)
-    private ILocationResourceService locationResourceService;
+    private ServiceResourceRelationshipService serviceResourceRelationshipService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -160,7 +156,7 @@ public class DeployService {
                     deploymentLog.setContent(t.getMessage() + "\n" + ExceptionUtils.getStackTrace(t));
                     deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
                     deploymentLog.setTimestamp(new Date());
-                    alienMonitorDao.save(deploymentLog);
+                    deploymentLoggingService.save(deploymentLog);
 
                     PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
                     messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
@@ -230,6 +226,8 @@ public class DeployService {
         // Process all input artifact, replace all artifact inside the topology with input artifact
         deploymentInputService.processInputArtifacts(deploymentTopology);
         PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology);
+		// Process services relationships to inject the service side based on the service resource.
+		serviceResourceRelationshipService.process(deploymentContext);
         // Download and process all remote artifacts before deployment
         artifactProcessorService.processArtifacts(deploymentContext);
 

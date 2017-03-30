@@ -2,6 +2,8 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import javax.annotation.Resource;
 
+import alien4cloud.utils.VersionUtil;
+import alien4cloud.utils.version.InvalidVersionException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -35,13 +37,24 @@ public class LaxImportParser implements INodeParser<CSARDependency> {
                 if (dependencyStrs.length == 2) {
                     String dependencyName = dependencyStrs[0];
                     String dependencyVersion = dependencyStrs[1];
+                    // check that version has the righ format
+                    try {
+                        VersionUtil.parseVersion(dependencyVersion);
+                    } catch (InvalidVersionException e) {
+                        context.getParsingErrors()
+                                .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.SYNTAX_ERROR,
+                                        "Version specified in the dependency is not a valid version.", node.getStartMark(),
+                                        "Dependency should be specified as name:version", node.getEndMark(), "Import"));
+                        return null;
+                    }
                     return new CSARDependency(dependencyName, dependencyVersion);
                 }
                 context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.SYNTAX_ERROR, "Import definition is not valid",
                         node.getStartMark(), "Dependency should be specified as name:version", node.getEndMark(), "Import"));
             } else {
-                // TODO check that the relative file exists and trigger import
-                throw new NotSupportedException("Relative import is currently not supported in Alien 4 Cloud");
+                context.getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.SYNTAX_ERROR, "Relative import is currently not supported in Alien 4 Cloud",
+                                node.getStartMark(), "Dependency should be specified as name:version", node.getEndMark(), "Import"));
             }
         }
         return null;

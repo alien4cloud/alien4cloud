@@ -1,5 +1,5 @@
 // Helper utils for authorizations directives
-define(function (require) {
+define(function () {
   'use strict';
 
   var utils = {};

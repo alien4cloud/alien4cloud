@@ -29,7 +29,7 @@ Feature: Check if topology is valid
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Java                                                                  |
-      | indexedNodeTypeId | alien.nodes.Java:2.0.0-SNAPSHOT                                       |
+      | indexedNodeTypeId | org.alien4cloud.nodes.Java:2.0.0-SNAPSHOT                                       |
     And I save the topology
     And I check for the valid status of the topology
     Then I should receive a RestResponse with no error
@@ -81,7 +81,7 @@ Feature: Check if topology is valid
     And I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Tomcat2                                                               |
-      | indexedNodeTypeId | alien.nodes.Tomcat:2.0.0-SNAPSHOT                                     |
+      | indexedNodeTypeId | org.alien4cloud.nodes.Tomcat:2.0.0-SNAPSHOT                                     |
     And I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
       | nodeName               | War                                                                                   |

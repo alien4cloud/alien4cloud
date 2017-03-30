@@ -4,9 +4,9 @@
   "locationId" : "97d5a78a-7cc7-46c9-8cbe-6011577a0dc5",
   "enabled" : true,
   "generated" : true,
-  "types" : [ "alien.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.Compute",
+    "type" : "org.alien4cloud.nodes.mock.Compute",
     "properties" : {
       "imageId" : {
         "value" : "ubuntu",
@@ -145,9 +145,9 @@
   "locationId" : "97d5a78a-7cc7-46c9-8cbe-6011577a0dc5",
   "enabled" : true,
   "generated" : true,
-  "types" : [ "alien.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.Compute",
+    "type" : "org.alien4cloud.nodes.mock.Compute",
     "properties" : {
       "imageId" : {
         "value" : "ubuntu",
@@ -286,9 +286,9 @@
   "locationId" : "97d5a78a-7cc7-46c9-8cbe-6011577a0dc5",
   "enabled" : true,
   "generated" : true,
-  "types" : [ "alien.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.Compute",
+    "type" : "org.alien4cloud.nodes.mock.Compute",
     "properties" : {
       "imageId" : {
         "value" : "centos",
@@ -427,9 +427,9 @@
   "locationId" : "97d5a78a-7cc7-46c9-8cbe-6011577a0dc5",
   "enabled" : true,
   "generated" : true,
-  "types" : [ "alien.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.Compute",
+    "type" : "org.alien4cloud.nodes.mock.Compute",
     "properties" : {
       "imageId" : {
         "value" : "centos",
@@ -568,9 +568,9 @@
   "locationId" : "c5930028-1160-4e2b-8682-fdf5706461c3",
   "enabled" : true,
   "generated" : true,
-  "types" : [ "alien.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.Compute",
+    "type" : "org.alien4cloud.nodes.mock.Compute",
     "properties" : {
       "imageId" : {
         "value" : "ubuntu",
@@ -709,9 +709,9 @@
   "locationId" : "c5930028-1160-4e2b-8682-fdf5706461c3",
   "enabled" : true,
   "generated" : true,
-  "types" : [ "alien.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.Compute",
+    "type" : "org.alien4cloud.nodes.mock.Compute",
     "properties" : {
       "imageId" : {
         "value" : "ubuntu",
@@ -850,9 +850,9 @@
   "locationId" : "c5930028-1160-4e2b-8682-fdf5706461c3",
   "enabled" : true,
   "generated" : true,
-  "types" : [ "alien.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.Compute",
+    "type" : "org.alien4cloud.nodes.mock.Compute",
     "properties" : {
       "imageId" : {
         "value" : "centos",
@@ -991,9 +991,9 @@
   "locationId" : "c5930028-1160-4e2b-8682-fdf5706461c3",
   "enabled" : true,
   "generated" : true,
-  "types" : [ "alien.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.Compute",
+    "type" : "org.alien4cloud.nodes.mock.Compute",
     "properties" : {
       "imageId" : {
         "value" : "centos",
@@ -1132,9 +1132,9 @@
   "locationId" : "97d5a78a-7cc7-46c9-8cbe-6011577a0dc5",
   "enabled" : true,
   "generated" : false,
-  "types" : [ "alien.nodes.mock.openstack.Flavor", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.openstack.Flavor", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.openstack.Flavor",
+    "type" : "org.alien4cloud.nodes.mock.openstack.Flavor",
     "properties" : {
       "id" : {
         "value" : "4",
@@ -1189,9 +1189,9 @@
   "locationId" : "97d5a78a-7cc7-46c9-8cbe-6011577a0dc5",
   "enabled" : true,
   "generated" : false,
-  "types" : [ "alien.nodes.mock.openstack.Flavor", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.openstack.Flavor", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.openstack.Flavor",
+    "type" : "org.alien4cloud.nodes.mock.openstack.Flavor",
     "properties" : {
       "id" : {
         "value" : "2",
@@ -1246,9 +1246,9 @@
   "locationId" : "c5930028-1160-4e2b-8682-fdf5706461c3",
   "enabled" : true,
   "generated" : false,
-  "types" : [ "alien.nodes.mock.openstack.Flavor", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.openstack.Flavor", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.openstack.Flavor",
+    "type" : "org.alien4cloud.nodes.mock.openstack.Flavor",
     "properties" : {
       "id" : {
         "value" : "2",
@@ -1303,9 +1303,9 @@
   "locationId" : "c5930028-1160-4e2b-8682-fdf5706461c3",
   "enabled" : true,
   "generated" : false,
-  "types" : [ "alien.nodes.mock.openstack.Flavor", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.openstack.Flavor", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.openstack.Flavor",
+    "type" : "org.alien4cloud.nodes.mock.openstack.Flavor",
     "properties" : {
       "id" : {
         "value" : "8",
@@ -1360,9 +1360,9 @@
   "locationId" : "c5930028-1160-4e2b-8682-fdf5706461c3",
   "enabled" : true,
   "generated" : false,
-  "types" : [ "alien.nodes.mock.openstack.Image", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.openstack.Image", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.openstack.Image",
+    "type" : "org.alien4cloud.nodes.mock.openstack.Image",
     "properties" : {
       "id" : {
         "value" : "centos",
@@ -1417,9 +1417,9 @@
   "locationId" : "97d5a78a-7cc7-46c9-8cbe-6011577a0dc5",
   "enabled" : true,
   "generated" : false,
-  "types" : [ "alien.nodes.mock.openstack.Image", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.openstack.Image", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.openstack.Image",
+    "type" : "org.alien4cloud.nodes.mock.openstack.Image",
     "properties" : {
       "id" : {
         "value" : "centos",
@@ -1474,9 +1474,9 @@
   "locationId" : "c5930028-1160-4e2b-8682-fdf5706461c3",
   "enabled" : true,
   "generated" : false,
-  "types" : [ "alien.nodes.mock.openstack.Image", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.openstack.Image", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.openstack.Image",
+    "type" : "org.alien4cloud.nodes.mock.openstack.Image",
     "properties" : {
       "id" : {
         "value" : "ubuntu",
@@ -1531,9 +1531,9 @@
   "locationId" : "97d5a78a-7cc7-46c9-8cbe-6011577a0dc5",
   "enabled" : true,
   "generated" : false,
-  "types" : [ "alien.nodes.mock.openstack.Image", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.openstack.Image", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.openstack.Image",
+    "type" : "org.alien4cloud.nodes.mock.openstack.Image",
     "properties" : {
       "id" : {
         "value" : "ubuntu",
@@ -1588,9 +1588,9 @@
   "locationId" : "a4bb744a-5eeb-4401-a950-31bfb8d5eb0d",
   "enabled" : true,
   "generated" : false,
-  "types" : [ "alien.nodes.mock.openstack.Image", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.openstack.Image", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.openstack.Image",
+    "type" : "org.alien4cloud.nodes.mock.openstack.Image",
     "properties" : {
       "id" : null
     },
@@ -1630,9 +1630,9 @@
   "locationId" : "a4bb744a-5eeb-4401-a950-31bfb8d5eb0d",
   "enabled" : true,
   "generated" : false,
-  "types" : [ "alien.nodes.mock.openstack.Flavor", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.openstack.Flavor", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.openstack.Flavor",
+    "type" : "org.alien4cloud.nodes.mock.openstack.Flavor",
     "properties" : {
       "id" : {
         "value" : "2",
@@ -1687,9 +1687,9 @@
   "locationId" : "a4bb744a-5eeb-4401-a950-31bfb8d5eb0d",
   "enabled" : true,
   "generated" : true,
-  "types" : [ "alien.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
+  "types" : [ "org.alien4cloud.nodes.mock.Compute", "tosca.nodes.Compute", "tosca.nodes.Root" ],
   "template" : {
-    "type" : "alien.nodes.mock.Compute",
+    "type" : "org.alien4cloud.nodes.mock.Compute",
     "properties" : {
       "imageId" : null,
       "flavorId" : {

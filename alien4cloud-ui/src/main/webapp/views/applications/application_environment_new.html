@@ -24,7 +24,7 @@
       </div>
     </div>
     <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.applicationVersions.$invalid}">
-      <label for="versionlistid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_VERSION' | translate}}</label>
+      <label for="versionslistid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_VERSION' | translate}}</label>
       <div class="col-lg-9">
         <select name="applicationVersions" required class="form-control" id="versionslistid" ng-model="selectedVersion" ng-options="v.version for v in versions">
           <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_VERSION_SELECT' | translate}}</option>
@@ -36,6 +36,14 @@
       <div class="col-lg-9">
         <select name="applicationTopoVersions" required class="form-control" id="topoversionlistid" ng-model="newEnvironment.versionId" ng-options="key as key for (key, value) in selectedVersion.topologyVersions">
           <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_VERSION_SELECT' | translate}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" ng-show="inputCandidates.length > 0">
+      <label for="inputcandidateslistid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_INPUT_CANDIDATE_LABEL' | translate}}</label>
+      <div class="col-lg-9">
+        <select name="inputCandidates" required class="form-control" id="inputcandidateslistid" ng-model="newEnvironment.inputCandidate" ng-options="inputCandidate.name for inputCandidate in inputCandidates">
+          <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_INPUT_CANDIDATE_SELECT' | translate}}</option>
         </select>
       </div>
     </div>

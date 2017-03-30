@@ -1,6 +1,8 @@
 package alien4cloud.paas.wf;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -8,14 +10,16 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class NodeActivityStep extends AbstractStep {
-
-    private AbstractActivity activity;
 
     private String nodeId;
 
     private String hostId;
-    
+
+    private AbstractActivity activity;
+
     @Override
     public String getStepAsString() {
         return activity.getRepresentation();

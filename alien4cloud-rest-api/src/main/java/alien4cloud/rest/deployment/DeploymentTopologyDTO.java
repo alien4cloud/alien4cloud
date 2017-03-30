@@ -21,31 +21,17 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DeploymentTopologyDTO extends AbstractTopologyDTO<DeploymentTopology> {
-    /**
-     * groupName --> locationId
-     */
+    /** groupName --> locationId. */
     private Map<String, String> locationPolicies = Maps.newHashMap();
 
-    /**
-     * validation result of the deployment topology
-     */
+    /** validation result of the deployment topology. */
     private TopologyValidationResult validation;
 
-    /**
-     * template id --> location resource template
-     **/
+    /** template id --> location resource template. **/
     private Map<String, LocationResourceTemplate> locationResourceTemplates;
 
-    /**
-     * Information about which node can be substituted by which orchestrator's location's resource
-     */
+    /** Information about which node can be substituted by which orchestrator's location's resource. */
     private DeploymentSubstitutionConfiguration availableSubstitutions;
-
-    public DeploymentTopologyDTO(DeploymentTopology topology, Map<String, NodeType> nodeTypes, Map<String, RelationshipType> relationshipTypes,
-                                 Map<String, CapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties,
-                                 Map<String, DataType> dataTypes) {
-        super(topology, nodeTypes, relationshipTypes, capabilityTypes, dataTypes, outputCapabilityProperties);
-    }
 
     public DeploymentTopologyDTO() {
     }

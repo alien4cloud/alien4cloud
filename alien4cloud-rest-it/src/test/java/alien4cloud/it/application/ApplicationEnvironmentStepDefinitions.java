@@ -8,6 +8,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.utils.TestUtils;
 import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
+import alien4cloud.rest.application.model.UpdateTopologyVersionForEnvironmentRequest;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
@@ -48,5 +49,27 @@ public class ApplicationEnvironmentStepDefinitions {
         Assert.assertNotNull(CURRENT_ENVIRONMENT_DTO);
         Assert.assertEquals(environmentName, CURRENT_ENVIRONMENT_DTO.getName());
         Assert.assertEquals(environmentVersion, CURRENT_ENVIRONMENT_DTO.getCurrentVersionName());
+    }
+
+    @And("^I update the topology version of the application environment named \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void iUpdateTheTopologyVersionOfTheApplicationEnvironmentNamedTo(String environmentName, String newTopologyVersion) throws Throwable {
+        iUpdateTheTopologyVersionOfTheApplicationEnvironmentNamedToWithInputsFromEnvironment(environmentName, newTopologyVersion, null);
+    }
+
+    @And("^I update the topology version of the application environment named \"([^\"]*)\" to \"([^\"]*)\" with inputs from environment \"([^\"]*)\"$")
+    public void iUpdateTheTopologyVersionOfTheApplicationEnvironmentNamedToWithInputsFromEnvironment(String environmentName, String newTopologyVersion,
+            String environmentToCopyInputs) throws Throwable {
+        UpdateTopologyVersionForEnvironmentRequest request = new UpdateTopologyVersionForEnvironmentRequest(newTopologyVersion,
+                Context.getInstance().getApplicationEnvironmentId(Context.getInstance().getApplication().getName(), environmentToCopyInputs));
+        Context.getInstance()
+                .registerRestResponse(
+                        Context.getRestClientInstance()
+                                .putJSon(
+                                        "/rest/v1/applications/" + Context.getInstance().getApplication().getId()
+                                                + "/environments/" + Context.getInstance().getApplicationEnvironmentId(
+                                                        Context.getInstance().getApplication().getName(), environmentName)
+                                                + "/topology-version",
+                                        JsonUtil.toString(request)));
+
     }
 }

@@ -3,7 +3,7 @@ package alien4cloud.tosca.container.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 
 public class ToscaPropertyTypeValidator implements ConstraintValidator<ToscaPropertyType, String> {
 
@@ -13,7 +13,7 @@ public class ToscaPropertyTypeValidator implements ConstraintValidator<ToscaProp
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (ToscaType.fromYamlTypeName(value) == null) {
+        if (ToscaTypes.fromYamlTypeName(value) == null) {
             return false;
         }
         return true;

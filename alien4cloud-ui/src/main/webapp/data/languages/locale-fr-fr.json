@@ -1,4 +1,12 @@
 {
+  "SERVICE":{
+    "HALF_RELATIONSHIP" : {
+      "CAPABILITY_LABEL" : "Demi-relation",
+      "CAPABILITY_DESCRIPTION" : "Une relationsthip type peut être utilisée pour définir les opérations à executer coté service.",
+      "REQUIREMENT_LABEL" : "Demi-relation",
+      "REQUIREMENT_DESCRIPTION" : "Une relationsthip type peut être utilisée pour définir les opérations à executer coté service."
+    }
+  },
   "APPLICATIONS" : {
     "APPLICATION" : "Application",
     "APPLICATION_ROLES" : "Rôles d'application",
@@ -6,6 +14,13 @@
     "ARCHIVE_NAME_HELP" : "Le nom de l'archive TOSCA (Cloud Service Archive) liée à l'application. C'est également l'id unique et immutable de l'application.",
     "AUTHORIZED" : "application autorisée",
     "DEPLOY" : "Déployer",
+    "DEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Êtes-vous certain de vouloir déployer l'application {{application}} de type {{type}} en version {{version}} avec le matching suivant:",
+        "FOOTER": "Sur la location {{location}} de l'orchestrateur {{orchestrator}} ?"
+      },
+      "TITLE": "Informations concernant le déploiement"
+    },
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",
@@ -37,11 +52,15 @@
       "ALL" : "All Environment",
       "ENV" : "Environnement",
       "ENV_ROLES" : "Rôles d'environment",
+      "SELECT_INPUT_CANDIDATE": "Selectionner l'environment pour copier les inputs",
       "FORM" : {
         "ENV_TYPE" : "Type d'environnement",
         "ENV_TYPE_SELECT" : "-- Sélectionner le type d'environnement --",
         "ENV_VERSION" : "Version de l'application",
-        "ENV_VERSION_SELECT" : "-- Sélectionner la version de l'application --"
+        "ENV_VERSION_SELECT" : "-- Sélectionner la version de l'application --",
+        "ENV_INPUT_CANDIDATE_LABEL": "Inputs",
+        "ENV_INPUT_CANDIDATE_SELECT": "-- Selectionner l'environment pour copier les inputs --",
+        "DONT_COPY_INPUT": "-- Ne pas copier les inputs --"
       },
       "NEW" : "Nouvel environnement",
       "STATUS" : "Etat"
@@ -260,6 +279,13 @@
           "GROUP" : "Groupe",
           "LABEL" : "HA politique est invalide"
         },
+        "ILLEGAL_OPERATIONS": {
+          "OPERATION": "Opération",
+          "SERVICE": "Service",
+          "RELATIONSHIP_TYPE": "Type de relation",
+          "LABEL": "Opérations ignorées",
+          "LABEL_DETAILS": "Certaines opérations d'une relation impliquant un service ne sont pas autorisées. Un client ne peut pas modifier directement la configuration d'un service et vice et versa."
+        },
         "LABEL" : "Alertes",
         "PROPERTIES" : {
           "LABEL" : "Propriétés de noeuds"
@@ -268,6 +294,13 @@
       "YAML" : "yaml"
     },
     "UNDEPLOY" : "Désinstaller",
+    "UNDEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Êtes-vous certain de vouloir désinstaller l'application {{application}} en version {{version}} ?",
+        "FOOTER": "Les noeud(s) suivant seront donc supprimé(s) :"
+      },
+      "TITLE": "Informations concernant la désinstallation"
+    },
     "VERSION" : {
       "LABEL" : "Version d'application",
       "MODAL" : {
@@ -426,6 +459,7 @@
     "NODE" : "Noeud",
     "PROPERTIES" : "Propriétés",
     "SOURCE" : "Source",
+    "RESOURCES": "Ressources",
     "STATE" : "Etat",
     "TARGET" : "Cible",
     "TYPE" : "Type",
@@ -574,8 +608,8 @@
     "ACTIONS" : "Opérations",
     "ARCHIVE" : "Nom du dossier",
     "ARCHIVE_TO_IMPORT" : "Archive(s) à importer",
-    "BRANCH" : "Branche",
-    "BRANCHE_TO_IMPORT" : "Sur la branche",
+    "BRANCH_OR_TAG" : "Branche ou tag",
+    "BRANCH_OR_TAG_TO_IMPORT" : "Sur la branche ou tag",
     "CREDENTIALS" : "Authentification",
     "CREDENTIALSINFO" : "Ces informations ne sont utiles que pour les dépôts privés",
     "DELETE" : "Supprimé",

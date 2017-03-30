@@ -8,7 +8,7 @@ define(function (require) {
   require('ng-table');
   require('scripts/admin/audit/audit_service');
   require('scripts/admin/audit/audit_conf');
-    require('scripts/common/directives/facets');
+  require('scripts/common/directives/facets');
 
   // register the state to access the metrics
   states.state('admin.audit', {

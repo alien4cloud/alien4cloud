@@ -1,15 +1,17 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
 
 tosca_default_namespace: Tosca default namespace value
-template_name: topology-error-missingtype
-template_author: Temlate author value
-template_version: 1.0.0-SNAPSHOT
+
+metadata:
+  template_name: topology-error-missingtype
+  template_author: Temlate author value
+  template_version: 1.0.0-SNAPSHOT
 
 description: A single topology with only one compute node (wrong type)
 
 imports:
   - "tosca-base-types:1.0"
-  
+
 topology_template:
   node_templates:
     compute:

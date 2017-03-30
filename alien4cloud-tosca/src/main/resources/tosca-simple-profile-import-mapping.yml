@@ -2,9 +2,17 @@
 
 - import_definition: alien4cloud.tosca.parser.impl.advanced.LaxImportParser
 # declare standard mapping based parsers
+
+- metadata: org.alien4cloud.tosca.model.CSARDependency
+  template_name: name
+  template_version: version
+
 - definition: org.alien4cloud.tosca.model.CsarDependenciesBean
   template_name: self.name
   template_version: self.version
+  metadata:
+    reference: self
+    type: metadata
   imports:
     set: dependencies
     type: import_definition

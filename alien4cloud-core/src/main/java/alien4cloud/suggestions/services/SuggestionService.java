@@ -52,7 +52,7 @@ import alien4cloud.model.common.AbstractSuggestionEntry;
 import alien4cloud.model.common.SimpleSuggestionEntry;
 import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -316,13 +316,13 @@ public class SuggestionService {
                             "Property [" + suggestionEntry.getTargetProperty() + "] not found for element [" + suggestionEntry.getTargetElementId() + "]");
                 } else {
                     switch (propertyDefinition.getType()) {
-                    case ToscaType.VERSION:
-                    case ToscaType.STRING:
+                    case ToscaTypes.VERSION:
+                    case ToscaTypes.STRING:
                         propertyDefinition.setSuggestionId(suggestionEntry.getId());
                         alienDAO.save(targetElement);
                         break;
-                    case ToscaType.LIST:
-                    case ToscaType.MAP:
+                    case ToscaTypes.LIST:
+                    case ToscaTypes.MAP:
                         PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
                         if (entrySchema != null) {
                             entrySchema.setSuggestionId(suggestionEntry.getId());

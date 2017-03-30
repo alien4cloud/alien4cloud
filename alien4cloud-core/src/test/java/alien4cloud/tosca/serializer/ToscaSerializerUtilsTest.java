@@ -7,13 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.definitions.constraints.AbstractPropertyConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
@@ -29,9 +26,11 @@ import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import alien4cloud.tosca.normative.IPropertyType;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.normative.types.IPropertyType;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -67,10 +66,10 @@ public class ToscaSerializerUtilsTest {
 
     @Test
     public void testPropertyValueFormatText() {
-        Assert.assertEquals("aaaa", ToscaPropertySerializerUtils.formatTextValue(0, "aaaa"));
-        Assert.assertEquals("\"[aa]\"", ToscaPropertySerializerUtils.formatTextValue(0, "[aa]"));
-        Assert.assertEquals("123", ToscaPropertySerializerUtils.formatTextValue(0, "123"));
-        Assert.assertEquals("\"*\"", ToscaPropertySerializerUtils.formatTextValue(0, "*"));
+        Assert.assertEquals("aaaa", ToscaPropertySerializerUtils.formatTextValue(false, 0, "aaaa"));
+        Assert.assertEquals("\"[aa]\"", ToscaPropertySerializerUtils.formatTextValue(false, 0, "[aa]"));
+        Assert.assertEquals("123", ToscaPropertySerializerUtils.formatTextValue(false, 0, "123"));
+        Assert.assertEquals("\"*\"", ToscaPropertySerializerUtils.formatTextValue(false, 0, "*"));
     }
 
     @Test
@@ -296,7 +295,8 @@ public class ToscaSerializerUtilsTest {
         String deploymentArtifact2Export = ToscaSerializerUtils.formatArtifact(deploymentArtifact2, 1);
         String repositoriesExport = ToscaSerializerUtils.formatRepositories(topology);
         Assert.assertEquals("  file: aaa/bbb.zip\n  type: tosca.artifacts.File\n  repository: my_company", deploymentArtifact2Export);
-        Assert.assertEquals("  my_company:\n    url: http://my_company.org\n    type: http\n    credential:\n      token: password\n      user: my_user", repositoriesExport);
+        Assert.assertEquals("  my_company:\n    url: http://my_company.org\n    type: http\n    credential:\n      token: password\n      user: my_user",
+                repositoriesExport);
 
         // two repositories with different name
         DeploymentArtifact deploymentArtifact3 = new DeploymentArtifact();
@@ -308,7 +308,9 @@ public class ToscaSerializerUtilsTest {
         node.getArtifacts().put("http_war2", deploymentArtifact3);
         Assert.assertTrue(ToscaSerializerUtils.hasRepositories(topology));
         repositoriesExport = ToscaSerializerUtils.formatRepositories(topology);
-        Assert.assertEquals("  my_company:\n    url: http://my_company.org\n    type: http\n    credential:\n      token: password\n      user: my_user\n  my_companyBis:\n    url: http://my_company.org\n    type: maven", repositoriesExport);
+        Assert.assertEquals(
+                "  my_company:\n    url: http://my_company.org\n    type: http\n    credential:\n      token: password\n      user: my_user\n  my_companyBis:\n    url: http://my_company.org\n    type: maven",
+                repositoriesExport);
 
         // add a new artifact with an already existing repository, should not duplicate the repository
         DeploymentArtifact deploymentArtifact4 = new DeploymentArtifact();
@@ -320,6 +322,8 @@ public class ToscaSerializerUtilsTest {
         node.getArtifacts().put("http_war3", deploymentArtifact4);
         Assert.assertTrue(ToscaSerializerUtils.hasRepositories(topology));
         repositoriesExport = ToscaSerializerUtils.formatRepositories(topology);
-        Assert.assertEquals("  my_company:\n    url: http://my_company.org\n    type: http\n    credential:\n      token: password\n      user: my_user\n  my_companyBis:\n    url: http://my_company.org\n    type: maven", repositoriesExport);
+        Assert.assertEquals(
+                "  my_company:\n    url: http://my_company.org\n    type: http\n    credential:\n      token: password\n      user: my_user\n  my_companyBis:\n    url: http://my_company.org\n    type: maven",
+                repositoriesExport);
     }
 }

@@ -1,0 +1,82 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+tosca_default_namespace:   # Optional. default namespace (schema, types version)
+template_name:             # Optional name of this service template
+template_author:           # Optional author of this service template
+template_version:          # Optional version of this service template
+
+description: This is an example of a single line description (no folding).
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT-wd03
+
+dsl_definitions:
+  # list of YAML alias anchors (or macros)
+
+topology_template:
+  inputs:
+    # list of global input parameters
+
+  node_templates:
+    # list of node templates
+
+  groups:
+    # list of groups defined in service template
+
+  outputs:
+    # list of output parameters
+
+node_types:
+  my_company.my_types.MyAppNodeType:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: My company’s custom applicaton
+    properties:
+      my_app_password:
+        type: string
+        default: default
+        description: application password
+        constraints:
+          - min_length: 6
+          - max_length: 10
+      my_app_port:
+        type: integer
+        description: application port number
+    capabilities:
+      some_capability: mytypes.mycapabilities.MyCapabilityTypeName
+      some_other_capability:
+        type: tosca.capabilities.Endpoint
+        description: this is a capability
+        properties:
+          port: 8080
+          range_sample: [8080, 9000]
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+      - other:
+          capability: tosca.capabilities.Endpoint
+          occurrences: [0, unbounded]
+    interfaces:
+      standard:
+        description: standard interface from TOSCA.
+      custom:
+        description: this is a sample interface used to execute custom operations.
+        do_something:
+          inputs:
+            definition_input:
+              type: string
+              default: default
+              description: an input parameter that should be queried on operation execution
+            value_input: static parameter value
+            function_input: { get_property: [ SELF, some_other_capability, port] }
+
+capability_types:
+  # list of capability type definitions
+
+relationship_types:
+  # list of relationship type definitions
+
+artifact_types:
+  # list of artifact type definitions

@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
 
 description: apache load balancer test recipe (do not include valid implementations and definition).
 
@@ -19,8 +19,8 @@ node_types:
         type: version
         required: true
     requirements:
-      host:
-        type: tosca.capabilities.Container
+      - host:
+          capability: tosca.capabilities.Container
 
   fastconnect.nodes.apacheLBGroovy:
     derived_from: fastconnect.nodes.apacheLB
@@ -63,13 +63,13 @@ node_types:
           implementation: scripts/updateWarUrl.groovy
         updateWarFile: scripts/updateWarFile.groovy
     requirements:
-      httpEndpoint:
-        type: calm.capabilities.HttpEndpoint
-        lower_bound: 0
-        upper_bound: unbounded
+      - httpEndpoint:
+          capability: calm.capabilities.HttpEndpoint
+          occurrences: [0, unbounded]
     artifacts:
-      - scripts: scripts
-        type: fastconnect.artifacts.ResourceDirectory
+      - scripts:
+          file: scripts
+          type: fastconnect.artifacts.ResourceDirectory
 
 relationship_types:
   fastconnect.relationships.cloudify.ConnectsToApacheLB:
@@ -78,14 +78,14 @@ relationship_types:
       Connects a http endpoint to an ApacheLB
     tags:
       marurity: draft
-    valid_sources: [ calm.capabilities.HttpEndpoint ]
-    valid_targets: [ calm.capabilities.HttpEndpoint ]
+    valid_target_types: [ calm.capabilities.HttpEndpoint ]
     interfaces:
       tosca.interfaces.relationship.Configure:
         post_configure_target: connecttoscript/invokeAddNode.groovy
     artifacts:
-      - scripts: connecttoscript
-        type: fastconnect.artifacts.ResourceDirectory
+      - scripts:
+          file: connecttoscript
+          type: fastconnect.artifacts.ResourceDirectory
 
 artifact_types:
   tosca.artifacts.GroovyScript:

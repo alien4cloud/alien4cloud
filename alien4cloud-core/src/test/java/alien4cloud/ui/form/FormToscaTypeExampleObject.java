@@ -1,6 +1,6 @@
 package alien4cloud.ui.form;
 
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import alien4cloud.ui.form.annotation.FormPropertyConstraint;
 import alien4cloud.ui.form.annotation.FormPropertyDefinition;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.Setter;
 public class FormToscaTypeExampleObject {
 
     @FormPropertyDefinition(
-            type = ToscaType.VERSION,
+            type = ToscaTypes.VERSION,
             description = "Version of the component",
             constraints = @FormPropertyConstraint(
                     greaterThan = "1.6"
@@ -19,7 +19,7 @@ public class FormToscaTypeExampleObject {
     private String versionField;
 
     @FormPropertyDefinition(
-            type = ToscaType.INTEGER,
+            type = ToscaTypes.INTEGER,
             description = "Integer of the component",
             constraints = @FormPropertyConstraint(
                     validValues = {
@@ -29,7 +29,7 @@ public class FormToscaTypeExampleObject {
     private int intField;
 
     @FormPropertyDefinition(
-            type = ToscaType.STRING,
+            type = ToscaTypes.STRING,
             description = "String of the component",
             constraints = @FormPropertyConstraint(
                     pattern = "\\d+"
@@ -37,7 +37,7 @@ public class FormToscaTypeExampleObject {
     private String stringField;
 
     @FormPropertyDefinition(
-            type = ToscaType.FLOAT,
+            type = ToscaTypes.FLOAT,
             description = "All constraint of the component",
             constraints = @FormPropertyConstraint(
                     equal = "5",

@@ -57,7 +57,7 @@ define(function (require) {
       $scope.selectRemote = function(valid) {
         if (valid) {
           if (!$scope.isRepositoryUnique()) {
-            toaster.pop('error', $translate.instant("EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE"), $translate.instant("EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE"), 3000, 'trustedHtml', null);
+            toaster.pop('error', $translate.instant('EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE'), $translate.instant('EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE'), 3000, 'trustedHtml', null);
             return;
           }
           var artifact = {};
@@ -70,7 +70,7 @@ define(function (require) {
       };
 
       $scope.isRepositoryUnique = function() {
-        if ($scope.selectedRepository == undefined) {
+        if ($scope.selectedRepository === undefined) {
           return true;
         }
         for (var i = 0; i < $scope.repositories.length; i++) {
@@ -89,8 +89,9 @@ define(function (require) {
       $scope.repositoryTypes = availableRepositories.repositoryTypes;
       $scope.repositories = [];
       var idx = 0;
+      var availableRepository;
       for (var i = 0; i < availableRepositories.archiveRepository.length; i++) {
-        var availableRepository = {};
+        availableRepository = {};
         availableRepository.idx = idx++;
         availableRepository.id = availableRepositories.archiveRepository[i].id;
         availableRepository.type = availableRepositories.archiveRepository[i].type;

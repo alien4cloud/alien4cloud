@@ -6,26 +6,25 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Perform validation of a topology before deployment.
@@ -33,19 +32,16 @@ import com.google.common.collect.Maps;
 @Service
 @Slf4j
 public class OrchestratorPropertiesValidationService {
-
     @Inject
     private OrchestratorDeploymentService orchestratorDeploymentService;
-    @Inject
-    private ConstraintPropertyService constraintPropertyService;
 
     public PropertiesTask validate(DeploymentTopology deploymentTopology) {
         if (StringUtils.isBlank(deploymentTopology.getOrchestratorId())) {
             return null;
         }
 
-        Map<String, PropertyDefinition> deploymentProperties = orchestratorDeploymentService.getDeploymentPropertyDefinitions(deploymentTopology
-                .getOrchestratorId());
+        Map<String, PropertyDefinition> deploymentProperties = orchestratorDeploymentService
+                .getDeploymentPropertyDefinitions(deploymentTopology.getOrchestratorId());
         if (MapUtils.isEmpty(deploymentProperties)) {
             return null;
         }
@@ -74,8 +70,8 @@ public class OrchestratorPropertiesValidationService {
         return task;
     }
 
-    public void checkConstraints(String orchestratorId, Map<String, String> properties) throws ConstraintValueDoNotMatchPropertyTypeException,
-            ConstraintViolationException {
+    public void checkConstraints(String orchestratorId, Map<String, String> properties)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         if (StringUtils.isBlank(orchestratorId) || MapUtils.isEmpty(properties)) {
             return;
         }
@@ -90,7 +86,7 @@ public class OrchestratorPropertiesValidationService {
                 throw new NotFoundException("property <" + propertyEntry.getKey() + "> is not defined for this orchestrator");
             }
             if (propertyDefinition.getConstraints() != null) {
-                constraintPropertyService.checkSimplePropertyConstraint(propertyEntry.getKey(), propertyEntry.getValue(), propertyDefinition);
+                ConstraintPropertyService.checkSimplePropertyConstraint(propertyEntry.getKey(), propertyEntry.getValue(), propertyDefinition);
             }
         }
     }

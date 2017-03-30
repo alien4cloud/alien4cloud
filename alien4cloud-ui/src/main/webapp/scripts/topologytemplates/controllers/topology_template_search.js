@@ -72,7 +72,8 @@ define(function (require) {
           $scope.close = function () {
             $uibModalInstance.dismiss();
           };
-      }];
+        }
+      ];
 
       $scope.openDeleteTopologyTemplateModal = function(csar, event) {
         if (_.defined(event)) {

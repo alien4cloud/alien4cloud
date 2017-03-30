@@ -130,9 +130,13 @@
             <i class="fa fa-cube" aria-hidden="true"></i>&nbsp;{{'SERVICES.INSTANCE' | translate}}
           </uib-tab-heading>
           <a4c-node-template-edit ng-if="selectedNodeType"
+            is-service="true"
             node-template="selectedService.nodeInstance.nodeTemplate"
             node-type="selectedNodeType"
             node-capability-types="selectedCapabilityTypes"
+            on-half-relationship-type-update="updateHalfRelationshipType(type,name,relationshipTypeId)"
+            capabilities-relationship-types="selectedService.capabilitiesRelationshipTypes"
+            requirements-relationship-types="selectedService.requirementsRelationshipTypes"
             dependencies="selectedDependencies"
             is-property-editable="isPropertyEditable()"
             on-property-update="updateProperty(propertyName, propertyValue)"

@@ -232,22 +232,6 @@ public class EditorStepDefs {
         }
     }
 
-    // // @When("^I get the topology related to the template with name \"(.*?)\"$")
-    // public void iGetTheTopologyRelatedToTheTemplateWithName(String templateName) throws Throwable {
-    //// TopologyTemplate topologyTeplate = topologyTemplateService.getTopologyTemplateByName(templateName);
-    //// Topology topology = alienDAO.customFind(Topology.class, QueryBuilders.matchQuery("delegateId", topologyTeplate.getId()));
-    //// topologyIds.addLast(topology.getId());
-    // }
-    //
-    // // @When("^I delete the template with name \"(.*?)\" and archive \"(.*?)\" \"(.*?)\" if any$")
-    // public void iRemoveTheTemplateWithName(String templateName, String archiveName, String archiveVersion) throws Throwable {
-    //// TopologyTemplate topologyTemplate = topologyTemplateService.getTopologyTemplateByName(templateName);
-    //// if (topologyTemplate != null) {
-    //// topologyTemplateService.delete(topologyTemplate.getId());
-    //// csarService.deleteCsar(archiveName, archiveVersion);
-    //// }
-    // }
-
     @When("^I get the edited topology$")
     public void I_get_the_edited_topology() {
         thrownException = null;
@@ -343,7 +327,6 @@ public class EditorStepDefs {
     private void doExecuteOperation(AbstractEditorOperation operation) {
         doExecuteOperation(operation, topologyIds.getLast());
     }
-
 
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, String expected) {

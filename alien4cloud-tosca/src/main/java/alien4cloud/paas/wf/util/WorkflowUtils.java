@@ -19,8 +19,8 @@ import alien4cloud.paas.wf.OperationCallActivity;
 import alien4cloud.paas.wf.SetStateActivity;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
-import alien4cloud.tosca.normative.NormativeComputeConstants;
-import alien4cloud.tosca.normative.NormativeRelationshipConstants;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
+import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 
 public class WorkflowUtils {
 

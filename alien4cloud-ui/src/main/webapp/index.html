@@ -69,8 +69,10 @@
       window.alienLoadingCount = 1;
       window.alienLoadingExpected = 35; // Number of files in the packaged version (plus 1 as we don't start at 0).
       window.alienLoadingFile = document.getElementById("alien-loading-file");
-      require(['a4c-bootstrap'], function(bootstrap) {
-        bootstrap.startup();
+      require(['a4c-dependencies'], function(dependencies) {
+        require(['a4c-bootstrap'], function(bootstrap) {
+          bootstrap.startup();
+        });
       });
     </script>
   </body>
