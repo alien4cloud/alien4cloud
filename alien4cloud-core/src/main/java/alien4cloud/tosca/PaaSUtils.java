@@ -209,18 +209,21 @@ public class PaaSUtils {
         if (value != null && !(value instanceof ScalarPropertyValue)) {
             // log here
             return;
+        } else if (value == null) {
+            value = new ScalarPropertyValue();
         }
 
         // the input name should be uppercase
         String inputName = name.toUpperCase();
 
+        AbstractPropertyValue finalValue = value;
         operations.forEach((operationName, operation) -> {
             if (operation.getInputParameters() == null) {
                 operation.setInputParameters(Maps.newHashMap());
             }
 
             // DO NOT OVERRIDE
-            operation.getInputParameters().putIfAbsent(inputName, value);
+            operation.getInputParameters().putIfAbsent(inputName, finalValue);
         });
     }
 
