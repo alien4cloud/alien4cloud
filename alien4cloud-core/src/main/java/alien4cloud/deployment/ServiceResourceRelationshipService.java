@@ -12,8 +12,11 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
 import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.stereotype.Component;
@@ -24,6 +27,8 @@ import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.service.ServiceResourceService;
+
+import java.util.Map.Entry;
 
 /**
  * Process the deployment topology to override service side of relationships (when node are matched againts services).
@@ -66,7 +71,8 @@ public class ServiceResourceRelationshipService {
             RelationshipType relationshipType = toscaTypeSearchService.findByIdOrFail(RelationshipType.class, relationshipTypeId);
             Interface serviceInterface = safe(relationshipType.getInterfaces()).get(ToscaRelationshipLifecycleConstants.CONFIGURE);
             if (serviceInterface != null) {
-                overrideOperations(templateInterface, serviceInterface, PRE_CONFIGURE_SOURCE, POST_CONFIGURE_SOURCE, ADD_TARGET, REMOVE_TARGET);
+                overrideOperations(paaSRelationshipTemplate.getTemplate(), templateInterface, relationshipType, serviceInterface, PRE_CONFIGURE_SOURCE,
+                        POST_CONFIGURE_SOURCE, ADD_TARGET, REMOVE_TARGET);
                 return;
             }
         }
@@ -83,7 +89,8 @@ public class ServiceResourceRelationshipService {
                 RelationshipType relationshipType = toscaTypeSearchService.findByIdOrFail(RelationshipType.class, relationshipTypeId);
                 Interface serviceInterface = safe(relationshipType.getInterfaces()).get(ToscaRelationshipLifecycleConstants.CONFIGURE);
                 if (serviceInterface != null) {
-                    overrideOperations(templateInterface, serviceInterface, PRE_CONFIGURE_TARGET, POST_CONFIGURE_TARGET, ADD_SOURCE, REMOVE_SOURCE);
+                    overrideOperations(paaSRelationshipTemplate.getTemplate(), templateInterface, relationshipType, serviceInterface, PRE_CONFIGURE_TARGET,
+                            POST_CONFIGURE_TARGET, ADD_SOURCE, REMOVE_SOURCE);
                 }
             }
         }
@@ -92,14 +99,29 @@ public class ServiceResourceRelationshipService {
 
     /**
      * This method injects the operations of the configure interface from the service to override the ones defined on the template interface.
-     * 
+     *
+     * @param relationshipTemplate The relationships template that contains the template interface. Artifacts from the service relationship are going to be
+     *            injected.
      * @param templateInterface The template interface on which to override source operations.
+     * @param serviceRelationshipType The relationship type associated with the service capability or requirement.
      * @param serviceInterface The service provided interface that will override source operations.
      * @param operations The operations to override.
      */
-    private void overrideOperations(Interface templateInterface, Interface serviceInterface, String... operations) {
+    private void overrideOperations(RelationshipTemplate relationshipTemplate, Interface templateInterface, RelationshipType serviceRelationshipType,
+            Interface serviceInterface, String... operations) {
         for (String operation : operations) {
             templateInterface.getOperations().put(operation, serviceInterface.getOperations().get(operation));
+        }
+        // We also need to inject relationships artifacts from the service.
+        if (relationshipTemplate.getArtifacts() == null) {
+            relationshipTemplate.setArtifacts(Maps.newHashMap());
+        }
+        for (Entry<String, DeploymentArtifact> artifactEntry : safe(serviceRelationshipType.getArtifacts()).entrySet()) {
+            if (relationshipTemplate.getArtifacts().containsKey(artifactEntry.getKey())) {
+                throw new IllegalArgumentException(
+                        "The service relationship requires to override an artifact already used by the template relationship. This association cannot be done.");
+            }
+            relationshipTemplate.getArtifacts().put(artifactEntry.getKey(), artifactEntry.getValue());
         }
     }
 
