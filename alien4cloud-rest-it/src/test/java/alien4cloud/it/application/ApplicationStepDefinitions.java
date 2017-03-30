@@ -562,6 +562,9 @@ public class ApplicationStepDefinitions {
             case "environmentType":
                 appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(attributeValue));
                 break;
+            case "currentVersionId":
+                appEnvRequest.setCurrentVersionId(attributeValue);
+                break;
             default:
                 log.info("Attribute <{}> not found in ApplicationEnvironmentRequest object", attribute);
                 break;

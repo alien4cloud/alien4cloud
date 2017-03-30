@@ -10,7 +10,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
+import alien4cloud.it.utils.RegisteredStringUtils;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
@@ -177,8 +179,16 @@ public class DeploymentTopologyStepDefinitions {
     @When("^I set the following inputs properties$")
     public void I_set_the_following_inputs_properties(Map<String, Object> inputProperties) throws Throwable {
         UpdateDeploymentTopologyRequest request = new UpdateDeploymentTopologyRequest();
-        request.setInputProperties(inputProperties);
+        request.setInputProperties(parseAndReplaceProperties(inputProperties));
         executeUpdateDeploymentTopologyCall(request);
+    }
+
+    private Map<String, Object> parseAndReplaceProperties(Map<String, Object> inputProperties) {
+        Map<String, Object> result = Maps.newHashMap();
+        for (Entry<String, Object> entry : inputProperties.entrySet()) {
+            result.put(entry.getKey(), RegisteredStringUtils.parseAndReplace(entry.getValue()));
+        }
+        return result;
     }
 
     @When("^I set the following orchestrator properties$")

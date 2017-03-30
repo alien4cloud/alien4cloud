@@ -150,11 +150,17 @@ public class RestClient {
     public String postJSon(String path, String jSon) throws IOException {
         log.debug("Send post json request to [" + path + "], jSon [" + jSon + "]");
         HttpPost httpPost = new HttpPost(applicationUrl + path);
-        StringEntity jsonInput = new StringEntity(jSon);
-        jsonInput.setContentType("application/json");
-        httpPost.setEntity(jsonInput);
+        if (jSon != null) {
+            StringEntity jsonInput = new StringEntity(jSon);
+            jsonInput.setContentType("application/json");
+            httpPost.setEntity(jsonInput);
+        }
         CloseableHttpResponse response = httpClient.execute(httpPost);
         return ResponseUtil.toString(response);
+    }
+
+    public String post(String path) throws IOException {
+        return postJSon(path, null);
     }
 
     public String putJSon(String path, String jSon) throws IOException {
