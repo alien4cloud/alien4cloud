@@ -2,15 +2,11 @@ package alien4cloud.tosca;
 
 import java.util.Map;
 
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
-import org.alien4cloud.tosca.model.definitions.IValue;
-import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.definitions.Operation;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,18 +25,20 @@ import alien4cloud.utils.MapUtil;
  */
 public class PaaSUtilsTest {
 
-    String interface1 = "interface1";
-    String operation1 = "operation1";
-    String fake1 = "FAKE1";
-    String fake2 = "FAKE2";
-    String fake3 = "FAKE3";
-    String fake4 = "FAKE4";
-    String fake5 = "FAKE5";
+    private final String SELF = "SELF_";
 
-    String fakeCapa1 = "fakecapa1";
+    private final String interface1 = "interface1";
+    private final String operation1 = "operation1";
+    private final String fake1 = "FAKE1";
+    private final String fake2 = "FAKE2";
+    private final String fake3 = "FAKE3";
+    private final String fake4 = "FAKE4";
+    private final String fake5 = "FAKE5";
 
-    String node1 = "node1";
-    String node2 = "node2";
+    private final String fakeCapa1 = "fakecapa1";
+
+    private final String node1 = "node1";
+    private final String node2 = "node2";
 
     @Test
     public void injectNodeTemplatePropertiesAsInputs() throws Exception {
@@ -54,9 +52,9 @@ public class PaaSUtilsTest {
         Assert.assertNotNull(operation.getInputParameters());
 
         // assert all node properties are inputs properties
-        Assert.assertTrue(operation.getInputParameters().containsKey(fake1));
-        Assert.assertTrue(operation.getInputParameters().containsKey(fake5));
-        Assert.assertTrue(operation.getInputParameters().containsKey(fake2));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + fake1));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + fake5));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + fake2));
         // complex property should not be there
         Assert.assertFalse(operation.getInputParameters().containsKey(fake3));
 
@@ -64,11 +62,10 @@ public class PaaSUtilsTest {
         Assert.assertEquals(operation.getInputParameters().get(fake1), new ScalarPropertyValue("1_from_operation"));
 
         // check capabilities inputs
-        Assert.assertTrue(operation.getInputParameters().containsKey(generateCapaInputName(fakeCapa1, fake1)));
-        Assert.assertTrue(operation.getInputParameters().containsKey(generateCapaInputName(fakeCapa1, fake2)));
-        Assert.assertTrue(operation.getInputParameters().containsKey(generateCapaInputName(fakeCapa1, fake5)));
-        // complex property should not be there
-        Assert.assertFalse(operation.getInputParameters().containsKey(generateCapaInputName(fakeCapa1, fake3)));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + generateCapaInputName(fakeCapa1, fake1)));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + generateCapaInputName(fakeCapa1, fake3)));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + generateCapaInputName(fakeCapa1, fake2)));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + generateCapaInputName(fakeCapa1, fake5)));
     }
 
     @Test
@@ -89,11 +86,10 @@ public class PaaSUtilsTest {
         Assert.assertNotNull(operation.getInputParameters());
 
         // assert all relationship properties are inputs properties
-        Assert.assertTrue(operation.getInputParameters().containsKey(fake1));
-        Assert.assertTrue(operation.getInputParameters().containsKey(fake5));
-        Assert.assertTrue(operation.getInputParameters().containsKey(fake2));
-        // complex property should not be there
-        Assert.assertFalse(operation.getInputParameters().containsKey(fake3));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + fake1));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + fake3));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + fake5));
+        Assert.assertTrue(operation.getInputParameters().containsKey(SELF + fake2));
 
         // assert that the property from the operation has not been overrided
         Assert.assertEquals(operation.getInputParameters().get(fake1), new ScalarPropertyValue("1_from_operation"));
@@ -101,23 +97,20 @@ public class PaaSUtilsTest {
         // check source node inputs
         Assert.assertTrue(operation.getInputParameters().containsKey(generateSourceInputName(fake1)));
         Assert.assertTrue(operation.getInputParameters().containsKey(generateSourceInputName(fake2)));
+        Assert.assertTrue(operation.getInputParameters().containsKey(generateSourceInputName(fake3)));
         Assert.assertTrue(operation.getInputParameters().containsKey(generateSourceInputName(fake5)));
-        // complex property should not be there
-        Assert.assertFalse(operation.getInputParameters().containsKey(generateSourceInputName(fake3)));
 
         // check target node inputs
         Assert.assertTrue(operation.getInputParameters().containsKey(generateTargetInputName(fake1)));
         Assert.assertTrue(operation.getInputParameters().containsKey(generateTargetInputName(fake2)));
+        Assert.assertTrue(operation.getInputParameters().containsKey(generateTargetInputName(fake3)));
         Assert.assertTrue(operation.getInputParameters().containsKey(generateTargetInputName(fake5)));
-        // complex property should not be there
-        Assert.assertFalse(operation.getInputParameters().containsKey(generateTargetInputName(fake3)));
 
         // check targeted capability inputs
         Assert.assertTrue(operation.getInputParameters().containsKey(generateTargetedCapaInputName(fakeCapa1, fake1)));
         Assert.assertTrue(operation.getInputParameters().containsKey(generateTargetedCapaInputName(fakeCapa1, fake2)));
         Assert.assertTrue(operation.getInputParameters().containsKey(generateTargetedCapaInputName(fakeCapa1, fake5)));
-        // complex property should not be there
-        Assert.assertFalse(operation.getInputParameters().containsKey(generateTargetedCapaInputName(fakeCapa1, fake3)));
+        Assert.assertTrue(operation.getInputParameters().containsKey(generateTargetedCapaInputName(fakeCapa1, fake3)));
     }
 
     private PaaSNodeTemplate buildPaaSNodeTemplate() {
@@ -209,19 +202,19 @@ public class PaaSUtilsTest {
     }
 
     private String generateCapaInputName(String capaName, String propertyName) {
-        return StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, PaaSUtils.CAPA_PREFIX, capaName, propertyName).toUpperCase();
+        return StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, PaaSUtils.CAPABILITIES, capaName, propertyName);
     }
 
     private String generateSourceInputName(String propertyName) {
-        return StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, PaaSUtils.SOURCE_PREFIX, propertyName).toUpperCase();
+        return StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.SOURCE, propertyName);
     }
 
     private String generateTargetInputName(String propertyName) {
-        return StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, PaaSUtils.TARGET_PREFIX, propertyName).toUpperCase();
+        return StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.TARGET, propertyName);
     }
 
     private String generateTargetedCapaInputName(String capaName, String propertyName) {
-        return StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, PaaSUtils.TARGET_PREFIX, PaaSUtils.CAPA_PREFIX, capaName, propertyName).toUpperCase();
+        return StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.TARGET, PaaSUtils.CAPABILITIES, capaName, propertyName);
     }
 
 }
