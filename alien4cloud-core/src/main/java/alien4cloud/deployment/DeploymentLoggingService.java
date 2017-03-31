@@ -25,10 +25,27 @@ public class DeploymentLoggingService {
 
     private final Logger deployments_logger = LogManager.getLogger("DEPLOYMENT_LOGS_LOGGER");
 
+    private void logToFile(PaaSDeploymentLog deploymentLog) {
+        switch (deploymentLog.getLevel()) {
+            case DEBUG:
+                deployments_logger.debug(deploymentLog.toCompactString());
+                break;
+            case ERROR:
+                deployments_logger.error(deploymentLog.toCompactString());
+                break;
+            case INFO:
+                deployments_logger.info(deploymentLog.toCompactString());
+                break;
+            case WARN:
+                deployments_logger.warn(deploymentLog.toCompactString());
+                break;
+        }
+    }
+
     public synchronized void save(final PaaSDeploymentLog deploymentLog) {
         try {
             if (isEnabled) {
-                deployments_logger.info(deploymentLog.toCompactString());
+                logToFile(deploymentLog);
             }
         } finally {
             alienMonitorDao.save(deploymentLog);
@@ -38,8 +55,8 @@ public class DeploymentLoggingService {
     public synchronized void save(final PaaSDeploymentLog[] deploymentLogs) {
         try {
             if (isEnabled) {
-                for (PaaSDeploymentLog log : deploymentLogs) {
-                    deployments_logger.info(log.toCompactString());
+                for (PaaSDeploymentLog deploymentLog : deploymentLogs) {
+                    logToFile(deploymentLog);
                 }
             }
         } finally {
