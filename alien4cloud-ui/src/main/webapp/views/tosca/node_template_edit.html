@@ -89,7 +89,7 @@
                 <i class="fa fa-link"></i> {{'SERVICE.RELATIONSHIP.LABEL'| translate}}
               </label>
             </div>
-            <div class="col-md-8" ng-if="canEditCapabilityProperty()" >
+            <div class="col-md-8">
               <span class="typeahead"
                     ng-click="switchLongTextChoice(true)"
                     editable-text="capabilitiesRelationshipTypes[capabilityEntry.key]"
@@ -103,11 +103,6 @@
                     e-style="width: 100%">
               {{capabilitiesRelationshipTypes[capabilityEntry.key]}}
               <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
-              </span>
-            </div>
-            <div class="col-md-8" ng-if="!canEditCapabilityProperty()" >
-              <span>
-              {{capabilitiesRelationshipTypes[capabilityEntry.key]}}
               </span>
             </div>
             <div class="col-md-1">

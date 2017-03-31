@@ -177,7 +177,7 @@
                         <i class="fa fa-link"></i> {{'SERVICE.RELATIONSHIP.LABEL'| translate}}
                       </label>
                     </div>
-                    <div class="col-md-8" ng-if="isPropertyEditable()" >
+                    <div class="col-md-8">
                       <span class="typeahead"
                             ng-click="switchLongTextChoice(true)"
                             editable-text="selectedService.requirementsRelationshipTypes[requirementEntry.key]"
@@ -191,11 +191,6 @@
                             e-typeahead-loading="searching">
                       {{selectedService.requirementsRelationshipTypes[requirementEntry.key]}}
                       <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
-                      </span>
-                    </div>
-                    <div class="col-md-8" ng-if="!isPropertyEditable()" >
-                      <span>
-                      {{selectedService.requirementsRelationshipTypes[requirementEntry.key]}}
                       </span>
                     </div>
                     <div class="col-md-1">
