@@ -184,17 +184,18 @@
                             buttons="no"
                             onbeforesave="updateHalfRelationshipType('requirement', requirementEntry.key, $data)" blur="submit"
                             onhide="switchLongTextChoice(false)"
+                            e-style="width: 100%"
                             e-uib-typeahead="item for item in relationshipTypeQuickSearchHandler.doQuickSearch($viewValue)"
                             e-typeahead-min-length="relationshipTypeQuickSearchHandler.minLength"
                             e-typeahead-wait-ms="relationshipTypeQuickSearchHandler.waitBeforeRequest"
                             e-typeahead-loading="searching">
-                      {{selectedService.requirementsRelationshipTypes[requirementEntry.key] | truncate:30}}
+                      {{selectedService.requirementsRelationshipTypes[requirementEntry.key]}}
                       <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
                       </span>
                     </div>
                     <div class="col-md-8" ng-if="!isPropertyEditable()" >
                       <span>
-                      {{selectedService.requirementsRelationshipTypes[requirementEntry.key] | truncate:30}}
+                      {{selectedService.requirementsRelationshipTypes[requirementEntry.key]}}
                       </span>
                     </div>
                     <div class="col-md-1">

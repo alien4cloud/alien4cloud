@@ -99,14 +99,15 @@
                     e-uib-typeahead="item for item in relationshipTypeQuickSearchHandler.doQuickSearch($viewValue)"
                     e-typeahead-min-length="relationshipTypeQuickSearchHandler.minLength"
                     e-typeahead-wait-ms="relationshipTypeQuickSearchHandler.waitBeforeRequest"
-                    e-typeahead-loading="searching">
-              {{capabilitiesRelationshipTypes[capabilityEntry.key] | truncate:30}}
+                    e-typeahead-loading="searching"
+                    e-style="width: 100%">
+              {{capabilitiesRelationshipTypes[capabilityEntry.key]}}
               <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
               </span>
             </div>
             <div class="col-md-8" ng-if="!canEditCapabilityProperty()" >
               <span>
-              {{capabilitiesRelationshipTypes[capabilityEntry.key] | truncate:30}}
+              {{capabilitiesRelationshipTypes[capabilityEntry.key]}}
               </span>
             </div>
             <div class="col-md-1">
