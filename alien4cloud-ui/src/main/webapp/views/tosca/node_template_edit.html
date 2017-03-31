@@ -57,8 +57,8 @@
             </div>
           </div>
         </div>
-        <div class="indent">
-          <table ng-if="!emptyProps && !isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
+        <div class="indent" ng-if="!isReqPropsCollapsed[capabilityEntry.key]">
+          <table ng-if="!emptyProps" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
             <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
               <td>
                 <property-display
@@ -79,6 +79,38 @@
               </td>
             </tr>
           </table>
+
+          <div class="row" ng-if="isService">
+            <div class="col-md-3">
+              <label id="p_name_{{propertyName}}"
+                     class="property-display-label-ellipsed control-label"
+                     uib-tooltip="{{SERVICE.RELATIONSHIP.LABEL | translate}}"
+                     tooltip-append-to-body="true">
+                <i class="fa fa-link"></i> {{'SERVICE.RELATIONSHIP.LABEL'| translate}}
+              </label>
+            </div>
+            <div class="col-md-8">
+              <span class="typeahead"
+                    ng-click="switchLongTextChoice(true)"
+                    editable-text="capabilitiesRelationshipTypes[capabilityEntry.key]"
+                    buttons="no"
+                    onbeforesave="updateHalfRelationshipType(capabilityEntry.key, $data)" blur="submit"
+                    onhide="switchLongTextChoice(false)"
+                    e-uib-typeahead="item for item in relationshipTypeQuickSearchHandler.doQuickSearch($viewValue)"
+                    e-typeahead-min-length="relationshipTypeQuickSearchHandler.minLength"
+                    e-typeahead-wait-ms="relationshipTypeQuickSearchHandler.waitBeforeRequest"
+                    e-typeahead-loading="searching"
+                    e-style="width: 100%">
+              {{capabilitiesRelationshipTypes[capabilityEntry.key]}}
+              <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
+              </span>
+            </div>
+            <div class="col-md-1">
+              <simple-modal title="{{ 'SERVICE.RELATIONSHIP.LABEL' | translate}}"
+                            content="{{ 'SERVICE.RELATIONSHIP.CAPABILITY_DESCRIPTION' | translate}}"
+                            key="half_relationship_type_{{capabilityEntry.key}}"></simple-modal>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.alien4cloud.tosca.model.instances.NodeInstance;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;

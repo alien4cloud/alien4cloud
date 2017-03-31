@@ -1,5 +1,8 @@
 package alien4cloud.paas.wf.util;
 
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -10,6 +13,8 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
+import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.paas.wf.AbstractStep;
@@ -19,8 +24,6 @@ import alien4cloud.paas.wf.OperationCallActivity;
 import alien4cloud.paas.wf.SetStateActivity;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
-import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
-import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 
 public class WorkflowUtils {
 
@@ -51,7 +54,7 @@ public class WorkflowUtils {
     }
 
     public static boolean isStandardWorkflow(Workflow workflow) {
-        return Workflow.INSTALL_WF.equals(workflow.getName()) || Workflow.UNINSTALL_WF.equals(workflow.getName());
+        return INSTALL.equals(workflow.getName()) || UNINSTALL.equals(workflow.getName());
     }
 
     /**

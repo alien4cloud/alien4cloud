@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ToscaFunctionConstants {
+public final class ToscaFunctionConstants {
 
     /* possible functions */
     public static final String GET_PROPERTY = "get_property";

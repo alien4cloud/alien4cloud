@@ -1,4 +1,11 @@
 {
+  "SERVICE":{
+    "RELATIONSHIP" : {
+      "LABEL" : "Type de relation",
+      "CAPABILITY_DESCRIPTION" : "Un type de relation peut être utilisée pour définir les opérations à executer coté service.",
+      "REQUIREMENT_DESCRIPTION" : "Un type de relation peut être utilisée pour définir les opérations à executer coté service."
+    }
+  },
   "APPLICATIONS" : {
     "APPLICATION" : "Application",
     "APPLICATION_ROLES" : "Rôles d'application",

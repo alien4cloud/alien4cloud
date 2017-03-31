@@ -1,4 +1,11 @@
 {
+  "SERVICE":{
+    "RELATIONSHIP" : {
+      "LABEL" : "Relationship type",
+      "CAPABILITY_DESCRIPTION" : "Relationship type used to define operations that run on the service side.",
+      "REQUIREMENT_DESCRIPTION" : "Relationship type used to define operations that run on the service side."
+    }
+  },
   "APPLICATIONS": {
     "APPLICATION": "Application",
     "APPLICATION_ROLES": "Application roles",

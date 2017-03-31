@@ -17,11 +17,6 @@ import alien4cloud.paas.wf.validation.AbstractWorkflowError;
 @Getter
 @Setter
 public class Workflow {
-
-    public static final String INSTALL_WF = "install";
-
-    public static final String UNINSTALL_WF = "uninstall";
-
     private String name;
     private String description;
     private boolean isStandard;

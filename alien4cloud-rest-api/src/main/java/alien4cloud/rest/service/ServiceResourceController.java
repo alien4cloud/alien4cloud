@@ -99,7 +99,7 @@ public class ServiceResourceController {
         try {
             serviceResourceService.update(id, request.getName(), request.getVersion(), request.getDescription(), request.getNodeInstance().getType(),
                     request.getNodeInstance().getTypeVersion(), request.getNodeInstance().getProperties(), request.getNodeInstance().getCapabilities(),
-                    request.getNodeInstance().getAttributeValues(), request.getLocationIds());
+                    request.getNodeInstance().getAttributeValues(), request.getLocationIds(), request.getCapabilitiesRelationshipTypes(), request.getRequirementsRelationshipTypes());
             return RestResponseBuilder.<ConstraintInformation> builder().build();
         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
             return RestConstraintValidator.fromException(e, e.getConstraintInformation().getName(), e.getConstraintInformation().getValue());
@@ -122,7 +122,7 @@ public class ServiceResourceController {
             Map<String, String> nodeAttributeValues = request.getNodeInstance() == null ? null : request.getNodeInstance().getAttributeValues();
 
             serviceResourceService.patch(id, request.getName(), request.getVersion(), request.getDescription(), nodeType, nodeTypeVersion, nodeProperties,
-                    nodeCapabilities, nodeAttributeValues, request.getLocationIds());
+                    nodeCapabilities, nodeAttributeValues, request.getLocationIds(), request.getCapabilitiesRelationshipTypes(), request.getRequirementsRelationshipTypes());
             return RestResponseBuilder.<ConstraintInformation> builder().build();
         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
             return RestConstraintValidator.fromException(e, e.getConstraintInformation().getName(), e.getConstraintInformation().getValue());
