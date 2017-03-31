@@ -15,8 +15,10 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -114,13 +116,27 @@ public class ServiceResourceRelationshipService {
             templateInterface.getOperations().put(operation, serviceInterface.getOperations().get(operation));
         }
         // We also need to inject relationships artifacts from the service.
+        if (relationshipTemplate.getProperties() == null) {
+            relationshipTemplate.setProperties(Maps.newHashMap());
+        }
+        for (Entry<String, PropertyDefinition> propertyEntry : safe(serviceRelationshipType.getProperties()).entrySet()) {
+            if (propertyEntry.getValue().getDefault() != null) {
+                if (relationshipTemplate.getProperties().containsKey(propertyEntry.getKey())) {
+                    throw new IllegalArgumentException(
+                            "The service relationship requires to override a property already used/defined by the template relationship. This association cannot be done.");
+                }
+                relationshipTemplate.getProperties().put(propertyEntry.getKey(), propertyEntry.getValue().getDefault());
+            }
+        }
+
+        // and relationships artifacts from the service.
         if (relationshipTemplate.getArtifacts() == null) {
             relationshipTemplate.setArtifacts(Maps.newHashMap());
         }
         for (Entry<String, DeploymentArtifact> artifactEntry : safe(serviceRelationshipType.getArtifacts()).entrySet()) {
             if (relationshipTemplate.getArtifacts().containsKey(artifactEntry.getKey())) {
                 throw new IllegalArgumentException(
-                        "The service relationship requires to override an artifact already used by the template relationship. This association cannot be done.");
+                        "The service relationship requires to override an artifact already used/defined by the template relationship. This association cannot be done.");
             }
             relationshipTemplate.getArtifacts().put(artifactEntry.getKey(), artifactEntry.getValue());
         }
