@@ -1,18 +1,16 @@
 package alien4cloud.rest.utils;
 
-import com.sun.javafx.scene.shape.PathUtils;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 public class PatchUtilTest {
 
