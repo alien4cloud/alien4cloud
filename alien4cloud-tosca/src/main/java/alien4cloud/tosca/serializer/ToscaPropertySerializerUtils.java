@@ -75,7 +75,6 @@ public class ToscaPropertySerializerUtils {
 
     public static String formatValueForceEscape(boolean appendLf, int indentLevel, Object value) {
         return formatValue(appendLf, true, indentLevel, value);
-
     }
 
     private static String formatValue(boolean appendLf, boolean forceStringEscape, int indentLevel, Object value) {

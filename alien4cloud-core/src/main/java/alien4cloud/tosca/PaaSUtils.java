@@ -1,12 +1,11 @@
 package alien4cloud.tosca;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.definitions.Operation;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -29,9 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PaaSUtils {
 
-    public static String SOURCE_PREFIX = ToscaFunctionConstants.SOURCE;
-    public static String TARGET_PREFIX = ToscaFunctionConstants.TARGET;
-    public static String CAPA_PREFIX = "CAPABILITIES";
+    public final static String CAPABILITIES = "CAPABILITIES";
 
     /**
      * Return
@@ -42,8 +39,8 @@ public class PaaSUtils {
     public static PaaSNodeTemplate getMandatoryHostTemplate(final PaaSNodeTemplate paaSNodeTemplate) {
         PaaSNodeTemplate nodeTemplate = getHostTemplate(paaSNodeTemplate);
         if (nodeTemplate == null) {
-            throw new PaaSTechnicalException(
-                    "Cannot get the service name: The node template <" + paaSNodeTemplate.getId() + "> is not declared as hosted on a compute.");
+            throw new PaaSTechnicalException("Cannot get the service name: The node template <" + paaSNodeTemplate.getId()
+                    + "> is not declared as hosted on a compute.");
         } else {
             return nodeTemplate;
         }
@@ -83,19 +80,21 @@ public class PaaSUtils {
      * @param nodeTemplates The map of @{@link PaaSNodeTemplate} to process. Should contain ALL the nodes, or at least the nodes parts of a relationship
      */
     public static void injectPropertiesAsOperationInputs(Map<String, PaaSNodeTemplate> nodeTemplates) {
-        AlienUtils.safe(nodeTemplates).values().forEach(paaSNodeTemplate -> {
-            // process node template
-            processNodeTemplateProperties(paaSNodeTemplate);
-            // process relationships
-            paaSNodeTemplate.getRelationshipTemplates()
-                    .forEach(paaSRelationshipTemplate -> processRelationshipTemplateProperties(paaSRelationshipTemplate, nodeTemplates));
-        });
+        AlienUtils
+                .safe(nodeTemplates)
+                .values()
+                .forEach(paaSNodeTemplate -> {
+                    // process node template
+                        processNodeTemplateProperties(paaSNodeTemplate);
+                        // process relationships
+                        paaSNodeTemplate.getRelationshipTemplates().forEach(
+                                paaSRelationshipTemplate -> processRelationshipTemplateProperties(paaSRelationshipTemplate, nodeTemplates));
+                    });
 
     }
 
     /**
-     * Inject node template and capabilities properties as input parameters for all its interfaces operations
-     * <br>
+     * Inject node template and capabilities properties as input parameters for all its interfaces operations <br>
      * The injected input names are uppercased and is in form:
      * <ul>
      * <li>{@code <PROPERTY_NAME>} for node property
@@ -112,16 +111,27 @@ public class PaaSUtils {
     public static void processNodeTemplateProperties(PaaSNodeTemplate paaSTemplate) {
         NodeTemplate template = paaSTemplate.getTemplate();
         // inject nodetemplate properties
-        injectPropertiesAsInputs(template.getProperties(), paaSTemplate.getInterfaces(), Function.identity());
-
+        if (MapUtils.isNotEmpty(template.getProperties())) {
+            injectPropertiesAsInputs(ToscaFunctionConstants.SELF, null, template.getProperties(), paaSTemplate.getInterfaces(),
+                    baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.SELF, baseName));
+        }
         // inject capabilities properties
         injectCapabilitiesProperties(template, paaSTemplate.getInterfaces());
+    }
 
+    private static void injectCapabilitiesProperties(NodeTemplate template, Map<String, Interface> interfaces) {
+        if (template.getCapabilities() == null) {
+            return;
+        }
+        template.getCapabilities().forEach((capabilityName, capability) -> {
+            // input name: CAPABILITIES_<capabilityName>_<propertyName>
+                injectPropertiesAsInputs(ToscaFunctionConstants.SELF, capabilityName, capability.getProperties(), interfaces, baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR,
+                        ToscaFunctionConstants.SELF, CAPABILITIES, capabilityName, baseName));
+            });
     }
 
     /**
-     * Inject relationshipTemplate, source, target and targeted capability properties as input parameters for all its interfaces operations
-     * <br>
+     * Inject relationshipTemplate, source, target and targeted capability properties as input parameters for all its interfaces operations <br>
      * The injected input names are uppercased and is in form:
      * <ul>
      * <li>{@code <PROPERTY_NAME>} for relationship property
@@ -138,11 +148,11 @@ public class PaaSUtils {
      * @param paaSRelationshipTemplate The {@link PaaSRelationshipTemplate} to process
      * @param paaSNodeTemplates All the nodes of the topology
      */
-    public static void processRelationshipTemplateProperties(PaaSRelationshipTemplate paaSRelationshipTemplate,
-            Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+    public static void processRelationshipTemplateProperties(PaaSRelationshipTemplate paaSRelationshipTemplate, Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
         RelationshipTemplate template = paaSRelationshipTemplate.getTemplate();
         // inject relationship properties
-        injectPropertiesAsInputs(template.getProperties(), paaSRelationshipTemplate.getInterfaces(), Function.identity());
+        injectPropertiesAsInputs(ToscaFunctionConstants.SELF, null, template.getProperties(), paaSRelationshipTemplate.getInterfaces(),
+                baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.SELF, baseName));
 
         // inject source properties
         injectSourcePropertiesAsInputs(paaSNodeTemplates.get(paaSRelationshipTemplate.getSource()), paaSRelationshipTemplate.getInterfaces());
@@ -159,36 +169,25 @@ public class PaaSUtils {
     private static void injectTargetedCapabilityProperties(PaaSNodeTemplate target, String capabilityName, Map<String, Interface> interfaces) {
         Capability capability = target.getTemplate().getCapabilities().get(capabilityName);
         // input name: TARGET_CAPABILITIES_<capabilityName>_<propertyName>
-        injectPropertiesAsInputs(capability.getProperties(), interfaces,
-                baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, TARGET_PREFIX, CAPA_PREFIX, capabilityName, baseName));
+        injectPropertiesAsInputs(ToscaFunctionConstants.TARGET, capabilityName, capability.getProperties(), interfaces,
+                baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.TARGET, CAPABILITIES, capabilityName, baseName));
     }
 
     private static void injectSourcePropertiesAsInputs(PaaSNodeTemplate source, Map<String, Interface> interfaces) {
         // input name: SOURCE_<propertyName>
-        injectPropertiesAsInputs(source.getTemplate().getProperties(), interfaces,
-                baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, SOURCE_PREFIX, baseName));
+        injectPropertiesAsInputs(ToscaFunctionConstants.SOURCE, null, source.getTemplate().getProperties(), interfaces,
+                baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.SOURCE, baseName));
 
     }
 
     private static void injectTargetPropertiesAsInputs(PaaSNodeTemplate target, Map<String, Interface> interfaces) {
         // input name: TARGET_<propertyName>
-        injectPropertiesAsInputs(target.getTemplate().getProperties(), interfaces,
-                baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, TARGET_PREFIX, baseName));
+        injectPropertiesAsInputs(ToscaFunctionConstants.TARGET, null , target.getTemplate().getProperties(), interfaces,
+                baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.TARGET, baseName));
 
     }
 
-    private static void injectCapabilitiesProperties(NodeTemplate template, Map<String, Interface> interfaces) {
-        if (template.getCapabilities() == null) {
-            return;
-        }
-        template.getCapabilities().forEach((capabilityName, capability) -> {
-            // input name: CAPABILITIES_<capabilityName>_<propertyName>
-            injectPropertiesAsInputs(capability.getProperties(), interfaces,
-                    baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, CAPA_PREFIX, capabilityName, baseName));
-        });
-    }
-
-    private static void injectPropertiesAsInputs(Map<String, AbstractPropertyValue> properties, Map<String, Interface> interfaces,
+    private static void injectPropertiesAsInputs(String entity, String capabilityName, Map<String, AbstractPropertyValue> properties, Map<String, Interface> interfaces,
             Function<String, String> inputNameBuilder) {
         if (MapUtils.isEmpty(interfaces) || MapUtils.isEmpty(properties)) {
             return;
@@ -196,26 +195,27 @@ public class PaaSUtils {
 
         properties.forEach((name, value) -> {
             interfaces.values().forEach((interfass) -> {
-                injectInputIntoOperations(inputNameBuilder.apply(name), value, interfass.getOperations());
+                List<String> paths = new ArrayList<>();
+                paths.add(entity);
+                if (StringUtils.isNotBlank(capabilityName)) {
+                    paths.add(capabilityName);
+                }
+                paths.add(name);
+                injectInputIntoOperations(inputNameBuilder.apply(name), paths, value, interfass.getOperations());
             });
         });
     }
 
-    private static void injectInputIntoOperations(String name, AbstractPropertyValue value, Map<String, Operation> operations) {
+    private static void injectInputIntoOperations(String inputName, List<String> path, AbstractPropertyValue value, Map<String, Operation> operations) {
         if (MapUtils.isEmpty(operations)) {
             return;
         }
-        // TODO should put all types of value, since inputs injection into scripts is orchestrator dependant
-        if (value != null && !(value instanceof ScalarPropertyValue)) {
-            // log here
-            return;
-        } else if (value == null) {
+        if (value != null) {
+            value = new FunctionPropertyValue(ToscaFunctionConstants.GET_PROPERTY, path);
+        } else {
             value = new ScalarPropertyValue();
         }
-
         // the input name should be uppercase
-        String inputName = name.toUpperCase();
-
         AbstractPropertyValue finalValue = value;
         operations.forEach((operationName, operation) -> {
             if (operation.getInputParameters() == null) {
@@ -223,8 +223,8 @@ public class PaaSUtils {
             }
 
             // DO NOT OVERRIDE
-            operation.getInputParameters().putIfAbsent(inputName, finalValue);
-        });
+                operation.getInputParameters().putIfAbsent(inputName, finalValue);
+            });
     }
 
 }
