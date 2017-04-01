@@ -4,20 +4,46 @@ define(function(require) {
   var modules = require('modules');
   var _ = require('lodash');
   require('scripts/tosca/services/tosca_processor');
+  require('scripts/tosca/services/relationship_type_quicksearch_service');
 
-  modules.get('a4c-tosca').controller('a4cNodeTemplateEditCtrl', ['$scope', 'a4cToscaProcessor',
-    function($scope, a4cToscaProcessor) {
+  modules.get('a4c-tosca').controller('a4cNodeTemplateEditCtrl', ['$scope', 'a4cToscaProcessor', 'relationshipTypeQuickSearchService',
+    function($scope, a4cToscaProcessor, relationshipTypeQuickSearchService) {
       a4cToscaProcessor.processNodeType($scope.nodeType);
       a4cToscaProcessor.processNodeTemplate($scope.nodeTemplate);
       a4cToscaProcessor.processCapabilityTypes($scope.nodeCapabilityTypes);
+
+      $scope.isService = _.defined($scope.isService) ? $scope.isService : false;
 
       $scope.getCapabilityPropertyDefinition = function(capabilityTypeId, capabilityPropertyName) {
         var capabilityType = $scope.nodeCapabilityTypes[capabilityTypeId];
         return capabilityType.propertiesMap[capabilityPropertyName].value;
       };
 
+      $scope.relationshipTypeQuickSearchHandler = {
+        'doQuickSearch': relationshipTypeQuickSearchService.doQuickSearch,
+        'waitBeforeRequest': 500,
+        'minLength': 3
+      };
+
       $scope.checkMapSize = function(map) {
         return _.defined(map) && Object.keys(map).length > 0;
+      };
+
+      $scope.updateHalfRelationshipType = function(name, relationshipTypeId) {
+        if(relationshipTypeId === '') {
+            relationshipTypeId = null;
+        }
+        var updatePromise = $scope.onHalfRelationshipTypeUpdate({
+          type: 'capability',
+          name: name,
+          relationshipTypeId: relationshipTypeId
+        });
+        return updatePromise.then(function(response) {
+          if (_.undefined(response.error)) { // update was performed on server side - impact js data.
+            $scope.capabilitiesRelationshipTypes[name] = relationshipTypeId;
+          }
+          return response; // dispatch response to property display
+        });
       };
 
       $scope.updateProperty = function(propertyName, propertyValue) {

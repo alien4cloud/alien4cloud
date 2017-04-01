@@ -20,10 +20,10 @@ import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import alien4cloud.model.deployment.matching.MatchingFilterDefinition;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResources;
-import alien4cloud.tosca.normative.IPropertyType;
-import alien4cloud.tosca.normative.ToscaType;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.normative.types.IPropertyType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -61,7 +61,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
                                                                        Map<String, MatchingConfiguration> matchingConfigurations) {
         /*
          * TODO Refine node matching by considering specific matching rules for the node. If no constraint is specified in a matching configuration then equals
-         * constraint is applied.
+         * TODO constraint is applied.
          */
         List<LocationResourceTemplate> matchingResults = Lists.newArrayList();
         List<LocationResourceTemplate> candidates = locationResources.getNodeTemplates();
@@ -164,7 +164,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
             if (candidatePropertyValue != null && candidatePropertyValue instanceof ScalarPropertyValue && templatePropertyValue != null
                     && templatePropertyValue instanceof ScalarPropertyValue) {
                 try {
-                    IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinitions.get(filterEntry.getKey()).getType());
+                    IPropertyType<?> toscaType = ToscaTypes.fromYamlTypeName(propertyDefinitions.get(filterEntry.getKey()).getType());
                     // set the constraint value and add it to the node filter
                     for (IMatchPropertyConstraint constraint : filterEntry.getValue()) {
                         constraint.setConstraintValue(toscaType, ((ScalarPropertyValue) candidatePropertyValue).getValue());

@@ -1,5 +1,8 @@
 package alien4cloud.paas.wf;
 
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+
 import java.util.List;
 import java.util.Map;
 
@@ -47,19 +50,19 @@ public class WorkflowsBuilderService {
             wfs = Maps.newLinkedHashMap();
             topologyContext.getTopology().setWorkflows(wfs);
         }
-        if (!wfs.containsKey(Workflow.INSTALL_WF)) {
+        if (!wfs.containsKey(INSTALL)) {
             Workflow install = new Workflow();
             install.setStandard(true);
-            install.setName(Workflow.INSTALL_WF);
-            wfs.put(Workflow.INSTALL_WF, install);
-            reinitWorkflow(Workflow.INSTALL_WF, topologyContext);
+            install.setName(INSTALL);
+            wfs.put(INSTALL, install);
+            reinitWorkflow(INSTALL, topologyContext);
         }
-        if (!wfs.containsKey(Workflow.UNINSTALL_WF)) {
+        if (!wfs.containsKey(UNINSTALL)) {
             Workflow uninstall = new Workflow();
             uninstall.setStandard(true);
-            uninstall.setName(Workflow.UNINSTALL_WF);
-            wfs.put(Workflow.UNINSTALL_WF, uninstall);
-            reinitWorkflow(Workflow.UNINSTALL_WF, topologyContext);
+            uninstall.setName(UNINSTALL);
+            wfs.put(UNINSTALL, uninstall);
+            reinitWorkflow(UNINSTALL, topologyContext);
         }
         return topologyContext;
     }
@@ -185,9 +188,9 @@ public class WorkflowsBuilderService {
 
     private AbstractWorkflowBuilder getWorkflowBuilder(Workflow workflow) {
         if (workflow.isStandard()) {
-            if (workflow.getName().equals(Workflow.INSTALL_WF)) {
+            if (workflow.getName().equals(INSTALL)) {
                 return installWorkflowBuilder;
-            } else if (workflow.getName().equals(Workflow.UNINSTALL_WF)) {
+            } else if (workflow.getName().equals(UNINSTALL)) {
                 return uninstallWorkflowBuilder;
             }
         }

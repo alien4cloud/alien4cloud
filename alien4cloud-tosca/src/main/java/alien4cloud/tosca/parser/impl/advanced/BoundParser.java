@@ -1,5 +1,6 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
+import org.alien4cloud.tosca.normative.constants.RangeConstants;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -8,7 +9,6 @@ import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
 @Component
 public class BoundParser extends ScalarParser {
-    private static final String UNBOUNDED = "unbounded";
 
     @Override
     public String parse(Node node, ParsingContextExecution context) {
@@ -16,6 +16,6 @@ public class BoundParser extends ScalarParser {
         if (value == null) {
             value = "";
         }
-        return UNBOUNDED.equals(value.toLowerCase()) ? String.valueOf(Integer.MAX_VALUE) : value;
+        return RangeConstants.UNBOUNDED.equalsIgnoreCase(value) ? String.valueOf(Integer.MAX_VALUE) : value;
     }
 }

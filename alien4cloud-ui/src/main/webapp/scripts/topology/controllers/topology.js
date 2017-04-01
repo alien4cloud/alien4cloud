@@ -8,7 +8,6 @@ define(function (require) {
 
   require('d3');
   require('toaster');
-  require('bower_components/jquery-ui/ui/resizable');
 
   require('scripts/common/directives/drag_drop');
   require('scripts/common/directives/property_display');

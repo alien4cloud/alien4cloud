@@ -1,9 +1,16 @@
 <div class="row" style="margin-bottom: 3em">
   <div class="col-md-6">
+    <managed-service
+      application="application"
+      topology="deploymentContext.deploymentTopologyDTO.topology"
+      environment="deploymentContext.selectedEnvironment">
+    </managed-service>
+  </div>
+  <div class="col-md-6">
     <!-- DEPLOY BUTTON -->
     <button id="btn-deploy"
             type="button"
-            class="btn btn-success application-deploy-button"
+            class="btn btn-success application-deploy-button pull-right"
             ng-disabled="!deploymentContext.deploymentTopologyDTO.validation.valid || isDeploying"
             ng-click="deploy()"
             ng-if="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'">

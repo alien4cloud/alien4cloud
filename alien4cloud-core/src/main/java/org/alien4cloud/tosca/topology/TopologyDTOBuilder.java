@@ -21,7 +21,7 @@ import alien4cloud.topology.DependencyConflictDTO;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 
 /**
  * Service that helps to create a topology dto object out of a topology.
@@ -89,8 +89,6 @@ public class TopologyDTOBuilder {
         TopologyDTO topologyDTO = new TopologyDTO();
         if (topology != null) {
             buildAbstractTopologyDTO(topology, topologyDTO);
-            // This contains the value ouf output properties. This has nothing to do with capability somehow..
-            topologyDTO.setOutputCapabilityProperties(topology.getOutputCapabilityProperties());
         }
         return topologyDTO;
     }
@@ -175,7 +173,7 @@ public class TopologyDTOBuilder {
             if (indexedNodeType != null && indexedNodeType.getProperties() != null) {
                 for (PropertyDefinition pd : indexedNodeType.getProperties().values()) {
                     String type = pd.getType();
-                    if (ToscaType.isPrimitive(type) || indexedDataTypes.containsKey(type)) {
+                    if (ToscaTypes.isPrimitive(type) || indexedDataTypes.containsKey(type)) {
                         continue;
                     }
                     DataType dataType = ToscaContext.get(DataType.class, type);

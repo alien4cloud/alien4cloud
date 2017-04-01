@@ -31,13 +31,14 @@ define(function (require) {
         $scope.selectedOperation = undefined;
         // fill $scope.interfaceItems
         var nodeType = $scope.topologyDTO.topology.nodeTemplates[nodeId].type;
-        for (var interfaceName in $scope.topologyDTO.nodeTypes[nodeType].interfaces) {
+        var interfaceName;
+        for (interfaceName in $scope.topologyDTO.nodeTypes[nodeType].interfaces) {
           if ($scope.interfaceItems.indexOf(interfaceName) < 0) {
             $scope.interfaceItems.push(interfaceName);
           }
         }
         // some interfaces can be defined at node template level
-        for (var interfaceName in $scope.topologyDTO.topology.nodeTemplates[nodeId].interfaces) {
+        for (interfaceName in $scope.topologyDTO.topology.nodeTemplates[nodeId].interfaces) {
           if ($scope.interfaceItems.indexOf(interfaceName) < 0) {
             $scope.interfaceItems.push(interfaceName);
           }
@@ -50,15 +51,16 @@ define(function (require) {
         $scope.selectedOperation = undefined;
         // fill $scope.operationItems
         var nodeType = $scope.topologyDTO.topology.nodeTemplates[$scope.selectedNodeTemplate].type;
+        var operationName;
         if ($scope.topologyDTO.nodeTypes[nodeType].interfaces[interfaceName]) {
-          for (var operationName in $scope.topologyDTO.nodeTypes[nodeType].interfaces[interfaceName].operations) {
+          for (operationName in $scope.topologyDTO.nodeTypes[nodeType].interfaces[interfaceName].operations) {
             if ($scope.operationItems.indexOf(operationName) < 0) {
               $scope.operationItems.push(operationName);
             }
           }
         }
         if ($scope.topologyDTO.topology.nodeTemplates[$scope.selectedNodeTemplate].interfaces && $scope.topologyDTO.topology.nodeTemplates[$scope.selectedNodeTemplate].interfaces[interfaceName]) {
-          for (var operationName in $scope.topologyDTO.topology.nodeTemplates[$scope.selectedNodeTemplate].interfaces[interfaceName].operations) {
+          for (operationName in $scope.topologyDTO.topology.nodeTemplates[$scope.selectedNodeTemplate].interfaces[interfaceName].operations) {
             if ($scope.operationItems.indexOf(operationName)) {
               $scope.operationItems.push(operationName);
             }

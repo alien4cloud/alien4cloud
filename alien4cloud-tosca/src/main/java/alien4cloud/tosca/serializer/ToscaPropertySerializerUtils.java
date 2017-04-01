@@ -10,13 +10,13 @@ import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+
 import alien4cloud.paas.exception.NotSupportedException;
 
 public class ToscaPropertySerializerUtils {
 
     private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[,:\\[\\]\\{\\}-].*");
     private static Pattern VALID_YAML_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
-
 
     public static String indent(int indentLevel) {
         StringBuilder buffer = new StringBuilder();
@@ -26,7 +26,7 @@ public class ToscaPropertySerializerUtils {
         return buffer.toString();
     }
 
-    public static String formatTextValue(int indentLevel, String text) {
+    public static String formatTextValue(boolean forceStringEscape, int indentLevel, String text) {
         if (text != null && text.contains("\n")) {
             indentLevel++;
             StringBuilder indentationBuffer = new StringBuilder();
@@ -44,7 +44,7 @@ public class ToscaPropertySerializerUtils {
         } else {
             if (text == null) {
                 text = "";
-            } else if (!VALID_YAML_PATTERN.matcher(text).matches()) {
+            } else if (forceStringEscape || !VALID_YAML_PATTERN.matcher(text).matches()) {
                 text = "\"" + text + "\"";
             }
             return text;
@@ -52,12 +52,12 @@ public class ToscaPropertySerializerUtils {
     }
 
     public static String formatPropertyValue(int indentLevel, AbstractPropertyValue propertyValue) {
-        return ToscaPropertySerializerUtils.formatPropertyValue(true, indentLevel, propertyValue);
+        return ToscaPropertySerializerUtils.formatPropertyValue(true, false, indentLevel, propertyValue);
     }
 
-    public static String formatPropertyValue(boolean appendLf, int indentLevel, AbstractPropertyValue propertyValue) {
+    private static String formatPropertyValue(boolean appendLf, boolean forceStringEscape, int indentLevel, AbstractPropertyValue propertyValue) {
         if (propertyValue instanceof PropertyValue) {
-            return formatValue(appendLf, indentLevel, ((PropertyValue) propertyValue).getValue());
+            return formatValue(appendLf, forceStringEscape, indentLevel, ((PropertyValue) propertyValue).getValue());
         } else if (propertyValue instanceof FunctionPropertyValue) {
             return formatFunctionPropertyValue(appendLf, indentLevel, ((FunctionPropertyValue) propertyValue));
         } else {
@@ -70,8 +70,16 @@ public class ToscaPropertySerializerUtils {
     }
 
     public static String formatValue(boolean appendLf, int indentLevel, Object value) {
+        return formatValue(appendLf, false, indentLevel, value);
+    }
+
+    public static String formatValueForceEscape(boolean appendLf, int indentLevel, Object value) {
+        return formatValue(appendLf, true, indentLevel, value);
+    }
+
+    private static String formatValue(boolean appendLf, boolean forceStringEscape, int indentLevel, Object value) {
         if (isPrimitiveType(value)) {
-            return formatTextValue(indentLevel, (String) value);
+            return formatTextValue(forceStringEscape, indentLevel, (String) value);
         } else if (value instanceof Map) {
             return formatMapValue(appendLf, indentLevel, (Map<String, Object>) value);
         } else if (value instanceof Object[]) {
@@ -79,7 +87,7 @@ public class ToscaPropertySerializerUtils {
         } else if (value instanceof List) {
             return formatListValue(indentLevel, (List<Object>) value);
         } else if (value instanceof PropertyValue) {
-            return formatPropertyValue(appendLf, indentLevel, (PropertyValue) value);
+            return formatPropertyValue(appendLf, forceStringEscape, indentLevel, (PropertyValue) value);
         } else {
             throw new NotSupportedException("Do not support other types than string map and list");
         }

@@ -12,7 +12,7 @@ import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 
-import alien4cloud.tosca.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
 
 import org.springframework.stereotype.Component;
 

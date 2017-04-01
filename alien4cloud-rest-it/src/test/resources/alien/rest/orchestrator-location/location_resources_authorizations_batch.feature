@@ -19,8 +19,8 @@ Feature: Manage location resources authorizations in batch mode
     And I create a location named "middle_earth" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
     Given I grant access to the resource type "LOCATION" named "middle_earth" to the user "frodon"
     Given I grant access to the resource type "LOCATION" named "middle_earth" to the group "lordOfRing"
-    When I create a resource of type "alien.nodes.mock.Compute" named "Medium1" related to the location "Mount doom orchestrator"/"middle_earth"
-    When I create a resource of type "alien.nodes.mock.Compute" named "Medium2" related to the location "Mount doom orchestrator"/"middle_earth"
+    When I create a resource of type "org.alien4cloud.nodes.mock.Compute" named "Medium1" related to the location "Mount doom orchestrator"/"middle_earth"
+    When I create a resource of type "org.alien4cloud.nodes.mock.Compute" named "Medium2" related to the location "Mount doom orchestrator"/"middle_earth"
     Then I should receive a RestResponse with no error
 
 

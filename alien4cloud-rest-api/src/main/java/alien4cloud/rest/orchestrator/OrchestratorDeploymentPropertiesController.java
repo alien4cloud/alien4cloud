@@ -5,9 +5,9 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import io.swagger.annotations.Api;
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.MediaType;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
 import alien4cloud.rest.internal.model.PropertyRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
@@ -26,14 +25,13 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
-
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import lombok.extern.slf4j.Slf4j;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  *
@@ -41,13 +39,12 @@ import io.swagger.annotations.Authorization;
 @Slf4j
 @ApiIgnore
 @RestController
-@RequestMapping(value = {"/rest/orchestrators/{orchestratorId}", "/rest/v1/orchestrators/{orchestratorId}", "/rest/latest/orchestrators/{orchestratorId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = { "/rest/orchestrators/{orchestratorId}", "/rest/v1/orchestrators/{orchestratorId}",
+        "/rest/latest/orchestrators/{orchestratorId}" }, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "", description = "Operations on deployment properties")
 public class OrchestratorDeploymentPropertiesController {
     @Inject
     private OrchestratorDeploymentService orchestratorDeploymentService;
-    @Inject
-    private ConstraintPropertyService constraintPropertyService;
 
     @ApiIgnore
     @RequestMapping(value = "/deployment-prop-check", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -61,7 +58,7 @@ public class OrchestratorDeploymentPropertiesController {
             PropertyDefinition propertyDefinition = deploymentPropertyDefinitions.get(deploymentPropertyValidationRequest.getDefinitionId());
             if (propertyDefinition != null && propertyDefinition.getConstraints() != null) {
                 try {
-                    constraintPropertyService.checkSimplePropertyConstraint(deploymentPropertyValidationRequest.getDefinitionId(),
+                    ConstraintPropertyService.checkSimplePropertyConstraint(deploymentPropertyValidationRequest.getDefinitionId(),
                             deploymentPropertyValidationRequest.getValue(), propertyDefinition);
                 } catch (ConstraintViolationException e) {
                     log.error("Constraint violation error for property <" + deploymentPropertyValidationRequest.getDefinitionId() + "> with value <"

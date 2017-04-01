@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: net.sample.MysqlSubsystem
+  template_version: 1.0.0-SNAPSHOT
+  template_author: tests
+
 description: Alien4Cloud generated service template
-template_name: net.sample.MysqlSubsystem
-template_version: 1.0.0-SNAPSHOT
-template_author: tests
 
 imports:
   - mysql-type:2.0.0-SNAPSHOT

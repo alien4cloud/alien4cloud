@@ -45,7 +45,7 @@ define(function (require) {
           this.scope.topologyId = this.scope.selectedVersion.topologyVersions[this.scope.selectedTopologyVersion].archiveId;
           this.refreshTopology();
         },
-        refreshTopology() {
+        refreshTopology: function() {
           var instance = this;
           topologyServices.dao.get({
             topologyId: instance.scope.topologyId

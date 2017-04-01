@@ -109,25 +109,25 @@ Feature: GIT repository usage
   Scenario: Add GIT repository and import it
    Given I add a GIT repository with url "https://github.com/alien4cloud/tosca-normative-types.git" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
-        | 1.0.0    |         |
+        | 1.2.0    |         |
      And I get the GIT repo with url "https://github.com/alien4cloud/tosca-normative-types.git"
      And I import the GIT repository
      And I can find 1 CSAR
-     And I should have a CSAR with id "tosca-normative-types:1.0.0.wd03-SNAPSHOT"
+     And I should have a CSAR with id "tosca-normative-types:1.0.0-ALIEN12"
      And I add a GIT repository with url "https://github.com/alien4cloud/samples.git" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
-        | 1.0.0    | apache  |
+        | master   | apache  |
    Given I get the GIT repo with url "https://github.com/alien4cloud/samples.git"
-    When I try to get a component with id "alien.nodes.Apache:2.0.0-SNAPSHOT"
+    When I try to get a component with id "org.alien4cloud.nodes.Apache:2.0.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
      And I should not have any component
     When I import the GIT repository
     Then I should receive a RestResponse with no error
      And I can find 2 CSAR
      And I should have a CSAR with id "apache-type:2.0.0-SNAPSHOT"
-    When I try to get a component with id "alien.nodes.Apache:2.0.0-SNAPSHOT"
+    When I try to get a component with id "org.alien4cloud.nodes.Apache:2.0.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
-     And I should have a component with id "alien.nodes.Apache:2.0.0-SNAPSHOT"
+     And I should have a component with id "org.alien4cloud.nodes.Apache:2.0.0-SNAPSHOT"
 
   @reset
   Scenario: Import a csargit with a wrong url
@@ -160,39 +160,39 @@ Feature: GIT repository usage
   Scenario: Add GIT repository and import it, then add an archive and reimport it
    Given I add a GIT repository with url "https://github.com/alien4cloud/tosca-normative-types.git" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
-        | 1.0.0    |         |
+        | 1.2.0    |         |
      And I get the GIT repo with url "https://github.com/alien4cloud/tosca-normative-types.git"
      And I import the GIT repository
      And I add a GIT repository with url "https://github.com/alien4cloud/samples.git" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
-        | 1.0.0    | apache  |
+        | master   | apache  |
    Given I get the GIT repo with url "https://github.com/alien4cloud/samples.git"
     When I import the GIT repository
     Then I should receive a RestResponse with no error
-    When I try to get a component with id "alien.nodes.PHP:2.0.0-SNAPSHOT"
+    When I try to get a component with id "org.alien4cloud.nodes.PHP:2.0.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
      And I should not have any component
     When I update the GIT repository with url "https://github.com/alien4cloud/samples.git" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
-        | 1.0.0    | apache  |
-        | 1.0.0    | php     |
+        | master   | apache  |
+        | master   | php     |
      And I import the GIT repository
      And I can find 3 CSAR
      And I should have a CSAR with id "php-type:2.0.0-SNAPSHOT"
-    When I try to get a component with id "alien.nodes.PHP:2.0.0-SNAPSHOT"
+    When I try to get a component with id "org.alien4cloud.nodes.PHP:2.0.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
-     And I should have a component with id "alien.nodes.PHP:2.0.0-SNAPSHOT"
+     And I should have a component with id "org.alien4cloud.nodes.PHP:2.0.0-SNAPSHOT"
 
   @reset
   Scenario: Add GIT repository with all archives and import it
    Given I add a GIT repository with url "https://github.com/alien4cloud/tosca-normative-types.git" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
-        | 1.0.0    |         |
+        | 1.2.0    |         |
      And I get the GIT repo with url "https://github.com/alien4cloud/tosca-normative-types.git"
      And I import the GIT repository
      And I add a GIT repository with url "https://github.com/alien4cloud/alien4cloud-extended-types.git" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
-        | 1.0.0    |         |
+        | master    |         |
      And I get the GIT repo with url "https://github.com/alien4cloud/alien4cloud-extended-types.git"
      And I import the GIT repository
      And I can find 3 CSAR
@@ -203,7 +203,7 @@ Feature: GIT repository usage
    Given I add a GIT repository with url "https://github.com/alien4cloud/tosca-normative-types.git" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
         | master   |         |
-        | 1.0.0    |         |
+        | 1.2.0    |         |
      And I get the GIT repo with url "https://github.com/alien4cloud/tosca-normative-types.git"
      And I import the GIT repository
      And I can find 2 CSAR

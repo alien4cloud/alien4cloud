@@ -1,13 +1,27 @@
 package alien4cloud.application;
 
 import static alien4cloud.paas.function.FunctionEvaluator.isGetInput;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -16,10 +30,6 @@ import com.google.common.collect.Sets;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.CyclicReferenceException;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
-import org.alien4cloud.tosca.model.types.NodeType;
-import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.topology.TopologyServiceCore;
@@ -57,9 +67,8 @@ public class TopologyCompositionService {
             // std workflows are reinitialized when some composition is processed
             // TODO: find a better way to manage this
             TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
-            workflowBuilderService.reinitWorkflow(Workflow.INSTALL_WF, topologyContext);
-            workflowBuilderService.reinitWorkflow(Workflow.UNINSTALL_WF, topologyContext);
-
+            workflowBuilderService.reinitWorkflow(INSTALL, topologyContext);
+            workflowBuilderService.reinitWorkflow(UNINSTALL, topologyContext);
         }
     }
 

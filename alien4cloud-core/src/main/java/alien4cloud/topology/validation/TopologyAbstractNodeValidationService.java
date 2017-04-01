@@ -1,19 +1,22 @@
 package alien4cloud.topology.validation;
 
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.topology.task.SuggestionsTask;
-import com.google.common.collect.Maps;
-import lombok.SneakyThrows;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Maps;
+
+import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.task.SuggestionsTask;
+import lombok.SneakyThrows;
 
 /**
  * Performs validation by checking that no nodes in a topology are abstract (and cannot be instanciated).

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root>
+            <AppenderRef ref="Console"/>
+        </Root>
+        <logger name="alien4cloud.configuration.InitialLoader" level="info" />
+        <logger name="alien4cloud.dao" level="warn" />
+        <logger name="springfox.documentation" level="warn" />
+        <logger name="org.elasticsearch" level="warn" />
+        <logger name="alien4cloud.utils.services.ConstraintPropertyService" level="warn" />
+        <logger name="alien4cloud.tosca.container.validation.ToscaPropertyConstraintValidator" level="warn" />
+        <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="warn" />
+    </Loggers>
+</Configuration>

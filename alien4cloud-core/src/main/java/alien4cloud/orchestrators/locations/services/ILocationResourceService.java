@@ -11,8 +11,8 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDep
 import alien4cloud.model.orchestrators.locations.LocationResources;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.plugin.aop.Overridable;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
 
 @Overridable

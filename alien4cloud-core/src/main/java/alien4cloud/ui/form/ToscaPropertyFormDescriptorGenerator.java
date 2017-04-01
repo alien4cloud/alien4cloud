@@ -26,7 +26,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 
 @Component
 public class ToscaPropertyFormDescriptorGenerator {
@@ -39,15 +39,15 @@ public class ToscaPropertyFormDescriptorGenerator {
     }
 
     private Map<String, Object> doGenerateDescriptor(Set<String> processedDataTypes, PropertyDefinition propertyDefinition, Set<CSARDependency> dependencies) {
-        if (ToscaType.isSimple(propertyDefinition.getType())) {
+        if (ToscaTypes.isSimple(propertyDefinition.getType())) {
             return generateDescriptorForSimpleType(propertyDefinition);
-        } else if (ToscaType.LIST.equals(propertyDefinition.getType())) {
+        } else if (ToscaTypes.LIST.equals(propertyDefinition.getType())) {
             PropertyDefinition entryDefinition = propertyDefinition.getEntrySchema();
             if (entryDefinition == null) {
                 throw new InvalidArgumentException("List type without entry schema");
             }
             return generateDescriptorForListType(processedDataTypes, entryDefinition, dependencies);
-        } else if (ToscaType.MAP.equals(propertyDefinition.getType())) {
+        } else if (ToscaTypes.MAP.equals(propertyDefinition.getType())) {
             PropertyDefinition entryDefinition = propertyDefinition.getEntrySchema();
             if (entryDefinition == null) {
                 throw new InvalidArgumentException("Map type without entry schema");

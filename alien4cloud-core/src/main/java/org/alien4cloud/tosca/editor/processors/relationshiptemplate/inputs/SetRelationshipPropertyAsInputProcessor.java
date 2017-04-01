@@ -16,7 +16,7 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import lombok.extern.slf4j.Slf4j;
 
 /**

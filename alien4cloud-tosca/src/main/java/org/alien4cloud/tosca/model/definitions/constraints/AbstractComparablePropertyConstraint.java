@@ -1,9 +1,9 @@
 package org.alien4cloud.tosca.model.definitions.constraints;
 
-import alien4cloud.tosca.normative.IPropertyType;
+import org.alien4cloud.tosca.normative.types.IPropertyType;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

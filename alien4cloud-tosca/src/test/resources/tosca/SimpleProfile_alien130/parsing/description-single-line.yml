@@ -1,0 +1,3 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+description: This is an example of a single line description (no folding).

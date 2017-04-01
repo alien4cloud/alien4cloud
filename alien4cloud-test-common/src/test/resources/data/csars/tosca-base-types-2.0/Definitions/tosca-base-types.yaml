@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
 
 description: >
   Contains demo types used for Alien 4 Cloud tests. Warning: those types are not the actual tosca-normative types.
@@ -18,14 +18,13 @@ node_types:
       tosca_name:
         type: string
     requirements:
-      dependency:
-        type: tosca.capabilities.Feature
-        lower_bound: 0
-        upper_bound: unbounded
+      - dependency:
+          capability: tosca.capabilities.Feature
+          occurrences: [0, unbounded]
     capabilities:
       feature:
         type: tosca.capabilities.Feature
-        upper_bound: unbounded
+        occurrences: [0, unbounded]
     interfaces:
       tosca.interfaces.node.lifecycle.Standard:
         description: Default lifecycle for nodes in TOSCA.
@@ -98,14 +97,13 @@ node_types:
           The primary IP address assigned by the cloud provider that applications may use to access the Compute node.
           Note: This is used by the platform provider to convey the primary address used to access the compute node.  Future working drafts will address implementations that support floating or multiple IP addresses.
     requirements:
-      network:
-        type: tosca.capabilities.Connectivity
-        lower_bound: 0
-        upper_bound: unbounded
+      - network:
+          capability: tosca.capabilities.Connectivity
+          occurrences: [0, unbounded]
     capabilities:
       compute:
         type: tosca.capabilities.Container
-        upper_bound: unbounded
+        occurrences: [0, unbounded]
       scalable: tosca.capabilities.Scalable
 
   tosca.nodes.BlockStorage:
@@ -116,8 +114,8 @@ node_types:
     tags:
       icon: /images/volume.png
     requirements:
-      attach:
-        type: tosca.capabilities.Container
+      - attach:
+          capability: tosca.capabilities.Container
 
   tosca.nodes.ObjectStorage:
     derived_from: tosca.nodes.Root
@@ -171,8 +169,8 @@ node_types:
   tosca.nodes.VirtualIp:
     derived_from: tosca.nodes.Network
     requirements:
-      attach:
-        type: tosca.capabilities.Container
+      - attach:
+          capability: tosca.capabilities.Container
 
   # Software components or middleware ?
   tosca.nodes.SoftwareComponent:
@@ -182,8 +180,8 @@ node_types:
       The TOSCA SoftwareComponent Node Type represents a generic software component
       that can be managed and run by a TOSCA Compute Node Type.
     requirements:
-      host:
-        type: tosca.capabilities.Container
+      - host:
+          capability: tosca.capabilities.Container
     tags:
       icon: /images/software.png
 
@@ -212,7 +210,7 @@ node_types:
     capabilities:
       feature:
         type: tosca.capabilities.Container
-        upper_bound: unbounded
+        occurrences: [0, unbounded]
 
   tosca.nodes.MessageBus:
     abstract: true
@@ -296,13 +294,11 @@ relationship_types:
     derived_from: tosca.relationships.Root
     description: >
       A generic depends on relationship.
-    valid_sources: [ tosca.capabilities.Feature ]
-    valid_targets: [ tosca.capabilities.Feature ]
+    valid_target_types: [ tosca.capabilities.Feature ]
   tosca.relationships.HostedOn:
     derived_from: tosca.relationships.DependsOn
     description: Relationship to use to describe that the source is hosted (installed/ deployed) on the target node.
-    valid_sources: [ tosca.capabilities.Container ]
-    valid_targets: [ tosca.capabilities.Container ]
+    valid_target_types: [ tosca.capabilities.Container ]
     properties:
       password:
         type: string
@@ -313,12 +309,10 @@ relationship_types:
           - max_length: 10
   tosca.relationships.ConnectsTo:
     derived_from: tosca.relationships.DependsOn
-    valid_sources: [ tosca.capabilities.Endpoint ]
-    valid_targets: [ tosca.capabilities.Endpoint ]
+    valid_target_types: [ tosca.capabilities.Endpoint ]
   tosca.relationships.Network:
     derived_from: tosca.relationships.Root
-    valid_sources: [ tosca.capabilities.Connectivity ]
-    valid_targets: [ tosca.capabilities.Connectivity ]
+    valid_target_types: [ tosca.capabilities.Connectivity ]
 
 artifact_types:
   tosca.artifacts.Root:

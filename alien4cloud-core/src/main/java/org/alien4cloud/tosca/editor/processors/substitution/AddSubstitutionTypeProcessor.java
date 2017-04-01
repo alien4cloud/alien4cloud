@@ -1,11 +1,9 @@
 package org.alien4cloud.tosca.editor.processors.substitution;
 
-import java.util.Objects;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
@@ -32,12 +30,6 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
     @Override
     public void process(AddSubstitutionTypeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-
-        // FIXME we don't allow substitution for applications YET (this has to be changed as Application could become a service in the future and this would be
-        // done through substitution)
-        if (Objects.equals(EditionContextManager.getCsar().getDelegateType(), ArchiveDelegateType.APPLICATION)) {
-            throw new UnsupportedOperationException("Add substitution type operation is only allowed for topology templates");
-        }
 
         if (topology.getSubstitutionMapping() == null) {
             topology.setSubstitutionMapping(new SubstitutionMapping());

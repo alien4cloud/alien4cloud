@@ -129,6 +129,10 @@ a {
   display: block !important;
 }
 
+.popover-content[ng-bind] {
+  white-space: pre-line;
+}
+
 /*pagination*/
 .pagination-div {
   text-align: center;

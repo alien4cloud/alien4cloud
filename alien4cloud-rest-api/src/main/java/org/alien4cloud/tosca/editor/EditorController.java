@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.springframework.core.io.InputStreamResource;
@@ -30,6 +29,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyValidationResult;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -170,7 +170,7 @@ public class EditorController {
 
     @ApiOperation(value = "Override the topology archive with the one provided as a parameter.", notes = "This operation will fail if the topology is under edition (meaning a context with some operations exists). The topology will be fully overriden with the new archive content (if valid) and a local commit will be dispatched.")
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId:.+}/override", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/override", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> updateTopologyArchive(@PathVariable String topologyId, @RequestParam(value = "file") MultipartFile file) throws IOException {
         try (InputStream inputStream = file.getInputStream()) {
             editorService.override(topologyId, inputStream);

@@ -48,6 +48,7 @@ import alien4cloud.exception.ReleaseReferencingSnapshotException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.exception.VersionRenameNotPossibleException;
 import alien4cloud.images.exception.ImageUploadException;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.paas.exception.ComputeConflictNameException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
@@ -64,11 +65,12 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
+import alien4cloud.service.exceptions.ServiceUsageException;
 import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
@@ -147,7 +149,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public RestResponse<Void> processDeleteReferencedObject(DeleteReferencedObjectException e) {
-        log.error("Object is still referenced and cannot be deleted", e);
+        log.error(" Resource still referenced, thus not deletable.", e);
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(e.getMessage()).build()).build();
     }
@@ -249,7 +251,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public RestResponse<Void> notFoundErrorHandler(NotFoundException e) {
-        log.error("Something not found", e);
+        log.error("Resource not found", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message(e.getMessage()).build()).build();
     }
 
@@ -335,7 +337,7 @@ public class RestTechnicalExceptionHandler {
         log.error("Uncategorized error", e);
         String stackTrace = ExceptionUtils.getFullStackTrace(e);
         return RestResponseBuilder.<String> builder().data(stackTrace)
-                .error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Uncategorized error " + e.getMessage()).build()).build();
+                .error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message(e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = InvalidVersionException.class)
@@ -497,7 +499,7 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> unsupportedOperationErrorHandler(UnsupportedOperationException e) {
         log.error("Operation not supported", e);
         return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_OPERATION_ERROR).message("Operation not supported: " + e.getMessage()).build())
+                .error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_OPERATION_ERROR).message(e.getMessage()).build())
                 .build();
     }
 
@@ -509,4 +511,14 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<CsarUploadResult> builder().data(CsarUploadUtil.toUploadResult(e.getParsingResult()))
                 .error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build()).build();
     }
+
+    @ExceptionHandler(value = ServiceUsageException.class)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public RestResponse<Usage[]> serviceUsageExceptionHandler(ServiceUsageException e) {
+        log.error("Error on service deletion", e);
+        return RestResponseBuilder.<Usage[]> builder().data(e.getUsages())
+                .error(RestErrorBuilder.builder(RestErrorCode.RESOURCE_USED_ERROR).message(e.getMessage()).build()).build();
+    }
+
 }

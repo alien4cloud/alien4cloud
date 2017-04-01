@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: java-type
+  template_version: 2.0.0-SNAPSHOT
+  template_author: Test
+
 description: Test on artifact, the artifact type not exist
-template_name: java-type
-template_version: 2.0.0-SNAPSHOT
-template_author: Test
 
 imports:
   - tosca-base-types:1.0
@@ -14,5 +17,6 @@ node_types:
     description: >
       A Java Virtual Machine Software Component.
     artifacts:
-      - config: ./config/example.sh
-        type: tosca.artifacts.Failled
+      - config:
+          file: ./config/example.sh
+          type: tosca.artifacts.Failled

@@ -144,7 +144,8 @@ public class RelationshipPostProcessor {
     private RequirementDefinition getRequirementDefinitionByName(NodeType indexedNodeType, String name) {
         if (indexedNodeType.getRequirements() != null) {
             for (RequirementDefinition rd : indexedNodeType.getRequirements()) {
-                if (rd.getId().equals(name)) {
+                // requirement definition id may be null in case of a wrong defined node type in the same archive.
+                if (rd.getId() != null && rd.getId().equals(name)) {
                     return rd;
                 }
             }

@@ -31,9 +31,9 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.ToscaNormativeUtil;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
@@ -52,37 +52,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public final class FunctionEvaluator {
-
-    /**
-     * Post process / enrich instance information by parsing all function in attributes and replacing them with real values
-     *
-     * @param instanceInformations the instance information to post process
-     * @param topology the topology
-     * @param paaSTopology the pass topology
-     */
-    public static void postProcessInstanceInformation(Map<String, Map<String, InstanceInformation>> instanceInformations, Topology topology,
-            PaaSTopology paaSTopology) {
-        // parse attributes
-        for (Map.Entry<String, Map<String, InstanceInformation>> nodeInstanceId : instanceInformations.entrySet()) {
-
-            for (Map.Entry<String, InstanceInformation> nodeInstanceNumber : nodeInstanceId.getValue().entrySet()) {
-
-                if (nodeInstanceNumber.getValue().getAttributes() != null) {
-                    for (Map.Entry<String, String> attributeEntry : nodeInstanceNumber.getValue().getAttributes().entrySet()) {
-                        PaaSNodeTemplate nodeTemplate = paaSTopology.getAllNodes().get(nodeInstanceId.getKey());
-                        Map<String, IValue> nodeTemplateAttributes = nodeTemplate.getIndexedToscaElement().getAttributes();
-                        IValue attributeValue = nodeTemplateAttributes.get(attributeEntry.getKey());
-                        if (attributeValue != null) {
-                            String parsedAttribute = FunctionEvaluator.parseAttribute(attributeEntry.getKey(), attributeValue, topology, instanceInformations,
-                                    nodeInstanceNumber.getKey(), nodeTemplate, paaSTopology.getAllNodes());
-                            attributeEntry.setValue(parsedAttribute);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     /**
      * Parse an attribute value that can be : {@link ConcatPropertyValue} / {@link AttributeDefinition}
      *
@@ -96,8 +65,8 @@ public final class FunctionEvaluator {
      * @return
      */
     public static String parseAttribute(String attributeId, IValue attributeValue, Topology topology,
-                                        Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance,
-                                        IPaaSTemplate<? extends AbstractToscaType> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+            Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance,
+            IPaaSTemplate<? extends AbstractToscaType> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
 
         if (attributeValue == null) {
             return null;
@@ -264,7 +233,7 @@ public final class FunctionEvaluator {
      * @return a list of PaaSTemplate(relationship or node) resulting from the evaluation
      */
     public static List<? extends IPaaSTemplate> getPaaSTemplatesFromKeyword(IPaaSTemplate<? extends AbstractToscaType> basePaaSTemplate, String keyword,
-                                                                            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         switch (keyword) {
         case ToscaFunctionConstants.SELF:
             return Lists.<IPaaSTemplate> newArrayList(basePaaSTemplate);
@@ -290,7 +259,7 @@ public final class FunctionEvaluator {
      * @return the String result of the function evalutation
      */
     public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam,
-                                                     IPaaSTemplate<? extends AbstractInheritableToscaType> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+            IPaaSTemplate<? extends AbstractInheritableToscaType> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
         for (IPaaSTemplate paaSTemplate : paaSTemplates) {
             String propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
@@ -335,7 +304,7 @@ public final class FunctionEvaluator {
                 AbstractPropertyValue rawValue;
                 if (propertyDefinition == null) {
                     return null;
-                } else if (ToscaType.isSimple(propertyDefinition.getType())) {
+                } else if (ToscaTypes.isSimple(propertyDefinition.getType())) {
                     // It's a complex path (with '.') but the type in definition is finally simple
                     return null;
                 } else if (properties != null && (rawValue = properties.get(propertyName)) != null) {

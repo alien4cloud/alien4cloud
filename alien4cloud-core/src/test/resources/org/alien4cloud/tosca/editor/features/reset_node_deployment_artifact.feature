@@ -22,7 +22,7 @@ Feature: Topology editor: set deployment artifact
       | nodeName          | war_node                                                                                   |
       | artifactName      | war                                                                                        |
     Then No exception should be thrown
-    And The SPEL expression "nodeTemplates['war_node'].artifacts['war'].artifactRef" should return ""
+    And The SPEL expression "nodeTemplates['war_node'].artifacts['war'].artifactRef" should return "null"
 
   Scenario: Reset an artifact on wrong artifact name should failed
     Given I execute the operation

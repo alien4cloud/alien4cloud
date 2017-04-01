@@ -1,0 +1,40 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+tosca_default_namespace: Tosca default namespace value
+template_name: Template name value
+template_author: Temlate author value
+template_version: 1.0.0-SNAPSHOT
+
+description: This is an example of a single line description (no folding).
+
+imports:
+  # list of import statements for importing other definitions files
+
+dsl_definitions:
+  # list of YAML alias anchors (or macros)
+
+topology_template:
+  inputs:
+    # list of global input parameters
+
+  node_templates:
+    # list of node templates
+
+  groups:
+    # list of groups defined in service template
+
+  outputs:
+    # list of output parameters
+
+node_types:
+  # list of node type definitions
+
+capability_types:
+  # list of capability type definitions
+
+relationship_types:
+  # list of relationship type definitions
+
+artifact_types:
+  # list of artifact type definitions
+

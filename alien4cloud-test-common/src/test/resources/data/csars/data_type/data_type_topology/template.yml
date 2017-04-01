@@ -1,13 +1,15 @@
-tosca_definitions_version: alien_dsl_1_2_0
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: complex_data_type_template
+  template_version: 1.1.0-SNAPSHOT
+  template_author: FastConnect
+
 description: Test complex types.
-template_name: complex_data_type_template
-template_version: 1.1.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
-  - "tosca-normative-types:1.0.0-SNAPSHOT"
-  - "complex_types:1.1.0-SNAPSHOT"
-
+  - tosca-normative-types:1.0.0-SNAPSHOT
+  - complex_types:1.1.0-SNAPSHOT
 
 topology_template:
 

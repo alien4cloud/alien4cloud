@@ -1,0 +1,35 @@
+tosca_definitions_version: alien_dsl_1_3_0
+description:
+metadata:
+    template_name: inputs_copy
+    template_version: 0.1.0-SNAPSHOT
+    template_author: test
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+topology_template:
+
+  inputs:
+    context_root:
+      type: string
+
+  input_artifacts:
+    uploaded_war:
+      type: tosca.artifacts.File
+
+  node_templates:
+
+    Compute:
+      type: tosca.nodes.Compute
+
+    WebApplication:
+      type: tosca.nodes.WebApplication
+      properties:
+        context_root: { get_input: context_root }
+      artifacts:
+        uploaded_war:
+          type: tosca.artifacts.File
+          file: { get_input_artifact: uploaded_war }
+      requirements:
+        - host: Compute

@@ -1,18 +1,18 @@
 package alien4cloud.paas.wf;
 
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.junit.Before;
 
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.paas.wf.validation.AbstractWorkflowError;
 import alien4cloud.paas.wf.validation.Rule;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractValidationTest<R extends Rule> {
@@ -24,7 +24,7 @@ public abstract class AbstractValidationTest<R extends Rule> {
     @Before
     public void prepare() {
         wf = new Workflow();
-        wf.setName(Workflow.INSTALL_WF);
+        wf.setName(INSTALL);
         wf.setStandard(true);
     }
 

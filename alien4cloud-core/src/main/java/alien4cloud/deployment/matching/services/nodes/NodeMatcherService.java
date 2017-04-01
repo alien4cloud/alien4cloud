@@ -1,7 +1,9 @@
 package alien4cloud.deployment.matching.services.nodes;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -33,6 +35,7 @@ import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationMatchingConfigurationService;
 import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.orchestrators.locations.services.LocationService;
+import alien4cloud.security.AbstractSecurityEnabledResource;
 import alien4cloud.service.ServiceResourceService;
 
 /**
@@ -72,13 +75,19 @@ public class NodeMatcherService {
             String environmentId) {
         Map<String, List<LocationResourceTemplate>> matchingResult = Maps.newHashMap();
         Location location = locationService.getOrFail(locationId);
+
+        // fetch location resources
         LocationResources locationResources = locationResourceService.getLocationResources(location);
+        // Authorization filtering of location resources
+        filterOnAuthorization(locationResources.getNodeTemplates(), environmentId);
 
-        // Authorization filtering of services resources
-        filterOnAuthorization(locationResources, environmentId);
-
+        // fetch service resources
         List<ServiceResource> services = serviceResourceService.searchByLocation(locationId);
-        filterOnAuthorization(services, locationId);
+        // self filtering: remove managed service linked to this location
+        filterSelfManagedService(services, environmentId);
+        // Authorization filtering of location resources
+        filterOnAuthorization(services, environmentId);
+        // from serviceResource to locationResource
         populateLocationResourcesWithServiceResource(locationResources, services, locationId);
 
         Map<String, MatchingConfiguration> matchingConfigurations = locationMatchingConfigurationService.getMatchingConfiguration(location);
@@ -102,14 +111,12 @@ public class NodeMatcherService {
         return matchingResult;
     }
 
-    private void filterOnAuthorization(LocationResources locationResources, String environmentId) {
-        locationResources.getNodeTemplates()
-                .removeIf(locationResourceTemplate -> !locationSecurityService.isAuthorised(locationResourceTemplate, environmentId));
+    private void filterSelfManagedService(List<ServiceResource> services, String environmentId) {
+        services.removeIf(serviceResource -> environmentId != null && Objects.equals(serviceResource.getEnvironmentId(), environmentId));
     }
 
-    private void filterOnAuthorization(List<ServiceResource> serviceResource, String environmentId) {
-        serviceResource
-                .removeIf(locationResourceTemplate -> !locationSecurityService.isAuthorised(locationResourceTemplate, environmentId));
+    private void filterOnAuthorization(Collection<? extends AbstractSecurityEnabledResource> securedResources, String environmentId) {
+        securedResources.removeIf(securedResource -> !locationSecurityService.isAuthorised(securedResource, environmentId));
     }
 
     /**

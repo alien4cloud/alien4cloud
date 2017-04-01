@@ -1,10 +1,19 @@
 package alien4cloud.it.application.deployment;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -26,7 +35,12 @@ import alien4cloud.it.utils.websocket.StompConnection;
 import alien4cloud.it.utils.websocket.StompData;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.InstanceStatus;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.rest.application.model.DeployApplicationRequest;
 import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
@@ -60,9 +74,16 @@ public class ApplicationsDeploymentStepDefinitions {
         I_undeploy_it(ApplicationStepDefinitions.CURRENT_APPLICATION, false);
     }
 
-    public void I_undeploy_it(Application application, boolean failsafe) throws Throwable {
-        String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
-        String statusRequest = "/rest/v1/applications/" + application.getId() + "/environments/" + envId + "/status";
+    @When("^I undeploy application \"([^\"]*)\", environment \"([^\"]*)\"$")
+    public void I_undeploy_application_environment(String applicationName, String environmentName) throws Throwable {
+        doUndeployApplication(applicationName, environmentName, false);
+    }
+
+    private void doUndeployApplication(String applicationName, String environmentName, boolean failsafe) throws Throwable {
+        String applicationId = Context.getInstance().getApplicationId(applicationName);
+        String envId = environmentName == null ? Context.getInstance().getDefaultApplicationEnvironmentId(applicationName)
+                : Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName);
+        String statusRequest = "/rest/v1/applications/" + applicationId + "/environments/" + envId + "/status";
         RestResponse<String> statusResponse = JsonUtil.read(Context.getRestClientInstance().get(statusRequest), String.class);
         if (failsafe) {
             if (statusResponse.getError() != null) {
@@ -74,10 +95,14 @@ public class ApplicationsDeploymentStepDefinitions {
         DeploymentStatus deploymentStatus = DeploymentStatus.valueOf(statusResponse.getData());
         if (!DeploymentStatus.UNDEPLOYED.equals(deploymentStatus) || !DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS.equals(deploymentStatus)) {
             Context.getInstance().registerRestResponse(
-                    Context.getRestClientInstance().delete("/rest/v1/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
+                    Context.getRestClientInstance().delete("/rest/v1/applications/" + applicationId + "/environments/" + envId + "/deployment"));
         }
-        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, Sets.newHashSet(DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS), 10 * 60L * 1000L, null,
+        assertStatus(applicationName, DeploymentStatus.UNDEPLOYED, Sets.newHashSet(DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS), 10 * 60L * 1000L, null,
                 failsafe);
+    }
+
+    public void I_undeploy_it(Application application, boolean failsafe) throws Throwable {
+        doUndeployApplication(application.getName(), null, failsafe);
     }
 
     @When("^I deploy it$")

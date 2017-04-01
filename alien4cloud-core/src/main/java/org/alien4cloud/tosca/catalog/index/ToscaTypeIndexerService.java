@@ -27,7 +27,7 @@ import alien4cloud.model.common.Tag;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 
 /**
  * This service is responsible for indexing and searching tosca types.
@@ -96,7 +96,7 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
         if (CollectionUtils.isNotEmpty(element.getDerivedFrom())) {
             boolean deriveFromSimpleType = false;
             String parentId = element.getDerivedFrom().get(0);
-            if (element.getDerivedFrom().size() == 1 && ToscaType.isSimple(parentId)) {
+            if (element.getDerivedFrom().size() == 1 && ToscaTypes.isSimple(parentId)) {
                 deriveFromSimpleType = true;
             }
             if (!deriveFromSimpleType) {

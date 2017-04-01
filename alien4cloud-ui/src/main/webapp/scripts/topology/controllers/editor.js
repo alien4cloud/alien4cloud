@@ -85,8 +85,6 @@ define(function (require) {
         } else {
           $scope.workspaces = [topologyDTO.topology.workspace, 'ALIEN_GLOBAL_WORKSPACE'];
         }
-
-        $scope.isTopologyTemplate = ($scope.topology.delegateType !== 'APPLICATION');
         // Process the topology to enrich it with some additional data
         _.each(topologyDTO.topology.nodeTemplates, function(value, key){
           value.name = key;
@@ -411,7 +409,8 @@ define(function (require) {
           }, function() {
             proceedToStateChange();
           });
-      });
-    }
-  ]);
-}); // define
+        });
+      }
+    ]);
+  }
+); // define

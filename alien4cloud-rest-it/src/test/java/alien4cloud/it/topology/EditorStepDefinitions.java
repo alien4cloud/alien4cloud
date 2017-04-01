@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -15,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import alien4cloud.it.Context;
+import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import cucumber.api.DataTable;
@@ -86,9 +88,10 @@ public class EditorStepDefinitions {
         }
     }
 
-    @Given("^I save the topology$")
-    public void i_save_the_topology() throws Throwable {
+    @Given("^I (successfully\\s)?save the topology$")
+    public void i_save_the_topology(String successfully) throws Throwable {
         do_i_save_the_topology();
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
     public static void do_i_save_the_topology() throws Throwable {

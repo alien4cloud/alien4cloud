@@ -8,9 +8,9 @@ define(function(require) {
       templateUrl: 'views/orchestrators/orchestrator_location_resources.html',
       restrict: 'E',
       scope: {
-        'resourcesTemplates': '=',
-        'resourcesTypes': '=',
         'resourcesTypesMap': '=',
+        'resourcesTemplates': '=',
+        'providedTypes': '=?',
         'context': '=?',
         'showCatalog': '=?',
         'showMultiSelect': '=?'

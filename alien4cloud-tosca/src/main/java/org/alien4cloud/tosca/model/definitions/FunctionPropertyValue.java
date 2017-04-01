@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import alien4cloud.tosca.ToscaNormativeUtil;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import alien4cloud.ui.form.annotation.FormProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,22 +33,12 @@ public class FunctionPropertyValue extends AbstractPropertyValue {
         return parameters.get(0);
     }
 
-    @JsonIgnore
-    public String setTemplateName(String templateName) {
-        return parameters.set(0, templateName);
-    }
-
     /**
      * get the name of the property or attribute or the output we want to retrieve, represented by the last parameter in the list
      */
     @JsonIgnore
     public String getElementNameToFetch() {
         return parameters.get(parameters.size() - 1);
-    }
-
-    @JsonIgnore
-    public String setElementNameToFetch(String value) {
-        return parameters.set(parameters.size() - 1, value);
     }
 
     /**

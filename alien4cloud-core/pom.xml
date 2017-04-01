@@ -75,8 +75,12 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
     </dependency>
 
     <!-- XML parsing -->
@@ -101,6 +105,13 @@
     <dependency>
       <groupId>alien4cloud</groupId>
       <artifactId>alien4cloud-test-common</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <classifier>tests</classifier>
+    </dependency>
+    <dependency>
+      <groupId>alien4cloud</groupId>
+      <artifactId>alien4cloud-tosca</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
       <classifier>tests</classifier>
@@ -211,8 +222,11 @@
                 <filteredField>alien4cloud.model.deployment.DeploymentTopology.locationDependencies</filteredField>
                 <filteredField>alien4cloud.model.deployment.DeploymentTopology.originalNodes</filteredField>
                 <filteredField>alien4cloud.model.deployment.DeploymentTopology.inputProperties</filteredField>
-                <filteredField>org.alien4cloud.tosca.model.templates.SubstitutionMapping.substitutionType</filteredField>
-                <filteredField>alien4cloud.model.orchestrators.locations.LocationResourceTemplate.portabilityDefinitions</filteredField>
+                <filteredField>org.alien4cloud.tosca.model.templates.SubstitutionMapping.substitutionType
+                </filteredField>
+                <filteredField>
+                  alien4cloud.model.orchestrators.locations.LocationResourceTemplate.portabilityDefinitions
+                </filteredField>
               </filteredFields>
             </configuration>
           </execution>

@@ -340,6 +340,7 @@ public class PluginManager {
     private void loadPlugin(Plugin plugin) throws PluginLoadingException {
         if (pluginContexts.containsKey(plugin.getId())) {
             log.debug("Do not load plugin {} as it is already loaded.", plugin.getId());
+            return;
         }
         try {
             Path pluginPath = getPluginPath(plugin.getPluginPathId());

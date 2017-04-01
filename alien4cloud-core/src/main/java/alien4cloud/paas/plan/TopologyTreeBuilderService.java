@@ -8,11 +8,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
-import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.IValue;
@@ -31,6 +30,11 @@ import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
+import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -40,7 +44,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.InvalidTopologyException;
@@ -50,16 +53,14 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.tosca.ToscaNormativeUtil;
+import alien4cloud.tosca.PaaSUtils;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
-import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.NormativeNetworkConstants;
-import alien4cloud.tosca.normative.NormativeRelationshipConstants;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.AlienUtils;
-import alien4cloud.utils.TypeMap;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,29 +70,21 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class TopologyTreeBuilderService {
-    @Resource
+    @Inject
     private CsarFileRepository repository;
-    @Resource
+    @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
-
-    public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplates(Topology topology) {
-        // cache IndexedToscaElements, CloudServiceArchive and ToscaElements to limit queries.
-        TypeMap cache = new TypeMap();
-        return buildPaaSNodeTemplates(topology, cache);
-    }
+    @Inject
+    private TopologyDTOBuilder topologyDTOBuilder;
 
     /**
-     * Fetch informations from the repository to complete the topology node template informations with additional data such as artifacts paths etc.
+     * Fetch information from the repository to complete the topology node template informations with additional data such as artifacts paths etc.
      *
      * @param topology The topology for which to build PaaSNodeTemplate map.
      * @return A map of PaaSNodeTemplate that match the one of the NodeTempaltes in the given topology (and filled with artifact paths etc.).
      */
-    public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplates(Topology topology, TypeMap cache) {
+    public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplates(Topology topology) {
         Map<String, PaaSNodeTemplate> nodeTemplates = Maps.newHashMap();
-
-        // cache IndexedToscaElements, CloudServiceArchive and ToscaElements to limit queries.
-        // TypeMap cache = new TypeMap();
-
         // Fill in PaaSNodeTemplate by fetching node types and CSAR path from the repositories.
         if (topology.getNodeTemplates() != null) {
             for (Entry<String, NodeTemplate> templateEntry : topology.getNodeTemplates().entrySet()) {
@@ -99,7 +92,7 @@ public class TopologyTreeBuilderService {
 
                 PaaSNodeTemplate paaSNodeTemplate = new PaaSNodeTemplate(templateEntry.getKey(), template);
 
-                fillType(cache, topology, template, paaSNodeTemplate, NodeType.class);
+                fillType(topology, template, paaSNodeTemplate, NodeType.class);
                 mergeInterfaces(paaSNodeTemplate, template);
 
                 if (template.getRelationships() != null) {
@@ -107,7 +100,7 @@ public class TopologyTreeBuilderService {
                         RelationshipTemplate relationshipTemplate = relationshipEntry.getValue();
                         PaaSRelationshipTemplate paaSRelationshipTemplate = new PaaSRelationshipTemplate(relationshipEntry.getKey(), relationshipTemplate,
                                 paaSNodeTemplate.getId());
-                        fillType(cache, topology, relationshipTemplate, paaSRelationshipTemplate, RelationshipType.class);
+                        fillType(topology, relationshipTemplate, paaSRelationshipTemplate, RelationshipType.class);
                         mergeInterfaces(paaSRelationshipTemplate, relationshipTemplate);
                         paaSNodeTemplate.getRelationshipTemplates().add(paaSRelationshipTemplate);
                     }
@@ -141,15 +134,14 @@ public class TopologyTreeBuilderService {
      * @param topology
      * @return a Map of non-natives nodes.
      */
+    @ToscaContextual
     public Map<String, NodeTemplate> getNonNativesNodes(Topology topology) {
-        TypeMap cache = new TypeMap();
         Map<String, NodeTemplate> nonNativesNode = new HashMap<>();
 
         if (topology.getNodeTemplates() != null) {
             for (Entry<String, NodeTemplate> templateEntry : topology.getNodeTemplates().entrySet()) {
                 NodeTemplate template = templateEntry.getValue();
-                NodeType indexedToscaElement = getToscaType(template.getType(), cache, topology.getDependencies(), NodeType.class);
-
+                NodeType indexedToscaElement = ToscaContext.getOrFail(NodeType.class, template.getType());
                 boolean isCompute = ToscaNormativeUtil.isFromType(NormativeComputeConstants.COMPUTE_TYPE, indexedToscaElement);
                 boolean isNetwork = ToscaNormativeUtil.isFromType(NormativeNetworkConstants.NETWORK_TYPE, indexedToscaElement);
                 boolean isVolume = ToscaNormativeUtil.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, indexedToscaElement);
@@ -181,19 +173,18 @@ public class TopologyTreeBuilderService {
      * @param topology The topology.
      * @return The parsed topology for the PaaS with.
      */
-    public PaaSTopology buildPaaSTopology(Topology topology, TypeMap cache) {
-        return buildPaaSTopology(buildPaaSNodeTemplates(topology, cache));
-    }
-
-    /**
-     * Build the topology for deployment on the PaaS.
-     *
-     * @param topology The topology.
-     * @return The parsed topology for the PaaS with.
-     */
     @ToscaContextual
     public PaaSTopology buildPaaSTopology(Topology topology) {
-        return buildPaaSTopology(buildPaaSNodeTemplates(topology, new TypeMap()));
+        PaaSTopology paaSTopology = buildPaaSTopology(buildPaaSNodeTemplates(topology));
+
+        // Reuse this utility to query all types and inject them in the PaaSTopology
+        TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(topology);
+        paaSTopology.setDataTypes(topologyDTO.getDataTypes());
+        paaSTopology.setCapabilityTypes(topologyDTO.getCapabilityTypes());
+        paaSTopology.setRelationshipTypes(topologyDTO.getRelationshipTypes());
+        paaSTopology.setNodeTypes(topologyDTO.getNodeTypes());
+
+        return paaSTopology;
     }
 
     /**
@@ -244,6 +235,9 @@ public class TopologyTreeBuilderService {
         }
         // check and register possible operation outputs
         processOperationsOutputs(nodeTemplates);
+
+        // inject all properties as operation inputs for related interfaces
+        PaaSUtils.injectPropertiesAsOperationInputs(nodeTemplates);
 
         return new PaaSTopology(computes, networks, volumes, nonNatives, nodeTemplates, groups);
     }
@@ -324,28 +318,16 @@ public class TopologyTreeBuilderService {
         return relationships;
     }
 
-    public <V extends AbstractInheritableToscaType> V getToscaType(String type, TypeMap typeMap, Set<CSARDependency> dependencies, Class<V> clazz) {
-        V indexedToscaElement = typeMap.get(clazz, type);
-        if (indexedToscaElement == null) {
-            indexedToscaElement = toscaTypeSearchService.getElementInDependencies(clazz, type, dependencies);
-            if (indexedToscaElement == null) {
-                throw new NotFoundException("Type <" + type + "> required in the topology cannot be found in the repository.");
-            }
-            typeMap.put(type, indexedToscaElement);
-        }
-        return indexedToscaElement;
-    }
-
     @SuppressWarnings("unchecked")
-    private <V extends AbstractInheritableToscaType> void fillType(TypeMap typeMap, Topology topology, AbstractTemplate template, IPaaSTemplate<V> paaSTemplate,
+    private <V extends AbstractInheritableToscaType> void fillType(Topology topology, AbstractTemplate template, IPaaSTemplate<V> paaSTemplate,
             Class<V> clazz) {
-        V indexedToscaElement = getToscaType(template.getType(), typeMap, topology.getDependencies(), clazz);
+        V indexedToscaElement = ToscaContext.getOrFail(clazz, template.getType());
         paaSTemplate.setIndexedToscaElement(indexedToscaElement);
         List<String> derivedFroms = indexedToscaElement.getDerivedFrom();
         List<V> derivedFromTypes = Lists.newArrayList();
         if (derivedFroms != null) {
             for (String derivedFrom : derivedFroms) {
-                derivedFromTypes.add(getToscaType(derivedFrom, typeMap, topology.getDependencies(), clazz));
+                derivedFromTypes.add(ToscaContext.get(clazz, derivedFrom));
             }
         }
         paaSTemplate.setDerivedFroms(derivedFromTypes);

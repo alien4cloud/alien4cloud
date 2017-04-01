@@ -9,6 +9,7 @@ import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.SettableFuture;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -28,6 +29,7 @@ import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
+import lombok.SneakyThrows;
 
 /**
  * Manage runtime operations on deployments.
@@ -83,10 +85,34 @@ public class DeploymentRuntimeStateService {
     }
 
     /**
+     * Synchronously get the current deployment status for a topology.
+     *
+     * @param deployment deployment for which we want the status.
+     * @return The status of the topology.
+     */
+    @SneakyThrows
+    public DeploymentStatus getDeploymentStatus(Deployment deployment) {
+        final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
+        // update the deployment status from PaaS if it cannot be found.
+        getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+            @Override
+            public void onSuccess(DeploymentStatus data) {
+                statusSettableFuture.set(data);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                statusSettableFuture.setException(throwable);
+            }
+        });
+        return statusSettableFuture.get();
+    }
+
+    /**
      * Get the current deployment status for a topology.
      *
-     * @param deployment deployment for which we want the status
-     * @param callback that will be called when status is available*
+     * @param deployment deployment for which we want the status.
+     * @param callback that will be called when status is available
      * @return The status of the topology.
      * @throws alien4cloud.paas.exception.OrchestratorDisabledException In case the cloud selected for the topology is disabled.
      */

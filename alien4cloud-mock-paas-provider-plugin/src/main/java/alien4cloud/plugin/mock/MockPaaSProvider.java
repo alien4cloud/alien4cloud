@@ -1,15 +1,7 @@
 package alien4cloud.plugin.mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,43 +10,28 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.tosca.ToscaNormativeUtil;
-import alien4cloud.utils.MapUtil;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.templates.ScalingPolicy;
-import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.templates.*;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
+import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 import org.elasticsearch.common.collect.Maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import alien4cloud.dao.MonitorESDAO;
+import alien4cloud.deployment.DeploymentLoggingService;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.InstanceStatus;
-import alien4cloud.paas.model.NodeOperationExecRequest;
-import alien4cloud.paas.model.PaaSDeploymentContext;
-import alien4cloud.paas.model.PaaSDeploymentLog;
-import alien4cloud.paas.model.PaaSDeploymentLogLevel;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.model.*;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
-import alien4cloud.tosca.normative.NormativeComputeConstants;
-import alien4cloud.tosca.normative.NormativeRelationshipConstants;
+import alien4cloud.utils.MapUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -78,6 +55,10 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Resource(name = "alien-monitor-es-dao")
     private MonitorESDAO alienMonitorDao;
+
+    @Inject
+    private DeploymentLoggingService deploymentLoggingService;
+
 
     private static final String BAD_APPLICATION_THAT_NEVER_WORKS = "BAD-APPLICATION";
 
@@ -234,7 +215,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
         deploymentLog.setType("deployment_status_change");
         deploymentLog.setWorkflowId("install");
         alienMonitorDao.getClient().admin().indices().prepareRefresh(PaaSDeploymentLog.class.getSimpleName().toLowerCase()).execute().actionGet();
-        alienMonitorDao.save(deploymentLog);
+        deploymentLoggingService.save(deploymentLog);
         executorService.schedule(new Runnable() {
             @Override
             public void run() {

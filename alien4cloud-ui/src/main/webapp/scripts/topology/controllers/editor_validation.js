@@ -23,6 +23,7 @@ define(function (require) {
           // nothing to check
           return;
         }
+
         editorIsTopologyValid.create({
           topologyId: $scope.topologyId
         }, null, function(result) {
@@ -51,7 +52,6 @@ define(function (require) {
       $scope.$on('topologyRefreshedEvent', function() {
         isTopologyValid();
       });
-
     }]
   );
 });

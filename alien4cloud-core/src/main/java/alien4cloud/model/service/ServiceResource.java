@@ -1,8 +1,10 @@
 package alien4cloud.model.service;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.alien4cloud.tosca.model.instances.NodeInstance;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
@@ -11,8 +13,10 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import alien4cloud.model.common.IDatableResource;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
@@ -59,7 +63,12 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String[] locationIds;
 
-    /** Id of the deployment that has initialized this service (when the service is created from a deployment). */
+    /** If the service is managed by an application. Defines the environment for which the service is managed. */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    private String environmentId;
+
+    /** The id of the current associated deployment. */
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String deploymentId;
@@ -70,11 +79,33 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
     @DateField(index = IndexType.no, includeInAll = false)
     private Date lastUpdateDate;
 
+    /**
+     * Map capability name -> relationship type id that optionally defines a relationship type to use to perform the service side operations to connect to the
+     * service on a given capability.
+     */
+    private Map<String, String> capabilitiesRelationshipTypes;
+    /**
+     * Map requirement name -> relationship type id that optionally defines a relationship type to use to perform the service side operations to connect to the
+     * service on a given requirement.
+     */
+    private Map<String, String> requirementsRelationshipTypes;
+
     public void start() {
-        nodeInstance.setAttribute(ToscaNodeLifecycleConstants.ATT_STATE, ToscaNodeLifecycleConstants.STARTED);
+        setState(ToscaNodeLifecycleConstants.STARTED);
     }
 
     public void stop() {
-        nodeInstance.setAttribute(ToscaNodeLifecycleConstants.ATT_STATE, ToscaNodeLifecycleConstants.STOPPED);
+        setState(ToscaNodeLifecycleConstants.STOPPED);
     }
+
+    @JsonIgnore
+    public void setState(String state) {
+        nodeInstance.setAttribute(ToscaNodeLifecycleConstants.ATT_STATE, state);
+    }
+
+    @JsonProperty
+    public String getState() {
+        return nodeInstance.getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE);
+    }
+
 }

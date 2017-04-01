@@ -1,5 +1,5 @@
 Feature: Match location for a deployment configuration
-
+#TODO substitution using a service
   Background:
     Given I am authenticated with "ADMIN" role
     And There are these users in the system
@@ -15,13 +15,13 @@ Feature: Match location for a deployment configuration
 
     And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
 
-    And I create a resource of type "alien.nodes.mock.openstack.Flavor" named "Small" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.openstack.Flavor" named "Small" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "1" for the resource named "Small" related to the location "Mount doom orchestrator"/"Thark location"
-    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
 
-    And I create a resource of type "alien.nodes.mock.Compute" named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.Compute" named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "imageId" to "img1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "flavorId" to "1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
 
@@ -38,12 +38,12 @@ Feature: Match location for a deployment configuration
   Scenario: Set a substitution for a node, using admin account
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-      | Compute | Small_Ubuntu | alien.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Compute | Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-      | Compute | Manual_Small_Ubuntu | alien.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Compute | Manual_Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
 
   @reset
   Scenario: Set a substitution for a node, user has access
@@ -60,8 +60,8 @@ Feature: Match location for a deployment configuration
     When I am authenticated with user named "frodon"
     And I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-      | Compute | Small_Ubuntu | alien.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Compute | Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
     Then I should receive a RestResponse with an error code 102
 
@@ -80,8 +80,8 @@ Feature: Match location for a deployment configuration
     When I am authenticated with user named "sam"
     And I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-      | Compute | Manual_Small_Ubuntu | alien.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Compute | Manual_Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
     Then I should receive a RestResponse with an error code 102
 
@@ -100,8 +100,8 @@ Feature: Match location for a deployment configuration
     When I am authenticated with user named "tom"
     And I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-      | Compute | Small_Ubuntu | alien.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Compute | Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
     Then I should receive a RestResponse with an error code 102
 
@@ -112,12 +112,12 @@ Feature: Match location for a deployment configuration
     And I am authenticated with user named "tom"
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-      | Compute | Small_Ubuntu | alien.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Compute | Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-      | Compute | Manual_Small_Ubuntu | alien.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Compute | Manual_Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
 
 
   @reset
@@ -135,8 +135,8 @@ Feature: Match location for a deployment configuration
     When I am authenticated with user named "tom"
     And I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-      | Compute | Small_Ubuntu | alien.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Compute | Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
     Then I should receive a RestResponse with an error code 102
 
@@ -147,9 +147,9 @@ Feature: Match location for a deployment configuration
     And I am authenticated with user named "tom"
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-      | Compute | Small_Ubuntu | alien.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Compute | Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-      | Compute | Manual_Small_Ubuntu | alien.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Compute | Manual_Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |

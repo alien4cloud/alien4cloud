@@ -2618,7 +2618,7 @@
     }
   } ]
 }, {
-  "elementId" : "alien.nodes.mock.BlockStorage",
+  "elementId" : "org.alien4cloud.nodes.mock.BlockStorage",
   "archiveName" : "mock-plugin-types",
   "archiveVersion" : "1.1.0-SM6-SNAPSHOT",
   "creationDate" : 1452073900994,
@@ -2693,7 +2693,7 @@
   } ],
   "alienScore" : 0,
   "abstract" : false,
-  "id" : "alien.nodes.mock.BlockStorage:1.1.0-SM6-SNAPSHOT",
+  "id" : "org.alien4cloud.nodes.mock.BlockStorage:1.1.0-SM6-SNAPSHOT",
   "highestVersion" : true,
   "properties" : [ {
     "key" : "volume_id",
@@ -2736,7 +2736,7 @@
     }
   } ]
 }, {
-  "elementId" : "alien.nodes.mock.Compute",
+  "elementId" : "org.alien4cloud.nodes.mock.Compute",
   "archiveName" : "mock-plugin-types",
   "archiveVersion" : "1.1.0-SM6-SNAPSHOT",
   "creationDate" : 1452073900980,
@@ -2841,7 +2841,7 @@
   } ],
   "alienScore" : 0,
   "abstract" : false,
-  "id" : "alien.nodes.mock.Compute:1.1.0-SM6-SNAPSHOT",
+  "id" : "org.alien4cloud.nodes.mock.Compute:1.1.0-SM6-SNAPSHOT",
   "highestVersion" : true,
   "properties" : [ {
     "key" : "imageId",
@@ -2861,7 +2861,7 @@
     }
   } ]
 }, {
-  "elementId" : "alien.nodes.mock.Network",
+  "elementId" : "org.alien4cloud.nodes.mock.Network",
   "archiveName" : "mock-plugin-types",
   "archiveVersion" : "1.1.0-SM6-SNAPSHOT",
   "creationDate" : 1452073901008,
@@ -2935,7 +2935,7 @@
   } ],
   "alienScore" : 0,
   "abstract" : false,
-  "id" : "alien.nodes.mock.Network:1.1.0-SM6-SNAPSHOT",
+  "id" : "org.alien4cloud.nodes.mock.Network:1.1.0-SM6-SNAPSHOT",
   "highestVersion" : true,
   "properties" : [ {
     "key" : "network_id",
@@ -2986,7 +2986,7 @@
     }
   } ]
 }, {
-  "elementId" : "alien.nodes.mock.openstack.Flavor",
+  "elementId" : "org.alien4cloud.nodes.mock.openstack.Flavor",
   "archiveName" : "mock-plugin-openstack-types",
   "archiveVersion" : "1.1.0-SM6-SNAPSHOT",
   "creationDate" : 1452073900956,
@@ -3060,7 +3060,7 @@
   } ],
   "alienScore" : 0,
   "abstract" : true,
-  "id" : "alien.nodes.mock.openstack.Flavor:1.1.0-SM6-SNAPSHOT",
+  "id" : "org.alien4cloud.nodes.mock.openstack.Flavor:1.1.0-SM6-SNAPSHOT",
   "highestVersion" : true,
   "properties" : [ {
     "key" : "id",
@@ -3072,7 +3072,7 @@
     }
   } ]
 }, {
-  "elementId" : "alien.nodes.mock.openstack.Image",
+  "elementId" : "org.alien4cloud.nodes.mock.openstack.Image",
   "archiveName" : "mock-plugin-openstack-types",
   "archiveVersion" : "1.1.0-SM6-SNAPSHOT",
   "creationDate" : 1452073900930,
@@ -3146,7 +3146,7 @@
   } ],
   "alienScore" : 0,
   "abstract" : true,
-  "id" : "alien.nodes.mock.openstack.Image:1.1.0-SM6-SNAPSHOT",
+  "id" : "org.alien4cloud.nodes.mock.openstack.Image:1.1.0-SM6-SNAPSHOT",
   "highestVersion" : true,
   "properties" : [ {
     "key" : "id",

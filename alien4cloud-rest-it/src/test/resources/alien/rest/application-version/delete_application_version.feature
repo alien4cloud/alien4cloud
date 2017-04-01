@@ -27,16 +27,16 @@ Feature: Delete application version
     Then I should receive a RestResponse with an error code 504
 
   @reset
-  Scenario: Deleting an application version when one of it's version is deployed should fail
+  Scenario: Deleting an application version when one of it's version is used should fail
     Given I am authenticated with "ADMIN" role
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"
     And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
-    And I create a resource of type "alien.nodes.mock.openstack.Flavor" named "Small" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.openstack.Flavor" named "Small" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "1" for the resource named "Small" related to the location "Mount doom orchestrator"/"Thark location"
-    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
     And I pre register orchestrator properties
@@ -50,7 +50,7 @@ Feature: Delete application version
     And I should receive a RestResponse with no error
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I should receive a RestResponse with no error
-    And I deploy it
+#    And I deploy it
     And I should receive a RestResponse with no error
     When I delete an application version for application "ONEPIECE" with version id "ONEPIECE:0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 507
@@ -79,16 +79,16 @@ Feature: Delete application version
     Then I should receive a RestResponse with an error code 504
 
   @reset
-  Scenario: Deleting an application topology version that is deployed should fail
+  Scenario: Deleting an application topology version that is used should fail
     Given I am authenticated with "ADMIN" role
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"
     And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
-    And I create a resource of type "alien.nodes.mock.openstack.Flavor" named "Small" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.openstack.Flavor" named "Small" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "1" for the resource named "Small" related to the location "Mount doom orchestrator"/"Thark location"
-    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
     And I pre register orchestrator properties
@@ -102,7 +102,7 @@ Feature: Delete application version
     And I should receive a RestResponse with no error
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I should receive a RestResponse with no error
-    And I deploy it
+#    And I deploy it
     And I should receive a RestResponse with no error
     When I delete the application topology version for application "ONEPIECE", version id "ONEPIECE:0.1.0-SNAPSHOT" with topology version id "0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 507

@@ -1,0 +1,77 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+tosca_default_namespace:   # Optional. default namespace (schema, types version)
+template_name:             # Optional name of this service template
+template_author:           # Optional author of this service template
+template_version:          # Optional version of this service template
+
+description: This is an example of a single line description (no folding).
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT-wd03
+
+dsl_definitions:
+  # list of YAML alias anchors (or macros)
+
+topology_template:
+  inputs:
+    # list of global input parameters
+
+  node_templates:
+    # list of node templates
+
+  groups:
+    # list of groups defined in service template
+
+  outputs:
+    # list of output parameters
+
+
+node_types:
+  my_company.my_types.MyAppNodeType:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: My company’s custom applicaton
+    properties:
+      my_app_port:
+        type: integer
+        description: application port number
+    attributes:
+      url: { get_operation_output: [ SELF, custom, do_something, generated_url ] }
+    capabilities:
+      some_capability: mytypes.mycapabilities.MyCapabilityTypeName
+      some_other_capability:
+        type: tosca.capabilities.Endpoint
+        description: this is a capability
+        properties:
+          port: 8080
+          range_sample: [8080, 9000]
+    requirements:
+      - host:
+          capability: mytypes.mycapabilities.MyCapabilityTypeName
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          capability_name: host
+          occurrences: [1, 1]
+      - other:
+          capability: tosca.capabilities.Endpoint
+          occurrences: [0, unbounded]
+    interfaces:
+      standard:
+        description: standard interface from TOSCA.
+        create:
+          inputs:
+            port: { get_property: [ SELF, port ] }
+      custom:
+        description: this is a sample interface used to execute custom operations.
+        do_something:
+          inputs:
+            operationOutput_input: { get_operation_output: [ SELF, standard, create, output_variable ] }
+
+capability_types:
+  # list of capability type definitions
+
+relationship_types:
+  # list of relationship type definitions
+
+artifact_types:
+  # list of artifact type definitions

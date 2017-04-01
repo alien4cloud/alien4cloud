@@ -1,14 +1,20 @@
 package alien4cloud.rest.application;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.tosca.model.Csar;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +36,7 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.ApplicationVersionNotFoundException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.model.application.Application;
@@ -39,7 +46,9 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.model.ApplicationEnvironmentRequest;
+import alien4cloud.rest.application.model.GetInputCandidatesRequest;
 import alien4cloud.rest.application.model.UpdateApplicationEnvironmentRequest;
+import alien4cloud.rest.application.model.UpdateTopologyVersionForEnvironmentRequest;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -71,6 +80,10 @@ public class ApplicationEnvironmentController {
     private ApplicationVersionService applicationVersionService;
     @Inject
     private ApplicationEnvironmentDTOBuilder dtoBuilder;
+    @Inject
+    private DeploymentTopologyService deploymentTopologyService;
+    @Resource
+    private ApplicationContext applicationContext;
 
     /**
      * Search for application environment for a given application id
@@ -84,17 +97,65 @@ public class ApplicationEnvironmentController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<GetMultipleDataResult<ApplicationEnvironmentDTO>> search(@PathVariable String applicationId,
             @RequestBody FilteredSearchRequest searchRequest) {
+        return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentDTO>> builder()
+                .data(transformToDTO(searchAuthorizedEnvironments(applicationId, searchRequest))).build();
+    }
+
+    /**
+     * Get a list of application environments, which has inputs for deployment, that can be copied when the new application topology version is bound to the
+     * environment.
+     *
+     * @param applicationId application's id
+     * @param getInputCandidatesRequest contain parameters for input candidate requests
+     * @return list of candidates to copy from
+     */
+    @ApiOperation(value = "Get a list of application environments, which has inputs for deployment, that can be copied when the new application topology version is bound to the environment")
+    @RequestMapping(value = "/input-candidates", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<List<ApplicationEnvironment>> getEnvironmentCandidatesToCopyInputs(@PathVariable String applicationId,
+            @RequestBody GetInputCandidatesRequest getInputCandidatesRequest) {
+        FilteredSearchRequest filteredSearchRequest = new FilteredSearchRequest(null, 0, Integer.MAX_VALUE, null);
+        GetMultipleDataResult<ApplicationEnvironment> authorizedEnvironments = searchAuthorizedEnvironments(applicationId, filteredSearchRequest);
+        List<ApplicationEnvironment> environmentsWithInputs = Arrays.stream(authorizedEnvironments.getData())
+                .filter(environment -> deploymentTopologyService.isDeploymentTopologyExist(environment)).collect(Collectors.toList());
+        if (getInputCandidatesRequest != null && (StringUtils.isNotBlank(getInputCandidatesRequest.getApplicationEnvironmentId())
+                || StringUtils.isNotBlank(getInputCandidatesRequest.getApplicationTopologyVersion()))) {
+            // If one of this information is given, we can deduct a certain preference
+            environmentsWithInputs.sort((left, right) -> {
+                // Prefer take input from current environment
+                if (Objects.equals(left.getId(), getInputCandidatesRequest.getApplicationEnvironmentId())) {
+                    return -1;
+                }
+                if (Objects.equals(right.getId(), getInputCandidatesRequest.getApplicationEnvironmentId())) {
+                    return 1;
+                }
+                // Prefer take input from environment with the same target topology version than others
+                if (Objects.equals(left.getTopologyVersion(), getInputCandidatesRequest.getApplicationTopologyVersion())) {
+                    return -1;
+                }
+                if (Objects.equals(right.getTopologyVersion(), getInputCandidatesRequest.getApplicationTopologyVersion())) {
+                    return 1;
+                }
+                return 0;
+            });
+        }
+        return RestResponseBuilder.<List<ApplicationEnvironment>> builder().data(environmentsWithInputs).build();
+    }
+
+    private GetMultipleDataResult<ApplicationEnvironment> searchAuthorizedEnvironments(String applicationId, FilteredSearchRequest searchRequest) {
         FilterBuilder authorizationFilter = getEnvironmentAuthorizationFilters(applicationId);
         Map<String, String[]> applicationEnvironmentFilters = getApplicationEnvironmentFilters(applicationId);
-        GetMultipleDataResult<ApplicationEnvironment> searchResult = alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(),
-                applicationEnvironmentFilters, authorizationFilter, null, searchRequest.getFrom(), searchRequest.getSize());
+        return alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(), applicationEnvironmentFilters, authorizationFilter, null,
+                searchRequest.getFrom(), searchRequest.getSize());
+    }
 
+    private GetMultipleDataResult<ApplicationEnvironmentDTO> transformToDTO(GetMultipleDataResult<ApplicationEnvironment> searchResult) {
         GetMultipleDataResult<ApplicationEnvironmentDTO> searchResultDTO = new GetMultipleDataResult<ApplicationEnvironmentDTO>();
         searchResultDTO.setQueryDuration(searchResult.getQueryDuration());
         searchResultDTO.setTypes(searchResult.getTypes());
         searchResultDTO.setData(dtoBuilder.getApplicationEnvironmentDTO(searchResult.getData()));
         searchResultDTO.setTotalResults(searchResult.getTotalResults());
-        return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentDTO>> builder().data(searchResultDTO).build();
+        return searchResultDTO;
     }
 
     private FilterBuilder getEnvironmentAuthorizationFilters(String applicationId) {
@@ -165,6 +226,12 @@ public class ApplicationEnvironmentController {
                 request.getDescription(), request.getEnvironmentType(), request.getVersionId());
 
         alienDAO.save(appEnvironment);
+        if (StringUtils.isNotBlank(request.getInputCandidate())) {
+            // Client ask to copy inputs from other environment
+            ApplicationEnvironment environmentToCopyInputs = applicationEnvironmentService.checkAndGetApplicationEnvironment(request.getInputCandidate(),
+                    ApplicationRole.APPLICATION_MANAGER);
+            applicationEnvironmentService.synchronizeEnvironmentInputs(environmentToCopyInputs, appEnvironment);
+        }
         return RestResponseBuilder.<String> builder().data(appEnvironment.getId()).build();
     }
 
@@ -204,6 +271,53 @@ public class ApplicationEnvironmentController {
             applicationEnvironment.setTopologyVersion(request.getCurrentVersionId());
         }
         alienDAO.save(applicationEnvironment);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Use new topology version for environment
+     * 
+     * @param applicationEnvironmentId environment's id
+     * @param applicationId application's id
+     * @param request request for new topology's version
+     */
+    @ApiOperation(value = "Use new topology version for the given application environment", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
+    @RequestMapping(value = "/{applicationEnvironmentId:.+}/topology-version", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
+    public RestResponse<Void> updateTopologyVersion(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
+            @RequestBody UpdateTopologyVersionForEnvironmentRequest request) throws OrchestratorDisabledException {
+        // Only APPLICATION_MANAGER on the underlying application can update an application environment
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+                ApplicationRole.APPLICATION_MANAGER);
+
+        if (applicationEnvironment == null) {
+            return RestResponseBuilder.<Void> builder().data(null).error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
+                    .message("Application environment with id <" + applicationEnvironmentId + "> does not exist").build()).build();
+        }
+        // update the version of the environment
+        ApplicationVersion newApplicationVersion = applicationVersionService
+                .getOrFailByArchiveId(Csar.createId(applicationEnvironment.getApplicationId(), request.getNewTopologyVersion()));
+        String oldVersion = applicationEnvironment.getVersion();
+        String oldTopologyVersion = applicationEnvironment.getTopologyVersion();
+        String newVersion = newApplicationVersion.getVersion();
+        String newTopologyVersion = request.getNewTopologyVersion();
+        if (Objects.equals(newVersion, oldVersion) && Objects.equals(newTopologyVersion, oldTopologyVersion)) {
+            // Do nothing if nothing has changed
+            return RestResponseBuilder.<Void> builder().build();
+        }
+        applicationEnvironment.setVersion(newVersion);
+        applicationEnvironment.setTopologyVersion(newTopologyVersion);
+        if (request.getEnvironmentToCopyInput() != null) {
+            ApplicationEnvironment environmentToCopyInput = applicationEnvironmentService.checkAndGetApplicationEnvironment(request.getEnvironmentToCopyInput(),
+                    ApplicationRole.APPLICATION_MANAGER);
+            alienDAO.save(applicationEnvironment);
+            applicationEnvironmentService.synchronizeEnvironmentInputs(environmentToCopyInput, applicationEnvironment);
+        } else {
+            alienDAO.save(applicationEnvironment);
+        }
+        applicationContext.publishEvent(
+                new AfterEnvironmentTopologyVersionChanged(this, oldTopologyVersion, newTopologyVersion, applicationEnvironmentId, applicationId));
         return RestResponseBuilder.<Void> builder().build();
     }
 

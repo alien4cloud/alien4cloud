@@ -6,6 +6,7 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
+  require('scripts/common/services/global_rest_error_handler');
   require('scripts/common/services/alien_resource');
   require('scripts/tosca/directives/node_template_edit');
   require('scripts/services/controllers/service_resource_new');
@@ -28,8 +29,8 @@ define(function (require) {
   });
 
   modules.get('a4c-services', ['ui.router', 'ui.bootstrap','a4c-common']).controller('a4cServiceResourcesCtrl',
-    ['$scope', '$uibModal', '$alresource', 'searchServiceFactory', 'resizeServices', 'resourceSecurityFactory',
-    function($scope, $uibModal, $alresource, searchServiceFactory, resizeServices, resourceSecurityFactory) {
+    ['$scope', '$uibModal', '$alresource', 'searchServiceFactory', 'resizeServices', 'resourceSecurityFactory', 'globalRestErrorHandler', 'relationshipTypeQuickSearchService',
+    function($scope, $uibModal, $alresource, searchServiceFactory, resizeServices, resourceSecurityFactory, globalRestErrorHandler, relationshipTypeQuickSearchService) {
       const serviceResourceService = $alresource('rest/latest/services/:serviceId');
       const orchestratorsService = $alresource('rest/latest/orchestrators/:id');
       const locationsService = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:id');
@@ -40,6 +41,12 @@ define(function (require) {
         $scope.dimensions = { width: width, height: height };
         $scope.$digest();
       }, '#catalog-container');
+
+      $scope.relationshipTypeQuickSearchHandler = {
+        'doQuickSearch': relationshipTypeQuickSearchService.doQuickSearch,
+        'waitBeforeRequest': 500,
+        'minLength': 3
+      };
 
       $scope.locations = [];
       // Fetch all orchestrators and locations for display
@@ -98,10 +105,17 @@ define(function (require) {
         $scope.selectedDependencies = $scope.selectedService.uiDependencies;
       }
 
-      $scope.selectService = function(service) {
-        $scope.selectedService = service;
+      var clearSelection = function(){
+        delete $scope.selectedService;
         delete $scope.selectedNodeType;
         delete $scope.stateDisabled;
+      };
+
+      $scope.clearSelection = clearSelection;
+
+      $scope.selectService = function(service) {
+        clearSelection();
+        $scope.selectedService = service;
 
         // We have to fetch the node type, the dependencies, and the related capabilities
         if(_.defined(service)) {
@@ -130,14 +144,17 @@ define(function (require) {
         var updateRequest = { nodeInstance: { attributeValues:{ state: newState} } };
         return serviceResourceService.patch({
           serviceId: $scope.selectedService.id
-        }, angular.toJson(updateRequest), function() {
-          $scope.selectedService.nodeInstance.attributeValues.state = newState;
-          $scope.stateDisabled = !$scope.stateDisabled;
+        }, angular.toJson(updateRequest), function(result) {
+          globalRestErrorHandler.handle(result);
+          if(_.undefined(result.error)){
+            $scope.selectedService.nodeInstance.attributeValues.state = newState;
+            $scope.stateDisabled = !$scope.stateDisabled;
+          }
         });
       };
 
       $scope.isLocAuthorized = function(targetLocation) {
-        if(_.undefined($scope.selectedService) || _.undefined($scope.selectedService.locationIds)) {
+        if(_.undefinedPath($scope, 'selectedService.locationIds')) {
           return false;
         }
         return $scope.selectedService.locationIds.indexOf(targetLocation.id) !== -1;
@@ -165,11 +182,37 @@ define(function (require) {
         });
       };
 
-      $scope.isPropertyEditable = function() { return true; };
+      // not editable:
+      // - enabled services
+      // - managed services
+      $scope.isPropertyEditable = function() {
+        return $scope.stateDisabled && _.undefined($scope.selectedService.environmentId) ;
+      };
 
       $scope.updateProperty= function(propertyName, propertyValue) {
         var updateRequest = { nodeInstance: { properties:{} } };
         updateRequest.nodeInstance.properties[propertyName] = propertyValue;
+        return serviceResourceService.patch({
+          serviceId: $scope.selectedService.id
+        }, angular.toJson(updateRequest)).$promise;
+      };
+
+      $scope.updateHalfRelationshipType = function(type, name, relationshipTypeId) {
+        var updateRequest;
+        switch(type){
+          case 'capability':
+            updateRequest = {
+              capabilitiesRelationshipTypes: {}
+            };
+            updateRequest.capabilitiesRelationshipTypes[name] = relationshipTypeId;
+            break;
+          case 'requirement':
+            updateRequest = {
+              requirementsRelationshipTypes:{}
+            };
+            updateRequest.requirementsRelationshipTypes[name] = relationshipTypeId;
+            break;
+        }
         return serviceResourceService.patch({
           serviceId: $scope.selectedService.id
         }, angular.toJson(updateRequest)).$promise;
@@ -202,10 +245,13 @@ define(function (require) {
       $scope.delete = function(serviceId) {
         serviceResourceService.delete({
           serviceId: serviceId
-        }, null, function() {
-          $scope.search();
-          if (_.defined($scope.selectedService) && $scope.selectedService.id === serviceId) {
-            $scope.selectedService = undefined;
+        }, null, function(result) {
+          globalRestErrorHandler.handle(result);
+          if(_.undefined(result.error)){
+            $scope.search();
+            if (_.get($scope, 'selectedService.id') === serviceId) {
+              clearSelection();
+            }
           }
         });
       };

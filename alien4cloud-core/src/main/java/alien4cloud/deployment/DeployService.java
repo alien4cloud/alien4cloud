@@ -9,9 +9,11 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.tosca.context.ToscaContextual;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -24,6 +26,7 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
+import alien4cloud.events.DeploymentCreatedEvent;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
@@ -44,6 +47,7 @@ import alien4cloud.paas.model.PaaSDeploymentLogLevel;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.PropertyUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +83,13 @@ public class DeployService {
     @Inject
     private DeploymentInputService deploymentInputService;
     @Inject
+    private ApplicationEventPublisher eventPublisher;
+    @Inject
     private DeploymentLockService deploymentLockService;
+    @Inject
+    private DeploymentLoggingService deploymentLoggingService;
+    @Inject
+    private ServiceResourceRelationshipService serviceResourceRelationshipService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -118,11 +128,14 @@ public class DeployService {
             }
             deployment.setSourceName(sourceName);
             deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
-            deployment.setStartDate(new Date());
             // mandatory for the moment since we could have deployment with no environment (csar test)
             deployment.setEnvironmentId(deploymentTopology.getEnvironmentId());
             deployment.setVersionId(deploymentTopology.getVersionId());
+            deployment.setStartDate(new Date());
+            setUsedServicesResourcesIds(deploymentTopology, deployment);
             alienDao.save(deployment);
+            // publish an event for the eventual managed service
+            eventPublisher.publishEvent(new DeploymentCreatedEvent(this, deployment.getId()));
 
             // save the topology as a deployed topology.
             // change the Id before saving
@@ -135,6 +148,8 @@ public class DeployService {
             deploymentInputService.processInputArtifacts(deploymentTopology);
             PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations,
                     deploymentTopology);
+            // Process services relationships to inject the service side based on the service resource.
+            serviceResourceRelationshipService.process(deploymentContext);
             // Download and process all remote artifacts before deployment
             artifactProcessorService.processArtifacts(deploymentContext);
             // Build the context for deployment and deploy
@@ -154,7 +169,7 @@ public class DeployService {
                     deploymentLog.setContent(t.getMessage() + "\n" + ExceptionUtils.getStackTrace(t));
                     deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
                     deploymentLog.setTimestamp(new Date());
-                    alienMonitorDao.save(deploymentLog);
+                    deploymentLoggingService.save(deploymentLog);
 
                     PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
                     messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
@@ -169,6 +184,22 @@ public class DeployService {
                     firstLocation.getId(), deployment.getId());
             return deployment.getId();
         });
+    }
+
+    /**
+     * From the substitutedNodes values, find out which are services and populate the {@link Deployment#serviceResourceIds}
+     * 
+     * @param deployment
+     * @param deploymentTopology
+     */
+    private void setUsedServicesResourcesIds(DeploymentTopology deploymentTopology, Deployment deployment) {
+        String[] serviceResourcesIds = deploymentTopology.getSubstitutedNodes().entrySet().stream()
+                .filter(entry -> deploymentTopology.getNodeTemplates().get(entry.getKey()) instanceof ServiceNodeTemplate).map(entry -> entry.getValue())
+                .toArray(String[]::new);
+
+        if (ArrayUtils.isNotEmpty(serviceResourcesIds)) {
+            deployment.setServiceResourceIds(serviceResourcesIds);
+        }
     }
 
     /**

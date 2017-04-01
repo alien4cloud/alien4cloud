@@ -6,26 +6,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.service.exceptions.InstanceRequiredPropertiesException;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.validation.TopologyPropertiesValidationService;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.postprocess.PropertyValueChecker;
-import alien4cloud.utils.services.ConstraintPropertyService;
 import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.instances.NodeInstance;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.common.collect.Lists;
@@ -38,12 +29,10 @@ import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.PatchUtil;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.parser.postprocess.NodeTemplatePostProcessor;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import alien4cloud.utils.services.PropertyService;
-import org.yaml.snakeyaml.nodes.Node;
 
 /**
  * Simple service to manage node instance validations.

@@ -2,7 +2,6 @@
 
 # declare custom parsers for complex types that requires specific parser.
 - scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
-- property_value: alien4cloud.tosca.parser.impl.advanced.PropertyValueParser
 - import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
 - occurrences: alien4cloud.tosca.parser.impl.advanced.OccurrencesParser
 - implementation_artifact: alien4cloud.tosca.parser.impl.v12.advanced.ImplementationArtifactParser
@@ -185,7 +184,7 @@
     type: scalar
   properties:
     map: properties
-    type: template_property
+    type: node_template_property
 
 - constraint_list: list # This element must be parsed as a list
   type: constraint # the elements in the list are constraints
@@ -236,14 +235,6 @@
     value:
       list: parameters
       type: scalar
-
-- template_property: __discriminator
-  keys:
-    type: property_definition
-    get_input: tosca_function
-    get_property: tosca_function
-    get_attribute: tosca_function
-  default: property_value
 
 - scalar_property_value: org.alien4cloud.tosca.model.definitions.ScalarPropertyValue
 

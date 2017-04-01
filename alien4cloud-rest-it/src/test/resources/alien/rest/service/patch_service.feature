@@ -65,14 +65,14 @@ Feature: Patch service resource
     And I PATCH "services/patch_service_properties.json" to "/rest/v1/services/{serviceId}"
     When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
     When I PATCH "services/patch_name.json" to "/rest/v1/services/{serviceId}"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 509
 
   @reset
   Scenario: Patching a service version for started service should fail
     And I PATCH "services/patch_service_properties.json" to "/rest/v1/services/{serviceId}"
     When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
     When I PATCH "services/patch_version.json" to "/rest/v1/services/{serviceId}"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 509
 
   @reset
   Scenario: Patching a service when not admin should fail

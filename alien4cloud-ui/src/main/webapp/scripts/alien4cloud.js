@@ -7,17 +7,6 @@ define(function(require) {
   var _ = require('lodash');
   var angular = require('angular');
 
-  require('autofill-event');
-  require('angular-cookies');
-  require('angular-resource');
-  require('angular-sanitize');
-  require('angular-bootstrap');
-  require('angular-hotkeys');
-  require('moment');
-  require('angular-bootstrap-datetimepicker');
-  require('angular-ui-router');
-  require('angular-translate');
-  require('angular-xeditable');
   require('scripts/layout/layout');
 
   var alien4cloud = modules.get('alien4cloud', [
@@ -56,8 +45,10 @@ define(function(require) {
   });
 
   require('scripts/common/services/rest_technical_error_interceptor');
+  var templateInjector = require('a4c-templates');
 
   alien4cloud.startup = function() {
+
     // add requirements to alien4cloud
     modules.link(alien4cloud);
 
@@ -72,7 +63,6 @@ define(function(require) {
       }
     ]);
 
-    // TODO load more modules
     alien4cloud.config(['$translateProvider',
       function($translateProvider) {
         $translateProvider.translations({CODE: 'en-us'});
@@ -101,8 +91,9 @@ define(function(require) {
       }
     ]);
 
-    alien4cloud.run(['$rootScope', '$state', 'editableOptions', 'editableThemes', 'authService',
-      function($rootScope, $state, editableOptions, editableThemes, authService) {
+    alien4cloud.run(['$templateCache', '$rootScope', '$state', 'editableOptions', 'editableThemes', 'authService',
+      function($templateCache, $rootScope, $state, editableOptions, editableThemes, authService) {
+        templateInjector($templateCache);
         var statusFetched = false; // flag to know if we have fetched current user status (logged in and roles)
         $rootScope._ = _;
         // check when the state is about to change

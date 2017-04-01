@@ -62,6 +62,7 @@
           </ul>
           <div class="tab-pane" ui-view></div>
         </div>
+
         <!-- If there is validation issues they are displayed here. -->
         <div class="col-md-12" ng-if="showTodoList() || showWarningList()">
 
@@ -74,11 +75,13 @@
               </button>
             </div>
           </div>
+
           <!-- warning list -->
           <div class="row" ng-if="showWarningList()">
             <div id="deploymentWarningList" class="col-md-12">
               <h3 class="text-warning"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.WARNING.LABEL' | translate}}</h3>
 
+              <!-- Valid topology warning list -->
               <div class="warning-list-box" ng-repeat="(taskCode, tasks) in validTopologyDTO.warningList" ng-switch="taskCode">
                 <!--HA warning list -->
                 <div ng-if="tasks.length>0" ng-switch-when="HA_INVALID">
@@ -132,10 +135,45 @@
                     </table>
                   </div>
                 </div>
-              <!-- End : properties warning -->
+                <!-- End : properties warning -->
               </div>
-            <!-- End : warning list display -->
+              <!-- End: Valid topology warning list -->
+
+              <!-- Valid deployment topology warning list -->
+              <div class="warning-list-box" ng-repeat="(taskCode, tasks) in deploymentContext.deploymentTopologyDTO.validation.warningList" ng-switch="taskCode">
+                <!-- Service illegal operation warning list -->
+                <div ng-if="tasks.length>0" ng-switch-when="FORBIDDEN_OPERATION">
+                  <h4 class="clickable" ng-init="isIllegalOperationWarningsCollapsed = false"
+                      ng-click="isIllegalOperationWarningsCollapsed = !isIllegalOperationWarningsCollapsed">
+                    <i class="fa"
+                       ng-class="{'fa-caret-down' : !isIllegalOperationWarningsCollapsed , 'fa-caret-right': isIllegalOperationWarningsCollapsed }"></i>
+                    <span>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.LABEL' | translate}}</span>
+                  </h4>
+                  <div uib-collapse="isIllegalOperationWarningsCollapsed">
+                    <p style="font-style: italic"><i class="fa fa-info-circle" aria-hidden="true">&nbsp;</i>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.LABEL_DETAILS' | translate}}</p>
+                    <table class="table table-condensed">
+                      <thead>
+                      <th>{{'COMMON.NODE' | translate}}</th>
+                      <th>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.SERVICE' | translate}}</th>
+                      <th>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.OPERATION' | translate}}</th>
+                      <th>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.RELATIONSHIP_TYPE' | translate}}</th>
+                      </thead>
+                      <tbody>
+                      <tr ng-repeat="task in tasks">
+                        <td>{{task.nodeTemplateName || '---'}}</td>
+                        <td>{{task.serviceName || '---'}}</td>
+                        <td>{{task.operationName || '---'}}</td>
+                        <td>{{task.relationshipType || '---'}}</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <!-- End : Service illegal operation warning list -->
+              </div>
+              <!-- End: Valid deployment topology warning list -->
             </div>
+            <!-- End : warning list display -->
           </div>
         </div>
       </div>
@@ -152,8 +190,15 @@
           input-properties = "deployedContext.dto.topology.inputProperties"
           orchestrator-properties = "deployedContext.dto.topology.providerDeploymentProperties">
         </display-inputs>
-
+        <div class="col-md-6">
+          <managed-service
+            application="application"
+            topology="deployedContext.dto.topology"
+            environment="deploymentContext.selectedEnvironment"
+            runtime="true">
+          </managed-service>
+        </div>
       </div>
     </uib-tab>
-  </ui-tabset>
+  </uib-tabset>
 </div>

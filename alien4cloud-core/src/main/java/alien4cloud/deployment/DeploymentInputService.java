@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
@@ -21,18 +23,12 @@ import com.google.common.collect.Maps;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
 import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.InputArtifactUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 @Service
 public class DeploymentInputService {
-
-    @Inject
-    private ConstraintPropertyService constraintPropertyService;
-
     @Inject
     private OrchestratorDeploymentService orchestratorDeploymentService;
 
@@ -62,7 +58,7 @@ public class DeploymentInputService {
                     inputPropertyEntryIterator.remove();
                 } else {
                     try {
-                        constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue().getValue(),
+                        ConstraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue().getValue(),
                                 inputDefinitions.get(inputPropertyEntry.getKey()));
                     } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
                         // Property is not valid anymore for the input, remove the old value
@@ -173,7 +169,7 @@ public class DeploymentInputService {
                 String existingValue = propertyValueMap.get(propertyDefinitionEntry.getKey());
                 if (existingValue != null) {
                     try {
-                        constraintPropertyService.checkSimplePropertyConstraint(propertyDefinitionEntry.getKey(), existingValue,
+                        ConstraintPropertyService.checkSimplePropertyConstraint(propertyDefinitionEntry.getKey(), existingValue,
                                 propertyDefinitionEntry.getValue());
                     } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
                         PropertyUtil.setScalarDefaultValueOrNull(propertyValueMap, propertyDefinitionEntry.getKey(),
@@ -187,5 +183,4 @@ public class DeploymentInputService {
             deploymentTopology.setProviderDeploymentProperties(propertyValueMap);
         }
     }
-
 }
