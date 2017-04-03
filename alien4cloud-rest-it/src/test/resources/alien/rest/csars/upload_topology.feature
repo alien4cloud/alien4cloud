@@ -16,7 +16,7 @@ Feature: CSAR upload with topology
   Scenario: Upload CSAR containing apache types and embeded topology template
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology apache"
-    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
     And I should be able to retrieve a topology with name "apache-type" and store it as a SPEL context
     And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
     And The SPEL int expression "nodeTemplates.size()" should return 2
@@ -72,12 +72,15 @@ Feature: CSAR upload with topology
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-capability"
     Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
+
+  ## COMMENTED FOR REAL BEFORE... !!!!!!!!!
 #
-  @reset
-  Scenario: Upload a CSAR containing topology with an unkown capability, short requirement notation
-    Given I upload the archive "tosca base types 1.0"
-    When I upload the archive "topology-unknown-capability-short-notation"
-    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
+#  @reset
+#  Scenario: Upload a CSAR containing topology with an unkown capability, short requirement notation
+#    Given I upload the archive "tosca base types 1.0"
+#    When I upload the archive "topology-unknown-capability-short-notation"
+#    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
+   ## BACKKKKK
 
   @reset
   Scenario: Upload a CSAR containing topology with an unkown relationship type
@@ -151,7 +154,7 @@ Feature: CSAR upload with topology
   Scenario: Upload CSAR containing embeded topology template with relationship property using get_input
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-template-relationship-funtionprop"
-    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
     And I should be able to retrieve a topology with name "topology-template-relationship-funtionprop" and store it as a SPEL context
     And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].function" should return "get_input"
     And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].parameters[0]" should return "pwd"
@@ -292,7 +295,7 @@ Feature: CSAR upload with topology
   Scenario: Upload and delete CSAR containing types and topology using the type
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology apache"
-    And I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
     When I delete a CSAR with id "apache-type:1.1.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I have no CSAR created with id "apache-type:1.1.0-SNAPSHOT"
@@ -304,7 +307,7 @@ Feature: CSAR upload with topology
   Scenario: delete CSAR containing types and topology with substitution type
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology apache"
-    And I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
     And I should be able to retrieve a topology with name "apache-type" and store it as a SPEL context
     When I execute the operation
       | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
