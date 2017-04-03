@@ -24,13 +24,15 @@ define(function (require) {
 
   var NewApplicationEnvironmentCtrl = ['$scope', '$uibModalInstance', 'inputCandidates',
     function($scope, $uibModalInstance, inputCandidates) {
-    $scope.inputCandidates = inputCandidates;
+      $scope.inputCandidates = inputCandidates;
       $scope.newEnvironment = { applicationId: $scope.application.id };
       $scope.create = function(valid) {
         if (valid) {
-          var inputCandidate = $scope.newEnvironment.inputCandidate;
-          delete $scope.newEnvironment.inputCandidate;
-          $scope.newEnvironment.inputCandidate = inputCandidate.id;
+          if (_.defined($scope.newEnvironment.inputCandidate)) {
+            var inputCandidate = $scope.newEnvironment.inputCandidate;
+            delete $scope.newEnvironment.inputCandidate;
+            $scope.newEnvironment.inputCandidate = inputCandidate.id;
+          }
           $uibModalInstance.close($scope.newEnvironment);
         }
       };

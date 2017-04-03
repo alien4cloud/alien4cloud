@@ -42,7 +42,7 @@
     <div class="form-group" ng-show="inputCandidates.length > 0">
       <label for="inputcandidateslistid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_INPUT_CANDIDATE_LABEL' | translate}}</label>
       <div class="col-lg-9">
-        <select name="inputCandidates" required class="form-control" id="inputcandidateslistid" ng-model="newEnvironment.inputCandidate" ng-options="inputCandidate.name for inputCandidate in inputCandidates">
+        <select name="inputCandidates" class="form-control" id="inputcandidateslistid" ng-model="newEnvironment.inputCandidate" ng-options="inputCandidate.name for inputCandidate in inputCandidates">
           <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_INPUT_CANDIDATE_SELECT' | translate}}</option>
         </select>
       </div>
