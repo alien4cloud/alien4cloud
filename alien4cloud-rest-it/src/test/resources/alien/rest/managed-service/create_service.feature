@@ -28,7 +28,7 @@ Feature: Create a service resource from an environment
 
     And I execute the operation
       | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId | tosca.nodes.WebApplication                                                        |
+      | elementId | org.alien4cloud.nodes.test.WebApplication                                         |
     And I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
       | nodeTemplateName         | WebApplication                                                                              |

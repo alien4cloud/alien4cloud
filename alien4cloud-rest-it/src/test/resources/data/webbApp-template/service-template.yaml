@@ -8,6 +8,9 @@ metadata:
 imports:
   - tosca-normative-types:1.0.0-SNAPSHOT
 
+node_types:
+  org.alien4cloud.nodes.test.WebApplication:
+    derived_from: tosca.nodes.WebApplication
 
 topology_template:
   inputs:
@@ -16,11 +19,6 @@ topology_template:
       required: true
       default: "/"
       description: The web application’s context root which designates the application’s URL path within the web server it is hosted on.
-#  substitution_mappings:
-#    node_type: tosca.nodes.WebApplication
-#    capabilities:
-#      feature: [ WebApplication, feature ]
-#      app_endpoint: [ WebApplication, app_endpoint ]
   node_templates:
     Compute:
       type: tosca.nodes.Compute
@@ -37,7 +35,7 @@ topology_template:
             max_instances: 1
             default_instances: 1
     WebApplication:
-      type: tosca.nodes.WebApplication
+      type: org.alien4cloud.nodes.test.WebApplication
       properties:
         context_root: { get_input: context_root }
       requirements:
