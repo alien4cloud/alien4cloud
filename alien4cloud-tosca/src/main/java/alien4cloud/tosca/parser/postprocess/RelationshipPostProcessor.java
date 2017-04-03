@@ -143,6 +143,7 @@ public class RelationshipPostProcessor {
         if (capabilityEntries.size() == 1) {
             capabilityEntry = capabilityEntries.get(0);
         } else if (capabilityEntries.size() > 1) {
+            capabilityEntry = capabilityEntries.get(0);
             Node node = ParsingContextExecution.getObjectToNodeMap().get(relationshipTemplate);
             ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.REQUIREMENT_CAPABILITY_MULTIPLE_MATCH, null,
                     node.getStartMark(), null, node.getEndMark(), relationshipTemplate.getRequirementName()));
