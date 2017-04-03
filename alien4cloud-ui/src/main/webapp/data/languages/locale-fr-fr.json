@@ -20,6 +20,7 @@
       },
       "TITLE": "Informations concernant le déploiement"
     },
+    "UPDATE_DEPLOYMENT" : "Mettre à jour",
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",
       "INPUT" : "Input",
@@ -658,6 +659,10 @@
       "DEPLOYMENT_IN_PROGRESS" : "Déploiement en cours",
       "FAILURE" : "Echec",
       "INIT_DEPLOYMENT" : "Initialisation du déploiement",
+      "UPDATE_DEPLOYMENT" : "Déploiement en cours de modification",
+      "UPDATE_IN_PROGRESS" : "Déploiement en cours de modification",
+      "UPDATE_FAILURE" : "Echec de la mise à jour",
+      "UPDATED" : "Mis à jour",
       "UNDEPLOYED" : "Désinstallé",
       "UNDEPLOYMENT_IN_PROGRESS" : "Désinstallation en cours",
       "UNKNOWN" : "Inconnu",
@@ -665,7 +670,8 @@
     },
     "TOASTER_STATUS" : {
       "DEPLOYED" : "L'environment < {{envName}} > de l'application < {{appName}} > est déployé.",
-      "FAILURE" : "Échec du déploiement de l'environment < {{envName}} > de l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information."
+      "FAILURE" : "Échec du déploiement de l'environment < {{envName}} > de l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information.",
+      "UPDATE_FAILURE" : "Échec lors de la mise à jour du déploiement pour l'environment < {{envName}} > et l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information."
     }
   },
   "DETAILS" : "Détails",

@@ -10,8 +10,8 @@ description: Output operation test
 imports:
     - tosca-normative-types:1.0.0-ALIEN12
     - test-types:1.0-SNAPSHOT
+    - jdk-type:1.0.0-SNAPSHOT
     - tomcat-war-types:2.0.0-SNAPSHOT
-    - alien-base-types:1.2.0-SNAPSHOT
 
 topology_template:
 
@@ -51,11 +51,11 @@ topology_template:
         http_endpoint:
           type: org.alien4cloud.capabilities.HttpEndpoint
         war_host:
-          type: org.alien4cloud.capabilities.WarHosting
+          type: org.alien4cloud.capabilities.WarContainer
           properties:
             valid_node_types: org.alien4cloud.nodes.War
       requirements:
-        - java:
+        - host:
             node: java
             capability: org.alien4cloud.capabilities.JDK
             relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
@@ -66,7 +66,7 @@ topology_template:
       requirements:
         - host:
             node: tomcat
-            capability: org.alien4cloud.capabilities.WarHosting
+            capability: org.alien4cloud.capabilities.WarContainer
             relationship: org.alien4cloud.test.functions.relationships.WarHostedOnTomcat
             properties:
               relName: war_1_hostedOnTomcat_relname
@@ -77,7 +77,7 @@ topology_template:
       requirements:
         - host:
             node: tomcat
-            capability: org.alien4cloud.capabilities.WarHosting
+            capability: org.alien4cloud.capabilities.WarContainer
             relationship: org.alien4cloud.test.functions.relationships.WarHostedOnTomcat
             properties:
               relName: war_2_hostedOnTomcat_relname

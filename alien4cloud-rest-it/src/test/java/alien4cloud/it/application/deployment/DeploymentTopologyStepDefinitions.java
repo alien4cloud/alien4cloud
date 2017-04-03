@@ -27,6 +27,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.it.Context;
+import alien4cloud.it.utils.RegisteredStringUtils;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
@@ -187,8 +188,16 @@ public class DeploymentTopologyStepDefinitions {
     @When("^I set the following inputs properties$")
     public void I_set_the_following_inputs_properties(Map<String, Object> inputProperties) throws Throwable {
         UpdateDeploymentTopologyRequest request = new UpdateDeploymentTopologyRequest();
-        request.setInputProperties(inputProperties);
+        request.setInputProperties(parseAndReplaceProperties(inputProperties));
         executeUpdateDeploymentTopologyCall(request);
+    }
+
+    private Map<String, Object> parseAndReplaceProperties(Map<String, Object> inputProperties) {
+        Map<String, Object> result = Maps.newHashMap();
+        for (Entry<String, Object> entry : inputProperties.entrySet()) {
+            result.put(entry.getKey(), RegisteredStringUtils.parseAndReplace(entry.getValue()));
+        }
+        return result;
     }
 
     @When("^I set the following orchestrator properties$")

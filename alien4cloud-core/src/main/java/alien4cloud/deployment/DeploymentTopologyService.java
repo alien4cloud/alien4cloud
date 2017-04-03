@@ -212,6 +212,9 @@ public class DeploymentTopologyService {
             } else if (checkIfTopologyOrLocationHasChanged(deploymentTopology, locations.values(), topology)) {
                 // Re-generate the deployment topology if the initial topology has been changed
                 generateDeploymentTopology(deploymentTopologyId, environment, topology, deploymentTopology);
+            } else if (deploymentTopology.getLastDeploymentTopologyUpdateDate().before(deploymentTopology.getLastUpdateDate())) {
+                // the deployment topology has been changed without synchronizing its content (by the BlockStorageEventHandler for example). Do it now
+                doUpdateDeploymentTopology(deploymentTopology, topology, environment);
             }
         }
 
@@ -319,7 +322,7 @@ public class DeploymentTopologyService {
 
     private void doUpdateDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
         Map<String, NodeTemplate> previousNodeTemplates = deploymentTopology.getNodeTemplates();
-        ReflectionUtil.mergeObject(topology, deploymentTopology, "id");
+        ReflectionUtil.mergeObject(topology, deploymentTopology, "id", "creationDate", "lastUpdateDate");
         deploymentTopology.setSubstitutionMapping(topology.getSubstitutionMapping());
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);

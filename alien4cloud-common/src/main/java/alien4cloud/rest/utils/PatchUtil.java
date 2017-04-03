@@ -6,6 +6,8 @@ import java.util.Map;
 
 import alien4cloud.utils.ReflectionUtil;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 /**
  * Simple utility for patch management
  */
@@ -50,30 +52,30 @@ public final class PatchUtil {
         }
     }
 
-    public static <A,B> Map<A,B>  setMap(Map<A,B> instance, Map<A,B> newValues, boolean patch) {
+    public static <A, B> Map<A, B> setMap(Map<A, B> instance, Map<A, B> newValues, boolean patch) {
         if (patch) {
             if (newValues == null || newValues.size() == 0) {
                 return instance;
             }
         }
 
-        if(instance == null){
+        if (instance == null) {
             instance = new HashMap<>();
         }
 
-        if(patch) {
+        if (patch) {
             for (Map.Entry<A, B> entry : newValues.entrySet()) {
-                if(entry.getValue() == null || realValue(entry.getValue()) == null){
+                if (entry.getValue() == null || realValue(entry.getValue()) == null) {
                     // remove
                     instance.remove(entry.getKey());
-                }else{
+                } else {
                     // add or update
                     instance.put(entry.getKey(), entry.getValue());
                 }
             }
-        }else{
+        } else {
             instance.clear();
-            instance.putAll(newValues);
+            instance.putAll(safe(newValues));
         }
 
         return instance;

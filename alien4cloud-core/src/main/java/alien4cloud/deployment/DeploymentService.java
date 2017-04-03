@@ -2,6 +2,7 @@ package alien4cloud.deployment;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,16 +12,20 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IESQueryBuilderHelper;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.exceptions.ImpossibleDeploymentUpdateException;
+import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -273,5 +278,24 @@ public class DeploymentService {
         // Look if there is 1 matching element.
         GetMultipleDataResult<DeploymentTopology> result = alienMonitorDao.search(DeploymentTopology.class, null, null, filter, null, 0, 1);
         return result.getData() != null && result.getData().length > 0;
+    }
+
+    /**
+     * Checks if a deployment can be updated using the provided {@link DeploymentTopology}
+     *
+     * @param deployment The deployment to update
+     * @param deploymentTopology The deployment topology to use for the update
+     *
+     * @throws ImpossibleDeploymentUpdateException when the update is not possible
+     */
+    public void checkDeploymentUpdateFeasibility(Deployment deployment, DeploymentTopology deploymentTopology) {
+
+        // for now just check if the locations are identical
+        Set<String> deploymentLocations = Sets.newHashSet(deployment.getLocationIds());
+        Collection<String> deploymentTopologyLocations = TopologyLocationUtils.getLocationIds(deploymentTopology).values();
+        if (!CollectionUtils.isEqualCollection(deploymentLocations, deploymentTopologyLocations)) {
+            throw new ImpossibleDeploymentUpdateException("Locations between the current deployment and the deployment topology do not match");
+        }
+
     }
 }

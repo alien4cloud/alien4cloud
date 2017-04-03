@@ -28,8 +28,8 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentTriggerCtrl',
-    ['$scope', 'applicationServices', 'deploymentTopologyServices', '$alresource', '$uibModal', 'locationsMatchingServices', 'deploymentContextUtils',
-      function($scope, applicationServices, deploymentTopologyServices, $alresource, $uibModal, locationsMatchingServices, deploymentContextUtils) {
+    ['$scope', 'applicationServices', 'deploymentTopologyServices', '$alresource', '$uibModal', 'locationsMatchingServices', 'deploymentContextUtils','toaster', '$translate',
+      function($scope, applicationServices, deploymentTopologyServices, $alresource, $uibModal, locationsMatchingServices, deploymentContextUtils, toaster, $translate) {
         $scope._ = _;
 
         $scope.$watch('deploymentContext.deploymentTopologyDTO', function() {
@@ -72,6 +72,8 @@ define(function(require) {
           $scope.isDeploying = true;
           applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
             $scope.deploymentContext.selectedEnvironment.status = 'INIT_DEPLOYMENT';
+            // the deployed version is the current one
+            $scope.deploymentContext.selectedEnvironment.deployedVersion = $scope.deploymentContext.selectedEnvironment.currentVersionName;
             $scope.isDeploying = false;
           }, function() {
             $scope.isDeploying = false;
@@ -108,6 +110,33 @@ define(function(require) {
 
           modalInstance.result.then(function() {
             doDeploy();
+          });
+        };
+
+        $scope.updateDeployment = function() {
+          $scope.isDeploying = true;
+          applicationServices.deploymentUpdate({
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.deploymentContext.selectedEnvironment.id
+          }, undefined, function(data) {
+            if (data.error === null) {
+              $scope.deploymentContext.selectedEnvironment.status = 'UPDATE_IN_PROGRESS';
+              $scope.isDeploying = false;
+            } else {
+              $scope.deploymentContext.selectedEnvironment.status = 'UPDATE_FAILURE';
+              $scope.isDeploying = false;
+              toaster.pop(
+                'error',
+                $translate.instant('DEPLOYMENT.STATUS.UPDATE_FAILURE'),
+                $translate.instant('DEPLOYMENT.TOASTER_STATUS.UPDATE_FAILURE', {
+                  envName : $scope.deploymentContext.selectedEnvironment.name,
+                  appName : $scope.application.name
+                }),
+                0, 'trustedHtml', null
+              );
+            }
+          }, function() {
+            $scope.isDeploying = false;
           });
         };
 
@@ -151,6 +180,15 @@ define(function(require) {
               );
             }
           }).$promise;
+        };
+
+        // the topology deployment is updatable if:
+        // - the status is one of DEPLOYED , UPDATED,
+        // - the current selectedlocation is the same as the one of the deployed topology
+        $scope.isUpdatable = function() {
+          return _.includes(['DEPLOYED', 'UPDATED'], $scope.deploymentContext.selectedEnvironment.status) &&
+                 _.definedPath($scope.deploymentContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') &&
+                 _.get($scope.deploymentContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') === _.get($scope.deployedContext, 'dto.topology.locationGroups._A4C_ALL.policies[0].locationId');
         };
 
         $scope.$watch('deploymentContext.deploymentTopologyDTO.topology.orchestratorId', function(newValue){

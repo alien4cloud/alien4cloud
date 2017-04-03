@@ -17,4 +17,7 @@ public final class ToscaFunctionConstants {
     public static final String TARGET = "TARGET";
     public static final String SOURCE = "SOURCE";
     public static final String HOST = "HOST";
+    // Specific alien4cloud value to jump from 1.3 support of { get_attribute: [TARGET, protocol] } which fetch from the node to 1.4 { get_attribute: [TARGET,
+    // protocol] } which fetch from the capability.
+    public static final String R_TARGET = "R_TARGET";
 }

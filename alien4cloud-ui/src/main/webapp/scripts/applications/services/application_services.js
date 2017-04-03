@@ -33,6 +33,12 @@ define(function (require) {
         }
       });
 
+      var applicationDeploymentUpdate = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/update-deployment', {}, {
+        'update': {
+          method: 'POST'
+        }
+      });
+
       var envrironments = $resource('rest/latest/applications/environments', {}, {
         'getAll': {
           method: 'POST'
@@ -166,6 +172,7 @@ define(function (require) {
         'getActiveDeployment': applicationActiveDeploymentDAO,
         'getRuntimeTopology': applicationRuntimeTopologyDAO,
         'deployment': applicationDeploymentDAO,
+        'deploymentUpdate': applicationDeploymentUpdate.update,
         'deployApplication': applicationDeployment,
         'runtime': applicationRuntimeDAO,
         'scale': ApplicationScalingDAO.scale,

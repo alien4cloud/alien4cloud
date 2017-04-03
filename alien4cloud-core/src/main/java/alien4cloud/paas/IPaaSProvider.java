@@ -33,6 +33,13 @@ public interface IPaaSProvider {
     void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback);
 
     /**
+     * Update a topology deployment.
+     *
+     * @param deploymentContext the context of the deployment
+     */
+    void update(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback);
+
+    /**
      * Undeploy a given topology.
      *
      * @param deploymentContext the context of the un-deployment

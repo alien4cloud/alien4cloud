@@ -48,6 +48,7 @@ import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.security.model.Role;
 import alien4cloud.test.utils.SecurityTestUtils;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.AbstractToscaParserSimpleProfileTest;
 import alien4cloud.tosca.parser.ParserTestUtil;
 import alien4cloud.tosca.parser.ParsingResult;
@@ -106,11 +107,11 @@ public class FunctionEvaluatorTest {
 
             AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
 
-//            typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
-//            typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
-//            FileUtil.zip(typesPath, typesZipPath);
-//            result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
-//            AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
+            // typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
+            // typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
+            // FileUtil.zip(typesPath, typesZipPath);
+            // result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
+            // AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
 
             typesPath = artifactsDirectory.resolve(sampleLocalName).resolve("jdk");
             typesZipPath = artifactsDirectory.resolve("jdk.zip");
@@ -132,7 +133,10 @@ public class FunctionEvaluatorTest {
 
             INITIALIZED = true;
         }
-        Topology topology = applicationUtil.parseYamlTopology("src/test/resources/alien4cloud/paas/function/topology/badFunctionsTomcatWar");
+
+        ParsingResult<ArchiveRoot> result = applicationUtil.parseYamlTopology("src/test/resources/alien4cloud/paas/function/topology/badFunctionsTomcatWar");
+        // AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
+        Topology topology = result.getResult().getTopology();
         topology.setId(UUID.randomUUID().toString());
         topology.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         builtPaaSNodeTemplates = treeBuilder.buildPaaSTopology(topology).getAllNodes();

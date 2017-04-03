@@ -3,7 +3,9 @@ package alien4cloud.tosca.parser.postprocess;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 
 import javax.annotation.Resource;
@@ -21,12 +23,14 @@ import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
 
@@ -76,23 +80,26 @@ public class RelationshipPostProcessor {
             return;
         }
 
-        String capabilityType = relationshipTemplate.getTargetedCapabilityName(); // alien actually supports a capability type in the TOSCA yaml
+        String capabilityStr = relationshipTemplate.getTargetedCapabilityName(); // alien actually supports a capability type in the TOSCA yaml
         Capability capability = null;
-        if (capabilityType == null) {
+        if (capabilityStr == null) {
             // the capability type is not known, we assume that we are parsing a Short notation (node only)
-            // in such notation : "a requirement named ‘host’ that needs to be fulfilled by the same named capability"
-            // so here we use the requirement name to find the capability
             if (targetNodeTemplate.getCapabilities() != null) {
-                capability = targetNodeTemplate.getCapabilities().get(relationshipTemplate.getRequirementName());
-                if (capability != null) {
-                    relationshipTemplate.setTargetedCapabilityName(rd.getId());
+                // let's try to find all match for a given type
+                capability = getCapabilityByType(targetNodeTemplate, relationshipTemplate, relationshipTemplate.getRequirementType());
+                if (capability == null) {
+                    capability = targetNodeTemplate.getCapabilities().get(relationshipTemplate.getRequirementName());
+                    if (capability != null) {
+                        relationshipTemplate.setTargetedCapabilityName(rd.getId());
+                    }
                 }
             }
         } else {
-            Map.Entry<String, Capability> capabilityEntry = getCapabilityByType(targetNodeTemplate, capabilityType);
-            if (capabilityEntry != null) {
-                capability = capabilityEntry.getValue();
-                relationshipTemplate.setTargetedCapabilityName(capabilityEntry.getKey());
+            // Let's try to find if the target node has a capability as named in the capability string of the relationship (requirement assignment)
+            capability = targetNodeTemplate.getCapabilities().get(capabilityStr);
+            if (capability == null) {
+                // The capabilityStr may be the name of a type
+                capability = getCapabilityByType(targetNodeTemplate, relationshipTemplate, capabilityStr);
             }
         }
         if (capability == null) {
@@ -129,16 +136,36 @@ public class RelationshipPostProcessor {
         }
     }
 
-    private Map.Entry<String, Capability> getCapabilityByType(NodeTemplate nodeTemplate, String type) {
+    private Capability getCapabilityByType(NodeTemplate targetNodeTemplate, RelationshipTemplate relationshipTemplate, String capabilityType) {
+        Capability capability = null;
+        List<Entry<String, Capability>> capabilityEntries = getCapabilityByType(targetNodeTemplate, capabilityType);
+        Entry<String, Capability> capabilityEntry = null;
+        if (capabilityEntries.size() == 1) {
+            capabilityEntry = capabilityEntries.get(0);
+        } else if (capabilityEntries.size() > 1) {
+            capabilityEntry = capabilityEntries.get(0);
+            Node node = ParsingContextExecution.getObjectToNodeMap().get(relationshipTemplate);
+            ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.REQUIREMENT_CAPABILITY_MULTIPLE_MATCH, null,
+                    node.getStartMark(), null, node.getEndMark(), relationshipTemplate.getRequirementName()));
+        }
+        if (capabilityEntry != null) {
+            capability = capabilityEntry.getValue();
+            relationshipTemplate.setTargetedCapabilityName(capabilityEntry.getKey());
+        }
+        return capability;
+    }
+
+    private List<Entry<String, Capability>> getCapabilityByType(NodeTemplate nodeTemplate, String type) {
         if (nodeTemplate.getCapabilities() == null) { // add a check in case the node doesn't have capabilities
             return null;
         }
+        List<Entry<String, Capability>> targetCapabilitiesMatch = Lists.newArrayList();
         for (Map.Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
             if (type.equals(capabilityEntry.getValue().getType())) {
-                return capabilityEntry;
+                targetCapabilitiesMatch.add(capabilityEntry);
             }
         }
-        return null;
+        return targetCapabilitiesMatch;
     }
 
     private RequirementDefinition getRequirementDefinitionByName(NodeType indexedNodeType, String name) {

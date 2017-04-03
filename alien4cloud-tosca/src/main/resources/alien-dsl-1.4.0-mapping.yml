@@ -1,11 +1,11 @@
-# Mapping definitions for tosca simple profile 1.0
+# Mapping definition for alien 4 cloud specific dsl 1.3.0
 
 # declare custom parsers for complex types that requires specific parser.
 - scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
 - import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
 - occurrences: alien4cloud.tosca.parser.impl.advanced.OccurrencesParser
-- implementation_artifact: alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser
-- deployment_artifact: alien4cloud.tosca.parser.impl.advanced.DeploymentArtifactParser
+- input_artifact: alien4cloud.tosca.parser.impl.advanced.InputArtifactParser
+- tag: alien4cloud.tosca.parser.impl.advanced.TagParser
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
 - interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
 - outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
@@ -15,19 +15,17 @@
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
 - abstract_property_value: alien4cloud.tosca.parser.impl.advanced.AbstractPropertyValueParser
 - meta_data: alien4cloud.tosca.parser.impl.advanced.MetaDataParser
-- tag: alien4cloud.tosca.parser.impl.advanced.TagParser
-- tosca_definitions_version: alien4cloud.tosca.parser.impl.advanced.ToscaDefinitionVersionParser
+- fail_get_artifact: alien4cloud.tosca.parser.impl.advanced.FailGetArtifactParser
 - string_list: alien4cloud.tosca.parser.impl.advanced.StringListParser
 - relationship_template: alien4cloud.tosca.parser.impl.advanced.RelationshipTemplateParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
-  tosca_definitions_version:
-    reference: archive.toscaDefinitionsVersion
-    type: tosca_definitions_version
+  tosca_definitions_version: archive.toscaDefinitionsVersion
   metadata:
     reference: archive
     type: meta_data
+  tosca_default_namespace: archive.toscaDefaultNamespace
   template_name: archive.name
   template_author: archive.templateAuthor
   template_version: archive.version
@@ -72,7 +70,7 @@
     type: property_definition
   input_artifacts:
     map: inputArtifacts
-    type: deployment_artifact
+    type: input_artifact
   substitution_mappings:
     reference: substitutionMapping
     type: sustitution_mapping_parser
@@ -175,7 +173,7 @@
     list: constraints
     type: constraint
 
-# capability definition supports a simple definition or more advanced.
+# capability definition
 - capability_definition: org.alien4cloud.tosca.model.definitions.CapabilityDefinition
   description: description
   type: type
@@ -212,6 +210,9 @@
 - requirement_definition: org.alien4cloud.tosca.model.definitions.RequirementDefinition
   capability: type
   node: nodeType
+  node_filter:
+    reference: nodeFilter
+    type: node_filter_type
   description: description
   occurrences:
     reference: void
@@ -250,6 +251,7 @@
 - input: __discriminator
   keys:
     type: property_definition
+    get_artifact: fail_get_artifact
     get_input: tosca_function
     get_property: tosca_function
     get_attribute: get_attribute
@@ -271,34 +273,41 @@
   file:
     reference: artifactRef
     type: artifact_ref_parser
-  repository: artifactRepository
+  repository: repositoryName
   description: description
   deploy_path: deployPath
 
 - implementation_artifact: org.alien4cloud.tosca.model.definitions.ImplementationArtifact
-  primary:
+  file:
     reference: artifactRef
     type: artifact_ref_parser
   type: artifactType
-  repository: artifactRepository
-  dependencies:
-    list: ../dependencies
-    type: deployment_artifact
+  repository: repositoryName
 
 - operation_definition: org.alien4cloud.tosca.model.definitions.Operation
   implementation:
     reference: implementationArtifact
     type: implementation_artifact
   dependencies:
-    list: dependencies
-    type: deployment_artifact
+      list: dependencies
+      type: deployment_artifact
   description: description
   inputs:
+    map: inputParameters
+    type: input
+  input: # add tolerance to input as wd03 is inconsistent.
     map: inputParameters
     type: input
 
 - node_type: org.alien4cloud.tosca.model.types.NodeType
   description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag
+  metadata:
+      reference: tags
+      type: tag
   derived_from:
     reference: derivedFrom
     type: string_list
@@ -320,8 +329,12 @@
     reference: interfaces
     type: interfaces
   artifacts:
-    map: artifacts
+    sequence_to_map: artifacts
+    node_is_value: false
     type: deployment_artifact
+  portability:
+    map: portability
+    type: node_template_property
 
 - data_type: __discriminator
   keys:
@@ -331,6 +344,9 @@
 - simple_data_type: org.alien4cloud.tosca.model.types.PrimitiveDataType
   description: description
   abstract: abstract
+  tags:
+    reference: tags
+    type: tag
   metadata:
     reference: tags
     type: tag
@@ -344,6 +360,9 @@
 - complex_data_type: org.alien4cloud.tosca.model.types.DataType
   description: description
   abstract: abstract
+  tags:
+    reference: tags
+    type: tag
   metadata:
     reference: tags
     type: tag
@@ -356,21 +375,29 @@
 
 - capability_type: org.alien4cloud.tosca.model.types.CapabilityType
   description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag
+  metadata:
+    reference: tags
+    type: tag
   derived_from:
     reference: derivedFrom
     type: string_list
   properties:
     map: properties
     type: property_definition
-  attributes:
-    map: attributes
-    type: attribute
   valid_source_types:
     list: validSources
     type: scalar
 
 - relationship_type: org.alien4cloud.tosca.model.types.RelationshipType
   description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag
   metadata:
     reference: tags
     type: tag
@@ -387,7 +414,8 @@
     reference: interfaces
     type: interfaces
   artifacts:
-    map: artifacts
+    sequence_to_map: artifacts
+    node_is_value: false
     type: deployment_artifact
   valid_target_types:
     list: validTargets
@@ -395,6 +423,13 @@
 
 - artifact_type: org.alien4cloud.tosca.model.types.ArtifactType
   description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag
+  metadata:
+    reference: tags
+    type: tag
   derived_from:
     reference: derivedFrom
     type: string_list
@@ -409,5 +444,7 @@
 - repository_definition: org.alien4cloud.tosca.model.definitions.RepositoryDefinition
   description: description
   url: url
-  credentials: credentials
+  credential:
+    reference: credential
+    type: abstract_property_value
   type: type

@@ -2,10 +2,8 @@ package alien4cloud.paas.model;
 
 import java.util.Date;
 
-import alien4cloud.dao.EsGeneratedId;
 import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.TimeStamp;
 import org.elasticsearch.annotation.query.TermFilter;
@@ -14,6 +12,7 @@ import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import alien4cloud.dao.EsGeneratedId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

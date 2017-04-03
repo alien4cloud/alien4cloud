@@ -37,6 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 public class BlockStorageEventHandler extends DeploymentEventHandler {
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
     @Resource
     private TopologyServiceCore topoServiceCore;
     @Resource
@@ -117,7 +119,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 nodeTemplate.getProperties().put(propertyName, getPropertyValue(propertyValue));
             }
         }
-        deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
+        alienDAO.save(deploymentTopology);
     }
 
     private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent,

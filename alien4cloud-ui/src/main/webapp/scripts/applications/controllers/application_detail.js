@@ -138,10 +138,18 @@ define(function (require) {
         }
       }
 
+      // delete the deployedVersion property when status id undeployed
+      var updateDeployedVersion = function(environment){
+        if(environment.status === 'UNDEPLOYED') {
+          delete environment.deployedVersion;
+        }
+      };
+
       var deploymentStatusCallback = function(environment, event) {
         environment.status = event.deploymentStatus;
         displayDeploymentStatusToaster(environment);
         updateRuntimeDisabled();
+        updateDeployedVersion(environment);
         // update the current scope and it's child scopes.
         $scope.$digest();
       };
