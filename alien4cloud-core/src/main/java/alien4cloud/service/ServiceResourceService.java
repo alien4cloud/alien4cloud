@@ -2,13 +2,9 @@ package alien4cloud.service;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
+import static alien4cloud.utils.AlienUtils.safe;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -16,10 +12,15 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.access.AccessDeniedException;
@@ -43,8 +44,8 @@ import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.PatchUtil;
 import alien4cloud.service.events.ServiceChangedEvent;
+import alien4cloud.service.exceptions.IncompatibleHalfRelationshipException;
 import alien4cloud.service.exceptions.ServiceUsageException;
-import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
@@ -246,6 +247,10 @@ public class ServiceResourceService {
             ensureUniqueness = PatchUtil.set(serviceResource, "name", name, patch);
             ensureUniqueness = PatchUtil.set(serviceResource, "version", version, patch) || ensureUniqueness;
 
+            // Node instance properties update
+            nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
+                    serviceResource.getNodeInstance().getTypeVersion());
+
             // node instance type update
             PatchUtil.set(serviceResource.getNodeInstance().getNodeTemplate(), "type", nodeTypeStr, patch);
             PatchUtil.set(serviceResource.getNodeInstance(), "typeVersion", nodeTypeVersion, patch);
@@ -256,12 +261,7 @@ public class ServiceResourceService {
             serviceResource.setRequirementsRelationshipTypes(
                     PatchUtil.setMap(serviceResource.getRequirementsRelationshipTypes(), requirementsRelationshipTypes, patch));
             // validate the half-relationship types exist
-            AlienUtils.safe(serviceResource.getCapabilitiesRelationshipTypes()).forEach((k, v) -> {
-                toscaTypeSearchService.findByIdOrFail(RelationshipType.class, v);
-            });
-            AlienUtils.safe(serviceResource.getRequirementsRelationshipTypes()).forEach((k, v) -> {
-                toscaTypeSearchService.findByIdOrFail(RelationshipType.class, v);
-            });
+            validateRelationshipTypes(serviceResource, nodeType);
 
             // Node instance properties update
             nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
@@ -292,6 +292,40 @@ public class ServiceResourceService {
         }
 
         save(serviceResource, ensureUniqueness);
+    }
+
+    private void validateRelationshipTypes(ServiceResource serviceResource, final NodeType nodeType) {
+        safe(serviceResource.getCapabilitiesRelationshipTypes()).forEach((capabilityName,relationshipTypeId) -> {
+            RelationshipType relationshipType = toscaTypeSearchService.findByIdOrFail(RelationshipType.class, relationshipTypeId);
+            String[] validTargets = relationshipType.getValidTargets();
+            if(ArrayUtils.isNotEmpty(validTargets)){
+                CapabilityDefinition capabilityDefinition = nodeType.getCapabilities().stream().filter(c -> c.getId().equals(capabilityName)).findFirst().get();
+
+                Csar csar = toscaTypeSearchService.getArchive(nodeType.getArchiveName(), nodeType.getArchiveVersion());
+                Set<CSARDependency> allDependencies = new HashSet<>(safe(csar.getDependencies()));
+                allDependencies.add(new CSARDependency(csar.getName(), csar.getVersion(), csar.getHash()));
+                CapabilityType capabilityType = toscaTypeSearchService.getElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), allDependencies);
+                Set<String> allAcceptedTypes = new HashSet<>();
+                allAcceptedTypes.addAll(capabilityType.getDerivedFrom());
+                allAcceptedTypes.add(capabilityType.getElementId());
+
+                boolean isValid = false;
+                for(String validTarget : validTargets){
+                    if(allAcceptedTypes.contains(validTarget)){
+                        isValid = true;
+                        break;
+                    }
+                }
+
+                if(!isValid){
+                    throw new IncompatibleHalfRelationshipException("["+relationshipType.getId() + "] is not compatible with ["+capabilityType.getId() + "]");
+                }
+            }
+        });
+
+        safe(serviceResource.getRequirementsRelationshipTypes()).forEach((k,v) -> {
+            toscaTypeSearchService.findByIdOrFail(RelationshipType.class, v);
+        });
     }
 
     private void updateLocations(ServiceResource serviceResource, String[] locations) {
