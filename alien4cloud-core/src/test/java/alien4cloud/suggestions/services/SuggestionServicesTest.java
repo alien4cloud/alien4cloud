@@ -16,7 +16,6 @@ import alien4cloud.suggestions.services.SuggestionService;
 
 @Slf4j
 public class SuggestionServicesTest {
-
     @Test
     public void testSuggestionMatching() {
         SuggestionService suggestionService = new SuggestionService();
@@ -27,8 +26,9 @@ public class SuggestionServicesTest {
         Mockito.when(alienDAO.findById(AbstractSuggestionEntry.class, "")).thenReturn(suggestionEntry);
 
         String[] matches = suggestionService.getJaroWinklerMatchedSuggestions("", "u", Integer.MAX_VALUE);
-        Assert.assertEquals(1, matches.length);
+        Assert.assertEquals(2, matches.length);
         Assert.assertEquals("ubuntu", matches[0]);
+        Assert.assertEquals("kubuntu", matches[1]);
         log.info("Matches for 'u': {}", Arrays.asList(matches));
 
         matches = suggestionService.getJaroWinklerMatchedSuggestions("", "ub", 2);
