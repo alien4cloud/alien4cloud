@@ -36,6 +36,7 @@ import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -52,7 +53,6 @@ import alien4cloud.model.common.AbstractSuggestionEntry;
 import alien4cloud.model.common.SimpleSuggestionEntry;
 import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.tosca.model.ArchiveRoot;
-import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -383,6 +383,9 @@ public class SuggestionService {
         // Compute the match score between the suggestion and the normalized value
         String normalizedSuggestion = normalizeTextForMatching(suggestion);
         double distance = StringUtils.getJaroWinklerDistance(normalizedValue, normalizedSuggestion);
+        if (distance == 1 && !normalizedValue.equals(normalizedSuggestion)) {
+            distance = 0.999;
+        }
         if (distance > minJarowinkler) {
             return new MatchedSuggestion(distance, suggestion);
         } else {
