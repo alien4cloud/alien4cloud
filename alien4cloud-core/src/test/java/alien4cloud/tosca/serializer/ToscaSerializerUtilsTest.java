@@ -66,10 +66,10 @@ public class ToscaSerializerUtilsTest {
 
     @Test
     public void testPropertyValueFormatText() {
-        Assert.assertEquals("aaaa", ToscaPropertySerializerUtils.formatTextValue(false, 0, "aaaa"));
-        Assert.assertEquals("\"[aa]\"", ToscaPropertySerializerUtils.formatTextValue(false, 0, "[aa]"));
-        Assert.assertEquals("123", ToscaPropertySerializerUtils.formatTextValue(false, 0, "123"));
-        Assert.assertEquals("\"*\"", ToscaPropertySerializerUtils.formatTextValue(false, 0, "*"));
+        Assert.assertEquals("aaaa", ToscaPropertySerializerUtils.formatTextValue(0, "aaaa"));
+        Assert.assertEquals("\"[aa]\"", ToscaPropertySerializerUtils.formatTextValue(0, "[aa]"));
+        Assert.assertEquals("123", ToscaPropertySerializerUtils.formatTextValue(0, "123"));
+        Assert.assertEquals("\"*\"", ToscaPropertySerializerUtils.formatTextValue(0, "*"));
     }
 
     @Test
