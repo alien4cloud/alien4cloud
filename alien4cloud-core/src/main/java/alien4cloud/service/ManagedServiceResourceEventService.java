@@ -283,6 +283,7 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
     public String getInstanceStateFromDeploymentStatus(DeploymentStatus deploymentStatus) {
         switch (deploymentStatus) {
         case DEPLOYED:
+        case UPDATED:
             return ToscaNodeLifecycleConstants.STARTED;
         case FAILURE:
             return ToscaNodeLifecycleConstants.ERROR;
@@ -291,6 +292,8 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         case INIT_DEPLOYMENT:
         case DEPLOYMENT_IN_PROGRESS:
         case UNDEPLOYMENT_IN_PROGRESS:
+        case UPDATE_FAILURE:
+        case UPDATE_IN_PROGRESS:
         case WARNING:
         case UNKNOWN:
             break;

@@ -1,6 +1,7 @@
 package alien4cloud.tosca.parser.impl.v14;
 
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.tosca.parser.INodeParser;
@@ -13,6 +14,7 @@ import static org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants.T
  * Specific get_attribute parser for 1.4 spec support to allow a transition from 1.3 support of { get_attribute: [TARGET, protocol] } which fetch from the node
  * to 1.4 { get_attribute: [TARGET, protocol] } which fetch from the capability.
  */
+@Component
 public class GetAttributeParser implements INodeParser<FunctionPropertyValue> {
 
     @Override
