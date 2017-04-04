@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -64,14 +68,14 @@ public class PaaSUtils {
      * <p>
      * For a <b>Node template</b>, properties injected in all its interfaces operations are:
      * <ul>
-     * <li>Node template properties; {@code <PROPERTY_NAME>}</li>
-     * <li>Node template capabilities properties: {@code CAPABILITIES_<CAPABILITY_NAME>_<PROPERTY_NAME>}</li>
+     * <li>Node template properties; {@code SELF_<PROPERTY_NAME>}</li>
+     * <li>Node template capabilities properties: {@code SELF_CAPABILITIES_<CAPABILITY_NAME>_<PROPERTY_NAME>}</li>
      * </ul>
      *
      * <p>
      * For a <b>Relationship template</b>, properties injected in all its interfaces operations are:
      * <ul>
-     * <li>Relationship template properties: {@code <PROPERTY_NAME>}</li>
+     * <li>Relationship template properties: {@code SELF_<PROPERTY_NAME>}</li>
      * <li>Relationship source properties: SOURCE_<PROPERTY_NAME>}</li>
      * <li>Relationship target properties; TARGET_<PROPERTY_NAME>}</li>
      * <li>Relationship targeted capability properties: {@code CAPABILITIES_<CAPABILITY_NAME>_<PROPERTY_NAME>}</li>
@@ -97,8 +101,8 @@ public class PaaSUtils {
      * Inject node template and capabilities properties as input parameters for all its interfaces operations <br>
      * The injected input names are uppercased and is in form:
      * <ul>
-     * <li>{@code <PROPERTY_NAME>} for node property
-     * <li>{@code CAPABILITIES_<CAPABILITY_NAME>_<PROPERTY_NAME>} for capability property
+     * <li>{@code SELF_<PROPERTY_NAME>} for node property
+     * <li>{@code SELF_CAPABILITIES_<CAPABILITY_NAME>_<PROPERTY_NAME>} for capability property
      * </ul>
      * In case of name conflict, the overriding order is: (--> = overrides)
      * 
@@ -134,10 +138,10 @@ public class PaaSUtils {
      * Inject relationshipTemplate, source, target and targeted capability properties as input parameters for all its interfaces operations <br>
      * The injected input names are uppercased and is in form:
      * <ul>
-     * <li>{@code <PROPERTY_NAME>} for relationship property
+     * <li>{@code SELF_<PROPERTY_NAME>} for relationship property
      * <li>{@code SOURCE_<PROPERTY_NAME>} for source property
      * <li>{@code TARGET_<PROPERTY_NAME>} for target property
-     * <li>{@code CAPABILITIES_<CAPABILITY_NAME>_<PROPERTY_NAME>} for capability property
+     * <li>{@code TARGET_CAPABILITIES_<CAPABILITY_NAME>_<PROPERTY_NAME>} for capability property
      * </ul>
      * In case of name conflict, the overriding order is: (--> = overrides)
      *
