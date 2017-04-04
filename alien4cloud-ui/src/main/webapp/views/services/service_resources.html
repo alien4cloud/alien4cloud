@@ -18,7 +18,7 @@
       </form>
     </div>
     <div id="services-container" class="drop-container" alien-droppable drag-on-drop="addService(data)">
-      <empty-place-holder for="'services'" data="serviceResources"></empty-place-holder>
+      <empty-place-holder data="serviceResources"></empty-place-holder>
       <table ng-if="serviceResources && serviceResources.length > 0" class="table table-hover">
         <thead>
           <th>{{'COMMON.NAME' | translate}}</th>
@@ -236,7 +236,7 @@
           <uib-tab-heading>
             <i class="fa fa-cloud" aria-hidden="true"></i>&nbsp;{{'ORCHESTRATORS.NAV.LOCATIONS' | translate}}
           </uib-tab-heading>
-          <empty-place-holder for="'locations'" data="locations"></empty-place-holder>
+          <empty-place-holder data="locations"></empty-place-holder>
           <table ng-if="locations.length > 0" class="table table-hover">
             <thead>
               <th>{{'ORCHESTRATORS.ORCHESTRATOR' | translate}}</th>

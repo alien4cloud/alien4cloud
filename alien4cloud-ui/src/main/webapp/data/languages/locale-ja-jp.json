@@ -1008,7 +1008,7 @@
   "PAGINATION" : {
     "OVERFLOW" : "The number of results exceeds the maximum number supported by Alien4Cloud, please use the search box."
   },
-  "PLACE_HOLDER_NO" : "No ",
+  "NO_DATA_AVAILABLE" : "No data available.",
   "PLUGINS" : {
     "BEANS" : "コンポーネント",
     "CONFIGURE" : "設定",

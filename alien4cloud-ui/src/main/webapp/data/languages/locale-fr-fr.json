@@ -1021,7 +1021,7 @@
   "PAGINATION" : {
     "OVERFLOW" : "Le nombre de résultat dépasse le nombre maxium supporté par Alien4Cloud, merci d'utiliser le champs de recherche."
   },
-  "PLACE_HOLDER_NO" : "Pas de ",
+  "NO_DATA_AVAILABLE" : "Pas de données disponibles.",
   "PLUGINS" : {
     "BEANS" : "Composants",
     "CONFIGURE" : "Configurer",
