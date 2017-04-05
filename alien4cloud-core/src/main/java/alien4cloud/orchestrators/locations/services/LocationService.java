@@ -147,7 +147,11 @@ public class LocationService {
 
         // save the new location
         alienDAO.save(location);
-        autoConfigure(orchestrator, location);
+        try {
+            autoConfigure(orchestrator, location);
+        } catch (UnsupportedOperationException e) {
+            // do nothing
+        }
 
         // We call the LocationRessourceService to check the dependencies
         try {
