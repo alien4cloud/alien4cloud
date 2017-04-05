@@ -2,16 +2,15 @@ package alien4cloud.tosca.parser.postprocess;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import alien4cloud.tosca.context.ToscaContext;
 import lombok.Setter;
@@ -38,15 +37,12 @@ public class CapabilityMatcherService implements ICapabilityMatcherService {
         }
 
         Map<String, Capability> targetCapabilitiesMatch = Maps.newHashMap();
-        Set<String> allTypes = Sets.newHashSet();
         for (Map.Entry<String, Capability> capabilityEntry : capabilities.entrySet()) {
-            CapabilityType capabilityType = toscaContextFinder.find(CapabilityType.class, capabilityEntry.getKey());
-            allTypes.clear();
-            allTypes.add(capabilityType.getElementId());
-            allTypes.addAll(capabilityType.getDerivedFrom());
+            String capabilityTypeName = capabilityEntry.getKey();
+            CapabilityType capabilityType = toscaContextFinder.find(CapabilityType.class, capabilityTypeName);
 
-            if (allTypes.contains(type)) {
-                targetCapabilitiesMatch.put(capabilityEntry.getKey(), capabilityEntry.getValue());
+            if (ToscaNormativeUtil.isFromType(type, capabilityType)) {
+                targetCapabilitiesMatch.put(capabilityTypeName, capabilityEntry.getValue());
             }
         }
         return targetCapabilitiesMatch;
