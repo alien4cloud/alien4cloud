@@ -3,19 +3,11 @@ package alien4cloud.orchestrators.locations.services;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienUtils.array;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.dao.FilterUtil;
-import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
-import alien4cloud.orchestrators.locations.events.BeforeLocationDeleted;
-import org.alien4cloud.alm.events.BeforeApplicationVersionDeleted;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -47,11 +39,9 @@ import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
-import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
-import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
-import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
-import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
+import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
+import alien4cloud.orchestrators.locations.events.BeforeLocationDeleted;
+import alien4cloud.orchestrators.plugin.*;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.topology.TopologyUtils;
@@ -157,7 +147,11 @@ public class LocationService {
 
         // save the new location
         alienDAO.save(location);
-        autoConfigure(orchestrator, location);
+        try {
+            autoConfigure(orchestrator, location);
+        } catch (UnsupportedOperationException e) {
+            // do nothing
+        }
 
         // We call the LocationRessourceService to check the dependencies
         try {
@@ -174,15 +168,14 @@ public class LocationService {
      *
      * @param locationId Id of the location.
      */
-    public List<LocationResourceTemplate> autoConfigure(String locationId) {
+    public List<LocationResourceTemplate> autoConfigure(String locationId) throws UnsupportedOperationException {
         Location location = getOrFail(locationId);
         Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
 
         List<LocationResourceTemplate> generatedLocationResources = autoConfigure(orchestrator, location);
 
         if (CollectionUtils.isEmpty(generatedLocationResources)) {
-            // if the orchestrator doesn't support auto-configuration
-            // TODO throw exception or just return false ?
+            generatedLocationResources = Lists.newArrayList();
         }
 
         return generatedLocationResources;
@@ -195,7 +188,7 @@ public class LocationService {
      * @param location The location to auto-configure
      * @return the List of {@link LocationResourceTemplate} generated from the location auto-configuration call, null is a valid answer.
      */
-    private List<LocationResourceTemplate> autoConfigure(Orchestrator orchestrator, Location location) {
+    private List<LocationResourceTemplate> autoConfigure(Orchestrator orchestrator, Location location) throws UnsupportedOperationException {
         // get the orchestrator plugin instance
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());

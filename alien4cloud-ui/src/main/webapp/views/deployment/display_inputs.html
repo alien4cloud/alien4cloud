@@ -5,8 +5,7 @@
   </div>
   <div uib-collapse="isDeployedInputsCollapsed" class="content-body">
     <empty-place-holder
-      data="inputProperties"
-      for="'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS'">
+      data="inputProperties">
     </empty-place-holder>
     <table class="table table-condensed" id="deployedInputs">
       <tr ng-repeat="(propertyKey, propertyValue) in inputProperties">
@@ -29,8 +28,7 @@
   </div>
   <div uib-collapse="isDeployedOrchPropsCollapsed" class="content-body">
     <empty-place-holder
-      data="orchestratorProperties"
-      for="'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS'">
+      data="orchestratorProperties">
     </empty-place-holder>
     <table class="table table-condensed" id="deployedInputs">
       <tr ng-repeat="(propertyKey, propertyValue) in orchestratorProperties">

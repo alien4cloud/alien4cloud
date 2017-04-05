@@ -1,12 +1,6 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -466,7 +460,7 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#autoConfigureResources(java.lang.String)
      */
     @Override
-    public List<LocationResourceTemplate> autoConfigureResources(String locationId) {
+    public List<LocationResourceTemplate> autoConfigureResources(String locationId) throws UnsupportedOperationException {
         return locationService.autoConfigure(locationId);
     }
 

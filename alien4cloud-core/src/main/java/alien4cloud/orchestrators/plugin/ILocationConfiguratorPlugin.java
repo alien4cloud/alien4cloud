@@ -41,5 +41,5 @@ public interface ILocationConfiguratorPlugin {
      *            indeed require access to some manually configured resources.
      * @return A list of locations resources templates that users can define or null if the plugin doesn't support auto-configuration of resources..
      */
-    List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor);
+    List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor) throws UnsupportedOperationException;
 }

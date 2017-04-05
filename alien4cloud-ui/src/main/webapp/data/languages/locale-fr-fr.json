@@ -572,7 +572,8 @@
       "WORKFLOW_HAS_ERRORS" : "Le workflow [{{note}}] n'est pas valide",
       "YAML_MAPPING_NODE_EXPECTED" : "Un noeud de type mapping est attendu.",
       "YAML_SCALAR_NODE_EXPECTED" : "Un noeud YAML de type scalar est attendu ici.",
-      "YAML_SEQUENCE_EXPECTED" : "Une séquence YAML est attendu."
+      "YAML_SEQUENCE_EXPECTED" : "Une séquence YAML est attendu.",
+      "CSAR_IMPORT_ITSELF": "Une archive ne peut pas s'importer elle même."
     },
     "VALIDSOURCES" : "Sources valides",
     "WORKSPACE" : "Workspaces"
@@ -1021,7 +1022,7 @@
   "PAGINATION" : {
     "OVERFLOW" : "Le nombre de résultat dépasse le nombre maxium supporté par Alien4Cloud, merci d'utiliser le champs de recherche."
   },
-  "PLACE_HOLDER_NO" : "Pas de ",
+  "NO_DATA_AVAILABLE" : "Pas de données disponibles.",
   "PLUGINS" : {
     "BEANS" : "Composants",
     "CONFIGURE" : "Configurer",
