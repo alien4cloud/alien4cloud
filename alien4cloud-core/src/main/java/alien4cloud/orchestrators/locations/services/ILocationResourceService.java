@@ -84,7 +84,7 @@ public interface ILocationResourceService {
      *
      * @param locationId Id of the location.
      */
-    List<LocationResourceTemplate> autoConfigureResources(String locationId);
+    List<LocationResourceTemplate> autoConfigureResources(String locationId) throws UnsupportedOperationException;
 
     /**
      * Delete all generated {@link LocationResourceTemplate} for a given location
