@@ -12,6 +12,8 @@ public enum ErrorCode {
     CSAR_ALREADY_EXISTS,
     /** The csar is already indexed in the repository in other workspace. */
     CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE,
+    /** The csar is importing itself **/
+    CSAR_IMPORT_ITSELF,
     /** The csar's dependency is not visible from the target workspace. */
     DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE,
     /** The csar is used in an active deployment (It cannot be overrided). */
