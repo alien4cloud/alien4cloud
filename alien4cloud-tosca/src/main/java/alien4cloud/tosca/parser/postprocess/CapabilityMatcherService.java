@@ -41,7 +41,7 @@ public class CapabilityMatcherService implements ICapabilityMatcherService {
             String capabilityTypeName = capabilityEntry.getValue().getType();
             CapabilityType capabilityType = toscaContextFinder.find(CapabilityType.class, capabilityTypeName);
 
-            if (ToscaNormativeUtil.isFromType(type, capabilityType)) {
+            if (capabilityType != null && ToscaNormativeUtil.isFromType(type, capabilityType)) {
                 targetCapabilitiesMatch.put(capabilityEntry.getKey(), capabilityEntry.getValue());
             }
         }

@@ -66,6 +66,18 @@ public class CapabilityMatcherServiceTest {
         assertThat(compatibleCapabilities).hasSize(0);
     }
 
+    @Test
+    public void should_not_crash_even_if_node_template_capacities_is_incorrect() throws Exception {
+        nodeTemplate.getCapabilities().clear();
+        Capability unknownCapacity = new Capability();
+        unknownCapacity.setType("alien.typo.in.capa");
+        nodeTemplate.getCapabilities().put("incorrect", unknownCapacity);
+
+        Map<String, Capability> compatibleCapabilities = service.getCompatibleCapabilityByType(nodeTemplate, "alien.capability.test.Unknown");
+
+        assertThat(compatibleCapabilities).hasSize(0);
+    }
+
 
     private void addCapabilityToNodeTemplateAndToscaContext(String name, String type, String... derivedFrom) {
         CapabilityType capabilityType = new CapabilityType();
