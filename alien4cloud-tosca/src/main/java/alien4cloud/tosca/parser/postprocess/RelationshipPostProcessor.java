@@ -3,18 +3,13 @@ package alien4cloud.tosca.parser.postprocess;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
-import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.definitions.Operation;
-import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -23,7 +18,6 @@ import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.tosca.context.ToscaContext;
@@ -44,6 +38,8 @@ public class RelationshipPostProcessor {
     private TemplateDeploymentArtifactPostProcessor templateDeploymentArtifactPostProcessor;
     @Resource
     private ImplementationArtifactPostProcessor implementationArtifactPostProcessor;
+    @Resource
+    private ICapabilityMatcherService capabilityMatcherService;
 
     public void process(NodeType nodeTemplateType, Map.Entry<String, RelationshipTemplate> instance) {
         RelationshipTemplate relationshipTemplate = instance.getValue();
@@ -138,12 +134,12 @@ public class RelationshipPostProcessor {
 
     private Capability getCapabilityByType(NodeTemplate targetNodeTemplate, RelationshipTemplate relationshipTemplate, String capabilityType) {
         Capability capability = null;
-        List<Entry<String, Capability>> capabilityEntries = getCapabilityByType(targetNodeTemplate, capabilityType);
+        Map<String, Capability> compatibleCapabilityByType = capabilityMatcherService.getCompatibleCapabilityByType(targetNodeTemplate, capabilityType);
         Entry<String, Capability> capabilityEntry = null;
-        if (capabilityEntries.size() == 1) {
-            capabilityEntry = capabilityEntries.get(0);
-        } else if (capabilityEntries.size() > 1) {
-            capabilityEntry = capabilityEntries.get(0);
+        if (compatibleCapabilityByType.size() == 1) {
+            capabilityEntry = compatibleCapabilityByType.entrySet().iterator().next();
+        } else if (compatibleCapabilityByType.size() > 1) {
+            capabilityEntry = compatibleCapabilityByType.entrySet().iterator().next();
             Node node = ParsingContextExecution.getObjectToNodeMap().get(relationshipTemplate);
             ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.REQUIREMENT_CAPABILITY_MULTIPLE_MATCH, null,
                     node.getStartMark(), null, node.getEndMark(), relationshipTemplate.getRequirementName()));
@@ -153,19 +149,6 @@ public class RelationshipPostProcessor {
             relationshipTemplate.setTargetedCapabilityName(capabilityEntry.getKey());
         }
         return capability;
-    }
-
-    private List<Entry<String, Capability>> getCapabilityByType(NodeTemplate nodeTemplate, String type) {
-        if (nodeTemplate.getCapabilities() == null) { // add a check in case the node doesn't have capabilities
-            return null;
-        }
-        List<Entry<String, Capability>> targetCapabilitiesMatch = Lists.newArrayList();
-        for (Map.Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
-            if (type.equals(capabilityEntry.getValue().getType())) {
-                targetCapabilitiesMatch.add(capabilityEntry);
-            }
-        }
-        return targetCapabilitiesMatch;
     }
 
     private RequirementDefinition getRequirementDefinitionByName(NodeType indexedNodeType, String name) {
