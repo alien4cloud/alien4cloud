@@ -38,11 +38,11 @@ public class CapabilityMatcherService implements ICapabilityMatcherService {
 
         Map<String, Capability> targetCapabilitiesMatch = Maps.newHashMap();
         for (Map.Entry<String, Capability> capabilityEntry : capabilities.entrySet()) {
-            String capabilityTypeName = capabilityEntry.getKey();
+            String capabilityTypeName = capabilityEntry.getValue().getType();
             CapabilityType capabilityType = toscaContextFinder.find(CapabilityType.class, capabilityTypeName);
 
             if (ToscaNormativeUtil.isFromType(type, capabilityType)) {
-                targetCapabilitiesMatch.put(capabilityTypeName, capabilityEntry.getValue());
+                targetCapabilitiesMatch.put(capabilityEntry.getKey(), capabilityEntry.getValue());
             }
         }
         return targetCapabilitiesMatch;

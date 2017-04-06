@@ -36,8 +36,8 @@ public class CapabilityMatcherServiceTest {
         nodeTemplate.setCapabilities(Maps.newHashMap());
 
         capabilityTypeByTypeName = Maps.newHashMap();
-        addCapabilityToNodeTemplateAndToscaContext("alien.capability.test.MongoEndpoint", "alien.capability.test.Database", "alien.capability.test.Endpoint");
-        addCapabilityToNodeTemplateAndToscaContext("alien.capability.test.Alone");
+        addCapabilityToNodeTemplateAndToscaContext("db_endpoint","alien.capability.test.MongoEndpoint", "alien.capability.test.Database", "alien.capability.test.Endpoint");
+        addCapabilityToNodeTemplateAndToscaContext("useless","alien.capability.test.Alone");
 
         Mockito.when(toscaContextFinder.find(Mockito.any(), Mockito.anyString()))
                 .then(invocationOnMock -> capabilityTypeByTypeName.get(invocationOnMock.getArguments()[1]));
@@ -48,7 +48,7 @@ public class CapabilityMatcherServiceTest {
         Map<String, Capability> compatibleCapabilities = service.getCompatibleCapabilityByType(nodeTemplate, "alien.capability.test.MongoEndpoint");
 
         assertThat(compatibleCapabilities).hasSize(1);
-        assertThat(compatibleCapabilities).containsKeys("alien.capability.test.MongoEndpoint");
+        assertThat(compatibleCapabilities).containsKeys("db_endpoint");
     }
 
     @Test
@@ -56,7 +56,7 @@ public class CapabilityMatcherServiceTest {
         Map<String, Capability> compatibleCapabilities = service.getCompatibleCapabilityByType(nodeTemplate, "alien.capability.test.Database");
 
         assertThat(compatibleCapabilities).hasSize(1);
-        assertThat(compatibleCapabilities).containsKeys("alien.capability.test.MongoEndpoint");
+        assertThat(compatibleCapabilities).containsKeys("db_endpoint");
     }
 
     @Test
@@ -67,7 +67,7 @@ public class CapabilityMatcherServiceTest {
     }
 
 
-    private void addCapabilityToNodeTemplateAndToscaContext(String type, String... derivedFrom) {
+    private void addCapabilityToNodeTemplateAndToscaContext(String name, String type, String... derivedFrom) {
         CapabilityType capabilityType = new CapabilityType();
         capabilityType.setDerivedFrom(Arrays.asList(derivedFrom));
         capabilityType.setElementId(type);
@@ -76,7 +76,7 @@ public class CapabilityMatcherServiceTest {
         Capability capability = new Capability();
         capability.setType(type);
 
-        nodeTemplate.getCapabilities().put(type, capability);
+        nodeTemplate.getCapabilities().put(name, capability);
     }
 
 }
