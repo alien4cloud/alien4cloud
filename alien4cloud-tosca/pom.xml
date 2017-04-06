@@ -21,13 +21,6 @@
       <artifactId>alien4cloud-common</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>${javax.inject.version}</version>
-    </dependency>
-
     <!-- Templating -->
     <dependency>
       <groupId>org.apache.velocity</groupId>
