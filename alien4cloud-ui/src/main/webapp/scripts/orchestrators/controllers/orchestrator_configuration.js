@@ -31,6 +31,10 @@ define(function (require) {
         $scope.lock = ($scope.lock) ? false : true;
       };
 
+      $scope.disableUnlock = function() {
+        return orchestrator.state !== 'CONNECTED' || !$scope.lock;
+      };
+
       orchestratorConfigurationService.get({orchestratorId: orchestrator.id},
         function(response) {
           if (_.defined(response.data)) {
