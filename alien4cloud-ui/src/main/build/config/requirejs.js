@@ -1,48 +1,11 @@
 // Require js optimizer configuration
 module.exports = function (grunt) {
+  'use strict';
   var config = {
     options: {
       appDir: '<%= yeoman.dist %>',
       dir: '<%= yeoman.dist %>',
       mainConfigFile:'./src/main/webapp/scripts/require.config.js',
-      modules:[
-        {
-          name:'a4c-bootstrap',
-          exclude: [
-            'lodash-base',
-            'jquery',
-            'angular',
-            'angular-cookies',
-            'angular-bootstrap',
-            'angular-bootstrap-datetimepicker',
-            'angular-resource',
-            'angular-sanitize',
-            'angular-ui-router',
-            'angular-translate-base',
-            'angular-translate',
-            'angular-animate',
-            'angular-xeditable',
-            'angular-ui-select',
-            'angular-tree-control',
-            'autofill-event',
-            'ng-table',
-            'toaster',
-            'hopscotch',
-            'angular-file-upload',
-            'angular-ui-ace',
-            'angular-hotkeys',
-            'ace',
-            'sockjs',
-            'stomp',
-            'd3',
-            'd3-tip',
-            'd3-pie',
-            'dagre',
-            'graphlib'
-          ]
-        }
-      ],
-
       baseUrl: '.',
 
       keepBuildDir: true,
@@ -83,13 +46,67 @@ module.exports = function (grunt) {
         done();
       }
     },
-    dist: {
+    a4cdist: {
       options: {
         optimize: 'uglify',
-        // optimize: 'none',
         optimizeCss: 'none',
         optimizeAllPluginResources: false,
         removeCombined: true,
+        modules:[
+          {
+            name:'a4c-bootstrap'
+          }
+        ],
+        paths: {
+          'a4c-templates': 'empty:',
+          'a4c-dependencies': 'empty:',
+          'lodash-base': 'empty:',
+          'jquery': 'empty:',
+          'angular': 'empty:',
+          'angular-cookies': 'empty:',
+          'angular-bootstrap': 'empty:',
+          'angular-bootstrap-datetimepicker': 'empty:',
+          'angular-bootstrap-datetimepicker-template': 'empty:',
+          'moment': 'empty:',
+          'angular-resource': 'empty:',
+          'angular-sanitize': 'empty:',
+          'angular-ui-router': 'empty:',
+          'angular-translate-base': 'empty:',
+          'angular-translate': 'empty:',
+          'angular-animate': 'empty:',
+          'angular-xeditable': 'empty:',
+          'angular-ui-select': 'empty:',
+          'angular-tree-control': 'empty:',
+          'ng-table': 'empty:',
+          'autofill-event': 'empty:',
+          'toaster': 'empty:',
+          'hopscotch': 'empty:',
+          'angular-file-upload-shim': 'empty:',
+          'angular-file-upload': 'empty:',
+          'angular-ui-ace': 'empty:',
+          'angular-hotkeys': 'empty:',
+          'ace': 'empty:',
+          'sockjs': 'empty:',
+          'stomp': 'empty:',
+          'd3': 'empty:',
+          'd3-tip': 'empty:',
+          'd3-pie': 'empty:',
+          'dagre': 'empty:',
+          'graphlib': 'empty:',
+        }
+      }
+    },
+    a4cdepdist: {
+      options: {
+        optimize: 'none',
+        optimizeCss: 'none',
+        optimizeAllPluginResources: false,
+        removeCombined: false,
+        modules:[
+          {
+            name:'a4c-dependencies',
+          }
+        ]
       }
     },
     noOptimize: {
@@ -97,7 +114,7 @@ module.exports = function (grunt) {
         optimize: 'none',
         optimizeCss: 'none',
         optimizeAllPluginResources: false,
-        removeCombined: false,
+        removeCombined: false
       }
     }
   };

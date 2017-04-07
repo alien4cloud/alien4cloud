@@ -2,17 +2,19 @@ package org.alien4cloud.tosca.model.definitions;
 
 import java.util.Map;
 
-import lombok.Getter;
-import lombok.Setter;
-import alien4cloud.ui.form.annotation.FormProperties;
-
 import com.google.common.collect.Maps;
+
+import alien4cloud.ui.form.annotation.FormProperties;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Definition of the operations that can be performed on (instances of) a Node Type.
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @FormProperties({ "operations" })
 public class Interface {
     /** The type of the interface. */
@@ -21,4 +23,13 @@ public class Interface {
     private String description;
     /** Defines an operation available to manage particular aspects of the Node Type. */
     private Map<String, Operation> operations = Maps.newHashMap();
+
+    /**
+     * Create a new interface from it's type.
+     * 
+     * @param type The interface type.
+     */
+    public Interface(String type) {
+        this.type = type;
+    }
 }

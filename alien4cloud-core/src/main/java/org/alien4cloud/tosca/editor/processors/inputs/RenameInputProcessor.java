@@ -28,7 +28,7 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import lombok.extern.slf4j.Slf4j;
 
 /**

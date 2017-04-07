@@ -48,6 +48,7 @@ import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.security.model.Role;
 import alien4cloud.test.utils.SecurityTestUtils;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.AbstractToscaParserSimpleProfileTest;
 import alien4cloud.tosca.parser.ParserTestUtil;
 import alien4cloud.tosca.parser.ParsingResult;
@@ -97,8 +98,6 @@ public class FunctionEvaluatorTest {
             repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "1.2.0", normativeLocalName);
             String sampleLocalName = "samples";
             repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/samples.git", "master", sampleLocalName);
-            String extendedLocalName = "alien-extended-types";
-            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master", extendedLocalName);
 
             Path typesPath = artifactsDirectory.resolve(normativeLocalName);
             Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
@@ -108,8 +107,14 @@ public class FunctionEvaluatorTest {
 
             AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
 
-            typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
-            typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
+            // typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
+            // typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
+            // FileUtil.zip(typesPath, typesZipPath);
+            // result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
+            // AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
+
+            typesPath = artifactsDirectory.resolve(sampleLocalName).resolve("jdk");
+            typesZipPath = artifactsDirectory.resolve("jdk.zip");
             FileUtil.zip(typesPath, typesZipPath);
             result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
             AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
@@ -120,7 +125,7 @@ public class FunctionEvaluatorTest {
             result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
             AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
 
-            typesPath = Paths.get("src/test/resources/alien/paas/function/csars/test-types");
+            typesPath = Paths.get("src/test/resources/alien4cloud/paas/function/test-types");
             typesZipPath = artifactsDirectory.resolve("target/test-types.zip");
             FileUtil.zip(typesPath, typesZipPath);
             result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
@@ -128,7 +133,10 @@ public class FunctionEvaluatorTest {
 
             INITIALIZED = true;
         }
-        Topology topology = applicationUtil.parseYamlTopology("src/test/resources/alien/paas/function/topology/badFunctionsTomcatWar");
+
+        ParsingResult<ArchiveRoot> result = applicationUtil.parseYamlTopology("src/test/resources/alien4cloud/paas/function/topology/badFunctionsTomcatWar");
+        // AbstractToscaParserSimpleProfileTest.assertNoBlocker(result);
+        Topology topology = result.getResult().getTopology();
         topology.setId(UUID.randomUUID().toString());
         topology.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         builtPaaSNodeTemplates = treeBuilder.buildPaaSTopology(topology).getAllNodes();

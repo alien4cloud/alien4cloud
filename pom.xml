@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.4.0-SM4</version>
+  <version>1.4.0-RC1</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle
@@ -41,7 +41,7 @@
     <servlet-api.version>3.1.0</servlet-api.version>
     <httpclient.version>4.3.2</httpclient.version>
     <commons-cli.version>1.2</commons-cli.version>
-    <commons-lang.version>3.3.2</commons-lang.version>
+    <commons-lang.version>3.5</commons-lang.version>
     <commons-collections.version>4.1</commons-collections.version>
     <commons-compress.version>1.9</commons-compress.version>
 
@@ -72,8 +72,8 @@
     <groovy.version>2.3.5</groovy.version>
 
     <!-- Logging -->
-    <log4j.version>1.2.16</log4j.version>
-    <slf4j.version>1.7.5</slf4j.version>
+    <log4j.version>2.6.2</log4j.version>
+    <slf4j.version>1.7.24</slf4j.version>
 
     <!-- Documentation -->
     <springfox-swagger2.version>2.3.1</springfox-swagger2.version>
@@ -410,9 +410,20 @@
         <version>${commons-cli.version}</version>
       </dependency>
 
+      <!-- Logging -->
       <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
         <version>${log4j.version}</version>
       </dependency>
       <dependency>
@@ -422,7 +433,7 @@
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
+        <artifactId>slf4j-ext</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
 

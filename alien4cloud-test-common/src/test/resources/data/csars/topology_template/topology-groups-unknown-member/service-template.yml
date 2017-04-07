@@ -1,15 +1,15 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
 
-description: TOSCA simple profile including a topology
-template_name: topology-groups-unknown-member
-template_version: 1.0.0-SNAPSHOT
-template_author: FastConnect
+metadata:
+  template_name: topology-groups-unknown-member
+  template_version: 1.0.0-SNAPSHOT
+  template_author: FastConnect
 
 description: define groups with ha policies
 
 imports:
   - "tosca-base-types:1.0"
-  
+
 topology_template:
   node_templates:
     compute1:
@@ -18,6 +18,6 @@ topology_template:
     compute_scaling_group:
       # compute2 doesn't exist
       members: [ compute1, compute2 ]
-      policies: 
+      policies:
         - name: my_scaling_ha_policy
           type: tosca.policy.ha

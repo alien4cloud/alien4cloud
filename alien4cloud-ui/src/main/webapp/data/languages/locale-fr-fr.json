@@ -1,4 +1,11 @@
 {
+  "SERVICE":{
+    "RELATIONSHIP" : {
+      "LABEL" : "Type de relation",
+      "CAPABILITY_DESCRIPTION" : "Un type de relation peut être utilisée pour définir les opérations à executer coté service.",
+      "REQUIREMENT_DESCRIPTION" : "Un type de relation peut être utilisée pour définir les opérations à executer coté service."
+    }
+  },
   "APPLICATIONS" : {
     "APPLICATION" : "Application",
     "APPLICATION_ROLES" : "Rôles d'application",
@@ -6,6 +13,14 @@
     "ARCHIVE_NAME_HELP" : "Le nom de l'archive TOSCA (Cloud Service Archive) liée à l'application. C'est également l'id unique et immutable de l'application.",
     "AUTHORIZED" : "application autorisée",
     "DEPLOY" : "Déployer",
+    "DEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Êtes-vous certain de vouloir déployer l'application {{application}} de type {{type}} en version {{version}} avec le matching suivant:",
+        "FOOTER": "Sur la location {{location}} de l'orchestrateur {{orchestrator}} ?"
+      },
+      "TITLE": "Informations concernant le déploiement"
+    },
+    "UPDATE_DEPLOYMENT" : "Mettre à jour",
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",
       "INPUT" : "Input",
@@ -36,11 +51,15 @@
       "ALL" : "All Environment",
       "ENV" : "Environnement",
       "ENV_ROLES" : "Rôles d'environment",
+      "SELECT_INPUT_CANDIDATE": "Selectionner l'environment pour copier les inputs",
       "FORM" : {
         "ENV_TYPE" : "Type d'environnement",
         "ENV_TYPE_SELECT" : "-- Sélectionner le type d'environnement --",
         "ENV_VERSION" : "Version de l'application",
-        "ENV_VERSION_SELECT" : "-- Sélectionner la version de l'application --"
+        "ENV_VERSION_SELECT" : "-- Sélectionner la version de l'application --",
+        "ENV_INPUT_CANDIDATE_LABEL": "Inputs",
+        "ENV_INPUT_CANDIDATE_SELECT": "-- Selectionner l'environment pour copier les inputs --",
+        "DONT_COPY_INPUT": "-- Ne pas copier les inputs --"
       },
       "NEW" : "Nouvel environnement",
       "STATUS" : "Etat"
@@ -259,6 +278,13 @@
           "GROUP" : "Groupe",
           "LABEL" : "HA politique est invalide"
         },
+        "ILLEGAL_OPERATIONS": {
+          "OPERATION": "Opération",
+          "SERVICE": "Service",
+          "RELATIONSHIP_TYPE": "Type de relation",
+          "LABEL": "Opérations ignorées",
+          "LABEL_DETAILS": "Certaines opérations d'une relation impliquant un service ne sont pas autorisées. Un client ne peut pas modifier directement la configuration d'un service et vice et versa."
+        },
         "LABEL" : "Alertes",
         "PROPERTIES" : {
           "LABEL" : "Propriétés de noeuds"
@@ -267,6 +293,13 @@
       "YAML" : "yaml"
     },
     "UNDEPLOY" : "Désinstaller",
+    "UNDEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Êtes-vous certain de vouloir désinstaller l'application {{application}} en version {{version}} ?",
+        "FOOTER": "Les noeud(s) suivant seront donc supprimé(s) :"
+      },
+      "TITLE": "Informations concernant la désinstallation"
+    },
     "VERSION" : {
       "LABEL" : "Version d'application",
       "MODAL" : {
@@ -405,6 +438,7 @@
     "ADD" : "Ajouter",
     "ATTRIBUTES" : "Attributs",
     "AUTHOR" : "Auteur",
+    "AUTHORIZED": "Authorisé",
     "CAPABILITIES" : "Capacités",
     "DATA" : "Données",
     "DATE" : "Date",
@@ -424,6 +458,7 @@
     "NODE" : "Noeud",
     "PROPERTIES" : "Propriétés",
     "SOURCE" : "Source",
+    "RESOURCES": "Ressources",
     "STATE" : "Etat",
     "TARGET" : "Cible",
     "TYPE" : "Type",
@@ -537,7 +572,8 @@
       "WORKFLOW_HAS_ERRORS" : "Le workflow [{{note}}] n'est pas valide",
       "YAML_MAPPING_NODE_EXPECTED" : "Un noeud de type mapping est attendu.",
       "YAML_SCALAR_NODE_EXPECTED" : "Un noeud YAML de type scalar est attendu ici.",
-      "YAML_SEQUENCE_EXPECTED" : "Une séquence YAML est attendu."
+      "YAML_SEQUENCE_EXPECTED" : "Une séquence YAML est attendu.",
+      "CSAR_IMPORT_ITSELF": "Une archive ne peut pas s'importer elle même."
     },
     "VALIDSOURCES" : "Sources valides",
     "WORKSPACE" : "Workspaces"
@@ -572,8 +608,8 @@
     "ACTIONS" : "Opérations",
     "ARCHIVE" : "Nom du dossier",
     "ARCHIVE_TO_IMPORT" : "Archive(s) à importer",
-    "BRANCH" : "Branche",
-    "BRANCHE_TO_IMPORT" : "Sur la branche",
+    "BRANCH_OR_TAG" : "Branche ou tag",
+    "BRANCH_OR_TAG_TO_IMPORT" : "Sur la branche ou tag",
     "CREDENTIALS" : "Authentification",
     "CREDENTIALSINFO" : "Ces informations ne sont utiles que pour les dépôts privés",
     "DELETE" : "Supprimé",
@@ -624,6 +660,10 @@
       "DEPLOYMENT_IN_PROGRESS" : "Déploiement en cours",
       "FAILURE" : "Echec",
       "INIT_DEPLOYMENT" : "Initialisation du déploiement",
+      "UPDATE_DEPLOYMENT" : "Déploiement en cours de modification",
+      "UPDATE_IN_PROGRESS" : "Déploiement en cours de modification",
+      "UPDATE_FAILURE" : "Echec de la mise à jour",
+      "UPDATED" : "Mis à jour",
       "UNDEPLOYED" : "Désinstallé",
       "UNDEPLOYMENT_IN_PROGRESS" : "Désinstallation en cours",
       "UNKNOWN" : "Inconnu",
@@ -631,7 +671,8 @@
     },
     "TOASTER_STATUS" : {
       "DEPLOYED" : "L'environment < {{envName}} > de l'application < {{appName}} > est déployé.",
-      "FAILURE" : "Échec du déploiement de l'environment < {{envName}} > de l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information."
+      "FAILURE" : "Échec du déploiement de l'environment < {{envName}} > de l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information.",
+      "UPDATE_FAILURE" : "Échec lors de la mise à jour du déploiement pour l'environment < {{envName}} > et l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information."
     }
   },
   "DETAILS" : "Détails",
@@ -893,6 +934,7 @@
   "OK" : "OK",
   "OPTIONAL" : "Optionnel",
   "ORCHESTRATORS" : {
+    "ORCHESTRATOR": "Orchestrator",
     "ARTIFACTS" : {
       "MANAGED" : "Artefacts supportés"
     },
@@ -902,6 +944,7 @@
       "UNLOCK-BTN-TITLE" : "Déverrouiller"
     },
     "LOCATIONS" : {
+      "LOCATION": "Location",
       "AUTHORIZATIONS" : {
         "APPS" : {
           "ADD" : "Autoriser certaines applications",
@@ -979,7 +1022,7 @@
   "PAGINATION" : {
     "OVERFLOW" : "Le nombre de résultat dépasse le nombre maxium supporté par Alien4Cloud, merci d'utiliser le champs de recherche."
   },
-  "PLACE_HOLDER_NO" : "Pas de ",
+  "NO_DATA_AVAILABLE" : "Pas de données disponibles.",
   "PLUGINS" : {
     "BEANS" : "Composants",
     "CONFIGURE" : "Configurer",
@@ -1029,6 +1072,7 @@
       "TITLE" : "Nouveau service"
     },
     "MANAGED": {
+      "NAME": "Service exposé",
       "TITLE": "Service",
       "NO_SUBSTITUTION_MESSAGE": "La topologie doit définir un type de substitution afin d'être exposée en tant que service.",
       "CREATE": {

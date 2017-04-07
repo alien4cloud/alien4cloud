@@ -70,7 +70,7 @@ define(function (require) {
           modalInstance.result.then(function(relationshipResult) {
             if (instance.previousRelationshipName) {
               // This is a relationship change - remove the previous relationship then add the new one.
-              instance.remove(previousRelationshipName, sourceNodeTemplate, function (result) {
+              instance.remove(previousRelationshipName, sourceNodeTemplate, function () {
                 instance.doAddRelationship(sourceNodeTemplateName, relationshipResult, requirementName, requirement.type);
               });
               return;

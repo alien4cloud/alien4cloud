@@ -2,11 +2,7 @@ package alien4cloud.tosca.parser.postprocess;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -17,6 +13,7 @@ import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
 import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
@@ -25,7 +22,6 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.normative.NormativeCredentialConstant;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -109,6 +105,17 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         // Dependencies defined in the import section only
         // These should override transitive deps regardless of type of conflict ?
         Set<CSARDependency> dependencies = archiveRoot.getArchive().getDependencies();
+
+        // Ensure the archive does not import itself
+        Csar archive = archiveRoot.getArchive();
+        if(dependencies.contains(new CSARDependency(archive.getName(), archive.getVersion(), archive.getHash()))){
+            ParsingContextExecution.getParsingErrors()
+                    .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.CSAR_IMPORT_ITSELF,
+                            AlienUtils.prefixWith(":", archive.getVersion(), archive.getName()),
+                            null,
+                            "Import itself",
+                            null, null));
+        }
 
         /* Three types of conflicts :
           - A transitive dep has a different version than a direct dependency => Force transitive to direct version

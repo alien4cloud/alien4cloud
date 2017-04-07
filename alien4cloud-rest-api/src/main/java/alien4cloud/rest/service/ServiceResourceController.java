@@ -34,8 +34,8 @@ import alien4cloud.rest.service.model.UpdateServiceResourceRequest;
 import alien4cloud.rest.service.model.UpdateValidationGroup;
 import alien4cloud.service.ServiceResourceService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import alien4cloud.utils.RestConstraintValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -99,7 +99,7 @@ public class ServiceResourceController {
         try {
             serviceResourceService.update(id, request.getName(), request.getVersion(), request.getDescription(), request.getNodeInstance().getType(),
                     request.getNodeInstance().getTypeVersion(), request.getNodeInstance().getProperties(), request.getNodeInstance().getCapabilities(),
-                    request.getNodeInstance().getAttributeValues(), request.getLocationIds());
+                    request.getNodeInstance().getAttributeValues(), request.getLocationIds(), request.getCapabilitiesRelationshipTypes(), request.getRequirementsRelationshipTypes());
             return RestResponseBuilder.<ConstraintInformation> builder().build();
         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
             return RestConstraintValidator.fromException(e, e.getConstraintInformation().getName(), e.getConstraintInformation().getValue());
@@ -122,7 +122,7 @@ public class ServiceResourceController {
             Map<String, String> nodeAttributeValues = request.getNodeInstance() == null ? null : request.getNodeInstance().getAttributeValues();
 
             serviceResourceService.patch(id, request.getName(), request.getVersion(), request.getDescription(), nodeType, nodeTypeVersion, nodeProperties,
-                    nodeCapabilities, nodeAttributeValues, request.getLocationIds());
+                    nodeCapabilities, nodeAttributeValues, request.getLocationIds(), request.getCapabilitiesRelationshipTypes(), request.getRequirementsRelationshipTypes());
             return RestResponseBuilder.<ConstraintInformation> builder().build();
         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
             return RestConstraintValidator.fromException(e, e.getConstraintInformation().getName(), e.getConstraintInformation().getValue());

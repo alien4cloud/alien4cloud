@@ -1,21 +1,18 @@
 package alien4cloud.utils;
 
-import javax.inject.Inject;
-
-import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.springframework.stereotype.Component;
 
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Rest service that creates a proper REST error from constraint validation.
@@ -23,9 +20,6 @@ import alien4cloud.utils.services.ConstraintPropertyService;
 @Slf4j
 @Component
 public class RestConstraintValidator {
-    @Inject
-    private ConstraintPropertyService constraintPropertyService;
-
     /**
      * Performs validation of a property value against it's definition and eventually build a valid rest error in case of violations.
      *
@@ -41,7 +35,7 @@ public class RestConstraintValidator {
             return null;
         }
         try {
-            constraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
+            ConstraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
         } catch (ConstraintFunctionalException e) {
             return fromException(e, propertyName, propertyValue);
         }

@@ -4,14 +4,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
-import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
-import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
-import org.alien4cloud.tosca.editor.exception.PropertyValueException;
-import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
-import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
-import org.alien4cloud.tosca.editor.exception.UnmatchedElementPatternException;
+import org.alien4cloud.tosca.editor.exception.*;
 import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
@@ -28,35 +25,11 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.ApplicationVersionNotFoundException;
-import alien4cloud.exception.CyclicReferenceException;
-import alien4cloud.exception.DeleteDeployedException;
-import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
-import alien4cloud.exception.DeleteLastApplicationVersionException;
-import alien4cloud.exception.DeleteReferencedObjectException;
-import alien4cloud.exception.GitConflictException;
-import alien4cloud.exception.GitException;
-import alien4cloud.exception.GitMergingStateException;
-import alien4cloud.exception.GitStateException;
-import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.exception.InvalidNameException;
-import alien4cloud.exception.MissingCSARDependenciesException;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.exception.ReleaseReferencingSnapshotException;
-import alien4cloud.exception.VersionConflictException;
-import alien4cloud.exception.VersionRenameNotPossibleException;
+import alien4cloud.exception.*;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
-import alien4cloud.paas.exception.ComputeConflictNameException;
-import alien4cloud.paas.exception.EmptyMetaPropertyException;
-import alien4cloud.paas.exception.MissingPluginException;
-import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
-import alien4cloud.paas.exception.PaaSDeploymentException;
-import alien4cloud.paas.exception.PaaSDeploymentIOException;
-import alien4cloud.paas.exception.PaaSUndeploymentException;
+import alien4cloud.paas.exception.*;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.rest.csar.CsarUploadResult;
 import alien4cloud.rest.csar.CsarUploadUtil;
@@ -65,12 +38,10 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
+import alien4cloud.service.exceptions.IncompatibleHalfRelationshipException;
 import alien4cloud.service.exceptions.ServiceUsageException;
 import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
@@ -291,6 +262,15 @@ public class RestTechnicalExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(value = IncompatibleHalfRelationshipException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> incompatibleRelationshipErrorHandler(IncompatibleHalfRelationshipException e) {
+        log.warn("Incompatible relationship", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message(e.getMessage()).build())
+                .build();
+    }
+
     @ExceptionHandler(value = PaaSDeploymentException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
@@ -337,7 +317,7 @@ public class RestTechnicalExceptionHandler {
         log.error("Uncategorized error", e);
         String stackTrace = ExceptionUtils.getFullStackTrace(e);
         return RestResponseBuilder.<String> builder().data(stackTrace)
-                .error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Uncategorized error " + e.getMessage()).build()).build();
+                .error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message(e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = InvalidVersionException.class)
@@ -499,7 +479,7 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> unsupportedOperationErrorHandler(UnsupportedOperationException e) {
         log.error("Operation not supported", e);
         return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_OPERATION_ERROR).message("Operation not supported: " + e.getMessage()).build())
+                .error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_OPERATION_ERROR).message(e.getMessage()).build())
                 .build();
     }
 
@@ -517,7 +497,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Usage[]> serviceUsageExceptionHandler(ServiceUsageException e) {
         log.error("Error on service deletion", e);
-        return RestResponseBuilder.<Usage[]> builder().data(e.convert()).error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build()).build();
+        return RestResponseBuilder.<Usage[]> builder().data(e.getUsages())
+                .error(RestErrorBuilder.builder(RestErrorCode.RESOURCE_USED_ERROR).message(e.getMessage()).build()).build();
     }
 
 }

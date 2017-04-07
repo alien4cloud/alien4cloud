@@ -29,7 +29,7 @@ import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -37,6 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 public class BlockStorageEventHandler extends DeploymentEventHandler {
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
     @Resource
     private TopologyServiceCore topoServiceCore;
     @Resource
@@ -117,7 +119,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 nodeTemplate.getProperties().put(propertyName, getPropertyValue(propertyValue));
             }
         }
-        deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
+        alienDAO.save(deploymentTopology);
     }
 
     private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent,

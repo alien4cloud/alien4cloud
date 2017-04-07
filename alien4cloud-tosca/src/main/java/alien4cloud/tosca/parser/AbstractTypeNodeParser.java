@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.keyvalue.DefaultMapEntry;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.NotWritablePropertyException;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -44,6 +45,9 @@ public abstract class AbstractTypeNodeParser {
             // property named 'void' means : process the parsing but do not set anything
             try {
                 realTarget.setPropertyValue(propertyName, value);
+            } catch (ConversionNotSupportedException e) {
+                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, "Invalid yaml type for property",
+                        valueNode.getStartMark(), "", valueNode.getEndMark(), toscaType));
             } catch (NotWritablePropertyException e) {
                 log.warn("Error while setting property for yaml parsing.", e);
                 context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type",
@@ -58,6 +62,9 @@ public abstract class AbstractTypeNodeParser {
                 if (!(keyBeanWrapper.getPropertyValue(kvmt.getKeyPath()) != null && propertyName.equals(key))) {
                     keyBeanWrapper.setPropertyValue(kvmt.getKeyPath(), key);
                 }
+            } catch (ConversionNotSupportedException e) {
+                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, "Invalid yaml type for property",
+                        valueNode.getStartMark(), "", valueNode.getEndMark(), toscaType));
             } catch (NotWritablePropertyException e) {
                 log.warn("Error while setting key to property for yaml parsing.", e);
                 context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type",

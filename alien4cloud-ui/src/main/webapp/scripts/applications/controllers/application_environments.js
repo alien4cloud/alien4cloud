@@ -22,13 +22,31 @@ define(function (require) {
     }
   });
 
-  var NewApplicationEnvironmentCtrl = ['$scope', '$uibModalInstance',
-    function($scope, $uibModalInstance) {
+  var NewApplicationEnvironmentCtrl = ['$scope', '$uibModalInstance', 'inputCandidates',
+    function($scope, $uibModalInstance, inputCandidates) {
+      $scope.inputCandidates = inputCandidates;
       $scope.newEnvironment = { applicationId: $scope.application.id };
       $scope.create = function(valid) {
         if (valid) {
+          if (_.defined($scope.newEnvironment.inputCandidate)) {
+            var inputCandidate = $scope.newEnvironment.inputCandidate;
+            delete $scope.newEnvironment.inputCandidate;
+            $scope.newEnvironment.inputCandidate = inputCandidate.id;
+          }
           $uibModalInstance.close($scope.newEnvironment);
         }
+      };
+      $scope.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+      };
+    }
+  ];
+  
+  var SelectEnvironmentToCopyInputCtrl = ['$scope', '$uibModalInstance', 'inputCandidates',
+    function($scope, $uibModalInstance, inputCandidates) {
+      $scope.inputCandidates = inputCandidates;
+      $scope.ok = function(inputCandidate) {
+        $uibModalInstance.close(inputCandidate);
       };
       $scope.cancel = function() {
         $uibModalInstance.dismiss('cancel');
@@ -76,7 +94,16 @@ define(function (require) {
         var modalInstance = $uibModal.open({
           templateUrl: 'views/applications/application_environment_new.html',
           controller: NewApplicationEnvironmentCtrl,
-          scope: $scope
+          scope: $scope,
+          resolve: {
+            inputCandidates: ['applicationEnvironmentServices', function(applicationEnvironmentServices) {
+              return applicationEnvironmentServices.getInputCandidates({
+                applicationId: $scope.application.id
+              }, angular.toJson({})).$promise.then(function(result) {
+                return result.data;
+              });
+            }]
+          }
         });
         modalInstance.result.then(function(environment) {
           applicationEnvironmentServices.create({
@@ -111,7 +138,38 @@ define(function (require) {
       };
 
       $scope.setAppTopologyVersion = function(environment, selectedTopologyVersion) {
-        $scope.updateApplicationEnvironment('currentVersionId', selectedTopologyVersion, environment.id, environment.currentVersionName);
+        var modalInstance = $uibModal.open({
+          templateUrl: 'views/applications/select_environment_to_copy_inputs.html',
+          controller: SelectEnvironmentToCopyInputCtrl,
+          resolve: {
+            inputCandidates: ['applicationEnvironmentServices', function(applicationEnvironmentServices) {
+              return applicationEnvironmentServices.getInputCandidates({
+                applicationId: $scope.application.id
+              }, angular.toJson({
+                applicationEnvironmentId: environment.id,
+                applicationTopologyVersion: selectedTopologyVersion
+              })).$promise.then(function(result) {
+                return result.data;
+              });
+            }]
+          }
+        });
+        modalInstance.result.then(function(inputCandidate) {
+          var inputCandidateId = null;
+          if(_.defined(inputCandidate)) {
+            inputCandidateId = inputCandidate.id;
+          }
+          applicationEnvironmentServices.updateTopologyVersion({
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: environment.id
+          }, angular.toJson({
+            newTopologyVersion: selectedTopologyVersion,
+            environmentToCopyInput: inputCandidateId
+          }), function() {
+            environment.currentVersionName = selectedTopologyVersion;
+            appEnvironments.updateEnvironment(environment);
+          });
+        });
       };
 
       function updateEnvironment(environmentId, fieldName, fieldValue) {

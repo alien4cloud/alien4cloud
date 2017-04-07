@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.4.0-SM4</version>
+    <version>1.4.0-RC1</version>
   </parent>
   <artifactId>alien4cloud-tosca</artifactId>
   <name>Alien 4 Cloud TOSCA</name>
@@ -48,6 +48,10 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
     </dependency>
   </dependencies>
 

@@ -30,7 +30,7 @@ import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -157,7 +157,7 @@ public class TopologySubstitutionService {
         // FIXME we have an issue here : if several nodes have the same attribute name, or if an attribute and a property have the same name,
         Map<String, IValue> attributes = substituteNodeType.getAttributes();
         if (pd != null && !attributes.containsKey(propertyName)) {
-            if (ToscaType.isSimple(pd.getType())) {
+            if (ToscaTypes.isSimple(pd.getType())) {
                 AttributeDefinition attributeDefinition = new AttributeDefinition();
                 attributeDefinition.setType(pd.getType());
                 attributeDefinition.setDescription(pd.getDescription());

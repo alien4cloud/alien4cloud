@@ -10,6 +10,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-ng-annotate');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-execute');
+  grunt.loadNpmTasks('grunt-angular-templates');
 
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);

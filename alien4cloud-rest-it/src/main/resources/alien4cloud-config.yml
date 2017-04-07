@@ -121,3 +121,6 @@ openstack:
     manager_name: alien33rc1-manager-server
     manager_user:
     manager_password:
+
+logs_deployment_appender:
+  enable: false

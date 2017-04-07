@@ -18,9 +18,13 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -74,9 +78,6 @@ import alien4cloud.service.ServiceResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintTechnicalException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.PropertyService;
@@ -140,6 +141,18 @@ public class DeploymentTopologyService {
     }
 
     /**
+     * Get the deployment topology for the environment if exists
+     * 
+     * @param environment the environment to get deployment topology
+     * @return the deployment topology for the environment if exists, null otherwise
+     */
+    public DeploymentTopology getDeploymentTopologyIfExist(ApplicationEnvironment environment) {
+        String deploymentTopologyId = DeploymentTopology.generateId(Csar.createId(environment.getApplicationId(), environment.getTopologyVersion()),
+                environment.getId());
+        return alienDAO.findById(DeploymentTopology.class, deploymentTopologyId);
+    }
+
+    /**
      * Get or create if not yet existing the {@link DeploymentTopology} for the given environment.
      *
      * @param environmentId The environment for which to get or create a {@link DeploymentTopology}
@@ -147,9 +160,25 @@ public class DeploymentTopologyService {
      */
     public DeploymentTopology getDeploymentTopology(String environmentId) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
+        return getDeploymentTopology(environment);
+    }
+
+    public DeploymentTopology getDeploymentTopology(ApplicationEnvironment environment) {
         ApplicationTopologyVersion topologyVersion = applicationVersionService
                 .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
         return getOrCreateDeploymentTopology(environment, topologyVersion.getArchiveId());
+    }
+
+    /**
+     * Check if the deployment topology for the environment exists
+     * 
+     * @param environment the environment
+     * @return true if the deployment topology exists, false otherwise
+     */
+    public boolean isDeploymentTopologyExist(ApplicationEnvironment environment) {
+        String deploymentTopologyId = DeploymentTopology.generateId(Csar.createId(environment.getApplicationId(), environment.getTopologyVersion()),
+                environment.getId());
+        return alienDAO.exist(DeploymentTopology.class, deploymentTopologyId);
     }
 
     /**
@@ -183,6 +212,9 @@ public class DeploymentTopologyService {
             } else if (checkIfTopologyOrLocationHasChanged(deploymentTopology, locations.values(), topology)) {
                 // Re-generate the deployment topology if the initial topology has been changed
                 generateDeploymentTopology(deploymentTopologyId, environment, topology, deploymentTopology);
+            } else if (deploymentTopology.getLastDeploymentTopologyUpdateDate().before(deploymentTopology.getLastUpdateDate())) {
+                // the deployment topology has been changed without synchronizing its content (by the BlockStorageEventHandler for example). Do it now
+                doUpdateDeploymentTopology(deploymentTopology, topology, environment);
             }
         }
 
@@ -218,7 +250,7 @@ public class DeploymentTopologyService {
         return new DeploymentConfiguration(deploymentTopology, substitutionConfiguration);
     }
 
-    private DeploymentSubstitutionConfiguration getAvailableNodeSubstitutions(DeploymentTopology deploymentTopology) {
+    public DeploymentSubstitutionConfiguration getAvailableNodeSubstitutions(DeploymentTopology deploymentTopology) {
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = deploymentNodeSubstitutionService.getAvailableSubstitutions(deploymentTopology);
         DeploymentSubstitutionConfiguration dsc = new DeploymentSubstitutionConfiguration();
         Map<String, Set<String>> availableSubstitutionsIds = Maps.newHashMap();
@@ -290,7 +322,7 @@ public class DeploymentTopologyService {
 
     private void doUpdateDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
         Map<String, NodeTemplate> previousNodeTemplates = deploymentTopology.getNodeTemplates();
-        ReflectionUtil.mergeObject(topology, deploymentTopology, "id");
+        ReflectionUtil.mergeObject(topology, deploymentTopology, "id", "creationDate", "lastUpdateDate");
         deploymentTopology.setSubstitutionMapping(topology.getSubstitutionMapping());
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
@@ -310,10 +342,11 @@ public class DeploymentTopologyService {
     private void injectInputAndProcessSubstitutionIfNeeded(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment,
             Map<String, NodeTemplate> previousNodeTemplates) {
         if (MapUtils.isEmpty(deploymentTopology.getLocationGroups())) {
-            // No location group is defined do nothing
+            // No location matching has been yet performed, do nothing.
             return;
         }
-        // injects inputs before processing substitutions
+        // Injects inputs (get_input) before processing substitutions and internal get_properties (basically a property that get a property out of another node/
+        // property).
         inputsPreProcessorService.injectInputValues(deploymentTopology, environment, topology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
     }
@@ -452,6 +485,18 @@ public class DeploymentTopologyService {
         }
     }
 
+    /**
+     * This will clean up deployment setup when user promote to a new version
+     * 
+     * @param event the event fired
+     */
+    @EventListener
+    public void handleEnvironmentTopologyVersionChanged(AfterEnvironmentTopologyVersionChanged event) {
+        alienDAO.delete(DeploymentTopology.class,
+                QueryBuilders.boolQuery().must(QueryBuilders.termQuery("versionId", Csar.createId(event.getApplicationId(), event.getOldVersion())))
+                        .must(QueryBuilders.termQuery("environmentId", event.getEnvironmentId())));
+    }
+
     @EventListener
     public void handleDeleteTopologyVersion(BeforeApplicationTopologyVersionDeleted event) {
         alienDAO.delete(DeploymentTopology.class, QueryBuilders.termQuery("versionId", Csar.createId(event.getApplicationId(), event.getTopologyVersion())));
@@ -462,26 +507,18 @@ public class DeploymentTopologyService {
         alienDAO.delete(DeploymentTopology.class, QueryBuilders.termQuery("environmentId", event.getApplicationEnvironmentId()));
     }
 
-    /**
-     * Set the location policies of a deployment
-     *
-     * @param environmentId the environment's id
-     * @param groupsToLocations group to location mapping
-     * @return the updated deployment topology
-     */
-    public DeploymentConfiguration setLocationPolicies(String environmentId, String orchestratorId, Map<String, String> groupsToLocations) {
+    public DeploymentConfiguration setLocationPolicies(ApplicationEnvironment environment, String orchestratorId, Map<String, String> groupsToLocations) {
         // Change of locations will trigger re-generation of deployment topology
         // Set to new locations and process generation of all default properties
-        ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
-
         ApplicationTopologyVersion topologyVersion = applicationVersionService
                 .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
 
-        DeploymentTopology oldDT = alienDAO.findById(DeploymentTopology.class, DeploymentTopology.generateId(topologyVersion.getArchiveId(), environmentId));
+        DeploymentTopology oldDT = alienDAO.findById(DeploymentTopology.class,
+                DeploymentTopology.generateId(topologyVersion.getArchiveId(), environment.getId()));
 
         DeploymentTopology deploymentTopology = new DeploymentTopology();
         deploymentTopology.setOrchestratorId(orchestratorId);
-        deploymentTopology.setEnvironmentId(environmentId);
+        deploymentTopology.setEnvironmentId(environment.getId());
         addLocationPolicies(deploymentTopology, groupsToLocations);
 
         if (oldDT != null) {
@@ -494,8 +531,21 @@ public class DeploymentTopologyService {
         }
 
         Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
-        generateDeploymentTopology(DeploymentTopology.generateId(topologyVersion.getArchiveId(), environmentId), environment, topology, deploymentTopology);
+        generateDeploymentTopology(DeploymentTopology.generateId(topologyVersion.getArchiveId(), environment.getId()), environment, topology,
+                deploymentTopology);
         return getDeploymentConfiguration(deploymentTopology);
+    }
+
+    /**
+     * Set the location policies of a deployment
+     *
+     * @param environmentId the environment's id
+     * @param groupsToLocations group to location mapping
+     * @return the updated deployment topology
+     */
+    public DeploymentConfiguration setLocationPolicies(String environmentId, String orchestratorId, Map<String, String> groupsToLocations) {
+        ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
+        return setLocationPolicies(environment, orchestratorId, groupsToLocations);
     }
 
     /**
@@ -618,6 +668,7 @@ public class DeploymentTopologyService {
                 .get(locationResourceTemplateId);
         if (template == null) {
             // not matching anymore
+            // WHY ACCESS DENIED
             throw new AccessDeniedException("The resource <" + locationResourceTemplateId + "> is not anymore a valid match");
         }
 

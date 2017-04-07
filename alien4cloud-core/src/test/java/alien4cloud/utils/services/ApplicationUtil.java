@@ -26,10 +26,9 @@ public class ApplicationUtil {
     private ArchiveParser parser;
 
     @SneakyThrows
-    public Topology parseYamlTopology(String topologyPath) throws IOException, ParsingException {
+    public ParsingResult<ArchiveRoot> parseYamlTopology(String topologyPath) throws IOException, ParsingException {
         Path zipPath = Files.createTempFile("csar", ".zip");
         FileUtil.zip(Paths.get(topologyPath + ".yml"), zipPath);
-        ParsingResult<ArchiveRoot> parsingResult = parser.parse(zipPath, AlienConstants.GLOBAL_WORKSPACE_ID);
-        return parsingResult.getResult().getTopology();
+        return parser.parse(zipPath, AlienConstants.GLOBAL_WORKSPACE_ID);
     }
 }

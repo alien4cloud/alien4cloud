@@ -5,12 +5,12 @@ define(function (require) {
   var _ = require('lodash');
 
   modules.get('a4c-topology-editor', ['pascalprecht.translate', 'toaster']).factory('topoEditDependencies',
-    ['$translate', 'toaster', '$alresource', 'searchServiceFactory', 
+    ['$translate', 'toaster', '$alresource', 'searchServiceFactory',
     function($translate, toaster, $alresource, searchServiceFactory) {
       var TopologyEditorMixin = function(scope) {
         var self = this;
         self.scope = scope;
-        self.scope.$on('topologyRefreshedEvent', function(event, param) {
+        self.scope.$on('topologyRefreshedEvent', function() {
           self.renderDependencyConflicts(scope.topology.dependencyConflicts);
         });
       };
@@ -28,7 +28,7 @@ define(function (require) {
 
         getVersionsForDependency: function(dependency) {
           var self = this;
-          dependenciesQueryProvider.filters = { "name": [dependency] };
+          dependenciesQueryProvider.filters = { name: [dependency] };
           dependenciesQueryProvider.onSearchCompleted = function (searchResult) {
             if (_.undefined(searchResult.error)) {
               self.scope.currentVersionCandidatesForDependency = [];

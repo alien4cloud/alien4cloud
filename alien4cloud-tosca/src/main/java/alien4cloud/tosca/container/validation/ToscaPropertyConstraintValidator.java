@@ -6,9 +6,9 @@ import javax.validation.ConstraintValidatorContext;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import alien4cloud.tosca.normative.IPropertyType;
-import alien4cloud.tosca.normative.ToscaType;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.normative.types.IPropertyType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 
 @Slf4j
 public class ToscaPropertyConstraintValidator implements ConstraintValidator<ToscaPropertyConstraint, PropertyDefinition> {
@@ -22,7 +22,7 @@ public class ToscaPropertyConstraintValidator implements ConstraintValidator<Tos
         if (value.getConstraints() == null) {
             return true;
         }
-        IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(value.getType());
+        IPropertyType<?> toscaType = ToscaTypes.fromYamlTypeName(value.getType());
         if (toscaType == null) {
             return false;
         }

@@ -1,0 +1,94 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: output_operation_test
+  template_version: 0.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Output operation test
+
+imports:
+    - tosca-normative-types:1.0.0-ALIEN12
+    - test-types:1.0-SNAPSHOT
+    - jdk-type:1.0.0-SNAPSHOT
+    - tomcat-war-types:2.0.0-SNAPSHOT
+
+topology_template:
+
+  node_templates:
+    comp_tomcat_war:
+      type: org.alien4cloud.test.BadTestCompute
+      properties:
+        os_type: linux
+        os_distribution: ubuntu
+        os_version: ubuntu
+        customHostName: testHostname
+    comp_getOpOutput:
+      type: org.alien4cloud.test.TestComputeWithGetOperationOutput
+      properties:
+        os_type: linux
+        os_distribution: ubuntu
+        os_version: ubuntu
+        customHostName: testHostname
+    java:
+      type: org.alien4cloud.nodes.JDK
+      properties:
+        java_url: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+        java_home: /opt/java
+      requirements:
+        - host:
+            node: comp_tomcat_war
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    tomcat:
+      type: org.alien4cloud.nodes.Tomcat
+      properties:
+        tomcat_home: "/opt/tomcat"
+        tomcat_port: "9999"
+        tomcat_url: "http://apache.crihan.fr/dist/tomcat/tomcat-8/v8.0.20/bin/apache-tomcat-8.0.20.tar.gz"
+        component_version: "7.0.0"
+      capabilities:
+        http_endpoint:
+          type: org.alien4cloud.capabilities.HttpEndpoint
+        war_host:
+          type: org.alien4cloud.capabilities.WarContainer
+          properties:
+            valid_node_types: org.alien4cloud.nodes.War
+      requirements:
+        - host:
+            node: java
+            capability: org.alien4cloud.capabilities.JDK
+            relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
+    war_1:
+      type: org.alien4cloud.nodes.War
+      properties:
+        context_path: war1
+      requirements:
+        - host:
+            node: tomcat
+            capability: org.alien4cloud.capabilities.WarContainer
+            relationship: org.alien4cloud.test.functions.relationships.WarHostedOnTomcat
+            properties:
+              relName: war_1_hostedOnTomcat_relname
+    war_2:
+      type: org.alien4cloud.nodes.War
+      properties:
+        context_path: war2
+      requirements:
+        - host:
+            node: tomcat
+            capability: org.alien4cloud.capabilities.WarContainer
+            relationship: org.alien4cloud.test.functions.relationships.WarHostedOnTomcat
+            properties:
+              relName: war_2_hostedOnTomcat_relname
+    complex_prop:
+      type: org.alien4cloud.nodes.test.ComplexProp
+      properties:
+        complex_prop:
+          nested: toto
+          nested_array: [ titi, tuctuc ]
+          nested_map:
+            toctoc: tactac
+            tutu: tata
+      requirements:
+        - host: comp_tomcat_war

@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
@@ -26,6 +27,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.it.Context;
+import alien4cloud.it.utils.RegisteredStringUtils;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
@@ -88,7 +90,7 @@ public class DeploymentTopologyStepDefinitions {
                 MapUtil.newHashMap(new String[] { AlienConstants.GROUP_ALL }, new String[] { locationName }));
     }
 
-    @When("^I get the deployment toology for the current application$")
+    @When("^I get the deployment topology for the current application$")
     public void I_get_the_deployment_toology_for_the_current_application() throws Throwable {
         Application application = Context.getInstance().getApplication();
         String environmentId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
@@ -97,20 +99,24 @@ public class DeploymentTopologyStepDefinitions {
         Context.getInstance().registerRestResponse(response);
     }
 
+    @When("^I get the deployment topology for the current application on the environment \"(.*?)\"$")
+    public void I_get_the_deployment_topology_for_the_current_application(String environment) throws Throwable {
+        Application application = Context.getInstance().getApplication();
+        String environmentId = Context.getInstance().getApplicationEnvironmentId(application.getName(), environment);
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/", application.getId(), environmentId);
+        String response = Context.getRestClientInstance().get(restUrl);
+        Context.getInstance().registerRestResponse(response);
+    }
+
     @When("^I substitute on the current application the node \"(.*?)\" with the location resource \"(.*?)\"/\"(.*?)\"/\"(.*?)\"$")
     public void I_substitute_on_the_current_application_the_node_with_the_location_resource(String nodeName, String orchestratorName, String locationName,
             String resourceName) throws Throwable {
+
         Context context = Context.getInstance();
-        Application application = context.getApplication();
-        String envId = context.getDefaultApplicationEnvironmentId(application.getName());
         String orchestratorId = context.getOrchestratorId(orchestratorName);
         String locationId = context.getLocationId(orchestratorId, locationName);
         String resourceId = context.getLocationResourceId(orchestratorId, locationId, resourceName);
-
-        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s", application.getId(), envId, nodeName);
-        NameValuePair resourceParam = new BasicNameValuePair("locationResourceTemplateId", resourceId);
-        String response = Context.getRestClientInstance().postUrlEncoded(restUrl, Lists.newArrayList(resourceParam));
-        context.registerRestResponse(response);
+        doSubstitution(nodeName, resourceId);
     }
 
     private DeploymentTopologyDTO getDTOAndassertNotNull() throws IOException {
@@ -120,7 +126,7 @@ public class DeploymentTopologyStepDefinitions {
         return dto;
     }
 
-    @Then("^The deployment topology sould have the substituted nodes$")
+    @Then("^The deployment topology should have the substituted nodes$")
     public void The_deployment_topology_sould_have_the_substituted_nodes(List<NodeSubstitutionSetting> expectedSubstitutionSettings) throws Throwable {
         DeploymentTopologyDTO dto = getDTOAndassertNotNull();
         Map<String, String> substitutions = dto.getTopology().getSubstitutedNodes();
@@ -182,8 +188,16 @@ public class DeploymentTopologyStepDefinitions {
     @When("^I set the following inputs properties$")
     public void I_set_the_following_inputs_properties(Map<String, Object> inputProperties) throws Throwable {
         UpdateDeploymentTopologyRequest request = new UpdateDeploymentTopologyRequest();
-        request.setInputProperties(inputProperties);
+        request.setInputProperties(parseAndReplaceProperties(inputProperties));
         executeUpdateDeploymentTopologyCall(request);
+    }
+
+    private Map<String, Object> parseAndReplaceProperties(Map<String, Object> inputProperties) {
+        Map<String, Object> result = Maps.newHashMap();
+        for (Entry<String, Object> entry : inputProperties.entrySet()) {
+            result.put(entry.getKey(), RegisteredStringUtils.parseAndReplace(entry.getValue()));
+        }
+        return result;
     }
 
     @When("^I set the following orchestrator properties$")
@@ -276,8 +290,7 @@ public class DeploymentTopologyStepDefinitions {
                 .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation();
         for (List<String> expectedRow : expectedInputArtifactsTable.raw()) {
             boolean missingFound = topologyValidationResult.getTaskList().stream()
-                    .filter(task -> task instanceof InputArtifactTask && ((InputArtifactTask) task).getInputArtifactName().equals(expectedRow.get(0)))
-                    .findFirst().isPresent();
+                    .anyMatch(task -> task instanceof InputArtifactTask && ((InputArtifactTask) task).getInputArtifactName().equals(expectedRow.get(0)));
             Assert.assertTrue(expectedRow.get(0) + " does not appear in the task list for the deployment topology", missingFound);
         }
     }
@@ -290,6 +303,52 @@ public class DeploymentTopologyStepDefinitions {
                 inputArtifactName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postMultipart(url, Paths.get(localFile).getFileName().toString(), Files.newInputStream(Paths.get(localFile))));
+    }
+
+    @When("^I substitute on the current application the node \"([^\"]*)\" with the service resource \"([^\"]*)\"$")
+    public void iSubstituteOnTheCurrentApplicationTheNodeWithTheServiceResource(String nodeName, String serviceName) throws Throwable {
+        String resourceId = Context.getInstance().getServiceId(serviceName);
+        doSubstitution(nodeName, resourceId);
+    }
+
+    public void doSubstitution(String nodeName, String resourceId) throws IOException {
+        Context context = Context.getInstance();
+        Application application = context.getApplication();
+        String envId = context.getDefaultApplicationEnvironmentId(application.getName());
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s", application.getId(), envId, nodeName);
+        NameValuePair resourceParam = new BasicNameValuePair("locationResourceTemplateId", resourceId);
+        String response = Context.getRestClientInstance().postUrlEncoded(restUrl, Lists.newArrayList(resourceParam));
+        context.registerRestResponse(response);
+    }
+
+    @Then("^the deployment topology should not have any location policies$")
+    public void theDeploymentTopologyShouldNotHaveAnyLocationPolicies() throws Throwable {
+        DeploymentTopologyDTO dto = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData();
+        assertNotNull(dto);
+        Assert.assertTrue(MapUtils.isEmpty(dto.getLocationPolicies()));
+    }
+
+    @Then("^the deployment topology should not have any input properties$")
+    public void theDeploymentTopologyShouldNotHaveAnyInputProperties() throws Throwable {
+        DeploymentTopologyDTO dto = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData();
+        assertNotNull(dto);
+        Assert.assertTrue(MapUtils.isEmpty(dto.getTopology().getInputProperties()));
+    }
+
+    @Then("^the deployment topology should not have any input artifacts$")
+    public void theDeploymentTopologyShouldNotHaveAnyInputArtifacts() throws Throwable {
+        DeploymentTopologyDTO dto = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData();
+        assertNotNull(dto);
+        Assert.assertTrue(MapUtils.isEmpty(dto.getTopology().getUploadedInputArtifacts()));
+    }
+
+    @Then("^the deployment topology should have the following inputs artifacts$")
+    public void theDeploymentTopologyShouldHaveTheFollowingInputsArtifacts(Map<String, String> expectedArtifacts) throws Throwable {
+        DeploymentTopologyDTO dto = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData();
+        assertNotNull(dto);
+        Map<String, String> uploadedArtifacts = dto.getTopology().getUploadedInputArtifacts().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getArtifactName()));
+        Assert.assertEquals(expectedArtifacts, uploadedArtifacts);
     }
 
     @Getter

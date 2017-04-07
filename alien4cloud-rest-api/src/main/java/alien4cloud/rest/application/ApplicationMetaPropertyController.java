@@ -21,8 +21,8 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 
 import io.swagger.annotations.Api;
 
@@ -42,8 +42,8 @@ public class ApplicationMetaPropertyController {
      * @param applicationId id of the application
      * @param propertyRequest property request
      * @return information on the constraint
-     * @throws alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException
-     * @throws alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException
+     * @throws ConstraintValueDoNotMatchPropertyTypeException
+     * @throws ConstraintViolationException
      */
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")

@@ -1,6 +1,6 @@
 package org.alien4cloud.tosca.editor.exception;
 
-import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
 import lombok.Getter;
 
 /**

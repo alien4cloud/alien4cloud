@@ -39,6 +39,7 @@ module.exports = {
 		}
 	},
   revrename: {
+    // Edit the requirejs config file to load the alien4cloud-bootstrap.js file after being renamed by rev
     call: function(grunt, options, async) {
       'use strict';
       var done = async();
@@ -46,33 +47,52 @@ module.exports = {
       var fs = require('fs');
       var path = require('path');
 
-      var dir = 'target/webapp/scripts';
-      fs.readdir(dir, function(err, files) {
+      fs.readdir('target/webapp/views', function(err, files) {
         if(err) {
           grunt.log.error(err);
           done(err);
         }
-        var requireFile, bootstrapFile;
+        var templateFile;
         files.forEach( function(file) {
-          if(file.indexOf('alien4cloud-bootstrap.js') !== -1) {
-            bootstrapFile = file;
-          }
-          if(file.indexOf('require.config.js') !== -1) {
-            requireFile = file;
+          if(file.indexOf('alien4cloud-templates.js') !== -1) {
+            templateFile = file;
           }
         });
 
-        var requireFilePath = path.join(dir, requireFile);
-        fs.readFile(requireFilePath, 'utf8', function (err, data) {
-          var result = data.replace('alien4cloud-bootstrap', bootstrapFile.substring(0, bootstrapFile.length-3));
+        var dir = 'target/webapp/scripts';
+        fs.readdir(dir, function(err, files) {
+          if(err) {
+            grunt.log.error(err);
+            done(err);
+          }
+          var requireFile, bootstrapFile, dependenciesFile;
+          files.forEach( function(file) {
+            if(file.indexOf('alien4cloud-bootstrap.js') !== -1) {
+              bootstrapFile = file;
+            }
+            if(file.indexOf('require.config.js') !== -1) {
+              requireFile = file;
+            }
+            if(file.indexOf('alien4cloud-dependencies.js') !== -1) {
+              dependenciesFile = file;
+            }
+          });
 
-          fs.writeFile(requireFilePath, result, 'utf8', function (err) {
-             if (err) {
-               grunt.log.error(err);
-               done(err);
-             } else {
-               done();
-             }
+          var requireFilePath = path.join(dir, requireFile);
+          fs.readFile(requireFilePath, 'utf8', function (err, data) {
+            var result = data.replace('alien4cloud-bootstrap', bootstrapFile.substring(0, bootstrapFile.length-3));
+            result = result.replace('alien4cloud-templates', templateFile.substring(0, templateFile.length-3));
+            result = result.replace('alien4cloud-dependencies', dependenciesFile.substring(0, dependenciesFile.length-3));
+
+
+            fs.writeFile(requireFilePath, result, 'utf8', function (err) {
+               if (err) {
+                 grunt.log.error(err);
+                 done(err);
+               } else {
+                 done();
+               }
+            });
           });
         });
       });

@@ -8,9 +8,11 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import alien4cloud.topology.TopologyUtils;
-import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintRequiredParameterException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.IValue;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
@@ -55,12 +57,10 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintRequiredParameterException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -79,8 +79,6 @@ public class RuntimeController {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
-    @Resource
-    private ConstraintPropertyService constraintPropertyService;
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
     @Inject
@@ -207,7 +205,7 @@ public class RuntimeController {
                     PropertyDefinition currentOperationParameter = (PropertyDefinition) inputParameter.getValue();
                     if (StringUtils.isNotBlank(requestInputParameter)) {
                         // recover the good property definition for the current parameter
-                        constraintPropertyService.checkSimplePropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
+                        ConstraintPropertyService.checkSimplePropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
                     } else if (currentOperationParameter.isRequired()) {
                         // input param not in the request, id required this is a missing parameter...
                         missingParams.add(inputParameter.getKey());

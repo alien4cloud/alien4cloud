@@ -1,6 +1,6 @@
 package alien4cloud.paas.function;
 
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 
 /**
  * Exception thrown when using a {@link ToscaFunctionConstants} keyword in a bad way.

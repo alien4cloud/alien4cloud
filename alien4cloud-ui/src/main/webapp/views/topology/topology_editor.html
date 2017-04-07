@@ -305,8 +305,9 @@
                     <td>
                       <property-display
                         ng-init="condensed = true"
-                        dependencies="topology.topology.dependencies"
                         definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                        property-type="topology.dataTypes[properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key).type]"
+                        dependencies="topology.topology.dependencies"
                         property-name="propertyEntry.key"
                         property-value="propertyEntry.value"
                         on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"

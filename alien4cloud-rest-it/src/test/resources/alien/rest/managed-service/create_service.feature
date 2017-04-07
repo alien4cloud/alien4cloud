@@ -16,7 +16,7 @@ Feature: Create a service resource from an environment
 
     And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
 
-    And I create a resource of type "alien.nodes.mock.Compute" named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.Compute" named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "imageId" to "img1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "flavorId" to "1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
 
@@ -28,7 +28,7 @@ Feature: Create a service resource from an environment
 
     And I execute the operation
       | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId | tosca.nodes.WebApplication                                                        |
+      | elementId | org.alien4cloud.nodes.test.WebApplication                                         |
     And I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
       | nodeTemplateName         | WebApplication                                                                              |

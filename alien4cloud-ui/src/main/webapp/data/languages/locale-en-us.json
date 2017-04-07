@@ -1,4 +1,11 @@
 {
+  "SERVICE":{
+    "RELATIONSHIP" : {
+      "LABEL" : "Relationship type",
+      "CAPABILITY_DESCRIPTION" : "Relationship type used to define operations that run on the service side.",
+      "REQUIREMENT_DESCRIPTION" : "Relationship type used to define operations that run on the service side."
+    }
+  },
   "APPLICATIONS": {
     "APPLICATION": "Application",
     "APPLICATION_ROLES": "Application roles",
@@ -6,6 +13,14 @@
     "ARCHIVE_NAME_HELP": "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
     "AUTHORIZED": "application authorized",
     "DEPLOY": "Deploy",
+    "DEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Are you sure you want to deploy the {{application}} application with {{type}} type and {{version}} version with the following matching:",
+        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
+      },
+      "TITLE": "Deployment informations"
+    },
+    "UPDATE_DEPLOYMENT" : "Update",
     "DEPLOYMENT": {
       "DEPLOY": "Deploy",
       "INPUT": "Input",
@@ -36,11 +51,15 @@
       "ALL": "All Environment",
       "ENV": "Environment",
       "ENV_ROLES": "Environment roles",
+      "SELECT_INPUT_CANDIDATE": "Select environment to copy inputs",
       "FORM": {
         "ENV_TYPE": "Environment type",
         "ENV_TYPE_SELECT": "-- Select the environment type --",
         "ENV_VERSION": "Application version",
-        "ENV_VERSION_SELECT": "-- Select the application version --"
+        "ENV_VERSION_SELECT": "-- Select the application version --",
+        "ENV_INPUT_CANDIDATE_LABEL": "Inputs",
+        "ENV_INPUT_CANDIDATE_SELECT": "-- Select the environment to copy inputs --",
+        "DONT_COPY_INPUT": "-- Don't copy inputs --"
       },
       "NEW": "New environment",
       "STATUS": "Status"
@@ -259,6 +278,13 @@
           "GROUP": "Group",
           "LABEL": "Invalid HA policy"
         },
+        "ILLEGAL_OPERATIONS": {
+          "OPERATION": "Operation",
+          "SERVICE": "Service",
+          "LABEL": "Ignored operations",
+          "RELATIONSHIP_TYPE": "Relationship type",
+          "LABEL_DETAILS": "Not all relationship operations are allowed when involving a service. Client cannot modify a service configuration on its own and vice and versa."
+        },
         "LABEL": "Warnings",
         "PROPERTIES": {
           "LABEL": "Nodes properties"
@@ -267,6 +293,13 @@
       "YAML": "yaml"
     },
     "UNDEPLOY": "Undeploy",
+    "UNDEPLOY_MODAL": {
+      "CONTENT": {
+        "HEADER" : "Are you sure you want to uninstall the {{application}} application in {{version}} version?",
+        "FOOTER": "The following node(s) will be deleted:"
+      },
+      "TITLE": "Uninstall reminder"
+    },
     "VERSION": {
       "LABEL": "Application version",
       "MODAL": {
@@ -405,6 +438,7 @@
     "ADD": "Add",
     "ATTRIBUTES": "Attributes",
     "AUTHOR": "Author",
+    "AUTHORIZED": "Authorized",
     "CAPABILITIES": "Capabilities",
     "DATA": "Data",
     "DATE": "Date",
@@ -423,6 +457,7 @@
     "NO": "No",
     "NODE": "Node",
     "PROPERTIES": "Properties",
+    "RESOURCES": "Resources",
     "SOURCE": "Source",
     "STATE": "State",
     "TARGET": "Target",
@@ -537,7 +572,8 @@
       "WORKFLOW_HAS_ERRORS": "Workflow [{{note}}] is not valid",
       "YAML_MAPPING_NODE_EXPECTED": "A mapping node is expected.",
       "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here.",
-      "YAML_SEQUENCE_EXPECTED": "A YAML sequence is expected."
+      "YAML_SEQUENCE_EXPECTED": "A YAML sequence is expected.",
+      "CSAR_IMPORT_ITSELF": "An archive is not allowed to import itself."
     },
     "VALIDSOURCES": "Valid sources",
     "WORKSPACE": "Workspaces"
@@ -572,8 +608,8 @@
     "ACTIONS": "Operations",
     "ARCHIVE": "Archive's folder",
     "ARCHIVE_TO_IMPORT": "Archive(s) to import",
-    "BRANCH": "Branch",
-    "BRANCHE_TO_IMPORT": "On branch",
+    "BRANCH_OR_TAG": "Branch or Tag",
+    "BRANCH_OR_TAG_TO_IMPORT": "On Branch or Tag",
     "CREDENTIALS": "Credentials",
     "CREDENTIALSINFO": "Mandatory for private repositories only",
     "DELETE": "Deleted",
@@ -624,6 +660,10 @@
       "DEPLOYMENT_IN_PROGRESS": "Deployment in progress",
       "FAILURE": "Failed",
       "INIT_DEPLOYMENT": "Deployment init",
+      "UPDATE_DEPLOYMENT": "Deployment update",
+      "UPDATE_IN_PROGRESS" : "Deployment update in progess",
+      "UPDATE_FAILURE" : "Update failed",
+      "UPDATED" : "Updated",
       "UNDEPLOYED": "Undeployed",
       "UNDEPLOYMENT_IN_PROGRESS": "Undeployment in progress",
       "UNKNOWN": "Unknown",
@@ -631,7 +671,8 @@
     },
     "TOASTER_STATUS": {
       "DEPLOYED": "The environment < {{envName}} > of application < {{appName}} > is deployed.",
-      "FAILURE": "A failure has occurred during the deployment of the environment < {{envName}} > of application < {{appName}} >. See logs deployment for more informations."
+      "FAILURE": "A failure has occurred during the deployment of the environment < {{envName}} > of application < {{appName}} >. See logs deployment for more informations.",
+      "UPDATE_FAILURE" : "A failure has occurred during the deployment update for the environment < {{envName}} > and application < {{appName}} >. See logs deployment for more informations."
     }
   },
   "DETAILS": "Details",
@@ -699,7 +740,7 @@
     "UNDO": "Undo",
     "VALIDATION": {
       "CURRENT_TOPOLOGY": "Current topology",
-      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology haven't changed.",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology hasn't changed.",
       "LAST_SAVED_TOPOLOGY": "Last saved topology"
     }
   },
@@ -893,6 +934,7 @@
   "OK": "OK",
   "OPTIONAL": "Optional",
   "ORCHESTRATORS": {
+    "ORCHESTRATOR": "Orchestrator",
     "ARTIFACTS": {
       "MANAGED": "Managed Artifacts"
     },
@@ -902,6 +944,7 @@
       "UNLOCK-BTN-TITLE": "Unlock"
     },
     "LOCATIONS": {
+      "LOCATION": "Location",
       "AUTHORIZATIONS": {
         "APPS": {
           "ADD": "Authorize applications",
@@ -979,7 +1022,7 @@
   "PAGINATION": {
     "OVERFLOW": "The number of results exceeds the maximum number supported by Alien4Cloud, please use the search box."
   },
-  "PLACE_HOLDER_NO": "No ",
+  "NO_DATA_AVAILABLE": "No data available.",
   "PLUGINS": {
     "BEANS": "Components",
     "CONFIGURE": "Configure",
@@ -1029,6 +1072,7 @@
       "TITLE": "New service"
     },
     "MANAGED": {
+      "NAME": "Managed service",
       "TITLE": "Service management",
       "NO_SUBSTITUTION_MESSAGE": "The topology must define a substitution type for it to be exposed as a service.",
       "CREATE": {

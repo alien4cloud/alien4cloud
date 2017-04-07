@@ -15,7 +15,7 @@ import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
 import alien4cloud.model.orchestrators.ArtifactSupport;
 import alien4cloud.model.orchestrators.locations.LocationSupport;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
-import alien4cloud.tosca.normative.ToscaType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -68,7 +68,7 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
 
         // Field 1 : managerUrl as string
         PropertyDefinition managerUrl = new PropertyDefinition();
-        managerUrl.setType(ToscaType.STRING.toString());
+        managerUrl.setType(ToscaTypes.STRING.toString());
         managerUrl.setRequired(true);
         managerUrl.setDescription("PaaS manager URL");
         managerUrl.setConstraints(null);
@@ -78,7 +78,7 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
 
         // Field 2 : number backup with constraint
         PropertyDefinition numberBackup = new PropertyDefinition();
-        numberBackup.setType(ToscaType.INTEGER.toString());
+        numberBackup.setType(ToscaTypes.INTEGER.toString());
         numberBackup.setRequired(true);
         numberBackup.setDescription("Number of backup");
         numberBackup.setConstraints(null);
@@ -88,7 +88,7 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
 
         // Field 3 : email manager
         PropertyDefinition managerEmail = new PropertyDefinition();
-        managerEmail.setType(ToscaType.STRING.toString());
+        managerEmail.setType(ToscaTypes.STRING.toString());
         managerEmail.setRequired(true);
         managerEmail.setDescription("PaaS manager email");
         managerEmail.setConstraints(null);

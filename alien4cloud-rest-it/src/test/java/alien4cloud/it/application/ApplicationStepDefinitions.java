@@ -2,6 +2,7 @@ package alien4cloud.it.application;
 
 import static alien4cloud.it.Context.getInstance;
 import static alien4cloud.it.Context.getRestClientInstance;
+import static alien4cloud.it.utils.TestUtils.nullAsString;
 import static alien4cloud.it.utils.TestUtils.nullable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -512,10 +513,9 @@ public class ApplicationStepDefinitions {
         Assert.assertEquals(fieldValue, ReflectionUtil.getPropertyValue(application, fieldName).toString());
     }
 
-    @When("^I create an application environment of type \"([^\"]*)\" with name \"([^\"]*)\" and description \"([^\"]*)\" for the newly created application$")
-    public void I_create_an_application_environment_of_type_with_name_and_description_for_the_newly_created_application(String appEnvType, String appEnvName,
-            String appEnvDescription) throws Throwable {
-        Assert.assertNotNull(CURRENT_APPLICATION.getId());
+    @Given("^I create an application environment of type \"([^\"]*)\" with name \"([^\"]*)\", with inputs from environment \"([^\"]*)\" and description \"([^\"]*)\" for the newly created application$")
+    public void iCreateAnApplicationEnvironmentOfTypeWithNameWithInputsFromEnvironmentAndDescriptionForTheNewlyCreatedApplication(String appEnvType,
+            String appEnvName, String copyInputsFrom, String appEnvDescription) throws Throwable {
         Assert.assertTrue(EnvironmentType.valueOf(appEnvType).toString().equals(appEnvType));
         Assert.assertNotNull(appEnvName);
 
@@ -524,12 +524,24 @@ public class ApplicationStepDefinitions {
         appEnvRequest.setName(appEnvName);
         appEnvRequest.setDescription(appEnvDescription);
         appEnvRequest.setVersionId("0.1.0-SNAPSHOT");
-        Context.getInstance().registerRestResponse(
-                getRestClientInstance().postJSon("/rest/v1/applications/" + CURRENT_APPLICATION.getId() + "/environments", JsonUtil.toString(appEnvRequest)));
+        if (CURRENT_APPLICATION != null) {
+            appEnvRequest.setInputCandidate(Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), copyInputsFrom));
+        }
+        Context.getInstance()
+                .registerRestResponse(getRestClientInstance().postJSon(
+                        "/rest/v1/applications/" + nullAsString(CURRENT_APPLICATION == null ? null : CURRENT_APPLICATION.getId()) + "/environments",
+                        JsonUtil.toString(appEnvRequest)));
         RestResponse<String> appEnvId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
-        if (appEnvId.getData() != null) {
+        if (appEnvId.getError() == null && appEnvId.getData() != null) {
             Context.getInstance().registerApplicationEnvironmentId(CURRENT_APPLICATION.getName(), appEnvName, appEnvId.getData());
         }
+    }
+
+    @When("^I create an application environment of type \"([^\"]*)\" with name \"([^\"]*)\" and description \"([^\"]*)\" for the newly created application$")
+    public void I_create_an_application_environment_of_type_with_name_and_description_for_the_newly_created_application(String appEnvType, String appEnvName,
+            String appEnvDescription) throws Throwable {
+        iCreateAnApplicationEnvironmentOfTypeWithNameWithInputsFromEnvironmentAndDescriptionForTheNewlyCreatedApplication(appEnvType, appEnvName, null,
+                appEnvDescription);
     }
 
     @When("^I get the application environment named \"([^\"]*)\"$")
@@ -560,17 +572,21 @@ public class ApplicationStepDefinitions {
             case "environmentType":
                 appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(attributeValue));
                 break;
+            case "currentVersionId":
+                appEnvRequest.setCurrentVersionId(attributeValue);
+                break;
             default:
                 log.info("Attribute <{}> not found in ApplicationEnvironmentRequest object", attribute);
                 break;
             }
         }
+        String environmentId = Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), applicationEnvironmentName);
         // send the update request
-        Context.getInstance()
-                .registerRestResponse(getRestClientInstance().putJSon(
-                        "/rest/v1/applications/" + CURRENT_APPLICATION.getId() + "/environments/"
-                                + Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), applicationEnvironmentName),
-                        JsonUtil.toString(appEnvRequest)));
+        Context.getInstance().registerRestResponse(getRestClientInstance()
+                .putJSon("/rest/v1/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + environmentId, JsonUtil.toString(appEnvRequest)));
+        if (StringUtils.isNotBlank(appEnvRequest.getName())) {
+            Context.getInstance().registerApplicationEnvironmentId(CURRENT_APPLICATION.getId(), appEnvRequest.getName(), environmentId);
+        }
     }
 
     @When("^I update the environment named \"([^\"]*)\" to use cloud \"([^\"]*)\" for application \"([^\"]*)\"$")

@@ -6,8 +6,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.json.deserializer.NodeTemplateDeserializer;
-import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
@@ -29,6 +27,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.json.deserializer.NodeTemplateDeserializer;
 import alien4cloud.model.common.IDatableResource;
 import alien4cloud.model.common.IWorkspaceResource;
 import alien4cloud.paas.wf.Workflow;

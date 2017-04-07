@@ -2,34 +2,41 @@ package alien4cloud.service;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
+import static alien4cloud.utils.AlienUtils.safe;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.service.ServiceResource;
@@ -37,9 +44,8 @@ import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.PatchUtil;
 import alien4cloud.service.events.ServiceChangedEvent;
+import alien4cloud.service.exceptions.IncompatibleHalfRelationshipException;
 import alien4cloud.service.exceptions.ServiceUsageException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
@@ -57,6 +63,8 @@ public class ServiceResourceService {
     private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
     private ApplicationEventPublisher publisher;
+    @Inject
+    private ApplicationEnvironmentService environmentService;
 
     /**
      * Creates a service.
@@ -171,8 +179,10 @@ public class ServiceResourceService {
      */
     public void update(String resourceId, String name, String version, String description, String nodeType, String nodeTypeVersion,
             Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues,
-            String[] locations) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
-        update(resourceId, name, version, description, nodeType, nodeTypeVersion, nodeProperties, nodeCapabilities, nodeAttributeValues, locations, false);
+            String[] locations, Map<String, String> capabilitiesRelationshipTypes, Map<String, String> requirementsRelationshipTypes)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        update(resourceId, name, version, description, nodeType, nodeTypeVersion, nodeProperties, nodeCapabilities, nodeAttributeValues, locations,
+                capabilitiesRelationshipTypes, requirementsRelationshipTypes, false);
     }
 
     /**
@@ -188,18 +198,23 @@ public class ServiceResourceService {
      * @param nodeCapabilities The new capabilies properties of the service resource.
      * @param nodeAttributeValues The new attributes of the service resource.
      * @param locations The new location for the service resource.
+     * @param capabilitiesRelationshipTypes The new half relationships attached to a capacity for the service resource
+     * @param requirementsRelationshipTypes The new half relationships attached to a requirement for the service resource
      */
     public void patch(String resourceId, String name, String version, String description, String nodeType, String nodeTypeVersion,
             Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues,
-            String[] locations) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
-        update(resourceId, name, version, description, nodeType, nodeTypeVersion, nodeProperties, nodeCapabilities, nodeAttributeValues, locations, true);
+            String[] locations, Map<String, String> capabilitiesRelationshipTypes, Map<String, String> requirementsRelationshipTypes)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        update(resourceId, name, version, description, nodeType, nodeTypeVersion, nodeProperties, nodeCapabilities, nodeAttributeValues, locations,
+                capabilitiesRelationshipTypes, requirementsRelationshipTypes, true);
     }
 
     private void update(String resourceId, String name, String version, String description, String nodeTypeStr, String nodeTypeVersion,
             Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues,
-            String[] locations, boolean patch) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+            String[] locations, Map<String, String> capabilitiesRelationshipTypes, Map<String, String> requirementsRelationshipTypes, boolean patch)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         ServiceResource serviceResource = getOrFail(resourceId);
-        failUpdateIfManaged(serviceResource);
+        failUpdateIfManaged(serviceResource, patch, name, version, nodeTypeStr, nodeTypeVersion, nodeProperties, nodeCapabilities, nodeAttributeValues);
 
         boolean ensureUniqueness = false;
 
@@ -223,17 +238,30 @@ public class ServiceResourceService {
             // Update operation is not allowed for running services.
             // Patch operation is allowed only on the service description or locations authorized for matching.
             if (!patch || name != null || version != null || nodeTypeStr != null || nodeTypeVersion != null || nodeProperties != null
-                    || nodeCapabilities != null || nodeAttributeValues != null) {
-                throw new AuthorizationServiceException(
+                    || nodeCapabilities != null || nodeAttributeValues != null || capabilitiesRelationshipTypes != null
+                    || requirementsRelationshipTypes != null) {
+                throw new UnsupportedOperationException(
                         "Update is not allowed on a running service, please use patch if you wish to change locations or authorizations.");
             }
         } else {
             ensureUniqueness = PatchUtil.set(serviceResource, "name", name, patch);
             ensureUniqueness = PatchUtil.set(serviceResource, "version", version, patch) || ensureUniqueness;
 
+            // Node instance properties update
+            nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
+                    serviceResource.getNodeInstance().getTypeVersion());
+
             // node instance type update
             PatchUtil.set(serviceResource.getNodeInstance().getNodeTemplate(), "type", nodeTypeStr, patch);
             PatchUtil.set(serviceResource.getNodeInstance(), "typeVersion", nodeTypeVersion, patch);
+
+            // update half-relationship type
+            serviceResource.setCapabilitiesRelationshipTypes(
+                    PatchUtil.setMap(serviceResource.getCapabilitiesRelationshipTypes(), capabilitiesRelationshipTypes, patch));
+            serviceResource.setRequirementsRelationshipTypes(
+                    PatchUtil.setMap(serviceResource.getRequirementsRelationshipTypes(), requirementsRelationshipTypes, patch));
+            // validate the half-relationship types exist
+            validateRelationshipTypes(serviceResource, nodeType);
 
             // Node instance properties update
             nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
@@ -266,6 +294,40 @@ public class ServiceResourceService {
         save(serviceResource, ensureUniqueness);
     }
 
+    private void validateRelationshipTypes(ServiceResource serviceResource, final NodeType nodeType) {
+        safe(serviceResource.getCapabilitiesRelationshipTypes()).forEach((capabilityName,relationshipTypeId) -> {
+            RelationshipType relationshipType = toscaTypeSearchService.findByIdOrFail(RelationshipType.class, relationshipTypeId);
+            String[] validTargets = relationshipType.getValidTargets();
+            if(ArrayUtils.isNotEmpty(validTargets)){
+                CapabilityDefinition capabilityDefinition = nodeType.getCapabilities().stream().filter(c -> c.getId().equals(capabilityName)).findFirst().get();
+
+                Csar csar = toscaTypeSearchService.getArchive(nodeType.getArchiveName(), nodeType.getArchiveVersion());
+                Set<CSARDependency> allDependencies = new HashSet<>(safe(csar.getDependencies()));
+                allDependencies.add(new CSARDependency(csar.getName(), csar.getVersion(), csar.getHash()));
+                CapabilityType capabilityType = toscaTypeSearchService.getElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), allDependencies);
+                Set<String> allAcceptedTypes = new HashSet<>();
+                allAcceptedTypes.addAll(capabilityType.getDerivedFrom());
+                allAcceptedTypes.add(capabilityType.getElementId());
+
+                boolean isValid = false;
+                for(String validTarget : validTargets){
+                    if(allAcceptedTypes.contains(validTarget)){
+                        isValid = true;
+                        break;
+                    }
+                }
+
+                if(!isValid){
+                    throw new IncompatibleHalfRelationshipException("["+relationshipType.getId() + "] is not compatible with ["+capabilityType.getId() + "]");
+                }
+            }
+        });
+
+        safe(serviceResource.getRequirementsRelationshipTypes()).forEach((k,v) -> {
+            toscaTypeSearchService.findByIdOrFail(RelationshipType.class, v);
+        });
+    }
+
     private void updateLocations(ServiceResource serviceResource, String[] locations) {
         if (locations == null) {
             return;
@@ -282,9 +344,16 @@ public class ServiceResourceService {
         serviceResource.setLocationIds(newLocations.toArray(new String[newLocations.size()]));
     }
 
-    private void failUpdateIfManaged(ServiceResource serviceResource) {
+    private void failUpdateIfManaged(ServiceResource serviceResource, boolean patch, String name, String version, String nodeTypeStr, String nodeTypeVersion,
+            Map<String, AbstractPropertyValue> nodeProperties, Map<String, Capability> nodeCapabilities, Map<String, String> nodeAttributeValues) {
+        // Update operation is not allowed for managed services.
+        // Patch operation is allowed only on the service description or locations authorized for matching.
         if (serviceResource.getEnvironmentId() != null) {
-            throw new UnsupportedOperationException("Alien managed services cannot be updated via Service API.");
+            if (!patch || name != null || version != null || nodeTypeStr != null || nodeTypeVersion != null || nodeProperties != null
+                    || nodeCapabilities != null || nodeAttributeValues != null) {
+                throw new UnsupportedOperationException(
+                        "Alien managed services cannot be updated via Service API. Please use patch if you wish to change locations or authorizations.");
+            }
         }
     }
 
@@ -328,8 +397,16 @@ public class ServiceResourceService {
     private void failIdUsed(String id) {
         GetMultipleDataResult<Deployment> usageResult = usage(id);
         if (usageResult.getTotalResults() > 0) {
-            throw new ServiceUsageException("Used services cannot be updated or deleted.", usageResult.getData());
+            throw new ServiceUsageException("Used services cannot be updated or deleted.", buildServiceUsage(usageResult.getData()));
         }
+    }
+
+    private Usage[] buildServiceUsage(Deployment[] data) {
+        return Arrays.stream(data).map(deployment -> {
+            ApplicationEnvironment environment = environmentService.getOrFail(deployment.getEnvironmentId());
+            String usageName = "App (" + deployment.getSourceName() + "), Env (" + environment.getName() + ")";
+            return new Usage(usageName, "Deployment", deployment.getId(), null);
+        }).toArray(Usage[]::new);
     }
 
     /**

@@ -101,6 +101,19 @@ public class ApplicationsDeploymentStepDefinitions {
                 failsafe);
     }
 
+    private void doUpdateDeployement(String applicationName, String environmentName) throws Throwable {
+        String applicationId = Context.getInstance().getApplicationId(applicationName);
+        String envId = environmentName == null ? Context.getInstance().getDefaultApplicationEnvironmentId(applicationName)
+                : Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName);
+        String updateRequest = "/rest/v1/applications/" + applicationId + "/environments/" + envId + "/update-deployment";
+        Context.getRestClientInstance().post(updateRequest);
+    }
+
+    @Given("^I update the deployment$")
+    public void i_update_the_deployment() throws Throwable {
+        doUpdateDeployement(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
+    }
+
     public void I_undeploy_it(Application application, boolean failsafe) throws Throwable {
         doUndeployApplication(application.getName(), null, failsafe);
     }
@@ -571,6 +584,21 @@ public class ApplicationsDeploymentStepDefinitions {
         // null value for environmentName => use default environment
         assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED,
                 Sets.newHashSet(DeploymentStatus.INIT_DEPLOYMENT, DeploymentStatus.DEPLOYMENT_IN_PROGRESS), numberOfMinutes * 60L * 1000L, null, true);
+    }
+
+    @And("^The deployment update should succeed after (\\d+) minutes$")
+    public void The_deployment_update_should_succeed_after_minutes(long numberOfMinutes) throws Throwable {
+        // null value for environmentName => use default environment
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.UPDATED,
+                Sets.newHashSet(DeploymentStatus.UPDATE_IN_PROGRESS), numberOfMinutes * 60L * 1000L, null, true);
+    }
+
+    @And("^The deployment update should fail$")
+    public void The_deployment_update_should_fail() throws Throwable {
+        // null value for environmentName => use default environment
+        // FIXME: for the moment when the update fails, the status of the deployment is DEPLOYED !!
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED,
+                Sets.newHashSet(DeploymentStatus.UPDATE_IN_PROGRESS, DeploymentStatus.UPDATE_FAILURE), 1 * 60L * 1000L, null, true);
     }
 
     @Then("^all nodes instances must be in \"([^\"]*)\" state after (\\d+) minutes$")

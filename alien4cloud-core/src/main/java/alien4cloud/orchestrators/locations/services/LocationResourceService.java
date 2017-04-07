@@ -5,7 +5,9 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
+import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
@@ -21,6 +23,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,6 +38,7 @@ import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import alien4cloud.model.orchestrators.locations.LocationResources;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
@@ -43,12 +47,10 @@ import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.PropertyService;
-import org.springframework.util.StringUtils;
 
 /**
  * Location Resource Service provides utilities to query LocationResourceTemplate.
@@ -71,6 +73,10 @@ public class LocationResourceService implements ILocationResourceService {
     private PropertyService propertyService;
     @Inject
     private ApplicationContext applicationContext;
+    @Resource
+    private ICsarDependencyLoader csarDependencyLoader;
+    @Inject
+    private PluginArchiveIndexer pluginArchiveIndexer;
 
     /*
      * (non-Javadoc)
@@ -88,7 +94,8 @@ public class LocationResourceService implements ILocationResourceService {
         // Also get resource templates from outside of the orchestrator definition - eg custom resources
         List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
         LocationResources locationResources = new LocationResources(getLocationResourceTypes(locationResourceTemplates));
-        /* If the orchestrator is present, take node types computed from the resources template
+        /*
+         * If the orchestrator is present, take node types computed from the resources template
          * as "Custom resources types". If not, consider this is an orchestrator-free location.
          */
         locationResourcesFromOrchestrator.ifPresent(orchestratorResources -> {
@@ -167,8 +174,8 @@ public class LocationResourceService implements ILocationResourceService {
 
             if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
                 for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
-                    locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(), csarRepoSearchService
-                            .getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies));
+                    locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(),
+                            csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies));
                 }
             }
         }
@@ -279,8 +286,7 @@ public class LocationResourceService implements ILocationResourceService {
 
     private LocationResourceTemplate addResourceTemplate(Location location, String resourceName, String resourceTypeName) {
         LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
-        NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName,
-                location.getDependencies());
+        NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName, location.getDependencies());
 
         NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(location.getDependencies(), resourceType, null);
         // FIXME Workaround to remove default scalable properties from compute
@@ -311,7 +317,8 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#addResourceTemplate(java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public LocationResourceTemplateWithDependencies addResourceTemplateFromArchive(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion) {
+    public LocationResourceTemplateWithDependencies addResourceTemplateFromArchive(String locationId, String resourceName, String resourceTypeName,
+            String archiveName, String archiveVersion) {
         Location location = locationService.getOrFail(locationId);
 
         // If an archive is specified, update the location dependencies accordingly. Dependencies are in a Set so there is no duplication issue.
@@ -324,7 +331,8 @@ public class LocationResourceService implements ILocationResourceService {
         }
 
         // Return a wrapper object with the template and location dependencies
-        return new LocationResourceTemplateWithDependencies(this.addResourceTemplate(location, resourceName, resourceTypeName), Sets.newHashSet(location.getDependencies()));
+        return new LocationResourceTemplateWithDependencies(this.addResourceTemplate(location, resourceName, resourceTypeName),
+                Sets.newHashSet(location.getDependencies()));
 
     }
 
@@ -338,6 +346,7 @@ public class LocationResourceService implements ILocationResourceService {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         alienDAO.delete(LocationResourceTemplate.class, resourceId);
+        refreshDependencies(location);
         alienDAO.save(location);
     }
 
@@ -380,7 +389,7 @@ public class LocationResourceService implements ILocationResourceService {
         NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTemplate.getTemplate().getType(),
                 location.getDependencies());
         if (resourceType.getProperties() == null || !resourceType.getProperties().containsKey(propertyName)) {
-            throw new NotFoundException("Property <" + propertyName + "> is not found in type <" + resourceType.getElementId() + ">");
+            throw new NotFoundException("Property [" + propertyName + "] is not found in type [" + resourceType.getElementId() + "]");
         }
         propertyService.setPropertyValue(location.getDependencies(), resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName),
                 propertyName, propertyValue);
@@ -401,8 +410,8 @@ public class LocationResourceService implements ILocationResourceService {
                 location.getDependencies());
         Capability capability = getOrFailCapability(resourceTemplate.getTemplate(), capabilityName);
         CapabilityDefinition capabilityDefinition = getOrFailCapabilityDefinition(resourceType, capabilityName);
-        CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class,
-                capabilityDefinition.getType(), location.getDependencies());
+        CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(),
+                location.getDependencies());
         PropertyDefinition propertyDefinition = getOrFailCapabilityPropertyDefinition(capabilityType, propertyName);
         propertyService.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
     }
@@ -412,7 +421,7 @@ public class LocationResourceService implements ILocationResourceService {
         if (capability != null) {
             return capability;
         }
-        throw new NotFoundException("Capability <" + capabilityName + "> not found in template.");
+        throw new NotFoundException("Capability [" + capabilityName + "] not found in template.");
     }
 
     private PropertyDefinition getOrFailCapabilityPropertyDefinition(CapabilityType capabilityType, String propertyName) {
@@ -420,7 +429,7 @@ public class LocationResourceService implements ILocationResourceService {
         if (propertyDefinition != null) {
             return propertyDefinition;
         }
-        throw new NotFoundException("Property <" + propertyName + "> not found in capability type <" + capabilityType.getElementId() + ">");
+        throw new NotFoundException("Property [" + propertyName + "] not found in capability type [" + capabilityType.getElementId() + "]");
     }
 
     private CapabilityDefinition getOrFailCapabilityDefinition(NodeType resourceType, String capabilityName) {
@@ -428,7 +437,7 @@ public class LocationResourceService implements ILocationResourceService {
         if (capabilityDefinition != null) {
             return capabilityDefinition;
         }
-        throw new NotFoundException("Capability <" + capabilityName + "> not found in type <" + resourceType.getElementId() + ">");
+        throw new NotFoundException("Capability [" + capabilityName + "] not found in type [" + resourceType.getElementId() + "]");
     }
 
     /*
@@ -451,7 +460,7 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#autoConfigureResources(java.lang.String)
      */
     @Override
-    public List<LocationResourceTemplate> autoConfigureResources(String locationId) {
+    public List<LocationResourceTemplate> autoConfigureResources(String locationId) throws UnsupportedOperationException {
         return locationService.autoConfigure(locationId);
     }
 
@@ -494,4 +503,19 @@ public class LocationResourceService implements ILocationResourceService {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         saveResource(location, resourceTemplate);
     }
+
+    private void refreshDependencies(Location location) {
+        ToscaTypeLoader toscaTypeLoader = new ToscaTypeLoader(csarDependencyLoader);
+        List<LocationResourceTemplate> resources = getResourcesTemplates(location.getId());
+        for (LocationResourceTemplate resource : resources) {
+            String type = resource.getTemplate().getType();
+            NodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, type, location.getDependencies());
+            toscaTypeLoader.loadType(resource.getTemplate().getType(),
+                    csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
+        }
+        location.setDependencies(toscaTypeLoader.getLoadedDependencies());
+        // ALWAYS add native dependencies
+        location.getDependencies().addAll(pluginArchiveIndexer.getNativeDependencies(orchestratorService.getOrFail(location.getOrchestratorId()), location));
+    }
+
 }

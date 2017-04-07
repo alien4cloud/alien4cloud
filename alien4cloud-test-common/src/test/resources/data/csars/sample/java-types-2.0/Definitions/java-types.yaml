@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
 
 description: >
   Alien 4 Cloud test types: Dummy definitions of java related types.
@@ -17,7 +17,7 @@ node_types:
         type: version
     artifacts:
       - war:
-        type: tosca.artifacts.WarFile
+          type: tosca.artifacts.WarFile
 
   fastconnect.nodes.Java:
     abstract: true
@@ -45,7 +45,7 @@ node_types:
     capabilities:
       java:
         type: tosca.capabilities.Java
-        upper_bound: unbounded
+        occurrences: [0, unbounded]
 
   fastconnect.nodes.JavaRPM:
     derived_from: fastconnect.nodes.Java

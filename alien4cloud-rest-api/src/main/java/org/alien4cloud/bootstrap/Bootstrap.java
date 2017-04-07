@@ -1,6 +1,8 @@
 package org.alien4cloud.bootstrap;
 
 import java.io.IOException;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 
 import javax.servlet.MultipartConfigElement;
 
@@ -22,7 +24,9 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import alien4cloud.servlet.ImageServlet;
 import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration("bootstrap-config")
 @EnableAutoConfiguration(exclude = { HypermediaAutoConfiguration.class })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
@@ -37,7 +41,22 @@ public class Bootstrap {
      */
     public static void main(String[] args) {
         configure();
+        initializeProxyAuthenticator();
         SpringApplication.run(Bootstrap.class, args);
+    }
+
+    public static void initializeProxyAuthenticator() {
+        final String proxyUser = System.getProperty("http.proxyUser");
+        final String proxyPassword = System.getProperty("http.proxyPassword");
+
+        if (proxyUser != null && proxyPassword != null) {
+            log.debug("Set http proxy credentials (" + proxyUser + ")");
+            Authenticator.setDefault(new Authenticator() {
+                public PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
+                }
+            });
+        }
     }
 
     public static void configure() {
@@ -49,6 +68,16 @@ public class Bootstrap {
     @Bean(name = { "alienconfig", "elasticsearchConfig" })
     public static YamlPropertiesFactoryBean alienConfig(ResourceLoader resourceLoader) throws IOException {
         return AlienYamlPropertiesFactoryBeanFactory.get(resourceLoader);
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer placeHolderConfigurer() {
+        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+        // this to avoid errors when properties are not resolvable
+        // beans should use default value syntax to verify that the property exists
+        // @Value("${some.key:#{null}}")
+        configurer.setIgnoreUnresolvablePlaceholders(true);
+        return configurer;
     }
 
     @Bean
@@ -78,15 +107,5 @@ public class Bootstrap {
         ServletRegistrationBean registration = new ServletRegistrationBean(imageServlet);
         registration.addUrlMappings("/img/*");
         return registration;
-    }
-
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer placeHolderConfigurer() {
-        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
-        // this to avoid errors when properties are not resolvable
-        // beans should use default value syntax to verify that the property exists
-        // @Value("${some.key:#{null}}")
-        configurer.setIgnoreUnresolvablePlaceholders(true);
-        return configurer;
     }
 }

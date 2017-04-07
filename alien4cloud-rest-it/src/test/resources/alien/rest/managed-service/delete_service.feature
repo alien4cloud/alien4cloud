@@ -1,4 +1,4 @@
-Feature: Delete service resource
+Feature: Delete service resource associated to an application environment
 
   Background:
 
@@ -18,11 +18,11 @@ Feature: Delete service resource
 
     And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
 
-    And I create a resource of type "alien.nodes.mock.Compute" named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "org.alien4cloud.nodes.mock.Compute" named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "imageId" to "img1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "flavorId" to "1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
 
-    And I grant access to the resource type "LOCATION" named "Thark location" to the user "gandalf"
+    And I successfully grant access to the resource type "LOCATION" named "Thark location" to the user "gandalf"
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the user "gandalf"
 
     And I am authenticated with user named "gandalf"
@@ -66,6 +66,7 @@ Feature: Delete service resource
     Then I should receive a RestResponse with an error code 504
 
 #  @reset
+  #TODO
 #  Scenario: Deleting a used managed service should fail
 
   @reset

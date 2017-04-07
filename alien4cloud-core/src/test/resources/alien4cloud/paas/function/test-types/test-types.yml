@@ -1,0 +1,227 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: test-types
+  template_version: 1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN12
+  - alien-base-types:1.3.0
+
+data_types:
+  org.alien4cloud.nodes.test.ComplexDataType:
+    properties:
+      nested:
+        type: string
+      nested_array:
+        type: list
+        entry_schema:
+          type: string
+      nested_map:
+        type: map
+        entry_schema:
+          type: string
+
+node_types:
+  org.alien4cloud.nodes.test.ComplexProp:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      complex_prop:
+        type: org.alien4cloud.nodes.test.ComplexDataType
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            COMPLEX: { get_property: [ SELF, "complex_prop" ] }
+            NESTED: { get_property: [ SELF, "complex_prop.nested" ] }
+            NESTED_ARRAY_ELEMENT: { get_property: [ SELF, "complex_prop.nested_array[0]" ] }
+            NESTED_MAP_ELEMENT: { get_property: [ SELF, "complex_prop.nested_map.tutu" ] }
+
+  org.alien4cloud.test.TestCompute:
+    derived_from: tosca.nodes.Compute
+    properties:
+      customHostName:
+        type: string
+    interfaces:
+      Standard:
+        configure:
+          inputs:
+            customHostName: { get_property: [SELF, customHostName]}
+          implementation: scripts/dummy.sh
+        stop:
+          inputs:
+            MY_IP: { get_attribute: [SELF, ip_address] }
+          implementation: scripts/dummy.sh
+      custom:
+        helloCmd:
+          input:
+            yourName:
+              type: string
+              required: true
+            customHostName: { get_property: [HOST, customHostName] }
+          implementation: scripts/dummy.sh
+      fastconnect.cloudify.extensions:
+        start_detection:
+          input:
+            EXPECTED_HOSTNAME: {get_property: [SELF, customHostName]}
+          implementation: scripts/dummy.sh
+      fr.fastconnect.custom:
+        bolo:
+          implementation: scripts/dummy.sh
+        bala:
+          implementation: scripts/dummy.sh
+          inputs:
+            p1:
+              type: string
+              required: true
+        bashWithOuput:
+          implementation: scripts/dummy.sh
+
+  org.alien4cloud.test.nodes.ComputeWindows:
+    derived_from: tosca.nodes.Compute
+    properties:
+      customHostName:
+        type: string
+    interfaces:
+      Standard:
+        create: scripts/dummy.sh
+        configure:
+          inputs:
+            FILENAME: "configured.txt"
+          implementation: scripts/dummy.sh
+      custom:
+        checkFile:
+          inputs:
+            FILENAME:
+              type: string
+              required: true
+          implementation: scripts/dummy.sh
+
+  org.alien4cloud.test.BadTestCompute:
+    derived_from: tosca.nodes.Compute
+    properties:
+      customHostName:
+        type: string
+    interfaces:
+      Standard:
+        configure:
+          inputs:
+            testScalar: test
+            customHostName: { get_property: [SELF, customHostName]}
+            insufficientParams: { get_property: [SELF] }
+            keywordSourceBadUsage: { get_property: [SOURCE, customHostName]}
+            KeywordTargetBadUsage: { get_property: [TARGET, customHostName]}
+          implementation: scripts/dummy.sh
+
+  org.alien4cloud.test.nodes.envVarTestComponent:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      name:
+        type: string
+
+  org.alien4cloud.test.TestComputeWithGetOperationOutput:
+    derived_from: tosca.nodes.Compute
+    properties:
+      customHostName:
+        type: string
+    attributes:
+      old_hostname: { get_operation_output: [ SELF, Standard, create, old_hostnane ] }
+      new_hostname: { get_operation_output: [ SELF, Standard, configure, new_hostnane ] }
+    interfaces:
+      Standard:
+        create: scripts/dummy.sh
+        configure:
+          inputs:
+            customHostName: { get_property: [SELF, customHostName]}
+            OUTPUT_FROM_CREATE: { get_operation_output: [ SELF, Standard, create, output_from_create ] }
+          implementation: scripts/dummy.sh
+
+relationship_types:
+  org.alien4cloud.test.functions.relationships.WarHostedOnTomcat:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship that allows to deploy a war on tomcat.
+    valid_target_types: [ org.alien4cloud.capabilities.WarHosting ]
+    properties:
+      relName:
+        type: string
+    interfaces:
+      configure:
+        post_configure_source:
+          inputs:
+            contextPath: { get_property: [SOURCE, context_path] }
+            propFromSourceCompute: { get_property: [SOURCE, customHostName] }
+            tomcatVersion: { get_property: [TARGET, component_version] }
+            propFromTargetCompute: { get_property: [TARGET, customHostName] }
+            tomcatIp: { get_attribute: [TARGET, ip_address] }
+            warNodeContext: { get_attribute: [SOURCE, warNodeContext] }
+            relName: { get_property: [SELF, relName] }
+            valid_node_types: { get_property: [TARGET, war_host, valid_node_types] }
+            bad_valid_node_types: { get_property: [SELF, war_host, valid_node_types] }
+            null_capa_prop1: { get_property: [TARGET, war_hosttt, valid_node_types] }
+            null_capa_prop2: { get_property: [TARGET, war_host, valid_node_typesss] }
+          implementation: scripts/dummy.sh
+
+  org.alien4cloud.test.relationships.HostedOn:
+    derived_from: tosca.relationships.HostedOn
+    interfaces:
+      configure:
+        post_configure_source:
+          inputs:
+            CUSTOM_HOSTNAME: { get_property: [TARGET, customHostName] }
+            NAME: { get_property: [SOURCE, name] }
+            COMPUTE_IP: { get_attribute: [TARGET, ip_address] }
+          implementation: scripts/dummy.sh
+
+  org.alien4cloud.test.relationships.TestTrigger:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [ org.alien4cloud.test.TestCompute ]
+    interfaces:
+      configure:
+        post_configure_source:
+          inputs:
+            SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+            TARGET_IP: { get_attribute: [TARGET, ip_address] }
+          implementation: scripts/dummy.sh
+        post_configure_target:
+          inputs:
+            SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+            TARGET_IP: { get_attribute: [TARGET, ip_address] }
+          implementation: scripts/dummy.sh
+        add_target:
+          inputs:
+            MY_HOSTNAME: { get_property: [TARGET, customHostName] }
+            SOURCE_HOSTNAME: { get_property: [SOURCE, customHostName] }
+            MY_IP: { get_attribute: [TARGET, ip_address] }
+            SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+          implementation: scripts/dummy.sh
+        add_source:
+          inputs:
+            MY_HOSTNAME: { get_property: [SOURCE, customHostName] }
+            TARGET_HOSTNAME: { get_property: [TARGET, customHostName] }
+            MY_IP: { get_attribute: [SOURCE, ip_address] }
+            TARGET_IP: { get_attribute: [TARGET, ip_address] }
+          implementation: scripts/dummy.sh
+        remove_target:
+          inputs:
+            MY_HOSTNAME: { get_property: [TARGET, customHostName] }
+            SOURCE_HOSTNAME: { get_property: [SOURCE, customHostName] }
+            MY_IP: { get_attribute: [TARGET, ip_address] }
+            SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+          implementation: scripts/dummy.sh
+        remove_source:
+          inputs:
+            MY_HOSTNAME: { get_property: [SOURCE, customHostName] }
+            TARGET_HOSTNAME: { get_property: [TARGET, customHostName] }
+            MY_IP: { get_attribute: [SOURCE, ip_address] }
+            TARGET_IP: { get_attribute: [TARGET, ip_address] }
+          implementation: scripts/dummy.sh
+
+  org.alien4cloud.test.relationships.DependsOnGetIpTest:
+    derived_from: tosca.relationships.DependsOn
+    interfaces:
+      configure:
+        post_configure_source:
+          inputs:
+            SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+          implementation: scripts/dummy.sh

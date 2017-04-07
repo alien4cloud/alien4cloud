@@ -10,10 +10,14 @@ require.config({
     'plugins': 'scripts/utils/plugins_manager',
     'lodash': 'scripts/utils/alien_lodash',
 
+    // views packaging file
+    'a4c-templates': 'views/alien4cloud-templates',
+
+    // dependencies loading file (used to package all dependencies).
+    'a4c-dependencies': 'scripts/alien4cloud-dependencies',
     // bower_components
     'lodash-base': 'bower_components/lodash/lodash.min',
     'jquery': 'bower_components/jquery/dist/jquery.min',
-    'jquery-ui-resizable': 'bower_components/jquery-ui/ui/resizable',
     'angular': 'bower_components/angular/angular.min',
     'angular-cookies': 'bower_components/angular-cookies/angular-cookies.min',
     'angular-bootstrap': 'bower_components/angular-bootstrap/ui-bootstrap-tpls',
@@ -47,7 +51,6 @@ require.config({
     'graphlib': 'bower_components/graphlib/dist/graphlib.core.min'
   },
   shim: {
-    'jquery-ui-resizable': {deps: ['jquery']},
     'angular': {
       deps: ['jquery'],
       exports: 'angular'

@@ -1,13 +1,13 @@
 <div style="padding-bottom: 50px;">
   <a id="orchestrator-configuration-unlock-btn"
-    ng-disabled="orchestrator.state !== 'CONNECTED' || !lock"
-    class="pull-right btn btn-primary ng-binding ng-scope"
-    ng-click="$event.stopPropagation();"
+    class="pull-right btn btn-primary"
+    ng-class="{'disabled' : disableUnlock()}"
     confirm="{{'ORCHESTRATORS.CONFIGURATION.UNLOCK-BTN-CONTENT' | translate}}"
     confirm-title="{{'ORCHESTRATORS.CONFIGURATION.UNLOCK-BTN-TITLE' | translate }}"
+    confirm-handler="toggleLock()"
     confirm-placement="left"
-    confirm-class="popover"
-    confirm-handler="toggleLock()">
+    ng-click="$event.stopPropagation();"
+    confirm-class="popover">
     <i class="fa fa-lock"></i> {{'ORCHESTRATORS.CONFIGURATION.UNLOCK-BTN-TITLE' | translate }}
   </a>
 </div>

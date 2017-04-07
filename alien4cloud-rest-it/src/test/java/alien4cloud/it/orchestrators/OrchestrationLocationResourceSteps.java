@@ -58,7 +58,10 @@ public class OrchestrationLocationResourceSteps {
         String resp = Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(request));
 
         RestResponse<LocationResourceTemplateWithDependencies> response = JsonUtil.read(resp, LocationResourceTemplateWithDependencies.class, Context.getJsonMapper());
-        Context.getInstance().registerOrchestratorLocationResource(orchestratorId, locationId, response.getData().getResourceTemplate().getId(), resourceName);
+        if (response.getError() == null && response.getData() != null) {
+            Context.getInstance().registerOrchestratorLocationResource(orchestratorId, locationId, response.getData().getResourceTemplate().getId(),
+                    resourceName);
+        }
         Context.getInstance().registerRestResponse(resp);
     }
 
@@ -80,15 +83,25 @@ public class OrchestrationLocationResourceSteps {
 
     @Then("^The location should contains a resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")
     public void The_location_should_contains_a_resource_with_name_and_type(String resourceName, String resourceType) throws Throwable {
-        doesLocationContainResource(resourceName, resourceType, false);
+        locationShouldContainResource(resourceName, resourceType, false);
     }
 
     @Then("^The location should contains an on-demand resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")
     public void The_location_should_contains_an_on_demand_resource_with_name_and_type(String resourceName, String resourceType) throws Throwable {
-        doesLocationContainResource(resourceName, resourceType, true);
+        locationShouldContainResource(resourceName, resourceType, true);
     }
 
-    private void doesLocationContainResource(String resourceName, String resourceType, boolean onDemand) throws Throwable {
+    private void locationShouldContainResource(String resourceName, String resourceType, boolean onDemand) throws Throwable {
+        boolean found = resourceFoundInLocation(resourceName, resourceType, onDemand);
+        Assert.assertTrue(found);
+    }
+
+    private void locationShouldNotContainResource(String resourceName, String resourceType, boolean onDemand) throws Throwable {
+        boolean found = resourceFoundInLocation(resourceName, resourceType, onDemand);
+        Assert.assertFalse(found);
+    }
+
+    private boolean resourceFoundInLocation(String resourceName, String resourceType, boolean onDemand) throws IOException {
         String restResponse = Context.getInstance().getRestResponse();
         RestResponse<LocationDTO> response = JsonUtil.read(restResponse, LocationDTO.class, Context.getJsonMapper());
         LocationDTO locationDTO = response.getData();
@@ -100,7 +113,7 @@ public class OrchestrationLocationResourceSteps {
                 break;
             }
         }
-        Assert.assertTrue(found);
+        return found;
     }
 
     private void updatePropertyValue(String orchestratorName, String locationName, String resourceName, String propertyName, Object propertyValue,
@@ -172,4 +185,22 @@ public class OrchestrationLocationResourceSteps {
         I_update_the_property_to_for_the_resource_named_related_to_the_location_(propertyName, keyName, resourceName, orchestratorName, locationName);
     }
 
+    @When("^I delete the location resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void iDeleteTheLocationResourceNamedRelatedToTheLocation(String resourceName, String orchestratorName, String locationName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
+        String resourceId = Context.getInstance().getLocationResourceId(orchestratorId, locationId, resourceName);
+        String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s/resources/%s", orchestratorId, locationId, resourceId);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(restUrl));
+    }
+
+    @Then("^The location should not contain a resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")
+    public void theLocationShouldNotContainAResourceWithNameAndType(String resourceName, String resourceType) throws Throwable {
+        locationShouldNotContainResource(resourceName, resourceType, false);
+    }
+
+    @Then("^The location should not contain an on-demand resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")
+    public void theLocationShouldNotContainAnOnDemandResourceWithNameAndType(String resourceName, String resourceType) throws Throwable {
+        locationShouldNotContainResource(resourceName, resourceType, true);
+    }
 }

@@ -1,13 +1,14 @@
 package alien4cloud.it.orchestrators;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
+import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
@@ -21,20 +22,25 @@ import cucumber.api.java.en.When;
 
 public class OrchestratorsDefinitionsSteps {
 
-    @When("^I create an orchestrator named \"([^\"]*)\" and plugin id \"([^\"]*)\" and bean name \"([^\"]*)\"$")
-    public void I_create_an_orchestrator_named_and_plugin_id_and_bean_name(String name, String pluginId, String pluginBean) throws Throwable {
+    @When("^I (successfully\\s)?create an orchestrator named \"([^\"]*)\" and plugin id \"([^\"]*)\" and bean name \"([^\"]*)\"$")
+    public void I_create_an_orchestrator_named_and_plugin_id_and_bean_name(String successfully, String name, String pluginId, String pluginBean)
+            throws Throwable {
         CreateOrchestratorRequest orchestrator = new CreateOrchestratorRequest();
         orchestrator.setName(name);
         orchestrator.setPluginId(pluginId);
         orchestrator.setPluginBean(pluginBean);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/orchestrators", JsonUtil.toString(orchestrator)));
+
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+
         RestResponse<String> idResponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
         Context.getInstance().registerOrchestrator(idResponse.getData(), name);
     }
 
-    @When("^I create an orchestrator named \"([^\"]*)\" and plugin name \"([^\"]*)\" and bean name \"([^\"]*)\"$")
-    public void I_create_an_orchestrator_named_and_plugin_name_and_bean_name(String name, String pluginName, String pluginBean) throws Throwable {
-        I_create_an_orchestrator_named_and_plugin_id_and_bean_name(name, pluginName, pluginBean);
+    @When("^I (successfully\\s)?create an orchestrator named \"([^\"]*)\" and plugin name \"([^\"]*)\" and bean name \"([^\"]*)\"$")
+    public void I_create_an_orchestrator_named_and_plugin_name_and_bean_name(String successfully, String name, String pluginName, String pluginBean)
+            throws Throwable {
+        I_create_an_orchestrator_named_and_plugin_id_and_bean_name(successfully, name, pluginName, pluginBean);
     }
 
     @When("^I list orchestrators$")
@@ -67,11 +73,13 @@ public class OrchestratorsDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/orchestrators/" + orchestratorId));
     }
 
-    @Given("^I enable the orchestrator \"([^\"]*)\"$")
-    public void I_enable_the_orchestrator(String orchestratorName) throws IOException {
+    @Given("^I (successfully\\s)?enable the orchestrator \"([^\"]*)\"$")
+    public void I_enable_the_orchestrator(String successfully, String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/orchestrators/" + orchestratorId + "/instance", "{}");
         Context.getInstance().registerRestResponse(restResponse);
+
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
     @When("^I disable \"([^\"]*)\"$")

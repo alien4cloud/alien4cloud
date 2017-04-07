@@ -77,14 +77,14 @@ define(function (require) {
       // *****************************************************************************
 
       $scope.processUserAction = function (action, result) {
-          var request = {
-            'resources':  Object.keys($scope.context.selectedResourceTemplates)
-          };
-          request[action] = _.map(result.subjects, 'username');
-          locationResourcesSecurityService.bulkUsers(_.merge(params, {force: result.force}), angular.toJson(request), function(successResponse) {
-            console.log(successResponse);
-            //TODO: check if an error occur and add a refresh
-          });
+        var request = {
+          'resources':  Object.keys($scope.context.selectedResourceTemplates)
+        };
+        request[action] = _.map(result.subjects, 'username');
+        locationResourcesSecurityService.bulkUsers(_.merge(params, {force: result.force}), angular.toJson(request), function(successResponse) {
+          console.log(successResponse);
+          //TODO: check if an error occur and add a refresh
+        });
       };
 
       // *****************************************************************************

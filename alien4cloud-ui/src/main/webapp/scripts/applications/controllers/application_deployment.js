@@ -106,8 +106,8 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentCtrl',
-    ['$scope', 'authService', 'application', '$state', 'appEnvironments', 'menu', 'deploymentContext', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'applicationServices', 'tasksProcessor',
-      function($scope, authService, applicationResult, $state, appEnvironments, menu, deploymentContext, deploymentTopologyServices, deploymentTopologyProcessor, applicationServices, tasksProcessor) {
+    ['$scope', '$uibModal', 'authService', 'application', '$state', 'appEnvironments', 'menu', 'deploymentContext', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'applicationServices', 'tasksProcessor',
+      function($scope, $uibModal, authService, applicationResult, $state, appEnvironments, menu, deploymentContext, deploymentTopologyServices, deploymentTopologyProcessor, applicationServices, tasksProcessor) {
         $scope.validTopologyDTOLoaded = false;
         $scope.deploymentContext = deploymentContext;
         var pageStateId = $state.current.name;
@@ -117,7 +117,27 @@ define(function(require) {
         $scope.application = applicationResult.data;
         $scope.envs = appEnvironments.deployEnvironments;
 
-        $scope.undeploy = function() {
+        //////////////////////////////////////
+        ///  CONFIRMATION BEFORE UNDEPLOYMENT
+        ///
+        var UndeployConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'nodeTemplates', 'environment', 'archiveVersion',
+          function($scope, $uibModalInstance, $translate, nodeTemplates, environment, archiveVersion) {
+            $scope.nodeTemplates = nodeTemplates;
+            $scope.content = $translate.instant('APPLICATIONS.UNDEPLOY_MODAL.CONTENT.HEADER', {
+              'application': environment.applicationId,
+              'version': archiveVersion
+            });
+
+            $scope.undeploy = function () {
+              $uibModalInstance.close();
+            };
+            $scope.close = function () {
+              $uibModalInstance.dismiss();
+            };
+          }
+        ];
+
+        function doUndeploy() {
           $scope.isUnDeploying = true;
           applicationServices.deployment.undeploy({
             applicationId: $scope.application.id,
@@ -128,6 +148,28 @@ define(function(require) {
             $scope.stopEvent();
           }, function() {
             $scope.isUnDeploying = false;
+          });
+        }
+
+        $scope.undeploy = function() {
+          var modalInstance = $uibModal.open({
+            templateUrl: 'views/applications/undeploy_confirm_modal.html',
+            controller: UndeployConfirmationModalCtrl,
+            resolve: {
+              nodeTemplates: function() {
+                return $scope.deployedContext.dto.topology.substitutedNodes;
+              },
+              environment: function() {
+                return $scope.deploymentContext.selectedEnvironment;
+              },
+              archiveVersion: function() {
+                return $scope.deployedContext.dto.topology.archiveVersion;
+              }
+            }
+          });
+
+          modalInstance.result.then(function() {
+            doUndeploy();
           });
         };
 
@@ -191,7 +233,8 @@ define(function(require) {
         };
 
         $scope.showWarningList = function() {
-          return $scope.validTopologyDTOLoaded && angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0;
+          return ($scope.validTopologyDTOLoaded && angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0)
+          || ($scope.deploymentContext && angular.isObject($scope.deploymentContext.deploymentTopologyDTO) && Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation) && $scope.deploymentContext.deploymentTopologyDTO.validation.warningList && Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation.warningList).length > 0);
         };
 
         $scope.showConfgurationsErrors = function() {

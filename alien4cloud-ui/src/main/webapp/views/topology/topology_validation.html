@@ -5,10 +5,12 @@
       <uib-tabset>
         <uib-tab id="current-topology-tab">
           <uib-tab-heading>
-            <i class="fa fa-exclamation-triangle" ng-if="!validCurrentTopologyDTO.valid && !currentTopologyHasNoChanges()"></i>
+            <i class="fa fa-exclamation-triangle text-danger"
+               ng-if="!validCurrentTopologyDTO.valid && !currentTopologyHasNoChanges()"></i>
             <i class="fa fa fa-check" ng-if="validCurrentTopologyDTO.valid && !currentTopologyHasNoChanges()"></i>
             <span> {{'EDITOR.VALIDATION.CURRENT_TOPOLOGY' | translate}}</span>
           </uib-tab-heading>
+
           <div class="row">
             <div class="col-md-12" ng-if="validCurrentTopologyDTO.valid && !currentTopologyHasNoChanges()">
               <h3 class="text-success"><i class="fa fa-check"></i> {{'APPLICATIONS.TOPOLOGY.TASK.VALIDATION_SUCCESS_CURRENT_TOPOLOGY' | translate}}</h3>
@@ -19,44 +21,73 @@
             <div id="deploymentTodoList" class="col-md-12" ng-if="!validCurrentTopologyDTO.valid && !currentTopologyHasNoChanges()">
               <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h3>
 
-              <div class="task-list-box">
-                <!-- case the topology is not created -->
-                <span ng-if="!topologyId">
-                  {{'APPLICATIONS.TOPOLOGY.TASK.CREATE_TOPOLOGY_MESSAGE' | translate}}.
-                </span>
+              <!-- case the topology is not created -->
+              <div class="col-md-6" ng-if="!topologyId">
+                <div class="task-list-box">
+                  <span>
+                    {{'APPLICATIONS.TOPOLOGY.TASK.CREATE_TOPOLOGY_MESSAGE' | translate}}.
+                  </span>
+                </div>
+              </div>
 
-                <!-- case the topology is empty -->
-                <span ng-if="!validCurrentTopologyDTO.taskList && topologyId">
-                  {{'APPLICATIONS.TOPOLOGY.TASK.EMPTY_TOPOLOGY_MESSAGE' | translate}}.
-                </span>
+              <!-- case the topology is empty -->
+              <div class="col-md-6" ng-if="!validCurrentTopologyDTO.taskList && topologyId">
+                <div class="task-list-box">
+                  <span>
+                    {{'APPLICATIONS.TOPOLOGY.TASK.EMPTY_TOPOLOGY_MESSAGE' | translate}}.
+                  </span>
+                </div>
+              </div>
 
-                <!--  Node Filter tasks  -->
-                <node-filters-errors-display
-                  tasks = "validCurrentTopologyDTO.taskList['NODE_FILTER_INVALID']"
-                  input-column=false>
-                </node-filters-errors-display>
+              <!--  Node Filter tasks  -->
+              <div class="col-md-6" ng-if="validCurrentTopologyDTO.taskList['NODE_FILTER_INVALID'].length>0">
+                <div class="task-list-box">
+                  <node-filters-errors-display
+                    tasks = "validCurrentTopologyDTO.taskList['NODE_FILTER_INVALID']"
+                    input-column=false>
+                  </node-filters-errors-display>
+                </div>
+              </div>
 
-                <!--  LowerBound not satisfied tasks  -->
-                <lowerbound-errors-display
-                  tasks="validCurrentTopologyDTO.taskList['SATISFY_LOWER_BOUND']">
-                </lowerbound-errors-display>
+              <!--  LowerBound not satisfied tasks  -->
+              <div class="col-md-6" ng-if="validCurrentTopologyDTO.taskList['SATISFY_LOWER_BOUND'].length>0">
+                <div class="task-list-box">
+                  <lowerbound-errors-display
+                    tasks="validCurrentTopologyDTO.taskList['SATISFY_LOWER_BOUND']">
+                  </lowerbound-errors-display>
+                </div>
+              </div>
 
-                <!--  Required properties tasks  -->
-                <properties-errors-display
-                  tasks="validCurrentTopologyDTO.taskList['PROPERTIES']">
-                </properties-errors-display>
+              <!--  Required properties tasks  -->
+              <div class="col-md-6" ng-if="validCurrentTopologyDTO.taskList['PROPERTIES'].length>0">
+                <div class="task-list-box">
+                  <properties-errors-display
+                    tasks="validCurrentTopologyDTO.taskList['PROPERTIES']">
+                  </properties-errors-display>
+                </div>
+              </div>
 
-                <scalability-errors-display
-                  tasks="validCurrentTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID']" >
-                </scalability-errors-display>
+              <!--  scalability configuration tasks  -->
+              <div class="col-md-6" ng-if="validCurrentTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID'].length>0">
+                <div class="task-list-box">
+                  <scalability-errors-display
+                    tasks="validCurrentTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID']" >
+                  </scalability-errors-display>
+                </div>
+              </div>
 
-                <!-- Artifact tasks  -->
-                <artifacts-errors-display
-                  tasks = "validCurrentTopologyDTO.taskList['ARTIFACT_INVALID']">
-                </artifacts-errors-display>
+              <!-- Artifact tasks  -->
+              <div class="col-md-6" ng-if="validCurrentTopologyDTO.taskList['ARTIFACT_INVALID'].length>0">
+                <div class="task-list-box">
+                  <artifacts-errors-display
+                    tasks = "validCurrentTopologyDTO.taskList['ARTIFACT_INVALID']">
+                  </artifacts-errors-display>
+                </div>
+              </div>
 
-                <!--  Workflow tasks  -->
-                <div ng-if="(wfTasks = validCurrentTopologyDTO.taskList['WORKFLOW_INVALID']).length>0">
+              <!--  Workflow tasks  -->
+              <div class="col-md-6" ng-if="(wfTasks = validCurrentTopologyDTO.taskList['WORKFLOW_INVALID']).length>0">
+                <div class="task-list-box">
                   <h4 class="clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
                     <i class="fa" ng-class="{'fa-caret-down' : !isWorkflowsCollapsed, 'fa-caret-right': isWorkflowsCollapsed}"></i>
                     <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
@@ -70,15 +101,14 @@
                     </ul>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
-
         </uib-tab>
+
         <uib-tab id="last-topology-tab">
           <uib-tab-heading>
-            <i class="fa fa-exclamation-triangle" ng-if="!validTopologyDTO.valid"></i>
+            <i class="fa fa-exclamation-triangle text-danger" ng-if="!validTopologyDTO.valid"></i>
             <i class="fa fa fa-check" ng-if="validTopologyDTO.valid"></i>
             <span> {{'EDITOR.VALIDATION.LAST_SAVED_TOPOLOGY' | translate}}</span>
           </uib-tab-heading>
@@ -87,47 +117,77 @@
             <div class="col-md-12" ng-if="validTopologyDTO.valid">
               <h3 class="text-success"><i class="fa fa-check"></i> {{'APPLICATIONS.TOPOLOGY.TASK.VALIDATION_SUCCESS' | translate}}</h3>
             </div>
-            <div id="deploymentTodoList" class="col-md-12" ng-if="!validTopologyDTO.valid">
+
+            <div id="savedDeploymentTodoList" class="col-md-12" ng-if="!validTopologyDTO.valid">
               <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h3>
 
-              <div class="task-list-box">
-                <!-- case the topology is not created -->
-                <span ng-if="!topologyId">
-                  {{'APPLICATIONS.TOPOLOGY.TASK.CREATE_TOPOLOGY_MESSAGE' | translate}}.
-                </span>
+              <!-- case the topology is not created -->
+              <div class="col-md-6" ng-if="!topologyId">
+                <div class="task-list-box">
+                  <span>
+                    {{'APPLICATIONS.TOPOLOGY.TASK.CREATE_TOPOLOGY_MESSAGE' | translate}}.
+                  </span>
+                </div>
+              </div>
 
-                <!-- case the topology is empty -->
-                <span ng-if="!validTopologyDTO.taskList && topologyId">
-                  {{'APPLICATIONS.TOPOLOGY.TASK.EMPTY_TOPOLOGY_MESSAGE' | translate}}.
-                </span>
+              <!-- case the topology is empty -->
+              <div class="col-md-6" ng-if="!validTopologyDTO.taskList && topologyId">
+                <div class="task-list-box">
+                  <span>
+                    {{'APPLICATIONS.TOPOLOGY.TASK.EMPTY_TOPOLOGY_MESSAGE' | translate}}.
+                  </span>
+                </div>
+              </div>
 
-                <!--  Node Filter tasks  -->
-                <node-filters-errors-display
-                  tasks = "validTopologyDTO.taskList['NODE_FILTER_INVALID']"
-                  input-column=false>
-                </node-filters-errors-display>
+              <!--  Node Filter tasks  -->
+              <div class="col-md-6" ng-if="validTopologyDTO.taskList['NODE_FILTER_INVALID'].length>0">
+                <div class="task-list-box">
+                  <node-filters-errors-display
+                    tasks = "validTopologyDTO.taskList['NODE_FILTER_INVALID']"
+                    input-column=false>
+                  </node-filters-errors-display>
+                </div>
+              </div>
 
-                <!--  LowerBound not satisfied tasks  -->
-                <lowerbound-errors-display
-                  tasks="validTopologyDTO.taskList['SATISFY_LOWER_BOUND']">
-                </lowerbound-errors-display>
+              <!--  LowerBound not satisfied tasks  -->
+              <div class="col-md-6" ng-if="validTopologyDTO.taskList['SATISFY_LOWER_BOUND'].length>0">
+                <div class="task-list-box">
+                  <lowerbound-errors-display
+                    tasks="validTopologyDTO.taskList['SATISFY_LOWER_BOUND']">
+                  </lowerbound-errors-display>
+                </div>
+              </div>
 
-                <!--  Required properties tasks  -->
-                <properties-errors-display
-                  tasks="validTopologyDTO.taskList['PROPERTIES']">
-                </properties-errors-display>
+              <!--  Required properties tasks  -->
+              <div class="col-md-6" ng-if="validTopologyDTO.taskList['PROPERTIES'].length>0">
+                <div class="task-list-box">
+                  <properties-errors-display
+                    tasks="validTopologyDTO.taskList['PROPERTIES']">
+                  </properties-errors-display>
+                </div>
+              </div>
 
-                <scalability-errors-display
-                  tasks="validTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID']" >
-                </scalability-errors-display>
+              <!--  scalability configuration tasks  -->
+              <div class="col-md-6" ng-if="validTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID'].length>0">
+                <div class="task-list-box">
+                  <scalability-errors-display
+                    tasks="validTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID']" >
+                  </scalability-errors-display>
+                </div>
+              </div>
 
-                <!-- Artifact tasks  -->
-                <artifacts-errors-display
-                  tasks = "validTopologyDTO.taskList['ARTIFACT_INVALID']">
-                </artifacts-errors-display>
+              <!-- Artifact tasks  -->
+              <div class="col-md-6" ng-if="validTopologyDTO.taskList['ARTIFACT_INVALID'].length>0">
+                <div class="task-list-box">
+                  <artifacts-errors-display
+                    tasks = "validTopologyDTO.taskList['ARTIFACT_INVALID']">
+                  </artifacts-errors-display>
+                </div>
+              </div>
 
-                <!--  Workflow tasks  -->
-                <div ng-if="(wfTasks = validTopologyDTO.taskList['WORKFLOW_INVALID']).length>0">
+              <!--  Workflow tasks  -->
+              <div class="col-md-6" ng-if="(wfTasks = validTopologyDTO.taskList['WORKFLOW_INVALID']).length>0">
+                <div class="task-list-box">
                   <h4 class="clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
                     <i class="fa" ng-class="{'fa-caret-down' : !isWorkflowsCollapsed, 'fa-caret-right': isWorkflowsCollapsed}"></i>
                     <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
@@ -141,7 +201,6 @@
                     </ul>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>

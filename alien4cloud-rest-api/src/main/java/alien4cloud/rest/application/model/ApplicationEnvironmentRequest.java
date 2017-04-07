@@ -18,4 +18,5 @@ public class ApplicationEnvironmentRequest {
     private EnvironmentType environmentType;
     private String description;
     private String versionId;
+    private String inputCandidate;
 }

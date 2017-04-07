@@ -10,6 +10,8 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.expression.Expression;
@@ -84,6 +86,10 @@ public class DeployService {
     private ApplicationEventPublisher eventPublisher;
     @Inject
     private DeploymentLockService deploymentLockService;
+    @Inject
+    private DeploymentLoggingService deploymentLoggingService;
+    @Inject
+    private ServiceResourceRelationshipService serviceResourceRelationshipService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -122,27 +128,17 @@ public class DeployService {
             }
             deployment.setSourceName(sourceName);
             deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
-            deployment.setStartDate(new Date());
             // mandatory for the moment since we could have deployment with no environment (csar test)
             deployment.setEnvironmentId(deploymentTopology.getEnvironmentId());
             deployment.setVersionId(deploymentTopology.getVersionId());
+            deployment.setStartDate(new Date());
+            setUsedServicesResourcesIds(deploymentTopology, deployment);
             alienDao.save(deployment);
             // publish an event for the eventual managed service
             eventPublisher.publishEvent(new DeploymentCreatedEvent(this, deployment.getId()));
 
-            // save the topology as a deployed topology.
-            // change the Id before saving
-            deploymentTopology.setId(deployment.getId());
-            deploymentTopology.setDeployed(true);
-            alienMonitorDao.save(deploymentTopology);
-            // put back the old Id for deployment
-            deploymentTopology.setId(deploymentTopologyId);
-            // Process all input artifact, replace all artifact inside the topology with input artifact
-            deploymentInputService.processInputArtifacts(deploymentTopology);
-            PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations,
-                    deploymentTopology);
-            // Download and process all remote artifacts before deployment
-            artifactProcessorService.processArtifacts(deploymentContext);
+            PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, deployment, locations);
+
             // Build the context for deployment and deploy
             orchestratorPlugin.deploy(deploymentContext, new IPaaSCallback<Object>() {
                 @Override
@@ -160,7 +156,7 @@ public class DeployService {
                     deploymentLog.setContent(t.getMessage() + "\n" + ExceptionUtils.getStackTrace(t));
                     deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
                     deploymentLog.setTimestamp(new Date());
-                    alienMonitorDao.save(deploymentLog);
+                    deploymentLoggingService.save(deploymentLog);
 
                     PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
                     messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
@@ -175,6 +171,83 @@ public class DeployService {
                     firstLocation.getId(), deployment.getId());
             return deployment.getId();
         });
+    }
+
+    public void update(final DeploymentTopology deploymentTopology, final IDeploymentSource deploymentSource, final Deployment existingDeployment,
+            final IPaaSCallback<Object> callback) {
+        Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
+        Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
+        final Location firstLocation = locations.values().iterator().next();
+
+        deploymentLockService.doWithDeploymentWriteLock(existingDeployment.getOrchestratorDeploymentId(), () -> {
+            // FIXME check that all nodes to match are matched
+            // FIXME check that all required properties are defined
+            // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
+
+            // Get the orchestrator that will perform the deployment
+            IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
+
+            PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, existingDeployment,
+                    locations);
+
+            // enrich the callback
+            IPaaSCallback<Object> callbackWrapper = new IPaaSCallback<Object>() {
+                @Override
+                public void onSuccess(Object data) {
+                    existingDeployment.setVersionId(deploymentTopology.getVersionId());
+                    alienDao.save(existingDeployment);
+                    callback.onSuccess(data);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    callback.onFailure(throwable);
+                }
+            };
+            // Build the context for deployment and deploy
+            orchestratorPlugin.update(deploymentContext, callbackWrapper);
+            log.debug("Triggered deployment of topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
+                    firstLocation.getId(), existingDeployment.getId());
+
+            return null;
+        });
+    }
+
+    private PaaSTopologyDeploymentContext saveDeploymentTopologyAndGenerateDeploymentContext(final DeploymentTopology deploymentTopology,
+            final Deployment deployment, final Map<String, Location> locations) {
+        String deploymentTopologyId = deploymentTopology.getId();
+        // save the topology as a deployed topology.
+        // change the Id before saving
+        deploymentTopology.setId(deployment.getId());
+        deploymentTopology.setDeployed(true);
+        alienMonitorDao.save(deploymentTopology);
+        // put back the old Id for deployment
+        deploymentTopology.setId(deploymentTopologyId);
+        // Process all input artifact, replace all artifact inside the topology with input artifact
+        deploymentInputService.processInputArtifacts(deploymentTopology);
+        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology);
+		// Process services relationships to inject the service side based on the service resource.
+		serviceResourceRelationshipService.process(deploymentContext);
+        // Download and process all remote artifacts before deployment
+        artifactProcessorService.processArtifacts(deploymentContext);
+
+        return deploymentContext;
+    }
+
+    /**
+     * From the substitutedNodes values, find out which are services and populate the {@link Deployment#serviceResourceIds}
+     * 
+     * @param deployment
+     * @param deploymentTopology
+     */
+    private void setUsedServicesResourcesIds(DeploymentTopology deploymentTopology, Deployment deployment) {
+        String[] serviceResourcesIds = deploymentTopology.getSubstitutedNodes().entrySet().stream()
+                .filter(entry -> deploymentTopology.getNodeTemplates().get(entry.getKey()) instanceof ServiceNodeTemplate).map(entry -> entry.getValue())
+                .toArray(String[]::new);
+
+        if (ArrayUtils.isNotEmpty(serviceResourcesIds)) {
+            deployment.setServiceResourceIds(serviceResourcesIds);
+        }
     }
 
     /**

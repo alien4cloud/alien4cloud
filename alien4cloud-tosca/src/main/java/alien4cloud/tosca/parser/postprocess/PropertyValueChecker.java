@@ -4,24 +4,22 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.Node;
-
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.Node;
+
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 /**
@@ -29,9 +27,6 @@ import alien4cloud.utils.services.ConstraintPropertyService;
  */
 @Component
 public class PropertyValueChecker {
-    @Resource
-    private ConstraintPropertyService constraintPropertyService;
-
     /**
      * Check that the value of a property has the right type and match constraints.
      *
@@ -81,7 +76,7 @@ public class PropertyValueChecker {
     public void checkProperty(String propertyName, Node propertyValueNode, PropertyValue<?> propertyValue, PropertyDefinition propertyDefinition,
             String templateName) {
         try {
-            constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue.getValue(), propertyDefinition,
+            ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue.getValue(), propertyDefinition,
                     s -> ParsingContextExecution.getParsingErrors()
                             .add(new ParsingError(ErrorCode.VALIDATION_ERROR, "A value is required but was not found for property " + s, null,
                                     "A value is required but was not found for property " + s, null, "constraints")));

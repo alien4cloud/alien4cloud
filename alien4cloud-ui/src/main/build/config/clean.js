@@ -1,7 +1,6 @@
 'use strict';
 
 // Empties folders to start fresh
-
 module.exports = {
   dist: {
     files: [{
@@ -9,5 +8,7 @@ module.exports = {
       src: ['.tmp', '<%= yeoman.dist %>/*', '!<%= yeoman.dist %>/.git*']
     }]
   },
-  server: '.tmp'
+  server: '.tmp',
+  // clean the bower components after requirejs task to avoid shipping useless files
+  bower: '<%= yeoman.dist %>/bower_components/*'
 };

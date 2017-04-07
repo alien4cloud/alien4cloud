@@ -39,15 +39,14 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
 
     @PostConstruct
     public void initialize() throws ParsingException {
-        // initialize type registry for working draft 3.
-        Map<String, INodeParser> registry = mappingGenerator.process("classpath:tosca-simple-profile-wd03-mapping.yml");
-        parserRegistriesByVersion.put("tosca_simple_yaml_1_0_0_wd03", registry);
-        registry = mappingGenerator.process("classpath:alien-dsl-1.1.0-mapping.yml");
-        parserRegistriesByVersion.put("alien_dsl_1_1_0", registry);
-        registry = mappingGenerator.process("classpath:alien-dsl-1.2.0-mapping.yml");
+        // Initialize the supported DSL in alien4cloud.
+        Map<String, INodeParser> registry = mappingGenerator.process("classpath:alien-dsl-1.2.0-mapping.yml");
         parserRegistriesByVersion.put("alien_dsl_1_2_0", registry);
         registry = mappingGenerator.process("classpath:alien-dsl-1.3.0-mapping.yml");
         parserRegistriesByVersion.put("alien_dsl_1_3_0", registry);
+        // 1.4.0
+        registry = mappingGenerator.process("classpath:alien-dsl-1.4.0-mapping.yml");
+        parserRegistriesByVersion.put("alien_dsl_1_4_0", registry);
         // experimental
         registry = mappingGenerator.process("classpath:tosca_simple_yaml_1_0.yml");
         parserRegistriesByVersion.put("tosca_simple_yaml_1_0", registry);

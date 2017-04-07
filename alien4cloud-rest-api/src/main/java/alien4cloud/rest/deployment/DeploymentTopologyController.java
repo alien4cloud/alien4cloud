@@ -7,6 +7,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,9 +42,6 @@ import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.services.PropertyService;
 import io.swagger.annotations.Api;
@@ -102,8 +102,8 @@ public class DeploymentTopologyController {
         // Get the artifact to update
         checkAuthorizations(appId, environmentId);
         deploymentTopologyService.updateInputArtifact(environmentId, inputArtifactId, artifactFile);
-            return RestResponseBuilder.<DeploymentTopologyDTO> builder()
-                    .data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder()
+                .data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
     }
 
     /**

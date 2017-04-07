@@ -1,8 +1,12 @@
 package alien4cloud.rest.utils;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 import alien4cloud.utils.ReflectionUtil;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Simple utility for patch management
@@ -46,6 +50,35 @@ public final class PatchUtil {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new IllegalArgumentException("Unable to patch field <" + fieldName + ">");
         }
+    }
+
+    public static <A, B> Map<A, B> setMap(Map<A, B> instance, Map<A, B> newValues, boolean patch) {
+        if (patch) {
+            if (newValues == null || newValues.size() == 0) {
+                return instance;
+            }
+        }
+
+        if (instance == null) {
+            instance = new HashMap<>();
+        }
+
+        if (patch) {
+            for (Map.Entry<A, B> entry : newValues.entrySet()) {
+                if (entry.getValue() == null || realValue(entry.getValue()) == null) {
+                    // remove
+                    instance.remove(entry.getKey());
+                } else {
+                    // add or update
+                    instance.put(entry.getKey(), entry.getValue());
+                }
+            }
+        } else {
+            instance.clear();
+            instance.putAll(safe(newValues));
+        }
+
+        return instance;
     }
 
     /**

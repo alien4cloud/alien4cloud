@@ -1,0 +1,24 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+tosca_default_namespace: Tosca default namespace value
+template_name: Template name value
+template_author: Temlate author value
+template_version: 1.0.0-SNAPSHOT
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+
+node_types:
+  my.Software:
+      derived_from: tosca.nodes.SoftwareComponent
+      abstract: true
+
+topology_template:
+  node_templates:
+    my_software:
+      type: my.Software
+      requirements:
+      - host: a_server
+
+    a_server:
+      type: tosca.nodes.Compute

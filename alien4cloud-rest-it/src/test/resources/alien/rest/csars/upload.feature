@@ -76,9 +76,9 @@ Feature: CSAR upload
     Then I should receive a RestResponse with no error
 
   @reset
-  Scenario: Upload invalid CSAR : dependency in definition do not exist
+  Scenario: Upload invalid CSAR : dependency in definition does not exist
     Given I upload the archive "sample java types 1.0"
-    Then I should receive a RestResponse with an error code 200 and 17 compilation errors in 1 file(s)
+    Then I should receive a RestResponse with an error code 200 and 19 compilation errors in 1 file(s)
 
   @reset
   Scenario: Upload Snapshot version CSAR that already exist in the repository and check creation / lastUpdate dates

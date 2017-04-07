@@ -1,6 +1,6 @@
 
 matching_configurations:
-  alien.nodes.mock.aws.Compute:
+  org.alien4cloud.nodes.mock.aws.Compute:
     capabilities:
       - host:
           properties:

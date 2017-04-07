@@ -31,7 +31,6 @@
     <div class="col-md-10" id="apps-container">
       <div class="well">
         <empty-place-holder
-          for="'applications'"
           data="data.data">
         </empty-place-holder>
 
@@ -59,12 +58,12 @@
                   <div class="col-md-1"> </div>
                   <div class="col-md-5">
                     <i class="fa fa-2x vertical-center" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true" ng-class="{
-                      'fa-circle text-success' : environment.status == 'DEPLOYED',
-                      'fa-circle text-muted' : environment.status == 'UNDEPLOYED',
+                      'fa-circle text-success' : environment.status == 'DEPLOYED' || environment.status == 'UPDATED',
+                      'fa-circle text-muted' : environment.status == 'UNDEPLOYED' || environment.status == 'UPDATE_FAILURE',
                       'fa-warning text-warning' : environment.status == 'WARNING',
                       'fa-circle text-danger' : environment.status == 'FAILURE',
                       'fa-question-circle text-muted' : environment.status == 'UNKNOWN',
-                      'fa-spinner fa-spin' : environment.status == 'DEPLOYMENT_IN_PROGRESS' || environment.status == 'UNDEPLOYMENT_IN_PROGRESS'
+                      'fa-spinner fa-spin' : environment.status == 'DEPLOYMENT_IN_PROGRESS' || environment.status == 'UNDEPLOYMENT_IN_PROGRESS' || environment.status == 'UPDATE_IN_PROGRESS'
                     }"></i>
                     <span>{{environment.name}}</span>
                   </div>
@@ -72,14 +71,14 @@
                     {{environment.currentVersionName}}
                   </div>
                   <div class="col-md-3" ng-class="{
-                    'text-success' : environment.status == 'DEPLOYED',
+                    'text-success' : environment.status == 'DEPLOYED' || environment.status == 'UPDATED',
                     'text-muted' : environment.status == 'UNDEPLOYED',
                     'text-warning' : environment.status == 'WARNING',
                     'text-danger' : environment.status == 'FAILURE',
                     'text-muted' : environment.status == 'UNKNOWN',
                     'text-info' : environment.status == 'DEPLOYMENT_IN_PROGRESS' || environment.status == 'UNDEPLOYMENT_IN_PROGRESS'
                   }">
-                    {{environment.deployedVersion | idToVersion}}
+                    {{(environment.deployedVersion | idToVersion) || 'N/A'}}
                   </div>
                 </div>
               </div>

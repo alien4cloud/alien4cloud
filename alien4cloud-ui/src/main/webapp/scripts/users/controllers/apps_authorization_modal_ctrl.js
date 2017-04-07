@@ -41,9 +41,9 @@ define(function (require) {
       $scope.onSearchCompleted = function (searchResult) {
         $scope.appsData = searchResult.data;
         _.forEach($scope.appsData.data, function(app) {
-            if (app.id in $scope.preSelection) {
-                $scope.selectedApps[app.id] = $scope.preSelection[app.id];
-            }
+          if (app.id in $scope.preSelection) {
+            $scope.selectedApps[app.id] = $scope.preSelection[app.id];
+          }
         });
       };
 
@@ -183,7 +183,7 @@ define(function (require) {
           } else {
             $scope.selectedApps[app.id].splice(indexOfEnv, 1);
             if ($scope.selectedApps[app.id].length === 0) {
-                delete $scope.selectedApps[app.id];
+              delete $scope.selectedApps[app.id];
             }
             if (env.id in $scope.preSelectedEnvs) {
               $scope.preSelectedEnvs[env.id] = 0;

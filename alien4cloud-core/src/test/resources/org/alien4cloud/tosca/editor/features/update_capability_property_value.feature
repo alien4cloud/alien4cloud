@@ -29,7 +29,7 @@ Feature: Topology editor: update node capability property value
       | capabilityName | host                                                                                        |
       | propertyName   | num_cpus                                                                                    |
       | propertyValue  | AB                                                                                          |
-    Then an exception of type "org.alien4cloud.tosca.editor.exception.PropertyValueException/alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException" should be thrown
+    Then an exception of type "org.alien4cloud.tosca.editor.exception.PropertyValueException/org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException" should be thrown
 
   Scenario: Updating a scalar property value of capability with an unmatched constraint should fail
     Given I execute the operation
@@ -42,7 +42,7 @@ Feature: Topology editor: update node capability property value
       | capabilityName | host                                                                                        |
       | propertyName   | num_cpus                                                                                    |
       | propertyValue  | 0                                                                                           |
-    Then an exception of type "org.alien4cloud.tosca.editor.exception.PropertyValueException/alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException" should be thrown
+    Then an exception of type "org.alien4cloud.tosca.editor.exception.PropertyValueException/org.alien4cloud.tosca.exceptions.ConstraintViolationException" should be thrown
 
   Scenario: Updating a scalar property value of capability with a wrong name should fail
     Given I execute the operation

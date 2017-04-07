@@ -10,13 +10,13 @@ import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+
 import alien4cloud.paas.exception.NotSupportedException;
 
 public class ToscaPropertySerializerUtils {
 
     private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[,:\\[\\]\\{\\}-].*");
     private static Pattern VALID_YAML_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
-
 
     public static String indent(int indentLevel) {
         StringBuilder buffer = new StringBuilder();
@@ -55,7 +55,7 @@ public class ToscaPropertySerializerUtils {
         return ToscaPropertySerializerUtils.formatPropertyValue(true, indentLevel, propertyValue);
     }
 
-    public static String formatPropertyValue(boolean appendLf, int indentLevel, AbstractPropertyValue propertyValue) {
+    private static String formatPropertyValue(boolean appendLf, int indentLevel, AbstractPropertyValue propertyValue) {
         if (propertyValue instanceof PropertyValue) {
             return formatValue(appendLf, indentLevel, ((PropertyValue) propertyValue).getValue());
         } else if (propertyValue instanceof FunctionPropertyValue) {
