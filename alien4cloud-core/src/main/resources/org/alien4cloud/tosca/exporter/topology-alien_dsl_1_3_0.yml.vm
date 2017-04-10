@@ -187,7 +187,7 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #end## of outputCapaPropSubEntry iteration
 #end## of outputCapaPropEntry iteration   
 #end## if maps are not empty
-#if($utils.mapIsNotEmpty($topology.workflows))
+#if($utils.mapIsNotEmpty($topology.workflows) && $generateWorkflow)
   workflows:
 #foreach($wfEntry in ${topology.workflows.entrySet()})
     ${wfEntry.key}:

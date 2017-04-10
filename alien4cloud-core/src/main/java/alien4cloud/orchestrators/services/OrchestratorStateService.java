@@ -173,8 +173,7 @@ public class OrchestratorStateService {
         // TODO move below in a thread to perform plugin loading and connection asynchronously
         IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
         IOrchestratorPlugin<Object> orchestratorInstance = orchestratorFactory.newInstance();
-        // index the archive in alien catalog
-        archiveIndexer.indexOrchestratorArchives(orchestratorFactory, orchestratorInstance);
+
         // Set the configuration for the provider
         OrchestratorConfiguration orchestratorConfiguration = orchestratorConfigurationService.getConfigurationOrFail(orchestrator.getId());
         try {
@@ -184,7 +183,8 @@ public class OrchestratorStateService {
         } catch (IOException e) {
             throw new PluginConfigurationException("Failed convert configuration json in object.", e);
         }
-
+        // index the archive in alien catalog
+        archiveIndexer.indexOrchestratorArchives(orchestratorFactory, orchestratorInstance);
         // connect the orchestrator
         orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
 
