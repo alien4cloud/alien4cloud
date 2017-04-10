@@ -2,11 +2,8 @@ package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -16,6 +13,7 @@ import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.events.AfterArchiveDeleted;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -333,6 +331,20 @@ public class CsarService {
 
         // a csar that is a dependency of another csar can not be deleted
         // FIXME WORKSPACE HANDLING REQUIRED
+
+        // a csar that used in ToscaContext cannot be deleted
+        try {
+            List<String> topologyIds = EditionContextManager.getTopologiesByDesiredDependency(new CSARDependency(csar.getName(), csar.getVersion()));
+            if (!topologyIds.isEmpty()) {
+                for (String toplogyId : topologyIds) {
+                    relatedResourceList.add(new Usage("Topology editor", toplogyId, toplogyId, AlienConstants.GLOBAL_WORKSPACE_ID));
+                 }
+
+            }
+        } catch (ExecutionException e) {
+            // do nothing
+        }
+
         if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
             // The CSAR is from an application's topology
             relatedResourceList.addAll(

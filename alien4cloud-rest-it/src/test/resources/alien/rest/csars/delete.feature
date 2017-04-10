@@ -34,10 +34,10 @@ Feature: CSAR delete
     And I save the topology
     When I delete a CSAR with id "topology-test:2.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 507
-    And I should have a delete csar response with "2" related resources
+    And I should have a delete csar response with "3" related resources
     When I delete a CSAR with id "tosca-base-types:1.0"
     Then I should receive a RestResponse with an error code 507
-    And I should have a delete csar response with "3" related resources
+    And I should have a delete csar response with "4" related resources
 
   @reset
   Scenario: Try do delete a CSAR that is a location dependency
