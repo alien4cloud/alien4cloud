@@ -337,7 +337,7 @@ public class CsarService {
             List<String> topologyIds = EditionContextManager.getTopologiesByDesiredDependency(new CSARDependency(csar.getName(), csar.getVersion()));
             if (!topologyIds.isEmpty()) {
                 for (String toplogyId : topologyIds) {
-                    relatedResourceList.add(new Usage("Topology editor", toplogyId, toplogyId, AlienConstants.GLOBAL_WORKSPACE_ID));
+                    relatedResourceList.add(new Usage(toplogyId, "Topology editor", toplogyId, csar.getWorkspace()));
                  }
 
             }

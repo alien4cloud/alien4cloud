@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
+import cucumber.api.DataTable;
+import gherkin.formatter.model.DataTableRow;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.junit.Assert;
 
@@ -87,6 +89,27 @@ public class CrudCSARSStepDefinition {
         Assert.assertNotNull(restResponse);
         List<Usage> resultData = JsonUtil.toList(JsonUtil.toString(restResponse.getData()), Usage.class);
         Assert.assertEquals(Integer.parseInt(resourceCount), resultData.size());
+    }
+
+    @Then("^The delete csar response should contains the following related resources$")
+    public void I_should_have_a_delete_csar_response_with_related_resources(DataTable usageDT) throws Throwable {
+        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        Assert.assertNotNull(restResponse);
+        List<Usage> resultData = JsonUtil.toList(JsonUtil.toString(restResponse.getData()), Usage.class);
+        boolean isPresent;
+        for (Usage usage : resultData) {
+            isPresent = false;
+            for (DataTableRow row : usageDT.getGherkinRows()) {
+                if (usage.getResourceName().equals(row.getCells().get(0)) && usage.getResourceType().equals(row.getCells().get(1))) {
+                    Assert.assertTrue(usage.getResourceName() + " : " + usage.getResourceType(), true);
+                    isPresent = true;
+                    break;
+                }
+            }
+            if (!isPresent) {
+                Assert.assertFalse("Test failed : one of expected usage is not found : " + usage.getResourceName() + " : " + usage.getResourceType(), true);
+            }
+        }
     }
 
     @Given("^I can find (\\d+) CSAR$")
