@@ -6,24 +6,28 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
+import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
-import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import lombok.extern.slf4j.Slf4j;
+
+import static alien4cloud.tosca.parser.ToscaParser.ALIEN_DSL_140;
 
 @Component
 @Slf4j
@@ -62,9 +66,7 @@ public class SustitutionMappingParser implements INodeParser<SubstitutionMapping
             switch (key) {
             case NODE_TYPE:
                 String nodeTypeName = scalarParser.parse(valueNode, context);
-                NodeType nodeType = new NodeType();
-                nodeType.setElementId(nodeTypeName);
-                result.setSubstitutionType(nodeType);
+                result.setSubstitutionType(nodeTypeName);
                 break;
             case CAPABILITIES:
                 result.setCapabilities(parseSubstitutionTargets(valueNode, context));
@@ -73,7 +75,8 @@ public class SustitutionMappingParser implements INodeParser<SubstitutionMapping
                 result.setRequirements(parseSubstitutionTargets(valueNode, context));
                 break;
             default:
-                // FIXME add a warning
+                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, null, valueNode.getStartMark(),
+                        "Key <" + key + "> is not recognized for substitution mapping.", valueNode.getEndMark(), "key"));
             }
         }
         return result;
@@ -101,8 +104,14 @@ public class SustitutionMappingParser implements INodeParser<SubstitutionMapping
 
     private SubstitutionTarget parseSubstitutionTarget(Node valueNode, ParsingContextExecution context) {
         List<String> values = (List<String>) stringListParser.parse(valueNode, context);
+        if (values.size() == 3 && (ParsingContextExecution.get().getDefinitionVersion() != null
+                && ALIEN_DSL_140.equals(ParsingContextExecution.get().getDefinitionVersion()))) {
+            // DSL 1.4.0 allows to specify services relationship types
+            return new SubstitutionTarget(values.get(0), values.get(1), values.get(2));
+        }
         if (values.size() != 2) {
-            // FIXME: throw ex
+            context.getParsingErrors().add(new ParsingError(ErrorCode.SYNTAX_ERROR, null, valueNode.getStartMark(),
+                    "Substitution mapping for capabilities and requirements requires 2 arguments.", valueNode.getEndMark(), null));
             return null;
         }
         return new SubstitutionTarget(values.get(0), values.get(1));

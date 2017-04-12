@@ -11,8 +11,8 @@ Feature: Topology editor: requirement substitution
 
   Scenario: Add a requirement substitution
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -26,8 +26,8 @@ Feature: Topology editor: requirement substitution
 
   Scenario: Add a non existing requirement as requirement substitution should failed
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -41,8 +41,8 @@ Feature: Topology editor: requirement substitution
 
   Scenario: Add requirement as requirement substitution with an already used substitutionRequirementId should failed
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -61,8 +61,8 @@ Feature: Topology editor: requirement substitution
 
   Scenario: Add a requirement substitution on a wrong node should failed
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -70,8 +70,8 @@ Feature: Topology editor: requirement substitution
     When I execute the operation
       | type                      | org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation |
       | nodeTemplateName          | Compute_failed                                                                               |
-      | requirementId             | network                                                                                         |
-      | substitutionRequirementId | network                                                                                         |
+      | requirementId             | network                                                                                      |
+      | substitutionRequirementId | network                                                                                      |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
   Scenario: Add a requirement substitution on a non substitute topology should failed
@@ -93,8 +93,8 @@ Feature: Topology editor: requirement substitution
 
   Scenario: Remove a requirement substitution
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -112,8 +112,8 @@ Feature: Topology editor: requirement substitution
 
   Scenario: Remove a non existing requirement substitution should failed
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type                      | org.alien4cloud.tosca.editor.operations.substitution.RemoveRequirementSubstitutionTypeOperation |
       | substitutionRequirementId | network                                                                                         |
@@ -121,8 +121,8 @@ Feature: Topology editor: requirement substitution
 
   Scenario: Remove a non existing requirement substitution when the topology is not an substitute should failed
     When I execute the operation
-      | type                      | org.alien4cloud.tosca.editor.operations.substitution.RemoveRequirementSubstitutionTypeOperation   |
-      | substitutionRequirementId | network                                                                                           |
+      | type                      | org.alien4cloud.tosca.editor.operations.substitution.RemoveRequirementSubstitutionTypeOperation |
+      | substitutionRequirementId | network                                                                                         |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
   Scenario: Remove a non existing requirement key substitution should failed
@@ -131,8 +131,8 @@ Feature: Topology editor: requirement substitution
       | nodeName          | Compute                                                               |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type                      | org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation |
       | nodeTemplateName          | Compute                                                                                      |
@@ -150,8 +150,8 @@ Feature: Topology editor: requirement substitution
 
   Scenario: Update a requirement substitution
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -170,17 +170,17 @@ Feature: Topology editor: requirement substitution
 
   Scenario: Update a non existing requirement substitution when the topology is not an substitute should failed
     When I execute the operation
-      | type                     | org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation |
-      | substitutionRequirementId | network                                                                                           |
+      | type                      | org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation |
+      | substitutionRequirementId | network                                                                                         |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
   Scenario: Update a non existing requirement substitution should failed
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
-      | type                     | org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation |
-      | substitutionRequirementId | network                                                                                           |
+      | type                      | org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation |
+      | substitutionRequirementId | network                                                                                         |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
   Scenario: Update a non existing requirement key substitution should failed
@@ -189,16 +189,16 @@ Feature: Topology editor: requirement substitution
       | nodeName          | Compute                                                               |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
-      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation |
-      | nodeTemplateName         | Compute                                                                                     |
-      | requirementId             | network                                                                                        |
-      | substitutionRequirementId | network                                                                                        |
+      | type                      | org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation |
+      | nodeTemplateName          | Compute                                                                                      |
+      | requirementId             | network                                                                                      |
+      | substitutionRequirementId | network                                                                                      |
     When I execute the operation
-      | type                     | org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation |
-      | substitutionRequirementId | dependency                                                                                       |
+      | type                      | org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation |
+      | substitutionRequirementId | dependency                                                                                      |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
   Scenario: Update requirement key to an already used key substitution should failed
@@ -207,20 +207,20 @@ Feature: Topology editor: requirement substitution
       | nodeName          | Compute                                                               |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
-      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation |
-      | nodeTemplateName         | Compute                                                                                     |
-      | requirementId             | network                                                                                        |
-      | substitutionRequirementId | network                                                                                        |
+      | type                      | org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation |
+      | nodeTemplateName          | Compute                                                                                      |
+      | requirementId             | network                                                                                      |
+      | substitutionRequirementId | network                                                                                      |
     When I execute the operation
-      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation |
-      | nodeTemplateName         | Compute                                                                                     |
-      | requirementId             | dependency                                                                                        |
-      | substitutionRequirementId | dependency                                                                                        |
+      | type                      | org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation |
+      | nodeTemplateName          | Compute                                                                                      |
+      | requirementId             | dependency                                                                                   |
+      | substitutionRequirementId | dependency                                                                                   |
     When I execute the operation
-      | type                     | org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation |
-      | substitutionRequirementId | dependency                                                                                       |
-      | newRequirementId          | network                                                                                           |
+      | type                      | org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation |
+      | substitutionRequirementId | dependency                                                                                      |
+      | newRequirementId          | network                                                                                         |
     Then an exception of type "alien4cloud.exception.AlreadyExistException" should be thrown

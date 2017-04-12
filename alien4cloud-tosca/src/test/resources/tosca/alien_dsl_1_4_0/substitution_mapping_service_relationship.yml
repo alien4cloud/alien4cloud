@@ -1,0 +1,38 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: Template name value
+  template_author: Temlate author value
+  template_version: 1.0.0-SNAPSHOT
+
+description: Simple test template to check parsing of alien4cloud specific relationship type value in a substitution mapping for service relationship support.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+capability_types:
+  org.alien4cloud.capabilities.test.MyCapability:
+    derived_from: tosca.capabilities.Root
+    properties:
+      my_prop:
+        type: string
+
+node_types:
+  org.alien4cloud.nodes.test.MyNode:
+    derived_from: tosca.nodes.Root
+    capabilities:
+      my_capa:
+        type: org.alien4cloud.capabilities.test.MyCapability
+
+relationship_types:
+  org.alien4cloud.relationships.test.MyRelationship:
+    derived_from: tosca.relationships.Root
+
+topology_template:
+  substitution_mappings:
+    node_type: tosca.nodes.Root
+    capabilities:
+      subst_capa: [ node, my_capa, org.alien4cloud.relationships.test.MyRelationship ]
+  node_templates:
+    node:
+      type: org.alien4cloud.nodes.test.MyNode

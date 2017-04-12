@@ -359,4 +359,8 @@ public class ToscaSerializerUtils {
                         || (artifact.getValue().getArtifactRef() != null && GET_INPUT_ARTIFACT_PATTERN.matcher(artifact.getValue().getArtifactRef()).matches()))
                 .collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry::getValue)));
     }
+
+    public static boolean isNull(Object o) {
+        return o == null;
+    }
 }

@@ -41,9 +41,7 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
             throw new NotFoundException("No substitution type has been found");
         }
 
-        NodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
-
-        // FIXME alse check if no element inherits from this substitute type
+        // FIXME also check if no element inherits from this substitute type
         // the substitute type os within the topology's archive
         Csar csar = EditionContextManager.getCsar();
         Topology[] topologies = getTopologiesUsing(csar.getName(), csar.getName(), csar.getVersion());
@@ -51,7 +49,7 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
             throw new DeleteReferencedObjectException("The substitution can not be removed since it's type is already used in at least another topology");
         }
 
-        topologyService.unloadType(topology, new String[] { substitutionType.getElementId() });
+        topologyService.unloadType(topology, new String[] { topology.getSubstitutionMapping().getSubstitutionType() });
         topology.setSubstitutionMapping(null);
     }
 

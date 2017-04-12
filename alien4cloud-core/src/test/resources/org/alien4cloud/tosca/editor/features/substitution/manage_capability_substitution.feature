@@ -11,8 +11,8 @@ Feature: Topology editor: capability substitution
 
   Scenario: Add a capability substitution
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -26,8 +26,8 @@ Feature: Topology editor: capability substitution
 
   Scenario: Add a capability substitution on a wrong node should failed
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -53,8 +53,8 @@ Feature: Topology editor: capability substitution
 
   Scenario: Add a non existing capability as capability substitution should failed
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -68,8 +68,8 @@ Feature: Topology editor: capability substitution
 
   Scenario: Add capability as capability substitution with an already used substitutionCapabilityId should failed
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -93,8 +93,8 @@ Feature: Topology editor: capability substitution
 
   Scenario: Remove a capability substitution
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -118,8 +118,8 @@ Feature: Topology editor: capability substitution
 
   Scenario: Remove a non existing capability substitution should failed
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.RemoveCapabilitySubstitutionTypeOperation |
       | substitutionCapabilityId | host                                                                                           |
@@ -131,8 +131,8 @@ Feature: Topology editor: capability substitution
       | nodeName          | Compute                                                               |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
       | nodeTemplateName         | Compute                                                                                     |
@@ -150,8 +150,8 @@ Feature: Topology editor: capability substitution
 
   Scenario: Update a capability substitution
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -176,8 +176,8 @@ Feature: Topology editor: capability substitution
 
   Scenario: Update a non existing capability substitution should failed
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.UpdateCapabilitySubstitutionTypeOperation |
       | substitutionCapabilityId | host                                                                                           |
@@ -189,8 +189,8 @@ Feature: Topology editor: capability substitution
       | nodeName          | Compute                                                               |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
       | nodeTemplateName         | Compute                                                                                     |
@@ -207,8 +207,8 @@ Feature: Topology editor: capability substitution
       | nodeName          | Compute                                                               |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
-      | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | elementId   | tosca.nodes.Compute                                                               |
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
       | nodeTemplateName         | Compute                                                                                     |
@@ -217,8 +217,8 @@ Feature: Topology editor: capability substitution
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
       | nodeTemplateName         | Compute                                                                                     |
-      | capabilityId             | scalable                                                                                        |
-      | substitutionCapabilityId | scalable                                                                                        |
+      | capabilityId             | scalable                                                                                    |
+      | substitutionCapabilityId | scalable                                                                                    |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.UpdateCapabilitySubstitutionTypeOperation |
       | substitutionCapabilityId | scalable                                                                                       |

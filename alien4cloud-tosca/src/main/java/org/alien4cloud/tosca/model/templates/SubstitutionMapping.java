@@ -19,11 +19,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SubstitutionMapping {
-
-    private NodeType substitutionType;
+    private String substitutionType;
 
     private Map<String, SubstitutionTarget> capabilities;
-
     private Map<String, SubstitutionTarget> requirements;
 
+    /** Specific alien4cloud properties to configure a relationship to use for services. */
+    private Map<String, String> capabilitiesServiceRelationships;
+    private Map<String, String> requirementsServiceRelationships;
 }

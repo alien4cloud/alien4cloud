@@ -92,7 +92,6 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
             throw new CapabilityBoundException(operation.getTarget(), operation.getTargetedCapabilityName());
         }
 
-        // FIXME impact ToscaContext
         topologyService.loadType(topology, indexedRelationshipType);
 
         Map<String, RelationshipTemplate> relationships = sourceNode.getRelationships();

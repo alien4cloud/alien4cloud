@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.tosca.parser.ToscaParser;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -41,6 +42,18 @@ public class ArchiveExportService {
      * @return The TOSCA yaml file that describe the topology.
      */
     public String getYaml(Csar csar, Topology topology, boolean generateWorkflow) {
+        return getYaml(csar, topology, generateWorkflow, ToscaParser.ALIEN_DSL_140);
+    }
+
+    /**
+     * Get the yaml string out of a cloud service archive and topology.
+     *
+     * @param csar The csar that contains archive meta-data.
+     * @param topology The topology template within the archive.
+     * @param generateWorkflow check if we generate the workflow
+     * @return The TOSCA yaml file that describe the topology.
+     */
+    public String getYaml(Csar csar, Topology topology, boolean generateWorkflow, String dslVersion) {
         Map<String, Object> velocityCtx = new HashMap<>();
         velocityCtx.put("topology", topology);
         velocityCtx.put("template_name", csar.getName());
@@ -68,7 +81,7 @@ public class ArchiveExportService {
 
         try {
             StringWriter writer = new StringWriter();
-            VelocityUtil.generate("org/alien4cloud/tosca/exporter/topology-alien_dsl_1_3_0.yml.vm", writer, velocityCtx);
+            VelocityUtil.generate("org/alien4cloud/tosca/exporter/topology-" + dslVersion + ".yml.vm", writer, velocityCtx);
             return writer.toString();
         } catch (Exception e) {
             log.error("Exception while templating YAML for topology " + topology.getId(), e);

@@ -1,4 +1,4 @@
-## Will look in the context for: 
+## Will look in the context for:
 ## - template_name
 ## - template_version
 ## - template_author
@@ -6,12 +6,14 @@
 ## - topology
 ## --------------------------------------------
 ## BEGINNING OF DOCUMENT
-tosca_definitions_version: alien_dsl_1_3_0
-description: ${utils.renderDescription(${template_description}, "")}
+tosca_definitions_version: alien_dsl_1_4_0
+
 metadata:
-    template_name: ${template_name}
-    template_version: ${template_version}
-    template_author: ${template_author}
+  template_name: ${template_name}
+  template_version: ${template_version}
+  template_author: ${template_author}
+
+description: ${utils.renderDescription(${template_description}, "")}
 #if($utils.collectionIsNotEmpty($topology.dependencies))
 
 imports:
@@ -19,8 +21,8 @@ imports:
   - ${dependency.name}:${dependency.version}
 #end
 #end## if
-
 #if($utils.hasRepositories($topology))
+
 repositories:
 ${utils.formatRepositories($topology)}
 #end## if hasRepositories
@@ -31,24 +33,24 @@ topology_template:
 #end## if application_description defined
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputs))
   inputs:
-#foreach($inputEntry in $topology.inputs.entrySet())   
+#foreach($inputEntry in $topology.inputs.entrySet())
     ${inputEntry.key}:
       type: ${inputEntry.value.type}
       required: $inputEntry.value.required
-#if($inputEntry.value.default)      
+#if($inputEntry.value.default)
       default: $propertyUtils.renderScalar($inputEntry.value.default)
 #end## if default defined
 #if($utils.collectionIsNotEmpty($inputEntry.value.constraints))
-      constraints: 
+      constraints:
 #foreach($constraint in $inputEntry.value.constraints)
         - ${utils.renderConstraint($constraint)}
 #end## constraint iteration
 #end## if constraints not empty
 #if($inputEntry.value.description)
       description: ${utils.renderDescription($inputEntry.value.description, "        ")}
-#end## if description defined 
-#end## foreach($inputEntry in $topology.inputs.entrySet())    
-#end## if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputs)) 
+#end## if description defined
+#end## foreach($inputEntry in $topology.inputs.entrySet())
+#end## if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputs))
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputArtifacts))
   input_artifacts:
 #foreach($inputArtifactEntry in $topology.inputArtifacts.entrySet())
@@ -57,21 +59,29 @@ topology_template:
 #if($inputArtifactEntry.value.description)
       description: ${utils.renderDescription($inputArtifactEntry.value.description, "        ")}
 #end##if($inputArtifactEntry.value.description)
-#end##foreach($inputArtifactEntry in $topology.inputArtifacts.entrySet()) 
+#end##foreach($inputArtifactEntry in $topology.inputArtifacts.entrySet())
 #end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputArtifacts))
 #if($topology.substitutionMapping)
   substitution_mappings:
-    node_type: ${topology.substitutionMapping.substitutionType.elementId}
+    node_type: ${topology.substitutionMapping.substitutionType}
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.capabilities))
     capabilities:
 #foreach($substitutionCapabilityEntry in $topology.substitutionMapping.capabilities.entrySet())
+#if($utils.isNull(${substitutionCapabilityEntry.value.serviceRelationshipType}))
       ${substitutionCapabilityEntry.key}: [ ${substitutionCapabilityEntry.value.nodeTemplateName}, ${substitutionCapabilityEntry.value.targetId} ]
+#else
+      ${substitutionCapabilityEntry.key}: [ ${substitutionCapabilityEntry.value.nodeTemplateName}, ${substitutionCapabilityEntry.value.targetId}, ${substitutionCapabilityEntry.value.serviceRelationshipType} ]
+#end
 #end##foreach($substitutionCapabilityEntry in $topology.substitutionMapping.capabilities.entrySet())
 #end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.capabilities))
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.requirements))
     requirements:
 #foreach($substitutionRequirementEntry in $topology.substitutionMapping.requirements.entrySet())
+#if($utils.isNull(${substitutionRequirementEntry.value.serviceRelationshipType}))
       ${substitutionRequirementEntry.key}: [ ${substitutionRequirementEntry.value.nodeTemplateName}, ${substitutionRequirementEntry.value.targetId} ]
+#else
+      ${substitutionRequirementEntry.key}: [ ${substitutionRequirementEntry.value.nodeTemplateName}, ${substitutionRequirementEntry.value.targetId}, ${substitutionRequirementEntry.value.serviceRelationshipType} ]
+#end
 #end##foreach($substitutionRequirementEntry in $topology.substitutionMapping.requirements.entrySet())
 #end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.requirements))
 #end##if($topology.substitutionMapping)
@@ -79,10 +89,10 @@ topology_template:
 #foreach($nodeTemplateEntry in ${topology.nodeTemplates.entrySet()})
     ${nodeTemplateEntry.key}:
       type: ${nodeTemplateEntry.value.type}
-#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.properties))      
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.properties))
       properties:$propertyUtils.formatProperties(4, $nodeTemplateEntry.value.properties)
 #end## if
-#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.relationships)) 
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.relationships))
       requirements:
 #foreach($relationship in ${nodeTemplateEntry.value.relationships.values()})
         - ${relationship.requirementName}:
@@ -111,7 +121,7 @@ topology_template:
 #end## if doesInterfaceContainsImplementedOperation
 #end## of interfaces iteration
 #end## if doesInterfacesContainsImplementedOperation
-#end## of relationship iteration    
+#end## of relationship iteration
 #end## if
 #if($utils.hasCapabilitiesContainingNotNullProperties($nodeTemplateEntry.value))
       capabilities:
@@ -160,9 +170,9 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #foreach($policy in ${groupEntry.value.policies})
         - name: ${policy.name}
           type: ${policy.type}
-#end## of policy iteration      
-#end## if $groupEntry.value.policies not empty      
-#end## of groupEntry iteration  
+#end## of policy iteration
+#end## if $groupEntry.value.policies not empty
+#end## of groupEntry iteration
 #end## if $topology.groups not empty
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputProperties) || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputAttributes)  || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputCapabilityProperties))
   outputs:
@@ -177,7 +187,7 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
     ${outputAttributeEntry.key}_${outputAttribute}:
       value: { get_attribute: [ ${outputAttributeEntry.key}, ${outputAttribute} ] }
 #end## of outputProperty iteration
-#end## of outputAttributeEntry iteration   
+#end## of outputAttributeEntry iteration
 #foreach($outputCapaPropEntry in ${topology.outputCapabilityProperties.entrySet()})
 #foreach($outputCapaPropSubEntry in ${outputCapaPropEntry.value.entrySet()})
 #foreach($outputCapaProp in ${outputCapaPropSubEntry.value})
@@ -185,7 +195,7 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
       value: { get_property: [ ${outputCapaPropEntry.key}, ${outputCapaPropSubEntry.key}, ${outputCapaProp} ] }
 #end## of outputCapaProp iteration
 #end## of outputCapaPropSubEntry iteration
-#end## of outputCapaPropEntry iteration   
+#end## of outputCapaPropEntry iteration
 #end## if maps are not empty
 #if($utils.mapIsNotEmpty($topology.workflows) && $generateWorkflow)
   workflows:
@@ -205,7 +215,7 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #if($utils.canRenderInlineActivityArgs(${taskEntry.value.activity}))
             ${utils.getActivityLabel(${taskEntry.value.activity})}: ${utils.getInlineActivityArg(${taskEntry.value.activity})}
 #else
-            ${utils.getActivityLabel(${taskEntry.value.activity})}: 
+            ${utils.getActivityLabel(${taskEntry.value.activity})}:
 #foreach($argEntry in ${utils.getActivityArgsMap(${taskEntry.value.activity})})
               ${argEntry.key}: ${argEntry.value}
 #end## foreach getActivityArgsMap
