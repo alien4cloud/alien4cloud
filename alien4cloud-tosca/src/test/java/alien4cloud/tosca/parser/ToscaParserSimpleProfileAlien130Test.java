@@ -54,7 +54,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
 
     @Override
     protected String getRootDirectory() {
-        return "src/test/resources/tosca/SimpleProfile_alien130/parsing/";
+        return "src/test/resources/tosca/alien_dsl_1_3_0/";
     }
 
     @Override
