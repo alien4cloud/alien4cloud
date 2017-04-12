@@ -51,7 +51,7 @@ public class EditionContextManager {
     private IFileRepository artifactRepository;
 
     // TODO make cache management time a parameter
-    private static LoadingCache<String, EditionContext> contextCache;
+    private LoadingCache<String, EditionContext> contextCache;
 
     @PostConstruct
     public void setup() {
@@ -130,7 +130,7 @@ public class EditionContextManager {
      * @return a List of topology IDS
      * @throws ExecutionException
      */
-    public static List<String> getTopologiesByDesiredDependency(CSARDependency desiredDependency) throws ExecutionException {
+    public List<String> getTopologiesByDesiredDependency(CSARDependency desiredDependency) throws ExecutionException {
         List<String> topologyIds = Lists.newArrayList();
         for (String topologyId :  contextCache.asMap().keySet()) {
             for (CSARDependency dependency : contextCache.get(topologyId).getToscaContext().getDependencies()) {

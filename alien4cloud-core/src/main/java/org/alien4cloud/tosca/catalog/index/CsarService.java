@@ -54,6 +54,8 @@ public class CsarService {
     private CsarFileRepository alienRepository;
     @Inject
     private ApplicationService applicationService;
+    @Inject
+    private EditionContextManager editionContextManager;
 
     /**
      * Check if a given archive exists in any workspace.
@@ -334,7 +336,7 @@ public class CsarService {
 
         // a csar that used in ToscaContext cannot be deleted
         try {
-            List<String> topologyIds = EditionContextManager.getTopologiesByDesiredDependency(new CSARDependency(csar.getName(), csar.getVersion()));
+            List<String> topologyIds = editionContextManager.getTopologiesByDesiredDependency(new CSARDependency(csar.getName(), csar.getVersion()));
             if (!topologyIds.isEmpty()) {
                 for (String toplogyId : topologyIds) {
                     relatedResourceList.add(new Usage(toplogyId, "Topology editor", toplogyId, csar.getWorkspace()));
