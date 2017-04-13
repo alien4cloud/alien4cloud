@@ -4,8 +4,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import alien4cloud.model.service.ServiceResource;
-import alien4cloud.service.ServiceResourceService;
+import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;

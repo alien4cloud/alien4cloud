@@ -1,14 +1,23 @@
-package alien4cloud.service;
+package org.alien4cloud.alm.service;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 import static alien4cloud.utils.AlienUtils.safe;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.service.events.ServiceChangedEvent;
+import org.alien4cloud.alm.service.events.ServiceUsageRequestEvent;
+import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
+import org.alien4cloud.alm.service.exceptions.ServiceUsageException;
+import org.alien4cloud.tosca.catalog.events.ArchiveUsageRequestEvent;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
@@ -27,25 +36,18 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.Usage;
-import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.PatchUtil;
-import alien4cloud.service.events.ServiceChangedEvent;
-import alien4cloud.service.exceptions.IncompatibleHalfRelationshipException;
-import alien4cloud.service.exceptions.ServiceUsageException;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
@@ -63,8 +65,6 @@ public class ServiceResourceService {
     private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
     private ApplicationEventPublisher publisher;
-    @Inject
-    private ApplicationEnvironmentService environmentService;
 
     /**
      * Creates a service.
@@ -100,6 +100,7 @@ public class ServiceResourceService {
         // build a node instance from the given type
         NodeType nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceNodeType, serviceNodeVersion);
         serviceResource.setNodeInstance(nodeInstanceService.create(nodeType, serviceNodeVersion));
+        serviceResource.setDependency(new CSARDependency(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
 
         // ensure uniqueness and save
         save(serviceResource, true);
@@ -116,17 +117,6 @@ public class ServiceResourceService {
      */
     public GetMultipleDataResult<ServiceResource> list(int from, int count) {
         return alienDAO.buildQuery(ServiceResource.class).prepareSearch().setFieldSort("name", false).search(from, count);
-    }
-
-    public Map<String, ServiceResource> getMultiple(Collection<String> ids) {
-        Map<String, ServiceResource> result = Maps.newHashMap();
-        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(ids)) {
-            List<ServiceResource> templates = alienDAO.findByIds(ServiceResource.class, ids.toArray(new String[ids.size()]));
-            for (ServiceResource template : templates) {
-                result.put(template.getId(), template);
-            }
-        }
-        return result;
     }
 
     /**
@@ -295,35 +285,37 @@ public class ServiceResourceService {
     }
 
     private void validateRelationshipTypes(ServiceResource serviceResource, final NodeType nodeType) {
-        safe(serviceResource.getCapabilitiesRelationshipTypes()).forEach((capabilityName,relationshipTypeId) -> {
+        safe(serviceResource.getCapabilitiesRelationshipTypes()).forEach((capabilityName, relationshipTypeId) -> {
             RelationshipType relationshipType = toscaTypeSearchService.findByIdOrFail(RelationshipType.class, relationshipTypeId);
             String[] validTargets = relationshipType.getValidTargets();
-            if(ArrayUtils.isNotEmpty(validTargets)){
+            if (ArrayUtils.isNotEmpty(validTargets)) {
                 CapabilityDefinition capabilityDefinition = nodeType.getCapabilities().stream().filter(c -> c.getId().equals(capabilityName)).findFirst().get();
 
                 Csar csar = toscaTypeSearchService.getArchive(nodeType.getArchiveName(), nodeType.getArchiveVersion());
                 Set<CSARDependency> allDependencies = new HashSet<>(safe(csar.getDependencies()));
                 allDependencies.add(new CSARDependency(csar.getName(), csar.getVersion(), csar.getHash()));
-                CapabilityType capabilityType = toscaTypeSearchService.getElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), allDependencies);
+                CapabilityType capabilityType = toscaTypeSearchService.getElementInDependencies(CapabilityType.class, capabilityDefinition.getType(),
+                        allDependencies);
                 Set<String> allAcceptedTypes = new HashSet<>();
                 allAcceptedTypes.addAll(capabilityType.getDerivedFrom());
                 allAcceptedTypes.add(capabilityType.getElementId());
 
                 boolean isValid = false;
-                for(String validTarget : validTargets){
-                    if(allAcceptedTypes.contains(validTarget)){
+                for (String validTarget : validTargets) {
+                    if (allAcceptedTypes.contains(validTarget)) {
                         isValid = true;
                         break;
                     }
                 }
 
-                if(!isValid){
-                    throw new IncompatibleHalfRelationshipException("["+relationshipType.getId() + "] is not compatible with ["+capabilityType.getId() + "]");
+                if (!isValid) {
+                    throw new IncompatibleHalfRelationshipException(
+                            "[" + relationshipType.getId() + "] is not compatible with [" + capabilityType.getId() + "]");
                 }
             }
         });
 
-        safe(serviceResource.getRequirementsRelationshipTypes()).forEach((k,v) -> {
+        safe(serviceResource.getRequirementsRelationshipTypes()).forEach((k, v) -> {
             toscaTypeSearchService.findByIdOrFail(RelationshipType.class, v);
         });
     }
@@ -395,29 +387,12 @@ public class ServiceResourceService {
     }
 
     private void failIdUsed(String id) {
-        GetMultipleDataResult<Deployment> usageResult = usage(id);
-        if (usageResult.getTotalResults() > 0) {
-            throw new ServiceUsageException("Used services cannot be updated or deleted.", buildServiceUsage(usageResult.getData()));
+        ServiceUsageRequestEvent serviceUsageRequestEvent = new ServiceUsageRequestEvent(this, id);
+        publisher.publishEvent(serviceUsageRequestEvent);
+        Usage[] usages = serviceUsageRequestEvent.getUsages();
+        if (usages.length > 0) {
+            throw new ServiceUsageException("Used services cannot be updated or deleted.", usages);
         }
-    }
-
-    private Usage[] buildServiceUsage(Deployment[] data) {
-        return Arrays.stream(data).map(deployment -> {
-            ApplicationEnvironment environment = environmentService.getOrFail(deployment.getEnvironmentId());
-            String usageName = "App (" + deployment.getSourceName() + "), Env (" + environment.getName() + ")";
-            return new Usage(usageName, "Deployment", deployment.getId(), null);
-        }).toArray(Usage[]::new);
-    }
-
-    /**
-     * Return a query result that contains all active deployments that use the service with the given id.
-     * 
-     * @param id The id of the service for which to get usage.
-     * @return A GetMultipleDataResult that contains the active deployments that uses the requested service.
-     */
-    public GetMultipleDataResult<Deployment> usage(String id) {
-        return alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("endDate", null, "serviceResourceIds", id)).prepareSearch().search(0,
-                Integer.MAX_VALUE);
     }
 
     @EventListener
@@ -439,13 +414,26 @@ public class ServiceResourceService {
 
     /**
      * Search for services authorized for this location.
-     *
+     * 
      * @param locationId
      * @return
      */
     public List<ServiceResource> searchByLocation(String locationId) {
         GetMultipleDataResult<ServiceResource> result = this.search("", singleKeyFilter("locationIds", locationId), null, false, 0, Integer.MAX_VALUE);
         return Lists.newArrayList(result.getData());
+    }
+
+    /**
+     * Get all services from a given type.
+     * 
+     * @param nodeType The type of services to lookup.
+     * @param nodeTypeVersion The version of the services to lookup.
+     * @return An array that contains all services for the given node type.
+     */
+    public ServiceResource[] getByNodeTypes(String nodeType, String nodeTypeVersion) {
+        return alienDAO.buildQuery(ServiceResource.class)
+                .setFilters(fromKeyValueCouples("nodeInstance.nodeTemplate.type", nodeType, "nodeInstance.typeVersion", nodeTypeVersion)).prepareSearch()
+                .search(0, Integer.MAX_VALUE).getData();
     }
 
     /**
@@ -464,5 +452,16 @@ public class ServiceResourceService {
             }
         }
         throw new AccessDeniedException("Current context does not have access to the service <" + serviceId + "> for location <" + locationId + ">");
+    }
+
+    @EventListener
+    public void reportArchiveUsage(ArchiveUsageRequestEvent event) {
+        ServiceResource[] serviceResources = alienDAO.buildQuery(ServiceResource.class)
+                .setFilters(fromKeyValueCouples("dependency.name", event.getArchiveName(), "dependency.version", event.getArchiveVersion())).prepareSearch()
+                .search(0, Integer.MAX_VALUE).getData();
+        for (ServiceResource serviceResource : serviceResources) {
+            Usage usage = new Usage(serviceResource.getName(), ServiceResource.class.getSimpleName().toLowerCase(), serviceResource.getId(), "");
+            event.addUsage(usage);
+        }
     }
 }

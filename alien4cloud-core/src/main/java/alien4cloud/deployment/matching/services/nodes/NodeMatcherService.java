@@ -36,7 +36,7 @@ import alien4cloud.orchestrators.locations.services.LocationMatchingConfiguratio
 import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AbstractSecurityEnabledResource;
-import alien4cloud.service.ServiceResourceService;
+import org.alien4cloud.alm.service.ServiceResourceService;
 
 /**
  * Node matcher service will filter location resources for all substitutable nodes of the topology. It will return only location resources that can substitute a

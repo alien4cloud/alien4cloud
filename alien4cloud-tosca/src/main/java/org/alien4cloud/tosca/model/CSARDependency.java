@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.model;
 
 import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import lombok.*;
@@ -17,10 +18,12 @@ import lombok.*;
 @ToString(exclude = "hash")
 public class CSARDependency {
     @NonNull
+    @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private String name;
 
     @NonNull
+    @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private String version;
 

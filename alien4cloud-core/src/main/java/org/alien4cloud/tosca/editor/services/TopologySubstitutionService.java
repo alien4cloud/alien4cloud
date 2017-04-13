@@ -5,10 +5,14 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
+import org.alien4cloud.tosca.editor.EditionContext;
+import org.alien4cloud.tosca.editor.events.SubstitutionTypeChangedEvent;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
@@ -22,6 +26,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.common.collect.Lists;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -46,6 +51,8 @@ public class TopologySubstitutionService {
     private IToscaTypeIndexerService indexerService;
     @Resource
     private ICsarDependencyLoader csarDependencyLoader;
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     @ToscaContextual
     public void updateSubstitutionType(final Topology topology, Csar csar) {
@@ -84,6 +91,9 @@ public class TopologySubstitutionService {
 
         // finally we index the created type
         indexerService.indexInheritableElement(csar.getName(), csar.getVersion(), substituteNodeType, csar.getDependencies());
+
+        // Dispatch event
+        publisher.publishEvent(new SubstitutionTypeChangedEvent(this, topology, substituteNodeType));
     }
 
     private void fillRequirements(Topology topology, NodeType substituteNodeType) {

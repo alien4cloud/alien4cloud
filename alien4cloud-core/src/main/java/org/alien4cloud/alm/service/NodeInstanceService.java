@@ -1,4 +1,4 @@
-package alien4cloud.service;
+package org.alien4cloud.alm.service;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
@@ -8,7 +8,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import alien4cloud.service.exceptions.InstanceRequiredPropertiesException;
+import org.alien4cloud.alm.service.exceptions.InstanceRequiredPropertiesException;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.validation.TopologyPropertiesValidationService;
 import com.google.common.collect.Sets;

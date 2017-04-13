@@ -1,4 +1,4 @@
-package alien4cloud.service;
+package org.alien4cloud.alm.service;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienUtils.safe;
@@ -269,6 +269,7 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
             ServiceResource serviceResource = managedServiceResourceService.get(deployment.getEnvironmentId());
             if (serviceResource != null) {
                 serviceResource.setDeploymentId(event.getDeploymentId());
+
                 serviceResourceService.save(serviceResource);
             }
         }

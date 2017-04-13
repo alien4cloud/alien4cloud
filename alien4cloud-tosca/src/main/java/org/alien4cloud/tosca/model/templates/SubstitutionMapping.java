@@ -2,15 +2,14 @@ package org.alien4cloud.tosca.model.templates;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.alien4cloud.tosca.model.types.NodeType;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Getter
 @Setter
@@ -23,8 +22,4 @@ public class SubstitutionMapping {
 
     private Map<String, SubstitutionTarget> capabilities;
     private Map<String, SubstitutionTarget> requirements;
-
-    /** Specific alien4cloud properties to configure a relationship to use for services. */
-    private Map<String, String> capabilitiesServiceRelationships;
-    private Map<String, String> requirementsServiceRelationships;
 }

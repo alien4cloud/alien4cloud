@@ -3,6 +3,7 @@ package alien4cloud.model.service;
 import java.util.Date;
 import java.util.Map;
 
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.instances.NodeInstance;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.annotation.DateField;
@@ -55,6 +56,9 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
     @StringField(indexType = IndexType.no)
     private String description;
 
+    /** The dependency on the archive that defines the type. */
+    @ObjectField
+    private CSARDependency dependency;
     @ObjectField
     private NodeInstance nodeInstance;
 

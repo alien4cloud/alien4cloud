@@ -1,12 +1,24 @@
-package alien4cloud.service;
+package org.alien4cloud.alm.service;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
+import org.alien4cloud.alm.service.exceptions.InvalidDeploymentStatusException;
+import org.alien4cloud.alm.service.exceptions.MissingSubstitutionException;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.editor.events.SubstitutionTypeChangedEvent;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -23,13 +35,13 @@ import alien4cloud.model.service.ServiceResource;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.service.exceptions.InvalidDeploymentStatusException;
-import alien4cloud.service.exceptions.MissingSubstitutionException;
 import alien4cloud.topology.TopologyServiceCore;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This service handles the service resources managed by alien4cloud through deployments.
  */
+@Slf4j
 @Service
 public class ManagedServiceResourceService {
     @Resource(name = "alien-es-dao")
@@ -41,6 +53,8 @@ public class ManagedServiceResourceService {
     @Inject
     private ServiceResourceService serviceResourceService;
     @Inject
+    private NodeInstanceService nodeInstanceService;
+    @Inject
     private ManagedServiceResourceEventService managedServiceResourceEventService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
@@ -48,6 +62,8 @@ public class ManagedServiceResourceService {
     private DeploymentService deploymentService;
     @Inject
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
+    @Inject
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     /**
      * Create a Service resource associated with the given environment.
@@ -95,6 +111,10 @@ public class ManagedServiceResourceService {
         // The elementId of the type created out of the substitution is currently the archive name.
         String serviceId = serviceResourceService.create(serviceName, environment.getTopologyVersion(), topology.getArchiveName(),
                 environment.getTopologyVersion(), environmentId);
+
+        // Update the service relationships definition from the topology substitution
+        updateServiceRelationship(serviceId, topology);
+
         if (fromRuntime) {
             managedServiceResourceEventService.updateRunningService(topology, serviceResourceService.getOrFail(serviceId), deployment, state);
         }
@@ -159,5 +179,63 @@ public class ManagedServiceResourceService {
     public void delete(String environmentId) {
         ServiceResource serviceResource = getOrFail(environmentId);
         serviceResourceService.delete(serviceResource.getId());
+    }
+
+    @EventListener
+    private void onSubstitutionTypeChanged(SubstitutionTypeChangedEvent event) {
+        ServiceResource[] serviceResources = serviceResourceService.getByNodeTypes(event.getSubstituteNodeType().getElementId(),
+                event.getSubstituteNodeType().getArchiveVersion());
+        // we just change non-running services as we don't actually update the service
+        for (ServiceResource serviceResource : serviceResources) {
+            if (ToscaNodeLifecycleConstants.INITIAL.equals(serviceResource.getState())) {
+                log.debug("Trying to update node based on substitution type.");
+                nodeInstanceService.update(event.getSubstituteNodeType(), serviceResource.getNodeInstance(),
+                        serviceResource.getNodeInstance().getNodeTemplate().getProperties(),
+                        serviceResource.getNodeInstance().getNodeTemplate().getCapabilities(), serviceResource.getNodeInstance().getAttributeValues());
+                // Update relationships
+                updateServiceRelationship(serviceResource, event.getTopology());
+                serviceResourceService.save(serviceResource);
+            } else {
+                log.info("Substitution type <" + event.getSubstituteNodeType().getElementId() + ":" + event.getSubstituteNodeType().getArchiveVersion()
+                        + "> for service <" + serviceResource.getName()
+                        + "> has changed. Service will be updated on restart. Note that services based on snapshot versions are not recommended.");
+            }
+        }
+    }
+
+    private void updateServiceRelationship(String serviceId, Topology topology) {
+        ServiceResource serviceResource = serviceResourceService.getOrFail(serviceId);
+        updateServiceRelationship(serviceResource, topology);
+    }
+
+    private void updateServiceRelationship(ServiceResource serviceResource, Topology topology) {
+        Map<String, RelationshipType> relationshipTypeMap = Maps.newHashMap();
+        // we also want to configure the service relationships for exposed capabilities
+        for (Entry<String, SubstitutionTarget> substitutionTargetEntry : topology.getSubstitutionMapping().getCapabilities().entrySet()) {
+            if (substitutionTargetEntry.getValue().getServiceRelationshipType() == null) {
+                serviceResource.getCapabilitiesRelationshipTypes().remove(substitutionTargetEntry.getKey());
+            } else {
+                String relationshipId = getRelationshipId(relationshipTypeMap, topology, substitutionTargetEntry.getValue().getServiceRelationshipType());
+                serviceResource.getCapabilitiesRelationshipTypes().put(substitutionTargetEntry.getKey(), relationshipId);
+            }
+        }
+        for (Entry<String, SubstitutionTarget> substitutionTargetEntry : topology.getSubstitutionMapping().getRequirements().entrySet()) {
+            if (substitutionTargetEntry.getValue().getServiceRelationshipType() == null) {
+                serviceResource.getRequirementsRelationshipTypes().remove(substitutionTargetEntry.getKey());
+            } else {
+                String relationshipId = getRelationshipId(relationshipTypeMap, topology, substitutionTargetEntry.getValue().getServiceRelationshipType());
+                serviceResource.getRequirementsRelationshipTypes().put(substitutionTargetEntry.getKey(), relationshipId);
+            }
+        }
+        serviceResourceService.save(serviceResource);
+    }
+
+    private String getRelationshipId(Map<String, RelationshipType> relationshipTypeMap, Topology topology, String relationshipTypeName) {
+        RelationshipType relationshipType = relationshipTypeMap.get(relationshipTypeName);
+        if (relationshipType == null) {
+            relationshipType = toscaTypeSearchService.getElementInDependencies(RelationshipType.class, topology.getDependencies());
+            relationshipTypeMap.put(relationshipTypeName, relationshipType);
+        }
+        return relationshipType.getId();
     }
 }

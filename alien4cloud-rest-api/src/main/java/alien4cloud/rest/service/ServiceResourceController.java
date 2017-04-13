@@ -32,7 +32,7 @@ import alien4cloud.rest.service.model.CreateServiceResourceRequest;
 import alien4cloud.rest.service.model.PatchServiceResourceRequest;
 import alien4cloud.rest.service.model.UpdateServiceResourceRequest;
 import alien4cloud.rest.service.model.UpdateValidationGroup;
-import alien4cloud.service.ServiceResourceService;
+import org.alien4cloud.alm.service.ServiceResourceService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;

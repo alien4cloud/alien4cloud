@@ -1,4 +1,4 @@
-package alien4cloud.service.exceptions;
+package org.alien4cloud.alm.service.exceptions;
 
 import java.util.Set;
 

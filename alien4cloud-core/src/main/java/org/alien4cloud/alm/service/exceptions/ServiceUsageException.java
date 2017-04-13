@@ -1,4 +1,4 @@
-package alien4cloud.service.exceptions;
+package org.alien4cloud.alm.service.exceptions;
 
 import alien4cloud.exception.TechnicalException;
 import alien4cloud.model.common.Usage;
