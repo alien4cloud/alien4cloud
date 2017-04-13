@@ -76,11 +76,11 @@ public class CsarGitServiceTest {
     public void importManyBranchFromGit() {
         CsarGitCheckoutLocation alien12Location = new CsarGitCheckoutLocation();
         alien12Location.setBranchId("1.2.0");
-        CsarGitCheckoutLocation masterLocation = new CsarGitCheckoutLocation();
-        masterLocation.setBranchId("master");
+        CsarGitCheckoutLocation alien14Location = new CsarGitCheckoutLocation();
+        alien14Location.setBranchId("1.4.0");
         List<CsarGitCheckoutLocation> importLocations = new LinkedList<>();
         importLocations.add(alien12Location);
-        importLocations.add(masterLocation);
+        importLocations.add(alien14Location);
         String repoId = csarGitRepositoryService.create("https://github.com/alien4cloud/tosca-normative-types.git", "", "", importLocations, false);
 
         List<ParsingResult<Csar>> result = csarGitService.importFromGitRepository(repoId);
@@ -88,18 +88,18 @@ public class CsarGitServiceTest {
         Assert.assertEquals("tosca-normative-types", result.get(0).getResult().getName());
         Assert.assertEquals("1.0.0-ALIEN12", result.get(0).getResult().getVersion());
         Assert.assertEquals("tosca-normative-types", result.get(1).getResult().getName());
-        Assert.assertEquals("1.0.0-SNAPSHOT", result.get(1).getResult().getVersion());
+        Assert.assertEquals("1.0.0-ALIEN14", result.get(1).getResult().getVersion());
     }
 
     @Test
     public void importManyBranchFromGitAndStoreLocally() {
         CsarGitCheckoutLocation alien12Location = new CsarGitCheckoutLocation();
         alien12Location.setBranchId("1.2.0");
-        CsarGitCheckoutLocation masterLocation = new CsarGitCheckoutLocation();
-        masterLocation.setBranchId("master");
+        CsarGitCheckoutLocation alien14Location = new CsarGitCheckoutLocation();
+        alien14Location.setBranchId("1.4.0");
         List<CsarGitCheckoutLocation> importLocations = new LinkedList<>();
         importLocations.add(alien12Location);
-        importLocations.add(masterLocation);
+        importLocations.add(alien14Location);
         String repoId = csarGitRepositoryService.create("https://github.com/alien4cloud/tosca-normative-types.git", "", "", importLocations, true);
 
         List<ParsingResult<Csar>> result = csarGitService.importFromGitRepository(repoId);
@@ -107,7 +107,7 @@ public class CsarGitServiceTest {
         Assert.assertEquals("tosca-normative-types", result.get(0).getResult().getName());
         Assert.assertEquals("1.0.0-ALIEN12", result.get(0).getResult().getVersion());
         Assert.assertEquals("tosca-normative-types", result.get(1).getResult().getName());
-        Assert.assertEquals("1.0.0-SNAPSHOT", result.get(1).getResult().getVersion());
+        Assert.assertEquals("1.0.0-ALIEN14", result.get(1).getResult().getVersion());
 
         // now we re-import
         result = csarGitService.importFromGitRepository(repoId);
