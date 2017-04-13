@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.catalog.events;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +33,15 @@ public class ArchiveUsageRequestEvent extends AlienEvent {
      */
     public synchronized void addUsages(Usage[] usages) {
         Collections.addAll(this.usages, usages);
+    }
+
+    /**
+     * Add usage information.
+     *
+     * @param usages The usage information to be added.
+     */
+    public synchronized void addUsages(Collection<Usage> usages) {
+        this.usages.addAll(usages);
     }
 
     /**

@@ -2,8 +2,10 @@ package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -11,9 +13,9 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.events.AfterArchiveDeleted;
+import org.alien4cloud.tosca.catalog.events.ArchiveUsageRequestEvent;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -54,8 +56,6 @@ public class CsarService {
     private CsarFileRepository alienRepository;
     @Inject
     private ApplicationService applicationService;
-    @Inject
-    private EditionContextManager editionContextManager;
 
     /**
      * Check if a given archive exists in any workspace.
@@ -196,8 +196,7 @@ public class CsarService {
      */
     private Set<CSARDependency> remove(Csar csar, Set<CSARDependency> from) {
         CSARDependency toRemove = new CSARDependency(csar.getName(), csar.getVersion());
-        return from == null ? null
-                : from.stream().filter(csarDependency -> !Objects.equals(toRemove, csarDependency)).collect(Collectors.toSet());
+        return from == null ? null : from.stream().filter(csarDependency -> !Objects.equals(toRemove, csarDependency)).collect(Collectors.toSet());
     }
 
     /**
@@ -322,54 +321,42 @@ public class CsarService {
      * @return The list of usage of the archive.
      */
     public List<Usage> getCsarRelatedResourceList(Csar csar) {
-        List<Usage> relatedResourceList = Lists.newArrayList();
-
         if (csar == null) {
             log.warn("You have requested a resource list for a invalid csar object : <" + csar + ">");
-            return relatedResourceList;
+            return Lists.newArrayList();
         }
 
-        // TODO improve usage infos to add the version of csar/application that uses the given archive.
+        ArchiveUsageRequestEvent archiveUsageRequestEvent = new ArchiveUsageRequestEvent(this, csar.getName(), csar.getVersion());
 
-        // a csar that is a dependency of another csar can not be deleted
-        // FIXME WORKSPACE HANDLING REQUIRED
-
-        // a csar that used in ToscaContext cannot be deleted
-        try {
-            List<String> topologyIds = editionContextManager.getTopologiesByDesiredDependency(new CSARDependency(csar.getName(), csar.getVersion()));
-            if (!topologyIds.isEmpty()) {
-                for (String toplogyId : topologyIds) {
-                    relatedResourceList.add(new Usage(toplogyId, "Topology editor", toplogyId, csar.getWorkspace()));
-                 }
-
-            }
-        } catch (ExecutionException e) {
-            // do nothing
-        }
-
+        // Archive from applications are used by the application.
         if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
             // The CSAR is from an application's topology
-            relatedResourceList.addAll(
-                    Collections.singletonList(new Usage(csar.getDelegateId(), Application.class.getSimpleName().toLowerCase(), csar.getDelegateId(), null)));
+            Application application = applicationService.checkAndGetApplication(csar.getDelegateId());
+            archiveUsageRequestEvent
+                    .addUsage(new Usage(application.getName(), Application.class.getSimpleName().toLowerCase(), csar.getDelegateId(), csar.getWorkspace()));
         }
+
+        // a csar that is a dependency of another csar can not be deleted
         Csar[] relatedCsars = getDependantCsars(csar.getName(), csar.getVersion());
         if (ArrayUtils.isNotEmpty(relatedCsars)) {
-            relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
+            archiveUsageRequestEvent.addUsages(generateCsarsInfo(relatedCsars));
         }
 
         // check if some of the nodes are used in topologies.
         Topology[] topologies = getDependantTopologies(csar.getName(), csar.getVersion());
         if (topologies != null && topologies.length > 0) {
-            relatedResourceList.addAll(generateTopologiesInfo(topologies));
+            archiveUsageRequestEvent.addUsages(generateTopologiesInfo(topologies));
         }
 
         // a csar that is a dependency of location can not be deleted
         Location[] relatedLocations = getDependantLocations(csar.getName(), csar.getVersion());
         if (relatedLocations != null && relatedLocations.length > 0) {
-            relatedResourceList.addAll(generateLocationsInfo(relatedLocations));
+            archiveUsageRequestEvent.addUsages(generateLocationsInfo(relatedLocations));
         }
 
-        return relatedResourceList;
+        publisher.publishEvent(archiveUsageRequestEvent);
+
+        return archiveUsageRequestEvent.getUsages();
     }
 
     /**
@@ -423,7 +410,6 @@ public class CsarService {
      * @return
      */
     public List<Usage> generateTopologiesInfo(Topology[] topologies) {
-
         List<Usage> resourceList = Lists.newArrayList();
 
         List<Csar> topologiesCsar = getTopologiesCsar(topologies);
