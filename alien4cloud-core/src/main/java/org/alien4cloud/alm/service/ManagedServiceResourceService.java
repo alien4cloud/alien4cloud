@@ -212,6 +212,9 @@ public class ManagedServiceResourceService {
         Map<String, RelationshipType> relationshipTypeMap = Maps.newHashMap();
         // we also want to configure the service relationships for exposed capabilities
         for (Entry<String, SubstitutionTarget> substitutionTargetEntry : topology.getSubstitutionMapping().getCapabilities().entrySet()) {
+            if (serviceResource.getCapabilitiesRelationshipTypes() == null) {
+                serviceResource.setCapabilitiesRelationshipTypes(Maps.newHashMap());
+            }
             if (substitutionTargetEntry.getValue().getServiceRelationshipType() == null) {
                 serviceResource.getCapabilitiesRelationshipTypes().remove(substitutionTargetEntry.getKey());
             } else {
@@ -220,6 +223,9 @@ public class ManagedServiceResourceService {
             }
         }
         for (Entry<String, SubstitutionTarget> substitutionTargetEntry : topology.getSubstitutionMapping().getRequirements().entrySet()) {
+            if (serviceResource.getRequirementsRelationshipTypes() == null) {
+                serviceResource.setRequirementsRelationshipTypes(Maps.newHashMap());
+            }
             if (substitutionTargetEntry.getValue().getServiceRelationshipType() == null) {
                 serviceResource.getRequirementsRelationshipTypes().remove(substitutionTargetEntry.getKey());
             } else {
