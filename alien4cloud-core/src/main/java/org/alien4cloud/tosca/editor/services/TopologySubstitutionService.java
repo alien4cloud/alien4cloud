@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.editor.services;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -7,11 +8,14 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.utils.FileUtil;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.editor.EditionContext;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.events.SubstitutionTypeChangedEvent;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
@@ -44,12 +48,13 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class TopologySubstitutionService {
-
-    @Resource
+    @Inject
     private CsarService csarService;
-    @Resource
+    @Inject
+    private ICsarRepositry csarRepositry;
+    @Inject
     private IToscaTypeIndexerService indexerService;
-    @Resource
+    @Inject
     private ICsarDependencyLoader csarDependencyLoader;
     @Inject
     private ApplicationEventPublisher publisher;
@@ -63,8 +68,9 @@ public class TopologySubstitutionService {
         // first we update the csar and the dependencies
         NodeType nodeType = ToscaContext.getOrFail(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType());
         if (csar.getDependencies().add(csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()))) {
-            // FIXME manage hash for substitution elements too (should we just generate based on type).
-            // csar.setHash("-1");
+            Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+            String hash = FileUtil.deepSHA1(archiveGitPath);
+            csar.setHash(hash);
             csarService.save(csar);
         }
 
