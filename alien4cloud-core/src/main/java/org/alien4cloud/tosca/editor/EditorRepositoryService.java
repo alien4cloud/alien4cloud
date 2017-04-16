@@ -54,7 +54,6 @@ public class EditorRepositoryService {
      * @throws IOException
      */
     public Path createGitDirectory(Csar csar) throws IOException {
-        // FIXME we should use directly the folder from the archive repository
         Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         if (!RepositoryManager.isGitRepository(archiveGitPath)) {
             RepositoryManager.create(archiveGitPath, "TOSCA topology created by Alien4Cloud.");

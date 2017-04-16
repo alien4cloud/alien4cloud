@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.utils.CloneUtil;
 import alien4cloud.utils.FileUtil;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.index.CsarService;
@@ -112,6 +113,8 @@ public class TopologySubstitutionService {
                 NodeType nodeTemplateType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
                 RequirementDefinition requirementDefinition = IndexedModelUtils.getRequirementDefinitionById(nodeTemplateType.getRequirements(),
                         requirementName);
+                // We cannot change the capability definition here or we will change the original one so we need a clone
+                requirementDefinition = CloneUtil.clone(requirementDefinition);
                 requirementDefinition.setId(key);
                 substituteNodeType.getRequirements().add(requirementDefinition);
             }
@@ -127,6 +130,8 @@ public class TopologySubstitutionService {
                 NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeName);
                 NodeType nodeTemplateType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
                 CapabilityDefinition capabilityDefinition = IndexedModelUtils.getCapabilityDefinitionById(nodeTemplateType.getCapabilities(), capabilityName);
+                // We cannot change the capability definition here or we will change the original one so we need a clone
+                capabilityDefinition = CloneUtil.clone(capabilityDefinition);
                 capabilityDefinition.setId(key);
                 substituteNodeType.getCapabilities().add(capabilityDefinition);
             }
