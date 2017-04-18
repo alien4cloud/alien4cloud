@@ -83,7 +83,7 @@
               <td class="text-center">
                 <!--  MANAGE USER/GROUP ROLES ON APPLICATIONS -->
                 <!-- groups management -->
-                <div class="btn-group" uib-dropdown ng-if="crudSupport">
+                <div class="btn-group" uib-dropdown dropdown-append-to-body ng-if="crudSupport">
                   <a id="edit-app-group-role-button" class="btn btn-sm btn-default" uib-dropdown-toggle ng-click="searchGroups()" uib-tooltip="{{'USERS.EDIT_GROUPS' | translate}}" tooltip-append-to-body="true"><i class="fa fa-users"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'USERS.EDIT_GROUP_HEADER' | translate }}</li>
@@ -98,7 +98,7 @@
                   </ul>
                 </div>
                 <!-- roles management -->
-                <div class="btn-group" uib-dropdown>
+                <div class="btn-group" uib-dropdown dropdown-append-to-body>
                   <a id="edit-app-user-role-button" ng-if="!notEditableRoleList || notEditableRoleList.indexOf(user.username) < 0" class="btn btn-sm btn-default" uib-dropdown-toggle uib-tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_RESOURCE' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'EDIT_RIGHTS.EDIT_ROLE_HEADER_RESOURCE' | translate }}</li>
@@ -114,13 +114,11 @@
                   <delete-confirm id="user_{{user.username}}_delete" ng-if="crudSupport && user.internalDirectory" func="remove(user)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                   </delete-confirm>
                 </div>
-
               </td>
               <td class="text-center" ng-if="managedEnvRoleList">
-
                 <!-- MANAGE USER/GROUP ROLES ON ENVIRONMENTS -->
                 <!-- roles management -->
-                <div class="btn-group" uib-dropdown>
+                <div class="btn-group" uib-dropdown dropdown-append-to-body>
                   <a id="edit-env-user-role-button" class="btn btn-sm btn-default" uib-dropdown-toggle uib-tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_ENV' | translate}}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'EDIT_RIGHTS.EDIT_ROLE_HEADER_ENV' | translate }}</li>
@@ -131,7 +129,6 @@
                     </li>
                   </ul>
                 </div>
-
               </td>
             </tr>
           </tbody>

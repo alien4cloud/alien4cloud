@@ -65,7 +65,7 @@
                 <span ng-if="groupRolesEmpty">---</span>
               </td>
               <td class="text-center">
-                <div class="btn-group" uib-dropdown>
+                <div class="btn-group" uib-dropdown dropdown-append-to-body>
                   <a id="edit-app-group-role-button" ng-if="!notEditableRoleList || notEditableRoleList.indexOf(group.id) < 0"  class="btn btn-sm btn-default" uib-dropdown-toggle uib-tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_RESOURCE' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'EDIT_RIGHTS.EDIT_ROLE_HEADER_RESOURCE' | translate }}</li>
@@ -83,9 +83,8 @@
                 </div>
               </td>
               <td class="text-center" ng-if="managedEnvRoleList">
-
                 <!-- Environment rights -->
-                <div class="btn-group" uib-dropdown>
+                <div class="btn-group" uib-dropdown dropdown-append-to-body>
                   <a id="edit-env-group-role-button" class="btn btn-sm btn-default" uib-dropdown-toggle uib-tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_ENV' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'EDIT_RIGHTS.EDIT_ROLE_HEADER_ENV' | translate }}</li>
