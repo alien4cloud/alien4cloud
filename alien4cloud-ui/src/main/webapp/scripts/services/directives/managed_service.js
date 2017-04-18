@@ -24,7 +24,7 @@ define(function(require) {
         scope.runtime = scope.runtime || false;
 
         // managed service
-        const managedServiceResourceService = $alresource('/rest/applications/:applicationId/environments/:environmentId/services');
+        var managedServiceResourceService = $alresource('/rest/applications/:applicationId/environments/:environmentId/services');
 
         function getManagedService(){
           delete scope.environment.service;

@@ -31,10 +31,10 @@ define(function (require) {
   modules.get('a4c-services', ['ui.router', 'ui.bootstrap','a4c-common']).controller('a4cServiceResourcesCtrl',
     ['$scope', '$uibModal', '$alresource', 'searchServiceFactory', 'resizeServices', 'resourceSecurityFactory', 'globalRestErrorHandler', 'relationshipTypeQuickSearchService',
     function($scope, $uibModal, $alresource, searchServiceFactory, resizeServices, resourceSecurityFactory, globalRestErrorHandler, relationshipTypeQuickSearchService) {
-      const serviceResourceService = $alresource('rest/latest/services/:serviceId');
-      const orchestratorsService = $alresource('rest/latest/orchestrators/:id');
-      const locationsService = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:id');
-      const typeWithDependenciesService = $alresource('rest/latest/catalog/types/adv/typewithdependencies/:typeId/:typeVersion');
+      var serviceResourceService = $alresource('rest/latest/services/:serviceId');
+      var orchestratorsService = $alresource('rest/latest/orchestrators/:id');
+      var locationsService = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:id');
+      var typeWithDependenciesService = $alresource('rest/latest/catalog/types/adv/typewithdependencies/:typeId/:typeVersion');
 
       $scope.dimensions = { width: 800, height: 500 };
       resizeServices.registerContainer(function (width, height) {

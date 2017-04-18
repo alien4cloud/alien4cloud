@@ -21,13 +21,13 @@ define(function(require) {
       function($scope, locationResourcesService, locationResourcesPropertyService,
                locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService,
                locationResourcesPortabilityService, resizeServices, componentService, resourceSecurityFactory) {
-        const vm = this;
+        var vm = this;
 
         $scope.resourcesTypes = _.values($scope.resourcesTypesMap);
 
         function computeTypes() {
           // pick all resource types from the location - this will include orchestrator & custom types
-          const provided = $scope.providedTypes || _.map($scope.resourcesTypes, 'elementId');
+          var provided = $scope.providedTypes || _.map($scope.resourcesTypes, 'elementId');
           return _.map($scope.resourcesTypes, function (res) {
             return _.assign(
               _.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id'),
@@ -54,13 +54,13 @@ define(function(require) {
         });
 
         $scope.addResourceTemplate = function(dragData) {
-          const source = dragData ? angular.fromJson(dragData.source) : $scope.selectedConfigurationResourceType.value;
+          var source = dragData ? angular.fromJson(dragData.source) : $scope.selectedConfigurationResourceType.value;
 
           if (!source) {
             return;
           }
 
-          const newResource = {
+          var newResource = {
             'resourceType': source.elementId,
             'resourceName': 'New resource',
             'archiveName': source.archiveName || '',
@@ -72,26 +72,26 @@ define(function(require) {
             orchestratorId: $scope.context.orchestrator.id,
             locationId: $scope.context.location.id
           }, angular.toJson(newResource), function(response) {
-            const resourceTemplate = response.data.resourceTemplate;
-            const updatedDependencies = response.data.newDependencies;
+            var resourceTemplate = response.data.resourceTemplate;
+            var updatedDependencies = response.data.newDependencies;
 
             locationResourcesProcessor.processLocationResourceTemplate(resourceTemplate);
             $scope.context.location.dependencies = updatedDependencies;
 
             // if ResourceType is not in the fav list then get its type and add it to resource types map
             if ($scope.showCatalog && _.findIndex(vm.favorites, 'id', newResource.id) === -1) {
-              const typeId = newResource.resourceType;
-              const componentId = newResource.id;
+              var typeId = newResource.resourceType;
+              var componentId = newResource.id;
 
               componentService.get({componentId: componentId}).$promise.then(function (res) {
-                const resourceType = res.data;
-                const promises = [];
+                var resourceType = res.data;
+                var promises = [];
                 _.forEach(resourceType.capabilities, function(capability) {
                   if (!_.has($scope.context.locationResources.capabilityTypes, capability.type)) {
                   // Query capability type if needed using getInArchives - passing the location dependencies
-                    const p = componentService.getInArchives(capability.type, 'CAPABILITY_TYPE', updatedDependencies)
+                    var p = componentService.getInArchives(capability.type, 'CAPABILITY_TYPE', updatedDependencies)
                       .then(function (res) {
-                        const capabilityType = res.data.data;
+                        var capabilityType = res.data.data;
                         capabilityType.propertiesMap = _.indexBy(capabilityType.properties, 'key');
                         $scope.context.locationResources.capabilityTypes[capability.type] = capabilityType;
                       });
@@ -141,9 +141,9 @@ define(function(require) {
             delete $scope.selectedResourceTemplate;
 
             // Clean the favorites list
-            const deletedType = resourceTemplate.template.type;
+            var deletedType = resourceTemplate.template.type;
             // If the type of the template is provided by the orchestrator, never delete it from the fav list
-            const favIndex = _.findIndex(vm.favorites, { 'elementId': deletedType });
+            var favIndex = _.findIndex(vm.favorites, { 'elementId': deletedType });
             if (favIndex === -1 || vm.favorites[favIndex].provided) {
               return;
             }
