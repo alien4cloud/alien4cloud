@@ -107,7 +107,11 @@ public class ApplicationVersionService {
             if (originalId == null) {
                 topology = new Topology();
             } else {
-                topology = getTemplateTopology(originalId);
+                try {
+                    topology = getTemplateTopology(originalId);
+                } catch (NotFoundException | AccessDeniedException e) {
+                    topology = new Topology();
+                }
             }
             // Create a default topology version for this application version.
             ApplicationTopologyVersion applicationTopologyVersion = createTopologyVersion(applicationId, version, null, "default topology", topology);

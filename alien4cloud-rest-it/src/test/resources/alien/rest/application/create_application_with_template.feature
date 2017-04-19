@@ -20,6 +20,23 @@ Feature: Creating a new application based on a topology template
       | NodeTemplateCompute | tosca.nodes.Compute:1.0    |
       | NodeTemplateJava    | fastconnect.nodes.Java:1.0 |
     Then I should receive a RestResponse with no error
+
+  @reset
+  Scenario: Creating a new application based on a topology template
+    Given I am authenticated with user named "mairon"
+    And I create a new topology template with name "topology_template_java" and description "My topology template description1" and node templates
+      | NodeTemplateCompute | tosca.nodes.Compute:1.0    |
+      | NodeTemplateJava    | fastconnect.nodes.Java:1.0 |
+    Then I should receive a RestResponse with no error
     Given I am authenticated with user named "sauron"
     And I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "topology_template_java:0.1.0-SNAPSHOT"
     And The created application topology is the same as the one in the base topology template
+
+  @reset
+  Scenario: Creating a new application based on a wrong topology template should create a new topology for this application
+    Given I am authenticated with user named "sauron"
+    And I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "topology_template_java:0.1.0-SNAPSHOT"
+    And I get the application named "watchmiddleearth"
+    Then I should receive a RestResponse with no error
+    And I retrieve the newly created topology
+    Then I should receive a RestResponse with no error
