@@ -41,7 +41,7 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
 
     @Override
     protected String getToscaVersion() {
-        return "tosca/alien_dsl_1_2_0";
+        return "alien_dsl_1_2_0";
     }
 
     @Resource

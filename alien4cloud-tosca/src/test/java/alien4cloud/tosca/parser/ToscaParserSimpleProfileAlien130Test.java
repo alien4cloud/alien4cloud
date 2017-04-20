@@ -593,6 +593,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
 
         NodeType mockedSoftware = Mockito.mock(NodeType.class);
         CapabilityType mockedContainer = Mockito.mock(CapabilityType.class);
+        Mockito.when(mockedContainer.getElementId()).thenReturn("tosca.capabilities.Container");
         RequirementDefinition hostRequirement = new RequirementDefinition("host", "tosca.capabilities.Container", null, "", "tosca.relationships.HostedOn",
                 "host", 1, Integer.MAX_VALUE, null);
         Mockito.when(mockedSoftware.getRequirements()).thenReturn(Lists.<RequirementDefinition> newArrayList(hostRequirement));
