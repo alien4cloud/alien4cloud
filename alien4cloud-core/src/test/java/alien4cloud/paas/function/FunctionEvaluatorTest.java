@@ -52,7 +52,7 @@ import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.services.ApplicationUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:function-application-context-test.xml")
+@ContextConfiguration("classpath:application-context-test.xml")
 public class FunctionEvaluatorTest {
     private static boolean INITIALIZED = false;
 
