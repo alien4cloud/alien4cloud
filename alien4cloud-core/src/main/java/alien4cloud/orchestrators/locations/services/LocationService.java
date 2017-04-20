@@ -278,7 +278,7 @@ public class LocationService {
      * @param id id of the locations to delete.
      * @return true if the location was successfully , false if not.
      */
-    public boolean delete(String orchestratorId, String id) {
+    public synchronized boolean delete(String orchestratorId, String id) {
         Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
 
         long count = alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("locationIds", id, "endDate", "null")).count();
