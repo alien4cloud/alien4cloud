@@ -58,7 +58,6 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     private String archiveVersion;
 
     @ObjectField
-    @TermFilter(paths = { "majorVersion", "minorVersion", "incrementalVersion", "buildNumber", "qualifier" })
     private Version nestedVersion;
 
     @TermFilter
@@ -73,15 +72,12 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     private Date lastUpdateDate = new Date();
 
     /** The list of dependencies of this topology. */
-    @TermFilter(paths = { "name", "version" })
     @NestedObject(nestedClass = CSARDependency.class)
     @FetchContext(contexts = { SUMMARY }, include = { false })
     private Set<CSARDependency> dependencies = Sets.newHashSet();
 
     @MapKeyValue
-    @TermFilter(paths = "value.type")
     @ConditionalOnAttribute(ConditionalAttributes.ES)
-    //@JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = NodeTemplateDeserializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY }, include = { false })

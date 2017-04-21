@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor.processors.substitution;
 
 import javax.inject.Inject;
 
+import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
@@ -37,6 +38,9 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
             // the node type does'nt exist in this topology dependencies
             // we need to find the latest version of this component and use it as default
             nodeType = toscaTypeSearchService.findMostRecent(NodeType.class, operation.getElementId());
+            if (nodeType == null) {
+                throw new NotFoundException("Node type with name <" + operation.getElementId() + "> cannot be found in the catalog.");
+            }
             topologyService.loadType(topology, nodeType);
         }
         topology.getSubstitutionMapping().setSubstitutionType(operation.getElementId());

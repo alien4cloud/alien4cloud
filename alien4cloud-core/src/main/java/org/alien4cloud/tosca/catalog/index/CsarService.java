@@ -106,9 +106,10 @@ public class CsarService {
      * @return an array of CSARs that depend on this name:version.
      */
     public Csar[] getDependantCsars(String name, String version) {
-        FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
-                .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
-        GetMultipleDataResult<Csar> result = csarDAO.search(Csar.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        FilterBuilder notSelf = FilterBuilders
+                .notFilter(FilterBuilders.andFilter(FilterBuilders.termFilter("name", name), FilterBuilders.termFilter("version", version)));
+        GetMultipleDataResult<Csar> result = csarDAO.buildQuery(Csar.class).prepareSearch()
+                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -119,12 +120,11 @@ public class CsarService {
      * @return an array of <code>Topology</code>s that depend on this name:version.
      */
     public Topology[] getDependantTopologies(String name, String version) {
-        FilterBuilder filter = FilterBuilders.boolFilter()
-                .mustNot(FilterBuilders.boolFilter().must(FilterBuilders.termFilter("archiveName", name))
-                        .must(FilterBuilders.termFilter("archiveVersion", version)))
-                .must(FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", name))
-                        .must(FilterBuilders.termFilter("dependencies.version", version))));
-        GetMultipleDataResult<Topology> result = csarDAO.search(Topology.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        FilterBuilder notSelf = FilterBuilders
+                .notFilter(FilterBuilders.andFilter(FilterBuilders.termFilter("archiveName", name), FilterBuilders.termFilter("archiveVersion", version)));
+
+        GetMultipleDataResult<Topology> result = csarDAO.buildQuery(Topology.class).prepareSearch()
+                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -140,9 +140,8 @@ public class CsarService {
      * @return an array of CSARs that depend on this name:version.
      */
     public Location[] getDependantLocations(String name, String version) {
-        FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
-                .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
-        GetMultipleDataResult<Location> result = csarDAO.search(Location.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        GetMultipleDataResult<Location> result = csarDAO.buildQuery(Location.class)
+                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version)).prepareSearch().search(0, Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -322,7 +321,7 @@ public class CsarService {
      */
     public List<Usage> getCsarRelatedResourceList(Csar csar) {
         if (csar == null) {
-            log.warn("You have requested a resource list for a invalid csar object : <" + csar + ">");
+            log.debug("You have requested a resource list for a invalid csar object : <" + csar + ">");
             return Lists.newArrayList();
         }
 

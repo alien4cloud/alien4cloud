@@ -29,7 +29,7 @@ public class ServiceUsageReporter {
     private ApplicationEnvironmentService environmentService;
 
     @EventListener
-    private void toto(ServiceUsageRequestEvent serviceChangedEvent) {
+    private void reportServiceUsage(ServiceUsageRequestEvent serviceChangedEvent) {
         GetMultipleDataResult<Deployment> usageResult = alienDAO.buildQuery(Deployment.class)
                 .setFilters(fromKeyValueCouples("endDate", null, "serviceResourceIds", serviceChangedEvent.getServiceId())).prepareSearch()
                 .search(0, Integer.MAX_VALUE);

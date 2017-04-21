@@ -13,6 +13,12 @@ Feature: Topology editor: add substitution
     When I save the topology
     Then I should be able to find a component with id "TopologyTemplate1:0.1.0-SNAPSHOT"
 
+  Scenario: Set a topology template as substitute of a type that does not exists should fail
+    When I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.UnknownNode                                                           |
+    Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
+
   Scenario: Remove the topology template as substitute
     When I execute the operation
       | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |

@@ -3,6 +3,7 @@ package org.alien4cloud.bootstrap;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import alien4cloud.utils.SpringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -64,7 +65,10 @@ public class ApplicationManager implements ApplicationListener<AlienEvent>, Hand
         if (childContextLaunched) {
             if (!event.isForwarded()) {
                 event.setForwarded(true);
-                fullApplicationContext.publishEvent(event);
+                // Avoid dispatching the same event twice to a context.
+                if (!SpringUtils.isSingletonOwnedByContex(fullApplicationContext, event.getSource())) {
+                    fullApplicationContext.publishEvent(event);
+                }
             } else {
                 log.debug("Event {} already forwarded to children", event);
             }

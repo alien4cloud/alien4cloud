@@ -211,7 +211,7 @@ public class LocationService {
                         location.getDependencies());
                 nodeType.getDerivedFrom().add(0, template.getTemplate().getType());
                 template.setTypes(nodeType.getDerivedFrom());
-                // FIXME Workaround to remove default scalable properties from compute
+                // TODO improve this as it is a workaround to remove default scalable properties from compute
                 TopologyUtils.setNullScalingPolicy(template.getTemplate(), nodeType);
 
                 LocationTemplateCreated event = new LocationTemplateCreated(this);

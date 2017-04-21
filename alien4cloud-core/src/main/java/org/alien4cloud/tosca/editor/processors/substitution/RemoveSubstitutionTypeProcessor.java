@@ -23,6 +23,8 @@ import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.topology.TopologyService;
 
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+
 /**
  * Delete the substitute of a topology template.
  */
@@ -41,11 +43,11 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
             throw new NotFoundException("No substitution type has been found");
         }
 
-        // FIXME also check if no element inherits from this substitute type
+        // FIXME check also on live edited topologies.
+
         // the substitute type os within the topology's archive
         Csar csar = EditionContextManager.getCsar();
-        Topology[] topologies = getTopologiesUsing(csar.getName(), csar.getName(), csar.getVersion());
-        if (ArrayUtils.isNotEmpty(topologies)) {
+        if (hasArchiveUsing(csar.getName(), csar.getVersion())) {
             throw new DeleteReferencedObjectException("The substitution can not be removed since it's type is already used in at least another topology");
         }
 
@@ -59,15 +61,13 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
         alienDAO.delete(NodeType.class, EditionContextManager.getTopology().getId());
     }
 
-    private Topology[] getTopologiesUsing(String elementId, String archiveName, String archiveVersion) {
-        FilterBuilder customFilter = FilterBuilders.boolFilter()
-                .mustNot(FilterBuilders.boolFilter().must(FilterBuilders.termFilter("archiveName", archiveName))
-                        .must(FilterBuilders.termFilter("archiveVersion", archiveVersion)))
-                .must(FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", archiveName))
-                        .must(FilterBuilders.termFilter("dependencies.version", archiveVersion))));
-        Map<String, String[]> filter = FilterUtil.singleKeyFilter("nodeTemplates.value.type", elementId);
-        GetMultipleDataResult<Topology> result = alienDAO.search(Topology.class, null, filter, customFilter, FetchContext.SUMMARY, 0, Integer.MAX_VALUE);
-        return result.getData();
-    }
+    private boolean hasArchiveUsing(String archiveName, String archiveVersion) {
+        // FilterBuilders.boolFilter().mustNot(FilterBuilders.boolFilter().must()
+        // .must());
+        FilterBuilder notThisArchiveFilter = FilterBuilders
+                .notFilter(FilterBuilders.andFilter(FilterBuilders.termFilter("name", archiveName), FilterBuilders.termFilter("version", archiveVersion)));
 
+        return alienDAO.buildQuery(Csar.class)
+                .setFilters(fromKeyValueCouples("dependencies.name", archiveName, "dependencies.version", archiveVersion), notThisArchiveFilter).count() > 0;
+    }
 }

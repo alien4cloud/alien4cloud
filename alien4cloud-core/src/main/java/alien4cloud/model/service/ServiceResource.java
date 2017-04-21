@@ -107,9 +107,8 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
         nodeInstance.setAttribute(ToscaNodeLifecycleConstants.ATT_STATE, state);
     }
 
-    @JsonProperty
+    @JsonIgnore
     public String getState() {
         return nodeInstance.getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE);
     }
-
 }

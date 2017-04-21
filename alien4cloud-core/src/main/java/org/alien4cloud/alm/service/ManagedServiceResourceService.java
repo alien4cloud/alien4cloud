@@ -1,6 +1,7 @@
 package org.alien4cloud.alm.service;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -211,7 +212,7 @@ public class ManagedServiceResourceService {
     private void updateServiceRelationship(ServiceResource serviceResource, Topology topology) {
         Map<String, RelationshipType> relationshipTypeMap = Maps.newHashMap();
         // we also want to configure the service relationships for exposed capabilities
-        for (Entry<String, SubstitutionTarget> substitutionTargetEntry : topology.getSubstitutionMapping().getCapabilities().entrySet()) {
+        for (Entry<String, SubstitutionTarget> substitutionTargetEntry : safe(topology.getSubstitutionMapping().getCapabilities()).entrySet()) {
             if (serviceResource.getCapabilitiesRelationshipTypes() == null) {
                 serviceResource.setCapabilitiesRelationshipTypes(Maps.newHashMap());
             }
@@ -222,7 +223,7 @@ public class ManagedServiceResourceService {
                 serviceResource.getCapabilitiesRelationshipTypes().put(substitutionTargetEntry.getKey(), relationshipId);
             }
         }
-        for (Entry<String, SubstitutionTarget> substitutionTargetEntry : topology.getSubstitutionMapping().getRequirements().entrySet()) {
+        for (Entry<String, SubstitutionTarget> substitutionTargetEntry : safe(topology.getSubstitutionMapping().getRequirements()).entrySet()) {
             if (serviceResource.getRequirementsRelationshipTypes() == null) {
                 serviceResource.setRequirementsRelationshipTypes(Maps.newHashMap());
             }

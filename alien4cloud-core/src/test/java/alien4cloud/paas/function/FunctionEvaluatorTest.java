@@ -25,6 +25,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -53,6 +55,7 @@ import alien4cloud.utils.services.ApplicationUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
+@DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
 public class FunctionEvaluatorTest {
     private static boolean INITIALIZED = false;
 

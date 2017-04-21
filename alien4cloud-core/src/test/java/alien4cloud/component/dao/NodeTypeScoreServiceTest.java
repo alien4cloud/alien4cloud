@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Sets;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -55,17 +57,27 @@ public class NodeTypeScoreServiceTest {
         indexedNodeType.setArchiveVersion("1.0.0");
         indexedNodeType.setCreationDate(new Date());
         indexedNodeType.setLastUpdateDate(new Date());
-        indexedNodeType.setDefaultCapabilities(Lists.newArrayList("evil"));
+        indexedNodeType.setDefaultCapabilities(null);
         dao.save(indexedNodeType);
         String isengard100Id = indexedNodeType.getId();
+
+        indexedNodeType.setElementId("isengard");
+        indexedNodeType.setArchiveName("middleEarth");
+        indexedNodeType.setArchiveVersion("1.0.1");
+        indexedNodeType.setCreationDate(new Date());
+        indexedNodeType.setLastUpdateDate(new Date());
+        indexedNodeType.setDefaultCapabilities(Lists.newArrayList("evil"));
+        dao.save(indexedNodeType);
+        String isengard101Id = indexedNodeType.getId();
 
         Topology topology = new Topology();
         topology.setId("topology");
         topology.setArchiveName("test-archive");
         topology.setArchiveVersion("1.0.0");
         topology.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
+        topology.setDependencies(Sets.newHashSet(new CSARDependency("middleEarth", "1.0.1")));
         topology.setNodeTemplates(MapUtil.newHashMap(new String[] { "isengard" },
-                new NodeTemplate[] { new NodeTemplate(indexedNodeType.getId(), null, null, null, null, null, null, null) }));
+                new NodeTemplate[] { new NodeTemplate(indexedNodeType.getElementId(), null, null, null, null, null, null, null) }));
         dao.save(topology);
 
         indexedNodeType.setElementId("osgiliath");
@@ -82,8 +94,8 @@ public class NodeTypeScoreServiceTest {
 
         // check that order on query is correct
         GetMultipleDataResult data = dao.search(NodeType.class, "", null, AlienConstants.DEFAULT_ES_SEARCH_SIZE);
-        Assert.assertEquals(4, data.getData().length);
-        Assert.assertEquals(isengard100Id, ((NodeType) data.getData()[0]).getId());
+        Assert.assertEquals(5, data.getData().length);
+        Assert.assertEquals(isengard101Id, ((NodeType) data.getData()[0]).getId());
         Assert.assertEquals(1011, ((NodeType) data.getData()[0]).getAlienScore());
         Assert.assertEquals(mordor101Id, ((NodeType) data.getData()[1]).getId());
         Assert.assertEquals(1010, ((NodeType) data.getData()[1]).getAlienScore());
@@ -91,6 +103,7 @@ public class NodeTypeScoreServiceTest {
         Assert.assertEquals(1000, ((NodeType) data.getData()[2]).getAlienScore());
         Assert.assertEquals(mordor100Id, ((NodeType) data.getData()[3]).getId());
         Assert.assertEquals(10, ((NodeType) data.getData()[3]).getAlienScore());
+        Assert.assertEquals(isengard100Id, ((NodeType) data.getData()[4]).getId());
+        Assert.assertEquals(0, ((NodeType) data.getData()[4]).getAlienScore());
     }
-
 }
