@@ -38,7 +38,7 @@ topology_template:
       type: ${inputEntry.value.type}
       required: $inputEntry.value.required
 #if($inputEntry.value.default)
-      default: $propertyUtils.renderScalar($inputEntry.value.default)
+      default: $propertyUtils.formatPropertyValue(6, $inputEntry.value.default)
 #end## if default defined
 #if($utils.collectionIsNotEmpty($inputEntry.value.constraints))
       constraints:
