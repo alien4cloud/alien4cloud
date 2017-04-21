@@ -1,6 +1,6 @@
 package org.alien4cloud.tosca.editor.processors.substitution;
 
-import java.util.Map;
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 import javax.annotation.Resource;
 
@@ -10,20 +10,14 @@ import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FetchContext;
-import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.topology.TopologyService;
-
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 /**
  * Delete the substitute of a topology template.

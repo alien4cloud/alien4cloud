@@ -372,12 +372,10 @@ public class CsarService {
             if (ArchiveDelegateType.APPLICATION.toString().equals(csar.getDelegateType())) {
                 Application application = applicationService.checkAndGetApplication(csar.getDelegateId());
                 resourceName = application.getName();
-                resourceId = csar.getDelegateId();
             } else {
                 resourceName = csar.getName();
-                resourceId = csar.getId();
             }
-            Usage temp = new Usage(resourceName, Csar.class.getSimpleName().toLowerCase(), resourceId, csar.getWorkspace());
+            Usage temp = new Usage(resourceName, Csar.class.getSimpleName().toLowerCase(), csar.getId(), csar.getWorkspace());
             resourceList.add(temp);
         }
         return resourceList;

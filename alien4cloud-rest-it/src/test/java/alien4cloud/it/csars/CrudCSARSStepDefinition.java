@@ -101,7 +101,6 @@ public class CrudCSARSStepDefinition {
             isPresent = false;
             for (DataTableRow row : usageDT.getGherkinRows()) {
                 if (usage.getResourceName().equals(row.getCells().get(0)) && usage.getResourceType().equals(row.getCells().get(1))) {
-                    Assert.assertTrue(usage.getResourceName() + " : " + usage.getResourceType(), true);
                     isPresent = true;
                     break;
                 }
