@@ -292,6 +292,7 @@
       "TITLE": "Uninstall reminder"
     },
     "VERSION" : {
+      "CHANGE_TOPO_VERSION_WARNING": "One more thing : you need to select a topology version to validate the change of application version",
       "LABEL" : "Application version",
       "MODAL" : {
         "PATTERN" : "無効なフォーマットバージョン",

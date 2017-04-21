@@ -301,6 +301,7 @@
       "TITLE": "Informations concernant la désinstallation"
     },
     "VERSION" : {
+      "CHANGE_TOPO_VERSION_WARNING": "Encore une chose: vous devez sélectionner une version de topologie pour valider le changement de version de l'application",
       "LABEL" : "Version d'application",
       "MODAL" : {
         "PATTERN" : "Le format du numéro de version est invalide.",

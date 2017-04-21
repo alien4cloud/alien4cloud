@@ -68,7 +68,7 @@ define(function (require) {
         environment.selectedAppVersion = _.find($scope.versions, function(version) {
           return _.defined(version.topologyVersions[environment.currentVersionName]);
         });
-        environment.selectedAppTopoVersion = environment.currentVersionName;
+        environment.selectedAppVersion.selectedAppTopoVersion = environment.currentVersionName;
       }
       // Application versions search
       var searchVersions = function() {
@@ -137,6 +137,17 @@ define(function (require) {
         }
       };
 
+      function cleanPreviousTopoVersionChoise(environment) {
+        var done = false;
+        for (var i=0; i < $scope.archiveVersions.length && !done; i++) {
+          var archiveVersion = $scope.archiveVersions[i];
+          if (archiveVersion.id !== environment.selectedAppVersion.id) {
+            delete archiveVersion.selectedAppTopoVersion;
+            done = true;
+          }
+        }
+      }
+
       function doUpdateTopologyVersion(environment, selectedTopologyVersion, inputCandidate) {
         var inputCandidateId = null;
         if(_.defined(inputCandidate)) {
@@ -149,6 +160,7 @@ define(function (require) {
           newTopologyVersion: selectedTopologyVersion,
           environmentToCopyInput: inputCandidateId
         }), function() {
+          cleanPreviousTopoVersionChoise(environment);
           environment.currentVersionName = selectedTopologyVersion;
           appEnvironments.updateEnvironment(environment);
         });
@@ -182,10 +194,10 @@ define(function (require) {
       function updateEnvironment(environmentId, fieldName, fieldValue) {
         // update the environments
         var done = false;
-        for(var i=0; i < $scope.environments.length && !done; i++) {
+        for (var i=0; i < $scope.environments.length && !done; i++) {
           var environment = $scope.environments[i];
-          if(environment.id === environmentId) {
-            if(fieldName === 'currentVersionId') {
+          if (environment.id === environmentId) {
+            if (fieldName === 'currentVersionId') {
               fieldName = 'currentVersionName';
             }
             environment[fieldName] = fieldValue;
