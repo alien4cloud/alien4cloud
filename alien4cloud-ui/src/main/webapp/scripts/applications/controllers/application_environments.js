@@ -68,7 +68,7 @@ define(function (require) {
         environment.selectedAppVersion = _.find($scope.versions, function(version) {
           return _.defined(version.topologyVersions[environment.currentVersionName]);
         });
-        environment.selectedAppVersion.selectedAppTopoVersion = environment.currentVersionName;
+        environment.selectedAppTopoVersion = environment.currentVersionName;
       }
       // Application versions search
       var searchVersions = function() {
@@ -137,16 +137,11 @@ define(function (require) {
         }
       };
 
-      function cleanPreviousTopoVersionChoise(environment) {
-        var done = false;
-        for (var i=0; i < $scope.archiveVersions.length && !done; i++) {
-          var archiveVersion = $scope.archiveVersions[i];
-          if (archiveVersion.id !== environment.selectedAppVersion.id) {
-            delete archiveVersion.selectedAppTopoVersion;
-            done = true;
-          }
+      $scope.forceUserToChangeTopoVersion = function(environment) {
+        if (environment.currentVersionName !== environment.selectedAppVersion.version) {
+          delete environment.selectedAppTopoVersion;
         }
-      }
+      };
 
       function doUpdateTopologyVersion(environment, selectedTopologyVersion, inputCandidate) {
         var inputCandidateId = null;
@@ -160,7 +155,6 @@ define(function (require) {
           newTopologyVersion: selectedTopologyVersion,
           environmentToCopyInput: inputCandidateId
         }), function() {
-          cleanPreviousTopoVersionChoise(environment);
           environment.currentVersionName = selectedTopologyVersion;
           appEnvironments.updateEnvironment(environment);
         });
