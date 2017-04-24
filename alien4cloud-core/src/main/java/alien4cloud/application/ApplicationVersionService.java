@@ -211,7 +211,7 @@ public class ApplicationVersionService {
      * @return The topology.
      * @throws AccessDeniedException in case the topology is not from a template.
      */
-    private Topology getTemplateTopology(String archiveId) {
+    public Topology getTemplateTopology(String archiveId) {
         // We need to ensure that the topology is indeed a topology template
         if (alienDAO.buildQuery(ApplicationVersion.class).setFilters(fromKeyValueCouples("topologyVersions.value.archiveId", archiveId)).count() > 0) {
             throw new AccessDeniedException(

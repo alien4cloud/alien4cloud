@@ -12,13 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -36,11 +30,7 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.rest.application.model.CreateApplicationRequest;
 import alien4cloud.rest.application.model.UpdateApplicationRequest;
-import alien4cloud.rest.model.FilteredSearchRequest;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.model.*;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
@@ -87,6 +77,10 @@ public class ApplicationController {
 
         // check the topology template id to recover the related topology id
         String topologyId = request.getTopologyTemplateVersionId();
+        if (topologyId != null) {
+            applicationVersionService.getTemplateTopology(topologyId);
+        }
+
         // check unity of archive name
         try {
             archiveIndexer.ensureUniqueness(request.getArchiveName(), VersionUtil.DEFAULT_VERSION_NAME);
@@ -97,6 +91,7 @@ public class ApplicationController {
                             .build())
                     .build();
         }
+
         // create the application with default environment and version
         String applicationId = applicationService.create(auth.getName(), request.getArchiveName(), request.getName(), request.getDescription());
         ApplicationVersion version = applicationVersionService.createInitialVersion(applicationId, topologyId);
