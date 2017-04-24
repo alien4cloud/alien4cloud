@@ -135,6 +135,7 @@ define(function(require) {
           ' confirm="{{\'CONFIRM_MESSAGE\' | translate}}"' +
           ' confirm-title="{{\'CONFIRM\' | translate }}"' +
           ' confirm-placement="left"' +
+          ' confirm-class="popover"' +
           ' cancel-handler="$form.$cancel()"' +
           ' ng-click="$event.stopPropagation();">' +
           '<span class="fa fa-check"></span>' +

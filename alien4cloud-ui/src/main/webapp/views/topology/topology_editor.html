@@ -146,8 +146,12 @@
             <div id="node-details-groups-panel" uib-collapse="isGroupsCollapsed" class="facet-choice">
               <ul class="nav facet-choice">
                 <li ng-repeat="groupId in selectedNodeTemplate.groups">
-                  <a href="" id="removeGroup_{{groupId}}_from_{{selectedNodeTemplate.name}}"  confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
-                    confirm-handler="groups.removeMember(groupId, selectedNodeTemplate.name)" confirm-placement="bottom"
+                  <a href="" id="removeGroup_{{groupId}}_from_{{selectedNodeTemplate.name}}"
+                    confirm="{{'DELETE_CONFIRM' | translate}}"
+                    confirm-title="{{'DELETE' | translate }}"
+                    confirm-handler="groups.removeMember(groupId, selectedNodeTemplate.name)"
+                    confirm-placement="bottom"
+                    confirm-class="popover"
                     ng-click="$event.stopPropagation();">
                     <span class="{{groups.getColorCss(groupId)}}">{{groupId}}</span>&nbsp;
                     <i class="fa fa-times"></i>
@@ -818,7 +822,7 @@
                 <ul class="nav facet-choice">
                   <li ng-repeat="member in group.members">
                     <a href="" id="removeMember_{{member}}_from_{{group.name}}" confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
-                      confirm-handler="groups.removeMember(group.name, member)" confirm-placement="bottom"
+                      confirm-handler="groups.removeMember(group.name, member)" confirm-placement="bottom" confirm-class="popover"
                       ng-click="$event.stopPropagation();" >
                       <span>{{member}}</span>&nbsp;
                       <i class="fa fa-times"></i>
