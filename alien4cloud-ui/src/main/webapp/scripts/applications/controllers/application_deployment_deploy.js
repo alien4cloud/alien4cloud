@@ -42,11 +42,11 @@ define(function(require) {
         ////////////////////////////////////
         ///  CONFIRMATION BEFORE DEPLOYMENT
         ///
-        var DeployConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'nodeTemplates', 'locationName', 'orchestratorName', 'environment',
-          function($scope, $uibModalInstance, $translate, nodeTemplates, locationName, orchestratorName, environment) {
+        var DeployConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName', 'nodeTemplates', 'locationName', 'orchestratorName', 'environment',
+          function($scope, $uibModalInstance, $translate, applicationName, nodeTemplates, locationName, orchestratorName, environment) {
             $scope.nodeTemplates = nodeTemplates;
             $scope.content = $translate.instant('APPLICATIONS.DEPLOY_MODAL.CONTENT.HEADER', {
-              'application': environment.applicationId,
+              'application': applicationName,
               'type': environment.environmentType,
               'version': environment.currentVersionName
             });
@@ -93,6 +93,9 @@ define(function(require) {
             templateUrl: 'views/applications/deploy_confirm_modal.html',
             controller: DeployConfirmationModalCtrl,
             resolve: {
+              applicationName: function() {
+                return $scope.application.name;
+              },
               nodeTemplates: function() {
                 return $scope.deploymentContext.deploymentTopologyDTO.topology.substitutedNodes;
               },
