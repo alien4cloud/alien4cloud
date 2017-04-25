@@ -89,3 +89,20 @@ Feature: Match location for a deployment configuration
     # Get the topology and check matching options, we should have the service listed
     When I GET "/rest/v1/applications/ALIEN/environments/${environmentId}/deployment-topology"
     Then Available substitution should contains 3 proposal including 1 service
+
+  @reset
+  Scenario: Removed service should be removed from matching selection
+    And I create a service with name "MyHostService", version "1.0.0", type "tosca.nodes.Compute", archive version "1.0.0-SNAPSHOT"
+    And I register "data" as "serviceId"
+    And I should receive a RestResponse with no error
+    # affect to the location
+    And I PATCH "application-deployment/patch_service_location.json" to "/rest/v1/services/${serviceId}"
+    And I should receive a RestResponse with no error
+    # Get the topology and check matching options, we should have the service listed
+    When I GET "/rest/v1/applications/ALIEN/environments/${environmentId}/deployment-topology"
+    Then Available substitution should contains 3 proposal including 1 service
+    When I DELETE "/rest/v1/services/${serviceId}"
+    Then I should receive a RestResponse with no error
+    # Get the topology and check matching options, we should not have the service listed
+    When I GET "/rest/v1/applications/ALIEN/environments/${environmentId}/deployment-topology"
+    Then Available substitution should contains 2 proposal including 0 service
