@@ -56,10 +56,10 @@ define(function (require) {
     $scope.fromIndex = 1;
     var prefix = $scope.selectedVersion.version;
     var suffix = '';
-    var snapshotIndex = $scope.selectedVersion.version.indexOf('-SNAPSHOT');
-    if(snapshotIndex > 0) {
-      prefix = $scope.selectedVersion.version.substring(0, snapshotIndex) + $scope.selectedVersion.version.substring(snapshotIndex + 9, $scope.selectedVersion.version.length);
-      suffix = '-SNAPSHOT';
+    var qualifierIndex = $scope.selectedVersion.version.indexOf('-');
+    if(qualifierIndex > 0) {
+      prefix = $scope.selectedVersion.version.substring(0, qualifierIndex);
+      suffix = $scope.selectedVersion.version.substring(qualifierIndex, $scope.selectedVersion.version.length);
     }
 
     $scope.$watch('appTopoVersion.qualifier', function() {
