@@ -51,7 +51,7 @@ define(function (require) {
             return result.data;
           });
         }
-      ],
+      ]
     },
     templateUrl: 'views/applications/vertical_menu_layout.html',
     controller: 'ApplicationCtrl',

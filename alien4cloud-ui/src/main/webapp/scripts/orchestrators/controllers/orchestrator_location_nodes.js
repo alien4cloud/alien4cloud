@@ -61,7 +61,7 @@ define(function (require) {
 
       var params = {
         orchestratorId: $scope.context.orchestrator.id,
-        locationId: $scope.context.location.id,
+        locationId: $scope.context.location.id
       };
 
       $scope.buildSecuritySearchConfig = function(subject){

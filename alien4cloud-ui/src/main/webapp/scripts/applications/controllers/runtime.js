@@ -18,7 +18,7 @@ define(function (require) {
         function(application) { // to apply resource roles on the menu element.
           return application.data;
         }
-      ],
+      ]
     },
     menu: {
       id: 'am.applications.detail.runtime',

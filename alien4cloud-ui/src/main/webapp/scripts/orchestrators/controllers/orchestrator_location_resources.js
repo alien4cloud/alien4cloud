@@ -237,7 +237,7 @@ define(function(require) {
             useParams: true,
             params: {
               orchestratorId: $scope.context.orchestrator.id,
-              locationId: $scope.context.location.id,
+              locationId: $scope.context.location.id
             }
           };
         };
