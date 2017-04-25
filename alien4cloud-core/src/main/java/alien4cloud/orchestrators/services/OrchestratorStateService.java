@@ -196,6 +196,13 @@ public class OrchestratorStateService {
             // trigger locations auto-configurations
             locationService.autoConfigure(orchestrator, (ILocationAutoConfigurer) orchestratorInstance);
         }
+        indexLocationsArchives(orchestrator);
+    }
+
+    private void indexLocationsArchives(Orchestrator orchestrator) {
+        locationService.getAll(orchestrator.getId()).forEach(location -> {
+            archiveIndexer.indexLocationArchives(orchestrator, location);
+        });
     }
 
     /**
