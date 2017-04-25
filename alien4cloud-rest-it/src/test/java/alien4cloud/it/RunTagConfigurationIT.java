@@ -12,6 +12,6 @@ import cucumber.api.junit.Cucumber;
         "classpath:alien/rest/tags"
         // "classpath:alien/rest/tags/meta_prop_configuration.feature"
 }, format = { "pretty", "html:target/cucumber/tags", "json:target/cucumber/cucumber-tags.json" })
-//@Ignore
+// @Ignore
 public class RunTagConfigurationIT {
 }

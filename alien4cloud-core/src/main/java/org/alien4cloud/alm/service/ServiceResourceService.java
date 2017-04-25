@@ -13,6 +13,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.orchestrators.locations.events.OnLocationResourceChangeEvent;
 import org.alien4cloud.alm.service.events.ServiceChangedEvent;
 import org.alien4cloud.alm.service.events.ServiceUsageRequestEvent;
 import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
@@ -325,15 +326,31 @@ public class ServiceResourceService {
             return;
         }
         // Check what elements have changed.
-        Set<String> previousLocations = CollectionUtils.safeNewHashSet(serviceResource.getLocationIds());
+        Set<String> removedLocations = CollectionUtils.safeNewHashSet(serviceResource.getLocationIds());
+        Set<String> addedLocations = Sets.newHashSet();
         Set<String> newLocations = Sets.newHashSet();
         for (String locationId : locations) {
-            if (!previousLocations.contains(locationId) && !alienDAO.exist(Location.class, locationId)) {
-                throw new NotFoundException("Location with id <" + locationId + "> does not exist.");
+            if (removedLocations.contains(locationId)) {
+                // This location was already affected
+                removedLocations.remove(locationId);
+                newLocations.add(locationId);
+            } else {
+                // This is an added element.
+                if (!alienDAO.exist(Location.class, locationId)) {
+                    throw new NotFoundException("Location with id <" + locationId + "> does not exist.");
+                }
+                addedLocations.add(locationId);
+                newLocations.add(locationId);
             }
-            newLocations.add(locationId);
         }
         serviceResource.setLocationIds(newLocations.toArray(new String[newLocations.size()]));
+        // Dispatch location changed events (not a big deal if the save is actually canceled as it just changed the update date).
+        for (String locationId : addedLocations) {
+            publisher.publishEvent(new OnLocationResourceChangeEvent(this, locationId));
+        }
+        for (String locationId : removedLocations) {
+            publisher.publishEvent(new OnLocationResourceChangeEvent(this, locationId));
+        }
     }
 
     private void failUpdateIfManaged(ServiceResource serviceResource, boolean patch, String name, String version, String nodeTypeStr, String nodeTypeVersion,

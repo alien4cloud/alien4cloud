@@ -48,7 +48,7 @@ Feature: Delete a service used in a deployment
   @reset
   Scenario: Deleting a service used should fail
     Given I am authenticated with "ADMIN" role
-    When I DELETE "/rest/v1/services/{serviceId}"
+    When I DELETE "/rest/v1/services/${serviceId}"
     Then I should receive a RestResponse with an error code 508
 
   @reset
@@ -56,7 +56,7 @@ Feature: Delete a service used in a deployment
     Given I undeploy application "ALIEN", environment "Environment"
     And I should receive a RestResponse with no error
     And I am authenticated with "ADMIN" role
-    When I DELETE "/rest/v1/services/{serviceId}"
+    When I DELETE "/rest/v1/services/${serviceId}"
     Then I should receive a RestResponse with no error
     When I get the last created service
     Then I should receive a RestResponse with an error code 504

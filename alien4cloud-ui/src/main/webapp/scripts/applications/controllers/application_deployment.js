@@ -236,8 +236,8 @@ define(function(require) {
         };
 
         $scope.showWarningList = function() {
-          return ($scope.validTopologyDTOLoaded && angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0)
-          || ($scope.deploymentContext && angular.isObject($scope.deploymentContext.deploymentTopologyDTO) && Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation) && $scope.deploymentContext.deploymentTopologyDTO.validation.warningList && Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation.warningList).length > 0);
+          return ($scope.validTopologyDTOLoaded && angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0) ||
+            ($scope.deploymentContext && angular.isObject($scope.deploymentContext.deploymentTopologyDTO) && Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation) && $scope.deploymentContext.deploymentTopologyDTO.validation.warningList && Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation.warningList).length > 0);
         };
 
         $scope.showConfgurationsErrors = function() {

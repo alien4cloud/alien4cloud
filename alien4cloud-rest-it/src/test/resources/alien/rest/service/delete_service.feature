@@ -8,7 +8,7 @@ Feature: Delete service resource
 
   @reset
   Scenario: Deleting a service should succeed
-    When I DELETE "/rest/v1/services/{serviceId}"
+    When I DELETE "/rest/v1/services/${serviceId}"
     Then I should receive a RestResponse with no error
     When I GET "/rest/v1/services/"
     And I register path "data" with class "alien4cloud.dao.model.GetMultipleDataResult" as "listServiceResponse"
@@ -18,17 +18,11 @@ Feature: Delete service resource
     And The SPEL expression "from" should return 0
     And The SPEL expression "to" should return 0
 
-    
-#  @reset
-#  Scenario: Deleting a used service should fail
-#    When I DELETE "services/patch_name.json" to "/rest/v1/services/{serviceId}"
-#    Then I should receive a RestResponse with no error
-
   @reset
   Scenario: Deleting a service when not admin should fail
     Given There are these users in the system
       | sauron |
     And I add a role "APPLICATIONS_MANAGER" to user "sauron"
     And I am authenticated with user named "sauron"
-    When I DELETE "/rest/v1/services/{serviceId}"
+    When I DELETE "/rest/v1/services/${serviceId}"
     Then I should receive a RestResponse with an error code 102

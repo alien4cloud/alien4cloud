@@ -3,7 +3,12 @@ package alien4cloud.orchestrators.locations.services;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienUtils.array;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -19,6 +24,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Objects;
@@ -41,7 +47,12 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.orchestrators.locations.events.BeforeLocationDeleted;
-import alien4cloud.orchestrators.plugin.*;
+import alien4cloud.orchestrators.locations.events.OnLocationResourceChangeEvent;
+import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
+import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
+import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.topology.TopologyUtils;
@@ -349,10 +360,6 @@ public class LocationService {
         return locations.isEmpty() ? null : locations;
     }
 
-    private void addFilter(Map<String, String[]> filters, String property, String... values) {
-        filters.put(property, values);
-    }
-
     /**
      * Ensure that the location name is unique on the orchestrator before saving it.
      *
@@ -373,5 +380,13 @@ public class LocationService {
 
     private void ensureNameUnicityAndSave(Location location) {
         ensureNameUnicityAndSave(location, null);
+    }
+
+    @EventListener
+    public synchronized void onLocationResourceUpdated(OnLocationResourceChangeEvent event) {
+        // When a location resource changes we do update the location last edition date
+        Location location = getOrFail(event.getLocationId());
+        location.setLastUpdateDate(new Date());
+        alienDAO.save(location);
     }
 }

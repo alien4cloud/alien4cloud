@@ -15,6 +15,7 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ import alien4cloud.deployment.DeploymentService;
 import alien4cloud.events.DeploymentCreatedEvent;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
+import alien4cloud.orchestrators.locations.events.OnLocationResourceChangeEvent;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaasEventListener;
 import alien4cloud.paas.IPaasEventService;
@@ -45,6 +47,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ManagedServiceResourceEventService implements IPaasEventListener<AbstractMonitorEvent> {
+    @Inject
+    private ApplicationEventPublisher publisher;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -238,10 +242,16 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
     private void updateLocations(ServiceResource serviceResource, String[] locationsToAdd) {
         if (serviceResource.getLocationIds() == null) {
             serviceResource.setLocationIds(locationsToAdd);
+            for (String locationId : serviceResource.getLocationIds()) {
+                publisher.publishEvent(new OnLocationResourceChangeEvent(this, locationId));
+            }
         } else {
             Set<String> locations = Sets.newHashSet(serviceResource.getLocationIds());
             locations.addAll(Sets.newHashSet(locationsToAdd));
             serviceResource.setLocationIds(locations.toArray(new String[locations.size()]));
+        }
+        for (String locationId : locationsToAdd) {
+            publisher.publishEvent(new OnLocationResourceChangeEvent(this, locationId));
         }
     }
 

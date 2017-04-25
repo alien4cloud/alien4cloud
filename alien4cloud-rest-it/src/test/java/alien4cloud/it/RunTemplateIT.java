@@ -13,6 +13,6 @@ import cucumber.api.junit.Cucumber;
         // "classpath:alien/rest/template/topology_template_versions.feature"
         //
 }, format = { "pretty", "html:target/cucumber/template", "json:target/cucumber/cucumber-template.json" })
-//@Ignore
+// @Ignore
 public class RunTemplateIT {
 }

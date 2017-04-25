@@ -22,7 +22,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.apache.http.message.BasicNameValuePair;
 
-public class ApplicationMatchingStepDefinitions {
+public class LocationMatchingStepDefinitions {
 
     @When("^I ask for the locations matching for the current application$")
     public void I_ask_for_the_locations_matching_for_the_current_application() throws Throwable {
