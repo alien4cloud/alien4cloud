@@ -167,7 +167,6 @@ public class RepositoryService {
     }
 
     public void updateRepository(Repository updated, String oldName, boolean updateConfiguration) {
-        ensureNameUnicityAndSave(updated, oldName);
         if (updateConfiguration) {
             if (registeredResolvers.containsKey(updated.getId())) {
                 IConfigurableArtifactResolverFactory resolverFactory = getResolverFactoryOrFail(updated.getPluginId());
@@ -177,6 +176,7 @@ public class RepositoryService {
         } else {
             log.warn("Repository not found with id [" + updated.getId() + "] and name [" + updated.getName() + "]");
         }
+        ensureNameUnicityAndSave(updated, oldName);
     }
 
     public Repository getOrFail(String id) {
