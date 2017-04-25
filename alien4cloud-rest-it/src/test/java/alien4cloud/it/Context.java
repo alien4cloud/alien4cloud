@@ -166,7 +166,7 @@ public class Context {
     private String topologyIdLocal;
 
     private String csarIdLocal;
-    /*templateName -> templateVersion -> topologyId*/
+    /* templateName -> templateVersion -> topologyId */
     private Map<String, Map<String, String>> topologyTemplateId = Maps.newHashMap();
 
     private EvaluationContext spelEvaluationContext;
@@ -474,7 +474,7 @@ public class Context {
     }
 
     public void registerService(String serviceId, String serviceName) {
-        if(serviceIds == null){
+        if (serviceIds == null) {
             serviceIds = Maps.newHashMap();
         }
         serviceIds.put(serviceName, serviceId);
@@ -582,6 +582,10 @@ public class Context {
 
     public Map<String, String> getAllEnvironmentForApplication(String applicationName) {
         return this.environmentInfos.get(applicationName);
+    }
+
+    public void clearEnvironmentInfos() {
+        this.environmentInfos = Maps.newHashMap();
     }
 
     public String getDefaultApplicationEnvironmentId(String applicationName) {

@@ -136,6 +136,7 @@ public class CommonStepDefinitions {
         Context.getInstance().takeApplication();
         Context.getRestClientInstance().clearCookies();
         Context.getInstance().takePreRegisteredOrchestratorProperties();
+        Context.getInstance().clearEnvironmentInfos();
         ApplicationStepDefinitions.CURRENT_APPLICATIONS.clear();
         ApplicationStepDefinitions.CURRENT_APPLICATION = null;
     }
