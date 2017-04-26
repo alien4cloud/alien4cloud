@@ -21,6 +21,14 @@
       "TITLE": "Informations concernant le déploiement"
     },
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
+    "UPDATE_MODAL": {
+      "CONTENT": {
+        "DOCUMENTATION": "Pour plus d'information sur la mise à jour d'un déploiement veuillez consulter notre ",
+        "HEADER" : "Êtes-vous certain de vouloir mettre à jour l'application {{application}} de type {{type}} en version {{version}} avec le matching suivant:",
+        "FOOTER": "Sur la location {{location}} de l'orchestrateur {{orchestrator}} ?"
+      },
+      "TITLE": "Informations sur la mise à jour"
+    },
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",
       "INPUT" : "Input",

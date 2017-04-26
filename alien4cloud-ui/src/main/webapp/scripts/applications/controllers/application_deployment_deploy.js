@@ -39,18 +39,18 @@ define(function(require) {
           });
         });
 
-        ////////////////////////////////////
-        ///  CONFIRMATION BEFORE DEPLOYMENT
+        ////////////////////////////////////////////
+        ///  CONFIRMATION BEFORE DEPLOYMENT / UPDATE
         ///
-        var DeployConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName', 'nodeTemplates', 'locationName', 'orchestratorName', 'environment',
-          function($scope, $uibModalInstance, $translate, applicationName, nodeTemplates, locationName, orchestratorName, environment) {
+        var ConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName', 'nodeTemplates', 'locationName', 'orchestratorName', 'environment', 'modalType',
+          function($scope, $uibModalInstance, $translate, applicationName, nodeTemplates, locationName, orchestratorName, environment, modalType) {
             $scope.nodeTemplates = nodeTemplates;
-            $scope.content = $translate.instant('APPLICATIONS.DEPLOY_MODAL.CONTENT.HEADER', {
+            $scope.content = $translate.instant('APPLICATIONS.' + modalType + '.CONTENT.HEADER', {
               'application': applicationName,
               'type': environment.environmentType,
               'version': environment.currentVersionName
             });
-            $scope.footer = $translate.instant('APPLICATIONS.DEPLOY_MODAL.CONTENT.FOOTER', {
+            $scope.footer = $translate.instant('APPLICATIONS.' + modalType + '.CONTENT.FOOTER', {
               'location': locationName,
               'orchestrator': orchestratorName
             });
@@ -80,43 +80,7 @@ define(function(require) {
           });
         }
 
-        $scope.deploy = function() {
-          var orchestratorName;
-          _.each($scope.deploymentContext.locationMatches, function(location) {
-            if (location.orchestrator.id === $scope.deploymentContext.selectedLocation.orchestratorId) {
-              orchestratorName = location.orchestrator.name;
-              return;
-            }
-          });
-
-          var modalInstance = $uibModal.open({
-            templateUrl: 'views/applications/deploy_confirm_modal.html',
-            controller: DeployConfirmationModalCtrl,
-            resolve: {
-              applicationName: function() {
-                return $scope.application.name;
-              },
-              nodeTemplates: function() {
-                return $scope.deploymentContext.deploymentTopologyDTO.topology.substitutedNodes;
-              },
-              locationName: function() {
-                return $scope.deploymentContext.selectedLocation.name;
-              },
-              orchestratorName: function() {
-                return orchestratorName;
-              },
-              environment: function() {
-                return $scope.deploymentContext.selectedEnvironment;
-              }
-            }
-          });
-
-          modalInstance.result.then(function() {
-            doDeploy();
-          });
-        };
-
-        $scope.updateDeployment = function() {
+        function doUpdate() {
           $scope.isDeploying = true;
           applicationServices.deploymentUpdate({
             applicationId: $scope.application.id,
@@ -141,7 +105,57 @@ define(function(require) {
           }, function() {
             $scope.isDeploying = false;
           });
+        }
+
+        $scope.openModal = function(modalType) {
+          var templateUrl;
+          if (modalType === 'DEPLOY_MODAL') {
+            templateUrl = 'views/applications/deploy_confirm_modal.html';
+          } else {
+            templateUrl = 'views/applications/update_confirm_modal.html';
+          }
+          var orchestratorName;
+          _.each($scope.deploymentContext.locationMatches, function(location) {
+            if (location.orchestrator.id === $scope.deploymentContext.selectedLocation.orchestratorId) {
+              orchestratorName = location.orchestrator.name;
+              return;
+            }
+          });
+
+          var modalInstance = $uibModal.open({
+            templateUrl: templateUrl,
+            controller: ConfirmationModalCtrl,
+            resolve: {
+              modalType: function() {
+                return modalType;
+              },
+              applicationName: function() {
+                return $scope.application.name;
+              },
+              nodeTemplates: function() {
+                return $scope.deploymentContext.deploymentTopologyDTO.topology.substitutedNodes;
+              },
+              locationName: function() {
+                return $scope.deploymentContext.selectedLocation.name;
+              },
+              orchestratorName: function() {
+                return orchestratorName;
+              },
+              environment: function() {
+                return $scope.deploymentContext.selectedEnvironment;
+              }
+            }
+          });
+
+          modalInstance.result.then(function() {
+            if ('DEPLOY_MODAL') {
+              doDeploy();
+            } else {
+              doUpdate();
+            }
+          });
         };
+
 
         /**
         * DEPLOYMENT PROPERTIES

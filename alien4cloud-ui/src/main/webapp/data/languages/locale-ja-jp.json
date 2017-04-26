@@ -20,6 +20,15 @@
       },
       "TITLE": "Deployment informations"
     },
+    "UPDATE_DEPLOYMENT" : "Update",
+    "UPDATE_MODAL": {
+      "CONTENT": {
+        "DOCUMENTATION": "More informations on deployment update are available in our ",
+        "HEADER" : "Are you sure you want to update the {{application}} application with {{type}} type and {{version}} version with the following matching:",
+        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
+      },
+      "TITLE": "Update deployment informations"
+    },
     "DEPLOYMENT" : {
       "DEPLOY" : "デプロイ",
       "INPUT" : "入力",
