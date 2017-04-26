@@ -5,10 +5,12 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
+  require('scripts/common/services/global_rest_error_handler');
+
   modules.get('alien4cloud', ['toaster', 'pascalprecht.translate'])
     .factory('restTechnicalErrorInterceptor',
-    ['$rootScope', '$q', '$window', 'toaster', '$translate', '$timeout', '$location',
-    function ($rootScope, $q, $window, toaster, $translate, $timeout, $location) {
+    ['$rootScope', '$q', '$window', 'toaster', '$translate', '$timeout', '$location', 'globalRestErrorHandler',
+    function ($rootScope, $q, $window, toaster, $translate, $timeout, $location, globalRestErrorHandler) {
 
       var extractErrorMessage = function (rejection) {
         if (_.defined(rejection.data)) {
@@ -58,20 +60,26 @@ define(function (require) {
             }, 6000);
           } else {
             // case : backend specific error
-            // Display the toaster message on top with 4000 ms display timeout
             // Don't shot toaster for "tour" guides
             if (rejection.config.url.indexOf('data/guides') < 0) {
-              var toasterBody;
-              if(_.defined(error.message)) {
-                toasterBody = '<div>'+$translate.instant(error.data)+
+              //first try the globalRestErrorHandler
+              if(!globalRestErrorHandler.handle(rejection.data)){
+                // if not handled by the globalRestErrorHandler, then
+                // Display the toaster message on top with 4000 ms display timeout
+                var toasterBody;
+                if(_.defined(error.message)) {
+                  toasterBody = '<div>'+$translate.instant(error.data)+
                   '</div><div>'+error.message+'</div>';
-                if(_.defined(error.stacktrace)) {
-                  console.error('Server error details', error.message, error.stacktrace);
+                } else {
+                  toasterBody = $translate.instant(error.data);
                 }
-              } else {
-                toasterBody = $translate.instant(error.data);
+                toaster.pop('error', $translate.instant('ERRORS.INTERNAL') + ' - ' + error.status, toasterBody, 4000, 'trustedHtml');
               }
-              toaster.pop('error', $translate.instant('ERRORS.INTERNAL') + ' - ' + error.status, toasterBody, 4000, 'trustedHtml');
+
+              //log  in the console for debug
+              if(_.defined(error.stacktrace)) {
+                console.error('Server error details:', error.message, error.stacktrace);
+              }
             }
           }
           return $q.reject(rejection);

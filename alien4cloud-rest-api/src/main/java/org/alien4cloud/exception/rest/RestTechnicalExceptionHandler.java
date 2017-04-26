@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
+import org.alien4cloud.alm.service.exceptions.ServiceUsageException;
 import org.alien4cloud.tosca.editor.exception.*;
 import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
@@ -38,8 +40,6 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
-import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
-import org.alien4cloud.alm.service.exceptions.ServiceUsageException;
 import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.utils.RestConstraintValidator;
@@ -111,10 +111,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public RestResponse<?> invalidNameExceptionHandler(InvalidNameException e) {
-        return RestResponseBuilder.builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_NAME).message(e.getMessage()).build())
-                .build();
+        return RestResponseBuilder.builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_NAME).message(e.getMessage()).build()).build();
     }
-
 
     @ExceptionHandler(DeleteReferencedObjectException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -267,8 +265,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> incompatibleRelationshipErrorHandler(IncompatibleHalfRelationshipException e) {
         log.warn("Incompatible relationship", e);
-        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message(e.getMessage()).build())
-                .build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message(e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = PaaSDeploymentException.class)
@@ -478,8 +475,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> unsupportedOperationErrorHandler(UnsupportedOperationException e) {
         log.error("Operation not supported", e);
-        return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_OPERATION_ERROR).message(e.getMessage()).build())
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_OPERATION_ERROR).message(e.getMessage()).build())
                 .build();
     }
 
@@ -497,6 +493,15 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Usage[]> serviceUsageExceptionHandler(ServiceUsageException e) {
         log.error("Error on service deletion", e);
+        return RestResponseBuilder.<Usage[]> builder().data(e.getUsages())
+                .error(RestErrorBuilder.builder(RestErrorCode.RESOURCE_USED_ERROR).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = ReferencedResourceException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse<Usage[]> ReferencedResourceExceptionHandler(ReferencedResourceException e) {
+        log.error("Operation on referenced resource error", e);
         return RestResponseBuilder.<Usage[]> builder().data(e.getUsages())
                 .error(RestErrorBuilder.builder(RestErrorCode.RESOURCE_USED_ERROR).message(e.getMessage()).build()).build();
     }

@@ -47,6 +47,7 @@ define(function (require) {
         if(_.definedPath(response, 'error.code')) {
           if(_.definedPath(handlers, response.error.code)){
             handlers[response.error.code](response);
+            return true;
           }
         }
       }

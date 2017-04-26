@@ -3,7 +3,9 @@ package alien4cloud.application;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienConstants.APP_WORKSPACE_PREFIX;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -18,6 +20,7 @@ import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -30,15 +33,14 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.DeleteLastApplicationVersionException;
-import alien4cloud.exception.DeleteReferencedObjectException;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.exception.ReleaseReferencingSnapshotException;
+import alien4cloud.exception.*;
+import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.service.ServiceResource;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
@@ -56,6 +58,8 @@ public class ApplicationVersionService {
     private CsarService csarService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
+    @Inject
+    private ApplicationService applicationService;
 
     /**
      * Create a new version for an application based on an existing topology with the default version name.
@@ -446,9 +450,15 @@ public class ApplicationVersionService {
                 throw new UpdateApplicationVersionException("The application version " + applicationVersion.getId() + " is released and cannot be update.");
             }
 
-            if (isApplicationVersionNameExist(applicationVersion.getApplicationId(), newVersion)) {
+            if (applicationVersionNameExists(applicationVersion.getApplicationId(), newVersion)) {
                 throw new AlreadyExistException("An application version already exist for this application with the version :" + newVersion);
             }
+
+            // Should fail the update if exposed as a service
+            ApplicationEnvironment[] relatedEnvironments = findAllApplicationVersionUsage(applicationVersion.getApplicationId(),
+                    applicationVersion.getVersion());
+
+            failIfAnyEnvironmentExposedAsService(applicationId, relatedEnvironments);
 
             // it is not possible to update the version number of a used version
             // check that the version is not used
@@ -478,6 +488,38 @@ public class ApplicationVersionService {
             alienDAO.save(applicationVersion);
         }
     }
+
+    private void failIfAnyEnvironmentExposedAsService(String applicationId, ApplicationEnvironment[] environments) {
+        if (ArrayUtils.isEmpty(environments)) {
+            return;
+        }
+        Application application = applicationService.getOrFail(applicationId);
+        Usage[] usages = Arrays.stream(environments).map(environment -> {
+            Usage usage = null;
+            ServiceResource service = alienDAO.buildQuery(ServiceResource.class).setFilters(fromKeyValueCouples("environmentId", environment.getId()))
+                    .prepareSearch().find();
+            if (service != null) {
+                String usageName = service.getName() + " [App (" + application.getName() + "), Env (" + environment.getName() + ")]";
+                usage = new Usage(usageName, "Service", service.getId(), null);
+            }
+            return usage;
+        }).filter(Objects::nonNull).toArray(Usage[]::new);
+
+        if (ArrayUtils.isNotEmpty(usages)) {
+            throw new ReferencedResourceException("Application versions exposed as a service cannot be updated", usages);
+        }
+    }
+
+    // private void updateEnvironmentsWithNewVersion(ApplicationVersion oldVersion, ApplicationVersion newApplicationVersion) {
+    // ApplicationEnvironment[] environments = findAllApplicationVersionUsage(oldVersion.getApplicationId(), oldVersion.getVersion());
+    // if (environments == null) {
+    // return;
+    // }
+    //
+    // Arrays.stream(environments).forEach(environment -> {
+    //
+    // });
+    // }
 
     /**
      * Get an application/topology template version by id.
@@ -547,6 +589,12 @@ public class ApplicationVersionService {
                 .prepareSearch().find();
     }
 
+    public ApplicationEnvironment[] findAllApplicationVersionUsage(String applicationId, String applicationVersion) {
+        // find all linked environment
+        return alienDAO.buildQuery(ApplicationEnvironment.class).setFilters(fromKeyValueCouples("applicationId", applicationId, "version", applicationVersion))
+                .prepareSearch().search(0, Integer.MAX_VALUE).getData();
+    }
+
     /**
      * Check if any of the application topology version of a application version is deployed.
      *
@@ -578,7 +626,7 @@ public class ApplicationVersionService {
      * @param applicationVersionName
      * @return isUsed A boolean.
      */
-    public boolean isApplicationVersionNameExist(String applicationId, String applicationVersionName) {
+    public boolean applicationVersionNameExists(String applicationId, String applicationVersionName) {
         return isVersionNameExist(applicationId, applicationVersionName);
     }
 }
