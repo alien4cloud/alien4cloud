@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.events.AfterApplicationEnvironmentDeleted;
+import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
@@ -31,11 +32,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.deployment.DeploymentLockService;
-import alien4cloud.deployment.DeploymentRuntimeStateService;
-import alien4cloud.deployment.DeploymentService;
-import alien4cloud.deployment.DeploymentTopologyService;
-import alien4cloud.deployment.OrchestratorPropertiesValidationService;
+import alien4cloud.deployment.*;
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
@@ -443,6 +440,21 @@ public class ApplicationEnvironmentService {
             environment = getOrFail(applicationEnvironmentId);
         }
         return environment;
+    }
+
+    public void updateTopologyVersion(ApplicationEnvironment applicationEnvironment, String oldTopologyVersion, String newVersion, String newTopologyVersion,
+            String environmentIdToCopyInput) {
+        applicationEnvironment.setVersion(newVersion);
+        applicationEnvironment.setTopologyVersion(newTopologyVersion);
+        if (environmentIdToCopyInput != null) {
+            ApplicationEnvironment environmentToCopyInput = checkAndGetApplicationEnvironment(environmentIdToCopyInput, ApplicationRole.APPLICATION_MANAGER);
+            alienDAO.save(applicationEnvironment);
+            synchronizeEnvironmentInputs(environmentToCopyInput, applicationEnvironment);
+        } else {
+            alienDAO.save(applicationEnvironment);
+        }
+        publisher.publishEvent(new AfterEnvironmentTopologyVersionChanged(this, oldTopologyVersion, newTopologyVersion, applicationEnvironment.getId(),
+                applicationEnvironment.getApplicationId()));
     }
 
     private void failIfExposedAsService(ApplicationEnvironment environment) {

@@ -454,6 +454,17 @@ define(function (require) {
 
       // context for the eventually deployed topology
       $scope.deployedContext = {};
+
+      // when an application version name changed, reload the related environemnts
+      $scope.$on('applicationVersionChanged', function(event, oldVersion){
+        var oldTopologyVersions = _.keys(oldVersion.topologyVersions);
+        _.each(appEnvironments.environments, function(environment){
+          if(_.contains(oldTopologyVersions,environment.currentVersionName)){
+            appEnvironments.reload(environment.id);
+          }
+        });
+
+      });
     }
   ]);
 });

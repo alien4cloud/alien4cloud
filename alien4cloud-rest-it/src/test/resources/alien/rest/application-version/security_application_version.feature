@@ -1,4 +1,4 @@
-Feature: CRUD operations on application version
+Feature: Security on application version
 
   Background:
     Given I am authenticated with "ADMIN" role

@@ -5,10 +5,12 @@ import static alien4cloud.it.utils.TestUtils.nullable;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
+import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.rest.application.model.CreateApplicationVersionRequest;
@@ -49,10 +51,11 @@ public class ApplicationVersionStepDefinitions {
         Assert.assertNull(CURRENT_VERSION.getTopologyVersions().get(topologyVersion));
     }
 
-    @When("^I create an application version for application \"([^\"]*)\" with version \"([^\"]*)\", description \"([^\"]*)\", topology template id \"([^\"]*)\" and previous version id \"([^\"]*)\"$")
-    public void stepCreateApplicationVersion(String applicationId, String version, String description, String topologyTemplateId, String fromVersionId)
-            throws Throwable {
+    @When("^I (successfully\\s)?create an application version for application \"([^\"]*)\" with version \"([^\"]*)\", description \"([^\"]*)\", topology template id \"([^\"]*)\" and previous version id \"([^\"]*)\"$")
+    public void stepCreateApplicationVersion(String successfully, String applicationId, String version, String description, String topologyTemplateId,
+            String fromVersionId) throws Throwable {
         createApplicationVersion(applicationId, nullable(version), nullable(description), nullable(topologyTemplateId), nullable(fromVersionId));
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
     private void createApplicationVersion(String applicationId, String version, String description, String topologyTemplateId, String fromVersionId)

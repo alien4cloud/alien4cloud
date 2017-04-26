@@ -60,6 +60,8 @@ public class ApplicationVersionService {
     private TopologyServiceCore topologyServiceCore;
     @Inject
     private ApplicationService applicationService;
+    @Inject
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     /**
      * Create a new version for an application based on an existing topology with the default version name.
@@ -454,19 +456,11 @@ public class ApplicationVersionService {
                 throw new AlreadyExistException("An application version already exist for this application with the version :" + newVersion);
             }
 
-            // Should fail the update if exposed as a service
             ApplicationEnvironment[] relatedEnvironments = findAllApplicationVersionUsage(applicationVersion.getApplicationId(),
                     applicationVersion.getVersion());
 
+            // Should fail the update if exposed as a service
             failIfAnyEnvironmentExposedAsService(applicationId, relatedEnvironments);
-
-            // it is not possible to update the version number of a used version
-            // check that the version is not used
-            ApplicationEnvironment usage = findAnyApplicationVersionUsage(applicationVersion.getApplicationId(), applicationVersion.getVersion());
-            if (usage != null) {
-                throw new DeleteReferencedObjectException("Application version with id [" + applicationVersionId
-                        + "] could not be deleted as it is used by environment [" + usage.getName() + "]");
-            }
 
             // When changing the version number we actually perform a full version creation and then delete the previous one.
             ApplicationVersion newApplicationVersion = new ApplicationVersion();
@@ -481,6 +475,10 @@ public class ApplicationVersionService {
 
             // save the new version
             alienDAO.save(newApplicationVersion);
+
+            // update topology versions on related objects: (environments, deploymentTopologies)
+            updateTopologyVersion(relatedEnvironments, applicationVersion, newApplicationVersion);
+
             // delete the previous version
             deleteVersion(applicationVersion);
         } else {
@@ -510,16 +508,18 @@ public class ApplicationVersionService {
         }
     }
 
-    // private void updateEnvironmentsWithNewVersion(ApplicationVersion oldVersion, ApplicationVersion newApplicationVersion) {
-    // ApplicationEnvironment[] environments = findAllApplicationVersionUsage(oldVersion.getApplicationId(), oldVersion.getVersion());
-    // if (environments == null) {
-    // return;
-    // }
-    //
-    // Arrays.stream(environments).forEach(environment -> {
-    //
-    // });
-    // }
+    private void updateTopologyVersion(ApplicationEnvironment[] relatedEnvironments, ApplicationVersion oldVersion, ApplicationVersion newVersion) {
+        if (ArrayUtils.isEmpty(relatedEnvironments)) {
+            return;
+        }
+        Arrays.stream(relatedEnvironments).forEach(environment -> {
+            ApplicationTopologyVersion oldTopologyVersion = oldVersion.getTopologyVersions().get(environment.getTopologyVersion());
+            String newTopologyVersion = getTopologyVersion(newVersion.getVersion(), oldTopologyVersion.getQualifier());
+            applicationEnvironmentService.updateTopologyVersion(environment, environment.getTopologyVersion(), newVersion.getVersion(), newTopologyVersion,
+                    environment.getId());
+        });
+
+    }
 
     /**
      * Get an application/topology template version by id.
