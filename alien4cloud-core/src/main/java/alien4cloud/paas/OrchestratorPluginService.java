@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.PostConstruct;
@@ -118,6 +119,21 @@ public class OrchestratorPluginService implements IPaasEventService {
             throw new OrchestratorDisabledException("The orchestrator with id <" + orchestratorId + "> is not enabled or loaded yet.");
         }
         return registration == null ? null : registration.instance;
+    }
+
+    /**
+     * Find the orchestrator id from the actual plugin instance.
+     *
+     * @param instance The instance for which to find the orchestrator Id.
+     * @return The orchestratorId or null if not found.
+     */
+    public String getOrchestratorId(IOrchestratorPlugin instance) {
+        for (Entry<String, Registration> entry : monitorRegistrations.entrySet()) {
+            if (entry.getValue().instance == instance) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     /**
