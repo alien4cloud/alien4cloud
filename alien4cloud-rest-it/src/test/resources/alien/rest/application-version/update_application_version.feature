@@ -95,5 +95,39 @@ Feature: Update operations on application version
     And The deployment topology should have the substituted nodes
       | Compute | Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
 
-#  @reset
-#  Scenario: Updating the version of a deployed application version should fail
+  @reset
+  Scenario: Updating the version of a deployed application version should fail
+    Given I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Compute                                                               |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
+    And I successfully save the topology
+
+    Given I am authenticated with "ADMIN" role
+    And I upload a plugin
+    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
+    And I enable the orchestrator "Mount doom orchestrator"
+
+    And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
+
+    And I create a resource of type "org.alien4cloud.nodes.mock.Compute" named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "imageId" to "img1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "flavorId" to "1" for the resource named "Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+
+    And I grant access to the resource type "LOCATION" named "Thark location" to the user "luffy"
+    And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the user "luffy"
+    And I pre register orchestrator properties
+      | managementUrl | http://cloudifyurl:8099 |
+      | numberBackup  | 1                       |
+      | managerEmail  | admin@alien.fr          |
+
+    And I am authenticated with user named "luffy"
+    And I deploy the application "watchmiddleearth" on the location "Mount doom orchestrator"/"Thark location"
+    And I wait for 10 seconds before continuing the test
+
+    When I update the application version for application "watchmiddleearth" version id "watchmiddleearth:0.1.0-SNAPSHOT" with new version "0.2.0-SNAPSHOT" and description "null"
+    And I register the rest response data as SPEL context
+    Then I should receive a RestResponse with an error code 508
+    And The SPEL expression "#root[0]['resourceName']" should contains "watchmiddleearth"
+    And The SPEL expression "#root[0]['resourceName']" should contains "Environment"

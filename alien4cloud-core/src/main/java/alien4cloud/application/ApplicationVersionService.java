@@ -33,7 +33,12 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.*;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteLastApplicationVersionException;
+import alien4cloud.exception.DeleteReferencedObjectException;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.ReferencedResourceException;
+import alien4cloud.exception.ReleaseReferencingSnapshotException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
@@ -459,8 +464,13 @@ public class ApplicationVersionService {
             ApplicationEnvironment[] relatedEnvironments = findAllApplicationVersionUsage(applicationVersion.getApplicationId(),
                     applicationVersion.getVersion());
 
-            // Should fail the update if exposed as a service
-            failIfAnyEnvironmentExposedAsService(applicationId, relatedEnvironments);
+            if (ArrayUtils.isNotEmpty(relatedEnvironments)) {
+                // should fal the update if linked to deployed environment
+                failIfAnyEnvironmentDeployed(relatedEnvironments);
+
+                // Should fail the update if exposed as a service
+                failIfAnyEnvironmentExposedAsService(applicationId, relatedEnvironments);
+            }
 
             // When changing the version number we actually perform a full version creation and then delete the previous one.
             ApplicationVersion newApplicationVersion = new ApplicationVersion();
@@ -487,10 +497,23 @@ public class ApplicationVersionService {
         }
     }
 
-    private void failIfAnyEnvironmentExposedAsService(String applicationId, ApplicationEnvironment[] environments) {
-        if (ArrayUtils.isEmpty(environments)) {
-            return;
+    private void failIfAnyEnvironmentDeployed(ApplicationEnvironment[] relatedEnvironments) {
+        Usage[] usages = Arrays.stream(relatedEnvironments).map(environment -> {
+            Usage usage = null;
+            Deployment deployment = applicationEnvironmentService.getActiveDeployment(environment.getId());
+            if (deployment != null) {
+                String usageName = " [App (" + deployment.getSourceName() + "), Env (" + environment.getName() + ")]";
+                usage = new Usage(usageName, "Deployment", deployment.getId(), null);
+            }
+            return usage;
+        }).filter(Objects::nonNull).toArray(Usage[]::new);
+
+        if (ArrayUtils.isNotEmpty(usages)) {
+            throw new ReferencedResourceException("Application versions deployed cannot be updated", usages);
         }
+    }
+
+    private void failIfAnyEnvironmentExposedAsService(String applicationId, ApplicationEnvironment[] environments) {
         Application application = applicationService.getOrFail(applicationId);
         Usage[] usages = Arrays.stream(environments).map(environment -> {
             Usage usage = null;
