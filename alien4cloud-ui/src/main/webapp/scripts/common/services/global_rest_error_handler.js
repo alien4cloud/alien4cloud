@@ -35,8 +35,15 @@ define(function (require) {
         // toaster message
         toaster.pop('error', $translate.instant('ERRORS.' + response.error.code + '.TITLE'), toasterHtml, 4000, 'trustedHtml', null);
       };
+
+      var handleInvalidPluginConfig = function(response){
+        var message = $translate.instant('ERRORS.' + response.error.code + '.MESSAGE');
+        // toaster message
+        toaster.pop('error', $translate.instant('ERRORS.' + response.error.code + '.TITLE'), message, 4000, 'trustedHtml', null);
+      };
       //register
       handlers[508] = handleResouceUsage;
+      handlers[352] = handleInvalidPluginConfig;
 
 
       /**

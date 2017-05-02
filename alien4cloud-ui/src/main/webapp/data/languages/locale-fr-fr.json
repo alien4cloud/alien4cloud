@@ -774,6 +774,10 @@
     "102" : "Droits insuffisants pour ce module ou cette ressource",
     "200" : "Erreur inattendue lors de l'analyse du CSAR",
     "300" : "Erreur inattendue lors de l'accès au service d'indexation de CSAR",
+    "352": {
+      "MESSAGE": "Configuration du plugin incorrect",
+      "TITLE": "Erreur du plugin"
+    },
     "371" : {
       "MESSAGE" : "La valeur {{value}} pour le paramètre {{name}} de type {{type}} est invalide",
       "TITLE" : "Erreur lors de l'execution de l'opération {{operation}}"

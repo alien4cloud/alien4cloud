@@ -124,9 +124,9 @@ public class OrchestratorController {
         try {
             orchestratorStateService.enable(orchestrator);
         } catch (PluginConfigurationException e) {
-            log.error("Failed to instanciate orchestrator because of invalid configuration.", e);
+            log.error("Failed to instantiate orchestrator because of invalid configuration.", e);
             return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION)
-                    .message("Fail to update cloud configuration because Plugin used is not valid.").build()).build();
+                    .message("Failed to instantiate orchestrator because of invalid configuration.").build()).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }

@@ -764,6 +764,10 @@
     "102" : "Insufficient rights for this module or this resource",
     "200" : "Unexpected error happened while parsing CSAR",
     "300" : "Unexpected error happened while accessing to CSAR indexing service",
+    "352": {
+      "MESSAGE": "Incorrect plugin configuration",
+      "TITLE": "Plugin error"
+    },
     "371" : {
       "MESSAGE" : "Value {{value}} for parameter {{name}} of type {{type}} is not valid",
       "TITLE" : "Operation execution failed {{operation}}"
