@@ -54,6 +54,8 @@ define(function (require) {
     $scope.qualifierPattern = new RegExp('^(?:[a-zA-Z0-9\\-_]+)*$');
     $scope.appTopoVersion = {};
     $scope.fromIndex = 1;
+    // NOTE /// This is only for visual. The generated topology version is not actually sent to the server.
+    // NOTE /// So Make sure to match what is generated here with what is done on the backend side
     var prefix = $scope.selectedVersion.version;
     var suffix = '';
     var qualifierIndex = $scope.selectedVersion.version.indexOf('-');
