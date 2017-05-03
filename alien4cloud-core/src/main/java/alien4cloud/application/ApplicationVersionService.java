@@ -245,7 +245,8 @@ public class ApplicationVersionService {
 
     @SneakyThrows
     private ApplicationTopologyVersion createTopologyVersion(String applicationId, String version, String qualifier, String description, Topology topology) {
-        Path originalTopologyArchive = archiveRepositry.getExpandedCSAR(topology.getArchiveName(), topology.getArchiveVersion());
+        String oldArchiveName = topology.getArchiveName();
+        String oldArchiveVersion = topology.getArchiveVersion();
         // Every version of an application has a Cloud Service Archive
         String delegateType = ArchiveDelegateType.APPLICATION.toString();
         Csar csar = new Csar(applicationId, version);
@@ -253,8 +254,10 @@ public class ApplicationVersionService {
         csar.setDelegateId(applicationId);
         csar.setDelegateType(delegateType);
 
-        // Change all artifact references to the newly created archive
-        ArtifactUtil.changeTopologyArtifactReferences(topology, csar);
+        if (oldArchiveName != null && oldArchiveVersion != null) {
+            // Change all artifact references to the newly created archive if it's a copy
+            ArtifactUtil.changeTopologyArtifactReferences(topology, csar);
+        }
         topology.setArchiveName(csar.getName());
         topology.setArchiveVersion(csar.getVersion());
         topology.setWorkspace(csar.getWorkspace());
@@ -263,15 +266,26 @@ public class ApplicationVersionService {
         if (!VersionUtil.isSnapshot(version)) {
             checkTopologyReleasable(topology);
         }
-        Path newTopologyTempPath = Files.createTempDirectory(tempDirPath, "a4c");
-        ArtifactUtil.copyCsarArtifacts(originalTopologyArchive, newTopologyTempPath);
+        if (oldArchiveName != null && oldArchiveVersion != null) {
+            Path newTopologyTempPath = Files.createTempDirectory(tempDirPath, "a4c");
+            try {
+                // When it's a copy from other topology, we copy artifacts
+                Path originalTopologyArchive = archiveRepositry.getExpandedCSAR(oldArchiveName, oldArchiveVersion);
+                ArtifactUtil.copyCsarArtifacts(originalTopologyArchive, newTopologyTempPath);
+                archiveIndexer.importNewArchive(csar, topology, newTopologyTempPath);
+            } finally {
+                FileUtil.delete(newTopologyTempPath);
+            }
+        } else {
+            archiveIndexer.importNewArchive(csar, topology, null);
+        }
         // Import the created archive and topology
-        archiveIndexer.importNewArchive(csar, topology, newTopologyTempPath);
         ApplicationTopologyVersion applicationTopologyVersion = new ApplicationTopologyVersion();
         applicationTopologyVersion.setArchiveId(csar.getId());
         applicationTopologyVersion.setQualifier(qualifier);
         applicationTopologyVersion.setDescription(description);
         return applicationTopologyVersion;
+
     }
 
     /**
