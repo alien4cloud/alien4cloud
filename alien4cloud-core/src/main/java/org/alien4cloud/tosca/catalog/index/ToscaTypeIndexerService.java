@@ -112,7 +112,7 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     private void deleteElement(AbstractToscaType element) {
         Tag iconTag = ArchiveImageLoader.getIconTag(element.getTags());
         if (iconTag != null) {
-            imageDAO.delete(iconTag.getValue());
+            imageDAO.deleteAll(iconTag.getValue());
         }
         alienDAO.delete(element.getClass(), element.getId());
     }

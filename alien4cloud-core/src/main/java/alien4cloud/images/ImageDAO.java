@@ -131,6 +131,25 @@ public class ImageDAO extends ESGenericIdDAO implements IImageDAO {
     @Override
     public void delete(String id) {
         delete(ImageData.class, id);
+        // delete image from hard drive
+        safeDeleteFile(rootPath.resolve(id + ".png"));
+    }
+
+    @Override
+    public void deleteAll(String id) {
+        delete(id);
+        delete(getImageId(ImageQuality.QUALITY_16, id));
+        delete(getImageId(ImageQuality.QUALITY_32, id));
+        delete(getImageId(ImageQuality.QUALITY_64, id));
+        delete(getImageId(ImageQuality.QUALITY_128, id));
+    }
+
+    private void safeDeleteFile(Path file) {
+        try {
+            Files.deleteIfExists(file);
+        } catch (IOException e) {
+            log.error("Error when trying to delete image <" + file + ">", e);
+        }
     }
 
     private String getImageId(final ImageQuality imageQuality, final String id) {
