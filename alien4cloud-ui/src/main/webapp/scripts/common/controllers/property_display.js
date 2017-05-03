@@ -125,7 +125,7 @@ define(function(require) {
           data = null;
         }
 
-        if (!force && !_.isEmpty($scope.definitionObject) && _.eq($scope.definitionObject.uiValue, data)) {
+        if (!force && !_.isEmpty($scope.definitionObject) && _.eq($scope.definitionObject.uiValue, data) && _.eq($scope.definitionObject.uiUnit, unit)) {
           return;
         }
 
@@ -181,7 +181,6 @@ define(function(require) {
       };
 
       $scope.saveUnit = function(unit) {
-        $scope.definitionObject.uiUnit = unit;
         if (_.defined($scope.definitionObject.uiValue)) {
           var savePromise = $scope.propertySave($scope.definitionObject.uiValue, unit);
           if (_.defined(savePromise)) {
@@ -192,6 +191,7 @@ define(function(require) {
             });
           }
         }
+        $scope.definitionObject.uiUnit = unit;
       };
 
       $scope.saveReset = function(resetValue) {
