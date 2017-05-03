@@ -3,6 +3,9 @@ package alien4cloud.application;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienConstants.APP_WORKSPACE_PREFIX;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -17,6 +20,7 @@ import org.alien4cloud.alm.events.BeforeApplicationVersionDeleted;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -24,6 +28,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -47,9 +53,12 @@ import alien4cloud.model.common.Usage;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.utils.ArtifactUtil;
+import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
+import lombok.SneakyThrows;
 
 @Service
 public class ApplicationVersionService {
@@ -67,6 +76,9 @@ public class ApplicationVersionService {
     private ApplicationService applicationService;
     @Inject
     private ApplicationEnvironmentService applicationEnvironmentService;
+    @Inject
+    private ICsarRepositry archiveRepositry;
+    private Path tempDirPath;
 
     /**
      * Create a new version for an application based on an existing topology with the default version name.
@@ -231,7 +243,9 @@ public class ApplicationVersionService {
         return topologyServiceCore.getOrFail(archiveId);
     }
 
+    @SneakyThrows
     private ApplicationTopologyVersion createTopologyVersion(String applicationId, String version, String qualifier, String description, Topology topology) {
+        Path originalTopologyArchive = archiveRepositry.getExpandedCSAR(topology.getArchiveName(), topology.getArchiveVersion());
         // Every version of an application has a Cloud Service Archive
         String delegateType = ArchiveDelegateType.APPLICATION.toString();
         Csar csar = new Csar(applicationId, version);
@@ -239,23 +253,24 @@ public class ApplicationVersionService {
         csar.setDelegateId(applicationId);
         csar.setDelegateType(delegateType);
 
+        // Change all artifact references to the newly created archive
+        ArtifactUtil.changeTopologyArtifactReferences(topology, csar);
         topology.setArchiveName(csar.getName());
         topology.setArchiveVersion(csar.getVersion());
         topology.setWorkspace(csar.getWorkspace());
 
-        // first of all, if the new version is a release, we have to ensure that all dependencies are released
+        // if the new version is a release, we have to ensure that all dependencies are released
         if (!VersionUtil.isSnapshot(version)) {
             checkTopologyReleasable(topology);
         }
-
+        Path newTopologyTempPath = Files.createTempDirectory(tempDirPath, "a4c");
+        ArtifactUtil.copyCsarArtifacts(originalTopologyArchive, newTopologyTempPath);
         // Import the created archive and topology
-        archiveIndexer.importNewArchive(csar, topology);
-
+        archiveIndexer.importNewArchive(csar, topology, newTopologyTempPath);
         ApplicationTopologyVersion applicationTopologyVersion = new ApplicationTopologyVersion();
         applicationTopologyVersion.setArchiveId(csar.getId());
         applicationTopologyVersion.setQualifier(qualifier);
         applicationTopologyVersion.setDescription(description);
-
         return applicationTopologyVersion;
     }
 
@@ -651,5 +666,11 @@ public class ApplicationVersionService {
      */
     public boolean applicationVersionNameExists(String applicationId, String applicationVersionName) {
         return isVersionNameExist(applicationId, applicationVersionName);
+    }
+
+    @Required
+    @Value("${directories.alien}/${directories.upload_temp}")
+    public void setTempDirPath(String tempDirPath) throws IOException {
+        this.tempDirPath = FileUtil.createDirectoryIfNotExists(tempDirPath);
     }
 }

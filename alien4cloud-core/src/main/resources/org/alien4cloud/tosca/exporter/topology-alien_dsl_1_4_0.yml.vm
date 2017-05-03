@@ -21,10 +21,10 @@ imports:
   - ${dependency.name}:${dependency.version}
 #end
 #end## if
-#if($utils.hasRepositories($topology))
+#if($utils.hasRepositories($template_name, $template_version, $topology))
 
 repositories:
-${utils.formatRepositories($topology)}
+${utils.formatRepositories($template_name, $template_version, $topology)}
 #end## if hasRepositories
 
 topology_template:
@@ -53,13 +53,10 @@ topology_template:
 #end## if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputs))
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputArtifacts))
   input_artifacts:
-#foreach($inputArtifactEntry in $topology.inputArtifacts.entrySet())
-    ${inputArtifactEntry.key}:
-      type: ${inputArtifactEntry.value.artifactType}
-#if($inputArtifactEntry.value.description)
-      description: ${utils.renderDescription($inputArtifactEntry.value.description, "        ")}
-#end##if($inputArtifactEntry.value.description)
-#end##foreach($inputArtifactEntry in $topology.inputArtifacts.entrySet())
+#foreach($artifactEntry in ${topology.inputArtifacts.entrySet()})
+    $artifactEntry.key:
+${utils.formatArtifact($artifactEntry.value, 4)}
+#end## of $artifactEntry iteration
 #end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputArtifacts))
 #if($topology.substitutionMapping)
   substitution_mappings:
