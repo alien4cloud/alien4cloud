@@ -245,14 +245,15 @@
         "LABEL" : "La topologie n'est pas valide :",
         "NODE_FILTER" : {
           "CAPABILITY_MISSING_ERROR" : "La cible de posséde pas cette capacité",
-          "CAPABILITY_NAME" : "Nom de la capacité",
+          "CAPABILITY" : "Capacité",
           "NODE_FILTER_INVALID" : "NodeFilters non statisfaits",
           "PROPERTY_CONSTRAINT_VIOLATION_ERROR" : "L'une des contraintes sur cette propriété n'ai pas respectée",
           "PROPERTY_MISSING_ERROR" : "La cible de posséde pas cette propriété",
-          "PROPERTY_NAME" : "Nom de la propriété",
+          "PROPERTY" : "Propriété",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "Le type de la propriété cible est invalide"
         },
         "RELATED_INPUT" : "Propriétée d'entrée",
+        "RELATIONSHIP": "Relation",
         "REPLACE" : "Remplacer par l'un des noeuds suggérés",
         "REPLACE_LABEL" : "A remplacer",
         "REQUIRED_PROPERTIES_LABEL" : "Propriétés obligatoires",

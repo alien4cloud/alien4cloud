@@ -531,7 +531,7 @@ public class ApplicationVersionService {
             Usage usage = null;
             Deployment deployment = applicationEnvironmentService.getActiveDeployment(environment.getId());
             if (deployment != null) {
-                String usageName = " [App (" + deployment.getSourceName() + "), Env (" + environment.getName() + ")]";
+                String usageName = " App (" + deployment.getSourceName() + "), Env (" + environment.getName() + ")";
                 usage = new Usage(usageName, "Deployment", deployment.getId(), null);
             }
             return usage;
