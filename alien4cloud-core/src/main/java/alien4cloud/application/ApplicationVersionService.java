@@ -218,12 +218,14 @@ public class ApplicationVersionService {
         if (qualifier == null || qualifier.isEmpty()) {
             return version;
         }
-        int snapshotIndex = version.indexOf("-SNAPSHOT");
+
+        int qualifierIndex = version.indexOf("-");
+
         String prefix = version;
         String suffix = "";
-        if (snapshotIndex > 0) {
-            prefix = version.substring(0, snapshotIndex) + version.substring(snapshotIndex + 9, version.length());
-            suffix = "-SNAPSHOT";
+        if (qualifierIndex > 0) {
+            prefix = version.substring(0, qualifierIndex);
+            suffix = version.substring(qualifierIndex, version.length());
         }
         return prefix + "-" + qualifier + suffix;
     }
