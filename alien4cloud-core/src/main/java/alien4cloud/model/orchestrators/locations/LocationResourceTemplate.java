@@ -3,8 +3,8 @@ package alien4cloud.model.orchestrators.locations;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.security.AbstractSecurityEnabledResource;
-import lombok.ToString;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.ObjectField;
@@ -15,9 +15,10 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import alien4cloud.json.deserializer.NodeTemplateDeserializer;
+import alien4cloud.security.AbstractSecurityEnabledResource;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,7 +30,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @ESObject
-public class LocationResourceTemplate  extends AbstractSecurityEnabledResource {
+public class LocationResourceTemplate extends AbstractSecurityEnabledResource {
     @Id
     private String id;
     @NotBlank
@@ -53,6 +54,7 @@ public class LocationResourceTemplate  extends AbstractSecurityEnabledResource {
     private List<String> types;
     /** Node template that describe the location resource (it's type must be a type derived from one of the orchestrator LocationResourceDefinition types). */
     @ObjectField(enabled = false)
+    @JsonDeserialize(using = NodeTemplateDeserializer.class)
     private NodeTemplate template;
 
     /** For this template, the possible {@link PropertyDefinition}s that can be used in portability edition. */

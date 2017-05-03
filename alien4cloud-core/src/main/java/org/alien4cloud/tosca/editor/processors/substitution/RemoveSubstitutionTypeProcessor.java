@@ -1,6 +1,6 @@
 package org.alien4cloud.tosca.editor.processors.substitution;
 
-import java.util.Map;
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 import javax.annotation.Resource;
 
@@ -10,15 +10,11 @@ import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FetchContext;
-import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.topology.TopologyService;
@@ -41,17 +37,15 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
             throw new NotFoundException("No substitution type has been found");
         }
 
-        NodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
+        // FIXME check also on live edited topologies.
 
-        // FIXME alse check if no element inherits from this substitute type
         // the substitute type os within the topology's archive
         Csar csar = EditionContextManager.getCsar();
-        Topology[] topologies = getTopologiesUsing(csar.getName(), csar.getName(), csar.getVersion());
-        if (ArrayUtils.isNotEmpty(topologies)) {
+        if (hasArchiveUsing(csar.getName(), csar.getVersion())) {
             throw new DeleteReferencedObjectException("The substitution can not be removed since it's type is already used in at least another topology");
         }
 
-        topologyService.unloadType(topology, new String[] { substitutionType.getElementId() });
+        topologyService.unloadType(topology, new String[] { topology.getSubstitutionMapping().getSubstitutionType() });
         topology.setSubstitutionMapping(null);
     }
 
@@ -61,15 +55,13 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
         alienDAO.delete(NodeType.class, EditionContextManager.getTopology().getId());
     }
 
-    private Topology[] getTopologiesUsing(String elementId, String archiveName, String archiveVersion) {
-        FilterBuilder customFilter = FilterBuilders.boolFilter()
-                .mustNot(FilterBuilders.boolFilter().must(FilterBuilders.termFilter("archiveName", archiveName))
-                        .must(FilterBuilders.termFilter("archiveVersion", archiveVersion)))
-                .must(FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", archiveName))
-                        .must(FilterBuilders.termFilter("dependencies.version", archiveVersion))));
-        Map<String, String[]> filter = FilterUtil.singleKeyFilter("nodeTemplates.value.type", elementId);
-        GetMultipleDataResult<Topology> result = alienDAO.search(Topology.class, null, filter, customFilter, FetchContext.SUMMARY, 0, Integer.MAX_VALUE);
-        return result.getData();
-    }
+    private boolean hasArchiveUsing(String archiveName, String archiveVersion) {
+        // FilterBuilders.boolFilter().mustNot(FilterBuilders.boolFilter().must()
+        // .must());
+        FilterBuilder notThisArchiveFilter = FilterBuilders
+                .notFilter(FilterBuilders.andFilter(FilterBuilders.termFilter("name", archiveName), FilterBuilders.termFilter("version", archiveVersion)));
 
+        return alienDAO.buildQuery(Csar.class)
+                .setFilters(fromKeyValueCouples("dependencies.name", archiveName, "dependencies.version", archiveVersion), notThisArchiveFilter).count() > 0;
+    }
 }

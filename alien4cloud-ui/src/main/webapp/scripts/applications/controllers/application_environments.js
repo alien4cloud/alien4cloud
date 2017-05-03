@@ -41,7 +41,7 @@ define(function (require) {
       };
     }
   ];
-  
+
   var SelectEnvironmentToCopyInputCtrl = ['$scope', '$uibModalInstance', 'inputCandidates',
     function($scope, $uibModalInstance, inputCandidates) {
       $scope.inputCandidates = inputCandidates;
@@ -137,48 +137,61 @@ define(function (require) {
         }
       };
 
-      $scope.setAppTopologyVersion = function(environment, selectedTopologyVersion) {
-        var modalInstance = $uibModal.open({
-          templateUrl: 'views/applications/select_environment_to_copy_inputs.html',
-          controller: SelectEnvironmentToCopyInputCtrl,
-          resolve: {
-            inputCandidates: ['applicationEnvironmentServices', function(applicationEnvironmentServices) {
-              return applicationEnvironmentServices.getInputCandidates({
-                applicationId: $scope.application.id
-              }, angular.toJson({
-                applicationEnvironmentId: environment.id,
-                applicationTopologyVersion: selectedTopologyVersion
-              })).$promise.then(function(result) {
-                return result.data;
-              });
-            }]
-          }
-        });
-        modalInstance.result.then(function(inputCandidate) {
-          var inputCandidateId = null;
-          if(_.defined(inputCandidate)) {
-            inputCandidateId = inputCandidate.id;
-          }
-          applicationEnvironmentServices.updateTopologyVersion({
-            applicationId: $scope.application.id,
-            applicationEnvironmentId: environment.id
-          }, angular.toJson({
-            newTopologyVersion: selectedTopologyVersion,
-            environmentToCopyInput: inputCandidateId
-          }), function() {
-            environment.currentVersionName = selectedTopologyVersion;
-            appEnvironments.updateEnvironment(environment);
-          });
-        });
+      $scope.forceUserToChangeTopoVersion = function(environment) {
+        if (environment.currentVersionName !== environment.selectedAppVersion.version) {
+          delete environment.selectedAppTopoVersion;
+        }
       };
 
+      function doUpdateTopologyVersion(environment, selectedTopologyVersion, inputCandidate) {
+        var inputCandidateId = null;
+        if(_.defined(inputCandidate)) {
+          inputCandidateId = inputCandidate.id;
+        }
+        applicationEnvironmentServices.updateTopologyVersion({
+          applicationId: $scope.application.id,
+          applicationEnvironmentId: environment.id
+        }, angular.toJson({
+          newTopologyVersion: selectedTopologyVersion,
+          environmentToCopyInput: inputCandidateId
+        }), function() {
+          environment.currentVersionName = selectedTopologyVersion;
+          appEnvironments.updateEnvironment(environment);
+        });
+      }
+
+      $scope.setAppTopologyVersion = function(environment, selectedTopologyVersion) {
+        applicationEnvironmentServices.getInputCandidates({
+          applicationId: $scope.application.id
+        }, angular.toJson({
+          applicationEnvironmentId: environment.id,
+          applicationTopologyVersion: selectedTopologyVersion
+        })).$promise.then(function(result) {
+          if (_.defined(result.data) && result.data.length > 0) {
+            var modalInstance = $uibModal.open({
+              templateUrl: 'views/applications/select_environment_to_copy_inputs.html',
+              controller: SelectEnvironmentToCopyInputCtrl,
+              resolve: {
+                inputCandidates: function(){
+                  return result.data;
+                }
+              }
+            });
+            modalInstance.result.then(function(inputCandidate) {
+              doUpdateTopologyVersion(environment, selectedTopologyVersion, inputCandidate);
+            });
+          } else {
+            doUpdateTopologyVersion(environment, selectedTopologyVersion, null);
+          }
+        });
+      };
       function updateEnvironment(environmentId, fieldName, fieldValue) {
         // update the environments
         var done = false;
-        for(var i=0; i < $scope.environments.length && !done; i++) {
+        for (var i=0; i < $scope.environments.length && !done; i++) {
           var environment = $scope.environments[i];
-          if(environment.id === environmentId) {
-            if(fieldName === 'currentVersionId') {
+          if (environment.id === environmentId) {
+            if (fieldName === 'currentVersionId') {
               fieldName = 'currentVersionName';
             }
             environment[fieldName] = fieldValue;

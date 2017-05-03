@@ -1,16 +1,10 @@
 package alien4cloud.rest.deployment;
 
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.Maps;
 
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.topology.AbstractTopologyDTO;

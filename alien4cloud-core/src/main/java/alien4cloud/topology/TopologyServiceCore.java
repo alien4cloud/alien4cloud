@@ -1,5 +1,7 @@
 package alien4cloud.topology;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +13,7 @@ import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -64,13 +67,24 @@ public class TopologyServiceCore {
      * @return A map of indexed node types.
      */
     public Map<String, NodeType> getIndexedNodeTypesFromTopology(Topology topology, boolean abstractOnly, boolean useTemplateNameAsKey,
-                                                                 boolean failOnTypeNotFound) {
-        return getIndexedNodeTypesFromDependencies(topology.getNodeTemplates(), topology.getDependencies(), abstractOnly, useTemplateNameAsKey,
-                failOnTypeNotFound);
+            boolean failOnTypeNotFound) {
+        Map<String, NodeType> nodeTypeMap = getIndexedNodeTypesFromDependencies(topology.getNodeTemplates(), topology.getDependencies(), abstractOnly,
+                useTemplateNameAsKey, failOnTypeNotFound);
+
+        if (!useTemplateNameAsKey && topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
+            NodeType nodeType = failOnTypeNotFound
+                    ? csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType(),
+                            topology.getDependencies())
+                    : csarRepoSearchService.getElementInDependencies(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType(),
+                            topology.getDependencies());
+            nodeTypeMap.put(topology.getSubstitutionMapping().getSubstitutionType(), nodeType);
+        }
+
+        return nodeTypeMap;
     }
 
     public Map<String, NodeType> getIndexedNodeTypesFromDependencies(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
-                                                                     boolean abstractOnly, boolean useTemplateNameAsKey, boolean failOnTypeNotFound) {
+            boolean abstractOnly, boolean useTemplateNameAsKey, boolean failOnTypeNotFound) {
 
         Map<String, NodeType> nodeTypes = Maps.newHashMap();
         if (nodeTemplates == null) {
@@ -111,14 +125,35 @@ public class TopologyServiceCore {
                         RelationshipType relationshipType = failOnTypeNotFound
                                 ? csarRepoSearchService.getRequiredElementInDependencies(RelationshipType.class, relationship.getType(),
                                         topology.getDependencies())
-                                : csarRepoSearchService.getElementInDependencies(RelationshipType.class, relationship.getType(),
-                                        topology.getDependencies());
+                                : csarRepoSearchService.getElementInDependencies(RelationshipType.class, relationship.getType(), topology.getDependencies());
                         relationshipTypes.put(relationship.getType(), relationshipType);
                     }
                 }
             }
         }
+
+        if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
+            for (SubstitutionTarget substitutionTarget : safe(topology.getSubstitutionMapping().getCapabilities()).values()) {
+                addRelationshipTypeFromSubstitutionTarget(topology, relationshipTypes, substitutionTarget, failOnTypeNotFound);
+            }
+            for (SubstitutionTarget substitutionTarget : safe(topology.getSubstitutionMapping().getRequirements()).values()) {
+                addRelationshipTypeFromSubstitutionTarget(topology, relationshipTypes, substitutionTarget, failOnTypeNotFound);
+            }
+        }
+
         return relationshipTypes;
+    }
+
+    private void addRelationshipTypeFromSubstitutionTarget(Topology topology, Map<String, RelationshipType> relationshipTypes,
+            SubstitutionTarget substitutionTarget, boolean failOnTypeNotFound) {
+        if (substitutionTarget.getServiceRelationshipType() != null) {
+            RelationshipType relationshipType = failOnTypeNotFound
+                    ? csarRepoSearchService.getRequiredElementInDependencies(RelationshipType.class, substitutionTarget.getServiceRelationshipType(),
+                            topology.getDependencies())
+                    : csarRepoSearchService.getElementInDependencies(RelationshipType.class, substitutionTarget.getServiceRelationshipType(),
+                            topology.getDependencies());
+            relationshipTypes.put(substitutionTarget.getServiceRelationshipType(), relationshipType);
+        }
     }
 
     /**
@@ -138,8 +173,8 @@ public class TopologyServiceCore {
                 for (Map.Entry<String, Capability> capabilityEntry : template.getCapabilities().entrySet()) {
                     Capability capability = capabilityEntry.getValue();
                     if (!capabilityTypes.containsKey(capability.getType())) {
-                        CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class,
-                                capability.getType(), topology.getDependencies());
+                        CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capability.getType(),
+                                topology.getDependencies());
                         capabilityTypes.put(capability.getType(), capabilityType);
                     }
                 }

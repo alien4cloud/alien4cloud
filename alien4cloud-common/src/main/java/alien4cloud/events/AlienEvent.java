@@ -25,5 +25,5 @@ public abstract class AlienEvent extends ApplicationEvent {
     public AlienEvent(Object source) {
         super(source);
     }
-    
+
 }

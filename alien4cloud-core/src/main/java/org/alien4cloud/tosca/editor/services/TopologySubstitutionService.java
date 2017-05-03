@@ -1,14 +1,23 @@
 package org.alien4cloud.tosca.editor.services;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import alien4cloud.utils.CloneUtil;
+import alien4cloud.utils.FileUtil;
+import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
+import org.alien4cloud.tosca.editor.EditionContext;
+import org.alien4cloud.tosca.editor.EditionContextManager;
+import org.alien4cloud.tosca.editor.events.SubstitutionTypeChangedEvent;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
@@ -22,6 +31,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.common.collect.Lists;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -39,13 +49,16 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class TopologySubstitutionService {
-
-    @Resource
+    @Inject
     private CsarService csarService;
-    @Resource
+    @Inject
+    private ICsarRepositry csarRepositry;
+    @Inject
     private IToscaTypeIndexerService indexerService;
-    @Resource
+    @Inject
     private ICsarDependencyLoader csarDependencyLoader;
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     @ToscaContextual
     public void updateSubstitutionType(final Topology topology, Csar csar) {
@@ -54,10 +67,11 @@ public class TopologySubstitutionService {
         }
 
         // first we update the csar and the dependencies
-        NodeType nodeType = ToscaContext.getOrFail(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType().getElementId());
+        NodeType nodeType = ToscaContext.getOrFail(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType());
         if (csar.getDependencies().add(csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()))) {
-            // FIXME manage hash for substitution elements too (should we just generate based on type).
-            // csar.setHash("-1");
+            Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+            String hash = FileUtil.deepSHA1(archiveGitPath);
+            csar.setHash(hash);
             csarService.save(csar);
         }
 
@@ -84,6 +98,9 @@ public class TopologySubstitutionService {
 
         // finally we index the created type
         indexerService.indexInheritableElement(csar.getName(), csar.getVersion(), substituteNodeType, csar.getDependencies());
+
+        // Dispatch event
+        publisher.publishEvent(new SubstitutionTypeChangedEvent(this, topology, substituteNodeType));
     }
 
     private void fillRequirements(Topology topology, NodeType substituteNodeType) {
@@ -96,6 +113,8 @@ public class TopologySubstitutionService {
                 NodeType nodeTemplateType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
                 RequirementDefinition requirementDefinition = IndexedModelUtils.getRequirementDefinitionById(nodeTemplateType.getRequirements(),
                         requirementName);
+                // We cannot change the capability definition here or we will change the original one so we need a clone
+                requirementDefinition = CloneUtil.clone(requirementDefinition);
                 requirementDefinition.setId(key);
                 substituteNodeType.getRequirements().add(requirementDefinition);
             }
@@ -111,6 +130,8 @@ public class TopologySubstitutionService {
                 NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeName);
                 NodeType nodeTemplateType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
                 CapabilityDefinition capabilityDefinition = IndexedModelUtils.getCapabilityDefinitionById(nodeTemplateType.getCapabilities(), capabilityName);
+                // We cannot change the capability definition here or we will change the original one so we need a clone
+                capabilityDefinition = CloneUtil.clone(capabilityDefinition);
                 capabilityDefinition.setId(key);
                 substituteNodeType.getCapabilities().add(capabilityDefinition);
             }

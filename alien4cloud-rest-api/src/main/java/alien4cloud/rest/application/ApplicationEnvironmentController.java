@@ -10,22 +10,15 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.tosca.model.Csar;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.collect.Lists;
 
@@ -44,16 +37,8 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
-import alien4cloud.rest.application.model.ApplicationEnvironmentRequest;
-import alien4cloud.rest.application.model.GetInputCandidatesRequest;
-import alien4cloud.rest.application.model.UpdateApplicationEnvironmentRequest;
-import alien4cloud.rest.application.model.UpdateTopologyVersionForEnvironmentRequest;
-import alien4cloud.rest.model.FilteredSearchRequest;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.application.model.*;
+import alien4cloud.rest.model.*;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
@@ -82,8 +67,6 @@ public class ApplicationEnvironmentController {
     private ApplicationEnvironmentDTOBuilder dtoBuilder;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
-    @Resource
-    private ApplicationContext applicationContext;
 
     /**
      * Search for application environment for a given application id
@@ -302,22 +285,12 @@ public class ApplicationEnvironmentController {
         String oldTopologyVersion = applicationEnvironment.getTopologyVersion();
         String newVersion = newApplicationVersion.getVersion();
         String newTopologyVersion = request.getNewTopologyVersion();
-        if (Objects.equals(newVersion, oldVersion) && Objects.equals(newTopologyVersion, oldTopologyVersion)) {
-            // Do nothing if nothing has changed
-            return RestResponseBuilder.<Void> builder().build();
+
+        if (!Objects.equals(newVersion, oldVersion) || !Objects.equals(newTopologyVersion, oldTopologyVersion)) {
+            // Only process if something has changed
+            applicationEnvironmentService.updateTopologyVersion(applicationEnvironment, oldTopologyVersion, newVersion, newTopologyVersion,
+                    request.getEnvironmentToCopyInput());
         }
-        applicationEnvironment.setVersion(newVersion);
-        applicationEnvironment.setTopologyVersion(newTopologyVersion);
-        if (request.getEnvironmentToCopyInput() != null) {
-            ApplicationEnvironment environmentToCopyInput = applicationEnvironmentService.checkAndGetApplicationEnvironment(request.getEnvironmentToCopyInput(),
-                    ApplicationRole.APPLICATION_MANAGER);
-            alienDAO.save(applicationEnvironment);
-            applicationEnvironmentService.synchronizeEnvironmentInputs(environmentToCopyInput, applicationEnvironment);
-        } else {
-            alienDAO.save(applicationEnvironment);
-        }
-        applicationContext.publishEvent(
-                new AfterEnvironmentTopologyVersionChanged(this, oldTopologyVersion, newTopologyVersion, applicationEnvironmentId, applicationId));
         return RestResponseBuilder.<Void> builder().build();
     }
 

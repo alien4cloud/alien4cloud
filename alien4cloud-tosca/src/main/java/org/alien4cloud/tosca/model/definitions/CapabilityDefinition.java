@@ -2,11 +2,6 @@ package org.alien4cloud.tosca.model.definitions;
 
 import java.util.Map;
 
-import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-import alien4cloud.utils.jackson.ConditionalOnAttribute;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.query.TermsFacet;
@@ -15,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import alien4cloud.json.deserializer.BoundDeserializer;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormSuggestion;

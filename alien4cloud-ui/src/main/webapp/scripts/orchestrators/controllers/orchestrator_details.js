@@ -76,10 +76,16 @@ define(function (require) {
 
       $scope.enable = function() {
         orchestrator.state = 'CONNECTING';
-        orchestratorInstanceService.create({orchestratorId: orchestrator.id}, {},function(){})//do something here
-          .$promise['finally'](function() {
-            $state.reload(); // do something with web-sockets to get notifications on the orchestrator state.
-          });
+        orchestratorInstanceService.create({orchestratorId: orchestrator.id}, {}).$promise
+        .then(result => {
+          if(result.error){
+            globalRestErrorHandler.handle(result);
+            $scope.disable(false);
+          }
+        })
+        .then(anyway => {
+          $state.reload();
+        })
       };
 
       $scope.disable = function(force) {

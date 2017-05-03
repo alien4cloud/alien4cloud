@@ -12,7 +12,7 @@ import cucumber.api.junit.Cucumber;
         "classpath:alien/rest/properties"
         //
 }, format = { "pretty", "html:target/cucumber/properties", "json:target/cucumber/cucumber-properties.json" })
-//@Ignore
+// @Ignore
 public class RunPropertiesIT {
 
 }

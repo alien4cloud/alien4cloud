@@ -272,12 +272,8 @@ public class DeploymentService {
      * @return True if the archive is used in a deployment, false if not.
      */
     public boolean isArchiveDeployed(String archiveName, String archiveVersion) {
-        FilterBuilder filter = FilterBuilders.boolFilter().must(FilterBuilders.termFilter("isDeployed", true))
-                .must(FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", archiveName))
-                        .must(FilterBuilders.termFilter("dependencies.version", archiveVersion))));
-        // Look if there is 1 matching element.
-        GetMultipleDataResult<DeploymentTopology> result = alienMonitorDao.search(DeploymentTopology.class, null, null, filter, null, 0, 1);
-        return result.getData() != null && result.getData().length > 0;
+        return alienMonitorDao.buildQuery(DeploymentTopology.class).prepareSearch()
+                .setFilters(fromKeyValueCouples("deployed", "true", "dependencies.name", archiveName, "dependencies.version", archiveVersion)).count() > 0;
     }
 
     /**

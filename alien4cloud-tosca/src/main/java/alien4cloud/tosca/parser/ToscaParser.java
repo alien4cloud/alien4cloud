@@ -28,6 +28,12 @@ import alien4cloud.tosca.parser.postprocess.ArchiveRootPostProcessor;
  */
 @Component
 public class ToscaParser extends YamlParser<ArchiveRoot> {
+    public static final String ALIEN_DSL_120 = "alien_dsl_1_2_0";
+    public static final String ALIEN_DSL_130 = "alien_dsl_1_3_0";
+    public static final String ALIEN_DSL_140 = "alien_dsl_1_4_0";
+    public static final String NORMATIVE_DSL_100 = "tosca_simple_yaml_1_0";
+    public static final String NORMATIVE_DSL_100_URL = "http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0";
+
     private static final String DEFINITION_TYPE = "definition";
     private Map<String, Map<String, INodeParser>> parserRegistriesByVersion = Maps.newHashMap();
 
@@ -41,16 +47,16 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
     public void initialize() throws ParsingException {
         // Initialize the supported DSL in alien4cloud.
         Map<String, INodeParser> registry = mappingGenerator.process("classpath:alien-dsl-1.2.0-mapping.yml");
-        parserRegistriesByVersion.put("alien_dsl_1_2_0", registry);
+        parserRegistriesByVersion.put(ALIEN_DSL_120, registry);
         registry = mappingGenerator.process("classpath:alien-dsl-1.3.0-mapping.yml");
-        parserRegistriesByVersion.put("alien_dsl_1_3_0", registry);
+        parserRegistriesByVersion.put(ALIEN_DSL_130, registry);
         // 1.4.0
         registry = mappingGenerator.process("classpath:alien-dsl-1.4.0-mapping.yml");
-        parserRegistriesByVersion.put("alien_dsl_1_4_0", registry);
+        parserRegistriesByVersion.put(ALIEN_DSL_140, registry);
         // experimental
         registry = mappingGenerator.process("classpath:tosca_simple_yaml_1_0.yml");
-        parserRegistriesByVersion.put("tosca_simple_yaml_1_0", registry);
-        parserRegistriesByVersion.put("http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0", registry);
+        parserRegistriesByVersion.put(NORMATIVE_DSL_100, registry);
+        parserRegistriesByVersion.put(NORMATIVE_DSL_100_URL, registry);
     }
 
     @Override

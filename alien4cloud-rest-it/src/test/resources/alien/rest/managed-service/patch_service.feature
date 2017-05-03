@@ -83,12 +83,11 @@ Feature: Update a service resource associated to an application environment on d
 
   @reset
   Scenario: Patching anything other than locations on a managed service should fail
-    When I PATCH "services/patch_service_properties.json" to "/rest/v1/services/{serviceId}"
+    When I PATCH "services/patch_service_properties.json" to "/rest/v1/services/${serviceId}"
     Then I should receive a RestResponse with an error code 509
-    When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/{serviceId}"
+    When I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/${serviceId}"
     Then I should receive a RestResponse with an error code 509
-    When I PATCH "services/patch_name.json" to "/rest/v1/services/{serviceId}"
+    When I PATCH "services/patch_name.json" to "/rest/v1/services/${serviceId}"
     Then I should receive a RestResponse with an error code 509
-    When I PATCH "services/patch_version.json" to "/rest/v1/services/{serviceId}"
+    When I PATCH "services/patch_version.json" to "/rest/v1/services/${serviceId}"
     Then I should receive a RestResponse with an error code 509
-

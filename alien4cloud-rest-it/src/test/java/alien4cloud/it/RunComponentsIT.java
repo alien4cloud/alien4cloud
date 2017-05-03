@@ -13,6 +13,6 @@ import cucumber.api.junit.Cucumber;
         // "classpath:alien/rest/components/search_components_enhanced.feature"
         // "classpath:alien/rest/components/search_components.feature"
 }, format = { "pretty", "html:target/cucumber/components", "json:target/cucumber/cucumber-components.json" })
-//@Ignore
+// @Ignore
 public class RunComponentsIT {
 }

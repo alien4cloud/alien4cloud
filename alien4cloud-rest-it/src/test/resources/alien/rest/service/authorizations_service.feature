@@ -2,10 +2,11 @@ Feature: Manage location resources authorizations
 
   Background:
     Given I am authenticated with "ADMIN" role
+    # Init archives
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
-
+    # Init a service
     And I create a service with name "MyBdService", version "1.0.0", type "tosca.nodes.Database", archive version "1.0.0-SNAPSHOT"
-
+    # Init users
     And There are these users in the system
       | frodon |
       | sam    |
@@ -14,7 +15,6 @@ Feature: Manage location resources authorizations
     And I add the user "frodon" to the group "lordOfRing"
     And I add the user "sam" to the group "hobbits"
 
-
   @reset
   Scenario: Add / Remove rights to a user on a service
     Given I grant access to the resource type "SERVICE" named "MyBdService" to the user "frodon"
@@ -22,11 +22,10 @@ Feature: Manage location resources authorizations
     When I get the authorised users for the resource type "SERVICE" named "MyBdService"
     Then I should have following list of users:
       | frodon |
-      | sam |
+      | sam    |
     When I revoke access to the resource type "SERVICE" named "MyBdService" from the user "frodon"
     Then I should have following list of users:
       | sam |
-
 
   @reset
   Scenario: Add / Remove rights to a group on a service
@@ -35,11 +34,10 @@ Feature: Manage location resources authorizations
     When I get the authorised groups for the resource type "SERVICE" named "MyBdService"
     Then I should have following list of groups:
       | lordOfRing |
-      | hobbits |
+      | hobbits    |
     When I revoke access to the resource type "SERVICE" named "MyBdService" from the group "hobbits"
     Then I should have following list of groups:
       | lordOfRing |
-
 
   @reset
   Scenario: Add / Remove rights to a application on a service
@@ -63,8 +61,7 @@ Feature: Manage location resources authorizations
       | ALIEN |
     When I revoke access to the resource type "SERVICE" named "MyBdService" from the application "ALIEN"
     Then I should not have any authorized applications
-
-
+    
   @reset
   Scenario: Add / Remove rights to a application environment on a service
     Given I upload a plugin

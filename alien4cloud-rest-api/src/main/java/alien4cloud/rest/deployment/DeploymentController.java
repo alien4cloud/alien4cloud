@@ -105,37 +105,35 @@ public class DeploymentController {
     private List<DeploymentDTO> buildDeploymentsDTO(String orchestratorId, String sourceId, boolean includeSourceSummary) {
         Deployment[] deployments = deploymentService.getDeployments(orchestratorId, sourceId, 0, 100);
         List<DeploymentDTO> dtos = Lists.newArrayList();
-        if (deployments == null) {
+        if (deployments.length == 0) {
             return dtos;
         }
-        if (deployments != null && deployments.length > 0) {
-            Map<String, ? extends IDeploymentSource> sources = Maps.newHashMap();
-            // get the app summaries if true
-            if (includeSourceSummary) {
-                DeploymentSourceType sourceType = deployments[0].getSourceType();
-                String[] sourceIds = getSourceIdsFromDeployments(deployments);
-                if (sourceIds[0] != null) { // can have no application deployed
-                    switch (sourceType) {
-                    case APPLICATION:
-                        Map<String, ? extends IDeploymentSource> appSources = applicationService.findByIdsIfAuthorized(FetchContext.SUMMARY, sourceIds);
-                        if (appSources != null) {
-                            sources = appSources;
-                        }
+        Map<String, ? extends IDeploymentSource> sources = Maps.newHashMap();
+        // get the app summaries if true
+        if (includeSourceSummary) {
+            DeploymentSourceType sourceType = deployments[0].getSourceType();
+            String[] sourceIds = getSourceIdsFromDeployments(deployments);
+            if (sourceIds[0] != null) { // can have no application deployed
+                switch (sourceType) {
+                case APPLICATION:
+                    Map<String, ? extends IDeploymentSource> appSources = applicationService.findByIdsIfAuthorized(FetchContext.SUMMARY, sourceIds);
+                    if (appSources != null) {
+                        sources = appSources;
                     }
                 }
             }
+        }
 
-            Map<String, Location> locationsSummariesMap = getRelatedLocationsSummaries(deployments);
-            for (Object object : deployments) {
-                Deployment deployment = (Deployment) object;
-                IDeploymentSource source = sources.get(deployment.getSourceId());
-                if (source == null) {
-                    source = new DeploymentSourceDTO(deployment.getSourceId(), deployment.getSourceName());
-                }
-                List<Location> locationsSummaries = getLocations(deployment.getLocationIds(), locationsSummariesMap);
-                DeploymentDTO dto = new DeploymentDTO(deployment, source, locationsSummaries);
-                dtos.add(dto);
+        Map<String, Location> locationsSummariesMap = getRelatedLocationsSummaries(deployments);
+        for (Object object : deployments) {
+            Deployment deployment = (Deployment) object;
+            IDeploymentSource source = sources.get(deployment.getSourceId());
+            if (source == null) {
+                source = new DeploymentSourceDTO(deployment.getSourceId(), deployment.getSourceName());
             }
+            List<Location> locationsSummaries = getLocations(deployment.getLocationIds(), locationsSummariesMap);
+            DeploymentDTO dto = new DeploymentDTO(deployment, source, locationsSummaries);
+            dtos.add(dto);
         }
         return dtos;
     }

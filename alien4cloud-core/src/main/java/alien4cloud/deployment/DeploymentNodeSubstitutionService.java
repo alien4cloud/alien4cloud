@@ -9,7 +9,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import alien4cloud.model.service.ServiceResource;
-import alien4cloud.service.ServiceResourceService;
+import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;

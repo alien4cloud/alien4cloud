@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,8 @@ import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.version.Version;
 import lombok.extern.slf4j.Slf4j;
+
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 /**
  * Updates the scoring of node types based on their usage, version and default capabilities.
@@ -72,7 +75,8 @@ public class NodeTypeScoreService implements Runnable {
             Map<String, String[]> usedNodeFiler = Maps.newHashMap();
             usedNodeFiler.put("nodeTemplates.value.type", new String[] { nodeType.getElementId() });
             // count the applications that uses the node-type
-            long usageFactor = usageBoost * alienESDAO.count(Topology.class, null, usedNodeFiler);
+            long usageFactor = usageBoost * alienESDAO.buildQuery(Topology.class).setFilters(fromKeyValueCouples("nodeTemplates.value.type",
+                    nodeType.getElementId(), "dependencies.name", nodeType.getArchiveName(), "dependencies.version", nodeType.getArchiveVersion())).count();
             // get the version factor (latest version of a node is better than previous version, snapshot versions do not get boost)
             long versionFactor = isLatestVersion(nodeType) ? versionBoost : 0;
             // default boost (boost node types that have a default capability)

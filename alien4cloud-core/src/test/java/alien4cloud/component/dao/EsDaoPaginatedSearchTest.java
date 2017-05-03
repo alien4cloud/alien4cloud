@@ -25,6 +25,8 @@ import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -44,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
+@DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
 @Slf4j
 public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     private final ObjectMapper jsonMapper = new ObjectMapper();

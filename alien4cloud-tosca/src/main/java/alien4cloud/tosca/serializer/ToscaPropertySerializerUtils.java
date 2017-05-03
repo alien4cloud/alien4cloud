@@ -162,10 +162,10 @@ public class ToscaPropertySerializerUtils {
     /**
      * Check if a property has been defined with a non null and not empty value.
      *
-     * @param properties
-     *            The map of properties in which to look.
-     * @param property
-     *            The name of the property.
+     * Note: used in cloudify 3 provider blueprint generator. Should it be moved ?
+     *
+     * @param properties The map of properties in which to look.
+     * @param property The name of the property.
      * @return True if a value has been defined, false if not.
      */
     public static boolean hasPropertyValue(Map<String, AbstractPropertyValue> properties, String property) {
@@ -185,14 +185,6 @@ public class ToscaPropertySerializerUtils {
             return true;
         }
         return false;
-    }
-
-    public static Map<String, AbstractPropertyValue> addPropertyValueIfMissing(Map<String, AbstractPropertyValue> properties, String key, String value) {
-        Map<String, AbstractPropertyValue> copy = new HashMap<>(properties);
-        if (!copy.containsKey(key) || copy.get(key) == null) {
-            copy.put(key, new ScalarPropertyValue(value));
-        }
-        return copy;
     }
 
     private static boolean isPrimitiveType(Object value) {

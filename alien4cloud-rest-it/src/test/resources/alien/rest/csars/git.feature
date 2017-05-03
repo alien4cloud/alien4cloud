@@ -115,8 +115,8 @@ Feature: GIT repository usage
      And I can find 1 CSAR
      And I should have a CSAR with id "tosca-normative-types:1.0.0-ALIEN12"
      And I add a GIT repository with url "https://github.com/alien4cloud/samples.git" usr "" pwd "" stored "false" and locations
-        | branchId | subPath |
-        | master   | apache  |
+        | branchId    | subPath |
+        | 1.4.0-RC1   | apache  |
    Given I get the GIT repo with url "https://github.com/alien4cloud/samples.git"
     When I try to get a component with id "org.alien4cloud.nodes.Apache:2.0.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
@@ -164,8 +164,8 @@ Feature: GIT repository usage
      And I get the GIT repo with url "https://github.com/alien4cloud/tosca-normative-types.git"
      And I import the GIT repository
      And I add a GIT repository with url "https://github.com/alien4cloud/samples.git" usr "" pwd "" stored "false" and locations
-        | branchId | subPath |
-        | master   | apache  |
+        | branchId     | subPath |
+        | 1.4.0-RC1    | apache  |
    Given I get the GIT repo with url "https://github.com/alien4cloud/samples.git"
     When I import the GIT repository
     Then I should receive a RestResponse with no error
@@ -173,9 +173,9 @@ Feature: GIT repository usage
     Then I should receive a RestResponse with no error
      And I should not have any component
     When I update the GIT repository with url "https://github.com/alien4cloud/samples.git" usr "" pwd "" stored "false" and locations
-        | branchId | subPath |
-        | master   | apache  |
-        | master   | php     |
+        | branchId     | subPath |
+        | 1.4.0-RC1    | apache  |
+        | 1.4.0-RC1    | php     |
      And I import the GIT repository
      And I can find 3 CSAR
      And I should have a CSAR with id "php-type:2.0.0-SNAPSHOT"
@@ -192,7 +192,7 @@ Feature: GIT repository usage
      And I import the GIT repository
      And I add a GIT repository with url "https://github.com/alien4cloud/alien4cloud-extended-types.git" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
-        | master    |         |
+        | 1.3.0    |         |
      And I get the GIT repo with url "https://github.com/alien4cloud/alien4cloud-extended-types.git"
      And I import the GIT repository
      And I can find 3 CSAR

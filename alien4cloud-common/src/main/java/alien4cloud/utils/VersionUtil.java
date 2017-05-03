@@ -21,7 +21,7 @@ public final class VersionUtil {
      * and then it can have alpha numeric bloc separated by '.' or '-'
      */
     public static final Pattern VERSION_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*(?:[\\.-]\\p{Alnum}+)*");
-    private static final String SNAPSHOT_IDENTIFIER = "SNAPSHOT";
+    private static final String SNAPSHOT_IDENTIFIER = "-SNAPSHOT";
 
     /**
      * Check if a version is a SNAPSHOT (development) version.

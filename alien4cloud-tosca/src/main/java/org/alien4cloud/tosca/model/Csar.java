@@ -78,7 +78,6 @@ public class Csar implements IManagedSecuredResource, IWorkspaceResource {
 
     private String description;
 
-    @TermFilter(paths = { "name", "version" })
     @NestedObject(nestedClass = CSARDependency.class)
     private Set<CSARDependency> dependencies;
 

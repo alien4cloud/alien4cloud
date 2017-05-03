@@ -146,8 +146,12 @@
             <div id="node-details-groups-panel" uib-collapse="isGroupsCollapsed" class="facet-choice">
               <ul class="nav facet-choice">
                 <li ng-repeat="groupId in selectedNodeTemplate.groups">
-                  <a href="" id="removeGroup_{{groupId}}_from_{{selectedNodeTemplate.name}}"  confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
-                    confirm-handler="groups.removeMember(groupId, selectedNodeTemplate.name)" confirm-placement="bottom"
+                  <a href="" id="removeGroup_{{groupId}}_from_{{selectedNodeTemplate.name}}"
+                    confirm="{{'DELETE_CONFIRM' | translate}}"
+                    confirm-title="{{'DELETE' | translate }}"
+                    confirm-handler="groups.removeMember(groupId, selectedNodeTemplate.name)"
+                    confirm-placement="bottom"
+                    confirm-class="popover"
                     ng-click="$event.stopPropagation();">
                     <span class="{{groups.getColorCss(groupId)}}">{{groupId}}</span>&nbsp;
                     <i class="fa fa-times"></i>
@@ -818,7 +822,7 @@
                 <ul class="nav facet-choice">
                   <li ng-repeat="member in group.members">
                     <a href="" id="removeMember_{{member}}_from_{{group.name}}" confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
-                      confirm-handler="groups.removeMember(group.name, member)" confirm-placement="bottom"
+                      confirm-handler="groups.removeMember(group.name, member)" confirm-placement="bottom" confirm-class="popover"
                       ng-click="$event.stopPropagation();" >
                       <span>{{member}}</span>&nbsp;
                       <i class="fa fa-times"></i>
@@ -911,25 +915,10 @@
               <input type="text" class="form-control" id="substitution-type" ng-model="substitutionType" uib-typeahead="item for item in substitution.getTypeSuggestions.get($viewValue)" typeahead-min-length="substitution.getTypeSuggestions.minLength" typeahead-on-select="substitution.selectType($item)" />
             </div>
             <div class="col-md-1">
-              <delete-confirm id="substitutionType_delete" ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType" class="pull-right" func="substitution.remove()" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+              <delete-confirm id="substitutionType_delete" ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType" class="pull-right" func="substitution.remove()" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
             </div>
           </div>
-          </delete-confirm>
           <div ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType">
-            <h4>{{'COMMON.VERSION' | translate}}</h4>
-            {{ topology.topology.substitutionMapping.substitutionType.archiveName }}
-            <div class="btn-group btn-group-sm" uib-dropdown>
-              <button type="button" class="btn btn-default" uib-dropdown-toggle id="substitution_versions">
-                {{topology.topology.substitutionMapping.substitutionType.archiveVersion}}
-                <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu" ng-init="itemIdex = $index">
-                <li class="option-selected"><a id="substitution_version_{{topology.topology.substitutionMapping.substitutionType.archiveVersion}}" ng-click="$event.stopPropagation()">{{topology.topology.substitutionMapping.substitutionType.archiveVersion}}</a></li>
-                <!-- TODO: it will probably be in deps so ... -->
-                <li ng-if="!substitution.isTypeInDependencies(topology.topology.substitutionMapping.substitutionType)" ng-repeat="olderVersion in topology.topology.substitutionMapping.substitutionType.olderVersions"><a id="substitution_version_{{olderVersion}}" ng-click="changeSubstitutionVersion(olderVersion)">{{olderVersion}}</a></li>
-              </ul>
-            </div>
-            <br>
             <h4>{{'COMMON.CAPABILITIES' | translate}}</h4>
             <table class="table table-hover">
               <thead>
@@ -953,6 +942,12 @@
                   <td>
                     <delete-confirm id="substitutionCapa_{{capabilityId}}_delete" class="pull-right" func="substitution.removeCabability(capabilityId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
                     </delete-confirm>
+                    <button id="capa_service_rel_{{capabilityId}}" ng-if="topology.delegateType === 'APPLICATION'"
+                      class="btn btn-default btn-xs pull-right" uib-tooltip="Configure service relationship" tooltip-append-to-body="true"
+                      ng-click="substitution.cfgCapaSrvRelationship(capabilityId)">
+                      <i class="fa fa-globe"></i>
+                      <i class="fa fa-link"></i>
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -980,6 +975,12 @@
                   <td>
                     <delete-confirm id="substitutionReq_{{requirementId}}_delete" class="pull-right" func="substitution.removeRequirement(requirementId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
                     </delete-confirm>
+                    <button id="req_service_rel_{{requirementId}}" ng-if="topology.delegateType === 'APPLICATION'"
+                      class="btn btn-default btn-xs pull-right" uib-tooltip="Configure service relationship" tooltip-append-to-body="true"
+                      ng-click="substitution.cfgReqSrvRelationship(requirementId)">
+                      <i class="fa fa-globe"></i>
+                      <i class="fa fa-link"></i>
+                    </button>
                   </td>
                 </tr>
               </tbody>

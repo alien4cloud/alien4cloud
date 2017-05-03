@@ -12,7 +12,7 @@
             type="button"
             class="btn btn-success application-deploy-button pull-right"
             ng-disabled="!deploymentContext.deploymentTopologyDTO.validation.valid || isDeploying"
-            ng-click="deploy()"
+            ng-click="openModal('DEPLOY_MODAL')"
             ng-if="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'">
       <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
     </button>
@@ -20,7 +20,7 @@
             type="button"
             class="btn btn-primary application-deploy-button pull-right"
             ng-disabled="!deploymentContext.deploymentTopologyDTO.validation.valid || isDeploying"
-            ng-click="updateDeployment()"
+            ng-click="openModal('UPDATE_MODAL')"
             ng-if="isUpdatable()">
       <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.UPDATE_DEPLOYMENT' | translate}}
     </button>

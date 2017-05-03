@@ -22,6 +22,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.mapping.IndexType;
 
 /**
  * Abstract template is parent of {@link NodeTemplate} and {@link RelationshipTemplate}.
@@ -46,6 +49,8 @@ public abstract class AbstractTemplate {
      * created. Instead, a substitution of the Node Template with one having a specialized, derived Node Type has to be done at the latest during the
      * instantiation time of the Node Template.
      */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String type;
 
     /** Properties of the template. */

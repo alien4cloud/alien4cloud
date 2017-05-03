@@ -142,7 +142,7 @@ define(function (require) {
       };
 
       $scope.openUpdateRepositoryConfigurationModal = function (repository) {
-        $uibModal.open({
+        var modalInstance = $uibModal.open({
           templateUrl: 'views/components/repository_update.html',
           controller: UpdateRepositoryConfigurationController,
           resolve: {
@@ -157,6 +157,9 @@ define(function (require) {
               return repository;
             }
           }
+        });
+        modalInstance.result.then(function() {
+          $scope.searchConfig.service.search();
         });
       };
 

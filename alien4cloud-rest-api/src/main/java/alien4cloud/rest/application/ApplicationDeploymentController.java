@@ -142,10 +142,6 @@ public class ApplicationDeploymentController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    private void qsdsqdkjh() {
-
-    }
-
     /**
      * Trigger un-deployment of the application for a given environment on the current configured PaaS.
      *
@@ -203,12 +199,14 @@ public class ApplicationDeploymentController {
         boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
         if (!isEnvironmentDeployed) {
             // the topology must be deployed in order to update it
-            throw new NotFoundException("Application <" + applicationId + "> is not deployed for environment with id <" + applicationEnvironmentId + ">, can't update it");
+            throw new NotFoundException(
+                    "Application <" + applicationId + "> is not deployed for environment with id <" + applicationEnvironmentId + ">, can't update it");
         }
 
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         if (deployment == null) {
-            throw new NotFoundException("Unable to find deployment for environment with id <" + applicationEnvironmentId + "> application <" + applicationId + ">, can't update it");
+            throw new NotFoundException("Unable to find deployment for environment with id <" + applicationEnvironmentId + "> application <" + applicationId
+                    + ">, can't update it");
         }
 
         DeploymentTopology deploymentTopology = getDeploymentTopologyAndCheckAuthorization(environment);
@@ -220,9 +218,10 @@ public class ApplicationDeploymentController {
 
         // if not valid, then return validation errors
         if (!validation.isValid()) {
-            result.setErrorResult(
-                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.INVALID_DEPLOYMENT_TOPOLOGY.getCode(), "The deployment topology for the application <"
-                            + application.getName() + "> on the environment <" + environment.getName() + "> is not valid.")).build());
+            result.setErrorResult(RestResponseBuilder.<Void> builder()
+                    .error(new RestError(RestErrorCode.INVALID_DEPLOYMENT_TOPOLOGY.getCode(), "The deployment topology for the application <"
+                            + application.getName() + "> on the environment <" + environment.getName() + "> is not valid."))
+                    .build());
         }
 
         // process with the deployment

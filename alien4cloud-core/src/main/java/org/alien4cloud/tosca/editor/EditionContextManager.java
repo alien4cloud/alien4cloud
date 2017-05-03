@@ -2,27 +2,32 @@ package org.alien4cloud.tosca.editor;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import alien4cloud.model.common.Usage;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.alien4cloud.tosca.catalog.events.ArchiveUsageRequestEvent;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.events.BeforeArchivePromoted;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
+import com.google.common.cache.*;
 
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.topology.TopologyServiceCore;
@@ -139,24 +144,45 @@ public class EditionContextManager {
     }
 
     @EventListener
-    public void handleArchiveRemoved(BeforeArchiveDeleted event) {
+    public synchronized void handleArchiveRemoved(BeforeArchiveDeleted event) {
         contextCache.invalidate(event.getArchiveId());
     }
 
     @EventListener
-    public void handleArchiveUpdated(BeforeArchiveIndexed event) {
+    public synchronized void handleArchiveUpdated(BeforeArchiveIndexed event) {
         contextCache.invalidate(event.getArchiveRoot().getArchive().getId());
     }
 
     @EventListener
-    public void handleArchivePromoted(BeforeArchivePromoted event) {
+    public synchronized void handleArchivePromoted(BeforeArchivePromoted event) {
         contextCache.invalidate(event.getArchiveId());
+    }
+
+    @SneakyThrows
+    @EventListener
+    public synchronized void reportArchiveUsage(ArchiveUsageRequestEvent event) {
+        for (String topologyId : contextCache.asMap().keySet()) {
+            if (isTopologyUsingArchive(event.getArchiveName(), event.getArchiveVersion(), topologyId)) {
+                event.addUsage(new Usage(contextCache.get(topologyId).getCsar().getName(), "Topology editor", topologyId,
+                        contextCache.get(topologyId).getCsar().getWorkspace()));
+            }
+        }
+    }
+
+    @SneakyThrows
+    private boolean isTopologyUsingArchive(String archiveName, String archiveVersion, String topologyId) {
+        for (CSARDependency dependency : contextCache.get(topologyId).getToscaContext().getDependencies()) {
+            if (archiveName.equals(dependency.getName()) && archiveVersion.equals(dependency.getVersion())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Invalidate all cached objects
      */
-    public void clearCache() {
+    public synchronized void clearCache() {
         contextCache.invalidateAll();
     }
 }

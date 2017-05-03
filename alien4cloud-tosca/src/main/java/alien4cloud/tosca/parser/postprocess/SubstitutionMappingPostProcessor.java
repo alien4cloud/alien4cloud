@@ -2,11 +2,9 @@ package alien4cloud.tosca.parser.postprocess;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Component;
-
-import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
-import alien4cloud.tosca.context.ToscaContext;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.stereotype.Component;
 
 /**
  * Perform post processing of a substitution mapping.
@@ -22,11 +20,7 @@ public class SubstitutionMappingPostProcessor implements IPostProcessor<Substitu
             // no substitution mapping.
             return;
         }
-        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getSubstitutionType(), instance.getSubstitutionType().getElementId(), NodeType.class));
-        NodeType nodeType = ToscaContext.get(NodeType.class, instance.getSubstitutionType().getElementId());
-        instance.setSubstitutionType(nodeType);
-
-        // FIXME Ensure that the capabilities/ requirement exposed exists in the topology
-
+        referencePostProcessor
+                .process(new ReferencePostProcessor.TypeReference(instance.getSubstitutionType(), instance.getSubstitutionType(), NodeType.class));
     }
 }

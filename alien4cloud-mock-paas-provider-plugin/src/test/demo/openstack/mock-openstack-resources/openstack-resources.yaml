@@ -1,13 +1,14 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
 
-template_name: mock-plugin-openstack-types
-template_author: Alien 4 Cloud
-template_version: ${project.version}
+metadata:
+  template_name: mock-plugin-openstack-types
+  template_author: alien4cloud
+  template_version: ${project.version}
 
 description: "Defines resources for the mock plugin, mocking openstack configuration."
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN12
+  - tosca-normative-types:1.0.0-ALIEN14
 
 node_types:
   org.alien4cloud.nodes.mock.openstack.Image:
@@ -29,9 +30,8 @@ node_types:
     capabilities:
       host:
         type: tosca.capabilities.Container
-        
+
 artefact_types:
-  alien.artefacts.mock.Implementation.Bash:
+  org.alien4cloud.artefacts.mock.Implementation.Bash:
     description: Mock artefact for sh
     derived_from: tosca.artifacts.Implementation.Bash
-  

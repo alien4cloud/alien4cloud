@@ -12,6 +12,6 @@ import cucumber.api.junit.Cucumber;
         "classpath:alien/rest/quicksearch"
         //
 }, format = { "pretty", "html:target/cucumber/quicksearch", "json:target/cucumber/cucumber-quicksearch.json" })
-//@Ignore
+// @Ignore
 public class RunQuickSearchIT {
 }

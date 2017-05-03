@@ -12,6 +12,6 @@ import cucumber.api.junit.Cucumber;
         "classpath:alien/rest/plugin"
         //
 }, format = { "pretty", "html:target/cucumber/plugin", "json:target/cucumber/cucumber-plugin.json" })
-//@Ignore
+// @Ignore
 public class RunPluginIT {
 }

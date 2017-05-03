@@ -21,6 +21,14 @@
       "TITLE": "Informations concernant le déploiement"
     },
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
+    "UPDATE_MODAL": {
+      "CONTENT": {
+        "DOCUMENTATION": "Pour plus d'information sur la mise à jour d'un déploiement veuillez consulter notre ",
+        "HEADER" : "Êtes-vous certain de vouloir mettre à jour l'application {{application}} de type {{type}} en version {{version}} avec le matching suivant:",
+        "FOOTER": "Sur la location {{location}} de l'orchestrateur {{orchestrator}} ?"
+      },
+      "TITLE": "Informations sur la mise à jour"
+    },
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",
       "INPUT" : "Input",
@@ -301,6 +309,7 @@
       "TITLE": "Informations concernant la désinstallation"
     },
     "VERSION" : {
+      "CHANGE_TOPO_VERSION_WARNING": "Encore une chose: vous devez sélectionner une version de topologie pour valider le changement de version de l'application",
       "LABEL" : "Version d'application",
       "MODAL" : {
         "PATTERN" : "Le format du numéro de version est invalide.",
@@ -765,6 +774,10 @@
     "102" : "Droits insuffisants pour ce module ou cette ressource",
     "200" : "Erreur inattendue lors de l'analyse du CSAR",
     "300" : "Erreur inattendue lors de l'accès au service d'indexation de CSAR",
+    "352": {
+      "MESSAGE": "Configuration du plugin incorrect",
+      "TITLE": "Erreur du plugin"
+    },
     "371" : {
       "MESSAGE" : "La valeur {{value}} pour le paramètre {{name}} de type {{type}} est invalide",
       "TITLE" : "Erreur lors de l'execution de l'opération {{operation}}"

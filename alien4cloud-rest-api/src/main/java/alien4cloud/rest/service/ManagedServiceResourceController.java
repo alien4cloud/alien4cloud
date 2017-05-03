@@ -18,7 +18,7 @@ import alien4cloud.model.service.ServiceResource;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.service.model.CreateManagedServiceResourceRequest;
-import alien4cloud.service.ManagedServiceResourceService;
+import org.alien4cloud.alm.service.ManagedServiceResourceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

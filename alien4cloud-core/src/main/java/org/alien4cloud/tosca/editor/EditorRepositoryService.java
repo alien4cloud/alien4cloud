@@ -54,7 +54,6 @@ public class EditorRepositoryService {
      * @throws IOException
      */
     public Path createGitDirectory(Csar csar) throws IOException {
-        // FIXME we should use directly the folder from the archive repository
         Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         if (!RepositoryManager.isGitRepository(archiveGitPath)) {
             RepositoryManager.create(archiveGitPath, "TOSCA topology created by Alien4Cloud.");
@@ -144,13 +143,15 @@ public class EditorRepositoryService {
      * @param remoteBranch The name of the remote branch to pull from.
      */
     public void pull(Path path, Csar csar, String username, String password, String remoteBranch) throws IOException {
-        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
-        FileUtil.copy(archiveGitPath, path);
         RepositoryManager.pull(path, username, password, remoteBranch);
     }
 
-    public void clean(Csar csar) {
+    public void copy(Path path, Csar csar) throws IOException {
         Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
-        RepositoryManager.clean(archiveGitPath);
+        FileUtil.copy(archiveGitPath, path);
+    }
+
+    public void clean(Path repositoryDirectory) {
+        RepositoryManager.clean(repositoryDirectory);
     }
 }

@@ -7,16 +7,18 @@ define(function (require) {
   modules.get('a4c-applications').factory('appEnvironmentsBuilder', ['applicationEnvironmentServices', 'authService',
     function(applicationEnvironmentServices, authService) {
 
-      var AppEnvironmentsPromise = function(application, environmentId) {
+      var AppEnvironmentsPromise = function(application, defaultSelectedEnvironmentId) {
         var instance = this;
-        return applicationEnvironmentServices.getAllEnvironments(application.id).then(function(result) {
+        instance.application = application;
+
+        return applicationEnvironmentServices.getAllEnvironments(instance.application.id).then(function(result) {
           var data = result.data.data;
           instance.environments = _.undefined(data) ? [] : data;
 
           instance.selected = null;
           if(_.isNotEmpty(data)){
-            if(_.defined(environmentId)) {
-              instance.select(environmentId);
+            if(_.defined(defaultSelectedEnvironmentId)) {
+              instance.select(defaultSelectedEnvironmentId);
               if(_.undefined(instance.selected)) {
                 // if environment id is not part of the list let's select first
                 instance.selected =_.first(data);
@@ -105,12 +107,27 @@ define(function (require) {
           if (envIndex !== -1) {
             this.deployEnvironments.splice(envIndex, 1, environment);
           }
+
+          if(_.get(this.selected, 'id') === environment.id){
+            this.doSelect(environment);
+          }
+        },
+
+        //reload the environment given its id
+        reload: function(environmentId) {
+          var instance = this;
+          applicationEnvironmentServices.get({
+            applicationId: this.application.id,
+            applicationEnvironmentId: environmentId
+          }, function(result){
+            instance.updateEnvironment(result.data);
+          });
         }
 
       };
 
-      return function(application, environmentId) {
-        return new AppEnvironmentsPromise(application, environmentId).then(function(result){
+      return function(application, defaultSelectedEnvironmentId) {
+        return new AppEnvironmentsPromise(application, defaultSelectedEnvironmentId).then(function(result){
           return result;
         });
       };

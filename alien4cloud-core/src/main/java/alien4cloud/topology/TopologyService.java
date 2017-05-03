@@ -20,6 +20,7 @@ import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -54,6 +55,8 @@ import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 @Slf4j
 @Service
@@ -99,11 +102,27 @@ public class TopologyService {
             }
         }
         if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
-            NodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
+            NodeType substitutionType = nodeTypes.get(topology.getSubstitutionMapping().getSubstitutionType());
             loader.loadType(substitutionType.getElementId(),
                     csarDependencyLoader.buildDependencyBean(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
+            for (SubstitutionTarget substitutionTarget : safe(topology.getSubstitutionMapping().getCapabilities()).values()) {
+                initializeSubstitutionTarget(loader, relationshipTypes, substitutionTarget);
+            }
+            for (SubstitutionTarget substitutionTarget : safe(topology.getSubstitutionMapping().getRequirements()).values()) {
+                initializeSubstitutionTarget(loader, relationshipTypes, substitutionTarget);
+            }
         }
         return loader;
+    }
+
+    private void initializeSubstitutionTarget(ToscaTypeLoader loader, Map<String, RelationshipType> relationshipTypes, SubstitutionTarget substitutionTarget) {
+        if (substitutionTarget.getServiceRelationshipType() != null) {
+            RelationshipType relationshipType = relationshipTypes.get(substitutionTarget.getServiceRelationshipType());
+            if (relationshipType != null) {
+                loader.loadType(substitutionTarget.getServiceRelationshipType(),
+                        csarDependencyLoader.buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
+            }
+        }
     }
 
     /**

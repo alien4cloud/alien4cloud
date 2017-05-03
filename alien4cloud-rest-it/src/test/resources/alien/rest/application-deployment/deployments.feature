@@ -61,6 +61,6 @@ Feature: get deployments
 
   @reset
   Scenario: ask for detailed deployment object for an application
-    When I create a new application with name "ALIEN_1 great eye" and description "ALIEN_1" and node templates
+    When I create a new application with name "ALIEN_1" and description "ALIEN_1" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
     Then I should not get a deployment if I ask one for application "ALIEN_1" on orchestrator "Mount doom orchestrator"

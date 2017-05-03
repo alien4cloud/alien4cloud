@@ -120,11 +120,11 @@ define(function(require) {
         //////////////////////////////////////
         ///  CONFIRMATION BEFORE UNDEPLOYMENT
         ///
-        var UndeployConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'nodeTemplates', 'environment', 'archiveVersion',
-          function($scope, $uibModalInstance, $translate, nodeTemplates, environment, archiveVersion) {
+        var UndeployConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName', 'nodeTemplates', 'environment', 'archiveVersion',
+          function($scope, $uibModalInstance, $translate, applicationName, nodeTemplates, environment, archiveVersion) {
             $scope.nodeTemplates = nodeTemplates;
             $scope.content = $translate.instant('APPLICATIONS.UNDEPLOY_MODAL.CONTENT.HEADER', {
-              'application': environment.applicationId,
+              'application': applicationName,
               'version': archiveVersion
             });
 
@@ -156,6 +156,9 @@ define(function(require) {
             templateUrl: 'views/applications/undeploy_confirm_modal.html',
             controller: UndeployConfirmationModalCtrl,
             resolve: {
+              applicationName: function() {
+                return $scope.application.name;
+              },
               nodeTemplates: function() {
                 return $scope.deployedContext.dto.topology.substitutedNodes;
               },
@@ -233,8 +236,8 @@ define(function(require) {
         };
 
         $scope.showWarningList = function() {
-          return ($scope.validTopologyDTOLoaded && angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0)
-          || ($scope.deploymentContext && angular.isObject($scope.deploymentContext.deploymentTopologyDTO) && Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation) && $scope.deploymentContext.deploymentTopologyDTO.validation.warningList && Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation.warningList).length > 0);
+          return ($scope.validTopologyDTOLoaded && angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0) ||
+            ($scope.deploymentContext && angular.isObject($scope.deploymentContext.deploymentTopologyDTO) && Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation) && $scope.deploymentContext.deploymentTopologyDTO.validation.warningList && Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation.warningList).length > 0);
         };
 
         $scope.showConfgurationsErrors = function() {

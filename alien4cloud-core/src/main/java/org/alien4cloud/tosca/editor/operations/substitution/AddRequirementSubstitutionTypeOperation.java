@@ -12,13 +12,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddRequirementSubstitutionTypeOperation extends AbstractEditorOperation {
-
     @NotBlank
     private String nodeTemplateName;
-
     @NotBlank
     private String substitutionRequirementId;
-
     @NotBlank
     private String requirementId;
 

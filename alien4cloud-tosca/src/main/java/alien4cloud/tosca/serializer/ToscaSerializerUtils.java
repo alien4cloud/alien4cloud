@@ -32,6 +32,8 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Sets;
 
@@ -281,35 +283,47 @@ public class ToscaSerializerUtils {
         return args;
     }
 
-    public static boolean hasRepositories(Topology topology) {
+    public static boolean hasRepositories(String topologyArchiveName, String topologyArchiveVersion, Topology topology) {
         // we don't support node types in Editor context, just check the node templates
         if (topology.getNodeTemplates() != null && CollectionUtils.isNotEmpty(topology.getNodeTemplates().values())) {
             for (NodeTemplate node : topology.getNodeTemplates().values()) {
                 if (node.getArtifacts() != null && CollectionUtils.isNotEmpty(node.getArtifacts().values())) {
                     for (DeploymentArtifact artifact : node.getArtifacts().values()) {
-                        if (artifact.getRepositoryName() != null && artifact.getRepositoryURL() != null) {
+                        // Only consider artifact of the topology
+                        if ((topologyArchiveName.equals(artifact.getArchiveName()) && topologyArchiveVersion.equals(artifact.getArchiveVersion()))
+                                && StringUtils.isNotBlank(artifact.getRepositoryName())) {
                             return true;
                         }
                     }
                 }
             }
         }
-        return false;
+        return MapUtils.isNotEmpty(topology.getInputArtifacts()) && topology.getInputArtifacts().values().stream()
+                .anyMatch(deploymentArtifact -> StringUtils.isNotBlank(deploymentArtifact.getRepositoryName()));
     }
 
-    public static String formatRepositories(Topology topology) {
+    public static String formatRepositories(String topologyArchiveName, String topologyArchiveVersion, Topology topology) {
         StringBuilder buffer = new StringBuilder();
         Set<String> repositoriesName = Sets.newHashSet();
         for (NodeTemplate node : topology.getNodeTemplates().values()) {
             if (node.getArtifacts() != null && CollectionUtils.isNotEmpty(node.getArtifacts().values())) {
                 for (DeploymentArtifact artifact : node.getArtifacts().values()) {
-                    if (artifact.getRepositoryURL() != null && !repositoriesName.contains(artifact.getRepositoryName())) {
-                        repositoriesName.add(artifact.getRepositoryName());
+                    // Only generate repositories for the current topology
+                    if ((topologyArchiveName.equals(artifact.getArchiveName()) && topologyArchiveVersion.equals(artifact.getArchiveVersion()))
+                            && StringUtils.isNotBlank(artifact.getRepositoryURL()) && repositoriesName.add(artifact.getRepositoryName())) {
                         buffer.append("  ").append(artifact.getRepositoryName()).append(":");
                         buffer.append("\n").append(formatRepository(artifact, 2)).append("\n");
                     }
                 }
             }
+        }
+        if (MapUtils.isNotEmpty(topology.getInputArtifacts())) {
+            topology.getInputArtifacts().values().forEach(inputArtifact -> {
+                if (StringUtils.isNotBlank(inputArtifact.getRepositoryURL()) && repositoriesName.add(inputArtifact.getRepositoryName())) {
+                    buffer.append("  ").append(inputArtifact.getRepositoryName()).append(":");
+                    buffer.append("\n").append(formatRepository(inputArtifact, 2)).append("\n");
+                }
+            });
         }
         buffer.setLength(buffer.length() - 1);
         return buffer.toString();
@@ -334,12 +348,17 @@ public class ToscaSerializerUtils {
     public static String formatArtifact(DeploymentArtifact value, int indent) {
         String spaces = ToscaPropertySerializerUtils.indent(indent);
         StringBuilder buffer = new StringBuilder();
-        buffer.append(spaces).append("file: ").append(value.getArtifactRef());
-        if (value.getArtifactType() != null) {
-            buffer.append("\n").append(spaces).append("type: ").append(value.getArtifactType());
+        if (StringUtils.isNotBlank(value.getArtifactRef())) {
+            buffer.append(spaces).append("file: ").append(value.getArtifactRef()).append("\n");
         }
-        if (value.getRepositoryName() != null) {
-            buffer.append("\n").append(spaces).append("repository: ").append(value.getRepositoryName());
+        if (StringUtils.isNotBlank(value.getArtifactType())) {
+            buffer.append(spaces).append("type: ").append(value.getArtifactType()).append("\n");
+        }
+        if (StringUtils.isNotBlank(value.getRepositoryName())) {
+            buffer.append(spaces).append("repository: ").append(value.getRepositoryName()).append("\n");
+        }
+        if (buffer.length() > 1) {
+            buffer.setLength(buffer.length() - 1);
         }
         return buffer.toString();
     }
@@ -358,5 +377,9 @@ public class ToscaSerializerUtils {
                         || "alien_topology".equals(artifact.getValue().getArtifactRepository())
                         || (artifact.getValue().getArtifactRef() != null && GET_INPUT_ARTIFACT_PATTERN.matcher(artifact.getValue().getArtifactRef()).matches()))
                 .collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry::getValue)));
+    }
+
+    public static boolean isNull(Object o) {
+        return o == null;
     }
 }

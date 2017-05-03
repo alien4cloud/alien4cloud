@@ -74,14 +74,6 @@ Feature: Delete an application environment
       | capabilityId             | app_endpoint                                                                                |
     And I successfully save the topology
     And I create an application environment of type "OTHER" with name "other" and description "" for the newly created application
-
-#    And I pre register orchestrator properties
-#      | managementUrl | http://cloudifyurl:8099 |
-#      | numberBackup  | 1                       |
-#      | managerEmail  | admin@alien.fr          |
     And I successfully create a service with name "MyService", from the application "ALIEN", environment "Environment"
-
     When I delete the registered application environment named "Environment" from its id
     Then I should receive a RestResponse with an error code 507
-
-    

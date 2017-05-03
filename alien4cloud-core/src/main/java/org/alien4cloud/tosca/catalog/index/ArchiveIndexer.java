@@ -1,7 +1,7 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import static alien4cloud.dao.FilterUtil.singleKeyFilter;
-
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,8 @@ import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.*;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +37,7 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.VersionUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -102,8 +104,10 @@ public class ArchiveIndexer {
      * 
      * @param csar The archive to be imported.
      * @param topology The topology to be part of the topology.
+     * @param topologyPath if the new topology must be created inside this directory to have all its artifacts
      */
-    public synchronized void importNewArchive(Csar csar, Topology topology) {
+    @SneakyThrows
+    public synchronized void importNewArchive(Csar csar, Topology topology, Path topologyPath) {
         ArchiveRoot archiveRoot = new ArchiveRoot();
         archiveRoot.setArchive(csar);
         archiveRoot.setTopology(topology);
@@ -125,8 +129,13 @@ public class ArchiveIndexer {
         csarService.save(csar);
         topologyServiceCore.save(topology);
         // Initialize the file repository for the archive
-        archiveRepositry.storeCSAR(csar, yaml);
-
+        if (topologyPath == null) {
+            // This is an empty topology without artifacts
+            archiveRepositry.storeCSAR(csar, yaml);
+        } else {
+            Files.write(topologyPath.resolve(csar.getYamlFilePath()), yaml.getBytes(Charset.forName("UTF-8")));
+            archiveRepositry.storeCSAR(csar, topologyPath);
+        }
         // dispatch event after indexing
         publisher.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
     }
@@ -257,11 +266,6 @@ public class ArchiveIndexer {
                     }
                 });
         workflowBuilderService.initWorkflows(topologyContext);
-
-        // FIXME query to check if a previous topology exist for this archive name/version/workspace.
-
-        // parsingErrors
-        // .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_UPDATED, "", null, "A topology template has been updated", null, archiveName));
 
         parsingErrors.add(
                 new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null, archiveName));

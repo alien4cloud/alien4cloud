@@ -1,6 +1,7 @@
 package alien4cloud.it.common;
 
 import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpression;
+import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpressionContains;
 
 import java.nio.file.Files;
 import java.util.List;
@@ -136,6 +137,7 @@ public class CommonStepDefinitions {
         Context.getInstance().takeApplication();
         Context.getRestClientInstance().clearCookies();
         Context.getInstance().takePreRegisteredOrchestratorProperties();
+        Context.getInstance().clearEnvironmentInfos();
         ApplicationStepDefinitions.CURRENT_APPLICATIONS.clear();
         ApplicationStepDefinitions.CURRENT_APPLICATION = null;
     }
@@ -208,6 +210,11 @@ public class CommonStepDefinitions {
         evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
     }
 
+    @Then("^The SPEL expression \"([^\"]*)\" should contains \"([^\"]*)\"$")
+    public void evaluateSpelExpressionUsingCurrentContext2(String spelExpression, String expectedPart) throws Throwable {
+        evaluateAndAssertExpressionContains(Context.getInstance().getSpelEvaluationContext(), spelExpression, expectedPart);
+    }
+
     @Then("^The SPEL expression \"([^\"]*)\" should return (true|false)$")
     public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, Boolean expected) {
         evaluateAndAssertExpression(Context.getInstance().getSpelEvaluationContext(), spelExpression, expected);
@@ -231,8 +238,14 @@ public class CommonStepDefinitions {
     }
 
     @When("^I register the rest response data as SPEL context of type \"([^\"]*)\"$")
-    public void I_register_the_rest_response_data_as_SPEL_context(String type) throws Throwable {
+    public void I_register_the_rest_response_data_as_SPEL_context_of_type(String type) throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Class.forName(type), Context.getJsonMapper());
+        Context.getInstance().buildEvaluationContext(response.getData());
+    }
+
+    @When("^I register the rest response data as SPEL context$")
+    public void I_register_the_rest_response_data_as_SPEL_context() throws Throwable {
+        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Context.getJsonMapper());
         Context.getInstance().buildEvaluationContext(response.getData());
     }
 
@@ -242,7 +255,7 @@ public class CommonStepDefinitions {
      */
     @Deprecated
     public void I_register_the_rest_response_data_as_SPEL_context2(String type) throws Throwable {
-        I_register_the_rest_response_data_as_SPEL_context(type);
+        I_register_the_rest_response_data_as_SPEL_context_of_type(type);
     }
 
     @Then("^Response should contains (\\d+) items$")

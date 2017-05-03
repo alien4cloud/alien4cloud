@@ -1,0 +1,18 @@
+<div class="modal-header">
+    <h3 class="modal-title" id="modal-title">Service relationship choice</h3>
+</div>
+<div class="modal-body" id="modal-body">
+    <p>When exposing an application as a service, the exposer is responsible for providing the relationship that will perform his side of the relationship connexion.</p>
+    <div>
+      <input type="text" ng-model="$ctrl.selectedRelationship.type" placeholder="Type the selected relationship type."
+        style="width: 100%"
+        uib-typeahead="item for item in $ctrl.relationshipTypeQuickSearchHandler.doQuickSearch($viewValue)"
+        typeahead-min-length="$ctrl.relationshipTypeQuickSearchHandler.minLength"
+        typeahead-wait-ms="$ctrl.relationshipTypeQuickSearchHandler.waitBeforeRequest"
+        class="form-control">
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{'OK' | translate}}</button>
+    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{'CANCEL' | translate}}</button>
+</div>

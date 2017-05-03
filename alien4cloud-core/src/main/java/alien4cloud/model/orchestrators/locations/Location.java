@@ -56,7 +56,6 @@ public class Location extends AbstractSecurityEnabledResource implements IMetaPr
     /**
      * A Location defines and uses some types, it thus basically have a set of CSARDependency
      */
-    @TermFilter(paths = { "name", "version" })
     @NestedObject(nestedClass = CSARDependency.class)
     private Set<CSARDependency> dependencies = Sets.newHashSet();
 

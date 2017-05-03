@@ -1,5 +1,4 @@
 Feature: Match location for a deployment configuration
-#TODO substitution using a service
   Background:
     Given I am authenticated with "ADMIN" role
     And There are these users in the system

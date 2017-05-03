@@ -2,7 +2,6 @@ package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -14,6 +13,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.events.AfterArchiveDeleted;
+import org.alien4cloud.tosca.catalog.events.ArchiveUsageRequestEvent;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -106,9 +106,10 @@ public class CsarService {
      * @return an array of CSARs that depend on this name:version.
      */
     public Csar[] getDependantCsars(String name, String version) {
-        FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
-                .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
-        GetMultipleDataResult<Csar> result = csarDAO.search(Csar.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        FilterBuilder notSelf = FilterBuilders
+                .notFilter(FilterBuilders.andFilter(FilterBuilders.termFilter("name", name), FilterBuilders.termFilter("version", version)));
+        GetMultipleDataResult<Csar> result = csarDAO.buildQuery(Csar.class).prepareSearch()
+                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -119,12 +120,11 @@ public class CsarService {
      * @return an array of <code>Topology</code>s that depend on this name:version.
      */
     public Topology[] getDependantTopologies(String name, String version) {
-        FilterBuilder filter = FilterBuilders.boolFilter()
-                .mustNot(FilterBuilders.boolFilter().must(FilterBuilders.termFilter("archiveName", name))
-                        .must(FilterBuilders.termFilter("archiveVersion", version)))
-                .must(FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", name))
-                        .must(FilterBuilders.termFilter("dependencies.version", version))));
-        GetMultipleDataResult<Topology> result = csarDAO.search(Topology.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        FilterBuilder notSelf = FilterBuilders
+                .notFilter(FilterBuilders.andFilter(FilterBuilders.termFilter("archiveName", name), FilterBuilders.termFilter("archiveVersion", version)));
+
+        GetMultipleDataResult<Topology> result = csarDAO.buildQuery(Topology.class).prepareSearch()
+                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -140,9 +140,8 @@ public class CsarService {
      * @return an array of CSARs that depend on this name:version.
      */
     public Location[] getDependantLocations(String name, String version) {
-        FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
-                .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
-        GetMultipleDataResult<Location> result = csarDAO.search(Location.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        GetMultipleDataResult<Location> result = csarDAO.buildQuery(Location.class)
+                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version)).prepareSearch().search(0, Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -196,8 +195,7 @@ public class CsarService {
      */
     private Set<CSARDependency> remove(Csar csar, Set<CSARDependency> from) {
         CSARDependency toRemove = new CSARDependency(csar.getName(), csar.getVersion());
-        return from == null ? null
-                : from.stream().filter(csarDependency -> !Objects.equals(toRemove, csarDependency)).collect(Collectors.toSet());
+        return from == null ? null : from.stream().filter(csarDependency -> !Objects.equals(toRemove, csarDependency)).collect(Collectors.toSet());
     }
 
     /**
@@ -322,40 +320,42 @@ public class CsarService {
      * @return The list of usage of the archive.
      */
     public List<Usage> getCsarRelatedResourceList(Csar csar) {
-        List<Usage> relatedResourceList = Lists.newArrayList();
-
         if (csar == null) {
-            log.warn("You have requested a resource list for a invalid csar object : <" + csar + ">");
-            return relatedResourceList;
+            log.debug("You have requested a resource list for a invalid csar object : <" + csar + ">");
+            return Lists.newArrayList();
         }
 
-        // TODO improve usage infos to add the version of csar/application that uses the given archive.
+        ArchiveUsageRequestEvent archiveUsageRequestEvent = new ArchiveUsageRequestEvent(this, csar.getName(), csar.getVersion());
 
-        // a csar that is a dependency of another csar can not be deleted
-        // FIXME WORKSPACE HANDLING REQUIRED
+        // Archive from applications are used by the application.
         if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
             // The CSAR is from an application's topology
-            relatedResourceList.addAll(
-                    Collections.singletonList(new Usage(csar.getDelegateId(), Application.class.getSimpleName().toLowerCase(), csar.getDelegateId(), null)));
+            Application application = applicationService.checkAndGetApplication(csar.getDelegateId());
+            archiveUsageRequestEvent
+                    .addUsage(new Usage(application.getName(), Application.class.getSimpleName().toLowerCase(), csar.getDelegateId(), csar.getWorkspace()));
         }
+
+        // a csar that is a dependency of another csar can not be deleted
         Csar[] relatedCsars = getDependantCsars(csar.getName(), csar.getVersion());
         if (ArrayUtils.isNotEmpty(relatedCsars)) {
-            relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
+            archiveUsageRequestEvent.addUsages(generateCsarsInfo(relatedCsars));
         }
 
         // check if some of the nodes are used in topologies.
         Topology[] topologies = getDependantTopologies(csar.getName(), csar.getVersion());
         if (topologies != null && topologies.length > 0) {
-            relatedResourceList.addAll(generateTopologiesInfo(topologies));
+            archiveUsageRequestEvent.addUsages(generateTopologiesInfo(topologies));
         }
 
         // a csar that is a dependency of location can not be deleted
         Location[] relatedLocations = getDependantLocations(csar.getName(), csar.getVersion());
         if (relatedLocations != null && relatedLocations.length > 0) {
-            relatedResourceList.addAll(generateLocationsInfo(relatedLocations));
+            archiveUsageRequestEvent.addUsages(generateLocationsInfo(relatedLocations));
         }
 
-        return relatedResourceList;
+        publisher.publishEvent(archiveUsageRequestEvent);
+
+        return archiveUsageRequestEvent.getUsages();
     }
 
     /**
@@ -372,12 +372,10 @@ public class CsarService {
             if (ArchiveDelegateType.APPLICATION.toString().equals(csar.getDelegateType())) {
                 Application application = applicationService.checkAndGetApplication(csar.getDelegateId());
                 resourceName = application.getName();
-                resourceId = csar.getDelegateId();
             } else {
                 resourceName = csar.getName();
-                resourceId = csar.getId();
             }
-            Usage temp = new Usage(resourceName, Csar.class.getSimpleName().toLowerCase(), resourceId, csar.getWorkspace());
+            Usage temp = new Usage(resourceName, Csar.class.getSimpleName().toLowerCase(), csar.getId(), csar.getWorkspace());
             resourceList.add(temp);
         }
         return resourceList;
@@ -409,7 +407,6 @@ public class CsarService {
      * @return
      */
     public List<Usage> generateTopologiesInfo(Topology[] topologies) {
-
         List<Usage> resourceList = Lists.newArrayList();
 
         List<Csar> topologiesCsar = getTopologiesCsar(topologies);

@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 
 import org.elasticsearch.annotation.NumberField;
 import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -41,18 +42,23 @@ import lombok.Setter;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Version implements Comparable<Version> {
+    @TermFilter
     @NumberField(index = IndexType.not_analyzed)
     private Integer majorVersion;
 
+    @TermFilter
     @NumberField(index = IndexType.not_analyzed)
     private Integer minorVersion;
 
+    @TermFilter
     @NumberField(index = IndexType.not_analyzed)
     private Integer incrementalVersion;
 
+    @TermFilter
     @NumberField(index = IndexType.not_analyzed)
     private Integer buildNumber;
 
+    @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private String qualifier;
 

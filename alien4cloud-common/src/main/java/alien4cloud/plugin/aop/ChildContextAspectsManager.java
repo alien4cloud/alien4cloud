@@ -212,9 +212,8 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
      */
     private void onAlienEvent(AlienEvent e) {
         // Alien events are published to child contexts
-        // we can't publish directly into child context because it will re-publish to it's parent causing a stack overflow !
-        // TODO In fact we should do it, so that child contexts can use @EventListener annotation. Use a boolean in AlienEvent.forwarded to check wether the
-        // event has already been forwarded to child contexts
+        // we can't publish directly into child context because it will re-publish to it's parent causing potential listeners in the main context to receive the
+        // event many times. !
         for (Entry<String, GenericApplicationListenerAdapter[]> childListenersEntry : childApplicationListeners.entrySet()) {
             ApplicationContext ctx = childContexts.get(childListenersEntry.getKey());
             if (ctx != null) {

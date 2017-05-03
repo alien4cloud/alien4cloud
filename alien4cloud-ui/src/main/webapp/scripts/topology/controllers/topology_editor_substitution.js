@@ -7,8 +7,28 @@ define(function (require) {
   var angular = require('angular');
   var modules = require('modules');
 
-  modules.get('a4c-topology-editor').factory('topoEditSubstitution', [ 'topologyServices', 'suggestionServices', '$state',
-    function(topologyServices, suggestionServices, $state) {
+  modules.get('a4c-topology-editor').controller('quickRelationshipSearchModal', [ '$uibModalInstance', 'relationshipTypeQuickSearchService', 'relationshipType',
+    function( $uibModalInstance, relationshipTypeQuickSearchService, relationshipType) {
+      var $ctrl = this;
+      $ctrl.relationshipTypeQuickSearchHandler = {
+        'doQuickSearch': relationshipTypeQuickSearchService.doQuickSearch,
+        'waitBeforeRequest': 500,
+        'minLength': 3
+      };
+      $ctrl.selectedRelationship = { 'type': relationshipType };
+      $ctrl.updateRelationshipType = function(newType) {
+        $ctrl.selectedRelationship.type = newType;
+      };
+      $ctrl.ok = function(){
+        $uibModalInstance.close($ctrl.selectedRelationship.type);
+      };
+      $ctrl.cancel = function(){
+        $uibModalInstance.dismiss('close');
+      };
+    }]);
+
+  modules.get('a4c-topology-editor').factory('topoEditSubstitution', [ 'topologyServices', 'suggestionServices', '$state', '$uibModal',
+    function(topologyServices, suggestionServices, $state, $uibModal) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };
@@ -21,11 +41,9 @@ define(function (require) {
         refresh: function() {
           // about substitution
           if (this.scope.topology.topology.substitutionMapping && this.scope.topology.topology.substitutionMapping.substitutionType) {
-            this.scope.substitutionType = this.scope.topology.topology.substitutionMapping.substitutionType.elementId;
-            this.scope.substitutionVersion = this.scope.topology.topology.substitutionMapping.substitutionType.archiveVersion;
+            this.scope.substitutionType = this.scope.topology.topology.substitutionMapping.substitutionType;
           } else {
             this.scope.substitutionType = undefined;
-            this.scope.substitutionVersion = undefined;
           }
         },
 
@@ -176,6 +194,56 @@ define(function (require) {
             var archiveVersion = tokens[1];
             $state.go('topologycatalog.csar', { archiveName: archiveName, archiveVersion: archiveVersion });
           }
+        },
+
+        cfgCapaSrvRelationship: function(key) {
+          var self = this;
+          var currentRelationshipType = self.scope.topology.topology.substitutionMapping.capabilities[key].serviceRelationshipType;
+          var modalInstance = $uibModal.open({
+            templateUrl: 'views/topology/editor_service_relationship_modal.html',
+            controller: 'quickRelationshipSearchModal',
+            controllerAs: '$ctrl',
+            resolve: {relationshipType : function() {return currentRelationshipType;}}
+          });
+
+          modalInstance.result.then(function(relationshipTypeId) {
+            var relationshipTypeSplit = relationshipTypeId.split(':');
+            self.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.substitution.SetSubstitutionCapabilityServiceRelationshipOperation',
+              substitutionCapabilityId: key,
+              relationshipType: relationshipTypeSplit[0],
+              relationshipVersion: relationshipTypeSplit[1]
+            }, function(result) {
+              if (!result.error) {
+                self.scope.refreshTopology(result.data);
+              }
+            });
+          });
+        },
+
+        cfgReqSrvRelationship: function(key) {
+          var self = this;
+          var currentRelationshipType = self.scope.topology.topology.substitutionMapping.requirements[key].serviceRelationshipType;
+          var modalInstance = $uibModal.open({
+            templateUrl: 'views/topology/editor_service_relationship_modal.html',
+            controller: 'quickRelationshipSearchModal',
+            controllerAs: '$ctrl',
+            resolve: {relationshipType : function() {return currentRelationshipType;}}
+          });
+
+          modalInstance.result.then(function(relationshipTypeId) {
+            var relationshipTypeSplit = relationshipTypeId.split(':');
+            self.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.substitution.SetSubstitutionRequirementServiceRelationshipOperation',
+              substitutionRequirementId: key,
+              relationshipType: relationshipTypeSplit[0],
+              relationshipVersion: relationshipTypeSplit[1]
+            }, function(result) {
+              if (!result.error) {
+                self.scope.refreshTopology(result.data);
+              }
+            });
+          });
         }
       };
 

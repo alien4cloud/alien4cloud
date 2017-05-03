@@ -1,0 +1,25 @@
+<div id="informationModal">
+  <div class="modal-header">
+    <h4>{{'APPLICATIONS.UPDATE_MODAL.TITLE' | translate}}</h4>
+  </div>
+  <div class="modal-body">
+    {{content}}
+    <div style="overflow: auto; max-height: 300px;">
+      <div ng-repeat="(key, value) in nodeTemplates" style="padding-left: 20px;">
+        - {{key}} : {{value.name}}
+      </div>
+    </div>
+    <br/>
+    <div>
+      {{footer}}
+    </div>
+    <br />
+    <div class="">
+      {{'APPLICATIONS.UPDATE_MODAL.CONTENT.DOCUMENTATION' | translate}}
+      <a href="http://alien4cloud.github.io/#/documentation/1.4.0/orchestrators/cloudify3_driver/deployment_update.html" target="_blank"> documentation</a>.
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()">{{'CLOSE' | translate}}</button>
+    <button class="btn btn-primary" ng-click="update()"><i class="fa fa-play"></i> {{'APPLICATIONS.UPDATE_DEPLOYMENT' | translate}}</button>
+</div>
