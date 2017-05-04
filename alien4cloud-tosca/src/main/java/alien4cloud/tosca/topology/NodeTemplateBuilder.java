@@ -4,10 +4,18 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
-import alien4cloud.utils.services.ConstraintPropertyService;
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Requirement;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.MapUtils;
@@ -15,11 +23,9 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.common.collect.Maps;
 
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Requirement;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
+import alien4cloud.utils.services.ConstraintPropertyService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -109,7 +115,8 @@ public class NodeTemplateBuilder {
                     capaProperties.putAll(capa.getProperties());
                 }
             }
-            if (toAddCapa == null) {
+            // only merge if the types are equals
+            if (toAddCapa == null || (StringUtils.isNotBlank(toAddCapa.getType()) && !Objects.equals(toAddCapa.getType(), capa.getType()))) {
                 toAddCapa = new Capability();
                 toAddCapa.setType(capa.getType());
                 toAddCapa.setProperties(capaProperties);
@@ -140,7 +147,7 @@ public class NodeTemplateBuilder {
             Requirement toAddRequirement = MapUtils.getObject(mapToMerge, requirement.getId());
             // the type of a requirement is a capability type in TOSCA as they match each other.
             CapabilityType requirementType = ToscaContext.get(CapabilityType.class, requirement.getType());
-            if (toAddRequirement == null) {
+            if (toAddRequirement == null || !Objects.equals(toAddRequirement.getType(), requirement.getType())) {
                 toAddRequirement = new Requirement();
                 toAddRequirement.setType(requirement.getType());
             }

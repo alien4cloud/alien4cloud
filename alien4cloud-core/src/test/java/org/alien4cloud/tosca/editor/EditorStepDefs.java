@@ -59,6 +59,7 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
+import alien4cloud.tosca.parser.ParserTestUtil;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.AlienConstants;
@@ -219,10 +220,10 @@ public class EditorStepDefs {
 
     private void uploadCsar(Path path) throws Throwable {
         ParsingResult<Csar> result = csarUploadService.upload(path, CSARSource.UPLOAD, AlienConstants.GLOBAL_WORKSPACE_ID);
-        Assert.assertFalse(result.hasError(ParsingErrorLevel.ERROR));
         if (result.getContext().getParsingErrors().size() > 0) {
-            System.out.println(result);
+            ParserTestUtil.displayErrors(result);
         }
+        Assert.assertFalse(result.hasError(ParsingErrorLevel.ERROR));
     }
 
     @Given("^I cleanup archives$")
