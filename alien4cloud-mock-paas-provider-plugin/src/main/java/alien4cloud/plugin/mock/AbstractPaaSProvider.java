@@ -69,8 +69,8 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
                 doDeploy(deploymentContext);
                 break;
             default:
-                throw new IllegalDeploymentStateException("Topology [" + deploymentId + "] is in illegal status [" + deploymentStatus
-                        + "] and cannot be deployed");
+                throw new IllegalDeploymentStateException(
+                        "Topology [" + deploymentId + "] is in illegal status [" + deploymentStatus + "] and cannot be deployed");
             }
         } finally {
             providerLock.writeLock().unlock();
@@ -83,7 +83,8 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
     }
 
     @Override
-    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
         callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), deploymentContext.getDeploymentTopology()));
     }
 
@@ -127,7 +128,7 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
     }
 
     @Override
-    public void setConfiguration(ProviderConfig configuration) throws PluginConfigurationException {
+    public void setConfiguration(String orchestratorId, ProviderConfig configuration) throws PluginConfigurationException {
         // TODO Auto-generated method stub
 
     }
@@ -143,7 +144,8 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
             case UNDEPLOYED:
                 throw new PaaSNotYetDeployedException("Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
             case UNKNOWN:
-                throw new IllegalDeploymentStateException("Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
+                throw new IllegalDeploymentStateException(
+                        "Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
             case DEPLOYMENT_IN_PROGRESS:
             case FAILURE:
             case DEPLOYED:
@@ -151,8 +153,8 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
                 doUndeploy(deploymentContext);
                 break;
             default:
-                throw new IllegalDeploymentStateException("Application [" + deploymentId + "] is in illegal status [" + deploymentStatus
-                        + "] and cannot be undeployed");
+                throw new IllegalDeploymentStateException(
+                        "Application [" + deploymentId + "] is in illegal status [" + deploymentStatus + "] and cannot be undeployed");
             }
         } finally {
             providerLock.writeLock().unlock();
