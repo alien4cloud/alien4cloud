@@ -11,9 +11,11 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.images.ImageDAO;
 import org.alien4cloud.alm.events.AfterApplicationDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import org.elasticsearch.common.lang3.ArrayUtils;
+import org.elasticsearch.common.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -44,8 +46,10 @@ public class ApplicationService {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private ApplicationVersionService applicationVersionService;
-    @Inject
+    @Resource
     private ApplicationEventPublisher publisher;
+    @Resource
+    private ImageDAO imageDAO;
 
     /**
      * Create a new application and return it's id
@@ -173,8 +177,12 @@ public class ApplicationService {
         applicationVersionService.deleteByApplication(applicationId);
         applicationEnvironmentService.deleteByApplication(applicationId);
         // Clean up other resources
+        Application application = alienDAO.findById(Application.class, applicationId);
         publisher.publishEvent(new BeforeApplicationDeleted(this, applicationId));
         alienDAO.delete(Application.class, applicationId);
+        if(application != null && StringUtils.isNotBlank(application.getImageId())) {
+            imageDAO.deleteAll(application.getImageId());
+        }
         publisher.publishEvent(new AfterApplicationDeleted(this, applicationId));
         return true;
     }
