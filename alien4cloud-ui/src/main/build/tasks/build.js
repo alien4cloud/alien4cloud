@@ -17,9 +17,10 @@ module.exports = function (grunt) {
       'concat', // concat css files
       'cssmin', // minify css
       'ngtemplates', // Copy all views html files into a javascript file that will populate the angular template cache.
-      'rev', // rename files for caching purpose
-      'usemin', // Apply renaming of js and css files to index.html (including require.config.js renaming)
-      'execute:revrename' // Apply renaming of javascript files inside the require.config.js file (alien4cloud-bootstrap, alien4cloud-dependencies and alien4cloud-templates)
+      'rev:appFiles', // rename files for caching purpose except require.config.js
+      'execute:revrename', // Apply renaming of javascript files inside the require.config.js file (alien4cloud-bootstrap, alien4cloud-dependencies and alien4cloud-templates)
+      'rev:requireConfig', // rename require.config.js file for caching purpose
+      'usemin' // Apply renaming of js and css files to index.html (including require.config.js renaming)
     ]
   );
 };
