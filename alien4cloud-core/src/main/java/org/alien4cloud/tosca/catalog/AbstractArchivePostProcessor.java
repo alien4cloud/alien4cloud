@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -61,7 +62,16 @@ public abstract class AbstractArchivePostProcessor {
         // Injext archive hash in every indexed node type.
         processTypes(parsedArchive.getResult());
         processArtifacts(archive, parsedArchive);
+        processSubstitution(parsedArchive.getResult(), parsedArchive.getContext().getParsingErrors());
         return parsedArchive;
+    }
+
+    private void processSubstitution(ArchiveRoot archiveRoot, List<ParsingError> parsingErrors) {
+        // Mixing substitution and types is currently not supported by Alien (but not forbidden by Tosca)
+        if (archiveRoot.hasToscaTypes() && archiveRoot.getTopology() != null && archiveRoot.getTopology().getSubstitutionMapping() != null) {
+            parsingErrors.add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNSUPPORTED_SUBSTITUTION, "", null,
+                    "Substitution is not supported on archive that defines types.", null, archiveRoot.getArchive().getName()));
+        }
     }
 
     /**
