@@ -14,20 +14,15 @@
     "AUTHORIZED" : "application autorisée",
     "DEPLOY" : "Déployer",
     "DEPLOY_MODAL": {
-      "CONTENT": {
-        "HEADER" : "Êtes-vous certain de vouloir déployer l'application {{application}} de type {{type}} en version {{version}} avec le matching suivant:",
-        "FOOTER": "Sur la location {{location}} de l'orchestrateur {{orchestrator}} ?"
-      },
-      "TITLE": "Informations concernant le déploiement"
+      "MESSAGE": "Vous êtes sur le point de déployer ce qui suit:",
+      "RESOURCES_TO_CREATE": "Resources à creer",
+      "TITLE": "Informations de déploiement"
     },
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
     "UPDATE_MODAL": {
-      "CONTENT": {
-        "DOCUMENTATION": "Pour plus d'information sur la mise à jour d'un déploiement veuillez consulter notre ",
-        "HEADER" : "Êtes-vous certain de vouloir mettre à jour l'application {{application}} de type {{type}} en version {{version}} avec le matching suivant:",
-        "FOOTER": "Sur la location {{location}} de l'orchestrateur {{orchestrator}} ?"
-      },
-      "TITLE": "Informations sur la mise à jour"
+      "MESSAGE": "Vous êtes sur le point de mettre à jour ce qui suit:",
+      "DOCUMENTATION": "Plus d'informations sur la mise à jour de déploiements...",
+      "TITLE": "Informations de mise à jour"
     },
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",
@@ -303,10 +298,8 @@
     },
     "UNDEPLOY" : "Désinstaller",
     "UNDEPLOY_MODAL": {
-      "CONTENT": {
-        "HEADER" : "Êtes-vous certain de vouloir désinstaller l'application {{application}} en version {{version}} ?",
-        "FOOTER": "Les noeud(s) suivant seront donc supprimé(s) :"
-      },
+      "MESSAGE": "Vous êtes sur le point de dsintaller ce qui suit:",
+      "RESOURCES_TO_UNINSTALL": "Ressources à désinstaller",
       "TITLE": "Informations concernant la désinstallation"
     },
     "VERSION" : {
@@ -1073,6 +1066,7 @@
   },
   "SELECT" : "Selectionner",
   "SERVICES" : {
+    "SERVICE": "Service",
     "CATALOG": "Catalogue des services",
     "DETAIL" : {
       "BACK" : "Retour au catalogue",

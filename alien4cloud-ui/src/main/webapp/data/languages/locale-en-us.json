@@ -14,19 +14,14 @@
     "AUTHORIZED": "application authorized",
     "DEPLOY": "Deploy",
     "DEPLOY_MODAL": {
-      "CONTENT": {
-        "HEADER" : "Are you sure you want to deploy the {{application}} application with {{type}} type and {{version}} version with the following matching:",
-        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
-      },
+      "MESSAGE": "You are about to deploy the following:",
+      "RESOURCES_TO_CREATE": "Resources to create",
       "TITLE": "Deployment informations"
     },
     "UPDATE_DEPLOYMENT" : "Update",
     "UPDATE_MODAL": {
-      "CONTENT": {
-        "DOCUMENTATION": "More informations on deployment update are available in our ",
-        "HEADER" : "Are you sure you want to update the {{application}} application with {{type}} type and {{version}} version with the following matching:",
-        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
-      },
+      "MESSAGE": "You are about to update the following:",
+      "DOCUMENTATION": "More on deployment update...",
       "TITLE": "Update deployment informations"
     },
     "DEPLOYMENT": {
@@ -303,10 +298,8 @@
     },
     "UNDEPLOY": "Undeploy",
     "UNDEPLOY_MODAL": {
-      "CONTENT": {
-        "HEADER" : "Are you sure you want to uninstall the {{application}} application in {{version}} version?",
-        "FOOTER": "The following node(s) will be deleted:"
-      },
+      "MESSAGE": "You are about to undeploy the following:",
+      "RESOURCES_TO_UNINSTALL": "Resources to uninstall",
       "TITLE": "Uninstall reminder"
     },
     "VERSION": {
@@ -1073,6 +1066,7 @@
   },
   "SELECT": "Select",
   "SERVICES": {
+    "SERVICE": "Service",
     "CATALOG": "Services catalog",
     "DETAIL": {
       "BACK": "Back to catalog",
