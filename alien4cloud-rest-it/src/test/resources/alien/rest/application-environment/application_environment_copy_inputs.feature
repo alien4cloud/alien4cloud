@@ -24,7 +24,10 @@ Feature: Create application environment with copy inputs
 
     And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
 
+    And I create a resource of type "org.alien4cloud.nodes.mock.Compute" named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+
     And I create a new application with name "MyWebApp" and description "A webapp" based on the template with name "inputs_copy"
+
     And I create an application topology version for application "MyWebApp" version "MyWebApp:0.1.0-SNAPSHOT" with qualifier "dev", description "topology for development environment", topology template id "null" and previous version id "MyWebApp:0.1.0-SNAPSHOT"
 
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
@@ -36,6 +39,9 @@ Feature: Create application environment with copy inputs
       | context_root | /myWar |
     And I upload a file located at "src/test/resources/data/artifacts/myWar.war" for the input artifact "uploaded_war"
     And I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Medium_CentOS"
+    And I substitute on the current application the node "Manual_Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
+    And I update the property "imageId" to "updatedImg" for the subtituted node "Manual_Compute"
+
     And I update the application environment named "Environment" with values
       | name            | DEV         |
       | description     |             |
@@ -63,6 +69,9 @@ Feature: Create application environment with copy inputs
       | uploaded_war | myWar.war |
     And The deployment topology should have the substituted nodes
       | Compute | Medium_CentOS | org.alien4cloud.nodes.mock.Compute |
+    And The deployment topology should have the substituted nodes
+      | Manual_Compute | Manual_Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
+    And The node "Manual_Compute" in the deployment topology should have the property "imageId" with value "updatedImg"
 
   @reset
   Scenario: Switch version of an environment without copying inputs

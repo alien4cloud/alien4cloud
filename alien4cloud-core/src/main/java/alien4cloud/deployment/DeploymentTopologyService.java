@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
+import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
@@ -74,7 +75,6 @@ import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationResourceTypes;
 import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.orchestrators.locations.services.LocationService;
-import org.alien4cloud.alm.service.ServiceResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
@@ -321,7 +321,8 @@ public class DeploymentTopologyService {
     }
 
     private void doUpdateDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
-        Map<String, NodeTemplate> previousNodeTemplates = deploymentTopology.getNodeTemplates();
+        Map<String, NodeTemplate> previousNodeTemplates = deploymentTopology.getNodeTemplates() != null ? new HashMap<>(deploymentTopology.getNodeTemplates())
+                : null;
         ReflectionUtil.mergeObject(topology, deploymentTopology, "id", "creationDate", "lastUpdateDate");
         deploymentTopology.setSubstitutionMapping(topology.getSubstitutionMapping());
         topologyCompositionService.processTopologyComposition(deploymentTopology);
@@ -348,7 +349,23 @@ public class DeploymentTopologyService {
         // Injects inputs (get_input) before processing substitutions and internal get_properties (basically a property that get a property out of another node/
         // property).
         inputsPreProcessorService.injectInputValues(deploymentTopology, environment, topology);
-        deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
+        deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, topology, previousNodeTemplates);
+    }
+
+    /**
+     * Reprocess substitution for the topology by copying properties from given previous node templates
+     * 
+     * @param deploymentTopology the deployment's topology
+     * @param previousNodeTemplates previous node templates
+     */
+    public void processDeploymentTopologyNodeSubstitutions(DeploymentTopology deploymentTopology, Map<String, NodeTemplate> previousNodeTemplates) {
+        if (MapUtils.isEmpty(deploymentTopology.getLocationGroups())) {
+            // No location matching has been yet performed, do nothing.
+            return;
+        }
+        deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId()),
+                previousNodeTemplates);
+        save(deploymentTopology);
     }
 
     /**
@@ -360,7 +377,8 @@ public class DeploymentTopologyService {
         deploymentInputService.processInputProperties(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         injectInputAndProcessSubstitutionIfNeeded(deploymentTopology, topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId()),
-                appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId()), null);
+                appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId()),
+                deploymentTopology.getNodeTemplates() != null ? new HashMap<>(deploymentTopology.getNodeTemplates()) : null);
         save(deploymentTopology);
     }
 

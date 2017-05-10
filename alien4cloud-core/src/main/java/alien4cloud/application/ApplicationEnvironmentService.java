@@ -32,7 +32,11 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.deployment.*;
+import alien4cloud.deployment.DeploymentLockService;
+import alien4cloud.deployment.DeploymentRuntimeStateService;
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.deployment.DeploymentTopologyService;
+import alien4cloud.deployment.OrchestratorPropertiesValidationService;
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
@@ -364,12 +368,20 @@ public class ApplicationEnvironmentService {
                 DeploymentSubstitutionConfiguration substitutionConfiguration = deploymentTopologyService
                         .getAvailableNodeSubstitutions(targetDeploymentTopology);
                 // Update the substitution on the target if available substitution is always compatible
-                sourceDeploymentTopology.getSubstitutedNodes().entrySet().stream()
+                Map<String, String> validOnNewEnvSubstitutedNodes = sourceDeploymentTopology.getSubstitutedNodes().entrySet().stream()
                         .filter(entry -> substitutionConfiguration.getAvailableSubstitutions().containsKey(entry.getKey())
                                 && substitutionConfiguration.getAvailableSubstitutions().get(entry.getKey()).contains(entry.getValue()))
-                        .forEach(entry -> {
-                            deploymentTopologyService.updateSubstitution(target.getId(), entry.getKey(), entry.getValue());
-                        });
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                if (MapUtils.isNotEmpty(validOnNewEnvSubstitutedNodes)) {
+                    validOnNewEnvSubstitutedNodes.forEach((key, value) -> {
+                        deploymentTopologyService.updateSubstitution(target.getId(), key, value);
+                    });
+                    // Copy properties set on the node to the new one
+                    deploymentTopologyService.processDeploymentTopologyNodeSubstitutions(deploymentTopologyService.getDeploymentTopology(target),
+                            sourceDeploymentTopology.getNodeTemplates().entrySet().stream()
+                                    .filter(entry -> validOnNewEnvSubstitutedNodes.containsKey(entry.getKey()))
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                }
             }
         }
     }
