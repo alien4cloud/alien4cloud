@@ -1,0 +1,24 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.nodes.test.SingleUbuntuCompute
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Test template that defines a simple Compute node with a substitution as a Root node.
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+topology_template:
+  substitution_mappings:
+    node_type: tosca.nodes.Root
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: ubuntu

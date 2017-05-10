@@ -242,7 +242,6 @@ public class ToscaContext {
          * @return The archive from it's id.
          */
         public Csar getArchive(String name, String version) {
-
             String id = new Csar(name, version).getId();
             Csar archive = archivesMap.get(id);
             log.debug("get archive from map {} {} {}", id, archive);

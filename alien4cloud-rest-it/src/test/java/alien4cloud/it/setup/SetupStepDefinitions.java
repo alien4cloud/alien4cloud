@@ -94,12 +94,11 @@ public class SetupStepDefinitions {
     /** Archives INIT */
     private final static UploadCSARSStepDefinition UPLOAD_CSARS_STEP_DEFINITION = new UploadCSARSStepDefinition();
 
-    private void initArchives(List<String> archiveDefinitions) throws Throwable {
-        for (int i = 1; i < archiveDefinitions.size(); i++) {
-            if (archiveDefinitions.get(i).isEmpty()) {
-                return;
-            }
-            UPLOAD_CSARS_STEP_DEFINITION.uploadArchive(archiveDefinitions.get(i));
+    private void initArchives(List<String> archivesDef) throws Throwable {
+        String[] archiveDefinitions = archivesDef.get(1).split(",");
+
+        for (int i = 0; i < archiveDefinitions.length; i++) {
+            UPLOAD_CSARS_STEP_DEFINITION.uploadArchive(archiveDefinitions[i]);
         }
     }
 

@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import alien4cloud.utils.CloneUtil;
 import alien4cloud.utils.FileUtil;
+import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
@@ -68,10 +69,20 @@ public class TopologySubstitutionService {
 
         // first we update the csar and the dependencies
         NodeType nodeType = ToscaContext.getOrFail(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType());
+        if (csar.getDependencies() == null) {
+            csar.setDependencies(Sets.newHashSet());
+        }
+        boolean updateCsar = false;
         if (csar.getDependencies().add(csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()))) {
-            Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
-            String hash = FileUtil.deepSHA1(archiveGitPath);
+            updateCsar = true;
+        }
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+        String hash = FileUtil.deepSHA1(archiveGitPath);
+        if (!hash.equals(csar.getHash())) {
             csar.setHash(hash);
+            updateCsar = true;
+        }
+        if (updateCsar) {
             csarService.save(csar);
         }
 

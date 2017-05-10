@@ -10,6 +10,7 @@ import cucumber.api.junit.Cucumber;
         //
         "classpath:alien/rest/managed-service",
         // "classpath:alien/rest/managed-service/create_service.feature",
+        // "classpath:alien/rest/managed-service/create_service_continued.feature",
         // "classpath:alien/rest/managed-service/delete_service.feature",
         // "classpath:alien/rest/managed-service/get_service.feature",
         // "classpath:alien/rest/managed-service/list_service.feature",

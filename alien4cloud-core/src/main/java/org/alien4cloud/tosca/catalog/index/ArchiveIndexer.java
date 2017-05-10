@@ -136,6 +136,7 @@ public class ArchiveIndexer {
             Files.write(topologyPath.resolve(csar.getYamlFilePath()), yaml.getBytes(Charset.forName("UTF-8")));
             archiveRepositry.storeCSAR(csar, topologyPath);
         }
+        topologySubstitutionService.updateSubstitutionType(topology, archiveRoot.getArchive());
         // dispatch event after indexing
         publisher.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
     }
