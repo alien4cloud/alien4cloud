@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.application.ApplicationVersionService.DeleteApplicationVersions;
 import org.alien4cloud.alm.events.AfterApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
@@ -152,53 +153,59 @@ public class ApplicationEnvironmentService {
      *
      * @param id The id of the version to delete.
      */
-    public boolean delete(String id) {
-        ApplicationEnvironment applicationEnvironment = getOrFail(id);
-        boolean isDeployed = isDeployed(id);
-
-        if (isDeployed) {
-            throw new DeleteDeployedException("Application environment with id <" + id + "> cannot be deleted since it is deployed");
-        }
-
-        failIfExposedAsService(applicationEnvironment);
-
-        publisher.publishEvent(new BeforeApplicationEnvironmentDeleted(this, applicationEnvironment.getApplicationId(), applicationEnvironment.getId()));
-        alienDAO.delete(ApplicationEnvironment.class, id);
-        publisher.publishEvent(new AfterApplicationEnvironmentDeleted(this, applicationEnvironment.getApplicationId(), applicationEnvironment.getId()));
-        return true;
+    public void delete(String id) {
+        ApplicationEnvironment environment = getOrFail(id);
+        deleteCheck(environment);
+        deleteEnvironment(environment);
     }
 
     /**
-     * Delete all environments related to an application
+     * Ensure that every versions of the application can be deleted, throw an exception if not.
      *
-     * @param applicationId The application id
+     * @param applicationId The id of the application to be deleted.
      */
-    public void deleteByApplication(String applicationId) {
-        List<String> deployedEnvironments = Lists.newArrayList();
-        List<String> exposedServiceEnvironments = Lists.newArrayList();
+    public DeleteApplicationEnvironments prepareDeleteByApplication(String applicationId) {
         ApplicationEnvironment[] environments = getByApplicationId(applicationId);
         for (ApplicationEnvironment environment : environments) {
-            try {
-                delete(environment.getId());
-            } catch (DeleteDeployedException e) {
-                // collect all deployed environment
-                deployedEnvironments.add(environment.getId());
-            } catch (DeleteReferencedObjectException e) {
-                // collect all exposed as service environment
-                exposedServiceEnvironments.add(environment.getId());
-            }
+            deleteCheck(environment);
         }
-        // couln't delete deployed environment
-        if (!deployedEnvironments.isEmpty()) {
-            // error could not deployed all app environment for this applcation
-            log.error("Cannot delete these deployed environments : {}", deployedEnvironments.toString());
+        return new DeleteApplicationEnvironments(environments);
+    }
+
+    /**
+     * This object is returned by the prepareDeleteByApplication operation to ensure that we don't trigger a delete without having performed a check first.
+     */
+    public class DeleteApplicationEnvironments {
+        private ApplicationEnvironment[] environments;
+
+        DeleteApplicationEnvironments(ApplicationEnvironment[] environments) {
+            this.environments = environments;
         }
 
-        // couln't delete exposed as service environment
-        if (!exposedServiceEnvironments.isEmpty()) {
-            // error could not deployed all app environment for this applcation
-            log.error("Cannot delete these environments exposed as service: {}", exposedServiceEnvironments.toString());
+        /**
+         * Delete all versions related to an application.
+         */
+        public void delete() {
+            for (ApplicationEnvironment environment : environments) {
+                deleteEnvironment(environment);
+            }
         }
+    }
+
+    private void deleteCheck(ApplicationEnvironment environment) {
+        boolean isDeployed = isDeployed(environment.getId());
+
+        if (isDeployed) {
+            throw new DeleteDeployedException("Application environment with id <" + environment + "> cannot be deleted since it is deployed");
+        }
+
+        failIfExposedAsService(environment);
+    }
+
+    private void deleteEnvironment(ApplicationEnvironment environment) {
+        publisher.publishEvent(new BeforeApplicationEnvironmentDeleted(this, environment.getApplicationId(), environment.getId()));
+        alienDAO.delete(ApplicationEnvironment.class, environment.getId());
+        publisher.publishEvent(new AfterApplicationEnvironmentDeleted(this, environment.getApplicationId(), environment.getId()));
     }
 
     /**
@@ -216,8 +223,8 @@ public class ApplicationEnvironmentService {
      * 
      * @return true if the environment is currently deployed
      */
-    public boolean isDeployed(String appEnvironmentId) {
-        return getActiveDeployment(appEnvironmentId) != null;
+    public boolean isDeployed(String environmentId) {
+        return alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("environmentId", environmentId, "endDate", null)).count() > 0;
     }
 
     /**
