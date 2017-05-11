@@ -1,5 +1,10 @@
 package alien4cloud.tosca.parser;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -11,8 +16,10 @@ import java.util.Set;
 
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -28,14 +35,18 @@ import org.alien4cloud.tosca.model.definitions.constraints.GreaterThanConstraint
 import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
 import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
 import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
 import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
+import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -77,9 +88,9 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "description-single-line.yml"));
         Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
-        Assert.assertNotNull(archiveRoot.getArchive().getDescription());
+        assertNotNull(archiveRoot.getArchive().getDescription());
         Assert.assertEquals("This is an example of a single line description (no folding).", archiveRoot.getArchive().getDescription());
     }
 
@@ -88,9 +99,9 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "description-multi-line.yml"));
         Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
-        Assert.assertNotNull(archiveRoot.getArchive().getDescription());
+        assertNotNull(archiveRoot.getArchive().getDescription());
         Assert.assertEquals(
                 "This is an example of a multi-line description using YAML. It permits for line breaks for easier readability...\nif needed.  However, (multiple) line breaks are folded into a single space character when processed into a single string value.",
                 archiveRoot.getArchive().getDescription());
@@ -101,7 +112,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-root-categories.yml"));
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals("Tosca default namespace value", archiveRoot.getArchive().getToscaDefaultNamespace());
         Assert.assertEquals("Template name value", archiveRoot.getArchive().getName());
@@ -121,8 +132,8 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
 
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
-        Assert.assertNotNull(archiveRoot.getArchive().getDependencies());
+        assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive().getDependencies());
         Assert.assertEquals(1, archiveRoot.getArchive().getDependencies().size());
         Assert.assertEquals(new CSARDependency(csar.getName(), csar.getVersion()), archiveRoot.getArchive().getDependencies().iterator().next());
     }
@@ -138,8 +149,8 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
 
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
-        Assert.assertNotNull(archiveRoot.getArchive().getDependencies());
+        assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive().getDependencies());
         Assert.assertEquals(0, archiveRoot.getArchive().getDependencies().size());
     }
 
@@ -157,7 +168,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
 
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getArtifactTypes().size());
         Entry<String, ArtifactType> entry = archiveRoot.getArtifactTypes().entrySet().iterator().next();
@@ -180,7 +191,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-capability-type.yml"));
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getCapabilityTypes().size());
         Entry<String, CapabilityType> entry = archiveRoot.getCapabilityTypes().entrySet().iterator().next();
@@ -219,7 +230,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ParserTestUtil.displayErrors(parsingResult);
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getNodeTypes().size());
         // check node type.
@@ -296,7 +307,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
 
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getNodeTypes().size());
         // check node type.
@@ -305,15 +316,15 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals("my_company.my_types.MyAppNodeType", entry.getKey());
         NodeType nodeType = entry.getValue();
 
-        Assert.assertNotNull(nodeType.getInterfaces());
+        assertNotNull(nodeType.getInterfaces());
         Assert.assertEquals(2, nodeType.getInterfaces().size());
-        Assert.assertNotNull(nodeType.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD));
+        assertNotNull(nodeType.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD));
         Interface customInterface = nodeType.getInterfaces().get("custom");
-        Assert.assertNotNull(customInterface);
+        assertNotNull(customInterface);
         Assert.assertEquals("this is a sample interface used to execute custom operations.", customInterface.getDescription());
         Assert.assertEquals(1, customInterface.getOperations().size());
         Operation operation = customInterface.getOperations().get("do_something");
-        Assert.assertNotNull(operation);
+        assertNotNull(operation);
         Assert.assertEquals(3, operation.getInputParameters().size());
         Assert.assertEquals(ScalarPropertyValue.class, operation.getInputParameters().get("value_input").getClass());
         Assert.assertEquals(PropertyDefinition.class, operation.getInputParameters().get("definition_input").getClass());
@@ -338,7 +349,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
 
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
 
         // check nodetype elements
@@ -354,16 +365,16 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         IValue complexConcat = attributes.get("complex_concat");
 
         // check attributes types
-        Assert.assertTrue(simpleDefinition.getClass().equals(AttributeDefinition.class));
-        Assert.assertTrue(ipAddressDefinition.getClass().equals(AttributeDefinition.class));
-        Assert.assertTrue(simpleConcat.getClass().equals(ConcatPropertyValue.class));
-        Assert.assertTrue(complexConcat.getClass().equals(ConcatPropertyValue.class));
+        assertTrue(simpleDefinition.getClass().equals(AttributeDefinition.class));
+        assertTrue(ipAddressDefinition.getClass().equals(AttributeDefinition.class));
+        assertTrue(simpleConcat.getClass().equals(ConcatPropertyValue.class));
+        assertTrue(complexConcat.getClass().equals(ConcatPropertyValue.class));
 
         // Test nodeType serialization
         String nodeTypeJson = JsonUtil.toString(nodeType);
         // recover node from serialized string
         NodeType nodeTypeDeserialized = JsonUtil.readObject(nodeTypeJson, NodeType.class);
-        Assert.assertNotNull(nodeTypeDeserialized);
+        assertNotNull(nodeTypeDeserialized);
 
         attributes = nodeTypeDeserialized.getAttributes();
         simpleDefinition = attributes.get("simple_definition");
@@ -372,10 +383,10 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         complexConcat = attributes.get("complex_concat");
 
         // check attributes types after deserialization
-        Assert.assertTrue(simpleDefinition.getClass().equals(AttributeDefinition.class));
-        Assert.assertTrue(ipAddressDefinition.getClass().equals(AttributeDefinition.class));
-        Assert.assertTrue(simpleConcat.getClass().equals(ConcatPropertyValue.class));
-        Assert.assertTrue(complexConcat.getClass().equals(ConcatPropertyValue.class));
+        assertTrue(simpleDefinition.getClass().equals(AttributeDefinition.class));
+        assertTrue(ipAddressDefinition.getClass().equals(AttributeDefinition.class));
+        assertTrue(simpleConcat.getClass().equals(ConcatPropertyValue.class));
+        assertTrue(complexConcat.getClass().equals(ConcatPropertyValue.class));
     }
 
     @Test
@@ -425,7 +436,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
                 case "endpoint":
                 case "another_endpoint":
                     Assert.assertEquals("tosca.capabilities.Endpoint", capabilityDefinition.getType());
-                    Assert.assertNotNull(capabilityDefinition.getDescription());
+                    assertNotNull(capabilityDefinition.getDescription());
                 }
             });
         });
@@ -465,7 +476,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
 
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
 
         // check nodetype elements
@@ -477,10 +488,10 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Map<String, Interface> interfaces = nodeType.getInterfaces();
         Interface customInterface = interfaces.get("custom");
         Map<String, IValue> doSomethingInputs = customInterface.getOperations().get("do_something").getInputParameters();
-        Assert.assertNotNull(doSomethingInputs);
+        assertNotNull(doSomethingInputs);
         Assert.assertFalse(doSomethingInputs.isEmpty());
         IValue operationOutput_input = doSomethingInputs.get("operationOutput_input");
-        Assert.assertTrue(operationOutput_input instanceof FunctionPropertyValue);
+        assertTrue(operationOutput_input instanceof FunctionPropertyValue);
         FunctionPropertyValue function = (FunctionPropertyValue) operationOutput_input;
         Assert.assertEquals("get_operation_output", function.getFunction());
         Assert.assertEquals(4, function.getParameters().size());
@@ -490,7 +501,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         IValue operationOutputAttr = attributes.get("url");
 
         // check attributes types
-        Assert.assertTrue(operationOutputAttr instanceof FunctionPropertyValue);
+        assertTrue(operationOutputAttr instanceof FunctionPropertyValue);
         function = (FunctionPropertyValue) operationOutputAttr;
         Assert.assertEquals("get_operation_output", function.getFunction());
         Assert.assertEquals(4, function.getParameters().size());
@@ -624,13 +635,13 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         assertNoBlocker(parsingResult);
 
         Assert.assertEquals(3, parsingResult.getContext().getParsingErrors().size());
-        Assert.assertNotNull(parsingResult.getResult().getTopology());
+        assertNotNull(parsingResult.getResult().getTopology());
         Assert.assertEquals(5, parsingResult.getResult().getTopology().getWorkflows().size());
 
         // check invalid names were renamed
-        Assert.assertTrue(parsingResult.getResult().getTopology().getWorkflows().containsKey("invalidName_"));
-        Assert.assertTrue(parsingResult.getResult().getTopology().getWorkflows().containsKey("invalid_Name"));
-        Assert.assertTrue(parsingResult.getResult().getTopology().getWorkflows().containsKey("invalid_Name_1"));
+        assertTrue(parsingResult.getResult().getTopology().getWorkflows().containsKey("invalidName_"));
+        assertTrue(parsingResult.getResult().getTopology().getWorkflows().containsKey("invalid_Name"));
+        assertTrue(parsingResult.getResult().getTopology().getWorkflows().containsKey("invalid_Name_1"));
     }
 
     @Test
@@ -639,18 +650,17 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "derived_from_nothing/template.yml"));
         List<ParsingError> errors = parsingResult.getContext().getParsingErrors();
         Assert.assertEquals(5, errors.size());
-        Assert.assertTrue(errors.stream()
+        assertTrue(errors.stream()
                 .allMatch(error -> error.getErrorLevel() == ParsingErrorLevel.WARNING && error.getErrorCode() == ErrorCode.DERIVED_FROM_NOTHING));
-        Assert.assertTrue(parsingResult.getResult().getNodeTypes().values().stream()
+        assertTrue(parsingResult.getResult().getNodeTypes().values().stream()
                 .allMatch(nodeType -> nodeType.getDerivedFrom() != null && nodeType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_NODE_TYPE)));
-        Assert.assertTrue(parsingResult.getResult().getDataTypes().values().stream()
+        assertTrue(parsingResult.getResult().getDataTypes().values().stream()
                 .allMatch(dataType -> dataType.getDerivedFrom() != null && dataType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_DATA_TYPE)));
-        Assert.assertTrue(parsingResult.getResult().getCapabilityTypes().values().stream().allMatch(
+        assertTrue(parsingResult.getResult().getCapabilityTypes().values().stream().allMatch(
                 capabilityType -> capabilityType.getDerivedFrom() != null && capabilityType.getDerivedFrom().contains(NormativeCapabilityTypes.ROOT)));
-        Assert.assertTrue(
-                parsingResult.getResult().getRelationshipTypes().values().stream().allMatch(relationshipType -> relationshipType.getDerivedFrom() != null
-                        && relationshipType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_RELATIONSHIP_TYPE)));
-        Assert.assertTrue(parsingResult.getResult().getArtifactTypes().values().stream().allMatch(
+        assertTrue(parsingResult.getResult().getRelationshipTypes().values().stream().allMatch(relationshipType -> relationshipType.getDerivedFrom() != null
+                && relationshipType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_RELATIONSHIP_TYPE)));
+        assertTrue(parsingResult.getResult().getArtifactTypes().values().stream().allMatch(
                 artifactType -> artifactType.getDerivedFrom() != null && artifactType.getDerivedFrom().contains(NormativeTypesConstant.ROOT_ARTIFACT_TYPE)));
     }
 
@@ -673,10 +683,10 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ImplementationArtifact httpComponentCreateArtifact = getImplementationArtifact(httpComponent, "create");
         Assert.assertEquals("https://otherCompany/script/short_notation.sh", httpComponentCreateArtifact.getArtifactRef());
         Assert.assertEquals("tosca.artifacts.Implementation.Bash", httpComponentCreateArtifact.getArtifactType());
-        Assert.assertNull(httpComponentCreateArtifact.getRepositoryCredential());
-        Assert.assertNull(httpComponentCreateArtifact.getRepositoryName());
-        Assert.assertNull(httpComponentCreateArtifact.getArtifactRepository());
-        Assert.assertNull(httpComponentCreateArtifact.getRepositoryURL());
+        assertNull(httpComponentCreateArtifact.getRepositoryCredential());
+        assertNull(httpComponentCreateArtifact.getRepositoryName());
+        assertNull(httpComponentCreateArtifact.getArtifactRepository());
+        assertNull(httpComponentCreateArtifact.getRepositoryURL());
 
         ImplementationArtifact httpComponentStartArtifact = getImplementationArtifact(httpComponent, "start");
         Assert.assertEquals("myScript.abc", httpComponentStartArtifact.getArtifactRef());
@@ -686,7 +696,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
                         .put(NormativeCredentialConstant.TOKEN_KEY, "real_secured_password").put(NormativeCredentialConstant.TOKEN_TYPE, "password").build(),
                 httpComponentStartArtifact.getRepositoryCredential());
         Assert.assertEquals("script_repo", httpComponentStartArtifact.getRepositoryName());
-        Assert.assertNull(httpComponentStartArtifact.getArtifactRepository());
+        assertNull(httpComponentStartArtifact.getArtifactRepository());
         Assert.assertEquals("https://myCompany/script", httpComponentStartArtifact.getRepositoryURL());
     }
 
@@ -694,9 +704,9 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
     public void testParseImplementationArtifactWithRepository() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "implementation_artifact.yml"));
         ParserTestUtil.displayErrors(parsingResult);
-        Assert.assertTrue(parsingResult.getContext().getParsingErrors().isEmpty());
+        assertTrue(parsingResult.getContext().getParsingErrors().isEmpty());
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(2, archiveRoot.getArtifactTypes().size());
         Assert.assertEquals(4, archiveRoot.getNodeTypes().size());
@@ -713,7 +723,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ImplementationArtifact gitComponentCreateArtifact = getImplementationArtifact(gitComponent, "create");
         Assert.assertEquals("master:myGitScript.xyz", gitComponentCreateArtifact.getArtifactRef());
         Assert.assertEquals("tosca.artifacts.Implementation.Bash", gitComponentCreateArtifact.getArtifactType());
-        Assert.assertNull(gitComponentCreateArtifact.getRepositoryCredential());
+        assertNull(gitComponentCreateArtifact.getRepositoryCredential());
         Assert.assertEquals("git_repo", gitComponentCreateArtifact.getRepositoryName());
         Assert.assertEquals("git", gitComponentCreateArtifact.getArtifactRepository());
         Assert.assertEquals("https://github.com/myId/myRepo.git", gitComponentCreateArtifact.getRepositoryURL());
@@ -722,10 +732,10 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ImplementationArtifact httpRelationshipCreateArtifact = getImplementationArtifact(httpRelationship, "create");
         Assert.assertEquals("https://otherCompany/script/short_notation.sh", httpRelationshipCreateArtifact.getArtifactRef());
         Assert.assertEquals("tosca.artifacts.Implementation.Bash", httpRelationshipCreateArtifact.getArtifactType());
-        Assert.assertNull(httpRelationshipCreateArtifact.getRepositoryCredential());
-        Assert.assertNull(httpRelationshipCreateArtifact.getRepositoryName());
-        Assert.assertNull(httpRelationshipCreateArtifact.getArtifactRepository());
-        Assert.assertNull(httpRelationshipCreateArtifact.getRepositoryURL());
+        assertNull(httpRelationshipCreateArtifact.getRepositoryCredential());
+        assertNull(httpRelationshipCreateArtifact.getRepositoryName());
+        assertNull(httpRelationshipCreateArtifact.getArtifactRepository());
+        assertNull(httpRelationshipCreateArtifact.getRepositoryURL());
 
         ImplementationArtifact httpRelationshipStartArtifact = getImplementationArtifact(httpRelationship, "start");
         Assert.assertEquals("myScript.abc", httpRelationshipStartArtifact.getArtifactRef());
@@ -735,17 +745,17 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
                         .put(NormativeCredentialConstant.TOKEN_KEY, "real_secured_password").put(NormativeCredentialConstant.TOKEN_TYPE, "password").build(),
                 httpRelationshipStartArtifact.getRepositoryCredential());
         Assert.assertEquals("script_repo", httpRelationshipStartArtifact.getRepositoryName());
-        Assert.assertNull(httpRelationshipStartArtifact.getArtifactRepository());
+        assertNull(httpRelationshipStartArtifact.getArtifactRepository());
         Assert.assertEquals("https://myCompany/script", httpRelationshipStartArtifact.getRepositoryURL());
     }
 
     private void validateSimpleWar(DeploymentArtifact artifact) {
         Assert.assertEquals("binary/myWar.war", artifact.getArtifactRef());
         Assert.assertEquals("tosca.artifacts.Deployment.War", artifact.getArtifactType());
-        Assert.assertNull(artifact.getRepositoryCredential());
-        Assert.assertNull(artifact.getRepositoryName());
-        Assert.assertNull(artifact.getArtifactRepository());
-        Assert.assertNull(artifact.getRepositoryURL());
+        assertNull(artifact.getRepositoryCredential());
+        assertNull(artifact.getRepositoryName());
+        assertNull(artifact.getArtifactRepository());
+        assertNull(artifact.getRepositoryURL());
     }
 
     private void validateRemoteWar(DeploymentArtifact repositoryArtifact) {
@@ -771,9 +781,9 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
     public void testParseDeploymentArtifactWithRepository() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "deployment_artifact.yml"));
         ParserTestUtil.displayErrors(parsingResult);
-        Assert.assertTrue(parsingResult.getContext().getParsingErrors().isEmpty());
+        assertTrue(parsingResult.getContext().getParsingErrors().isEmpty());
         ArchiveRoot archiveRoot = parsingResult.getResult();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getRepositories().size());
         Assert.assertEquals(2, archiveRoot.getArtifactTypes().size());
@@ -796,10 +806,10 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         artifact = archiveRoot.getTopology().getNodeTemplates().get("my_node").getArtifacts().get("simple_war");
         Assert.assertEquals("binary/myWar.war", artifact.getArtifactRef());
         Assert.assertEquals("tosca.artifacts.Deployment.War", artifact.getArtifactType());
-        Assert.assertNull(artifact.getRepositoryCredential());
-        Assert.assertNull(artifact.getRepositoryName());
-        Assert.assertNull(artifact.getArtifactRepository());
-        Assert.assertNull(artifact.getRepositoryURL());
+        assertNull(artifact.getRepositoryCredential());
+        assertNull(artifact.getRepositoryName());
+        assertNull(artifact.getArtifactRepository());
+        assertNull(artifact.getRepositoryURL());
 
         repositoryArtifact = archiveRoot.getTopology().getNodeTemplates().get("my_node").getArtifacts().get("remote_war");
         Assert.assertEquals("alien4cloud:alien4cloud-ui:1.3.0-SM3", repositoryArtifact.getArtifactRef());
@@ -851,5 +861,121 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "range_type_constraint_fail_max.yml"));
         List<ParsingError> errors = parsingResult.getContext().getParsingErrors();
         Assert.assertEquals(0, errors.size());
+    }
+
+    @Test
+    public void testCapabilitiesComplexProperty() throws ParsingException {
+        Mockito.reset(csarRepositorySearchService);
+
+        Csar csar = new Csar("tosca-normative-types", "1.0.0-ALIEN14");
+        Mockito.when(csarRepositorySearchService.getArchive(csar.getName(), csar.getVersion())).thenReturn(csar);
+        NodeType mockedResult = Mockito.mock(NodeType.class);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+        CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
+
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Root"),
+                Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
+
+        DataType mockedDataType = new DataType();
+        Mockito.when(
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(DataType.class), Mockito.eq("tosca.datatypes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockedDataType);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "capa_complex_props.yml"));
+        Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+
+        ArchiveRoot archiveRoot = parsingResult.getResult();
+
+        // check the capabilityType
+        //////////////
+        CapabilityType capaType = archiveRoot.getCapabilityTypes().values().stream().findFirst().get();
+        assertNotNull(capaType.getProperties());
+        Assert.assertEquals(3, capaType.getProperties().size());
+
+        // map property
+        String map = "map";
+        PropertyDefinition propertyDefinition = capaType.getProperties().get(map);
+
+        assertNotNull(propertyDefinition.getDefault());
+        assertTrue(propertyDefinition.getDefault() instanceof ComplexPropertyValue);
+
+        Map<String, Object> propertyMapValue = ((ComplexPropertyValue) propertyDefinition.getDefault()).getValue();
+        assertNotNull(propertyMapValue);
+        Assert.assertEquals(2, propertyMapValue.size());
+        Assert.assertEquals("toto_value", propertyMapValue.get("toto"));
+        Assert.assertEquals("tata_value", propertyMapValue.get("tata"));
+
+        // custom property
+        String custom = "custom";
+        propertyDefinition = capaType.getProperties().get(custom);
+
+        assertEquals("alien.test.datatypes.Custom", propertyDefinition.getType());
+        assertNull(propertyDefinition.getDefault());
+
+        // custom_with_default property
+        String custom_with_default = "custom_with_default";
+        propertyDefinition = capaType.getProperties().get(custom_with_default);
+        assertNotNull(propertyDefinition.getDefault());
+        assertTrue(propertyDefinition.getDefault() instanceof ComplexPropertyValue);
+
+        propertyMapValue = ((ComplexPropertyValue) propertyDefinition.getDefault()).getValue();
+        assertNotNull(propertyMapValue);
+        assertEquals(2, propertyMapValue.size());
+        assertEquals("defaultName", propertyMapValue.get("name"));
+
+        Object list = propertyMapValue.get("groups");
+        assertTrue(list instanceof List);
+        assertEquals(2, ((List) list).size());
+        assertTrue(CollectionUtils.containsAll((List) list, Lists.newArrayList("alien", "fastconnect")));
+
+        // check the node template capability
+        //////////////
+
+        NodeTemplate nodeTemplate = archiveRoot.getTopology().getNodeTemplates().values().stream().findFirst().get();
+        Capability capability = nodeTemplate.getCapabilities().values().stream().findFirst().get();
+        assertNotNull(capability);
+        Assert.assertEquals(3, capability.getProperties().size());
+
+        // map property
+        AbstractPropertyValue propertyValue = capability.getProperties().get(map);
+        assertNotNull(propertyValue);
+        assertTrue(propertyValue instanceof ComplexPropertyValue);
+
+        propertyMapValue = ((ComplexPropertyValue) propertyValue).getValue();
+        assertNotNull(propertyMapValue);
+        Assert.assertEquals(2, propertyMapValue.size());
+        Assert.assertEquals("toto_value", propertyMapValue.get("toto"));
+        Assert.assertEquals("tata_value", propertyMapValue.get("tata"));
+
+        // custom property
+        propertyValue = capability.getProperties().get(custom);
+        assertNotNull(propertyValue);
+        assertTrue(propertyValue instanceof ComplexPropertyValue);
+        propertyMapValue = ((ComplexPropertyValue) propertyValue).getValue();
+        assertNotNull(propertyMapValue);
+        assertEquals(2, propertyMapValue.size());
+        assertEquals("manual", propertyMapValue.get("name"));
+
+        list = propertyMapValue.get("groups");
+        assertTrue(list instanceof List);
+        assertEquals(2, ((List) list).size());
+        assertTrue(CollectionUtils.containsAll((List) list, Lists.newArrayList("manual_alien", "manual_fastconnect")));
+
+        // custom_with_default property
+        propertyValue = capability.getProperties().get(custom_with_default);
+        assertNotNull(propertyValue);
+        assertTrue(propertyValue instanceof ComplexPropertyValue);
+
+        propertyMapValue = ((ComplexPropertyValue) propertyValue).getValue();
+        assertNotNull(propertyMapValue);
+        assertEquals(2, propertyMapValue.size());
+        assertEquals("defaultName", propertyMapValue.get("name"));
+
+        list = propertyMapValue.get("groups");
+        assertTrue(list instanceof List);
+        assertEquals(2, ((List) list).size());
+        assertTrue(CollectionUtils.containsAll((List) list, Lists.newArrayList("alien", "fastconnect")));
+
     }
 }
