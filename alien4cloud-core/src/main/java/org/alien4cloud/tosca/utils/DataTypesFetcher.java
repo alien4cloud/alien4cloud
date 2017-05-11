@@ -4,8 +4,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
+import org.alien4cloud.tosca.model.definitions.IValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
@@ -27,20 +30,32 @@ public class DataTypesFetcher {
             DataTypeFinder dataTypeFinder) {
         Map<String, DataType> indexedDataTypes = new HashMap<>();
         for (AbstractInheritableToscaType indexedNodeType : elements) {
-            if (indexedNodeType != null && indexedNodeType.getProperties() != null) {
-                for (PropertyDefinition pd : indexedNodeType.getProperties().values()) {
-                    String type = pd.getType();
-                    if (ToscaTypes.isPrimitive(type) || indexedDataTypes.containsKey(type)) {
-                        continue;
+            if (indexedNodeType != null) {
+                if (indexedNodeType.getProperties() != null) {
+                    for (PropertyDefinition propertyDefinition : indexedNodeType.getProperties().values()) {
+                        getDataTypeDependency(indexedDataTypes, propertyDefinition.getType(), dataTypeFinder);
                     }
-                    DataType dataType = dataTypeFinder.findDataType(DataType.class, type);
-                    if (dataType == null) {
-                        dataType = dataTypeFinder.findDataType(PrimitiveDataType.class, type);
+                }
+                if (indexedNodeType instanceof AbstractInstantiableToscaType) {
+                    for (IValue attributeDefinition : ((AbstractInstantiableToscaType) indexedNodeType).getAttributes().values()) {
+                        if (attributeDefinition instanceof AttributeDefinition) {
+                            getDataTypeDependency(indexedDataTypes, ((AttributeDefinition) attributeDefinition).getType(), dataTypeFinder);
+                        }
                     }
-                    indexedDataTypes.put(type, dataType);
                 }
             }
         }
         return indexedDataTypes;
+    }
+
+    private static void getDataTypeDependency(Map<String, DataType> indexedDataTypes, String type, DataTypeFinder dataTypeFinder) {
+        if (ToscaTypes.isPrimitive(type) || indexedDataTypes.containsKey(type)) {
+            return;
+        }
+        DataType dataType = dataTypeFinder.findDataType(DataType.class, type);
+        if (dataType == null) {
+            dataType = dataTypeFinder.findDataType(PrimitiveDataType.class, type);
+        }
+        indexedDataTypes.put(type, dataType);
     }
 }
