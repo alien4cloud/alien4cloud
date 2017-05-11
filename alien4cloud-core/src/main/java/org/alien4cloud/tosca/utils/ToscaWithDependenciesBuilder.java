@@ -1,5 +1,7 @@
 package org.alien4cloud.tosca.utils;
 
+import java.util.Collections;
+
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -52,6 +54,9 @@ public class ToscaWithDependenciesBuilder {
                 result.add(ToscaContext.get(NodeType.class, requirementDefinition.getType()));
             }
         }
+        result.setDependencies(ToscaContext.get().getDependencies());
+        // Fetch data types for the given type
+        DataTypesFetcher.getDataTypesDependencies(Collections.singleton(nodeType), ToscaContext::get).values().forEach(result::add);
         return result;
     }
 }

@@ -14,6 +14,7 @@ define(function(require) {
         listToMapService.processMap(resources.nodeTypes, 'properties');
         listToMapService.processMap(resources.configurationTypes, 'properties');
         listToMapService.processMap(resources.capabilityTypes, 'properties');
+        listToMapService.processMap(resources.dataTypes, 'properties');
         this.processLocationResourceTemplates(resources.nodeTemplates);
         this.processLocationResourceTemplates(resources.configurationTemplates);
       },

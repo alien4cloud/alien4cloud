@@ -11,12 +11,27 @@ define(function(require) {
       a4cToscaProcessor.processNodeType($scope.nodeType);
       a4cToscaProcessor.processNodeTemplate($scope.nodeTemplate);
       a4cToscaProcessor.processCapabilityTypes($scope.nodeCapabilityTypes);
+      a4cToscaProcessor.processDataTypes($scope.nodeDataTypes);
 
       $scope.isService = _.defined($scope.isService) ? $scope.isService : false;
 
       $scope.getCapabilityPropertyDefinition = function(capabilityTypeId, capabilityPropertyName) {
         var capabilityType = $scope.nodeCapabilityTypes[capabilityTypeId];
         return capabilityType.propertiesMap[capabilityPropertyName].value;
+      };
+  
+      $scope.getDataTypeForCapabilityProperty = function(capabilityTypeId, capabilityPropertyName) {
+        var propertyDefinition = $scope.getCapabilityPropertyDefinition(capabilityTypeId, capabilityPropertyName);
+        return $scope.nodeDataTypes[propertyDefinition.type];
+      };
+      
+      $scope.getPropertyDefinition = function(propertyName) {
+        return $scope.nodeType.propertiesMap[propertyName].value;
+      };
+      
+      $scope.getDataTypeForProperty = function(propertyName) {
+        var propertyDefinition = $scope.getPropertyDefinition(propertyName);
+        return $scope.nodeDataTypes[propertyDefinition.type];
       };
 
       $scope.relationshipTypeQuickSearchHandler = {

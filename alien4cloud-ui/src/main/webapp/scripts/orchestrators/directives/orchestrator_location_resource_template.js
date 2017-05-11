@@ -11,6 +11,7 @@ define(function(require) {
         'resourceTemplate': '=',
         'resourceType': '=',
         'resourceCapabilityTypes': '=',
+        'resourceDataTypes': '=',
         'dependencies': '=',
         'isPropertyEditable': '&',
         'onDelete': '&',

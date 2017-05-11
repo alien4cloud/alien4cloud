@@ -1,17 +1,28 @@
 package org.alien4cloud.tosca.topology;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.editor.EditionContext;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.*;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.utils.DataTypesFetcher;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -21,13 +32,13 @@ import alien4cloud.topology.DependencyConflictDTO;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
-import org.alien4cloud.tosca.normative.types.ToscaTypes;
 
 /**
  * Service that helps to create a topology dto object out of a topology.
  */
 @Service
 public class TopologyDTOBuilder {
+
     /**
      * Build a topology dto (topology and all used types) out of a topology.
      * 
@@ -50,6 +61,7 @@ public class TopologyDTOBuilder {
 
     /**
      * Compute a list of transitive dependency conflicts from the Context.
+     * 
      * @param context the EditionContext of the Topology being built.
      * @return a list of dependency conflicts.
      */
@@ -58,22 +70,19 @@ public class TopologyDTOBuilder {
         final Set<CSARDependency> dependencies = context.getToscaContext().getDependencies();
         Map<CSARDependency, Set<CSARDependency>> dependencyConflictMap = new HashMap<>();
         dependencies.forEach(source -> {
-            final Set<CSARDependency> transitives =
-                    Optional.ofNullable(ToscaContext.get().getArchive(source.getName(), source.getVersion()).getDependencies())
-                            .orElse(Collections.emptySet())
-                            .stream().filter(o -> !dependencies.contains(o)).collect(Collectors.toSet());
+            final Set<CSARDependency> transitives = Optional.ofNullable(ToscaContext.get().getArchive(source.getName(), source.getVersion()).getDependencies())
+                    .orElse(Collections.emptySet()).stream().filter(o -> !dependencies.contains(o)).collect(Collectors.toSet());
             if (!transitives.isEmpty()) {
                 dependencyConflictMap.put(source, transitives);
             }
         });
 
         final ArrayList<DependencyConflictDTO> dependencyConflicts = new ArrayList<>();
-        dependencyConflictMap.forEach((source, conflicts) ->
-            conflicts.forEach(conflict -> {
-                String actualVersion = dependencies.stream().filter(d -> d.getName().equals(conflict.getName())).findFirst().map(CSARDependency::getVersion).orElse("");
-                dependencyConflicts.add(new DependencyConflictDTO(source.getName(), conflict.getName() + ":" + conflict.getVersion(), actualVersion));
-            })
-        );
+        dependencyConflictMap.forEach((source, conflicts) -> conflicts.forEach(conflict -> {
+            String actualVersion = dependencies.stream().filter(d -> d.getName().equals(conflict.getName())).findFirst().map(CSARDependency::getVersion)
+                    .orElse("");
+            dependencyConflicts.add(new DependencyConflictDTO(source.getName(), conflict.getName() + ":" + conflict.getVersion(), actualVersion));
+        }));
         return dependencyConflicts;
     }
 
@@ -162,27 +171,15 @@ public class TopologyDTOBuilder {
 
     private Map<String, DataType> getDataTypes(AbstractTopologyDTO topologyDTO) {
         Map<String, DataType> indexedDataTypes = Maps.newHashMap();
-        indexedDataTypes = fillDataTypes(indexedDataTypes, topologyDTO.getNodeTypes());
-        indexedDataTypes = fillDataTypes(indexedDataTypes, topologyDTO.getRelationshipTypes());
-        indexedDataTypes = fillDataTypes(indexedDataTypes, topologyDTO.getCapabilityTypes());
-        return indexedDataTypes;
-    }
-
-    private <T extends AbstractInheritableToscaType> Map<String, DataType> fillDataTypes(Map<String, DataType> indexedDataTypes, Map<String, T> elements) {
-        for (AbstractInheritableToscaType indexedNodeType : elements.values()) {
-            if (indexedNodeType != null && indexedNodeType.getProperties() != null) {
-                for (PropertyDefinition pd : indexedNodeType.getProperties().values()) {
-                    String type = pd.getType();
-                    if (ToscaTypes.isPrimitive(type) || indexedDataTypes.containsKey(type)) {
-                        continue;
-                    }
-                    DataType dataType = ToscaContext.get(DataType.class, type);
-                    if (dataType == null) {
-                        dataType = ToscaContext.get(PrimitiveDataType.class, type);
-                    }
-                    indexedDataTypes.put(type, dataType);
-                }
-            }
+        DataTypesFetcher.DataTypeFinder dataTypeFinder = (type, id) -> ToscaContext.get(type, id);
+        if (MapUtils.isNotEmpty(topologyDTO.getNodeTypes())) {
+            indexedDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(topologyDTO.getNodeTypes().values(), dataTypeFinder));
+        }
+        if (MapUtils.isNotEmpty(topologyDTO.getRelationshipTypes())) {
+            indexedDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(topologyDTO.getRelationshipTypes().values(), dataTypeFinder));
+        }
+        if (MapUtils.isNotEmpty(topologyDTO.getCapabilityTypes())) {
+            indexedDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(topologyDTO.getCapabilityTypes().values(), dataTypeFinder));
         }
         return indexedDataTypes;
     }

@@ -14,9 +14,10 @@ define(function(require) {
       templateUrl: 'views/tosca/node_template_edit.html',
       restrict: 'E',
       scope: {
-        'nodeTemplate': '=', // This is the actual node tempalte to edit.
+        'nodeTemplate': '=', // This is the actual node template to edit.
         'nodeType': '=', // The type of the node template.
         'nodeCapabilityTypes': '=', // map of capability types
+        'nodeDataTypes': '=', // map of capability types
         'dependencies': '=', // dependencies
         'isPropertyEditable': '&', // callback operation that should return true if a property or a capability property can be edited.
         'onPropertyUpdate': '&', // callback operation triggered when a property is actually updated

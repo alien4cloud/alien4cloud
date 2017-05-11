@@ -103,6 +103,7 @@ define(function (require) {
         $scope.selectedNodeType = $scope.selectedService.uiNodeType;
         $scope.selectedCapabilityTypes = $scope.selectedService.uiCapabilityTypes;
         $scope.selectedDependencies = $scope.selectedService.uiDependencies;
+        $scope.selectedDataTypes = $scope.selectedService.uiDataTypes;
       }
 
       var clearSelection = function(){
@@ -128,6 +129,7 @@ define(function (require) {
               $scope.selectedService.uiNodeType = result.data.toscaType;
               $scope.selectedService.uiCapabilityTypes = result.data.capabilityTypes;
               $scope.selectedService.uiDependencies = result.data.dependencies;
+              $scope.selectedService.uiDataTypes = result.data.dataTypes;
               setSelectedTypesToScope();
             });
           } else {
@@ -191,7 +193,7 @@ define(function (require) {
 
       $scope.updateProperty= function(propertyName, propertyValue) {
         var updateRequest = { nodeInstance: { properties:{} } };
-        updateRequest.nodeInstance.properties[propertyName] = propertyValue;
+        updateRequest.nodeInstance.properties[propertyName] = { value: propertyValue };
         return serviceResourceService.patch({
           serviceId: $scope.selectedService.id
         }, angular.toJson(updateRequest)).$promise;

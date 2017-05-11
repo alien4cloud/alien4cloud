@@ -11,7 +11,8 @@
           <td>
             <property-display
                 ng-init="condensed = true"
-                definition="nodeType.propertiesMap[propEntry.key].value"
+                definition="getPropertyDefinition(propEntry.key)"
+                property-type="getDataTypeForProperty(propEntry.key)"
                 dependencies="dependencies"
                 property-name="propEntry.key"
                 property-value="propEntry.value"
@@ -64,6 +65,7 @@
                 <property-display
                     ng-init="condensed = true"
                     definition="getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key)"
+                    property-type="getDataTypeForCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
                     dependencies="dependencies"
                     property-name="propertyEntry.key"
                     property-value="propertyEntry.value"

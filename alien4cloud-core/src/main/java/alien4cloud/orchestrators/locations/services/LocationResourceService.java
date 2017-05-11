@@ -1,6 +1,13 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -16,7 +23,9 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.utils.DataTypesFetcher;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -162,7 +171,12 @@ public class LocationResourceService implements ILocationResourceService {
     /**
      * Put the exposed types to the appropriate List of locationResourceTypes passed as param
      */
-    public void fillLocationResourceTypes(Collection<String> exposedTypes, LocationResourceTypes locationResourceTypes, Set<CSARDependency> dependencies) {
+    public void fillLocationResourceTypes(Collection<String> exposedTypes, LocationResourceTypes locationResourceTypes,
+            final Set<CSARDependency> dependencies) {
+        if (CollectionUtils.isEmpty(exposedTypes) || CollectionUtils.isEmpty(dependencies)) {
+            // Protect as in some case this method is called even if there's nothing to fill in
+            return;
+        }
         for (String exposedType : exposedTypes) {
             NodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, exposedType, dependencies);
 
@@ -179,6 +193,13 @@ public class LocationResourceService implements ILocationResourceService {
                 }
             }
         }
+        Map<String, DataType> allDataTypes = new HashMap<>(locationResourceTypes.getDataTypes());
+        DataTypesFetcher.DataTypeFinder dataTypeFinder = (type, id) -> csarRepoSearchService.getElementInDependencies(type, id, dependencies);
+        allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getNodeTypes().values(), dataTypeFinder));
+        allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getCapabilityTypes().values(), dataTypeFinder));
+        allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getOnDemandTypes().values(), dataTypeFinder));
+        allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getConfigurationTypes().values(), dataTypeFinder));
+        locationResourceTypes.setDataTypes(allDataTypes);
     }
 
     /**
