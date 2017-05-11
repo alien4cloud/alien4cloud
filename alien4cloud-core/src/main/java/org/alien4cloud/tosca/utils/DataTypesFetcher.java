@@ -36,7 +36,7 @@ public class DataTypesFetcher {
                         getDataTypeDependency(indexedDataTypes, propertyDefinition.getType(), dataTypeFinder);
                     }
                 }
-                if (indexedNodeType instanceof AbstractInstantiableToscaType) {
+                if (indexedNodeType instanceof AbstractInstantiableToscaType && ((AbstractInstantiableToscaType) indexedNodeType).getAttributes() != null) {
                     for (IValue attributeDefinition : ((AbstractInstantiableToscaType) indexedNodeType).getAttributes().values()) {
                         if (attributeDefinition instanceof AttributeDefinition) {
                             getDataTypeDependency(indexedDataTypes, ((AttributeDefinition) attributeDefinition).getType(), dataTypeFinder);
