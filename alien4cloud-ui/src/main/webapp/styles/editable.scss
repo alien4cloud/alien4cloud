@@ -58,3 +58,21 @@ a.editable-click:hover {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+// for a better display of editable form in property display directive
+property-display [editable-text] + form.editable-wrap,
+property-display [editable-textarea] + form.editable-wrap {
+  width: auto;
+}
+
+.form-horizontal property-display [editable-text] + form.editable-wrap .form-group,
+.form-horizontal property-display [editable-textarea] + form.editable-wrap .form-group {
+  margin-right: 0;
+}
+
+.form-control-inline {
+  width: 80%;
+  display: inline;
+  padding: 0px 10px;
+  height: 25px;
+}

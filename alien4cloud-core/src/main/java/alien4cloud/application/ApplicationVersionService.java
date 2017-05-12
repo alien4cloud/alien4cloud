@@ -185,6 +185,11 @@ public class ApplicationVersionService {
      */
     public void createTopologyVersion(String applicationId, String versionId, String qualifier, String description, String originalId,
             boolean originalIsVersion) {
+        // validate the qualifier first if not null
+        if (qualifier != null) {
+            VersionUtil.isQualifierValidOrFail(qualifier);
+        }
+
         // Get the version from elastic-search
         ApplicationVersion applicationVersion = getOrFail(versionId);
         Topology topology;

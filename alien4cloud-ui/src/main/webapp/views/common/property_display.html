@@ -78,7 +78,7 @@
 
       <span ng-switch-when="select">
         <!-- Case : validValues  -->
-        <select style="width: 80%; display: inline;" class="form-control" ng-model="definitionObject.uiSelectValue" ng-change="propertySave(definitionObject.uiSelectValue)"
+        <select class="form-control form-control-inline" ng-model="definitionObject.uiSelectValue" ng-change="propertySave(definitionObject.uiSelectValue)"
                 ng-options="option for option in definitionObject.uiSelectValues" ng-if="editable">
         </select>
         <em ng-if="!editable">{{definitionObject.uiValue}}</em>
