@@ -1,6 +1,5 @@
 package alien4cloud.tosca.parser;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -16,10 +15,8 @@ import java.util.Set;
 
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
-import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -35,18 +32,14 @@ import org.alien4cloud.tosca.model.definitions.constraints.GreaterThanConstraint
 import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
 import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
 import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
 import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
-import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -863,119 +856,4 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals(0, errors.size());
     }
 
-    @Test
-    public void testCapabilitiesComplexProperty() throws ParsingException {
-        Mockito.reset(csarRepositorySearchService);
-
-        Csar csar = new Csar("tosca-normative-types", "1.0.0-ALIEN14");
-        Mockito.when(csarRepositorySearchService.getArchive(csar.getName(), csar.getVersion())).thenReturn(csar);
-        NodeType mockedResult = Mockito.mock(NodeType.class);
-        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
-                .thenReturn(mockedResult);
-        CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
-
-        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Root"),
-                Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
-
-        DataType mockedDataType = new DataType();
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(DataType.class), Mockito.eq("tosca.datatypes.Root"), Mockito.any(Set.class)))
-                .thenReturn(mockedDataType);
-
-        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "capa_complex_props.yml"));
-        Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
-
-        ArchiveRoot archiveRoot = parsingResult.getResult();
-
-        // check the capabilityType
-        //////////////
-        CapabilityType capaType = archiveRoot.getCapabilityTypes().values().stream().findFirst().get();
-        assertNotNull(capaType.getProperties());
-        Assert.assertEquals(3, capaType.getProperties().size());
-
-        // map property
-        String map = "map";
-        PropertyDefinition propertyDefinition = capaType.getProperties().get(map);
-
-        assertNotNull(propertyDefinition.getDefault());
-        assertTrue(propertyDefinition.getDefault() instanceof ComplexPropertyValue);
-
-        Map<String, Object> propertyMapValue = ((ComplexPropertyValue) propertyDefinition.getDefault()).getValue();
-        assertNotNull(propertyMapValue);
-        Assert.assertEquals(2, propertyMapValue.size());
-        Assert.assertEquals("toto_value", propertyMapValue.get("toto"));
-        Assert.assertEquals("tata_value", propertyMapValue.get("tata"));
-
-        // custom property
-        String custom = "custom";
-        propertyDefinition = capaType.getProperties().get(custom);
-
-        assertEquals("alien.test.datatypes.Custom", propertyDefinition.getType());
-        assertNull(propertyDefinition.getDefault());
-
-        // custom_with_default property
-        String custom_with_default = "custom_with_default";
-        propertyDefinition = capaType.getProperties().get(custom_with_default);
-        assertNotNull(propertyDefinition.getDefault());
-        assertTrue(propertyDefinition.getDefault() instanceof ComplexPropertyValue);
-
-        propertyMapValue = ((ComplexPropertyValue) propertyDefinition.getDefault()).getValue();
-        assertNotNull(propertyMapValue);
-        assertEquals(2, propertyMapValue.size());
-        assertEquals("defaultName", propertyMapValue.get("name"));
-
-        Object list = propertyMapValue.get("groups");
-        assertTrue(list instanceof List);
-        assertEquals(2, ((List) list).size());
-        assertTrue(CollectionUtils.containsAll((List) list, Lists.newArrayList("alien", "fastconnect")));
-
-        // check the node template capability
-        //////////////
-
-        NodeTemplate nodeTemplate = archiveRoot.getTopology().getNodeTemplates().values().stream().findFirst().get();
-        Capability capability = nodeTemplate.getCapabilities().values().stream().findFirst().get();
-        assertNotNull(capability);
-        Assert.assertEquals(3, capability.getProperties().size());
-
-        // map property
-        AbstractPropertyValue propertyValue = capability.getProperties().get(map);
-        assertNotNull(propertyValue);
-        assertTrue(propertyValue instanceof ComplexPropertyValue);
-
-        propertyMapValue = ((ComplexPropertyValue) propertyValue).getValue();
-        assertNotNull(propertyMapValue);
-        Assert.assertEquals(2, propertyMapValue.size());
-        Assert.assertEquals("toto_value", propertyMapValue.get("toto"));
-        Assert.assertEquals("tata_value", propertyMapValue.get("tata"));
-
-        // custom property
-        propertyValue = capability.getProperties().get(custom);
-        assertNotNull(propertyValue);
-        assertTrue(propertyValue instanceof ComplexPropertyValue);
-        propertyMapValue = ((ComplexPropertyValue) propertyValue).getValue();
-        assertNotNull(propertyMapValue);
-        assertEquals(2, propertyMapValue.size());
-        assertEquals("manual", propertyMapValue.get("name"));
-
-        list = propertyMapValue.get("groups");
-        assertTrue(list instanceof List);
-        assertEquals(2, ((List) list).size());
-        assertTrue(CollectionUtils.containsAll((List) list, Lists.newArrayList("manual_alien", "manual_fastconnect")));
-
-        // custom_with_default property
-        propertyValue = capability.getProperties().get(custom_with_default);
-        assertNotNull(propertyValue);
-        assertTrue(propertyValue instanceof ComplexPropertyValue);
-
-        propertyMapValue = ((ComplexPropertyValue) propertyValue).getValue();
-        assertNotNull(propertyMapValue);
-        assertEquals(2, propertyMapValue.size());
-        assertEquals("defaultName", propertyMapValue.get("name"));
-
-        list = propertyMapValue.get("groups");
-        assertTrue(list instanceof List);
-        assertEquals(2, ((List) list).size());
-        assertTrue(CollectionUtils.containsAll((List) list, Lists.newArrayList("alien", "fastconnect")));
-
-    }
 }
