@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.IValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 
@@ -59,7 +61,9 @@ public class ToscaPropertySerializerUtils {
         if (propertyValue instanceof PropertyValue) {
             return formatValue(appendLf, indentLevel, ((PropertyValue) propertyValue).getValue());
         } else if (propertyValue instanceof FunctionPropertyValue) {
-            return formatFunctionPropertyValue(appendLf, indentLevel, ((FunctionPropertyValue) propertyValue));
+            return formatFunctionPropertyValue(indentLevel, ((FunctionPropertyValue) propertyValue));
+        } else if (propertyValue instanceof ConcatPropertyValue) {
+            return formatConcatPropertyValue(indentLevel, ((ConcatPropertyValue) propertyValue));
         } else {
             throw new NotSupportedException("Do not support other types than PropertyValue or FunctionPropertyValue");
         }
@@ -79,13 +83,13 @@ public class ToscaPropertySerializerUtils {
         } else if (value instanceof List) {
             return formatListValue(indentLevel, (List<Object>) value);
         } else if (value instanceof PropertyValue) {
-            return formatPropertyValue(appendLf, indentLevel, (PropertyValue) value);
+            return formatPropertyValue(indentLevel, (PropertyValue) value);
         } else {
             throw new NotSupportedException("Do not support other types than string map and list");
         }
     }
 
-    private static String formatFunctionPropertyValue(boolean appendLf, int indentLevel, FunctionPropertyValue value) {
+    private static String formatFunctionPropertyValue(int indentLevel, FunctionPropertyValue value) {
         indentLevel++;
         StringBuilder buffer = new StringBuilder();
         if (value.getFunction().equals("get_input")) {
@@ -93,6 +97,24 @@ public class ToscaPropertySerializerUtils {
         } else {
             buffer.append("{ ").append(value.getFunction()).append(": [").append(ToscaSerializerUtils.getCsvToString(value.getParameters())).append("] }");
         }
+        return buffer.toString();
+    }
+
+    private static String formatConcatPropertyValue(int indentLevel, ConcatPropertyValue value) {
+        indentLevel++;
+        StringBuilder buffer = new StringBuilder().append("{ concat: [ ");
+
+        boolean first = true;
+        for (AbstractPropertyValue concatElement : value.getParameters()) {
+            if (first) {
+                first = false;
+            } else {
+                buffer.append(", ");
+            }
+            buffer.append(formatPropertyValue(0, concatElement));
+        }
+
+        buffer.append(" ] }");
         return buffer.toString();
     }
 

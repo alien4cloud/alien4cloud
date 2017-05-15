@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
@@ -21,6 +22,7 @@ import alien4cloud.utils.jackson.ConditionalAttributes;
 public class PropertyValueDeserializer extends AbstractDiscriminatorPolymorphicDeserializer<AbstractPropertyValue> {
     public PropertyValueDeserializer() {
         super(AbstractPropertyValue.class);
+        addToRegistry("function_concat", ConcatPropertyValue.class);
         addToRegistry("function", FunctionPropertyValue.class);
         // let's handle null with a scalar deserializer.
         addToRegistry("value", JsonNodeType.NULL.toString(), ScalarPropertyValue.class);

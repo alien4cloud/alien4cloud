@@ -113,10 +113,6 @@
       <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs pull-right" ng-click="resetProperty();">
         <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
       </span>
-      <!-- TODO Should we have description here ? if so this should be in string too and removed from topology editor. -->
-      <!-- <span class="pull-right">
-        <simple-modal title="{{ 'MODAL.TITLE.META_PROPERTY' | translate}}" content="{{definition.description}}"> </simple-modal>
-      </span> -->
     </div>
   </div>
   <div class="col-md-3" ng-if="deletable && editable">
@@ -156,5 +152,4 @@
       </div>
     </form>
   </script>
-
 </div>

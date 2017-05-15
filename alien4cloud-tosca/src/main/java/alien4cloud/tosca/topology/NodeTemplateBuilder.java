@@ -9,6 +9,7 @@ import java.util.Objects;
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
@@ -174,7 +175,7 @@ public class NodeTemplateBuilder {
             if (originalValue == null) {
                 AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(entry.getValue());
                 properties.put(entry.getKey(), pv);
-            } else if (originalValue instanceof FunctionPropertyValue) {
+            } else if (originalValue instanceof FunctionPropertyValue || originalValue instanceof ConcatPropertyValue) {
                 properties.put(entry.getKey(), originalValue);
             } else {
                 // we check the property type before accepting it

@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.model.definitions;
 
 import java.util.List;
 
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.json.deserializer.OperationParameterDeserializer;
@@ -16,6 +17,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @FormProperties({ "function_concat", "parameters" })
 public class ConcatPropertyValue extends AbstractPropertyValue {
     private String function_concat;
-    @JsonDeserialize(contentUsing = OperationParameterDeserializer.class)
-    private List<IValue> parameters;
+    @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
+    private List<AbstractPropertyValue> parameters;
 }

@@ -168,7 +168,7 @@ public class FunctionEvaluatorTest {
         scalarParameter3.setValue(":");
         scalarParameter4.setValue("port");
 
-        concatAttributeValue.setParameters(new ArrayList<IValue>());
+        concatAttributeValue.setParameters(new ArrayList<>());
         concatAttributeValue.getParameters().add(scalarParameter1);
         concatAttributeValue.getParameters().add(scalarParameter2);
         concatAttributeValue.getParameters().add(scalarParameter3);

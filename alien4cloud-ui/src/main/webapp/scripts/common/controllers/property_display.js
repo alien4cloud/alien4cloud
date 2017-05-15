@@ -241,6 +241,29 @@ define(function(require) {
         $scope.initScope();
       };
 
+      var getPropValueDisplay = function($scope, propertyValue) {
+        if (propertyValue.hasOwnProperty('value')) {
+          // Here handle scalar value
+          return propertyValue.value;
+        } else if (propertyValue.hasOwnProperty('function') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
+          // And here a function (get_input / get_property)
+          $scope.editable = false;
+          return propertyValue.function + ': ' + _(propertyValue.parameters).toString();
+
+        } else if (propertyValue.hasOwnProperty('function_concat') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
+          // And here a concat
+          $scope.editable = false;
+          var concatStr = 'concat: [ ';
+          for(var i=0; i < propertyValue.parameters.length; i++) {
+            if(i > 0) {
+              concatStr += ', ';
+            }
+            concatStr += getPropValueDisplay($scope, propertyValue.parameters[i]);
+          }
+          return  concatStr + ' ]';
+        }
+      };
+
       $scope.initScope = function() {
         // Define properties
         if (!_.defined($scope.definition)) {
@@ -250,14 +273,7 @@ define(function(require) {
         // Now a property is an AbstractPropertyValue : (Scalar or Function)
         var shownValue = $scope.propertyValue;
         if (_.defined($scope.propertyValue) && $scope.propertyValue.definition === false) {
-          if ($scope.propertyValue.hasOwnProperty('value')) {
-            // Here handle scalar value
-            shownValue = $scope.propertyValue.value;
-          } else if ($scope.propertyValue.hasOwnProperty('function') && $scope.propertyValue.hasOwnProperty('parameters') && $scope.propertyValue.parameters.length > 0) {
-            shownValue = $scope.propertyValue.function + ': ' + _($scope.propertyValue.parameters).toString();
-            //should not edit a function
-            $scope.editable = false;
-          }
+          shownValue = getPropValueDisplay($scope, $scope.propertyValue);
         }
 
         // handling default value
