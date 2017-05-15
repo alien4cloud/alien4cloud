@@ -15,6 +15,7 @@
 			<excludes>
 				<exclude>alien4cloud/plugin/mock/MockOrchestratorFactory.class</exclude>
 				<exclude>META-INF/**</exclude>
+				<exclude>aws/mock-resources/mock-resources.yaml</exclude>
 				<exclude>openstack/mock-resources/mock-resources.yaml</exclude>
 				<exclude>openstack/mock-openstack-resources/openstack-resources.yaml</exclude>
 			</excludes>
@@ -34,6 +35,12 @@
 			<destName>plugin.yml</destName>
      	 	<filtered>true</filtered>
 			<outputDirectory>META-INF</outputDirectory>
+		</file>
+		<file>
+			<source>${basedir}/src/test/demo/aws/mock-resources/mock-resources.yaml</source>
+      		<filtered>true</filtered>
+      		<outputDirectory>aws/mock-resources</outputDirectory>
+      		<destName>mock-resources.yaml</destName>
 		</file>
 		<file>
 			<source>${basedir}/src/test/demo/openstack/mock-resources/mock-resources.yaml</source>
