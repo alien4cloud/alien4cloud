@@ -1,0 +1,40 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.test.parsing.InterfaceInputs
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Test template to check interface inputs parsing.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+node_types:
+  org.alien4cloud.test.parsing.InterfaceInputsTestNode:
+    derived_from: tosca.nodes.Root
+    properties:
+      simple_prop:
+        type: string
+    interfaces:
+      standard:
+        description: standard interface from TOSCA.
+        inputs:
+          prop_definition:
+            type: string
+          prop_assignment: { get_property: [ SELF, simple_prop] }
+        create: test.sh
+        start:
+          implementation: test.sh
+          inputs:
+            new_input: pok
+            prop_assignment: ahah
+
+artifact_types:
+  tosca.artifacts.Root:
+    description: root type
+  tosca.artifacts.Implementation.Bash:
+    derived_from: tosca.artifacts.Root
+    description: Script artifact for the Unix Bash shell
+    mime_type: application/x-sh
+    file_ext: [ sh ]

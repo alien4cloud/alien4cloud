@@ -11,10 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.IValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.CapabilityType;
@@ -181,4 +185,33 @@ public class ToscaParserAlien140Test extends AbstractToscaParserSimpleProfileTes
 
     }
 
+    @Test
+    public void testInterfaceInputs() throws ParsingException {
+        Mockito.reset(csarRepositorySearchService);
+        Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(Mockito.mock(NodeType.class));
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "interface-inputs.yml"));
+        Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+        Map<String, IValue> createInputs = parsingResult.getResult().getNodeTypes().get("org.alien4cloud.test.parsing.InterfaceInputsTestNode").getInterfaces()
+                .get(ToscaNodeLifecycleConstants.STANDARD).getOperations().get("create").getInputParameters();
+        assertNotNull(createInputs);
+        assertEquals(2, createInputs.size());
+        assertNotNull(createInputs.get("prop_definition"));
+        assertTrue(createInputs.get("prop_definition") instanceof PropertyDefinition);
+        assertNotNull(createInputs.get("prop_assignment"));
+        assertTrue(createInputs.get("prop_assignment") instanceof FunctionPropertyValue);
+
+        Map<String, IValue> startInputs = parsingResult.getResult().getNodeTypes().get("org.alien4cloud.test.parsing.InterfaceInputsTestNode").getInterfaces()
+                .get(ToscaNodeLifecycleConstants.STANDARD).getOperations().get("start").getInputParameters();
+        assertNotNull(startInputs);
+        assertEquals(3, startInputs.size());
+        assertNotNull(startInputs.get("prop_definition"));
+        assertTrue(startInputs.get("prop_definition") instanceof PropertyDefinition);
+        assertNotNull(startInputs.get("prop_assignment"));
+        assertTrue(startInputs.get("prop_assignment") instanceof PropertyValue);
+        assertNotNull(startInputs.get("new_input"));
+        assertTrue(startInputs.get("new_input") instanceof PropertyValue);
+    }
 }

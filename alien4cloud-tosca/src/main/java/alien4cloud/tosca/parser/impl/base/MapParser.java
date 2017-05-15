@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import lombok.Setter;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -22,6 +23,7 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class MapParser<T> implements INodeParser<Map<String, T>> {
+    @Setter
     @Resource
     private ScalarParser scalarParser;
     private INodeParser<T> valueParser;

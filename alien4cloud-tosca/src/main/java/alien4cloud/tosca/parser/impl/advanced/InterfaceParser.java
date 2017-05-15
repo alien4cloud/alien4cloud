@@ -1,10 +1,14 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
@@ -13,14 +17,13 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import com.google.common.collect.Maps;
 
-import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.definitions.Operation;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
+import alien4cloud.tosca.parser.impl.base.MapParser;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
@@ -37,10 +40,13 @@ public class InterfaceParser implements INodeParser<Interface> {
     @Resource
     private BaseParserFactory baseParserFactory;
     private ReferencedParser<Operation> operationParser;
+    private MapParser<IValue> inputsParser;
 
     @PostConstruct
     public void init() {
         operationParser = baseParserFactory.getReferencedParser("operation_definition");
+        inputsParser = new MapParser<IValue>(baseParserFactory.getReferencedParser("input"), "Interface Inputs");
+        inputsParser.setScalarParser(scalarParser);
     }
 
     @Override
@@ -57,11 +63,12 @@ public class InterfaceParser implements INodeParser<Interface> {
         Interface interfaz = new Interface();
         Map<String, Operation> operations = Maps.newHashMap();
         interfaz.setOperations(operations);
+        Map<String, IValue> interfaceInputs = null;
 
         for (NodeTuple entry : node.getValue()) {
             String key = scalarParser.parse(entry.getKeyNode(), context);
             if (INPUTS_KEY.equals(key)) {
-                // FIXME process inputs.
+                interfaceInputs = inputsParser.parse(entry.getValueNode(), context);
             } else if (DESCRIPTION_KEY.equals(key)) {
                 interfaz.setDescription(scalarParser.parse(entry.getValueNode(), context));
             } else if (TYPE_KEY.equals(key)) {
@@ -77,6 +84,20 @@ public class InterfaceParser implements INodeParser<Interface> {
                 }
             }
         }
+
+        if (interfaceInputs != null) {
+            for (Operation operation : operations.values()) {
+                if (operation.getInputParameters() == null) {
+                    operation.setInputParameters(Maps.newHashMap());
+                }
+                for (Entry<String, IValue> inputEntry : interfaceInputs.entrySet()) {
+                    if (!operation.getInputParameters().containsKey(inputEntry.getKey())) {
+                        operation.getInputParameters().put(inputEntry.getKey(), inputEntry.getValue());
+                    }
+                }
+            }
+        }
+
         return interfaz;
     }
 
