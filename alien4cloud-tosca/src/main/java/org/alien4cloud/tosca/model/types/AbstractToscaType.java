@@ -11,6 +11,7 @@ import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESAll;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.NestedObject;
 import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.StringFieldMulti;
@@ -79,6 +80,7 @@ public abstract class AbstractToscaType implements IDatableResource, IWorkspaceR
     private String description;
 
     /* DSL extension */
+    @NestedObject(nestedClass = Tag.class)
     private List<Tag> tags;
 
     @Id

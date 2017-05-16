@@ -214,4 +214,16 @@ public class ToscaParserAlien140Test extends AbstractToscaParserSimpleProfileTes
         assertNotNull(startInputs.get("new_input"));
         assertTrue(startInputs.get("new_input") instanceof PropertyValue);
     }
+
+    @Test
+    public void testDuplicateNodeTemplate() throws ParsingException {
+        Mockito.reset(csarRepositorySearchService);
+        Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(Mockito.mock(NodeType.class));
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "topo-duplicate-node-template.yml"));
+        Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+
+    }
 }
