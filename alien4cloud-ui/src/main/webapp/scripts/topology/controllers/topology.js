@@ -193,9 +193,7 @@ define(function (require) {
           componentId: componentId
         }, function(successResult) {
           if (successResult.error === null) {
-            if (successResult.data !== null) {
-              return successResult.data.description;
-            }
+            return successResult.data;
           }
         });
       };

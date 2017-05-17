@@ -6,6 +6,7 @@ define(function(require) {
   var angular = require('angular');
 
   require('scripts/common/services/properties_services');
+  require('scripts/common/directives/info.js');
 
   var ComplexPropertyModalCtrl = ['$scope', '$uibModalInstance', 'formDescriptorServices',
     function($scope, $uibModalInstance, formDescriptorServices) {
