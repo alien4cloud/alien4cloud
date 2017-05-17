@@ -76,3 +76,7 @@ property-display [editable-textarea] + form.editable-wrap {
   padding: 0px 10px;
   height: 25px;
 }
+
+select.form-control-inline {
+  width: 70%;
+}
