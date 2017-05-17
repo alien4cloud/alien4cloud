@@ -21,10 +21,6 @@
                 condensed="condensed">
             </property-display>
           </td>
-          <td>
-            <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{nodeType.propertiesMap[propEntry.key].value.description}}"
-                          key="{{propEntry.key}}"></simple-modal>
-          </td>
         </tr>
       </table>
     </div>
@@ -53,8 +49,7 @@
               {{capabilityEntry.value.type}}
             </div>
             <div class="col-md-1" ng-init="capaComp = getComponent(nodeTemplate, capabilityEntry.value.type)">
-              <simple-modal title="{{ 'MODAL.TITLE.CAPABILITY' | translate}}" content="{{capaComp.data.description}}"
-                            key="{{capabilityEntry.value.type}}"></simple-modal>
+              <info content="capaComp.description"></info>
             </div>
           </div>
         </div>
@@ -74,18 +69,13 @@
                     condensed="condensed">
                 </property-display>
               </td>
-              <td>
-                <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}"
-                              content="{{getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key).description}}"
-                              key="{{propertyEntry.key}}"></simple-modal>
-              </td>
             </tr>
           </table>
 
           <div class="row" ng-if="isService">
             <div class="col-md-3">
               <label id="p_name_{{propertyName}}"
-                     class="property-display-label-ellipsed control-label"
+                     style="white-space: nowrap"
                      uib-tooltip="{{SERVICE.RELATIONSHIP.LABEL | translate}}"
                      tooltip-append-to-body="true">
                 <i class="fa fa-link"></i> {{'SERVICE.RELATIONSHIP.LABEL'| translate}}
@@ -108,9 +98,7 @@
               </span>
             </div>
             <div class="col-md-1">
-              <simple-modal title="{{ 'SERVICE.RELATIONSHIP.LABEL' | translate}}"
-                            content="{{ 'SERVICE.RELATIONSHIP.CAPABILITY_DESCRIPTION' | translate}}"
-                            key="half_relationship_type_{{capabilityEntry.key}}"></simple-modal>
+              <info content="{{ 'SERVICE.RELATIONSHIP.CAPABILITY_DESCRIPTION' | translate}}"></info>
             </div>
           </div>
         </div>

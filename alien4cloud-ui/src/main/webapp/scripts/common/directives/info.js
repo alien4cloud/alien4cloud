@@ -6,7 +6,7 @@ define(function (require) {
   //display an info icon
 
   var template = '<span class="btn btn-xs info-{{size}}" ng-if = "content"'+
-                  'uib-popover="{{content}}"'+
+                  'uib-popover="{{content | translate}}"'+
                   'popover-trigger="\'{{trigger}}\'"'+
                   'popover-placement = "{{placement}}"'+
                   'popover-class="info-popover info-popover-{{size}}"'+

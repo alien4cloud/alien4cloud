@@ -171,10 +171,7 @@
                 <div class="indent" ng-if="!isReqPropsCollapsed[requirementEntry.key]">
                   <div class="row">
                     <div class="col-md-3">
-                      <label id="p_name_{{propertyName}}"
-                             class="property-display-label-ellipsed control-label"
-                             uib-tooltip="{{SERVICE.RELATIONSHIP.LABEL | translate}}"
-                             tooltip-append-to-body="true">
+                      <label id="p_name_{{propertyName}}"  style="white-space: nowrap">
                         <i class="fa fa-link"></i> {{'SERVICE.RELATIONSHIP.LABEL'| translate}}
                       </label>
                     </div>
@@ -195,9 +192,7 @@
                       </span>
                     </div>
                     <div class="col-md-1">
-                      <simple-modal title="{{ 'SERVICE.RELATIONSHIP.LABEL' | translate}}"
-                                    content="{{ 'SERVICE.RELATIONSHIP.REQUIREMENT_DESCRIPTION' | translate}}"
-                                    key="half_relationship_type_{{requirementEntry.key}}"></simple-modal>
+                      <info content = "'SERVICE.RELATIONSHIP.REQUIREMENT_DESCRIPTION'"></info>
                     </div>
                   </div>
                 </div>
@@ -225,8 +220,7 @@
                     </em>
                   </td>
                   <td>
-                    <simple-modal class="pull-right" title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{attrEntry.value.description}}"
-                                  key="{{attrEntry.key}}"></simple-modal>
+                    <info class="pull-right" content="attrEntry.value.description"></info>
                   </td>
                 </tr>
               </table>
