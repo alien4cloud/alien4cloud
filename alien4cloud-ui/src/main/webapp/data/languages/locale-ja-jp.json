@@ -684,6 +684,8 @@
         "GLOBAL_REPOSITORIES" : "Global repositories",
         "ID" : "Repository ID",
         "LOCAL" : "Local",
+        "LOCAL_FS" : "Local file system",
+        "A4C_CSAR" : "CSAR",
         "MUST_BE_UNIQUE" : "Repository ID must be unique for this archive",
         "NEW_REPOSITORY" : "New repository",
         "REMOTE" : "Remote",

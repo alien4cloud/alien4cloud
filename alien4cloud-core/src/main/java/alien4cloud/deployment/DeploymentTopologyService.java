@@ -6,14 +6,8 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -28,18 +22,9 @@ import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeExc
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
-import org.alien4cloud.tosca.model.templates.AbstractPolicy;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
-import org.alien4cloud.tosca.model.templates.NodeGroup;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.templates.*;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.MapUtils;
@@ -716,9 +701,42 @@ public class DeploymentTopologyService {
      */
     public void updateInputArtifact(String environmentId, String inputArtifactId, MultipartFile artifactFile) throws IOException {
         DeploymentTopology topology = getDeploymentTopology(environmentId);
+        checkInputArtifactExist(inputArtifactId, topology);
+        DeploymentArtifact artifact = getDeploymentArtifact(inputArtifactId, topology);
+        try (InputStream artifactStream = artifactFile.getInputStream()) {
+            String artifactFileId = artifactRepository.storeFile(artifactStream);
+            artifact.setArtifactName(artifactFile.getOriginalFilename());
+            artifact.setArtifactRef(artifactFileId);
+            artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
+            save(topology);
+        }
+    }
+
+    public void updateInputArtifact(String environmentId, String inputArtifactId, DeploymentArtifact updatedArtifact) throws IOException {
+        DeploymentTopology topology = getDeploymentTopology(environmentId);
+        checkInputArtifactExist(inputArtifactId, topology);
+        DeploymentArtifact artifact = getDeploymentArtifact(inputArtifactId, topology);
+
+        artifact.setArtifactName(updatedArtifact.getArtifactName());
+        artifact.setArtifactRef(updatedArtifact.getArtifactRef());
+        artifact.setArtifactRepository(updatedArtifact.getArtifactRepository());
+        artifact.setArtifactType(updatedArtifact.getArtifactType());
+        artifact.setRepositoryName(updatedArtifact.getRepositoryName());
+        artifact.setRepositoryURL(updatedArtifact.getRepositoryURL());
+        artifact.setRepositoryCredential(updatedArtifact.getRepositoryCredential());
+        artifact.setArchiveName(updatedArtifact.getArchiveName());
+        artifact.setArchiveVersion(updatedArtifact.getArchiveVersion());
+
+        save(topology);
+    }
+
+    private void checkInputArtifactExist(String inputArtifactId, DeploymentTopology topology) {
         if (topology.getInputArtifacts() == null || !topology.getInputArtifacts().containsKey(inputArtifactId)) {
             throw new NotFoundException("Input Artifact with key [" + inputArtifactId + "] doesn't exist within the topology.");
         }
+    }
+
+    private DeploymentArtifact getDeploymentArtifact(String inputArtifactId, DeploymentTopology topology) {
         Map<String, DeploymentArtifact> artifacts = topology.getUploadedInputArtifacts();
         if (artifacts == null) {
             artifacts = new HashMap<>();
@@ -731,12 +749,6 @@ public class DeploymentTopologyService {
         } else if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
             artifactRepository.deleteFile(artifact.getArtifactRef());
         }
-        try (InputStream artifactStream = artifactFile.getInputStream()) {
-            String artifactFileId = artifactRepository.storeFile(artifactStream);
-            artifact.setArtifactName(artifactFile.getOriginalFilename());
-            artifact.setArtifactRef(artifactFileId);
-            artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
-            save(topology);
-        }
+        return artifact;
     }
 }

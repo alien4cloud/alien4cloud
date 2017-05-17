@@ -10,15 +10,11 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -97,11 +93,22 @@ public class DeploymentTopologyController {
     @ApiOperation(value = "Upload input artifact.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/inputArtifacts/{inputArtifactId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentTopologyDTO> updateDeploymentInputArtifact(@PathVariable String appId, @PathVariable String environmentId,
+    public RestResponse<DeploymentTopologyDTO> uploadDeploymentInputArtifact(@PathVariable String appId, @PathVariable String environmentId,
             @PathVariable String inputArtifactId, @RequestParam("file") MultipartFile artifactFile) throws IOException {
         // Get the artifact to update
         checkAuthorizations(appId, environmentId);
         deploymentTopologyService.updateInputArtifact(environmentId, inputArtifactId, artifactFile);
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder()
+                .data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
+    }
+
+    @RequestMapping(value = "/inputArtifacts/{inputArtifactId}/update", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<DeploymentTopologyDTO> updateDeploymentInputArtifact(@PathVariable String appId, @PathVariable String environmentId,
+                                                                              @PathVariable String inputArtifactId, @RequestBody DeploymentArtifact artifact) throws IOException {
+        // Get the artifact to update
+        checkAuthorizations(appId, environmentId);
+        deploymentTopologyService.updateInputArtifact(environmentId, inputArtifactId, artifact);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder()
                 .data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
     }

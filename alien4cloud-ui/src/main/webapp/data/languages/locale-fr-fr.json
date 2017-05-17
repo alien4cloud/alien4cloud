@@ -688,6 +688,8 @@
         "GLOBAL_REPOSITORIES" : "Dépôt global",
         "ID" : "Identifiant",
         "LOCAL" : "Local",
+        "LOCAL_FS" : "Système de fichier local",
+        "A4C_CSAR" : "CSAR",
         "MUST_BE_UNIQUE" : "L'identifiant de repository doit être unique pour cette archive",
         "NEW_REPOSITORY" : "Nouveau dépôt",
         "REMOTE" : "Distant",
