@@ -1,17 +1,11 @@
 package alien4cloud.tosca.serializer;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
-import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
-import org.alien4cloud.tosca.model.definitions.IValue;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.*;
 
 import alien4cloud.paas.exception.NotSupportedException;
 
@@ -19,6 +13,7 @@ public class ToscaPropertySerializerUtils {
 
     private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[,:\\[\\]\\{\\}-].*");
     private static Pattern VALID_YAML_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
+    private static Pattern FLOAT_PATTERN = Pattern.compile("([0-9]+[.])?[0-9]+");
 
     public static String indent(int indentLevel) {
         StringBuilder buffer = new StringBuilder();
@@ -46,7 +41,7 @@ public class ToscaPropertySerializerUtils {
         } else {
             if (text == null) {
                 text = "";
-            } else if (!VALID_YAML_PATTERN.matcher(text).matches()) {
+            } else if (!VALID_YAML_PATTERN.matcher(text).matches() && !FLOAT_PATTERN.matcher(text).matches()) {
                 text = "\"" + text + "\"";
             }
             return text;
