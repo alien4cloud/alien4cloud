@@ -137,27 +137,18 @@ define(function (require) {
 
       var injectPropertyDefinitionToInterfaces = function(interfaces) {
         if (_.defined(interfaces)) {
-          angular.forEach(interfaces, function(interfaceObj) {
+          angular.forEach(interfaces, function(interfaceObj, interfaceName) {
             Object.keys(interfaceObj.operations).forEach(function(operation) {
               if (_.defined(interfaceObj.operations[operation].inputParameters)) {
                 Object.keys(interfaceObj.operations[operation].inputParameters).forEach(function(paramName) {
                   var inputParameter = interfaceObj.operations[operation].inputParameters[paramName];
                   if (inputParameter.definition) {
-                    var propteryDefinitionModel = {};
-                    propteryDefinitionModel.type = inputParameter.type;
-                    propteryDefinitionModel.required = inputParameter.required;
-                    propteryDefinitionModel.name = paramName;
-                    propteryDefinitionModel.default = inputParameter.paramValue || ''; // needed for the directive
-                    propteryDefinitionModel.password = false;
-                    propteryDefinitionModel.constraints = null;
-                    propteryDefinitionModel.from = operation;
-                    if (inputParameter.type === 'boolean') {
-                      inputParameter.paramValue = false;
-                    }
-                    if (inputParameter.type === 'timestamp') {
-                      inputParameter.paramValue = Date.now();
-                    }
-                    inputParameter.definitionModel = propteryDefinitionModel;
+                    inputParameter.interface = interfaceName;
+                    inputParameter.operation = operation;
+                    inputParameter.paramValue = inputParameter.paramValue || '';
+                    // if (inputParameter.type === 'timestamp') {
+                    //   inputParameter.paramValue = Date.now();
+                    // }
                   } else {
                     //we don't want function type params in the ui
                     delete interfaceObj.operations[operation].inputParameters[paramName];
@@ -171,7 +162,7 @@ define(function (require) {
 
       };
 
-      $scope.checkProperty = function(definition, value, interfaceName) {
+      $scope.checkProperty = function(definition, value, propertyName) {
         var checkPropertyRequest = {
           'definitionId': definition.name,
           'propertyDefinition': definition,
@@ -179,24 +170,11 @@ define(function (require) {
         };
 
         return propertiesServices.validConstraints({}, angular.toJson(checkPropertyRequest), function(successResult) {
-          if (successResult.error !== null) {
-            // Possible errors
-            // 800 : constraint error in a property definition
-            // 804 : type constraint for a property definition
-            // Constraint error display + translation
-            var constraintInfo = successResult.data;
-            var errorMessage = null;
-            if (successResult.error.code === 804) {
-              errorMessage = $translate.instant('ERRORS.' + successResult.error.code, constraintInfo);
-            } else { // 800
-              errorMessage = $translate.instant('ERRORS.' + successResult.error.code + '.' + constraintInfo.name, constraintInfo);
-            }
-          } else {
+          if (_.undefined(successResult.error)) {
             // No errors
-            $scope.selectedNodeCustomInterfaces[interfaceName].operations[definition.from].inputParameters[definition.name].paramValue = value;
+            $scope.selectedNodeCustomInterfaces[definition.interface].operations[definition.operation].inputParameters[propertyName].paramValue = value;
           }
         }).$promise;
-
       };
 
       $scope.selectNodeTemplate = function(newSelectedName, oldSelectedName) {
@@ -287,8 +265,8 @@ define(function (require) {
         // prepare parameters and operationParamDefinitions
         var preparedParams = {};
         if (params !== null) {
-          Object.keys(params).forEach(function(param) {
-            preparedParams[params[param].definitionModel.name] = params[param].paramValue;
+          _.each(params, function(param, name){
+            preparedParams[name] = param.paramValue;
           });
         }
         // generate the request object
