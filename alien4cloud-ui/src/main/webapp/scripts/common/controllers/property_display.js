@@ -122,7 +122,7 @@ define(function(require) {
         delete $scope.unitError;
         if (_.isBoolean(data)) {
           data = data.toString();
-        } else if (_.isEmpty(data)) {
+        } else if (!_.isDate(data) &&_.isEmpty(data)) {
           data = null;
         }
 
@@ -130,7 +130,7 @@ define(function(require) {
           return;
         }
 
-        if (!_.isEmpty(data) && _.defined($scope.definitionObject.units)) {
+        if (_.defined(data) && _.defined($scope.definitionObject.units)) {
           if (_.undefined(unit)) {
             unit = $scope.definitionObject.uiUnit;
           }
@@ -348,7 +348,7 @@ define(function(require) {
             break;
           case 'timestamp':
             $scope.definitionObject.uiName = 'date';
-            $scope.definitionObject.uiValue = shownValue;
+            $scope.definitionObject.uiValue = _.defined(shownValue) && !_.isDate(shownValue)? new Date(shownValue) : shownValue;
             break;
           case 'scalar-unit.size':
             $scope.definitionObject.uiName = 'scalar-unit';
