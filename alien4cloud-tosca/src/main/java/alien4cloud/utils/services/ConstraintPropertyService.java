@@ -13,6 +13,7 @@ import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.constraints.LengthConstraint;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import org.alien4cloud.tosca.normative.types.IPropertyType;
@@ -88,11 +89,11 @@ public final class ConstraintPropertyService {
             } else if (isTypeDerivedFromPrimitive) {
                 checkComplexPropertyDerivedFromPrimitiveTypeConstraints(propertyName, (String) value, propertyDefinition, dataType);
             } else {
-                throw new ConstraintValueDoNotMatchPropertyTypeException(
-                        "Property value is a String while the expected data type is a complex type " + value.getClass().getName());
+                throw new ConstraintValueDoNotMatchPropertyTypeException("Property value is a String while the expected data type is a complex type "
+                        + value.getClass().getName());
             }
         } else if (value instanceof Map) {
-            if (ToscaTypes.MAP.equals(propertyDefinition.getType())) {
+            if (ToscaTypes.MAP.equals(typeName)) {
                 checkMapPropertyConstraint(propertyName, (Map<String, Object>) value, propertyDefinition, missingPropertyConsumer);
             } else {
                 checkDataTypePropertyConstraint(propertyName, (Map<String, Object>) value, propertyDefinition, missingPropertyConsumer);
@@ -101,12 +102,14 @@ public final class ConstraintPropertyService {
             // Range type is a specific primitive type that is actually wrapped
             if (ToscaTypes.RANGE.equals(propertyDefinition.getType())) {
                 checkRangePropertyConstraint(propertyName, (List<Object>) value, propertyDefinition);
-            } else {
+            } else if (ToscaTypes.LIST.equals((typeName))) {
                 checkListPropertyConstraint(propertyName, (List<Object>) value, propertyDefinition, missingPropertyConsumer);
+            } else {
+                throw new InvalidArgumentException("Expected [list] but found " + typeName);
             }
         } else {
-            throw new InvalidArgumentException(
-                    "Not expecting to receive constraint validation for other types than String, Map or List as " + value.getClass().getName());
+            throw new InvalidArgumentException("Not expecting to receive constraint validation for other types than String, Map or List as "
+                    + value.getClass().getName());
         }
     }
 
@@ -171,8 +174,8 @@ public final class ConstraintPropertyService {
      * Check constraints defined on a property which has a type derived from a primitive.
      */
     private static void checkComplexPropertyDerivedFromPrimitiveTypeConstraints(final String propertyName, final String stringValue,
-            final PropertyDefinition propertyDefinition, final DataType dataType)
-            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
+            final PropertyDefinition propertyDefinition, final DataType dataType) throws ConstraintViolationException,
+            ConstraintValueDoNotMatchPropertyTypeException {
         ConstraintInformation consInformation = null;
         boolean hasDefinitionConstraints = propertyDefinition.getConstraints() != null && !propertyDefinition.getConstraints().isEmpty();
         boolean hasTypeConstraints = false;
@@ -217,8 +220,8 @@ public final class ConstraintPropertyService {
             Consumer<String> missingPropertyConsumer) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         DataType dataType = ToscaContext.get(DataType.class, propertyDefinition.getType());
         if (dataType == null) {
-            throw new ConstraintViolationException(
-                    "Complex type " + propertyDefinition.getType() + " is not complex or it cannot be found in the archive nor in Alien");
+            throw new ConstraintViolationException("Complex type " + propertyDefinition.getType()
+                    + " is not complex or it cannot be found in the archive nor in Alien");
         }
         for (Map.Entry<String, Object> complexPropertyValueEntry : complexPropertyValue.entrySet()) {
             if (!safe(dataType.getProperties()).containsKey(complexPropertyValueEntry.getKey())) {
@@ -243,6 +246,18 @@ public final class ConstraintPropertyService {
         }
     }
 
+    private static LengthConstraint getLengthConstraintIfPresent(List<PropertyConstraint> constraints) {
+        if (constraints == null) {
+            return null;
+        }
+        for (PropertyConstraint constraint : constraints) {
+            if (constraint instanceof LengthConstraint)  {
+                return (LengthConstraint)constraint;
+            }
+        }
+        return null;
+    }
+
     private static void checkListPropertyConstraint(String propertyName, List<Object> listPropertyValue, PropertyDefinition propertyDefinition,
             Consumer<String> missingPropertyConsumer) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
@@ -250,15 +265,18 @@ public final class ConstraintPropertyService {
             throw new ConstraintValueDoNotMatchPropertyTypeException("value is a list but type actually is <" + propertyDefinition.getType() + ">");
         }
 
-        // Let's check list size constraints (we don't support equals or valid-values yet)
-        checkSimplePropertyConstraint(propertyName, String.valueOf(listPropertyValue.size()), propertyDefinition);
+        // Let's check list length constraints (we don't support equals or valid-values yet)
+        LengthConstraint lengthConstraint = getLengthConstraintIfPresent(propertyDefinition.getConstraints());
+        if (lengthConstraint != null) {
+            lengthConstraint.validate(listPropertyValue);
+        }
 
         for (int i = 0; i < listPropertyValue.size(); i++) {
             checkPropertyConstraint(propertyName + "[" + String.valueOf(i) + "]", listPropertyValue.get(i), entrySchema, missingPropertyConsumer);
         }
     }
 
-    private static void checkMapPropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition,
+    private static void checkMapPropertyConstraint(String propertyName, Map<String, Object> mapPropertyValue, PropertyDefinition propertyDefinition,
             Consumer<String> missingPropertyConsumer) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
         if (entrySchema == null) {
@@ -266,9 +284,12 @@ public final class ConstraintPropertyService {
         }
 
         // Let's check map size constraints (we don't support equals or valid-values yet)
-        checkSimplePropertyConstraint(propertyName, String.valueOf(complexPropertyValue.size()), propertyDefinition);
+        LengthConstraint lengthConstraint = getLengthConstraintIfPresent(propertyDefinition.getConstraints());
+        if (lengthConstraint != null) {
+            lengthConstraint.validate(mapPropertyValue);
+        }
 
-        for (Map.Entry<String, Object> complexPropertyValueEntry : complexPropertyValue.entrySet()) {
+        for (Map.Entry<String, Object> complexPropertyValueEntry : mapPropertyValue.entrySet()) {
             checkPropertyConstraint(propertyName + "." + complexPropertyValueEntry.getKey(), complexPropertyValueEntry.getValue(), entrySchema,
                     missingPropertyConsumer);
         }
@@ -288,17 +309,21 @@ public final class ConstraintPropertyService {
         // "string" (basic case, no exception), "float", "integer", "version"
         try {
             switch (primitiveType) {
-            case "integer":
+            case ToscaTypes.INTEGER:
                 Long.parseLong(propertyValue);
                 break;
-            case "float":
+            case ToscaTypes.FLOAT:
                 Float.parseFloat(propertyValue);
                 break;
-            case "version":
+            case ToscaTypes.VERSION:
                 VersionUtil.parseVersion(propertyValue);
                 break;
+            case ToscaTypes.MAP:
+            case ToscaTypes.LIST:
+            case ToscaTypes.RANGE:
+                throw new ConstraintValueDoNotMatchPropertyTypeException("Property type is complex [" + primitiveType + "], but property value ["
+                        + propertyValue + "] is simple");
             default:
-                // last type "string" can have any format
                 break;
             }
         } catch (NumberFormatException | InvalidVersionException e) {
