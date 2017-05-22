@@ -318,9 +318,10 @@ public final class ConstraintPropertyService {
             case ToscaTypes.VERSION:
                 VersionUtil.parseVersion(propertyValue);
                 break;
+            case ToscaTypes.RANGE:
+                break;
             case ToscaTypes.MAP:
             case ToscaTypes.LIST:
-            case ToscaTypes.RANGE:
                 throw new ConstraintValueDoNotMatchPropertyTypeException("Property type is complex [" + primitiveType + "], but property value ["
                         + propertyValue + "] is simple");
             default:
