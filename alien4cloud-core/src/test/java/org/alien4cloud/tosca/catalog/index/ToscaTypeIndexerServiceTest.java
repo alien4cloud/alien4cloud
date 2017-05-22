@@ -93,7 +93,7 @@ public class ToscaTypeIndexerServiceTest {
         Assert.assertFalse(hasElementWithTag);
 
         nodeType = new NodeType();
-        nodeType.setElementId("element");
+        nodeType.setElementId("otherelement");
         nodeType.setArchiveName("archive");
         nodeType.setArchiveVersion("1.0.0");
         nodeType.setTags(Lists.newArrayList(new Tag("icon", "my_icon")));

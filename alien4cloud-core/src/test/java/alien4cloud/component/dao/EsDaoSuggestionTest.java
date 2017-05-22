@@ -10,9 +10,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import alien4cloud.dao.model.FetchContext;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +47,6 @@ import com.google.common.collect.Lists;
 @Slf4j
 public class EsDaoSuggestionTest extends AbstractDAOTest {
     private static final String APPLICATION_INDEX = Application.class.getSimpleName().toLowerCase();
-    private static final String FETCH_CONTEXT = "tag_suggestion";
     private static final String TAG_NAME_PATH = "tags.name";
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
@@ -61,11 +62,11 @@ public class EsDaoSuggestionTest extends AbstractDAOTest {
 
     private List<Tag> Tags1 = Lists.newArrayList(new Tag("icon", "my-icon.png"), new Tag("potatoe", "patate"), new Tag("potatoe_version", "version de patate"));
 
-    private List<Tag> Tags2 = Lists.newArrayList(new Tag("icon", "my-icon.png"), new Tag("version", "My free tag with my free content (tag-0)"), new Tag(
-            "version_1", "Tag2 content"));
+    private List<Tag> Tags2 = Lists.newArrayList(new Tag("icon", "my-icon.png"), new Tag("version", "My free tag with my free content (tag-0)"),
+            new Tag("version_1", "Tag2 content"));
 
-    private List<Tag> Tags3 = Lists.newArrayList(new Tag("icon", "my-icon.png"), new Tag("version", "My free tag with my free content (tag-0)"), new Tag(
-            "version_1", "Tag2 content"), new Tag("potatoe", "patate"), new Tag("potatoe_version", "de patate"));
+    private List<Tag> Tags3 = Lists.newArrayList(new Tag("icon", "my-icon.png"), new Tag("version", "My free tag with my free content (tag-0)"),
+            new Tag("version_1", "Tag2 content"), new Tag("potatoe", "patate"), new Tag("potatoe_version", "de patate"));
 
     @Before
     public void before() throws Exception {
@@ -77,10 +78,10 @@ public class EsDaoSuggestionTest extends AbstractDAOTest {
     @Test
     public void simpleSearchTest() throws IndexingServiceException, InterruptedException, IOException {
         String searchText = "ver";
-        GetMultipleDataResult searchResp = dao.suggestSearch(new String[] { APPLICATION_INDEX, ElasticSearchDAO.TOSCA_ELEMENT_INDEX }, new Class<?>[] {
-                Application.class, NodeType.class, ArtifactType.class, CapabilityType.class, RelationshipType.class },
-                TAG_NAME_PATH, searchText, FETCH_CONTEXT, 0, 10);
-        System.out.println(searchResp.getData().length);
+        GetMultipleDataResult searchResp = dao.suggestSearch(new String[] { APPLICATION_INDEX, ElasticSearchDAO.TOSCA_ELEMENT_INDEX },
+                new Class<?>[] { Application.class, NodeType.class, ArtifactType.class, CapabilityType.class, RelationshipType.class }, TAG_NAME_PATH,
+                searchText, FetchContext.TAG_SUGGESTION, 0, 10);
+
         assertNotNull(searchResp);
         assertNotNull(searchResp.getTypes());
         assertNotNull(searchResp.getData());

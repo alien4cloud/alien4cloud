@@ -39,8 +39,6 @@ import lombok.Setter;
 
 /**
  * Model for an application in alien.
- *
- * @author luc boutier
  */
 @ESObject
 @Getter
@@ -48,7 +46,6 @@ import lombok.Setter;
 @JsonInclude(Include.NON_NULL)
 @ESAll(analyser = "simple")
 public class Application implements ISecuredResource, IDeploymentSource, ITaggableResource, IMetaProperties, IDatableResource {
-
     @Id
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String id;
@@ -70,10 +67,11 @@ public class Application implements ISecuredResource, IDeploymentSource, ITaggab
     @StringField(includeInAll = false, indexType = IndexType.no)
     private String imageId;
 
-    @StringField(includeInAll = true, indexType = IndexType.analyzed)
+    @NestedObject(nestedClass = Tag.class)
+    @StringField(indexType = IndexType.analyzed)
     private List<Tag> tags;
 
-    @StringField(includeInAll = true, indexType = IndexType.analyzed)
+    @StringField(indexType = IndexType.analyzed)
     private Map<String, String> metaProperties;
 
     @TermFilter(paths = { "key", "value" })
