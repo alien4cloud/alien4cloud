@@ -543,6 +543,11 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         }
 
         @Override
+        public QueryBuilder queryBuilder() {
+            return super.getQueryBuilder();
+        }
+
+        @Override
         public IESSearchQueryBuilderHelper prepareSearch() {
             super.prepareSearch(indices);
             super.searchRequestBuilder.setTypes(esTypes);

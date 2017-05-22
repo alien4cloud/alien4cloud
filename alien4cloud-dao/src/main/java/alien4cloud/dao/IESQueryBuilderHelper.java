@@ -20,6 +20,13 @@ public interface IESQueryBuilderHelper<T> {
     long count();
 
     /**
+     * Get the current query builder.
+     * 
+     * @return
+     */
+    QueryBuilder queryBuilder();
+
+    /**
      * Build a search query.
      *
      * @return an instance of search query builder helper

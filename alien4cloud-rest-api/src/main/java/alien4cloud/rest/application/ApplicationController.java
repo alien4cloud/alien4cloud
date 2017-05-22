@@ -1,12 +1,27 @@
 package alien4cloud.rest.application;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.dao.ESGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchFacet;
+import alien4cloud.model.deployment.Deployment;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import lombok.AllArgsConstructor;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,6 +53,8 @@ import alien4cloud.utils.VersionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 /**
  * Service that allows managing applications.
@@ -122,9 +139,63 @@ public class ApplicationController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<FacetedSearchResult> search(@RequestBody FilteredSearchRequest searchRequest) {
         FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
-        FacetedSearchResult searchResult = alienDAO.facetedSearch(Application.class, searchRequest.getQuery(), searchRequest.getFilters(), authorizationFilter,
-                null, searchRequest.getFrom(), searchRequest.getSize());
-        return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
+
+        // We want to sort applications by deployed/undeployed and then application name.
+
+        // Query all application ids and name.
+        QueryBuilder queryBuilder = alienDAO.buildSearchQuery(Application.class, searchRequest.getQuery())
+                .setFilters(searchRequest.getFilters(), authorizationFilter).queryBuilder();
+        SearchResponse response = alienDAO.getClient().prepareSearch(alienDAO.getIndexForType(Application.class)).setQuery(queryBuilder)
+                .setFetchSource(new String[] { "name" }, null).setSize(Integer.MAX_VALUE).get();
+
+        // Get their status (deployed vs undeployed)
+        List<DeployedAppHolder> appHolders = Lists.newLinkedList();
+        for (SearchHit hit : response.getHits().getHits()) {
+            String id = hit.getId();
+            String appName = (String) hit.getSource().get("name");
+            boolean isDeployed = alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("sourceId", id, "endDate", null)).count() > 0;
+            appHolders.add(new DeployedAppHolder(id, appName, isDeployed));
+        }
+
+        // Sort to have first all deployed apps sorted by name and then all undeployed apps sorted by name.
+        Collections.sort(appHolders);
+
+        // Compute the list of app ids to fetch based on the query pagination parameters
+        List<String> appIdsToFetch = Lists.newArrayList();
+        int to = searchRequest.getFrom() + searchRequest.getSize();
+        for (int i = searchRequest.getFrom(); i < appHolders.size() && i < to; i++) {
+            appIdsToFetch.add(appHolders.get(i).appId);
+        }
+        List<Application> applications;
+        if (appIdsToFetch.size() == 0) {
+            applications = Lists.newArrayList();
+        } else {
+            applications = alienDAO.findByIds(Application.class, appIdsToFetch.toArray(new String[appIdsToFetch.size()]));
+        }
+
+        return RestResponseBuilder.<FacetedSearchResult> builder()
+                .data(new FacetedSearchResult<>(searchRequest.getFrom(), to, response.getTookInMillis(), appHolders.size(),
+                        new String[] { Application.class.getSimpleName() }, applications.toArray(new Application[applications.size()]), Maps.newHashMap()))
+                .build();
+    }
+
+    @AllArgsConstructor
+    private class DeployedAppHolder implements Comparable<DeployedAppHolder> {
+        private String appId;
+        private String appName;
+        private boolean isDeployed;
+
+        @Override
+        public int compareTo(DeployedAppHolder o) {
+            if (this.isDeployed == o.isDeployed) {
+                // Both are deployed or not deployed so compare on name
+                return appName.toLowerCase().compareTo(o.appName.toLowerCase());
+            }
+            if (this.isDeployed) {
+                return -1; // I am deployed so other is not (see previous if). smaller (first in sorted list).
+            }
+            return 1;
+        }
     }
 
     /**
