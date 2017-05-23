@@ -14,6 +14,9 @@ import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.constraints.LengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LessOrEqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.junit.Test;
@@ -88,12 +91,25 @@ public class ConstraintPropertyServiceTest {
         Object propertyValue = ImmutableList.builder().add("aa", "bb").build();
         ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
 
-
         // test length constraint
         LengthConstraint lengthConstraint = new LengthConstraint();
         lengthConstraint.setLength(2);
         List<PropertyConstraint> constraints = Lists.newArrayList();
         constraints.add(lengthConstraint);
+        propertyDefinition.setConstraints(constraints);
+        ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+
+        // test min_length constraint
+        MinLengthConstraint minLengthConstraint = new MinLengthConstraint();
+        minLengthConstraint.setMinLength(1);
+        constraints.add(minLengthConstraint);
+        propertyDefinition.setConstraints(constraints);
+        ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+
+        // test max_length constraint
+        MaxLengthConstraint maxLengthConstraint = new MaxLengthConstraint();
+        maxLengthConstraint.setMaxLength(3);
+        constraints.add(maxLengthConstraint);
         propertyDefinition.setConstraints(constraints);
         ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
     }
@@ -187,7 +203,7 @@ public class ConstraintPropertyServiceTest {
         ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
     }
 
-    @Test(expected = InvalidArgumentException.class)
+    @Test(expected = ConstraintValueDoNotMatchPropertyTypeException.class)
     public void testInvalidMapProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.MAP);
@@ -195,6 +211,63 @@ public class ConstraintPropertyServiceTest {
         entrySchema.setType(ToscaTypes.STRING);
         propertyDefinition.setEntrySchema(entrySchema);
         Object propertyValue = ImmutableList.builder().add("aa", "bb").build();
+        ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testInvalidMapLengthConstraintProperty() throws Exception {
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setType(ToscaTypes.MAP);
+        PropertyDefinition entrySchema = new PropertyDefinition();
+        entrySchema.setType(ToscaTypes.STRING);
+        propertyDefinition.setEntrySchema(entrySchema);
+        Object propertyValue = ImmutableMap.builder().put("aa", "bb").build();
+
+        // invalid length constraint
+        LengthConstraint lengthConstraint = new LengthConstraint();
+        lengthConstraint.setLength(4);
+        List<PropertyConstraint> constraints = Lists.newArrayList();
+        constraints.add(lengthConstraint);
+        propertyDefinition.setConstraints(constraints);
+
+        ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void testInvalidMapMinLengthConstraintProperty() throws Exception {
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setType(ToscaTypes.MAP);
+        PropertyDefinition entrySchema = new PropertyDefinition();
+        entrySchema.setType(ToscaTypes.STRING);
+        propertyDefinition.setEntrySchema(entrySchema);
+        Object propertyValue = ImmutableMap.builder().put("aa", "bb").build();
+
+        // invalid length constraint
+        MinLengthConstraint lengthConstraint = new MinLengthConstraint();
+        lengthConstraint.setMinLength(4);
+        List<PropertyConstraint> constraints = Lists.newArrayList();
+        constraints.add(lengthConstraint);
+        propertyDefinition.setConstraints(constraints);
+
+        ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+    }
+
+    @Test(expected = ConstraintValueDoNotMatchPropertyTypeException.class)
+    public void testInvalidConstraintProperty() throws Exception {
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setType(ToscaTypes.MAP);
+        PropertyDefinition entrySchema = new PropertyDefinition();
+        entrySchema.setType(ToscaTypes.STRING);
+        propertyDefinition.setEntrySchema(entrySchema);
+        Object propertyValue = ImmutableMap.builder().put("aa", "bb").build();
+
+        // invalid length constraint
+        LessOrEqualConstraint lengthConstraint = new LessOrEqualConstraint();
+        lengthConstraint.setLessOrEqual("aa");
+        List<PropertyConstraint> constraints = Lists.newArrayList();
+        constraints.add(lengthConstraint);
+        propertyDefinition.setConstraints(constraints);
+
         ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
     }
 
