@@ -14,8 +14,6 @@ import alien4cloud.utils.version.Version;
 
 /**
  * The primitive type that TOSCA YAML supports.
- * 
- * @author mkv
  */
 public class ToscaTypes {
     public static final IPropertyType<Boolean> BOOLEAN_TYPE = new BooleanType();

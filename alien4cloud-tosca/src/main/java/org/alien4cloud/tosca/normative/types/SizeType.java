@@ -4,9 +4,6 @@ import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
 import org.alien4cloud.tosca.normative.primitives.Size;
 import org.alien4cloud.tosca.normative.primitives.SizeUnit;
 
-/**
- * @author Minh Khang VU
- */
 public class SizeType extends ScalarType<Size, SizeUnit> {
 
     public static final String NAME = "scalar-unit.size";

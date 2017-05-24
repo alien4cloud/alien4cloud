@@ -2,13 +2,8 @@ package alien4cloud.utils.services;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 
-import alien4cloud.exception.InvalidArgumentException;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
@@ -22,6 +17,9 @@ import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.component.ICSARRepositorySearchService;
@@ -34,51 +32,51 @@ public class ConstraintPropertyServiceTest {
     public void testValidStringProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.STRING);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "value", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "value", propertyDefinition);
     }
 
     @Test
     public void testValidIntegerProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.INTEGER);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "128", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "128", propertyDefinition);
     }
 
     @Test
     public void testValidFloatProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.FLOAT);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "128", propertyDefinition);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "128.34", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "128", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "128.34", propertyDefinition);
     }
 
     @Test
     public void testValidBooleanProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.BOOLEAN);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "true", propertyDefinition);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "false", propertyDefinition);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "1", propertyDefinition);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "0", propertyDefinition);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "TRUE", propertyDefinition);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "FALSE", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "true", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "false", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "1", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "0", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "TRUE", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "FALSE", propertyDefinition);
         // in fact anything can be used for boolean
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "anything", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "anything", propertyDefinition);
     }
 
     @Test
     public void testValidTimestampProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.TIMESTAMP);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "2015-01-15 00:00:00", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "2001-12-15T02:59:43.1Z", propertyDefinition);
     }
 
     @Test
     public void testValidVersionProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.VERSION);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "2.0", propertyDefinition);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "1.0.0-SNAPSHOT", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "2.0", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "1.0.0-SNAPSHOT", propertyDefinition);
     }
 
     @Test
@@ -139,21 +137,21 @@ public class ConstraintPropertyServiceTest {
     public void testInvalidIntegerProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.INTEGER);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "aaaa128", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "aaaa128", propertyDefinition);
     }
 
     @Test(expected = ConstraintValueDoNotMatchPropertyTypeException.class)
     public void testInvalidFloatProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.FLOAT);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "aaaa128", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "aaaa128", propertyDefinition);
     }
 
     @Test(expected = ConstraintValueDoNotMatchPropertyTypeException.class)
     public void testInvalidVersionProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.VERSION);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "anything", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "anything", propertyDefinition);
     }
 
     // constraint test
@@ -166,7 +164,7 @@ public class ConstraintPropertyServiceTest {
         lengthConstraint.setLength(3);
         propertyDefinition.getConstraints().add(lengthConstraint);
 
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "val", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "val", propertyDefinition);
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -178,7 +176,7 @@ public class ConstraintPropertyServiceTest {
         lengthConstraint.setLength(3);
         propertyDefinition.getConstraints().add(lengthConstraint);
 
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "value", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "value", propertyDefinition);
     }
 
     @Test(expected = ConstraintValueDoNotMatchPropertyTypeException.class)
@@ -189,7 +187,7 @@ public class ConstraintPropertyServiceTest {
         lengthConstraint.setLength(3);
         propertyDefinition.getConstraints().add(lengthConstraint);
         propertyDefinition.setType(ToscaTypes.FLOAT);
-        ConstraintPropertyService.checkSimplePropertyConstraint("test", "aaa", propertyDefinition);
+        ConstraintPropertyService.checkPropertyConstraint("test", "aaa", propertyDefinition);
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -271,9 +269,9 @@ public class ConstraintPropertyServiceTest {
         ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
     }
 
-    /////////////////////////////////////////////////////////////////
+    // ///////////////////////////////////////////////////////////////
     // Tests on complex properties validation
-    /////////////////////////////////////////////////////////////////
+    // ///////////////////////////////////////////////////////////////
 
     @Test
     public void testMapPropertyInComplex() throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
