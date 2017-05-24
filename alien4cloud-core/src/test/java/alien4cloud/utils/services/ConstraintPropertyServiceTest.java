@@ -1,7 +1,7 @@
 package alien4cloud.utils.services;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
@@ -198,7 +198,16 @@ public class ConstraintPropertyServiceTest {
         entrySchema.setType(ToscaTypes.STRING);
         propertyDefinition.setEntrySchema(entrySchema);
         Object propertyValue = ImmutableMap.builder().put("aa", "bb").build();
-        ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+        ToscaContext.init(new HashSet<>());
+        ICSARRepositorySearchService originalCsarRepositorySearchService = ToscaContext.getCsarRepositorySearchService();
+        ICSARRepositorySearchService mockSearchService = Mockito.mock(ICSARRepositorySearchService.class);
+        try {
+            ToscaContext.setCsarRepositorySearchService(mockSearchService);
+            ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+        } finally {
+            ToscaContext.setCsarRepositorySearchService(originalCsarRepositorySearchService);
+            ToscaContext.destroy();
+        }
     }
 
     @Test(expected = ConstraintValueDoNotMatchPropertyTypeException.class)
@@ -290,18 +299,22 @@ public class ConstraintPropertyServiceTest {
         dataType.getProperties().put("myMap", subPropertyDefinition);
         dataType.setElementId("alien.test.ComplexStruct");
 
-        ToscaContext.init(Collections.emptySet());
+        ICSARRepositorySearchService originalCsarRepositorySearchService = ToscaContext.getCsarRepositorySearchService();
+        ToscaContext.init(new HashSet<>());
         ICSARRepositorySearchService mockSearchService = Mockito.mock(ICSARRepositorySearchService.class);
         Mockito.when(mockSearchService.getRequiredElementInDependencies(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(dataType);
         Mockito.when(mockSearchService.getElementInDependencies(Mockito.any(), Mockito.any(), Mockito.anySet())).thenReturn(dataType);
-        ToscaContext.setCsarRepositorySearchService(mockSearchService);
-
-        // when
-        Object subPropertyValue = ImmutableMap.builder().put("aa", "bb").build();
-        Object propertyValue = ImmutableMap.builder().put("myMap", subPropertyValue).build();
-
-        // then
-        ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+        try {
+            ToscaContext.setCsarRepositorySearchService(mockSearchService);
+            // when
+            Object subPropertyValue = ImmutableMap.builder().put("aa", "bb").build();
+            Object propertyValue = ImmutableMap.builder().put("myMap", subPropertyValue).build();
+            // then
+            ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+        } finally {
+            ToscaContext.setCsarRepositorySearchService(originalCsarRepositorySearchService);
+            ToscaContext.destroy();
+        }
     }
 
     @Test(expected = ConstraintValueDoNotMatchPropertyTypeException.class)
@@ -320,17 +333,20 @@ public class ConstraintPropertyServiceTest {
         dataType.setProperties(Maps.newHashMap());
         dataType.getProperties().put("myMap", subPropertyDefinition);
         dataType.setElementId("alien.test.ComplexStruct");
-
-        ToscaContext.init(Collections.emptySet());
+        ICSARRepositorySearchService originalCsarRepositorySearchService = ToscaContext.getCsarRepositorySearchService();
+        ToscaContext.init(new HashSet<>());
         ICSARRepositorySearchService mockSearchService = Mockito.mock(ICSARRepositorySearchService.class);
         Mockito.when(mockSearchService.getRequiredElementInDependencies(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(dataType);
         Mockito.when(mockSearchService.getElementInDependencies(Mockito.any(), Mockito.any(), Mockito.anySet())).thenReturn(dataType);
-        ToscaContext.setCsarRepositorySearchService(mockSearchService);
-
-        // when
-        Object propertyValue = ImmutableMap.builder().put("myMap", "aa").build();
-
-        // then -> ConstraintViolationException
-        ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+        try {
+            ToscaContext.setCsarRepositorySearchService(mockSearchService);
+            // when
+            Object propertyValue = ImmutableMap.builder().put("myMap", "aa").build();
+            // then -> ConstraintViolationException
+            ConstraintPropertyService.checkPropertyConstraint("test", propertyValue, propertyDefinition);
+        } finally {
+            ToscaContext.setCsarRepositorySearchService(originalCsarRepositorySearchService);
+            ToscaContext.destroy();
+        }
     }
 }

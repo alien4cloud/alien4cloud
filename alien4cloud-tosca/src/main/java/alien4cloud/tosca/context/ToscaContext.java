@@ -1,20 +1,32 @@
 package alien4cloud.tosca.context;
 
-import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.tosca.model.ArchiveRoot;
+import static alien4cloud.utils.AlienUtils.safe;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.tosca.model.ArchiveRoot;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.types.*;
-
-import java.util.*;
-import java.util.function.Predicate;
-
-import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Manage thread-local tosca contexts.
@@ -22,6 +34,7 @@ import static alien4cloud.utils.AlienUtils.safe;
 @Slf4j
 public class ToscaContext {
     @Setter
+    @Getter
     private static ICSARRepositorySearchService csarRepositorySearchService;
     private final static ThreadLocal<Context> contextThreadLocal = new ThreadLocal<>();
 

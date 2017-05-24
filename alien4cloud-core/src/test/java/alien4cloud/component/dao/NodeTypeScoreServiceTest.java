@@ -13,6 +13,7 @@ import org.elasticsearch.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -24,6 +25,7 @@ import alien4cloud.utils.MapUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
+@DirtiesContext
 public class NodeTypeScoreServiceTest {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
