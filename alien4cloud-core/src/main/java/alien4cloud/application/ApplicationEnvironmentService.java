@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.application.ApplicationVersionService.DeleteApplicationVersions;
+import alien4cloud.model.orchestrators.Orchestrator;
 import org.alien4cloud.alm.events.AfterApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
@@ -131,9 +132,8 @@ public class ApplicationEnvironmentService {
      * @return An array of the environments for the requested application id.
      */
     public ApplicationEnvironment[] getByApplicationId(String applicationId) {
-        GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
-                MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } }), Integer.MAX_VALUE);
-        return result.getData();
+        Map<String, String[]> filters = MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } });
+        return alienDAO.search(ApplicationEnvironment.class, null, filters, null, null, 0, Integer.MAX_VALUE, "name.lower_case", false).getData();
     }
 
     /**

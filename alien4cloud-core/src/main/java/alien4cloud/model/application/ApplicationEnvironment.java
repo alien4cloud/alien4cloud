@@ -5,10 +5,7 @@ import static alien4cloud.dao.model.FetchContext.SUMMARY;
 import java.util.Map;
 import java.util.Set;
 
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.NestedObject;
-import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
@@ -29,7 +26,7 @@ import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
 import lombok.Getter;
 import lombok.Setter;
 
-@ESObject
+@ESObject(analyzerDefinitions = @IndexAnalyserDefinition(name = "case_insensitive_sort", filters = "lowercase", tokenizer = "keyword"))
 @Getter
 @Setter
 @JsonInclude(Include.NON_NULL)
@@ -37,7 +34,10 @@ public class ApplicationEnvironment implements ISecuredResource, IDeploymentSour
     @Id
     private String id;
     @TermFilter
-    @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
+    @StringFieldMulti(
+            main = @StringField(includeInAll = false, indexType = IndexType.not_analyzed),
+            multiNames = "lower_case",
+            multi = @StringField(includeInAll = false, indexType = IndexType.analyzed, analyser = "case_insensitive_sort" ))
     private String name;
     @TermFilter
     private String description;
