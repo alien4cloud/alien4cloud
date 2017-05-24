@@ -53,7 +53,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         try {
             getMappingBuilder().initialize("alien4cloud");
             getMappingBuilder().initialize("org.alien4cloud");
-            getMappingBuilder().parseClassMapping(AbstractToscaType.class, "");
+            getMappingBuilder().parseClassAnnotations(AbstractToscaType.class, "");
         } catch (IntrospectionException | IOException e) {
             throw new IndexingServiceException("Could not initialize elastic search mapping builder", e);
         }
@@ -94,4 +94,5 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
     private void initIndice(Class<?> clazz) {
         initIndices(clazz.getSimpleName().toLowerCase(), null, clazz);
     }
+
 }
