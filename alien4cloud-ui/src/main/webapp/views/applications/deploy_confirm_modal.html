@@ -3,18 +3,52 @@
     <h4>{{'APPLICATIONS.DEPLOY_MODAL.TITLE' | translate}}</h4>
   </div>
   <div class="modal-body">
-    {{content}}
-    <div style="overflow: auto; max-height: 300px;">
-      <div ng-repeat="(key, value) in nodeTemplates" style="padding-left: 20px;">
-        - {{key}} : {{value.name}}
+    {{'APPLICATIONS.DEPLOY_MODAL.MESSAGE' | translate}}
+    <div class = "row" style="margin-top: 10px">
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'APPLICATIONS.APPLICATION' | translate }} : </span> <span class = "detail-description">{{application}}</span>
+      </div>
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'COMMON.VERSION' | translate }} : </span> <span class = "detail-description">{{environment.currentVersionName}}</span>
+      </div>
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate }} : </span> <span class = "detail-description">{{environment.name}}</span>
+      </div>
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate }} : </span> <span class = "detail-description">{{environment.environmentType}}</span>
+      </div>
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'ORCHESTRATORS.ORCHESTRATOR' | translate }} : </span> <span class = "detail-description">{{orchestrator.name}}</span>
+      </div>
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'ORCHESTRATORS.LOCATIONS.LOCATION' | translate }} : </span> <span class = "detail-description">{{location.name}}</span>
+      </div>
+
+      <div class="col-md-12" style="margin-top: 20px;">
+        <div class="content-head">
+          <i class="fa fa-cubes"></i> {{'COMMON.RESOURCES' | translate}}
+        </div>
+        <div class="content-body" style="overflow: auto; max-height: 300px;">
+          <table class="table table-condensed" id="locationResources">
+            <tr ng-repeat="(key, value) in locationResources">
+              <td>
+                {{key}} :
+              </td>
+              <td>
+                <span style=" font-weight: 500; padding-right: 0.5em;">{{value.name}}</span> ( <i>{{value.template.type}}</i> )
+                <i ng-if = "value.service"
+                  class="fa fa-globe text-info"
+                  uib-tooltip="{{'SERVICES.SERVICE' | translate}}">
+                </i>
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
-    <br/>
-    <div>
-      {{footer}}
-    </div>
   </div>
+
   <div class="modal-footer">
-    <button class="btn btn-default" ng-click="close()">{{'CLOSE' | translate}}</button>
-    <button class="btn btn-success" ng-click="deploy()"><i class="fa fa-play"></i> {{'APPLICATIONS.DEPLOY' | translate}}</button>
+    <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+    <button class="btn btn-success" ng-click="proceed('deploy')"><i class="fa fa-play"></i> {{'APPLICATIONS.DEPLOY' | translate}}</button>
 </div>

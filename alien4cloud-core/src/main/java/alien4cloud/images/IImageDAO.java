@@ -38,4 +38,11 @@ public interface IImageDAO {
      * @param id Id of the image to delete.
      */
     void delete(String id);
+
+    /**
+     * Delete all images build from original
+     *
+     * @param id Id of the ORIGINAL image to delete
+     */
+    void deleteAll(String id);
 }

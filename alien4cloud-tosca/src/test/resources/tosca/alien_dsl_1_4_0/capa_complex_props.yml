@@ -1,0 +1,73 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: capa_complex_prop
+  template_author: alien
+  template_version: 0.1-SNAPSHOT
+
+description: Test supports of complex types on capabilities properties.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+data_types:
+  alien.test.datatypes.Custom:
+    derived_from: tosca.datatypes.Root
+    properties:
+      name:
+        type: string
+        required: false
+      groups:
+        type: list
+        required: false
+        entry_schema:
+          type: string
+
+node_types:
+  alien.test.nodes.CapaComplexProp:
+    derived_from: tosca.nodes.Root
+    capabilities:
+      testCapa:
+        type: alien.test.capabilities.CapaComplexProp
+
+capability_types:
+  alien.test.capabilities.CapaComplexProp:
+    derived_from: tosca.capabilities.Root
+    properties:
+      # test map types
+      map:
+        type: map
+        entry_schema:
+          type: string
+        required: false
+        # test default value for map properties
+        default:
+          toto: toto_value
+          tata: tata_value
+        # test custom datatypes
+      custom:
+        type: alien.test.datatypes.Custom
+        required: false
+        # test we can assign a default value
+      custom_with_default:
+        type: alien.test.datatypes.Custom
+        required: false
+        default:
+          name: defaultName
+          groups:
+            - alien
+            - fastconnect
+
+## test capabilities complex properties setting on node template
+topology_template:
+  node_templates:
+    CapaComplexProp:
+      type: alien.test.nodes.CapaComplexProp
+      capabilities:
+        testCapa:
+          properties:
+            custom:
+              name: manual
+              groups:
+                - manual_alien
+                - manual_fastconnect

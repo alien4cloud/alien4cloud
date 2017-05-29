@@ -8,13 +8,17 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import alien4cloud.model.service.ServiceResource;
 import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.context.annotation.Lazy;
@@ -27,6 +31,7 @@ import com.google.common.collect.Sets;
 import alien4cloud.deployment.matching.services.nodes.NodeMatcherService;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.AlienConstants;
@@ -105,7 +110,7 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
      * @see alien4cloud.deployment.IDeploymentNodeSubstitutionService#processNodesSubstitution(alien4cloud.model.deployment.DeploymentTopology, java.util.Map)
      */
     @Override
-    public void processNodesSubstitution(DeploymentTopology deploymentTopology, Map<String, NodeTemplate> nodesToMergeProperties) {
+    public void processNodesSubstitution(DeploymentTopology deploymentTopology, Topology topology, Map<String, NodeTemplate> nodesToMergeProperties) {
         if (MapUtils.isEmpty(deploymentTopology.getLocationGroups())) {
             // No location group is defined do nothing
             return;
@@ -133,7 +138,7 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
             if (!availableSubstitutions.containsKey(next.getKey())) {
                 originalNodesIter.remove();
             } else { // override with the latest value.
-                next.setValue(deploymentTopology.getNodeTemplates().get(next.getKey()));
+                next.setValue(topology.getNodeTemplates().get(next.getKey()));
             }
         }
 
@@ -144,7 +149,7 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
             }
             // select default values
             if (!substitutedNodes.containsKey(entry.getKey())) {
-                deploymentTopology.getOriginalNodes().put(entry.getKey(), deploymentTopology.getNodeTemplates().get(entry.getKey()));
+                deploymentTopology.getOriginalNodes().put(entry.getKey(), topology.getNodeTemplates().get(entry.getKey()));
                 if (!entry.getValue().isEmpty()) {
                     // Only take the first element as selected if no configuration has been set before
                     substitutedNodes.put(entry.getKey(), entry.getValue().iterator().next().getId());

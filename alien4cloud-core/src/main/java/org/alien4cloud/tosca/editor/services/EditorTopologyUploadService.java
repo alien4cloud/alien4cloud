@@ -8,11 +8,12 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.catalog.ArchiveParserUtil;
 import org.alien4cloud.tosca.catalog.IArchivePostProcessor;
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.exception.EditorToscaYamlInvalidException;
 import org.alien4cloud.tosca.editor.exception.EditorToscaYamlNotSupportedException;
 import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
@@ -42,7 +43,7 @@ public class EditorTopologyUploadService {
             processTopologyParseResult(archivePath, parsingResult, workspace);
         } catch (ParsingException e) {
             // Manage parsing error and dispatch them in the right editor exception
-            throw new EditorToscaYamlInvalidException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.");
+            throw new EditorToscaYamlParsingException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.", toParsingResult(e));
         }
     }
 
@@ -58,7 +59,7 @@ public class EditorTopologyUploadService {
             processTopologyParseResult(archivePath, parsingResult, workspace);
         } catch (ParsingException e) {
             // Manage parsing error and dispatch them in the right editor exception
-            throw new EditorToscaYamlParsingException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.");
+            throw new EditorToscaYamlParsingException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.", toParsingResult(e));
         }
     }
 
@@ -109,5 +110,14 @@ public class EditorTopologyUploadService {
 
         // update the topology in the edition context with the new one
         EditionContextManager.get().setTopology(parsingResult.getResult().getTopology());
+    }
+
+    private ParsingResult toParsingResult(ParsingException exception) {
+        ParsingResult<Csar> failedResult = new ParsingResult<>();
+        failedResult.setContext(ArchiveParserUtil.toParsingContext(exception.getFileName(), exception.getParsingErrors()));
+        if (StringUtils.isNotBlank(EditionContextManager.getCsar().getYamlFilePath())) {
+            failedResult.getContext().setFileName(EditionContextManager.getCsar().getYamlFilePath());
+        }
+        return failedResult;
     }
 }

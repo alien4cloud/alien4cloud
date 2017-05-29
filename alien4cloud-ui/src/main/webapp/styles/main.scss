@@ -481,3 +481,38 @@ img.icon_32 {
 .content-body {
   padding-left: 0.5em;
 }
+
+
+/*parsing errors*/
+.parsing-error-table tr td:last-child {
+  white-space: pre-wrap;
+  width: 70%;
+  text-align: center;
+}
+
+.detail-term {
+  padding-top: 0.5em;
+  font-weight: 500;
+  text-align: left;
+  display: inline-block;
+  width: 50%;
+}
+
+.detail-description {
+  display: inline-block;
+}
+
+.info-sm .fa {
+  font-size: 1.5em;
+}
+
+.info-lg .fa {
+  font-size: 2em;
+}
+.info-popover {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+.info-popover-sm, .info-popover-lg {
+  max-width: 400px;
+}

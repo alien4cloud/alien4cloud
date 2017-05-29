@@ -92,7 +92,6 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     @ToscaContextual
     public void indexInheritableElement(String archiveName, String archiveVersion, AbstractInheritableToscaType element,
             Collection<CSARDependency> dependencies) {
-        // FIXME do we need all the merge in case of substitution ?
         if (CollectionUtils.isNotEmpty(element.getDerivedFrom())) {
             boolean deriveFromSimpleType = false;
             String parentId = element.getDerivedFrom().get(0);
@@ -111,10 +110,16 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
 
     private void deleteElement(AbstractToscaType element) {
         Tag iconTag = ArchiveImageLoader.getIconTag(element.getTags());
-        if (iconTag != null) {
-            imageDAO.delete(iconTag.getValue());
-        }
         alienDAO.delete(element.getClass(), element.getId());
+        if (iconTag != null) {
+            if (!hasElementWithTag(element.getClass(), iconTag.getName(), iconTag.getValue())) {
+                imageDAO.deleteAll(iconTag.getValue());
+            }
+        }
+    }
+
+    private boolean hasElementWithTag(Class<? extends AbstractToscaType> typeClass, String tagKey, String tagValue) {
+        return alienDAO.buildQuery(typeClass).setFilters(fromKeyValueCouples("tags.name", tagKey, "tags.value", tagValue)).count() > 0;
     }
 
     @Override

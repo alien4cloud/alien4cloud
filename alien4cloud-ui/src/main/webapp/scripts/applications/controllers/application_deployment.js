@@ -120,13 +120,15 @@ define(function(require) {
         //////////////////////////////////////
         ///  CONFIRMATION BEFORE UNDEPLOYMENT
         ///
-        var UndeployConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName', 'nodeTemplates', 'environment', 'archiveVersion',
-          function($scope, $uibModalInstance, $translate, applicationName, nodeTemplates, environment, archiveVersion) {
-            $scope.nodeTemplates = nodeTemplates;
-            $scope.content = $translate.instant('APPLICATIONS.UNDEPLOY_MODAL.CONTENT.HEADER', {
-              'application': applicationName,
-              'version': archiveVersion
+        var UndeployConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName', 'topologyDTO', 'environment',
+          function($scope, $uibModalInstance, $translate, applicationName, topologyDTO, environment) {
+            $scope.deployedVersion = topologyDTO.topology.archiveVersion;
+            $scope.locationResources = {};
+            _.each(_.keys(topologyDTO.topology.substitutedNodes), function(name){
+              $scope.locationResources[name] = topologyDTO.topology.nodeTemplates[name];
             });
+            $scope.application = applicationName;
+            $scope.environment = environment;
 
             $scope.undeploy = function () {
               $uibModalInstance.close();
@@ -159,16 +161,14 @@ define(function(require) {
               applicationName: function() {
                 return $scope.application.name;
               },
-              nodeTemplates: function() {
-                return $scope.deployedContext.dto.topology.substitutedNodes;
+              topologyDTO: function() {
+                return $scope.deployedContext.dto;
               },
               environment: function() {
                 return $scope.deploymentContext.selectedEnvironment;
-              },
-              archiveVersion: function() {
-                return $scope.deployedContext.dto.topology.archiveVersion;
               }
-            }
+            },
+            size: 'lg'
           });
 
           modalInstance.result.then(function() {

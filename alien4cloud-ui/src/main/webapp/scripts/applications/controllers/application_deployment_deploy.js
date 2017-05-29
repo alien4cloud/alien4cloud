@@ -42,24 +42,20 @@ define(function(require) {
         ////////////////////////////////////////////
         ///  CONFIRMATION BEFORE DEPLOYMENT / UPDATE
         ///
-        var ConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName', 'nodeTemplates', 'locationName', 'orchestratorName', 'environment', 'modalType',
-          function($scope, $uibModalInstance, $translate, applicationName, nodeTemplates, locationName, orchestratorName, environment, modalType) {
-            $scope.nodeTemplates = nodeTemplates;
-            $scope.content = $translate.instant('APPLICATIONS.' + modalType + '.CONTENT.HEADER', {
-              'application': applicationName,
-              'type': environment.environmentType,
-              'version': environment.currentVersionName
-            });
-            $scope.footer = $translate.instant('APPLICATIONS.' + modalType + '.CONTENT.FOOTER', {
-              'location': locationName,
-              'orchestrator': orchestratorName
-            });
+        var ConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName', 'deploymentContext',
+          function($scope, $uibModalInstance, $translate, applicationName, deploymentContext) {
+            $scope.locationResources = deploymentContext.deploymentTopologyDTO.topology.substitutedNodes;
+            $scope.application = applicationName;
+            $scope.environment = deploymentContext.selectedEnvironment;
+            $scope.location = deploymentContext.selectedLocation;
+            $scope.orchestrator = _.get(_.find(deploymentContext.locationMatches, {orchestrator: {id: deploymentContext.selectedLocation.orchestratorId}}), 'orchestrator');
+            // location.orchestrator
 
-            $scope.deploy = function () {
-              $uibModalInstance.close();
+            $scope.proceed = function (action) {
+              $uibModalInstance.close(action);
             };
-            $scope.close = function () {
-              $uibModalInstance.dismiss();
+            $scope.cancel = function () {
+              $uibModalInstance.dismiss('canceled');
             };
           }
         ];
@@ -107,55 +103,33 @@ define(function(require) {
           });
         }
 
-        $scope.openModal = function(modalType) {
-          var templateUrl;
-          if (modalType === 'DEPLOY_MODAL') {
-            templateUrl = 'views/applications/deploy_confirm_modal.html';
-          } else {
-            templateUrl = 'views/applications/update_confirm_modal.html';
-          }
-          var orchestratorName;
-          _.each($scope.deploymentContext.locationMatches, function(location) {
-            if (location.orchestrator.id === $scope.deploymentContext.selectedLocation.orchestratorId) {
-              orchestratorName = location.orchestrator.name;
-              return;
-            }
-          });
-
+        var openModal = function(templateUrl, modalType, proceedFunction) {
           var modalInstance = $uibModal.open({
             templateUrl: templateUrl,
             controller: ConfirmationModalCtrl,
             resolve: {
-              modalType: function() {
-                return modalType;
-              },
               applicationName: function() {
                 return $scope.application.name;
               },
-              nodeTemplates: function() {
-                return $scope.deploymentContext.deploymentTopologyDTO.topology.substitutedNodes;
-              },
-              locationName: function() {
-                return $scope.deploymentContext.selectedLocation.name;
-              },
-              orchestratorName: function() {
-                return orchestratorName;
-              },
-              environment: function() {
-                return $scope.deploymentContext.selectedEnvironment;
+              deploymentContext: function() {
+                return $scope.deploymentContext;
               }
-            }
+            },
+            size: 'lg'
           });
 
           modalInstance.result.then(function() {
-            if ('DEPLOY_MODAL') {
-              doDeploy();
-            } else {
-              doUpdate();
-            }
+            proceedFunction();
           });
         };
 
+        $scope.deploy = function(){
+          openModal('views/applications/deploy_confirm_modal.html', 'DEPLOY_MODAL', doDeploy);
+        };
+
+        $scope.update = function(){
+          openModal('views/applications/update_confirm_modal.html', 'UPDATE_MODAL', doUpdate);
+        };
 
         /**
         * DEPLOYMENT PROPERTIES

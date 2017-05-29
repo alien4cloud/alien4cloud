@@ -185,6 +185,11 @@ public class ApplicationVersionService {
      */
     public void createTopologyVersion(String applicationId, String versionId, String qualifier, String description, String originalId,
             boolean originalIsVersion) {
+        // validate the qualifier first if not null
+        if (qualifier != null) {
+            VersionUtil.isQualifierValidOrFail(qualifier);
+        }
+
         // Get the version from elastic-search
         ApplicationVersion applicationVersion = getOrFail(versionId);
         Topology topology;
@@ -218,12 +223,14 @@ public class ApplicationVersionService {
         if (qualifier == null || qualifier.isEmpty()) {
             return version;
         }
-        int snapshotIndex = version.indexOf("-SNAPSHOT");
+
+        int qualifierIndex = version.indexOf("-");
+
         String prefix = version;
         String suffix = "";
-        if (snapshotIndex > 0) {
-            prefix = version.substring(0, snapshotIndex) + version.substring(snapshotIndex + 9, version.length());
-            suffix = "-SNAPSHOT";
+        if (qualifierIndex > 0) {
+            prefix = version.substring(0, qualifierIndex);
+            suffix = version.substring(qualifierIndex, version.length());
         }
         return prefix + "-" + qualifier + suffix;
     }
@@ -376,14 +383,32 @@ public class ApplicationVersionService {
     }
 
     /**
-     * Delete all versions related to an application.
+     * Ensure that every versions of the application can be deleted, throw an exception if not.
      *
-     * @param applicationId The application id.
+     * @param applicationId The id of the application to be deleted.
      */
-    public void deleteByApplication(String applicationId) {
+    public DeleteApplicationVersions prepareDeleteByApplication(String applicationId) {
         ApplicationVersion[] versions = getByApplicationId(applicationId);
-        for (ApplicationVersion version : versions) {
-            deleteVersion(version);
+        return new DeleteApplicationVersions(versions);
+    }
+
+    /**
+     * This object is returned by the prepareDeleteByApplication operation to ensure that we don't trigger a delete without having performed a check first.
+     */
+    public class DeleteApplicationVersions {
+        private ApplicationVersion[] versions;
+
+        DeleteApplicationVersions(ApplicationVersion[] versions) {
+            this.versions = versions;
+        }
+
+        /**
+         * Delete all versions related to an application.
+         */
+        public void delete() {
+            for (ApplicationVersion version : versions) {
+                deleteVersion(version);
+            }
         }
     }
 
@@ -394,19 +419,23 @@ public class ApplicationVersionService {
      */
     public void delete(String applicationVersionId) {
         ApplicationVersion applicationVersion = getOrFail(applicationVersionId);
+        deleteCheck(applicationVersion);
+        deleteVersion(applicationVersion);
+    }
+
+    private void deleteCheck(ApplicationVersion applicationVersion) {
         // check that this is not the last version
         if (alienDAO.buildQuery(ApplicationVersion.class).setFilters(fromKeyValueCouples("applicationId", applicationVersion.getApplicationId()))
                 .count() == 1) {
             throw new DeleteLastApplicationVersionException(
-                    "Application version with id [" + applicationVersionId + "] can't be be deleted as it is the last application version.");
+                    "Application version with id [" + applicationVersion.getId() + "] can't be be deleted as it is the last application version.");
         }
-        // check that the version is not used
+        // check that the version is not used by an environment
         ApplicationEnvironment usage = findAnyApplicationVersionUsage(applicationVersion.getApplicationId(), applicationVersion.getVersion());
         if (usage != null) {
-            throw new DeleteReferencedObjectException(
-                    "Application version with id [" + applicationVersionId + "] could not be deleted as it is used by environment [" + usage.getName() + "]");
+            throw new DeleteReferencedObjectException("Application version with id [" + applicationVersion.getId()
+                    + "] could not be deleted as it is used by environment [" + usage.getName() + "]");
         }
-        deleteVersion(applicationVersion);
     }
 
     private void deleteVersion(ApplicationVersion version) {
@@ -531,7 +560,7 @@ public class ApplicationVersionService {
             Usage usage = null;
             Deployment deployment = applicationEnvironmentService.getActiveDeployment(environment.getId());
             if (deployment != null) {
-                String usageName = " [App (" + deployment.getSourceName() + "), Env (" + environment.getName() + ")]";
+                String usageName = " App (" + deployment.getSourceName() + "), Env (" + environment.getName() + ")";
                 usage = new Usage(usageName, "Deployment", deployment.getId(), null);
             }
             return usage;

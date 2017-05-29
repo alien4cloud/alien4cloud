@@ -14,20 +14,15 @@
     "AUTHORIZED" : "application autorisée",
     "DEPLOY" : "Déployer",
     "DEPLOY_MODAL": {
-      "CONTENT": {
-        "HEADER" : "Êtes-vous certain de vouloir déployer l'application {{application}} de type {{type}} en version {{version}} avec le matching suivant:",
-        "FOOTER": "Sur la location {{location}} de l'orchestrateur {{orchestrator}} ?"
-      },
-      "TITLE": "Informations concernant le déploiement"
+      "MESSAGE": "Vous êtes sur le point de déployer ce qui suit:",
+      "RESOURCES_TO_CREATE": "Resources à creer",
+      "TITLE": "Informations de déploiement"
     },
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
     "UPDATE_MODAL": {
-      "CONTENT": {
-        "DOCUMENTATION": "Pour plus d'information sur la mise à jour d'un déploiement veuillez consulter notre ",
-        "HEADER" : "Êtes-vous certain de vouloir mettre à jour l'application {{application}} de type {{type}} en version {{version}} avec le matching suivant:",
-        "FOOTER": "Sur la location {{location}} de l'orchestrateur {{orchestrator}} ?"
-      },
-      "TITLE": "Informations sur la mise à jour"
+      "MESSAGE": "Vous êtes sur le point de mettre à jour ce qui suit:",
+      "DOCUMENTATION": "Plus d'informations sur la mise à jour de déploiements...",
+      "TITLE": "Informations de mise à jour"
     },
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",
@@ -245,14 +240,15 @@
         "LABEL" : "La topologie n'est pas valide :",
         "NODE_FILTER" : {
           "CAPABILITY_MISSING_ERROR" : "La cible de posséde pas cette capacité",
-          "CAPABILITY_NAME" : "Nom de la capacité",
+          "CAPABILITY" : "Capacité",
           "NODE_FILTER_INVALID" : "NodeFilters non statisfaits",
           "PROPERTY_CONSTRAINT_VIOLATION_ERROR" : "L'une des contraintes sur cette propriété n'ai pas respectée",
           "PROPERTY_MISSING_ERROR" : "La cible de posséde pas cette propriété",
-          "PROPERTY_NAME" : "Nom de la propriété",
+          "PROPERTY" : "Propriété",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "Le type de la propriété cible est invalide"
         },
         "RELATED_INPUT" : "Propriétée d'entrée",
+        "RELATIONSHIP": "Relation",
         "REPLACE" : "Remplacer par l'un des noeuds suggérés",
         "REPLACE_LABEL" : "A remplacer",
         "REQUIRED_PROPERTIES_LABEL" : "Propriétés obligatoires",
@@ -302,10 +298,8 @@
     },
     "UNDEPLOY" : "Désinstaller",
     "UNDEPLOY_MODAL": {
-      "CONTENT": {
-        "HEADER" : "Êtes-vous certain de vouloir désinstaller l'application {{application}} en version {{version}} ?",
-        "FOOTER": "Les noeud(s) suivant seront donc supprimé(s) :"
-      },
+      "MESSAGE": "Vous êtes sur le point de dsintaller ce qui suit:",
+      "RESOURCES_TO_UNINSTALL": "Ressources à désinstaller",
       "TITLE": "Informations concernant la désinstallation"
     },
     "VERSION" : {
@@ -533,11 +527,11 @@
       "ERRONEOUS_ARCHIVE_FILE" : "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",
       "FAILED_TO_READ_FILE" : "Impossible de lire le fichier à l'emplacement suivant {{note}}",
       "FILE_PATH" : "Fichier",
-      "INVALID_ARTIFACT_REFERENCE" : "Référence d'artifact invalide {{note}}",
-      "INVALID_ICON_FORMAT" : "L'icône n'est pas un fichier d'image supporté",
-      "INVALID_NAME" : "Nom de {{context}} [ {{problem}} ] incorrect, renommé en [ {{note}} ].",
+      "INVALID_ARTIFACT_REFERENCE" : "Référence d'artifact invalide {{note}}.",
+      "INVALID_ICON_FORMAT" : "L'icône n'est pas un fichier d'image supporté.",
+      "INVALID_NAME" : "Nom de {{context}} [{{problem}}] incorrect. Renommé en [{{note}}].",
       "INVALID_SCALAR_UNIT" : "Le type attendu est un Tosca scalar unit. L'unité et la valeur sont nécessaire.",
-      "INVALID_YAML" : "Le fichier reférencé n'est pas conforme au format YAML.",
+      "INVALID_YAML" : "Le fichier reférencé n'est pas conforme au format YAML,\n({{problem}}).",
       "LABEL" : "Erreurs",
       "MISSING_DEPENDENCY" : "La dépendance [{{note}}] est introuvable dans le repository Alien4Cloud.",
       "MISSING_FILE" : "Le fichier référencé {{note}} n'existe pas dans l'archive.",
@@ -551,7 +545,7 @@
       "REQUIREMENT_CAPABILITY_NOT_FOUND" : "La capacité correspondant au requirement [{{note}}] n'a pas pu être identifée.",
       "REQUIREMENT_NOT_FOUND" : "La définition du requirement [{{note}}] est introuvable.",
       "REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED" : "Le nom du node_template est requis pour la définition d'un requirement, il doit être définit en tant que valeur d'un noeud 'node'.",
-      "REQUIREMENT_TARGET_NOT_FOUND" : "La cible du requirement [{{note}}] n'exite pas.",
+      "REQUIREMENT_TARGET_NOT_FOUND" : "La cible de requirement [{{note}}] n'exite pas.",
       "SINGLE_DEFINITION_SUPPORTED" : "Alien4Cloud ne supporte actuellement qu'un unique fichier de definitions.",
       "SNAPSHOT_DEPENDENCY" : "Une dépendence snapshot [{{note}}] n'est pas autorisée dans une archive releasée.",
       "SYNTAX_ERROR" : "Erreur de syntaxe. La définition Yaml pour le type {{note}} ne correspond pas à la spécification.",
@@ -582,7 +576,8 @@
       "YAML_MAPPING_NODE_EXPECTED" : "Un noeud de type mapping est attendu.",
       "YAML_SCALAR_NODE_EXPECTED" : "Un noeud YAML de type scalar est attendu ici.",
       "YAML_SEQUENCE_EXPECTED" : "Une séquence YAML est attendu.",
-      "CSAR_IMPORT_ITSELF": "Une archive ne peut pas s'importer elle même."
+      "CSAR_IMPORT_ITSELF": "Une archive ne peut pas s'importer elle même.",
+      "UNSUPPORTED_SUBSTITUTION": "La substitution n'est pas supportée dans une archive qui définit des types"
     },
     "VALIDSOURCES" : "Sources valides",
     "WORKSPACE" : "Workspaces"
@@ -693,6 +688,8 @@
         "GLOBAL_REPOSITORIES" : "Dépôt global",
         "ID" : "Identifiant",
         "LOCAL" : "Local",
+        "LOCAL_FS" : "Système de fichier local",
+        "A4C_CSAR" : "CSAR",
         "MUST_BE_UNIQUE" : "L'identifiant de repository doit être unique pour cette archive",
         "NEW_REPOSITORY" : "Nouveau dépôt",
         "REMOTE" : "Distant",
@@ -1071,6 +1068,7 @@
   },
   "SELECT" : "Selectionner",
   "SERVICES" : {
+    "SERVICE": "Service",
     "CATALOG": "Catalogue des services",
     "DETAIL" : {
       "BACK" : "Retour au catalogue",

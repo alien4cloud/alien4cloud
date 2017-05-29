@@ -6,7 +6,13 @@ import javax.annotation.Resource;
 
 import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
 import org.alien4cloud.alm.service.exceptions.ServiceUsageException;
-import org.alien4cloud.tosca.editor.exception.*;
+import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
+import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
+import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
+import org.alien4cloud.tosca.editor.exception.PropertyValueException;
+import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
+import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
+import org.alien4cloud.tosca.editor.exception.UnmatchedElementPatternException;
 import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
@@ -31,7 +37,13 @@ import alien4cloud.exception.*;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
-import alien4cloud.paas.exception.*;
+import alien4cloud.paas.exception.ComputeConflictNameException;
+import alien4cloud.paas.exception.EmptyMetaPropertyException;
+import alien4cloud.paas.exception.MissingPluginException;
+import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
+import alien4cloud.paas.exception.PaaSDeploymentException;
+import alien4cloud.paas.exception.PaaSDeploymentIOException;
+import alien4cloud.paas.exception.PaaSUndeploymentException;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.rest.csar.CsarUploadResult;
 import alien4cloud.rest.csar.CsarUploadUtil;
@@ -482,7 +494,7 @@ public class RestTechnicalExceptionHandler {
     @ExceptionHandler(value = EditorToscaYamlParsingException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RestResponse<CsarUploadResult> editorToscaYamlUpdateException(EditorToscaYamlParsingException e) {
+    public RestResponse<CsarUploadResult> editorToscaYamlParsingException(EditorToscaYamlParsingException e) {
         log.error("Error in topology tosca yaml detected", e);
         return RestResponseBuilder.<CsarUploadResult> builder().data(CsarUploadUtil.toUploadResult(e.getParsingResult()))
                 .error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build()).build();

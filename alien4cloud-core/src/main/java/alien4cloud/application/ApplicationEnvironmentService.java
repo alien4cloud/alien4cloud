@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.application.ApplicationVersionService.DeleteApplicationVersions;
+import alien4cloud.model.orchestrators.Orchestrator;
 import org.alien4cloud.alm.events.AfterApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
@@ -32,7 +34,11 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.deployment.*;
+import alien4cloud.deployment.DeploymentLockService;
+import alien4cloud.deployment.DeploymentRuntimeStateService;
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.deployment.DeploymentTopologyService;
+import alien4cloud.deployment.OrchestratorPropertiesValidationService;
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
@@ -126,9 +132,8 @@ public class ApplicationEnvironmentService {
      * @return An array of the environments for the requested application id.
      */
     public ApplicationEnvironment[] getByApplicationId(String applicationId) {
-        GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
-                MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } }), Integer.MAX_VALUE);
-        return result.getData();
+        Map<String, String[]> filters = MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } });
+        return alienDAO.search(ApplicationEnvironment.class, null, filters, null, null, 0, Integer.MAX_VALUE, "name.lower_case", false).getData();
     }
 
     /**
@@ -148,53 +153,59 @@ public class ApplicationEnvironmentService {
      *
      * @param id The id of the version to delete.
      */
-    public boolean delete(String id) {
-        ApplicationEnvironment applicationEnvironment = getOrFail(id);
-        boolean isDeployed = isDeployed(id);
-
-        if (isDeployed) {
-            throw new DeleteDeployedException("Application environment with id <" + id + "> cannot be deleted since it is deployed");
-        }
-
-        failIfExposedAsService(applicationEnvironment);
-
-        publisher.publishEvent(new BeforeApplicationEnvironmentDeleted(this, applicationEnvironment.getApplicationId(), applicationEnvironment.getId()));
-        alienDAO.delete(ApplicationEnvironment.class, id);
-        publisher.publishEvent(new AfterApplicationEnvironmentDeleted(this, applicationEnvironment.getApplicationId(), applicationEnvironment.getId()));
-        return true;
+    public void delete(String id) {
+        ApplicationEnvironment environment = getOrFail(id);
+        deleteCheck(environment);
+        deleteEnvironment(environment);
     }
 
     /**
-     * Delete all environments related to an application
+     * Ensure that every versions of the application can be deleted, throw an exception if not.
      *
-     * @param applicationId The application id
+     * @param applicationId The id of the application to be deleted.
      */
-    public void deleteByApplication(String applicationId) {
-        List<String> deployedEnvironments = Lists.newArrayList();
-        List<String> exposedServiceEnvironments = Lists.newArrayList();
+    public DeleteApplicationEnvironments prepareDeleteByApplication(String applicationId) {
         ApplicationEnvironment[] environments = getByApplicationId(applicationId);
         for (ApplicationEnvironment environment : environments) {
-            try {
-                delete(environment.getId());
-            } catch (DeleteDeployedException e) {
-                // collect all deployed environment
-                deployedEnvironments.add(environment.getId());
-            } catch (DeleteReferencedObjectException e) {
-                // collect all exposed as service environment
-                exposedServiceEnvironments.add(environment.getId());
-            }
+            deleteCheck(environment);
         }
-        // couln't delete deployed environment
-        if (!deployedEnvironments.isEmpty()) {
-            // error could not deployed all app environment for this applcation
-            log.error("Cannot delete these deployed environments : {}", deployedEnvironments.toString());
+        return new DeleteApplicationEnvironments(environments);
+    }
+
+    /**
+     * This object is returned by the prepareDeleteByApplication operation to ensure that we don't trigger a delete without having performed a check first.
+     */
+    public class DeleteApplicationEnvironments {
+        private ApplicationEnvironment[] environments;
+
+        DeleteApplicationEnvironments(ApplicationEnvironment[] environments) {
+            this.environments = environments;
         }
 
-        // couln't delete exposed as service environment
-        if (!exposedServiceEnvironments.isEmpty()) {
-            // error could not deployed all app environment for this applcation
-            log.error("Cannot delete these environments exposed as service: {}", exposedServiceEnvironments.toString());
+        /**
+         * Delete all versions related to an application.
+         */
+        public void delete() {
+            for (ApplicationEnvironment environment : environments) {
+                deleteEnvironment(environment);
+            }
         }
+    }
+
+    private void deleteCheck(ApplicationEnvironment environment) {
+        boolean isDeployed = isDeployed(environment.getId());
+
+        if (isDeployed) {
+            throw new DeleteDeployedException("Application environment with id <" + environment + "> cannot be deleted since it is deployed");
+        }
+
+        failIfExposedAsService(environment);
+    }
+
+    private void deleteEnvironment(ApplicationEnvironment environment) {
+        publisher.publishEvent(new BeforeApplicationEnvironmentDeleted(this, environment.getApplicationId(), environment.getId()));
+        alienDAO.delete(ApplicationEnvironment.class, environment.getId());
+        publisher.publishEvent(new AfterApplicationEnvironmentDeleted(this, environment.getApplicationId(), environment.getId()));
     }
 
     /**
@@ -212,8 +223,8 @@ public class ApplicationEnvironmentService {
      * 
      * @return true if the environment is currently deployed
      */
-    public boolean isDeployed(String appEnvironmentId) {
-        return getActiveDeployment(appEnvironmentId) != null;
+    public boolean isDeployed(String environmentId) {
+        return alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("environmentId", environmentId, "endDate", null)).count() > 0;
     }
 
     /**
@@ -364,12 +375,20 @@ public class ApplicationEnvironmentService {
                 DeploymentSubstitutionConfiguration substitutionConfiguration = deploymentTopologyService
                         .getAvailableNodeSubstitutions(targetDeploymentTopology);
                 // Update the substitution on the target if available substitution is always compatible
-                sourceDeploymentTopology.getSubstitutedNodes().entrySet().stream()
+                Map<String, String> validOnNewEnvSubstitutedNodes = sourceDeploymentTopology.getSubstitutedNodes().entrySet().stream()
                         .filter(entry -> substitutionConfiguration.getAvailableSubstitutions().containsKey(entry.getKey())
                                 && substitutionConfiguration.getAvailableSubstitutions().get(entry.getKey()).contains(entry.getValue()))
-                        .forEach(entry -> {
-                            deploymentTopologyService.updateSubstitution(target.getId(), entry.getKey(), entry.getValue());
-                        });
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                if (MapUtils.isNotEmpty(validOnNewEnvSubstitutedNodes)) {
+                    validOnNewEnvSubstitutedNodes.forEach((key, value) -> {
+                        deploymentTopologyService.updateSubstitution(target.getId(), key, value);
+                    });
+                    // Copy properties set on the node to the new one
+                    deploymentTopologyService.processDeploymentTopologyNodeSubstitutions(deploymentTopologyService.getDeploymentTopology(target),
+                            sourceDeploymentTopology.getNodeTemplates().entrySet().stream()
+                                    .filter(entry -> validOnNewEnvSubstitutedNodes.containsKey(entry.getKey()))
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                }
             }
         }
     }

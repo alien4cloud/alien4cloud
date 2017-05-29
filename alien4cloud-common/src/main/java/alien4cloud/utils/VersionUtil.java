@@ -1,9 +1,9 @@
 package alien4cloud.utils;
 
+import java.util.regex.Pattern;
+
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.Version;
-
-import java.util.regex.Pattern;
 
 public final class VersionUtil {
 
@@ -21,7 +21,8 @@ public final class VersionUtil {
      * and then it can have alpha numeric bloc separated by '.' or '-'
      */
     public static final Pattern VERSION_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*(?:[\\.-]\\p{Alnum}+)*");
-    private static final String SNAPSHOT_IDENTIFIER = "-SNAPSHOT";
+    public static final String SNAPSHOT_IDENTIFIER = "-SNAPSHOT";
+    public static final Pattern QUALIFIER_PATTERN = Pattern.compile("^((?!.*snapshot)[a-zA-Z0-9\\-_]+)*$", Pattern.CASE_INSENSITIVE);
 
     /**
      * Check if a version is a SNAPSHOT (development) version.
@@ -76,5 +77,27 @@ public final class VersionUtil {
      */
     public static int compare(String versionLeft, String versionRight) {
         return parseVersion(versionLeft).compareTo(parseVersion(versionRight));
+    }
+
+    /**
+     * Check if a qualifier is valid
+     *
+     * @param qualifier qualifier string to parse
+     * @return true if it's following the defined pattern {@link VersionUtil#QUALIFIER_PATTERN}
+     */
+    public static boolean isQualifierValid(String qualifier) {
+        return qualifier != null && QUALIFIER_PATTERN.matcher(qualifier).matches();
+    }
+
+    /**
+     * Check if a qualifier is valid or throw a alien4cloud.utils.version.InvalidVersionException
+     *
+     * @param qualifier qualifier text to check
+     * @throws alien4cloud.utils.version.InvalidVersionException if the qualifier text is not following the defined pattern
+     */
+    public static void isQualifierValidOrFail(String qualifier) {
+        if (!isQualifierValid(qualifier)) {
+            throw new InvalidVersionException("This qualifier [" + qualifier + "] is not valid as it does not match [" + QUALIFIER_PATTERN + "]");
+        }
     }
 }

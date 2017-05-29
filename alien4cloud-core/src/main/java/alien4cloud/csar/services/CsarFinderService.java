@@ -1,6 +1,8 @@
 package alien4cloud.csar.services;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -11,7 +13,6 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.GitException;
@@ -83,18 +84,11 @@ public class CsarFinderService {
 
         @SneakyThrows
         private boolean isToscaFile(Path path) {
-            if (isYamlFile(path.getFileName()) && readFirstLine(path).startsWith("tosca_definitions_version")) {
-                return true;
-            }
-            return false;
+            return isYamlFile(path) && readFirstLine(path).startsWith("tosca_definitions_version");
         }
 
-        private boolean isYamlFile(Path fileName) {
-            File file = new File(fileName.toString());
-            if (file.isFile() && fileName.toString().endsWith(".yaml") || fileName.toString().endsWith(".yml")) {
-                return true;
-            }
-            return false;
+        private boolean isYamlFile(Path file) {
+            return Files.isRegularFile(file) && (file.getFileName().toString().endsWith(".yaml") || file.getFileName().toString().endsWith(".yml"));
         }
 
         /**

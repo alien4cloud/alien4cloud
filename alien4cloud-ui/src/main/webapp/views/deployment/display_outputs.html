@@ -10,9 +10,9 @@
     <i ng-if="collapsable" class="fa" ng-class="{'fa-caret-down' : !isoutputsCollapsed, 'fa-caret-right': isoutputsCollapsed}"></i>
   </div>
   <div uib-collapse="isoutputsCollapsed" class="content-body">
-    <span ng-if="!isNotEmpty(outputPropertiesValue) && !isNotEmpty(outputAttributesValue)" class="empty-place-holder" style="padding: 0px">{{'APPLICATIONS.TOPOLOGY.NO_OUTPUTS' | translate}}</span>
-    <table ng-if="_.isNotEmpty(outputPropertiesValue) || _.isNotEmpty(outputAttributesValue)" class="table table-condensed" id="outputPropertiesTable">
-      <tr ng-repeat="nodeId in outputNodes" ng-if="outputAttributesValue[nodeId] || outputPropertiesValue[nodeId] || outputCapabilityPropertiesValue[nodeId]">
+    <span ng-if="isEmptyOutpts()" class="empty-place-holder" style="padding: 0px">{{'APPLICATIONS.TOPOLOGY.NO_OUTPUTS' | translate}}</span>
+    <table ng-if="!isEmptyOutpts()" class="table table-condensed" id="outputPropertiesTable">
+      <tr ng-repeat="nodeId in outputNodes" ng-if="somethingToDisplay(nodeId)">
         <td>
           <span>{{nodeId}}</span>
         </td>

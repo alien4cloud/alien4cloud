@@ -48,15 +48,6 @@ public class AuthenticationStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postUrlEncoded("/login", nvps));
     }
 
-    @When("^I create a new user with username \"([^\"]*)\" and password \"([^\"]*)\" in the system$")
-    public void I_create_a_new_user_with_name_and_password_in_the_system(String username, String password) throws Throwable {
-        CreateUserRequest request = new CreateUserRequest();
-        request.setUsername(username);
-        request.setPassword(password);
-        request.setEmail(username + "@alien4cloud.org");
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/users/", JsonUtil.toString(request)));
-    }
-
     @When("^I authenticate with \"([^\"]*)\" role$")
     public void I_authenticate_with_role(String role) throws Throwable {
         I_am_authenticated_with_role(role);
@@ -90,6 +81,15 @@ public class AuthenticationStepDefinitions {
         default:
             throw new PendingException();
         }
+    }
+
+    @When("^I create a new user with username \"([^\"]*)\" and password \"([^\"]*)\" in the system$")
+    public void I_create_a_new_user_with_name_and_password_in_the_system(String username, String password) throws Throwable {
+        CreateUserRequest request = new CreateUserRequest();
+        request.setUsername(username);
+        request.setPassword(password);
+        request.setEmail(username + "@alien4cloud.org");
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/users/", JsonUtil.toString(request)));
     }
 
     @Given("^There is a \"([^\"]*)\" user in the system$")

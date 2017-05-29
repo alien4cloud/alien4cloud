@@ -59,7 +59,6 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     @Inject
     private DeploymentLoggingService deploymentLoggingService;
 
-
     private static final String BAD_APPLICATION_THAT_NEVER_WORKS = "BAD-APPLICATION";
 
     private static final String WARN_APPLICATION_THAT_NEVER_WORKS = "WARN-APPLICATION";
@@ -486,7 +485,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    public void setConfiguration(ProviderConfig configuration) throws PluginConfigurationException {
+    public void setConfiguration(String orchestratorId, ProviderConfig configuration) throws PluginConfigurationException {
         log.info("In the plugin configurator <" + this.getClass().getName() + ">");
         try {
             log.info("The config object Tags is : {}", JsonUtil.toString(configuration.getTags()));

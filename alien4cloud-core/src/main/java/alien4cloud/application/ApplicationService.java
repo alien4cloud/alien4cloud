@@ -11,9 +11,14 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.application.ApplicationEnvironmentService.DeleteApplicationEnvironments;
+import alien4cloud.application.ApplicationVersionService.DeleteApplicationVersions;
+import alien4cloud.images.ImageDAO;
+import alien4cloud.model.application.ApplicationVersion;
 import org.alien4cloud.alm.events.AfterApplicationDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import org.elasticsearch.common.lang3.ArrayUtils;
+import org.elasticsearch.common.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -44,8 +49,10 @@ public class ApplicationService {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private ApplicationVersionService applicationVersionService;
-    @Inject
+    @Resource
     private ApplicationEventPublisher publisher;
+    @Resource
+    private ImageDAO imageDAO;
 
     /**
      * Create a new application and return it's id
@@ -165,16 +172,22 @@ public class ApplicationService {
      * @return True if the application has been removed, false if not.
      */
     public boolean delete(String applicationId) {
-        // ensure that there is no active deployment(s).
+        // Removal of a deployed application is not authorized
         if (alienDAO.count(Deployment.class, null, fromKeyValueCouples("sourceId", applicationId, "endDate", null)) > 0) {
             return false;
         }
-        // delete the application
-        applicationVersionService.deleteByApplication(applicationId);
-        applicationEnvironmentService.deleteByApplication(applicationId);
-        // Clean up other resources
+        // Ensure that application related resources can be removed.
+        Application application = getOrFail(applicationId);
+        DeleteApplicationVersions deleteApplicationVersions = applicationVersionService.prepareDeleteByApplication(applicationId);
+        DeleteApplicationEnvironments deleteApplicationEnvironments = applicationEnvironmentService.prepareDeleteByApplication(applicationId);
+        // Delete the application.
+        deleteApplicationVersions.delete();
+        deleteApplicationEnvironments.delete();
         publisher.publishEvent(new BeforeApplicationDeleted(this, applicationId));
         alienDAO.delete(Application.class, applicationId);
+        if (application != null && StringUtils.isNotBlank(application.getImageId())) {
+            imageDAO.deleteAll(application.getImageId());
+        }
         publisher.publishEvent(new AfterApplicationDeleted(this, applicationId));
         return true;
     }

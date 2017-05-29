@@ -572,7 +572,8 @@
       "YAML_MAPPING_NODE_EXPECTED" : "A mapping node is expected.",
       "YAML_SCALAR_NODE_EXPECTED" : "A YAML node of type scalar is expected here.",
       "YAML_SEQUENCE_EXPECTED" : "A YAML sequence is expected.",
-      "CSAR_IMPORT_ITSELF": "An archive is not allowed to import itself."
+      "CSAR_IMPORT_ITSELF": "An archive is not allowed to import itself.",
+      "UNSUPPORTED_SUBSTITUTION": "Substitution is not supported on archive that defines types."
     },
     "VALIDSOURCES" : "Valid sources",
     "WORKSPACE" : "Workspaces"
@@ -683,6 +684,8 @@
         "GLOBAL_REPOSITORIES" : "Global repositories",
         "ID" : "Repository ID",
         "LOCAL" : "Local",
+        "LOCAL_FS" : "Local file system",
+        "A4C_CSAR" : "CSAR",
         "MUST_BE_UNIQUE" : "Repository ID must be unique for this archive",
         "NEW_REPOSITORY" : "New repository",
         "REMOTE" : "Remote",

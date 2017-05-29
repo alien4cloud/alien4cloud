@@ -51,9 +51,16 @@ define(function (require) {
   var NewApplicationTopologyVersionCtrl = ['$scope', '$uibModalInstance',
   function($scope, $uibModalInstance) {
     $scope.selectTopoVersion = true;
-    $scope.qualifierPattern = new RegExp('^(?:[a-zA-Z0-9\\-_]+)*$');
+    //regex:
+    // - do not allow 'snapshot' string,
+    //- allow all alphanumeric char
+    //- "i" ==>ignore case
+
+    $scope.qualifierPattern = new RegExp('^((?!.*snapshot)[a-zA-Z0-9\\-_]+)*$', 'i');
     $scope.appTopoVersion = {};
     $scope.fromIndex = 1;
+    // NOTE /// This is only for visual. The generated topology version is not actually sent to the server.
+    // NOTE /// So Make sure to match what is generated here with what is done on the backend side
     var prefix = $scope.selectedVersion.version;
     var suffix = '';
     var qualifierIndex = $scope.selectedVersion.version.indexOf('-');

@@ -179,7 +179,7 @@ public class OrchestratorStateService {
         try {
             Object configuration = orchestratorConfigurationService.configurationAsValidObject(orchestrator.getId(),
                     orchestratorConfiguration.getConfiguration());
-            orchestratorInstance.setConfiguration(configuration);
+            orchestratorInstance.setConfiguration(orchestrator.getId(), configuration);
         } catch (IOException e) {
             throw new PluginConfigurationException("Failed convert configuration json in object.", e);
         }

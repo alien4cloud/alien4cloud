@@ -4,15 +4,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.web.client.RestClientException;
-
-import alien4cloud.model.deployment.DeploymentTopology;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.ScalingPolicy;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.web.client.RestClientException;
+
+import com.google.common.collect.Maps;
+
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.IllegalDeploymentStateException;
@@ -28,8 +28,7 @@ import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.utils.MapUtil;
-
-import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<ProviderConfig> {
@@ -69,8 +68,8 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
                 doDeploy(deploymentContext);
                 break;
             default:
-                throw new IllegalDeploymentStateException("Topology [" + deploymentId + "] is in illegal status [" + deploymentStatus
-                        + "] and cannot be deployed");
+                throw new IllegalDeploymentStateException(
+                        "Topology [" + deploymentId + "] is in illegal status [" + deploymentStatus + "] and cannot be deployed");
             }
         } finally {
             providerLock.writeLock().unlock();
@@ -83,7 +82,8 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
     }
 
     @Override
-    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
         callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), deploymentContext.getDeploymentTopology()));
     }
 
@@ -127,7 +127,7 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
     }
 
     @Override
-    public void setConfiguration(ProviderConfig configuration) throws PluginConfigurationException {
+    public void setConfiguration(String orchestratorId, ProviderConfig configuration) throws PluginConfigurationException {
         // TODO Auto-generated method stub
 
     }
@@ -143,16 +143,18 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
             case UNDEPLOYED:
                 throw new PaaSNotYetDeployedException("Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
             case UNKNOWN:
-                throw new IllegalDeploymentStateException("Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
+                throw new IllegalDeploymentStateException(
+                        "Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
             case DEPLOYMENT_IN_PROGRESS:
             case FAILURE:
             case DEPLOYED:
             case WARNING:
                 doUndeploy(deploymentContext);
+                callback.onSuccess(null);
                 break;
             default:
-                throw new IllegalDeploymentStateException("Application [" + deploymentId + "] is in illegal status [" + deploymentStatus
-                        + "] and cannot be undeployed");
+                throw new IllegalDeploymentStateException(
+                        "Application [" + deploymentId + "] is in illegal status [" + deploymentStatus + "] and cannot be undeployed");
             }
         } finally {
             providerLock.writeLock().unlock();

@@ -57,6 +57,7 @@ public class DeploymentTopologyValidationService {
     private TopologyServiceCore topologyServiceCore;
     @Inject
     private TopologyServiceInterfaceOverrideCheckerService topologyServiceInterfaceOverrideCheckerService;
+
     /**
      * Perform validation of a deployment topology.
      *

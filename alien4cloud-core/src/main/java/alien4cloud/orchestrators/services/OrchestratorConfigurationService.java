@@ -126,9 +126,9 @@ public class OrchestratorConfigurationService {
         configuration.setConfiguration(oldConfigurationObj);
 
         // Trigger update of the orchestrator's configuration if enabled.
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.get(id);
+        IOrchestratorPlugin orchestratorInstance = orchestratorPluginService.get(id);
         if (orchestratorInstance != null) {
-            orchestratorInstance.setConfiguration(oldConfigurationObj);
+            orchestratorInstance.setConfiguration(id, oldConfigurationObj);
         }
 
         alienDAO.save(configuration);

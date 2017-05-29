@@ -1,6 +1,7 @@
 package alien4cloud.topology.task;
 
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class NodeFilterToSatisfy {
 
     @NoArgsConstructor
     public static class Violations {
+        public String capabilityName;
         public String propertyName;
         public String relatedInput;
         public List<NodeFilterConstraintViolation> violatedConstraints;

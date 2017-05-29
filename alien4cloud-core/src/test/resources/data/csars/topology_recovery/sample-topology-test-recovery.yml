@@ -46,6 +46,14 @@ topology_template:
             node: TestComponent
             capability: alien.test.capabilities.CapaToBeDeleted
             relationship: alien.test.relationships.CapaToBeDeleted
+        - req_to_be_changed:
+            node: TestComponent
+            capability: alien.test.capabilities.ReqToBeChanged
+            relationship: alien.test.relationships.ReqToBeChanged
+#        - capa_to_be_changed:
+#            node: TestComponent
+#            capability: alien.test.capabilities.CapaToBeChanged
+#            relationship: alien.test.relationships.CapaToBeChanged
     TestComponent:
       type: alien.test.nodes.TestComponent
       requirements:

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
 
 import com.google.common.collect.Maps;
@@ -22,6 +23,8 @@ public class LocationResourceTypes {
     private Map<String, NodeType> configurationTypes = Maps.newHashMap();
     @ApiModelProperty(value = "Map of node types id, node type used to configure the templates of on-demand resources in a location.")
     private Map<String, NodeType> nodeTypes = Maps.newHashMap();
+    @ApiModelProperty(value = "Map of data types id, data type used to configure the templates of on-demand resources in a location.")
+    private Map<String, DataType> dataTypes = Maps.newHashMap();
     @ApiModelProperty(value = "List of recommended node types ID, e.g. defined at the orchestrator level")
     private Set<String> providedTypes = Sets.newHashSet();
     @ApiModelProperty(value = "Map that contains the capability types used by the configuration types or node types.")
@@ -34,6 +37,7 @@ public class LocationResourceTypes {
     public LocationResourceTypes(LocationResourceTypes locationResourceTypes) {
         this.configurationTypes = locationResourceTypes.getConfigurationTypes();
         this.nodeTypes = locationResourceTypes.getNodeTypes();
+        this.dataTypes = locationResourceTypes.getDataTypes();
         this.capabilityTypes = locationResourceTypes.getCapabilityTypes();
         this.allNodeTypes = locationResourceTypes.getAllNodeTypes();
         this.onDemandTypes = locationResourceTypes.getOnDemandTypes();

@@ -28,8 +28,7 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     private List<PaaSNodeTemplate> roots;
 
     @Override
-    public void setConfiguration(String configuration) throws PluginConfigurationException {
-
+    public void setConfiguration(String orchestratorId, String configuration) throws PluginConfigurationException {
     }
 
     @Override

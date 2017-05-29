@@ -57,8 +57,10 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.CSARSource;
+import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
+import alien4cloud.tosca.parser.ParserTestUtil;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.AlienConstants;
@@ -219,10 +221,10 @@ public class EditorStepDefs {
 
     private void uploadCsar(Path path) throws Throwable {
         ParsingResult<Csar> result = csarUploadService.upload(path, CSARSource.UPLOAD, AlienConstants.GLOBAL_WORKSPACE_ID);
-        Assert.assertFalse(result.hasError(ParsingErrorLevel.ERROR));
         if (result.getContext().getParsingErrors().size() > 0) {
-            System.out.println(result);
+            ParserTestUtil.displayErrors(result);
         }
+        Assert.assertFalse(result.hasError(ParsingErrorLevel.ERROR));
     }
 
     @Given("^I cleanup archives$")
@@ -285,10 +287,18 @@ public class EditorStepDefs {
         SpelExpressionParser parser = new SpelExpressionParser(config);
         for (Map.Entry<String, String> operationEntry : operationMap.entrySet()) {
             if (!"type".equals(operationEntry.getKey())) {
-                parser.parseRaw(operationEntry.getKey()).setValue(operationContext, operationEntry.getValue());
+                parser.parseRaw(operationEntry.getKey()).setValue(operationContext, getValue(operationEntry.getValue()));
             }
         }
         doExecuteOperation(operation, topologyIds.get(indexOfTopologyId));
+    }
+
+    private Object getValue(String rawValue) throws Throwable {
+        String value = rawValue.trim();
+        if (value.startsWith("{") && value.endsWith("}")) {
+            return JsonUtil.toMap(value);
+        }
+        return value;
     }
 
     @Given("^I execute the operation$")

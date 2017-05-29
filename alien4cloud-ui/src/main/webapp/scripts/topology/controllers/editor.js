@@ -286,7 +286,8 @@ define(function (require) {
                 infoType: 'danger'
               };
             }
-          }
+          },
+          size: 'lg'
         });
       };
 

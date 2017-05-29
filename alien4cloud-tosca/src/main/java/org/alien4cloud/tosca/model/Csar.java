@@ -84,6 +84,7 @@ public class Csar implements IManagedSecuredResource, IWorkspaceResource {
     private String license;
 
     /** Archive metadata. */
+    @NestedObject(nestedClass = Tag.class)
     private List<Tag> tags;
 
     /** Alien 4 Cloud meta-data to know how the archive has been imported. */

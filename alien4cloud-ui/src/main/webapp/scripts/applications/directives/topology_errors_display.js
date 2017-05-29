@@ -4,6 +4,7 @@ define(function(require) {
   var modules = require('modules');
 
   var appModule = modules.get('a4c-applications');
+  var _ = require('lodash');
 
   appModule.directive('propertiesErrorsDisplay', function() {
     return {
@@ -36,7 +37,8 @@ define(function(require) {
         'tasks': '=',
         'inputColumn': '='
       },
-      link: function (){
+      link: function (scope){
+        scope._ = _;
       }
     };
   });

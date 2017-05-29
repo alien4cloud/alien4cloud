@@ -34,7 +34,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.TechnicalException;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.AlienUtils;
@@ -135,20 +135,21 @@ public class EditorTopologyRecoveryHelperService {
                     continue;
                 }
 
-                // check if the type is from the current archive. if so then we should rebuild the relationship template
-                if (isFrom(relationshipType, updatedDependency)) {
-                    try {
-                        // check if the relationship is still valid, ie the related requirement and capability still exist within the related types
-                        validateRelationShip(nodeTemplate, relationshipTemplate, topology);
+                try {
+                    // check if the relationship is still valid
+                    validateRelationShip(nodeTemplate, relationshipTemplate, topology);
+                    // check if the type is from the current archive. if so then we should rebuild the relationship template
+                    if (isFrom(relationshipType, updatedDependency)) {
                         // FIXME instead of systematically rebuilding the relationship, maybe check what really changed in the type before rebuilding it?
+                        // FIXME Check the relationship is still valid concerning valid source/targets
                         addRebuildRelationshipOperation(nodeTemplate, relationshipTemplate, recoveryOperations);
-                    } catch (Exception e) {
-                        // remove the relationship if an error occurs
-                        if (log.isDebugEnabled()) {
-                            log.debug("Error when trying to recover a relationship", e);
-                        }
-                        addDeleteRelationshipOperation(nodeTemplate, relationshipTemplate, recoveryOperations);
                     }
+                } catch (Exception e) {
+                    // remove the relationship if an error occurs
+                    if (log.isDebugEnabled()) {
+                        log.debug("Error when trying to recover a relationship", e);
+                    }
+                    addDeleteRelationshipOperation(nodeTemplate, relationshipTemplate, recoveryOperations);
                 }
             }
         }
@@ -162,39 +163,56 @@ public class EditorTopologyRecoveryHelperService {
      * @param topology The related topology
      */
     private void validateRelationShip(NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate, Topology topology) {
-        // validate that the node itself still has the requirement
-        checkRequirement(relationshipTemplate.getRequirementName(), nodeTemplate);
+        // This call should never throw a NotFoundException
+        NodeType nodeType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
+        // validate the requirement
+        checkRequirement(relationshipTemplate, nodeTemplate, nodeType);
         // validate the targeted capability
         checkCapability(relationshipTemplate.getTargetedCapabilityName(), topology.getNodeTemplates().get(relationshipTemplate.getTarget()));
     }
 
     /**
-     * validate that a node still has the requirement, by checking directly from the related node type
-     * 
-     * @param requirementName The name of the requirement to check
+     * validate the requirement:<br>
+     * <ul>
+     * <li>Check that a node still has the requirement, by checking directly from the related node type</li>
+     * <li>Check that the requirement type of the node hasn't changed</li>
+     * </ul>
+     *
+     * @param relationshipTemplate The name of the requirement to check
      * @param nodeTemplate The node template in which to check for the requirement
+     * @param nodeType
+     * @throws InvalidStateException when something is wrong
      */
-    private void checkRequirement(String requirementName, NodeTemplate nodeTemplate) {
-        // This call should never throw a NotFoundException
-        NodeType indexedNodeType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
-        Map<String, RequirementDefinition> requirementMap = AlienUtils.fromListToMap(indexedNodeType.getRequirements(), "id", true);
-        if (!AlienUtils.safe(requirementMap).containsKey(requirementName)) {
-            throw new NotFoundException("A requirement with name [" + requirementName + "] cannot be found in the node [" + nodeTemplate.getName() + "].");
+    private void checkRequirement(RelationshipTemplate relationshipTemplate, NodeTemplate nodeTemplate, NodeType nodeType) {
+        Map<String, RequirementDefinition> requirementMap = AlienUtils.fromListToMap(nodeType.getRequirements(), "id", true);
+        if (!AlienUtils.safe(requirementMap).containsKey(relationshipTemplate.getRequirementName())) {
+            throw new InvalidStateException(
+                    "A requirement with name [" + relationshipTemplate.getName() + "] cannot be found in the node [" + nodeTemplate.getName() + "].");
+        }
+
+        // check that the requirement type hasn't changed
+        RequirementDefinition requirement = AlienUtils.safe(requirementMap).get(relationshipTemplate.getRequirementName());
+        if (!Objects.equals(requirement.getType(), relationshipTemplate.getRequirementType())) {
+            // the requirementType has changed. delete the relationship
+            // TODO check if this requirement is compatible with the previous one, and mabey try to rebuild the relationship
+            throw new InvalidStateException(
+                    "The type of the requirement [" + relationshipTemplate.getRequirementName() + "], node [" + nodeTemplate.getName() + "] has changed");
         }
     }
 
     /**
      * validate that a node still has a capability, by checkibg directly from the related node type
-     *
+     * 
      * @param capabilityName The name of the capability to check
      * @param nodeTemplate The node template in which to check for the capability
      */
     private void checkCapability(String capabilityName, NodeTemplate nodeTemplate) {
+        // FIXME check if the relationship is still valid concerning binded capability
         // This call should never throw a NotFoundException
         NodeType indexedNodeType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
         Map<String, CapabilityDefinition> capabilitiesMap = AlienUtils.fromListToMap(indexedNodeType.getCapabilities(), "id", true);
         if (!AlienUtils.safe(capabilitiesMap).containsKey(capabilityName)) {
-            throw new NotFoundException("A capability with name [" + capabilityName + "] cannot be found in the node [" + nodeTemplate.getName() + "].");
+            throw new InvalidStateException("A capability with name [" + capabilityName + "] cannot be found in the node [" + nodeTemplate.getName() + "].");
         }
     }
 
@@ -309,6 +327,12 @@ public class EditorTopologyRecoveryHelperService {
     public void processRecoveryOperations(Topology topology, Collection<AbstractEditorOperation> operations) {
         for (AbstractEditorOperation recoveryOperation : AlienUtils.safe(operations)) {
             editorService.process(recoveryOperation);
+        }
+    }
+
+    private class InvalidStateException extends TechnicalException {
+        public InvalidStateException(String message) {
+            super(message);
         }
     }
 }

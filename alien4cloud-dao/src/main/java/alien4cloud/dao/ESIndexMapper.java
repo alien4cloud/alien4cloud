@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -109,6 +110,12 @@ public abstract class ESIndexMapper {
 
                 String mapping = jsonMapper.writeValueAsString(typesMap);
                 createIndexRequestBuilder.addMapping(typeName, mapping);
+
+                // add settings if any (including analysers definitions)
+                String indexSettings = mappingBuilder.getIndexSettings(clazz);
+                if(StringUtils.isNotBlank(indexSettings)){
+                    createIndexRequestBuilder.setSettings(indexSettings);
+                }
             }
             try {
                 final CreateIndexResponse createResponse = createIndexRequestBuilder.execute().actionGet();

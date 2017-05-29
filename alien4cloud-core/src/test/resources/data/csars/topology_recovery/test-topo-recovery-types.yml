@@ -32,6 +32,12 @@ node_types:
       - req_to_be_deleted:
           capability: alien.test.capabilities.ReqToBeDeleted
           relationship: alien.test.relationships.ReqToBeDeleted
+      - req_to_be_changed:
+          capability: alien.test.capabilities.ReqToBeChanged
+          relationship: alien.test.relationships.ReqToBeChanged
+#      - capa_to_be_changed:
+#          capability: alien.test.capabilities.CapaToBeChanged
+#          relationship: alien.test.relationships.CapaToBeChanged
 
   alien.test.nodes.TestComponent:
     derived_from: tosca.nodes.SoftwareComponent
@@ -48,6 +54,10 @@ node_types:
         type: alien.test.capabilities.CapaToBeDeleted
       req_to_be_deleted:
         type: alien.test.capabilities.ReqToBeDeleted
+      req_to_be_changed:
+        type: alien.test.capabilities.ReqToBeChanged
+#      capa_to_be_changed:
+#        type: alien.test.capabilities.CapaToBeChanged
 
 capability_types:
   alien.test.capabilities.TestComponentConnects:
@@ -60,6 +70,10 @@ capability_types:
     derived_from: tosca.capabilities.Node
   alien.test.capabilities.CapaToBeDeleted:
     derived_from: tosca.capabilities.Node
+  alien.test.capabilities.ReqToBeChanged:
+    derived_from: tosca.capabilities.Node
+#  alien.test.capabilities.CapaToBeChanged:
+#    derived_from: tosca.capabilities.Node
 
 relationship_types:
   alien.test.relationships.TestComponentConnectsTo:
@@ -72,3 +86,7 @@ relationship_types:
     derived_from: tosca.relationships.DependsOn
   alien.test.relationships.CapaToBeDeleted:
     derived_from: tosca.relationships.DependsOn
+  alien.test.relationships.ReqToBeChanged:
+    derived_from: tosca.relationships.DependsOn
+#  alien.test.relationships.CapaToBeChanged:
+#    derived_from: tosca.relationships.DependsOn

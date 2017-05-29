@@ -123,7 +123,7 @@ public class OrchestratorServiceTest {
         Mockito.when(orchestratorConfigurationService.getConfigurationOrFail(orchestrator.getId())).thenReturn(configuration);
         initializeAndWait();
 
-        Mockito.verify(orchestratorPlugin, Mockito.times(1)).setConfiguration((String) configuration.getConfiguration());
+        Mockito.verify(orchestratorPlugin, Mockito.times(1)).setConfiguration(orchestrator.getId(), configuration.getConfiguration());
         Mockito.verify(orchestratorPluginService, Mockito.times(1)).register(orchestrator.getId(), orchestratorPlugin);
         IOrchestratorPluginFactory fatory = orchestratorService.getPluginFactory(orchestrator);
         Mockito.verify(archiveIndexer, Mockito.times(1)).indexOrchestratorArchives(fatory, fatory.newInstance());
@@ -153,7 +153,7 @@ public class OrchestratorServiceTest {
         Mockito.when(orchestratorConfigurationService.configurationAsValidObject(orchestrator.getId(), configuration.getConfiguration()))
                 .thenReturn(DEFAULT_CLOUD_CONFIGURATION);
 
-        Mockito.doThrow(PluginConfigurationException.class).when(orchestratorPlugin).setConfiguration((String) configuration.getConfiguration());
+        Mockito.doThrow(PluginConfigurationException.class).when(orchestratorPlugin).setConfiguration(orchestrator.getId(), configuration.getConfiguration());
 
         initializeAndWait();
 

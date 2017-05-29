@@ -1,4 +1,4 @@
-# Mapping definition for alien 4 cloud specific dsl 1.3.0
+# Mapping definition for alien 4 cloud specific dsl 1.4.0
 
 # declare custom parsers for complex types that requires specific parser.
 - scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
@@ -58,7 +58,6 @@
     map: artifactTypes
     key: elementId
     type: artifact_type
-    # inputs:
   topology_template:
     reference: topology
     type: topology_template_type
@@ -173,7 +172,6 @@
     list: constraints
     type: constraint
 
-# capability definition
 - capability_definition: org.alien4cloud.tosca.model.definitions.CapabilityDefinition
   description: description
   type: type
@@ -246,6 +244,7 @@
     get_input: tosca_function
     get_property: tosca_function
     get_attribute: get_attribute
+    concat: tosca_concat
   default: abstract_property_value
 
 - input: __discriminator

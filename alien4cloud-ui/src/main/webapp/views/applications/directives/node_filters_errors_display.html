@@ -7,15 +7,16 @@
 
   <div uib-collapse="isToImplementNodesCollapsed" >
     <div ng-repeat=" task in tasks">
-      <span>{{task.nodeTemplateName}} :</span>
+      <p><span style="font-weight: 500">{{'COMMON.NODE' | translate}} : </span> <span>{{task.nodeTemplateName}}</span></p>
 
-      <div ng-repeat=" nodeFilterToSatisfy in task.nodeFiltersToSatisfy">
-        <span style="padding-left: 5px;">{{nodeFilterToSatisfy.relationshipName}} :</span>
-        <!-- node_filters capabilities -->
+      <div style="padding-left: 5px;" ng-repeat=" nodeFilterToSatisfy in task.nodeFiltersToSatisfy">
+          <span style="font-weight: 500"> {{'APPLICATIONS.TOPOLOGY.TASK.RELATIONSHIP' | translate}}: </span><span>{{nodeFilterToSatisfy.relationshipName}}</span>
+          <span style="font-weight: 500; margin-left: 2em"> {{'COMMON.TARGET' | translate}}: </span><span>{{nodeFilterToSatisfy.targetName}}</span>
+        <!-- node_filters missing capabilities -->
         <table class="table table-condensed" ng-if="_.isNotEmpty(nodeFilterToSatisfy.missingCapabilities)">
           <thead>
-            <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.CAPABILITY_NAME' | translate}}</th>
-            <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
+            <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.CAPABILITY' | translate}}</th>
+            <th>{{'COMMON.MESSAGE' | translate}}</th>
           </thead>
           <tbody>
             <tr ng-repeat="(missingCapabilityName, missingCapability) in nodeFilterToSatisfy.missingCapabilities">
@@ -28,20 +29,24 @@
             </tr>
           </tbody>
         </table>
-        <!-- node_filters properties -->
+        <!-- node_filters (capabilities) properties -->
         <table class="table table-condensed" ng-if="_.isNotEmpty(nodeFilterToSatisfy.violations)">
           <thead>
-            <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.PROPERTY_NAME' | translate}}</th>
+            <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.CAPABILITY' | translate}}</th>
+            <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.PROPERTY' | translate}}</th>
             <th ng-if="inputColumn">{{ 'APPLICATIONS.TOPOLOGY.TASK.RELATED_INPUT' | translate }}</th>
-            <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
+            <th>{{'COMMON.MESSAGE' | translate}}</th>
           </thead>
           <tbody>
             <tr ng-repeat= "violation in nodeFilterToSatisfy.violations">
               <td>
+                {{violation.capabilityName || '---'}}
+              </td>
+              <td>
                 {{violation.propertyName}}
               </td>
               <td ng-if="inputColumn">
-                  {{violation.relatedInput || '---' }}
+                {{violation.relatedInput || '---' }}
               </td>
               <td>
                 {{violation.violatedConstraints[0].message}}

@@ -1,5 +1,7 @@
 package alien4cloud.deployment;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -17,6 +19,7 @@ import org.alien4cloud.tosca.model.templates.Requirement;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.alien4cloud.tosca.utils.FunctionEvaluator;
+import org.alien4cloud.tosca.utils.FunctionEvaluatorContext;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
@@ -70,12 +73,15 @@ public class InputsPreProcessorService {
     public Map<String, PropertyValue> injectInputValues(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
         topologyCompositionService.processTopologyComposition(topology);
         Map<String, PropertyValue> inputs = computeInputs(deploymentTopology, environment);
+
         if (deploymentTopology.getNodeTemplates() != null) {
+            FunctionEvaluatorContext evaluatorContext = new FunctionEvaluatorContext(deploymentTopology, inputs);
+
             for (Entry<String, NodeTemplate> entry : deploymentTopology.getNodeTemplates().entrySet()) {
                 NodeTemplate nodeTemplate = entry.getValue();
                 NodeTemplate initialNodeTemplate = topology.getNodeTemplates().get(entry.getKey());
                 mergeGetInputProperties(initialNodeTemplate.getProperties(), nodeTemplate.getProperties());
-                processGetInput(deploymentTopology, nodeTemplate, null, inputs, nodeTemplate.getProperties());
+                processGetInput(evaluatorContext, nodeTemplate, nodeTemplate.getProperties());
 
                 // process relationships
                 if (nodeTemplate.getRelationships() != null) {
@@ -83,7 +89,7 @@ public class InputsPreProcessorService {
                         RelationshipTemplate relationshipTemplate = relEntry.getValue();
                         Map<String, AbstractPropertyValue> initialProperties = getInitialRelationshipProperties(relEntry.getKey(), initialNodeTemplate);
                         mergeGetInputProperties(initialProperties, relationshipTemplate.getProperties());
-                        processGetInput(deploymentTopology, relationshipTemplate, null, inputs, relationshipTemplate.getProperties());
+                        processGetInput(evaluatorContext, relationshipTemplate, relationshipTemplate.getProperties());
                     }
                 }
                 if (nodeTemplate.getCapabilities() != null) {
@@ -91,7 +97,15 @@ public class InputsPreProcessorService {
                         Capability capability = capaEntry.getValue();
                         Map<String, AbstractPropertyValue> capaInitialProps = getInitialCapabilityProperties(capaEntry.getKey(), initialNodeTemplate);
                         mergeGetInputProperties(capaInitialProps, capability.getProperties());
-                        processGetInput(deploymentTopology, nodeTemplate, capability, inputs, capability.getProperties());
+                        processGetInput(evaluatorContext, nodeTemplate, capability.getProperties());
+                    }
+                }
+                if (nodeTemplate.getRequirements() != null) {
+                    for (Entry<String, Requirement> requirementEntry : nodeTemplate.getRequirements().entrySet()) {
+                        Requirement requirement = requirementEntry.getValue();
+                        Map<String, AbstractPropertyValue> capaInitialProps = getInitialRequirementProperties(requirementEntry.getKey(), initialNodeTemplate);
+                        mergeGetInputProperties(capaInitialProps, requirement.getProperties());
+                        processGetInput(evaluatorContext, nodeTemplate, requirement.getProperties());
                     }
                 }
             }
@@ -138,7 +152,6 @@ public class InputsPreProcessorService {
     }
 
     /**
-     *
      * Set the value of the not found getInput functions to null
      *
      * @param deploymentTopology
@@ -248,32 +261,11 @@ public class InputsPreProcessorService {
         }
     }
 
-    private void processGetInput(Topology topology, AbstractTemplate template, Capability capability, Map<String, PropertyValue> inputs,
-            Map<String, AbstractPropertyValue> properties) {
-        if (properties != null) {
-            for (Map.Entry<String, AbstractPropertyValue> propEntry : properties.entrySet()) {
-                if (propEntry.getValue() instanceof FunctionPropertyValue) {
-                    FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
-                    if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
-                        String inputName = function.getParameters().get(0);
-                        PropertyValue value = inputs.get(inputName);
-                        // if not null, replace the input value. Otherwise, let it as a function for validation purpose later
-                        if (value != null) {
-                            propEntry.setValue(value);
-                        }
-                    } else if (ToscaFunctionConstants.GET_PROPERTY.equals(function.getFunction()) && template instanceof NodeTemplate) {
-                        AbstractPropertyValue propertyValue = FunctionEvaluator.getProperty(topology, (NodeTemplate) template, capability, function);
-                        if (propertyValue instanceof PropertyValue) {
-                            propEntry.setValue(propertyValue);
-                        } else {
-                            log.warn("Function <{}> detected for property <{}> while only <get_input and get_property> should be authorized.",
-                                    function.getFunction(), propEntry.getKey());
-                        }
-                    } else {
-                        log.warn("Function <{}> detected for property <{}> while only <get_input and get_property(limited on nodes)> should be authorized.",
-                                function.getFunction(), propEntry.getKey());
-                    }
-                }
+    private void processGetInput(FunctionEvaluatorContext evaluatorContext, AbstractTemplate template, Map<String, AbstractPropertyValue> properties) {
+        for (Map.Entry<String, AbstractPropertyValue> propEntry : safe(properties).entrySet()) {
+            PropertyValue value = FunctionEvaluator.resolveValue(evaluatorContext, template, properties, propEntry.getValue());
+            if (value != null) {
+                propEntry.setValue(value);
             }
         }
     }
@@ -288,46 +280,6 @@ public class InputsPreProcessorService {
                                 function.getFunction(), propEntry.getKey());
                     }
                     propEntry.setValue(null);
-                }
-            }
-        }
-    }
-
-    /**
-     * Clean input values from the deployment topologies node templates and put back the getinput functions.
-     *
-     * @param deploymentTopology The deployment topology to clean.
-     * @param topology The initial topology.
-     */
-    public void cleanInputValues(DeploymentTopology deploymentTopology, Topology topology) {
-        topologyCompositionService.processTopologyComposition(topology);
-        if (deploymentTopology.getNodeTemplates() != null) {
-            for (Entry<String, NodeTemplate> entry : deploymentTopology.getNodeTemplates().entrySet()) {
-                NodeTemplate nodeTemplate = entry.getValue();
-                NodeTemplate initialNodeTemplate = topology.getNodeTemplates().get(entry.getKey());
-                mergeGetInputProperties(initialNodeTemplate.getProperties(), nodeTemplate.getProperties());
-
-                // process relationships
-                if (nodeTemplate.getRelationships() != null) {
-                    for (Entry<String, RelationshipTemplate> relEntry : nodeTemplate.getRelationships().entrySet()) {
-                        RelationshipTemplate relationshipTemplate = relEntry.getValue();
-                        Map<String, AbstractPropertyValue> initialProperties = getInitialRelationshipProperties(relEntry.getKey(), initialNodeTemplate);
-                        mergeGetInputProperties(initialProperties, relationshipTemplate.getProperties());
-                    }
-                }
-                if (nodeTemplate.getCapabilities() != null) {
-                    for (Entry<String, Capability> capaEntry : nodeTemplate.getCapabilities().entrySet()) {
-                        Capability capability = capaEntry.getValue();
-                        Map<String, AbstractPropertyValue> capaInitialProps = getInitialCapabilityProperties(capaEntry.getKey(), initialNodeTemplate);
-                        mergeGetInputProperties(capaInitialProps, capability.getProperties());
-                    }
-                }
-                if (nodeTemplate.getRequirements() != null) {
-                    for (Entry<String, Requirement> requirementEntry : nodeTemplate.getRequirements().entrySet()) {
-                        Requirement capability = requirementEntry.getValue();
-                        Map<String, AbstractPropertyValue> reqInitialProps = getInitialRequirementProperties(requirementEntry.getKey(), initialNodeTemplate);
-                        mergeGetInputProperties(reqInitialProps, capability.getProperties());
-                    }
                 }
             }
         }

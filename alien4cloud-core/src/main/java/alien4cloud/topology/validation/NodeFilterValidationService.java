@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.FilterDefinition;
@@ -21,6 +23,8 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.normative.types.IPropertyType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -34,10 +38,6 @@ import alien4cloud.topology.task.NodeFilterToSatisfy;
 import alien4cloud.topology.task.NodeFilterToSatisfy.Violations;
 import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.TaskCode;
-import org.alien4cloud.tosca.normative.types.IPropertyType;
-import org.alien4cloud.tosca.normative.types.ToscaTypes;
-import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
-import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 
 /**
  * Performs validation of node filters for all relationship of topology.
@@ -212,6 +212,7 @@ public class NodeFilterValidationService {
             if (nodeFilterToSatisfy.getViolations() == null) {
                 nodeFilterToSatisfy.setViolations(Lists.<Violations> newArrayList());
             }
+            violations.forEach(violation -> violation.capabilityName = capabilityName);
             nodeFilterToSatisfy.getViolations().addAll(violations);
         }
     }

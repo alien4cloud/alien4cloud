@@ -14,6 +14,8 @@ public enum ErrorCode {
     CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE,
     /** The csar is importing itself **/
     CSAR_IMPORT_ITSELF,
+    /* Cannot define a type and use it as substitute in the same archive */
+    UNSUPPORTED_SUBSTITUTION,
     /** The csar's dependency is not visible from the target workspace. */
     DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE,
     /** The csar is used in an active deployment (It cannot be overrided). */

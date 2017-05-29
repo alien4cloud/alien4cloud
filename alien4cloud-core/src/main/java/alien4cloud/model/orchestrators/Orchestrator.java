@@ -1,8 +1,6 @@
 package alien4cloud.model.orchestrators;
 
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
@@ -21,7 +19,7 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@ESObject
+@ESObject(analyzerDefinitions = @IndexAnalyserDefinition(name = "case_insensitive_sort", filters = "lowercase", tokenizer = "keyword"))
 @ApiModel(value = "Orchestrator.", description = "An orchestrator is alien 4 cloud is a software engine that alien 4 cloud connects to in order to orchestrate"
         + " a topology deployment. An orchestrator may manage one or multiple locations.")
 public class Orchestrator {
@@ -31,6 +29,11 @@ public class Orchestrator {
     @NotBlank
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
+
+    @StringFieldMulti(
+            main = @StringField(indexType = IndexType.not_analyzed),
+            multiNames = "lower_case",
+            multi = @StringField(includeInAll = false, indexType = IndexType.analyzed, analyser = "case_insensitive_sort" ))
     private String name;
 
     /** Information on the plugin used to communicate with the orchestrator. */

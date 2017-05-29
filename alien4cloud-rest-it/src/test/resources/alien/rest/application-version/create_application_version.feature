@@ -243,3 +243,15 @@ Feature: Create application version
     Given I create an application with name "attackgondor", archive name "attackgondor", description "Send Mordor armies to march on Gondor." and topology template id "null"
     When I create an application version for application "watchmiddleearth" with version "0.2.0-SNAPSHOT", description "A great new version.", topology template id "null" and previous version id "attackgondor:0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 102
+
+  @reset
+  Scenario: Creating a new application topology version with a snapshot in qualifier name should fail
+    # Create an application
+    When I create an application topology version for application "watchmiddleearth" version "watchmiddleearth:0.1.0-SNAPSHOT" with qualifier "SNAPSHOT", description "topology for development environment", topology template id "null" and previous version id "null"
+    Then I should receive a RestResponse with an error code 605
+    When I create an application topology version for application "watchmiddleearth" version "watchmiddleearth:0.1.0-SNAPSHOT" with qualifier "1.0-SNAPSHOT", description "topology for development environment", topology template id "null" and previous version id "null"
+    Then I should receive a RestResponse with an error code 605
+    When I create an application topology version for application "watchmiddleearth" version "watchmiddleearth:0.1.0-SNAPSHOT" with qualifier "snapshot", description "topology for development environment", topology template id "null" and previous version id "null"
+    Then I should receive a RestResponse with an error code 605
+    When I create an application topology version for application "watchmiddleearth" version "watchmiddleearth:0.1.0-SNAPSHOT" with qualifier "SnapshoT", description "topology for development environment", topology template id "null" and previous version id "null"
+    Then I should receive a RestResponse with an error code 605

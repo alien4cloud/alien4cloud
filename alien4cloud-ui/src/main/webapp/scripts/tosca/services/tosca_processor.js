@@ -17,7 +17,6 @@ define(function(require) {
           listToMapService.process(nodeType, 'properties');
         }
       },
-
       processNodeTemplate: function(nodeTemplate) {
         // if the node has not been processed yet
         if(_.defined(nodeTemplate.properties) && _.undefined(nodeTemplate.propertiesMap)) {
@@ -29,12 +28,16 @@ define(function(require) {
           });
         }
       },
-
       processCapabilityTypes: function(capabilityTypes) {
         var _this = this;
         _.each(capabilityTypes, function(capabilityType){ _this.processCapabilityType(capabilityType); });
       },
-
+      processDataTypes: function(dataType) {
+        // if the node has not been processed yet
+        if(_.defined(dataType.properties) && _.undefined(dataType.propertiesMap)) {
+          listToMapService.process(dataType, 'properties');
+        }
+      },
       processCapabilityType: function(capabilityType) {
         if(_.defined(capabilityType.properties) && _.undefined(capabilityType.propertiesMap)) {
           listToMapService.process(capabilityType, 'properties');

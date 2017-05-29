@@ -46,7 +46,8 @@ public class InterfacesParser extends MapParser<Interface> {
             }
             return cleanedInterfaces;
         }
-        // Specific for interfaces node can define or only reference interfaces
+        // In a node type interfaces definition allow to reference an interface type or multiple ones using array, in that case the keyname of the interface is
+        // the actual value type.
         Map<String, Interface> interfaces = Maps.newHashMap();
         if (node instanceof SequenceNode) {
             for (Node interfaceTypeNode : ((SequenceNode) node).getValue()) {
@@ -59,15 +60,14 @@ public class InterfacesParser extends MapParser<Interface> {
         } else if (node instanceof ScalarNode) {
             addInterfaceFromType((ScalarNode) node, interfaces, context);
         } else {
-            // add an error
-            ParserUtils.addTypeError(node, context.getParsingErrors(), "Interfaces");
+            ParserUtils.addTypeError(node, context.getParsingErrors(), "interfaces");
         }
         return interfaces;
     }
 
     private void addInterfaceFromType(ScalarNode node, Map<String, Interface> interfaces, ParsingContextExecution context) {
         // FIXME look for interface type in the REPO
-        String interfaceType = InterfaceParser.getInterfaceType(((ScalarNode) node).getValue());
+        String interfaceType = InterfaceParser.getInterfaceType(node.getValue());
         Interface interfaz = new Interface();
         interfaz.setType(interfaceType);
         interfaces.put(interfaceType, interfaz);

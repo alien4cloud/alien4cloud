@@ -23,6 +23,9 @@ topology_template:
     Compute:
       type: tosca.nodes.Compute
 
+    Manual_Compute:
+      type: tosca.nodes.Compute
+
     WebApplication:
       type: tosca.nodes.WebApplication
       properties:

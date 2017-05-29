@@ -70,15 +70,20 @@
       <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
       <label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label>
       <!-- Reset button for any property definition -->
-      <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs pull-right" ng-click="resetProperty();">
-        <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+      <span class="pull-right">
+        <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs" ng-click="resetProperty();">
+          <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"
+            tooltip-append-to-body="true"
+            tooltip-placement="left"></i>
+        </span>
+        <info content="definition.description"></info>
       </span>
     </div>
     <div ng-if="!isStringDisplayType" ng-switch="definitionObject.uiName" ng-class="{'property-required' : definition.required}">
 
       <span ng-switch-when="select">
         <!-- Case : validValues  -->
-        <select style="width: 80%; display: inline;" class="form-control" ng-model="definitionObject.uiSelectValue" ng-change="propertySave(definitionObject.uiSelectValue)"
+        <select class="form-control form-control-inline" ng-model="definitionObject.uiSelectValue" ng-change="propertySave(definitionObject.uiSelectValue)"
                 ng-options="option for option in definitionObject.uiSelectValues" ng-if="editable">
         </select>
         <em ng-if="!editable">{{definitionObject.uiValue}}</em>
@@ -95,28 +100,36 @@
         </span>
       </span>
 
-      <span ng-switch-when="date">
+      <span ng-switch-when="date" ng-init = "opened={}">
         <!-- Case : Timestamp (date) -->
-        <a href="#" editable-bsdate="definitionObject.uiValue" e-datepicker-popup="dd-MMMM-yyyy" onbeforesave="propertySave($data)" ng-if="editable">
-          {{ (definitionObject.uiValue | date:"dd/MM/yyyy") || 'empty' }} <i class="fa fa-pencil-square-o"></i>
+        <a href="#" editable-bsdate="definitionObject.uiValue" e-datepicker-popup="dd-MMMM-yyyy" onbeforesave="propertySave($data)" ng-if="editable"
+          onshow="opened.do = true"
+          buttons="no"
+          blur = "submit"
+          e-is-open="opened.do"
+          e-ng-click="opened.do = !opened.do"
+          e-class = "input-sm"
+          e-show-calendar-button="false">
+          {{definitionObject.uiValue | date:"dd/MM/yyyy"}} <i class="fa fa-pencil-square-o"></i>
         </a>
         <em ng-if="!editable">{{definitionObject.uiValue}}</em>
       </span>
 
       <span ng-switch-default id="p_{{propertyName}}" ng-class="{'editable-empty': !definitionObject.uiValue}">
         <!-- Default case (list, map or data type)-->
-        <button type="button" class="btn btn-default btn-sm" ng-click="openComplexPropertyModal()"><i class="fa fa fa-pencil-square-o"></i></button>
+        <button type="button" class="btn btn-default btn-xs" ng-click="openComplexPropertyModal()"><i class="fa fa fa-pencil-square-o"></i></button>
       </span>
 
       <label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label>
       <!-- Reset button for any property definition -->
-      <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs pull-right" ng-click="resetProperty();">
-        <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+      <span class="pull-right">
+        <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs" ng-click="resetProperty();">
+          <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"
+            tooltip-append-to-body="true"
+            tooltip-placement="left"></i>
+        </span>
+        <info content="definition.description"></info>
       </span>
-      <!-- TODO Should we have description here ? if so this should be in string too and removed from topology editor. -->
-      <!-- <span class="pull-right">
-        <simple-modal title="{{ 'MODAL.TITLE.META_PROPERTY' | translate}}" content="{{definition.description}}"> </simple-modal>
-      </span> -->
     </div>
   </div>
   <div class="col-md-3" ng-if="deletable && editable">
@@ -156,5 +169,4 @@
       </div>
     </form>
   </script>
-
 </div>

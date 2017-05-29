@@ -6,6 +6,7 @@ define(function(require) {
   var angular = require('angular');
 
   require('scripts/common/services/properties_services');
+  require('scripts/common/directives/info.js');
 
   var ComplexPropertyModalCtrl = ['$scope', '$uibModalInstance', 'formDescriptorServices',
     function($scope, $uibModalInstance, formDescriptorServices) {
@@ -121,15 +122,15 @@ define(function(require) {
         delete $scope.unitError;
         if (_.isBoolean(data)) {
           data = data.toString();
-        } else if (_.isEmpty(data)) {
+        } else if (!_.isDate(data) &&_.isEmpty(data)) {
           data = null;
         }
 
-        if (!force && !_.isEmpty($scope.definitionObject) && _.eq($scope.definitionObject.uiValue, data)) {
+        if (!force && !_.isEmpty($scope.definitionObject) && _.eq($scope.definitionObject.uiValue, data) && _.eq($scope.definitionObject.uiUnit, unit)) {
           return;
         }
 
-        if (!_.isEmpty(data) && _.defined($scope.definitionObject.units)) {
+        if (_.defined(data) && _.defined($scope.definitionObject.units)) {
           if (_.undefined(unit)) {
             unit = $scope.definitionObject.uiUnit;
           }
@@ -181,7 +182,6 @@ define(function(require) {
       };
 
       $scope.saveUnit = function(unit) {
-        $scope.definitionObject.uiUnit = unit;
         if (_.defined($scope.definitionObject.uiValue)) {
           var savePromise = $scope.propertySave($scope.definitionObject.uiValue, unit);
           if (_.defined(savePromise)) {
@@ -192,6 +192,7 @@ define(function(require) {
             });
           }
         }
+        $scope.definitionObject.uiUnit = unit;
       };
 
       $scope.saveReset = function(resetValue) {
@@ -241,6 +242,29 @@ define(function(require) {
         $scope.initScope();
       };
 
+      var getPropValueDisplay = function($scope, propertyValue) {
+        if (propertyValue.hasOwnProperty('value')) {
+          // Here handle scalar value
+          return propertyValue.value;
+        } else if (propertyValue.hasOwnProperty('function') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
+          // And here a function (get_input / get_property)
+          $scope.editable = false;
+          return propertyValue.function + ': ' + _(propertyValue.parameters).toString();
+
+        } else if (propertyValue.hasOwnProperty('function_concat') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
+          // And here a concat
+          $scope.editable = false;
+          var concatStr = 'concat: [ ';
+          for(var i=0; i < propertyValue.parameters.length; i++) {
+            if(i > 0) {
+              concatStr += ', ';
+            }
+            concatStr += getPropValueDisplay($scope, propertyValue.parameters[i]);
+          }
+          return  concatStr + ' ]';
+        }
+      };
+
       $scope.initScope = function() {
         // Define properties
         if (!_.defined($scope.definition)) {
@@ -250,14 +274,7 @@ define(function(require) {
         // Now a property is an AbstractPropertyValue : (Scalar or Function)
         var shownValue = $scope.propertyValue;
         if (_.defined($scope.propertyValue) && $scope.propertyValue.definition === false) {
-          if ($scope.propertyValue.hasOwnProperty('value')) {
-            // Here handle scalar value
-            shownValue = $scope.propertyValue.value;
-          } else if ($scope.propertyValue.hasOwnProperty('function') && $scope.propertyValue.hasOwnProperty('parameters') && $scope.propertyValue.parameters.length > 0) {
-            shownValue = $scope.propertyValue.function + ': ' + _($scope.propertyValue.parameters).toString();
-            //should not edit a function
-            $scope.editable = false;
-          }
+          shownValue = getPropValueDisplay($scope, $scope.propertyValue);
         }
 
         // handling default value
@@ -331,7 +348,7 @@ define(function(require) {
             break;
           case 'timestamp':
             $scope.definitionObject.uiName = 'date';
-            $scope.definitionObject.uiValue = shownValue;
+            $scope.definitionObject.uiValue = _.defined(shownValue) && !_.isDate(shownValue)? new Date(shownValue) : shownValue;
             break;
           case 'scalar-unit.size':
             $scope.definitionObject.uiName = 'scalar-unit';
