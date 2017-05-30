@@ -53,7 +53,19 @@ define(function(require) {
           refreshLocationMatching();
         });
 
+        // checks if a location is the selected one for this deployment
+        var isLocationSelected = function(location) {
+          return _.get($scope, 'deploymentContext.selectedLocation.id') === location.id;
+        };
+        $scope.isLocationSelected = isLocationSelected;
+
+        //select a location
         $scope.selectLocation = function(locationMatch) {
+          // Do nothing if already selected or not ready
+          if(isLocationSelected(locationMatch.location) || !locationMatch.ready){
+            return;
+          }
+
           var groupsToLocations = {};
           groupsToLocations[GROUP_ALL] = locationMatch.location.id;
 
@@ -70,11 +82,6 @@ define(function(require) {
             $scope.deploymentContext.selectedLocation = locationMatch.location;
             $state.go(thisMenu.nextStep.state);
           });
-        };
-
-        // checks if a location is the selected one for this deployment
-        $scope.isLocationSelected = function(location) {
-          return _.get($scope, 'deploymentContext.selectedLocation.id') === location.id;
         };
 
       }

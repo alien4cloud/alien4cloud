@@ -943,7 +943,7 @@
   "OK" : "OK",
   "OPTIONAL" : "Optionnel",
   "ORCHESTRATORS" : {
-    "ORCHESTRATOR": "Orchestrator",
+    "ORCHESTRATOR": "Orchestrateur",
     "ARTIFACTS" : {
       "MANAGED" : "Artefacts supportés"
     },

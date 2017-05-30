@@ -247,16 +247,15 @@
                     <span uib-tooltip="{{capabilityEntry.value.type}}"
                           tooltip-append-to-body="true">{{getShortName(capabilityEntry.value.type)}}</span>
                     </div>
-                    <div class="col-md-5" ng-init="capaComp = getComponent(selectedNodeTemplate, capabilityEntry.value.type)">
-                      <span class="btn-group pull-right">
+                    <div class="col-md-5 align-right" ng-init="capaComp = getComponent(selectedNodeTemplate, capabilityEntry.value.type)">
+                      <span class="btn-group">
                         <span class="btn btn-default btn-xs cardinalities_show"
                               uib-tooltip="{{'APPLICATIONS.TOPOLOGY.CAPABILITY_CARDINALITIES_TOOLTIP' | translate}}"
                               tooltip-append-to-body="true">
                             {{capabilityEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
                             ({{capabilityEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
                         </span>
-                        <info content="capaComp.description"></info>
-
+                        <!-- expose button for substitution-->
                         <button id="btn-expose-{{capabilityEntry.value.type}}"
                                 ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
                                 ng-click="substitution.exposeCapability(capabilityEntry.key); $event.stopPropagation()"
@@ -267,6 +266,7 @@
                           <i class="fa fa-recycle"></i>
                         </button>
                       </span>
+                      <info class="pull-right" content="capaComp.description"></info>
                     </div>
                   </div>
                 </div>
@@ -376,34 +376,34 @@
                     <span uib-tooltip="{{requirementEntry.value.type}}"
                           tooltip-append-to-body="true">{{getShortName(requirementEntry.value.type)}}</span>
                     </div>
-                    <div class="col-md-6" ng-init="reqComp = getComponent(selectedNodeTemplate, requirementEntry.value.type)">
-                    <span class="btn-group pull-right">
-                      <button uib-tooltip="{{'APPLICATIONS.TOPOLOGY.ADD_RELATIONSHIP' | translate}}"
-                              ng-disabled="!requirementEntry.value.canAddRel.yes"
-                              tooltip-append-to-body="true" class="btn btn-default btn-xs"
-                              ng-click="relationships.openSearchRelationshipModal(selectedNodeTemplate.name, requirementEntry.key); $event.stopPropagation();"
-                              id="btn-add-relationship-{{requirementEntry.key}}">
-                        <i class="fa fa-link"></i>
-                      </button>
-                      <span class="btn btn-default btn-xs cardinalities_show"
-                            uib-tooltip="{{'APPLICATIONS.TOPOLOGY.CARDINALITIES_TOOLTIP' | translate}}"
-                            tooltip-append-to-body="true">
-                          {{requirementEntry.value.lowerBound}}..{{requirementEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
-                          ({{requirementEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
-                      </span>
-                      <info content="reqComp.description"></info>
-
-                      <button id="btn-expose-{{requirementEntry.key}}"
-                              ng-disabled="!requirementEntry.value.canAddRel.yes"
-                              ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
-                              ng-click="substitution.exposeRequirement(requirementEntry.key); $event.stopPropagation()"
-                              ng-class="{'active' : substitution.isRequirementExposed(requirementEntry.key)}"
-                              class="btn btn-default btn-xs"
-                              uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.EXPOSE' | translate}}"
+                    <div class="col-md-6 align-right" ng-init="reqComp = getComponent(selectedNodeTemplate, requirementEntry.value.type)">
+                      <span class="btn-group">
+                        <button uib-tooltip="{{'APPLICATIONS.TOPOLOGY.ADD_RELATIONSHIP' | translate}}"
+                                ng-disabled="!requirementEntry.value.canAddRel.yes"
+                                tooltip-append-to-body="true" class="btn btn-default btn-xs"
+                                ng-click="relationships.openSearchRelationshipModal(selectedNodeTemplate.name, requirementEntry.key); $event.stopPropagation();"
+                                id="btn-add-relationship-{{requirementEntry.key}}">
+                          <i class="fa fa-link"></i>
+                        </button>
+                        <span class="btn btn-default btn-xs cardinalities_show"
+                              uib-tooltip="{{'APPLICATIONS.TOPOLOGY.CARDINALITIES_TOOLTIP' | translate}}"
                               tooltip-append-to-body="true">
-                        <i class="fa fa-recycle"></i>
-                      </button>
-                    </span>
+                            {{requirementEntry.value.lowerBound}}..{{requirementEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
+                            ({{requirementEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
+                        </span>
+
+                        <button id="btn-expose-{{requirementEntry.key}}"
+                                ng-disabled="!requirementEntry.value.canAddRel.yes"
+                                ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
+                                ng-click="substitution.exposeRequirement(requirementEntry.key); $event.stopPropagation()"
+                                ng-class="{'active' : substitution.isRequirementExposed(requirementEntry.key)}"
+                                class="btn btn-default btn-xs"
+                                uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.EXPOSE' | translate}}"
+                                tooltip-append-to-body="true">
+                          <i class="fa fa-recycle"></i>
+                        </button>
+                      </span>
+                      <info class="pull-right" content="reqComp.description"></info>
                     </div>
                   </div>
                 </div>
