@@ -14,6 +14,8 @@ public class UpdateNodeDeploymentArtifactOperation extends AbstractNodeOperation
     private String artifactReference;
     private String repositoryUrl;
     private String repositoryName;
+    private String archiveName;
+    private String archiveVersion;
 
     @Override
     public String commitMessage() {

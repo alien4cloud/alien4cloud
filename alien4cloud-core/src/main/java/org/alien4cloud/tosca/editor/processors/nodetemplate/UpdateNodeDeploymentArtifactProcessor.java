@@ -45,5 +45,7 @@ public class UpdateNodeDeploymentArtifactProcessor implements IEditorOperationPr
             artifact.setRepositoryURL(operation.getRepositoryUrl());
         }
         artifact.setArtifactRef(operation.getArtifactReference());
+        artifact.setArchiveName(operation.getArchiveName());
+        artifact.setArchiveVersion(operation.getArchiveVersion());
     }
 }

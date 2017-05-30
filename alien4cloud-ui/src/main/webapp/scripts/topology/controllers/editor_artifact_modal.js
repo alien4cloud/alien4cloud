@@ -3,8 +3,8 @@ define(function (require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('TopologyEditorArtifactModalCtrl', ['$scope', '$uibModalInstance', '$translate', 'explorerService','archiveContentTree', 'availableRepositories', 'artifact', 'toaster',
-    function($scope, $uibModalInstance, $translate, explorerService, archiveContentTree, availableRepositories, artifact, toaster) {
+  modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('TopologyEditorArtifactModalCtrl', ['$scope', '$uibModalInstance', '$translate', 'explorerService','archiveContentTree', 'availableRepositories', 'artifact', 'topology', 'toaster',
+    function($scope, $uibModalInstance, $translate, explorerService, archiveContentTree, availableRepositories, artifact, topology, toaster) {
       $scope.artifact = {};
 
       $scope.opts = explorerService.getOps(false);
@@ -24,6 +24,8 @@ define(function (require) {
         var dirName = node.fullPath.substring(node.fullPath.split('/', 2).join('/').length+1);
         $scope.artifact.repository = undefined;
         $scope.artifact.reference = dirName;
+        $scope.artifact.archiveVersion = topology.archiveVersion;
+        $scope.artifact.archiveName = topology.archiveName;
       };
 
       var root = archiveContentTree.children[0];
@@ -65,6 +67,9 @@ define(function (require) {
           artifact.reference = $scope.selectedRepository.file;
           artifact.repositoryUrl = $scope.selectedRepository.url;
           artifact.repositoryName = $scope.selectedRepository.id;
+          artifact.archiveVersion = topology.archiveVersion;
+          artifact.archiveName = topology.archiveName;
+          
           $uibModalInstance.close(artifact);
         }
       };

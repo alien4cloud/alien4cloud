@@ -63,15 +63,15 @@ define(function (require) {
                     },
                     updateScopeDeploymentTopologyDTO: function(){
                       return $scope.updateScopeDeploymentTopologyDTO;
+                    },
+                    topology: function(){
+                      return $scope.topology;
                     }
 
                   }
                 })
 
-                modalInstance.result.then(function (selectedArtifact) {
-                  console.log(selectedArtifact);
-                  //$scope.deploymentContext.deploymentTopologyDTO.topology.uploadedInputArtifacts[key] = selectedArtifact;
-                  
+                modalInstance.result.then(function (selectedArtifact) {                  
                   if(selectedArtifact){
                     var inputArtifactsDao = $resource('rest/latest/applications/' + $scope.application.id + '/environments/' + $scope.deploymentContext.selectedEnvironment.id + '/deployment-topology/inputArtifacts/' + key + '/update', {}, {
                       'update': {
