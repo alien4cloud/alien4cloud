@@ -121,7 +121,6 @@
       "STATUS": "Status",
       "VALUE": "Value"
     },
-    "SHOW_DEPLOYED_APP": "Only show deployed applications.",
     "TOPOLOGY": {
       "ADD_NODETEMPLATE": "Add Node Template",
       "ADD_RELATIONSHIP": "Add relationship to another node",

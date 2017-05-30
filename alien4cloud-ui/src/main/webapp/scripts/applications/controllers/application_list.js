@@ -69,7 +69,6 @@ define(function (require) {
       function ($scope, $uibModal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory, pieChartService) {
         $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
         $scope.applicationEnvironmentMap = {};
-        $scope.onlyShowDeployedApplications = undefined;
         d3.selectAll('.d3-tip').remove();
 
         $scope.openNewApp = function () {
@@ -156,11 +155,6 @@ define(function (require) {
             });
           }
           return applicationSearchResult;
-        };
-
-        $scope.toogleShowDeployedApplications = function () {
-          $scope.onlyShowDeployedApplications = ($scope.onlyShowDeployedApplications) ? undefined : true;
-          $scope.searchService.search();
         };
 
         $scope.searchService = searchServiceFactory('rest/latest/applications/search', false, $scope, 14);

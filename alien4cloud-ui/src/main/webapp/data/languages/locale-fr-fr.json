@@ -121,7 +121,6 @@
       "STATUS" : "Statut",
       "VALUE" : "Valeur"
     },
-    "SHOW_DEPLOYED_APP" : "Afficher seulement les applications déployées.",
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "Ajouter un Noeud",
       "ADD_RELATIONSHIP" : "Ajouter une relation",

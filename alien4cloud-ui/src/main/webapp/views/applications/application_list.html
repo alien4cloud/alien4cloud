@@ -20,11 +20,6 @@
           </span>
         </div>
       </form>
-      <div style="padding-top: 8px;">
-        <label class="checkbox-inline ng-binding ng-scope">
-          <input type="checkbox" ng-click="toogleShowDeployedApplications()"> {{'APPLICATIONS.SHOW_DEPLOYED_APP' | translate}}
-        </label>
-      </div>
     </div>
 
     <!-- List display -->
@@ -34,7 +29,7 @@
           data="data.data">
         </empty-place-holder>
 
-        <div ng-repeat="application in data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
+        <div ng-repeat="application in data.data | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
           <div id="app_{{application.name}}" style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openApplication(application.id)">
             <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; $event.stopPropagation();">
               <i ng-if="applicationEnvironmentMap[application.id]" style="padding-right: .8em;" class="vertical-align-middle fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
