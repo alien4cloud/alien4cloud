@@ -4,6 +4,7 @@ define(function (require) {
 
   var modules = require('modules');
   var _ = require('lodash');
+  var d3Tip = require('d3-tip');
 
   modules.get('a4c-topology-editor').factory('connectorDragFactoryService', [ 'relationshipMatchingService',
     function(relationshipMatchingService) {
@@ -11,6 +12,9 @@ define(function (require) {
         create: function(topologySvg) {
           var selectedTarget;
           var mouseCoordinate;
+          var tip = d3Tip().attr('class', 'd3-tip').html(function (node) {
+            return node.target.id;
+          });
 
           var connectorDrag = d3.behavior.drag()
             .on('dragstart', function(element) {
@@ -35,15 +39,17 @@ define(function (require) {
                   });
                 });
 
+
                 var targetSelection = topologySvg.svg.selectAll('.connectorTarget').data(connectTargets);
-                targetSelection.enter().append('circle')
+                var vis = targetSelection.enter().append('circle')
                   .attr('cx', function(d){ return d.target.coordinate.x; })
                   .attr('cy', function(d){ return d.target.coordinate.y; })
                   .attr('r', 10)
                   .attr('class', 'connectorTarget')
                   .attr('pointer-events', 'mouseover')
-                  .on('mouseover', function(node) { selectedTarget = node; })
-                  .on('mouseout', function() { selectedTarget = null; });
+                  .on('mouseover', function(node) { selectedTarget = node; tip.show(node);})
+                  .on('mouseout', function() { selectedTarget = null; tip.hide() });
+                vis.call(tip)
                 targetSelection.exit().remove();
               });
               mouseCoordinate = {
@@ -75,6 +81,8 @@ define(function (require) {
               // remove all drag line and drag targets
               topologySvg.svg.selectAll('.connectorTarget').data([]).exit().remove();
               topologySvg.svg.selectAll('.connectorlink').data([]).exit().remove();
+              tip.hide();
+
               if(_.defined(selectedTarget)) {
                 var target = selectedTarget.target;
                 topologySvg.addRelationship({
