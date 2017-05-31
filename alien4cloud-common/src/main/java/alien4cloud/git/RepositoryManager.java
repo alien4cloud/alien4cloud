@@ -207,7 +207,7 @@ public class RepositoryManager {
             }
             checkoutCommand.call();
         } catch (GitAPIException e) {
-            throw new GitException("Failed to checkout git repository", e);
+            throw GitException.buildErrorOnReference(e, branch);
         }
     }
 
