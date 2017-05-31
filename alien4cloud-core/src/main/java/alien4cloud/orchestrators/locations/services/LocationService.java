@@ -13,6 +13,8 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.exception.LocationSupportException;
+import alien4cloud.model.orchestrators.locations.LocationSupport;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -114,6 +116,18 @@ public class LocationService {
     }
 
     /**
+     * ensure that we cannot create more locations than supported by the orchestrator
+     * @param orchestratorId
+     */
+    private void ensureMultipleLocations(String orchestratorId) {
+        LocationSupport locationSupport = orchestratorService.getLocationSupport(orchestratorId);
+        List<Location> locations = getAll(orchestratorId);
+        if (!locationSupport.isMultipleLocations() && !locations.isEmpty()) {
+            throw new LocationSupportException("The orchestrator <" + orchestratorId + "> already has a location and does'nt support multiple locations.");
+        }
+    }
+
+    /**
      * Add a new locations for a given orchestrator.
      */
     public String create(String orchestratorId, String locationName, String infrastructureType) {
@@ -122,6 +136,9 @@ public class LocationService {
             // we cannot configure locations for orchestrator that are not connected.
             // TODO throw exception
         }
+
+        ensureMultipleLocations(orchestratorId);
+
         Location location = new Location();
         location.setId(UUID.randomUUID().toString());
         location.setName(locationName);

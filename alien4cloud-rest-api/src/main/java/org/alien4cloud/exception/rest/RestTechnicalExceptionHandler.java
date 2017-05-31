@@ -519,4 +519,12 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.RESOURCE_USED_ERROR).message(e.getMessage()).build()).build();
     }
 
+    @ExceptionHandler(value = LocationSupportException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> locationSupportExceptionHandler(LocationSupportException e) {
+        log.error("Location support exception", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.ORCHESTRATOR_LOCATION_SUPPORT_VIOLATION).message(e.getMessage()).build()).build();
+    }
+
 }
