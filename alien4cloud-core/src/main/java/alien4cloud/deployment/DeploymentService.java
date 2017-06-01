@@ -209,6 +209,23 @@ public class DeploymentService {
         return false;
     }
 
+    /**
+     * Check if there is an active deployment on a given location of a given orchestrator
+     *
+     * @param orchestratorId The if of the orchestrator for which to check if there is a deployment with the given orchestratorDeploymentId.
+     * @param locationId Unique if of the deployment for a given orchestrator
+     * @return True if there is an active deployment for theses ids, false if not.
+     */
+    public boolean isActiveDeploymentOnLocation(String orchestratorId, String locationId) {
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "orchestratorId", "locationIds", "endDate" },
+                new String[][] { new String[] { orchestratorId }, new String[] { locationId }, new String[] { null } });
+        GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class, activeDeploymentFilters, 1);
+        if (dataResult.getData() != null && dataResult.getData().length > 0) {
+            return true;
+        }
+        return false;
+    }
+
     public Map<String, PaaSTopologyDeploymentContext> getCloudActiveDeploymentContexts(String orchestratorId) {
         Deployment[] deployments = getOrchestratorActiveDeployments(orchestratorId);
         Map<String, PaaSTopologyDeploymentContext> activeDeploymentContexts = Maps.newHashMap();

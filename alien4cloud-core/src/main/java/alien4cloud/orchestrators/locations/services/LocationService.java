@@ -13,6 +13,8 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.deployment.DeployService;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.LocationSupportException;
 import alien4cloud.model.orchestrators.locations.LocationSupport;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -86,6 +88,11 @@ public class LocationService {
     private ApplicationContext applicationContext;
     @Resource
     private LocationSecurityService locationSecurityService;
+    @Inject
+    private ApplicationEventPublisher publisher;
+    @Inject
+    private DeploymentService deploymentService;
+
 
     public Location getLocation(String orchestratorId, String locationId) {
         Location location = getOrFail(locationId);
@@ -297,9 +304,6 @@ public class LocationService {
         return locations;
     }
 
-    @Inject
-    private ApplicationEventPublisher publisher;
-
     /**
      * Delete a locations.
      *
@@ -309,8 +313,7 @@ public class LocationService {
     public synchronized boolean delete(String orchestratorId, String id) {
         Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
 
-        long count = alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("locationIds", id, "endDate", "null")).count();
-        if (count > 0) {
+        if (deploymentService.isActiveDeploymentOnLocation(orchestratorId, id)) {
             return false;
         }
         Location location = getOrFail(id);
