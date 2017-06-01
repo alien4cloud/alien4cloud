@@ -19,16 +19,16 @@ define(function(require) {
         var capabilityType = $scope.nodeCapabilityTypes[capabilityTypeId];
         return capabilityType.propertiesMap[capabilityPropertyName].value;
       };
-  
+
       $scope.getDataTypeForCapabilityProperty = function(capabilityTypeId, capabilityPropertyName) {
         var propertyDefinition = $scope.getCapabilityPropertyDefinition(capabilityTypeId, capabilityPropertyName);
         return $scope.nodeDataTypes[propertyDefinition.type];
       };
-      
+
       $scope.getPropertyDefinition = function(propertyName) {
         return $scope.nodeType.propertiesMap[propertyName].value;
       };
-      
+
       $scope.getDataTypeForProperty = function(propertyName) {
         var propertyDefinition = $scope.getPropertyDefinition(propertyName);
         return $scope.nodeDataTypes[propertyDefinition.type];
@@ -99,6 +99,7 @@ define(function(require) {
         });
       };
       $scope.canEditCapabilityProperty = function(capabilityName, propertyName){
+
         return $scope.isPropertyEditable({
           propertyPath: {
             capabilityName: capabilityName,

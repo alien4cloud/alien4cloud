@@ -119,7 +119,7 @@
               </div>
               <div class="col-md-9">
                 <div id="srv-state" class="switch" ng-click="!selectedService.environmentId && toggleState()">
-                  <div class="switch-slider" ng-class="stateDisabled ? 'disabled' : 'enabled'"></div>
+                  <div class="switch-slider" ng-class="{'disabled' : stateDisabled , 'enabled': !stateDisabled, 'default-cursor': selectedService.environmentId}"></div>
                 </div>
               </div>
             </div>
@@ -130,6 +130,7 @@
             <i class="fa fa-cube" aria-hidden="true"></i>&nbsp;{{'SERVICES.INSTANCE' | translate}}
           </uib-tab-heading>
           <a4c-node-template-edit ng-if="selectedNodeType"
+            is-rel-editable="stateDisabled"
             is-service="true"
             node-template="selectedService.nodeInstance.nodeTemplate"
             node-type="selectedNodeType"
@@ -176,7 +177,8 @@
                       </label>
                     </div>
                     <div class="col-md-8">
-                      <span class="typeahead"
+                      <span ng-if= "stateDisabled"
+                            class="typeahead"
                             ng-click="switchLongTextChoice(true)"
                             editable-text="selectedService.requirementsRelationshipTypes[requirementEntry.key]"
                             buttons="no"
@@ -187,9 +189,10 @@
                             e-typeahead-min-length="relationshipTypeQuickSearchHandler.minLength"
                             e-typeahead-wait-ms="relationshipTypeQuickSearchHandler.waitBeforeRequest"
                             e-typeahead-loading="searching">
-                      {{selectedService.requirementsRelationshipTypes[requirementEntry.key]}}
-                      <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
+                        {{selectedService.requirementsRelationshipTypes[requirementEntry.key]}}
+                        <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
                       </span>
+                      <em ng-if="!stateDisabled">{{selectedService.requirementsRelationshipTypes[requirementEntry.key] || '...'}}</em>
                     </div>
                     <div class="col-md-1">
                       <info content = "'SERVICE.RELATIONSHIP.REQUIREMENT_DESCRIPTION'"></info>
