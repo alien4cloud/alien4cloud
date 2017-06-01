@@ -1,22 +1,13 @@
 package alien4cloud.orchestrators.locations.services;
 
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 import static alien4cloud.utils.AlienUtils.array;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.deployment.DeployService;
-import alien4cloud.deployment.DeploymentService;
-import alien4cloud.exception.LocationSupportException;
-import alien4cloud.model.orchestrators.locations.LocationSupport;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -31,32 +22,30 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.events.LocationTemplateCreated;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.LocationSupportException;
 import alien4cloud.exception.MissingCSARDependenciesException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.MetaPropertyTarget;
 import alien4cloud.model.common.Usage;
-import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.orchestrators.locations.LocationSupport;
 import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.orchestrators.locations.events.BeforeLocationDeleted;
 import alien4cloud.orchestrators.locations.events.OnLocationResourceChangeEvent;
-import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
-import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
-import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
-import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
-import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
+import alien4cloud.orchestrators.plugin.*;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.topology.TopologyUtils;
@@ -89,14 +78,11 @@ public class LocationService {
     @Resource
     private LocationSecurityService locationSecurityService;
     @Inject
-    private ApplicationEventPublisher publisher;
-    @Inject
-    private DeploymentService deploymentService;
-
+    DeploymentService deploymentService;
 
     public Location getLocation(String orchestratorId, String locationId) {
         Location location = getOrFail(locationId);
-        if (!java.util.Objects.equals(location.getOrchestratorId(), orchestratorId)) {
+        if (!Objects.equals(location.getOrchestratorId(), orchestratorId)) {
             throw new NotFoundException("Orchestrator id " + orchestratorId + " does not exist or does not have the location " + locationId);
         }
         return location;
@@ -124,6 +110,7 @@ public class LocationService {
 
     /**
      * ensure that we cannot create more locations than supported by the orchestrator
+     * 
      * @param orchestratorId
      */
     private void ensureMultipleLocations(String orchestratorId) {
@@ -170,13 +157,13 @@ public class LocationService {
         // initialize meta properties
         location.setMetaProperties(Maps.<String, String> newHashMap());
         // add existing meta properties to the cloud
-        GetMultipleDataResult<MetaPropConfiguration> result = alienDAO.find(MetaPropConfiguration.class, null, Integer.MAX_VALUE);
+        GetMultipleDataResult<MetaPropConfiguration> result = alienDAO.find(MetaPropConfiguration.class, singleKeyFilter("target", MetaPropertyTarget.LOCATION),
+                Integer.MAX_VALUE);
         for (MetaPropConfiguration element : result.getData()) {
-            if (element.getTarget().toString().equals("cloud")) {
-                location.setMetaProperties(Maps.<String, String> newHashMap());
+            if (Objects.equals(element.getTarget(), MetaPropertyTarget.LOCATION)) {
                 // we only support string values for meta properties
                 PropertyUtil.setScalarDefaultValueOrNull(location.getMetaProperties(), element.getId(), element.getDefault());
-                log.debug("Adding meta property <{}> to the new location <{}> ", element.getName(), location.getName());
+                log.debug("Added meta property <{}> to the new location <{}> ", element.getName(), location.getName());
             }
         }
 
@@ -304,6 +291,9 @@ public class LocationService {
         return locations;
     }
 
+    @Inject
+    private ApplicationEventPublisher publisher;
+
     /**
      * Delete a locations.
      *
@@ -387,7 +377,7 @@ public class LocationService {
      * @param oldName
      */
     public synchronized void ensureNameUnicityAndSave(Location location, String oldName) {
-        if (StringUtils.isBlank(oldName) || !Objects.equal(location.getName(), oldName)) {
+        if (StringUtils.isBlank(oldName) || !Objects.equals(location.getName(), oldName)) {
             // check that a location of this name and managed by the same orchestrator doesn't already exists
             QueryBuilder mustQuery = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("name", location.getName()))
                     .must(QueryBuilders.termQuery("orchestratorId", location.getOrchestratorId()));

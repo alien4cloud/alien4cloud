@@ -136,7 +136,12 @@ public class EditorStepDefs {
         FacetedSearchResult<Topology> searchResult = catalogService.search(Topology.class, "", 100, null);
         Topology[] topologies = searchResult.getData();
         for (Topology topology : topologies) {
-            csarService.forceDeleteCsar(topology.getId());
+            try {
+                csarService.forceDeleteCsar(topology.getId());
+            } catch (NotFoundException e) {
+                // Some previous tests may create topology without creating any archive, if so catch the exception
+                alienDAO.delete(Topology.class, topology.getId());
+            }
         }
 
         topologyIds.clear();

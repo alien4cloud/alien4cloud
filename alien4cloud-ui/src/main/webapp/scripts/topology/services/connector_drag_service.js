@@ -48,8 +48,8 @@ define(function (require) {
                   .attr('class', 'connectorTarget')
                   .attr('pointer-events', 'mouseover')
                   .on('mouseover', function(node) { selectedTarget = node; tip.show(node);})
-                  .on('mouseout', function() { selectedTarget = null; tip.hide() });
-                vis.call(tip)
+                  .on('mouseout', function() { selectedTarget = null; tip.hide(); });
+                vis.call(tip);
                 targetSelection.exit().remove();
               });
               mouseCoordinate = {

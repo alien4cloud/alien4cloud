@@ -7,6 +7,7 @@
     <!-- End disabled location -->
   </div>
 
+  <empty-place-holder data="deploymentContext.locationMatches"></empty-place-holder>
   <div class=row>
     <div ng-repeat="locationMatch in deploymentContext.locationMatches" class="col-xs-6 col-md-3" ng-init="isSelected=isLocationSelected(locationMatch.location)" >
       <span class="location-match"

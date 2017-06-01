@@ -7,8 +7,13 @@ define(function (require) {
 
   modules.get('a4c-metas').controller('MetaPropertiesCtrl', ['$scope', 'propertiesServices', '$translate', 'metapropConfServices', '$resource',
     function($scope, propertiesServices, $translate, metapropConfServices, $resource) {
+      $scope._ = _;
       if ($scope.collapsable === undefined) {
         $scope.collapsable = true;
+      }
+
+      if(_.undefined($scope.titled)){
+        $scope.titled = true;
       }
 
       function loadMetaProperties() {
@@ -62,14 +67,6 @@ define(function (require) {
         return null;
       };
 
-      /* By default, we collapse the meta-properties tab*/
-      $scope.initCollapse = function() {
-        if (_.defined($scope.collapse)) {
-          $scope.isMetaPropsCollapsed = $scope.collapse;
-        } else {
-          $scope.isMetaPropsCollapsed = true;
-        }
-      };
     }
   ]);
 }); // define

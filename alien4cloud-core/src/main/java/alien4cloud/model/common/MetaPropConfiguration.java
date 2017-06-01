@@ -2,6 +2,8 @@ package alien4cloud.model.common;
 
 import javax.validation.constraints.NotNull;
 
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.ObjectField;
@@ -15,8 +17,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import alien4cloud.tosca.container.validation.ToscaPropertyConstraint;
 import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueConstraints;
 import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueType;
@@ -60,7 +60,7 @@ public class MetaPropConfiguration extends PropertyDefinition {
      * Target of the tag configuration (application or component or cloud)
      */
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
-    @FormValidValues({ "application", "component", "location" })
+    @FormValidValues({ MetaPropertyTarget.APPLICATION, MetaPropertyTarget.LOCATION })
     @NotNull
     @TermsFacet
     @FormLabel("COMMON.TARGET")
