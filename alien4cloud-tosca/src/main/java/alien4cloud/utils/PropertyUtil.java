@@ -5,12 +5,15 @@ import java.util.Set;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.apache.commons.collections4.MapUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
 
 import alien4cloud.paas.exception.NotSupportedException;
+import alien4cloud.rest.utils.JsonUtil;
 
 public final class PropertyUtil {
     private PropertyUtil() {
@@ -67,13 +70,9 @@ public final class PropertyUtil {
         }
     }
 
-    /**
-     * TODO: should be removed !
-     */
-    @Deprecated
     public static String getDefaultValueFromPropertyDefinitions(String propertyName, Map<String, PropertyDefinition> propertyDefinitions) {
         if (MapUtils.isNotEmpty(propertyDefinitions) && propertyDefinitions.containsKey(propertyName)) {
-            return propertyDefinitions.get(propertyName).getDefault().toString();
+            return serializePropertyValue(propertyDefinitions.get(propertyName).getDefault());
         } else {
             return null;
         }
@@ -131,6 +130,23 @@ public final class PropertyUtil {
             return ((ScalarPropertyValue) propertyValue).getValue();
         } else {
             throw new NotSupportedException("Property value is not of type scalar");
+        }
+    }
+
+    public static String serializePropertyValue(Object value) {
+        try {
+            if (value == null) {
+                return null;
+            } else if (value instanceof String) {
+                return (String) value;
+            } else if (value instanceof PropertyValue) {
+                PropertyValue pv = (PropertyValue) value;
+                return pv.getValue() == null ? null : JsonUtil.toString(pv.getValue());
+            } else {
+                return JsonUtil.toString(value);
+            }
+        } catch (JsonProcessingException e) {
+            return null;
         }
     }
 }

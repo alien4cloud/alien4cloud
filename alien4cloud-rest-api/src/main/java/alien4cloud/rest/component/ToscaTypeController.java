@@ -40,7 +40,7 @@ public class ToscaTypeController {
     @RequestMapping(value = "adv/typewithdependencies/{typeId:.+}/{typeVersion:.+}", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<TypeWithDependenciesResult> getTypeWithDependencies(@PathVariable String typeId, @PathVariable String typeVersion) {
-        AbstractToscaType type = toscaTypeSearchService.find(AbstractToscaType.class, typeId, typeVersion);
+        AbstractToscaType type = toscaTypeSearchService.findOrFail(AbstractToscaType.class, typeId, typeVersion);
         return RestResponseBuilder.<TypeWithDependenciesResult> builder().data(toscaWithDependenciesBuilder.buildTypeWithDependencies(type)).build();
     }
 }

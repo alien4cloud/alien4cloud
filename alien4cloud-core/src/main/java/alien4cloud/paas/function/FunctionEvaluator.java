@@ -18,6 +18,9 @@ import org.alien4cloud.tosca.model.templates.Requirement;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,11 +32,7 @@ import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
-import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.rest.utils.JsonUtil;
-import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
-import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
-import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
@@ -272,32 +271,14 @@ public final class FunctionEvaluator {
         return null;
     }
 
-    private static String serializeComplexPropertyValue(Object value) {
-        try {
-            if (value instanceof String) {
-                return (String) value;
-            } else if (value instanceof ComplexPropertyValue) {
-                return JsonUtil.toString(((ComplexPropertyValue) value).getValue());
-            } else {
-                return JsonUtil.toString(value);
-            }
-        } catch (JsonProcessingException e) {
-            return null;
-        }
-    }
-
     private static String getPropertyValue(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertyDefinitions,
             String propertyAccessPath) {
         if (properties == null || !properties.containsKey(propertyAccessPath)) {
             String propertyName = PropertyUtil.getPropertyNameFromComplexPath(propertyAccessPath);
             if (propertyName == null) {
                 // Non complex
-                String defaultValue = PropertyUtil.getDefaultValueFromPropertyDefinitions(propertyAccessPath, propertyDefinitions);
-                if (defaultValue != null) {
-                    return defaultValue;
-                } else {
-                    return null;
-                }
+                return PropertyUtil.getDefaultValueFromPropertyDefinitions(propertyAccessPath, propertyDefinitions);
+
             } else {
                 // Complex
                 PropertyDefinition propertyDefinition = propertyDefinitions.get(propertyName);
@@ -312,7 +293,7 @@ public final class FunctionEvaluator {
                         throw new NotSupportedException("Only support static value in a get_property");
                     }
                     Object value = MapUtil.get(((PropertyValue) rawValue).getValue(), propertyAccessPath.substring(propertyName.length() + 1));
-                    return value == null ? null : serializeComplexPropertyValue(value);
+                    return PropertyUtil.serializePropertyValue(value);
                 } else {
                     return null;
                 }
@@ -374,7 +355,7 @@ public final class FunctionEvaluator {
             }
 
             if (propertyValue instanceof ComplexPropertyValue) {
-                return serializeComplexPropertyValue(((ComplexPropertyValue) propertyValue).getValue());
+                return PropertyUtil.serializePropertyValue(propertyValue);
             } else {
                 return PropertyUtil.getScalarValue(propertyValue);
             }
