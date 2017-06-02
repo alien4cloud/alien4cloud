@@ -19,12 +19,13 @@ define(function(require) {
         'nodeCapabilityTypes': '=', // map of capability types
         'nodeDataTypes': '=', // map of capability types
         'dependencies': '=', // dependencies
-        'isPropertyEditable': '&', // callback operation that should return true if a property or a capability property can be edited.
         'onPropertyUpdate': '&', // callback operation triggered when a property is actually updated
+        'isPropertyEditable': '&?', // callback operation that should return true if a property or a capability property can be edited.
         'onCapabilityPropertyUpdate': '&', // callback operation triggered when a capability property is actually updated
         'onHalfRelationshipTypeUpdate' : '&?', // callback operation triggered when an half relationship type is updated (isService should be true)
         'capabilitiesRelationshipTypes' : '=?', // list of relationship type by capabilities (isService should be true)
-        'isService': '=?' // is it a service ?
+        'isService': '=?', // is it a service ?
+        'isRelEditable': '&?' // callback operation that should return true if a relationship can be edited.
       },
       link: {}
     };
