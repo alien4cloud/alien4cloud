@@ -10,3 +10,6 @@ Feature: Node type suggestions
     When I ask suggestions for node type with "java"
     Then I should receive a RestResponse with no error
     And The suggestion response should contains 4 elements
+    When I ask suggestions for node type with "JaVa"
+    Then I should receive a RestResponse with no error
+    And The suggestion response should contains 4 elements

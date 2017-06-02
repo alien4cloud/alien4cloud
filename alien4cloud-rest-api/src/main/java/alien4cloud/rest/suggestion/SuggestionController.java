@@ -11,6 +11,7 @@ import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -105,6 +106,7 @@ public class SuggestionController {
         if (searchText == null || searchText.trim().isEmpty()) {
             return RestResponseBuilder.<String[]> builder().data(new String[0]).build();
         }
+        searchText = StringUtils.lowerCase(searchText);
         QueryBuilder queryOnText = QueryBuilders.regexpQuery("elementId", ".*?" + searchText + ".*");
         // FIXME the way of getting the highest version of a component has changed
         // QueryBuilder queryOnHighest = QueryBuilders.termQuery("highestVersion", true);
