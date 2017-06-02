@@ -1,5 +1,6 @@
 package alien4cloud.orchestrators.locations.services;
 
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 import static alien4cloud.utils.AlienUtils.array;
 
@@ -37,6 +38,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.common.MetaPropertyTarget;
 import alien4cloud.model.common.Usage;
+import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -303,7 +305,7 @@ public class LocationService {
     public synchronized boolean delete(String orchestratorId, String id) {
         Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
 
-        if (deploymentService.isActiveDeploymentOnLocation(orchestratorId, id)) {
+        if (alienDAO.count(Deployment.class, null, fromKeyValueCouples("orchestratorId", orchestratorId, "locationIds", id, "endDate", null)) > 0) {
             return false;
         }
         Location location = getOrFail(id);

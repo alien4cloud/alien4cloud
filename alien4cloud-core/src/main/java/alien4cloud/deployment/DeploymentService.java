@@ -2,12 +2,7 @@ package alien4cloud.deployment;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -202,23 +197,6 @@ public class DeploymentService {
     public boolean isActiveDeployment(String orchestratorId, String orchestratorDeploymentId) {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "orchestratorId", "orchestratorDeploymentId", "endDate" },
                 new String[][] { new String[] { orchestratorId }, new String[] { orchestratorDeploymentId }, new String[] { null } });
-        GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class, activeDeploymentFilters, 1);
-        if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Check if there is an active deployment on a given location of a given orchestrator
-     *
-     * @param orchestratorId The if of the orchestrator for which to check if there is a deployment with the given orchestratorDeploymentId.
-     * @param locationId Unique if of the deployment for a given orchestrator
-     * @return True if there is an active deployment for theses ids, false if not.
-     */
-    public boolean isActiveDeploymentOnLocation(String orchestratorId, String locationId) {
-        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "orchestratorId", "locationIds", "endDate" },
-                new String[][] { new String[] { orchestratorId }, new String[] { locationId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class, activeDeploymentFilters, 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return true;
