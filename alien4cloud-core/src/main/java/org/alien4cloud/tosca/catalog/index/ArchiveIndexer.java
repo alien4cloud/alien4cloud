@@ -125,6 +125,9 @@ public class ArchiveIndexer {
         }
         String yaml = exportService.getYaml(csar, topology);
 
+        // synch the dependencies before indexing
+        csar.setDependencies(topology.getDependencies());
+
         // index the archive and topology
         csarService.save(csar);
         topologyServiceCore.save(topology);
