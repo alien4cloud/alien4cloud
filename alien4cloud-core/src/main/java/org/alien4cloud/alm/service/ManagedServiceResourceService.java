@@ -9,18 +9,18 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import com.google.common.collect.Maps;
 import org.alien4cloud.alm.service.exceptions.InvalidDeploymentStatusException;
 import org.alien4cloud.alm.service.exceptions.MissingSubstitutionException;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.events.SubstitutionTypeChangedEvent;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -32,6 +32,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
@@ -117,7 +118,8 @@ public class ManagedServiceResourceService {
         updateServiceRelationship(serviceId, topology);
 
         if (fromRuntime) {
-            managedServiceResourceEventService.updateRunningService(topology, serviceResourceService.getOrFail(serviceId), deployment, state);
+            managedServiceResourceEventService.updateRunningService((DeploymentTopology) topology, serviceResourceService.getOrFail(serviceId), deployment,
+                    state);
         }
         return serviceId;
     }

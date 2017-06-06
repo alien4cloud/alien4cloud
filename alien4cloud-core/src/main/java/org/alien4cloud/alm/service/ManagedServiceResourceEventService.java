@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
-import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -27,6 +26,7 @@ import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.events.DeploymentCreatedEvent;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.events.OnLocationResourceChangeEvent;
 import alien4cloud.paas.IPaaSCallback;
@@ -37,6 +37,7 @@ import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
+import alien4cloud.utils.PropertyUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -107,7 +108,7 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
             resetRunningServiceResource(serviceResource);
             return;
         }
-        Topology topology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
+        DeploymentTopology topology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
         updateRunningService(topology, serviceResource, deployment, state);
     }
 
@@ -119,7 +120,8 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
      * @param deployment The deployment that is linked to the service.
      * @param serviceState The current state of the service.
      */
-    public void updateRunningService(final Topology topology, final ServiceResource serviceResource, final Deployment deployment, final String serviceState) {
+    public void updateRunningService(final DeploymentTopology topology, final ServiceResource serviceResource, final Deployment deployment,
+            final String serviceState) {
         // we need to fetch the instances and build the Service Resource instance out of it.
         deploymentRuntimeStateService.getInstancesInformation(deployment, new IPaaSCallback<Map<String, Map<String, InstanceInformation>>>() {
             @Override
@@ -135,7 +137,7 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         });
     }
 
-    private void updateRunningService(Topology topology, Deployment deployment, ServiceResource serviceResource, String serviceState,
+    private void updateRunningService(DeploymentTopology topology, Deployment deployment, ServiceResource serviceResource, String serviceState,
             Map<String, Map<String, InstanceInformation>> instanceInformation) {
 
         // update the state
@@ -146,6 +148,12 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
 
         // ensure the service is available on all of the deployment locations
         updateLocations(serviceResource, deployment.getLocationIds());
+
+        // Map input properties from the topology as properties of the service instance
+        if (serviceResource.getNodeInstance().getNodeTemplate().getProperties() == null) {
+            serviceResource.getNodeInstance().getNodeTemplate().setProperties(Maps.newHashMap());
+        }
+        serviceResource.getNodeInstance().getNodeTemplate().getProperties().putAll(safe(topology.getInputProperties()));
 
         // Map attributes from the instances to the actual service resource node.
         for (Entry<String, Set<String>> nodeOutputAttrEntry : safe(topology.getOutputAttributes()).entrySet()) {
@@ -164,22 +172,21 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
             }
         }
 
-        // Map properties data such as attributes!
-        serviceResource.getNodeInstance().getNodeTemplate().setProperties(Maps.newLinkedHashMap());
+        // Map output properties as attributes of the service instance
         for (Entry<String, Set<String>> nodeOutputPropEntry : safe(topology.getOutputProperties()).entrySet()) {
             NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeOutputPropEntry.getKey());
             for (String prop : nodeOutputPropEntry.getValue()) {
-                serviceResource.getNodeInstance().getNodeTemplate().getProperties().put(prop, nodeTemplate.getProperties().get(prop));
+                serviceResource.getNodeInstance().setAttribute(prop, PropertyUtil.serializePropertyValue(nodeTemplate.getProperties().get(prop)));
             }
         }
 
-        // Map properties out of capabilities (that are exposed as node properties)
+        // Map capabilities output properties as attributes of the service instance (that are exposed as node properties)
         for (Entry<String, Map<String, Set<String>>> nodeOutputCapaPropEntry : safe(topology.getOutputCapabilityProperties()).entrySet()) {
             NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeOutputCapaPropEntry.getKey());
             for (Entry<String, Set<String>> outputCapaPropEntry : nodeOutputCapaPropEntry.getValue().entrySet()) {
                 Capability capability = nodeTemplate.getCapabilities().get(outputCapaPropEntry.getKey());
                 for (String prop : outputCapaPropEntry.getValue()) {
-                    serviceResource.getNodeInstance().getNodeTemplate().getProperties().put(prop, capability.getProperties().get(prop));
+                    serviceResource.getNodeInstance().setAttribute(prop, PropertyUtil.serializePropertyValue(capability.getProperties().get(prop)));
                 }
             }
         }
