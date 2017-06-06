@@ -1,6 +1,6 @@
-<div ng-class="_.isFuntion(close)? 'topology-column-content-head' : 'content-head'">
+<div ng-class="_.isFunction(close)? 'topology-column-content-head' : 'content-head'">
   <i class="fa fa-globe"></i> {{'SERVICES.MANAGED.TITLE' | translate}}
-  <span ng-if="_.isFuntion(close)" id='closeService' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="close()">
+  <span ng-if="_.isFunction(close)" id='closeService' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="close()">
     <i class="fa fa-remove close-panel"></i>
   </span>
 </div>

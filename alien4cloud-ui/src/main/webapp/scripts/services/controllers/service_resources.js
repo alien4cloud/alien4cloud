@@ -94,7 +94,7 @@ define(function (require) {
 
         modalInstance.result.then(function(createServiceRequest) {
           serviceResourceService.create([], angular.toJson(createServiceRequest), function() {
-            $scope.searchService.search(); // refresh the view
+            $scope.search(); // refresh the view
           });
         });
       };
