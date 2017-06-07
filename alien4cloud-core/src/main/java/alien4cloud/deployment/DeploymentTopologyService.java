@@ -6,8 +6,14 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -22,9 +28,18 @@ import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeExc
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
-import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.templates.AbstractPolicy;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.MapUtils;
@@ -516,27 +531,42 @@ public class DeploymentTopologyService {
         ApplicationTopologyVersion topologyVersion = applicationVersionService
                 .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
 
-        DeploymentTopology oldDT = alienDAO.findById(DeploymentTopology.class,
-                DeploymentTopology.generateId(topologyVersion.getArchiveId(), environment.getId()));
+        String deploymentTopologyId = DeploymentTopology.generateId(topologyVersion.getArchiveId(), environment.getId());
 
-        DeploymentTopology deploymentTopology = new DeploymentTopology();
-        deploymentTopology.setOrchestratorId(orchestratorId);
-        deploymentTopology.setEnvironmentId(environment.getId());
-        addLocationPolicies(deploymentTopology, groupsToLocations);
+        DeploymentTopology oldDeploymentTopology = alienDAO.findById(DeploymentTopology.class, deploymentTopologyId);
 
-        if (oldDT != null) {
-            // we should keep input properties
-            deploymentTopology.setInputProperties(oldDT.getInputProperties());
-            if (deploymentTopology.getOrchestratorId().equals(oldDT.getOrchestratorId())) {
-                // and orchestrator properties if not changed.
-                deploymentTopology.setProviderDeploymentProperties(oldDT.getProviderDeploymentProperties());
-            }
-        }
+        DeploymentTopology newDeploymentTopology = new DeploymentTopology();
+        newDeploymentTopology.setOrchestratorId(orchestratorId);
+        newDeploymentTopology.setEnvironmentId(environment.getId());
+
+        addLocationPolicies(newDeploymentTopology, groupsToLocations);
+
+        // try to keep the inputs
+        copyInputs(oldDeploymentTopology, newDeploymentTopology);
 
         Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
-        generateDeploymentTopology(DeploymentTopology.generateId(topologyVersion.getArchiveId(), environment.getId()), environment, topology,
-                deploymentTopology);
-        return getDeploymentConfiguration(deploymentTopology);
+        generateDeploymentTopology(deploymentTopologyId, environment, topology, newDeploymentTopology);
+        return getDeploymentConfiguration(newDeploymentTopology);
+    }
+
+    /**
+     * Copy inputs properties and artifacts from old to new DeploymentTopology DTO
+     * 
+     * @param oldDeploymentTopology
+     * @param newDeploymentTopology
+     */
+    private void copyInputs(DeploymentTopology oldDeploymentTopology, DeploymentTopology newDeploymentTopology) {
+        if (oldDeploymentTopology == null) {
+            return;
+        }
+
+        newDeploymentTopology.setInputProperties(oldDeploymentTopology.getInputProperties());
+        newDeploymentTopology.setUploadedInputArtifacts(oldDeploymentTopology.getUploadedInputArtifacts());
+
+        // also keep orchestrator properties if not changed.
+        if (Objects.equals(newDeploymentTopology.getOrchestratorId(), oldDeploymentTopology.getOrchestratorId())) {
+            newDeploymentTopology.setProviderDeploymentProperties(oldDeploymentTopology.getProviderDeploymentProperties());
+        }
     }
 
     /**

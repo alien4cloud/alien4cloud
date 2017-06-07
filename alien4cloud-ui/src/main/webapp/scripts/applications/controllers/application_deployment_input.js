@@ -90,7 +90,7 @@ define(function (require) {
                       return $scope.updateScopeDeploymentTopologyDTO;
                     },
                     topology: function(){
-                      return $scope.topology;
+                      return $scope.topologyDTO.topology;
                     }
 
                   }
