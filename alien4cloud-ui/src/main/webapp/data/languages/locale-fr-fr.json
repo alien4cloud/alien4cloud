@@ -41,12 +41,12 @@
         "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
       },
       "SETUP": {
-        "TITLE": "Configuration du déployment",
-        "MESSAGE": "Configurez et préparez le prochain déployment."
+        "TITLE": "Configuration du déploiement",
+        "MESSAGE": "Configurez et préparez le prochain déploiement."
       },
       "DEPLOYED_INFOS": {
-        "TITLE": "Déployment actif",
-        "MESSAGE": "Informations concernant le déployment actif."
+        "TITLE": "Déploiement actif",
+        "MESSAGE": "Informations concernant le déploiement actif."
       },
       "VERSION" : "Version déployée"
     },

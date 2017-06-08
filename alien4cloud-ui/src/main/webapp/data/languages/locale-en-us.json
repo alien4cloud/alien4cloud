@@ -45,7 +45,7 @@
         "MESSAGE": "Setup and prepare for next deployment."
       },
       "DEPLOYED_INFOS": {
-        "TITLE": "Active Deployement",
+        "TITLE": "Active Deployment",
         "MESSAGE": "Informations about the active deployment."
       },
       "VERSION": "Deployed version"
@@ -664,7 +664,7 @@
       "FAILURE": "Failed",
       "INIT_DEPLOYMENT": "Deployment init",
       "UPDATE_DEPLOYMENT": "Deployment update",
-      "UPDATE_IN_PROGRESS" : "Deployment update in progess",
+      "UPDATE_IN_PROGRESS" : "Deployment update in progress",
       "UPDATE_FAILURE" : "Update failed",
       "UPDATED" : "Updated",
       "UNDEPLOYED": "Undeployed",
