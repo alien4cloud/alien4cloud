@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -79,6 +80,7 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.utils.AlienConstants;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.PropertyService;
 import lombok.extern.slf4j.Slf4j;
@@ -244,10 +246,25 @@ public class DeploymentTopologyService {
         Map<String, String> existingSubstitutions = deploymentTopology.getSubstitutedNodes();
         // Handle the case when new resources added
         // TODO In the case when resource is updated / deleted on the location we should update everywhere where they are used
-        if (availableSubstitutions.size() != existingSubstitutions.size()) {
+
+        if (substitutionsHaveChanged(existingSubstitutions, availableSubstitutions)) {
             updateDeploymentTopology(deploymentTopology);
         }
         return new DeploymentConfiguration(deploymentTopology, substitutionConfiguration);
+    }
+
+    private boolean substitutionsHaveChanged(Map<String, String> existingSubstitutions, Map<String, Set<String>> availableSubstitutions) {
+        if (existingSubstitutions.size() != availableSubstitutions.size()) {
+            return true;
+        }
+        boolean changed = false;
+
+        Iterator<Entry<String, String>> iter = existingSubstitutions.entrySet().iterator();
+        while (iter.hasNext() && !changed) {
+            Entry<String, String> existing = iter.next();
+            changed = !AlienUtils.safe(availableSubstitutions.get(existing.getKey())).contains(existing.getValue());
+        }
+        return changed;
     }
 
     public DeploymentSubstitutionConfiguration getAvailableNodeSubstitutions(DeploymentTopology deploymentTopology) {

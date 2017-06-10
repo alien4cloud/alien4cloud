@@ -1,20 +1,18 @@
 <div>
-  <div class="row" style="margin-top: 10px">
-    <!--  Unauthorized location-->
-    <div class="col-md-6" ng-if="deploymentContext.deploymentTopologyDTO.validation.taskList['LOCATION_UNAUTHORIZED'].length>0">
-      <div class="alert alert-danger">{{'APPLICATIONS.TOPOLOGY.LOCATION_UNAUTHORIZED_MESSAGE' | translate: deploymentContext.deploymentTopologyDTO.validation.taskList['LOCATION_UNAUTHORIZED'][0] }} </div>
-    </div>
-    <!-- End disabled location -->
+  <!--  Unauthorized location-->
+  <div class="text-danger" style="margin: 10px 0px" ng-if="deploymentContext.deploymentTopologyDTO.validation.taskList['LOCATION_UNAUTHORIZED'].length>0">
+    <i class="fa fa-exclamation-triangle"></i><em><b style="white-space: pre-wrap;"> {{'APPLICATIONS.TOPOLOGY.LOCATION_UNAUTHORIZED_MESSAGE' | translate: deploymentContext.deploymentTopologyDTO.validation.taskList['LOCATION_UNAUTHORIZED'][0] }}</b></em>
   </div>
+  <!-- End disabled location -->
 
   <empty-place-holder data="deploymentContext.locationMatches"></empty-place-holder>
   <div class=row>
-    <div ng-repeat="locationMatch in deploymentContext.locationMatches" class="col-xs-6 col-md-3" ng-init="isSelected=isLocationSelected(locationMatch.location)" >
+    <div ng-repeat="locationMatch in deploymentContext.locationMatches" class="col-xs-6 col-md-3" >
       <span class="location-match"
-        ng-class="{'location-match-selected': isSelected && locationMatch.ready,
-                   'location-match-danger': isSelected && !locationMatch.ready,
-                   'clickable-media': !isSelected && locationMatch.ready,
-                   'item-disabled': !isSelected && !locationMatch.ready
+        ng-class="{'location-match-selected': locationMatch.selected && locationMatch.ready,
+                   'location-match-danger': locationMatch.selected && !locationMatch.ready,
+                   'clickable-media': !locationMatch.selected && locationMatch.ready,
+                   'item-disabled': !locationMatch.selected && !locationMatch.ready
                   }"
         ng-click="selectLocation(locationMatch)">
         <b>{{locationMatch.location.name}}</b>  <br>
