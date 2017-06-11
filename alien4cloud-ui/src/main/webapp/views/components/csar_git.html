@@ -20,7 +20,7 @@
         <div class="well well-sm">
           <div class="panel panel-default" ng-repeat="error in importInfo.errors">
             <div class="panel-heading">
-               <i class="fa fa-file"></i> <b>{{'COMPONENTS.UPLOAD_ERROR.FILE_PATH' | translate}}</b> : {{error.fileName}}
+               <i class="fa fa-file"></i> <b>{{'COMPONENTS.UPLOAD_ERROR.FILE_PATH' | translate}}</b> : {{error.fileName}} - [{{error.csarId}}:{{error.csarVersion}}]
             </div>
             <div class="panel-body table-responsive">
               <table class="table table-condensed">
