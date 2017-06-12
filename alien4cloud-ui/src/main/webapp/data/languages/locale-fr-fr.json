@@ -555,6 +555,7 @@
       "TOSCA_VERSION_NOT_FIRST" : "La version de TOSCA doit-être la première ligne du document TOSCA.",
       "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT" : "La dépendance transitive [{{problem}}] est en conflit avec la dépendance directe [{{context}}]. Le conflit a été résolu en utilisant la version [{{note}}] de la dépendance directe.",
       "TYPE_NOT_FOUND" : "Le type [ {{note}} ] référencé n'existe ni dans l'archive ni dans ses dépendances. Veuillez valider les imports de dépendances ou ajouter le type à votre archive.",
+      "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION": "Substitution hérite le type concret [ {{note}} ], merci d'utiliser un type abstrait.",
       "ToscaPropertyConstraint" : "La contrainte [ {{path}} ] n'est pas correctement définie ou ne peut-être appliquée sur la propriété (type).",
       "ToscaPropertyConstraintDuplicate" : "La contrainte [ {{path}} ] est déjà présente. Une même contrainte ne peut-être définie plusieurs fois.",
       "ToscaPropertyDefaultValueConstraints" : "La valeur par défaut de la propriété [ {{path}} ] ne respecte pas les contraintes définies sur celle-ci.",
