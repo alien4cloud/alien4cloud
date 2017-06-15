@@ -127,6 +127,7 @@ public class Context {
             if (alienUrl == null || alienUrl.isEmpty()) {
                 alienUrl = "http://" + HOST + ":" + PORT + CONTEXT_PATH;
             }
+            log.info("Connecting rest client to " + alienUrl);
             REST_CLIENT_INSTANCE = new RestClient(alienUrl);
         }
         return REST_CLIENT_INSTANCE;
