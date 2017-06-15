@@ -19,6 +19,10 @@ define(function (require) {
         'propertyValue': '=',
         'dependencies': '=?',
         'onSave': '&',
+        // if the properyValus is undefined, the default one will be displayed
+        // the onInitWithDefault method allows you to update the propertyValue
+        // to the default one
+        'onInitWithDefault': '&',
         'onDelete': '&',
         'editable': '=',
         'condensed': '=',

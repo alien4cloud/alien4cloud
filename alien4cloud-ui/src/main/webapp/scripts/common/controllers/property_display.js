@@ -280,6 +280,11 @@ define(function(require) {
         // handling default value
         shownValue = shownValue || $scope.definition.default;
         $scope.definitionObject.hasDefaultValue = _.defined($scope.definition.default);
+        
+        if(_.defined($scope.onInitWithDefault) && $scope.definitionObject.hasDefaultValue && shownValue === $scope.definition.default){
+          console.log('onInitWithDefault is going to be called ' + JSON.stringify($scope.definition.default));
+          $scope.onInitWithDefault({"definition": $scope.definition, "value": $scope.definition.default.value, "propertyName": $scope.propertyName});
+        }
 
         // merge the constraints from the definition and from the type
         var constraints = [];
