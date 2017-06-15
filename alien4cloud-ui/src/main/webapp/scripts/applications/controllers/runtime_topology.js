@@ -162,6 +162,10 @@ define(function (require) {
 
       };
 
+      $scope.updatePropertyValue = function(definition, value, propertyName) {
+        $scope.checkProperty(definition, value, propertyName);
+      };
+
       $scope.checkProperty = function(definition, value, propertyName) {
         var checkPropertyRequest = {
           'definitionId': definition.name,
