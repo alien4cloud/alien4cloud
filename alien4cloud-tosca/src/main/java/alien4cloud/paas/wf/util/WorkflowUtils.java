@@ -2,6 +2,8 @@ package alien4cloud.paas.wf.util;
 
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -54,7 +56,7 @@ public class WorkflowUtils {
     }
 
     public static boolean isStandardWorkflow(Workflow workflow) {
-        return INSTALL.equals(workflow.getName()) || UNINSTALL.equals(workflow.getName());
+        return INSTALL.equals(workflow.getName()) || UNINSTALL.equals(workflow.getName()) || START.equals(workflow.getName()) || STOP.equals(workflow.getName());
     }
 
     /**
