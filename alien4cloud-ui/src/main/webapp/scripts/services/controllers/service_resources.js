@@ -35,7 +35,9 @@ define(function (require) {
       var orchestratorsService = $alresource('rest/latest/orchestrators/:id');
       var locationsService = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:id');
       var typeWithDependenciesService = $alresource('rest/latest/catalog/types/adv/typewithdependencies/:typeId/:typeVersion');
-
+      $scope.serviceTypesFilter = {
+        abstract: true
+      };
       $scope.dimensions = { width: 800, height: 500 };
       resizeServices.registerContainer(function (width, height) {
         $scope.dimensions = { width: width, height: height };

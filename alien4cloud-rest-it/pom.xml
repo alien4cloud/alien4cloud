@@ -265,7 +265,7 @@
                                 </artifactInstaller>
                                 <log>${basedir}/target/cargo.log</log>
                                 <output>${basedir}/target/jetty.log</output>
-                                <timeout>180000</timeout>
+                                <timeout>360000</timeout>
                             </container>
 
                             <configuration>

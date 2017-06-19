@@ -251,7 +251,7 @@ define(function (require) {
         var instance = new TopologyEditorMixin(scope);
         scope.substitution = instance;
         scope.substitution.getTypeSuggestions = {
-          get: suggestionServices.nodetypeSuggestions,
+          get: suggestionServices.abstractNodetypeSuggestions,
           waitBeforeRequest: 0, // TODO this seems unused...
           minLength: 2
         };

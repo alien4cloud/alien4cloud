@@ -551,6 +551,7 @@
       "TOSCA_VERSION_NOT_FIRST" : "Tosca version must be the first line of the service template.",
       "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT" : "The transitive dependency [{{problem}}] is in conflict with the direct dependency [{{context}}]. The conflict has been resolved by using the direct dependency version: [{{note}}].",
       "TYPE_NOT_FOUND" : "Referenced type [ {{note}} ] cannot be found neither in the archive or its dependencies. Please check the import section or add the type to your archive.",
+      "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION": "Substitution derive from concrete type [ {{note}} ], please use an abstract type.",
       "ToscaPropertyConstraint" : "Constraint [ {{path}} ] is not valid or cannot be applied on the defined property.",
       "ToscaPropertyConstraintDuplicate" : "The constraint [ {{path}} ] already existed. The same constraint cannot be defined more than once.",
       "ToscaPropertyDefaultValueConstraints" : "The default value for the property [ {{path}} ] do not respect its constraint.",
