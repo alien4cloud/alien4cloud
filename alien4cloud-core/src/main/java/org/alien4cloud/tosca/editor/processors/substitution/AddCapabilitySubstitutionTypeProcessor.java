@@ -43,7 +43,7 @@ public class AddCapabilitySubstitutionTypeProcessor implements IEditorOperationP
             topology.getSubstitutionMapping().setCapabilities(substitutionCapabilities);
         } else if (substitutionCapabilities.containsKey(operation.getSubstitutionCapabilityId())) {
             // ensure name unicity
-            throw new AlreadyExistException(String.format("The substitution capability <%s> already exists", operation.getSubstitutionCapabilityId()));
+            throw new AlreadyExistException(String.format("A substitution with capability id <%s> already exists", operation.getSubstitutionCapabilityId()));
         }
         substitutionCapabilities.put(operation.getSubstitutionCapabilityId(), new SubstitutionTarget(operation.getNodeTemplateName(), operation.getCapabilityId()));
     }
