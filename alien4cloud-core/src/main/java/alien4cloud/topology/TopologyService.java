@@ -1,12 +1,8 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 import javax.annotation.Resource;
@@ -237,13 +233,25 @@ public class TopologyService {
                 GetMultipleDataResult<NodeType> searchResult = alienDAO.search(NodeType.class, null, formattedFilters, filterValueStrategy, 20);
                 data = getIndexedNodeTypesFromSearchResponse(searchResult, toExcludeIndexedNodeTypes.get(nodeTemplatesToFiltersEntry.getKey()));
             }
-            TaskCode taskCode = data == null || data.length < 1 ? TaskCode.IMPLEMENT : TaskCode.REPLACE;
-            SuggestionsTask task = new SuggestionsTask();
-            task.setNodeTemplateName(nodeTemplatesToFiltersEntry.getKey());
-            task.setComponent(toExcludeIndexedNodeTypes.get(nodeTemplatesToFiltersEntry.getKey()));
-            task.setCode(taskCode);
-            task.setSuggestedNodeTypes(data);
-            toReturnTasks.add(task);
+
+            boolean empty = ArrayUtils.isEmpty(data);
+            boolean moreThanOne = ArrayUtils.getLength(data) > 1;
+            if(empty || moreThanOne ){
+                TaskCode taskCode = null;
+                if(empty){
+                    taskCode = TaskCode.IMPLEMENT;
+                }
+                if(moreThanOne){
+                    taskCode = TaskCode.REPLACE;
+                }
+
+                SuggestionsTask task = new SuggestionsTask();
+                task.setNodeTemplateName(nodeTemplatesToFiltersEntry.getKey());
+                task.setComponent(toExcludeIndexedNodeTypes.get(nodeTemplatesToFiltersEntry.getKey()));
+                task.setCode(taskCode);
+                task.setSuggestedNodeTypes(data);
+                toReturnTasks.add(task);
+            }
         }
 
         return toReturnTasks;

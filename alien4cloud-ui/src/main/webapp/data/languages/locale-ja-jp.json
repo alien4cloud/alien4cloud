@@ -436,6 +436,7 @@
   "CODE" : "ja-jp",
   "COMMON" : {
     "ADD" : "追加",
+    "ADD_USER_ATTRIBUTE": "Add a user attribute",
     "ATTRIBUTES" : "属性",
     "AUTHOR" : "作成者",
     "CAPABILITIES" : "ケーパビリティ",
@@ -451,6 +452,7 @@
     "ID" : "Id",
     "INFO" : "Information",
     "INFOS" : "Informations",
+    "KEY": "Key",
     "MESSAGE" : "Message",
     "NAME" : "名前",
     "NO" : "No",
