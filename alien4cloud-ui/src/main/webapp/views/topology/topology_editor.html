@@ -454,18 +454,16 @@
                     {{relationshipEntry.key | truncate:25}}
                     <i class="fa fa-pencil-square-o"></i>
                   </span>
-                  <span class="pull-right">
-                    <delete-confirm id="btn-delete-rl-{{relationshipEntry.key}}" func="relationships.remove(relationshipEntry.key, selectedNodeTemplate)"
-                                    position="left" bssize="btn-xs" fastyle="fa-unlink">
-                    </delete-confirm>
-                  </span>
-                  <span class="pull-right">
-                    <button uib-tooltip="{{'APPLICATIONS.TOPOLOGY.CHANGE_RELATIONSHIP' | translate}}"
-                            tooltip-append-to-body="true" class="btn btn-default btn-xs"
-                            ng-click="relationships.openSearchRelationshipModal(selectedNodeTemplate.name, relationshipEntry.value.requirementName, relationshipEntry.value.target, relationshipEntry.value.targetedCapabilityName, relationshipEntry.key); $event.stopPropagation();"
-                            id="btn-chg-relationship-{{requirementEntry.key}}">
-                          <i class="fa fa-link"></i>
-                    </button>
+                  <span class="btn-group pull-right">
+                      <button uib-tooltip="{{'APPLICATIONS.TOPOLOGY.CHANGE_RELATIONSHIP' | translate}}"
+                        tooltip-append-to-body="true" class="btn btn-default btn-xs"
+                        ng-click="relationships.openSearchRelationshipModal(selectedNodeTemplate.name, relationshipEntry.value.requirementName, relationshipEntry.value.target, relationshipEntry.value.targetedCapabilityName, relationshipEntry.key); $event.stopPropagation();"
+                        id="btn-chg-relationship-{{requirementEntry.key}}">
+                        <i class="fa fa-link"></i>
+                      </button>
+                      <delete-confirm id="btn-delete-rl-{{relationshipEntry.key}}" func="relationships.remove(relationshipEntry.key, selectedNodeTemplate)"
+                        position="left" bssize="btn-xs" fastyle="fa-unlink">
+                      </delete-confirm>
                   </span>
                 </div>
                 <div  uib-collapse="isRelationshipCollapsed">
@@ -764,7 +762,7 @@
                 <td>{{inputDefinition.type}}</td>
                 <td>{{inputDefinition.constraints}}</td>
                 <td>
-                  <delete-confirm id="{{inputId}}_delete" class="pull-right" func="inputs.remove(inputId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                  <delete-confirm id="{{inputId}}_delete" class="pull-right" func="inputs.remove(inputId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
                   </delete-confirm>
                 </td>
               </tr>
@@ -791,15 +789,15 @@
             </span>
           </div>
           <div ng-repeat="group in orderedNodeGroups">
-            <div id="group-details-{{group.name}}-header" class="clickable">
+            <div id="group-details-{{group.name}}-header" class="clickable" ng-click="groupCollapsed[group.name].main = !groupCollapsed[group.name].main">
               <h4>
-                <i class=" fa clickable {{groups.getColorCss(group.name)}}" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].main, 'fa-caret-right': groupCollapsed[group.name].main}"
-                ng-click="groupCollapsed[group.name].main = !groupCollapsed[group.name].main"></i>
-                <span editable-text="group.name" id="nodeGroupName_{{group.name}}" buttons="no" e-required onbeforesave="groups.updateName(group.name, $data)" blur="submit">
+                <i class=" fa {{groups.getColorCss(group.name)}}" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].main, 'fa-caret-right': groupCollapsed[group.name].main}"></i>
+                <span editable-text="group.name" id="nodeGroupName_{{group.name}}" buttons="no" e-required onbeforesave="groups.updateName(group.name, $data)" blur="submit"
+                  ng-click="$event.stopPropagation();">
                   {{group.name}}
                   <i class="fa fa-pencil-square-o"></i>
                 </span>
-                <delete-confirm id="btn-delete-group-{{group.name}}" func="groups.delete(group.name)" position="left" class="pull-right" bssize="btn-sm" fastyle="fa-trash-o">
+                <delete-confirm id="btn-delete-group-{{group.name}}" func="groups.delete(group.name)" position="left" class="pull-right" bssize="btn-xs" fastyle="fa-trash-o">
                 </delete-confirm>
               </h4>
             </div>
@@ -876,7 +874,7 @@
                 </td>
                 <td>{{inputArtifact.artifactType}}</td>
                 <td>
-                  <delete-confirm id="inputArtifact_{{inputArtifactId}}_delete" class="pull-right" func="inputs.removeArtifact(inputArtifactId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                  <delete-confirm id="inputArtifact_{{inputArtifactId}}_delete" class="pull-right" func="inputs.removeArtifact(inputArtifactId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
                   </delete-confirm>
                 </td>
               </tr>
