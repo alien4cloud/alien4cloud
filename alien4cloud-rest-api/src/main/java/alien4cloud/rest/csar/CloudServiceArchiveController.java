@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
+import org.alien4cloud.tosca.catalog.exception.UploadExceptionUtil;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.IArchiveIndexerAuthorizationFilter;
 import org.alien4cloud.tosca.catalog.index.ICsarAuthorizationFilter;
@@ -111,25 +112,9 @@ public class CloudServiceArchiveController {
             uploadResult.getErrors().put(fileName, e.getParsingErrors());
             return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(uploadResult)
                     .build();
-        } catch (AlreadyExistException e) {
-            log.error("A CSAR with the same name and the same version already existed in the repository", e);
+        } catch (AlreadyExistException | CSARUsedInActiveDeployment | ToscaTypeAlreadyDefinedInOtherCSAR e) {
             CsarUploadResult uploadResult = new CsarUploadResult();
-            uploadResult.getErrors().put(csar.getOriginalFilename(), Lists.newArrayList(new ParsingError(ErrorCode.CSAR_ALREADY_EXISTS, "CSAR already exists",
-                    null, "Unable to override an existing CSAR if the version is not a SNAPSHOT version.", null, null)));
-            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).build())
-                    .data(uploadResult).build();
-        } catch (CSARUsedInActiveDeployment e) {
-            log.error("This csar is used in an active deployment. It cannot be overrided.", e);
-            CsarUploadResult uploadResult = new CsarUploadResult();
-            uploadResult.getErrors().put(csar.getOriginalFilename(), Lists.newArrayList(new ParsingError(ErrorCode.CSAR_USED_IN_ACTIVE_DEPLOYMENT,
-                    "CSAR used in active deployment", null, "Unable to override a csar used in an active deployment.", null, null)));
-            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.RESOURCE_USED_ERROR).build())
-                    .data(uploadResult).build();
-        } catch (ToscaTypeAlreadyDefinedInOtherCSAR e) {
-            log.error("Skipping archive import, it's archive contain's a tosca type already defined in an other archive." + e.getMessage());
-            CsarUploadResult uploadResult = new CsarUploadResult();
-            uploadResult.getErrors().put(csar.getOriginalFilename(), Lists.newArrayList(
-                    new ParsingError(ErrorCode.TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR, "Tosca type conflict", null, e.getMessage(), null, null)));
+            uploadResult.getErrors().put(csar.getOriginalFilename(), Lists.newArrayList(UploadExceptionUtil.parsingErrorFromException(e)));
             return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).build())
                     .data(uploadResult).build();
         } finally {
