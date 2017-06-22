@@ -240,7 +240,7 @@
                       {{selectedService.nodeInstance.attributeValues[attrEntry.key] || '...'}}
                     </em>
                   </td>
-                  <td>
+                  <td ng-if="isPropertyEditable()">
                     <span class="btn btn-xs info-xs pull-right">
                       <i class="fa fa-trash-o text-info" ng-click="deleteAttributeFromUser(attrEntry.key)"></i>
                     </span>
@@ -248,11 +248,11 @@
                 </tr>
               </table>
 
-            <div class="topology-column-content-head">
+            <div ng-if="isPropertyEditable()" class="topology-column-content-head">
               {{'COMMON.ADD_USER_ATTRIBUTE' | translate}}
             </div>
 
-            <div class="row">
+            <div ng-if="isPropertyEditable()" class="row">
               <div class="col-xs-6">
                 <input type="text" class="form-control" placeholder="key" ng-model="newAttribute.key" />
               </div>
