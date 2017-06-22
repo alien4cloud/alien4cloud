@@ -93,8 +93,7 @@ define(function (require) {
           // push to the errors
           importResult.errors.push({
             'fileName': parsingResult.context.fileName,
-            'csarId': parsingResult.result.name,
-            'csarVersion': parsingResult.result.version,
+            'csarId': _.defined(parsingResult.result) ? parsingResult.result.name + ":" + parsingResult.result.version : "",
             'parsingErrors': parsingResult.context.parsingErrors
           });
           // }
