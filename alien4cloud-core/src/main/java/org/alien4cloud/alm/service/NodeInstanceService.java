@@ -158,9 +158,10 @@ public class NodeInstanceService {
             if (entry.getValue() != null) {
                 String value = PatchUtil.realValue(entry.getValue());
                 if (value == null) {
-                    nodeInstance.getAttributeValues().remove(value);
+                    nodeInstance.getAttributeValues().remove(entry.getKey());
+                }else {
+                    nodeInstance.getAttributeValues().put(entry.getKey(), value);
                 }
-                nodeInstance.getAttributeValues().put(entry.getKey(), value);
             }
         }
     }

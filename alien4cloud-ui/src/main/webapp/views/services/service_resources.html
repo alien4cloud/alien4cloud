@@ -211,7 +211,7 @@
             </div>
             <div id="node-details-attributes-panel" class="indent" uib-collapse="isAttributesCollapsed" >
               <table class="table table-condensed" id="nodeAttributes">
-                <tr ng-repeat="attrEntry in selectedNodeType.attributes">
+                <tr ng-repeat="attrEntry in selectedNodeType.attributesFromModel">
                   <td>
                     <label>{{attrEntry.key}}</label>
                   </td>
@@ -227,7 +227,45 @@
                     <info class="pull-right" content="attrEntry.value.description"></info>
                   </td>
                 </tr>
+
+                <tr ng-repeat="attrEntry in selectedNodeType.attributesFromUser">
+                  <td>
+                    <label>{{attrEntry.key}}</label>
+                  </td>
+                  <td>
+                    <span ng-if = "isPropertyEditable()" editable-text="selectedService.nodeInstance.attributeValues[attrEntry.key]" buttons="no" onbeforesave="updateAttribute(attrEntry.key, $data)" blur="submit" class="editable editable-click">
+                      {{selectedService.nodeInstance.attributeValues[attrEntry.key]}} <i class="fa fa-pencil-square-o"></i>
+                    </span>
+                    <em ng-if="!isPropertyEditable()">
+                      {{selectedService.nodeInstance.attributeValues[attrEntry.key] || '...'}}
+                    </em>
+                  </td>
+                  <td ng-if="isPropertyEditable()">
+                    <span class="btn btn-xs info-xs pull-right">
+                      <i class="fa fa-trash-o text-info" ng-click="deleteAttributeFromUser(attrEntry.key)"></i>
+                    </span>
+                  </td>
+                </tr>
               </table>
+
+            <div ng-if="isPropertyEditable()" class="topology-column-content-head">
+              {{'COMMON.ADD_USER_ATTRIBUTE' | translate}}
+            </div>
+
+            <div ng-if="isPropertyEditable()" class="row">
+              <div class="col-xs-6">
+                <input type="text" class="form-control" placeholder="key" ng-model="newAttribute.key" />
+              </div>
+              <div class="col-xs-5">
+                <input type="text" class="form-control" placeholder="value" ng-model="newAttribute.value.value" />
+              </div>
+              <div class="col-xs-1">
+                <button ng-click="addAttributeFromUser()" class="btn btn-primary" type="submit">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+              </button>
+              </div>
+            </div>
+
             </div>
           </div>
         </uib-tab>

@@ -438,6 +438,7 @@
   "CODE" : "fr-fr",
   "COMMON" : {
     "ADD" : "Ajouter",
+    "ADD_USER_ATTRIBUTE": "Ajouter un attribut utilisateur",
     "ATTRIBUTES" : "Attributs",
     "AUTHOR" : "Auteur",
     "AUTHORIZED": "Authorisé",
@@ -454,6 +455,7 @@
     "ID" : "Id",
     "INFO" : "Information",
     "INFOS" : "Informations",
+    "KEY": "Clef",
     "MESSAGE" : "Message",
     "NAME" : "Nom",
     "NO" : "Non",

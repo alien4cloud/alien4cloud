@@ -438,6 +438,7 @@
   "CODE": "en-us",
   "COMMON": {
     "ADD": "Add",
+    "ADD_USER_ATTRIBUTE": "Add a user attribute",
     "ATTRIBUTES": "Attributes",
     "AUTHOR": "Author",
     "AUTHORIZED": "Authorized",
@@ -454,6 +455,7 @@
     "ID": "Id",
     "INFO": "Information",
     "INFOS": "Informations",
+    "KEY": "Key",
     "MESSAGE": "Message",
     "NAME": "Name",
     "NO": "No",
