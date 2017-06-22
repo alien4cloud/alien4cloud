@@ -38,21 +38,13 @@ a.editable-click:hover {
   width: 50%;
 }
 
-
-.editable-wrap {
-  width: 100%;
-
-}
 .editable-controls {
   width: 100%;
 }
 .editable-input-lg {
   width: 100% !important;
 }
-.editable-small .editable-wrap {
-  width: 60%;
 
-}
 .property-display-label-ellipsed {
   white-space: nowrap;
   overflow: hidden;
@@ -79,4 +71,8 @@ property-display [editable-textarea] + form.editable-wrap {
 
 select.form-control-inline {
   width: 70%;
+}
+
+.editable-number, .editable-texarea {
+  white-space: nowrap; 
 }
