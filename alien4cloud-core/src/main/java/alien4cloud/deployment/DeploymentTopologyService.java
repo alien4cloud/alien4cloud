@@ -244,8 +244,6 @@ public class DeploymentTopologyService {
         DeploymentSubstitutionConfiguration substitutionConfiguration = getAvailableNodeSubstitutions(deploymentTopology);
         Map<String, Set<String>> availableSubstitutions = substitutionConfiguration.getAvailableSubstitutions();
         Map<String, String> existingSubstitutions = deploymentTopology.getSubstitutedNodes();
-        // Handle the case when new resources added
-        // TODO In the case when resource is updated / deleted on the location we should update everywhere where they are used
 
         if (substitutionsHaveChanged(existingSubstitutions, availableSubstitutions)) {
             updateDeploymentTopology(deploymentTopology);

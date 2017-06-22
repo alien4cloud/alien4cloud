@@ -71,6 +71,7 @@ public class InputsPreProcessorService {
      */
     @ToscaContextual
     public Map<String, PropertyValue> injectInputValues(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
+        // This is required to get all the functions before they where processed in the deployment topology.
         topologyCompositionService.processTopologyComposition(topology);
         Map<String, PropertyValue> inputs = computeInputs(deploymentTopology, environment);
 

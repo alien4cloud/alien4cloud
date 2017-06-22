@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public final class NormativeWorkflowNameConstants {
     public static final String INSTALL = "install";
     public static final String UNINSTALL = "uninstall";
+    public static final String START = "start";
+    public static final String STOP = "stop";
 }

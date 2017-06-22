@@ -2,6 +2,8 @@ package alien4cloud.paas.wf;
 
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
 
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,12 @@ public class WorkflowsBuilderService {
     private UninstallWorkflowBuilder uninstallWorkflowBuilder;
 
     @Resource
+    private StartWorkflowBuilder startWorkflowBuilder;
+
+    @Resource
+    private StopWorkflowBuilder stopWorkflowBuilder;
+
+    @Resource
     private CustomWorkflowBuilder customWorkflowBuilder;
 
     @Resource
@@ -63,6 +71,20 @@ public class WorkflowsBuilderService {
             uninstall.setName(UNINSTALL);
             wfs.put(UNINSTALL, uninstall);
             reinitWorkflow(UNINSTALL, topologyContext);
+        }
+        if (!wfs.containsKey(START)) {
+            Workflow install = new Workflow();
+            install.setStandard(true);
+            install.setName(START);
+            wfs.put(START, install);
+            reinitWorkflow(START, topologyContext);
+        }
+        if (!wfs.containsKey(STOP)) {
+            Workflow uninstall = new Workflow();
+            uninstall.setStandard(true);
+            uninstall.setName(STOP);
+            wfs.put(STOP, uninstall);
+            reinitWorkflow(STOP, topologyContext);
         }
         return topologyContext;
     }
@@ -192,6 +214,10 @@ public class WorkflowsBuilderService {
                 return installWorkflowBuilder;
             } else if (workflow.getName().equals(UNINSTALL)) {
                 return uninstallWorkflowBuilder;
+            } else if (workflow.getName().equals(START)) {
+                return startWorkflowBuilder;
+            } else if (workflow.getName().equals(STOP)) {
+                return stopWorkflowBuilder;
             }
         }
         return customWorkflowBuilder;

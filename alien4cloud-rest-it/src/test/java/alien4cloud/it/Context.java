@@ -123,7 +123,12 @@ public class Context {
 
     public static RestClient getRestClientInstance() {
         if (REST_CLIENT_INSTANCE == null) {
-            REST_CLIENT_INSTANCE = new RestClient("http://" + HOST + ":" + PORT + CONTEXT_PATH);
+            String alienUrl = System.getenv("ALIEN_URL");
+            if (alienUrl == null || alienUrl.isEmpty()) {
+                alienUrl = "http://" + HOST + ":" + PORT + CONTEXT_PATH;
+            }
+            log.info("Connecting rest client to " + alienUrl);
+            REST_CLIENT_INSTANCE = new RestClient(alienUrl);
         }
         return REST_CLIENT_INSTANCE;
     }

@@ -28,13 +28,16 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.deployment.matching.services.nodes.NodeMatcherService;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.AlienConstants;
+import alien4cloud.utils.CloneUtil;
 import alien4cloud.utils.PropertyUtil;
 
 @Service
@@ -50,6 +53,10 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
     private ServiceResourceService serviceResourceService;
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
+    @Inject
+    private InputsPreProcessorService inputsPreProcessorService;
+    @Inject
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     /**
      * Get all available substitutions (LocationResourceTemplate) for the given node templates with given dependencies and location groups
@@ -94,15 +101,29 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
      */
     @Override
     public Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(DeploymentTopology deploymentTopology) {
-        return getAvailableSubstitutions(deploymentTopology.getOriginalNodes(), deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups(),
+        // Get available substitutions should take inputs and other get properties method into account.
+        // TODO rewrite this for better performance
+        ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(deploymentTopology.getEnvironmentId());
+        // The deployment topology may be saved after this operation is called so don't alter original nodes
+        Map<String, NodeTemplate> clonedOriginals = Maps.newHashMap();
+        for (Entry<String, NodeTemplate> originalEntry : deploymentTopology.getOriginalNodes().entrySet()) {
+            NodeTemplate cloned = CloneUtil.clone(originalEntry.getValue());
+            clonedOriginals.put(originalEntry.getKey(), cloned);
+        }
+        Topology topology = new Topology();
+        topology.setNodeTemplates(clonedOriginals);
+        topology.setDependencies(deploymentTopology.getDependencies());
+        DeploymentTopology inputFilledDepTopo = new DeploymentTopology();
+        inputFilledDepTopo.setInputProperties(deploymentTopology.getInputProperties());
+        inputFilledDepTopo.setLocationGroups(deploymentTopology.getLocationGroups());
+        inputFilledDepTopo.setNodeTemplates(clonedOriginals);
+        inputFilledDepTopo.setDependencies(deploymentTopology.getDependencies());
+        // This will inject inputs into the clonedOriginals nodes.
+        inputsPreProcessorService.injectInputValues(inputFilledDepTopo, environment, topology);
+
+        return getAvailableSubstitutions(clonedOriginals, deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups(),
                 deploymentTopology.getEnvironmentId());
     }
-
-    /**
-     * Process node substitution for the deployment topology
-     *
-     * @param deploymentTopology the deployment topology to process substitution
-     */
 
     /*
      * (non-Javadoc)
