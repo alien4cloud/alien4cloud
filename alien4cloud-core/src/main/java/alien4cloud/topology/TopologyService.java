@@ -1,8 +1,12 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 import javax.annotation.Resource;
@@ -169,7 +173,7 @@ public class TopologyService {
      * @param nodeTemplatesToFilters The map of filters in which to add the filter for the new Node.
      */
     public void processNodeTemplate(final Topology topology, final Entry<String, NodeTemplate> nodeTempEntry,
-            Map<String, Map<String, Set<String>>> nodeTemplatesToFilters) {
+                                    Map<String, Map<String, Set<String>>> nodeTemplatesToFilters) {
         String capabilityFilterKey = "capabilities.type";
         String requirementFilterKey = "requirements.type";
         NodeTemplate template = nodeTempEntry.getValue();
@@ -209,7 +213,7 @@ public class TopologyService {
      * Search for nodeTypes given some filters. Apply AND filter strategy when multiple values for a filter key.
      */
     public List<SuggestionsTask> searchForNodeTypes(String workspace, Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
-            Map<String, NodeType> toExcludeIndexedNodeTypes) throws IOException {
+                                                    Map<String, NodeType> toExcludeIndexedNodeTypes) throws IOException {
         if (nodeTemplatesToFilters == null || nodeTemplatesToFilters.isEmpty()) {
             return null;
         }
@@ -233,25 +237,13 @@ public class TopologyService {
                 GetMultipleDataResult<NodeType> searchResult = alienDAO.search(NodeType.class, null, formattedFilters, filterValueStrategy, 20);
                 data = getIndexedNodeTypesFromSearchResponse(searchResult, toExcludeIndexedNodeTypes.get(nodeTemplatesToFiltersEntry.getKey()));
             }
-
-            boolean empty = ArrayUtils.isEmpty(data);
-            boolean moreThanOne = ArrayUtils.getLength(data) > 1;
-            if(empty || moreThanOne ){
-                TaskCode taskCode = null;
-                if(empty){
-                    taskCode = TaskCode.IMPLEMENT;
-                }
-                if(moreThanOne){
-                    taskCode = TaskCode.REPLACE;
-                }
-
-                SuggestionsTask task = new SuggestionsTask();
-                task.setNodeTemplateName(nodeTemplatesToFiltersEntry.getKey());
-                task.setComponent(toExcludeIndexedNodeTypes.get(nodeTemplatesToFiltersEntry.getKey()));
-                task.setCode(taskCode);
-                task.setSuggestedNodeTypes(data);
-                toReturnTasks.add(task);
-            }
+            TaskCode taskCode = ArrayUtils.isEmpty(data) ? TaskCode.IMPLEMENT : TaskCode.REPLACE;
+            SuggestionsTask task = new SuggestionsTask();
+            task.setNodeTemplateName(nodeTemplatesToFiltersEntry.getKey());
+            task.setComponent(toExcludeIndexedNodeTypes.get(nodeTemplatesToFiltersEntry.getKey()));
+            task.setCode(taskCode);
+            task.setSuggestedNodeTypes(data);
+            toReturnTasks.add(task);
         }
 
         return toReturnTasks;
@@ -393,7 +385,7 @@ public class TopologyService {
 
     /**
      * Check for missing types in the Topology
-     * 
+     *
      * @param topology the topology
      * @throws NotFoundException if the Type is used in the topology and not found in its context.
      */
