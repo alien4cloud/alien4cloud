@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import org.alien4cloud.tosca.model.Csar;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
@@ -111,7 +112,9 @@ public class CsarGitServiceTest {
 
         // now we re-import
         result = csarGitService.importFromGitRepository(repoId);
-        Assert.assertEquals(0, result.size());
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(ErrorCode.CSAR_ALREADY_INDEXED, result.get(0).getContext().getParsingErrors().get(0).getErrorCode());
+        Assert.assertEquals(ErrorCode.CSAR_ALREADY_INDEXED, result.get(1).getContext().getParsingErrors().get(0).getErrorCode());
     }
 
     @Test
