@@ -21,6 +21,8 @@ define(function(require) {
           topologyServices.dao.get({
             topologyId: topology.id
           }, function (result) {
+            delete scope.selectedTopologyWarning;
+            delete scope.selectedTopologyError;
             if (_.defined(result.error)) {
               switch (result.error.code) {
                 case 860:
@@ -34,6 +36,10 @@ define(function(require) {
               scope.selectedTopologyError = 870;
             }
           });
+        };
+
+        scope.isSelected = function(topology){
+          return _.isEqual(_.get(scope, 'topologyTemplate.versionId'), topology.id);
         };
       }
     };

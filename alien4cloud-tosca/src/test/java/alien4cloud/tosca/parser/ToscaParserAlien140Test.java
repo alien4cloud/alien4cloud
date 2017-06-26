@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
@@ -32,6 +31,7 @@ import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
 
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.tosca.model.ArchiveRoot;
 
 /**
@@ -52,8 +52,10 @@ public class ToscaParserAlien140Test extends AbstractToscaParserSimpleProfileTes
     public void testServiceRelationshipSubstitution() throws FileNotFoundException, ParsingException {
         Mockito.reset(csarRepositorySearchService);
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
+        NodeType mockRoot = Mockito.mock(NodeType.class);
+        Mockito.when(mockRoot.isAbstract()).thenReturn(true);
         Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
-                .thenReturn(Mockito.mock(NodeType.class));
+                .thenReturn(mockRoot);
         Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Root"),
                 Mockito.any(Set.class))).thenReturn(Mockito.mock(CapabilityType.class));
         Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.Root"),

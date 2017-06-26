@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
@@ -30,7 +31,6 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
-import org.alien4cloud.alm.service.ServiceResourceService;
 
 /**
  * Process the deployment topology to override service side of relationships (when node are matched againts services).
@@ -84,7 +84,7 @@ public class ServiceResourceRelationshipService {
 
     private void processTargetOperations(PaaSRelationshipTemplate paaSRelationshipTemplate, ServiceResource serviceResource, Interface templateInterface) {
         // for services that are target of a relationship, all operations related to target (the service) are not run.
-        if (paaSRelationshipTemplate.getTemplate().getTargetedCapabilityName() != null) {
+        if (paaSRelationshipTemplate.getTemplate().getTargetedCapabilityName() != null && serviceResource.getCapabilitiesRelationshipTypes() != null) {
             String relationshipTypeId = serviceResource.getCapabilitiesRelationshipTypes()
                     .get(paaSRelationshipTemplate.getTemplate().getTargetedCapabilityName());
             if (relationshipTypeId != null) {

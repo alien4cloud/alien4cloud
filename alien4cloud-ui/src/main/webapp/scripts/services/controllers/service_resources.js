@@ -35,6 +35,20 @@ define(function (require) {
       var orchestratorsService = $alresource('rest/latest/orchestrators/:id');
       var locationsService = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:id');
       var typeWithDependenciesService = $alresource('rest/latest/catalog/types/adv/typewithdependencies/:typeId/:typeVersion');
+      $scope.serviceTypesFilter = {
+        abstract: true
+      };
+
+      $scope.newAttribute = {
+        "key": '',
+        "value": {
+          "default": null,
+          "definition": false,
+          "type": 'string',
+          "description": 'user_defined_attribute',
+          "value": ''
+        }
+      };
 
       $scope.dimensions = { width: 800, height: 500 };
       resizeServices.registerContainer(function (width, height) {
@@ -94,13 +108,67 @@ define(function (require) {
 
         modalInstance.result.then(function(createServiceRequest) {
           serviceResourceService.create([], angular.toJson(createServiceRequest), function() {
-            $scope.searchService.search(); // refresh the view
+            $scope.search(); // refresh the view
           });
         });
       };
 
+      $scope.deleteAttributeFromUser = function (attributeKey) {
+        $scope.selectedNodeType.attributesFromUser = $scope.selectedNodeType.attributesFromUser.filter(e => e.key !== attributeKey);
+        $scope.selectedNodeType.attributes = $scope.selectedNodeType.attributes.filter(e => e.key !== attributeKey);
+        $scope.updateAttribute(attributeKey, null);
+      };
+
+      $scope.addAttributeFromUser = function () {
+        if(isBlank($scope.newAttribute.key)){
+          return;
+        }
+        
+        var clone = _.clone($scope.newAttribute, true);
+        $scope.selectedNodeType.attributesFromUser.push(clone);
+        $scope.selectedNodeType.attributes.push(clone);
+        $scope.selectedService.nodeInstance.attributeValues[clone.key] = clone.value.value;
+
+        $scope.newAttribute.key = '';
+        $scope.newAttribute.value.value = '';
+
+        $scope.updateAttribute(clone.key, clone.value.value);
+      };
+
+      function isAttributeFromModel(attributeKey) {
+        return _.defined($scope.selectedService.nodeInstance.nodeTemplate.attributes.find(e => e.key == attributeKey)); 
+      }
+
+      function isBlank(str) {
+          return (!str || (/^\s*$/).test(str));
+      }
+
+      $scope.modelAttributeKeys = [];
+      $scope.userAttributesKeys = [];
       function setSelectedTypesToScope() {
         $scope.selectedNodeType = $scope.selectedService.uiNodeType;
+
+        // model attributes: $scope.selectedService.nodeInstance.nodeTemplate.attributes
+        // model + user attributes: $scope.selectedService.nodeInstance.attributeValues
+
+        $scope.selectedNodeType.attributesFromModel = $scope.selectedNodeType.attributes.filter(e => isAttributeFromModel(e.key));
+        $scope.selectedNodeType.attributesFromUser = [];
+        var attrValues = $scope.selectedService.nodeInstance.attributeValues;
+        for (var key in attrValues) {
+          if (attrValues.hasOwnProperty(key) && !isAttributeFromModel(key)) {
+            $scope.selectedNodeType.attributesFromUser.push({
+              "key": key,
+              "value": {
+                "default": null,
+                "definition": false,
+                "type": 'string',
+                "description": 'user_defined_attribute',
+                "value": attrValues[key]
+              }
+            });
+          }
+        }
+
         $scope.selectedCapabilityTypes = $scope.selectedService.uiCapabilityTypes;
         $scope.selectedDependencies = $scope.selectedService.uiDependencies;
         $scope.selectedDataTypes = $scope.selectedService.uiDataTypes;
@@ -110,6 +178,8 @@ define(function (require) {
         delete $scope.selectedService;
         delete $scope.selectedNodeType;
         delete $scope.stateDisabled;
+        $scope.newAttribute.key = '';
+        $scope.newAttribute.value.value = '';
       };
 
       $scope.clearSelection = clearSelection;

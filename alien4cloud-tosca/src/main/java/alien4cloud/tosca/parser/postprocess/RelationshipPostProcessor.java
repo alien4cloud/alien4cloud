@@ -92,7 +92,9 @@ public class RelationshipPostProcessor {
             }
         } else {
             // Let's try to find if the target node has a capability as named in the capability string of the relationship (requirement assignment)
-            capability = targetNodeTemplate.getCapabilities().get(capabilityStr);
+            if (targetNodeTemplate.getCapabilities() != null) {
+                capability = targetNodeTemplate.getCapabilities().get(capabilityStr);
+            }
             if (capability == null) {
                 // The capabilityStr may be the name of a type
                 capability = getCapabilityByType(targetNodeTemplate, relationshipTemplate, capabilityStr);

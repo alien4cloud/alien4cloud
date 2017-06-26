@@ -418,7 +418,7 @@ define(function(require) {
         scope.input.newValue = scope.input.value;
         if (scope.propertyType._type === 'number') {
           if (_.undefined(scope.propertyType._step)) {
-            scope.propertyType._step = 1;
+            scope.propertyType._step = 'any';
           }
         }
 

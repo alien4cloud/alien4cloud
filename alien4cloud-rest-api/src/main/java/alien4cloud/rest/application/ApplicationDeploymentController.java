@@ -3,12 +3,18 @@ package alien4cloud.rest.application;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.service.ServiceResource;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
@@ -67,6 +73,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 @Slf4j
 @RestController
 @RequestMapping({ "/rest/applications", "/rest/v1/applications", "/rest/latest/applications" })
@@ -96,6 +104,8 @@ public class ApplicationDeploymentController {
     private LocationSecurityService locationSecurityService;
     @Inject
     private ApplicationEnvironmentDTOBuilder dtoBuilder;
+    @Inject
+    private ServiceResourceService serviceResourceService;
 
     /**
      * Trigger deployment of the application on the current configured PaaS.
@@ -126,6 +136,10 @@ public class ApplicationDeploymentController {
 
         DeploymentTopology deploymentTopology = getDeploymentTopologyAndCheckAuthorization(environment);
 
+        // service attributes can be modified by a user (user attributes)
+        // reload latest version of attributeValues
+        refreshServiceAttributesValues(deploymentTopology);
+
         // prepare the deployment
         TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);
 
@@ -140,6 +154,22 @@ public class ApplicationDeploymentController {
         // process with the deployment
         deployService.deploy(deploymentTopology, application);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    private void refreshServiceAttributesValues(DeploymentTopology deploymentTopology) {
+        boolean needUpdate = false;
+        for(Map.Entry<String, NodeTemplate> entry : safe(deploymentTopology.getNodeTemplates()).entrySet()) {
+            NodeTemplate nodeTemplate = entry.getValue();
+            if(nodeTemplate instanceof ServiceNodeTemplate){
+                ServiceNodeTemplate service = (ServiceNodeTemplate) nodeTemplate;
+                ServiceResource serviceResource = serviceResourceService.getOrFail(service.getServiceResourceId());
+                service.setAttributeValues(Maps.newHashMap(serviceResource.getNodeInstance().getAttributeValues()));
+                needUpdate = true;
+            }
+        }
+        if(needUpdate){
+            deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
+        }
     }
 
     /**

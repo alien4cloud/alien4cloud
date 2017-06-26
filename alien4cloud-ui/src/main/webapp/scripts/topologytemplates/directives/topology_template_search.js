@@ -18,7 +18,8 @@ define(function (require) {
         onSearchConfig: '&',
         archiveLink: '=',
         defaultFilters: '=',
-        staticFacets: '='
+        staticFacets: '=',
+        isSelected: '&?',
       }
     };
   });

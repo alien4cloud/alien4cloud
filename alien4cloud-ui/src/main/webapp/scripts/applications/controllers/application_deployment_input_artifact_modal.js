@@ -3,8 +3,8 @@ define(function (require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-applications', ['ui.bootstrap']).controller('ApplicationInputArtifactModalCtrl', ['$scope', 'Upload', '$uibModalInstance', '$translate', 'explorerService','archiveContentTree', 'availableRepositories', 'artifact', 'artifactKey', 'application', 'deploymentContext','updateScopeDeploymentTopologyDTO', 'toaster',
-    function($scope, $upload, $uibModalInstance, $translate, explorerService, archiveContentTree, availableRepositories, artifact, artifactKey, application, deploymentContext,updateScopeDeploymentTopologyDTO, toaster) {
+  modules.get('a4c-applications', ['ui.bootstrap']).controller('ApplicationInputArtifactModalCtrl', ['$scope', 'Upload', '$uibModalInstance', '$translate', 'explorerService','archiveContentTree', 'availableRepositories', 'artifact', 'artifactKey', 'application', 'deploymentContext','updateScopeDeploymentTopologyDTO', 'topology', 'toaster',
+    function($scope, $upload, $uibModalInstance, $translate, explorerService, archiveContentTree, availableRepositories, artifact, artifactKey, application, deploymentContext,updateScopeDeploymentTopologyDTO, topology, toaster) {
       $scope.artifact = {};
 
       $scope.deploymentContext = deploymentContext;
@@ -29,6 +29,8 @@ define(function (require) {
         var dirName = node.fullPath.substring(node.fullPath.split('/', 2).join('/').length+1);
         $scope.artifact.repository = 'alien_topology';
         $scope.artifact.reference = dirName;
+        $scope.artifact.archiveVersion = topology.archiveVersion;
+        $scope.artifact.archiveName = topology.archiveName;
       };
 
       var root = archiveContentTree.children[0];
@@ -100,6 +102,9 @@ define(function (require) {
           artifact.reference = $scope.selectedRepository.file;
           artifact.repositoryUrl = $scope.selectedRepository.url;
           artifact.repositoryName = $scope.selectedRepository.id;
+          artifact.archiveVersion = null;
+          artifact.archiveName = null;
+
           $uibModalInstance.close(artifact);
         }
       };

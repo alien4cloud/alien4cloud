@@ -140,7 +140,6 @@
                   <table class="table">
                     <thead>
                       <tr>
-                        <th></th>
                         <th>{{ 'APPLICATIONS.RUNTIME.INSTANCE' | translate }}</th>
                         <th>{{ 'COMMON.STATE' | translate }}</th>
                         <th>{{ 'APPLICATIONS.RUNTIME.STATUS' | translate }}</th>
@@ -148,12 +147,11 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr ng-repeat="(id, info) in topology.instances[selectedNodeTemplate.name]">
-                        <td class="col-md-1">
-                          <button id="instanceDetailButton_{{id}}" class="btn btn-default btn-xs" ng-click="selectInstance(id)" >
-                            <i class="fa fa-eye"></i>
-                          </button>
-                        </td>
+                      <tr ng-repeat="(id, info) in topology.instances[selectedNodeTemplate.name]"
+                        id="instanceDetailButton_{{id}}"
+                        class="clickable"
+                        title="details"
+                        ng-click="selectInstance(id)" >
                         <td class="col-md-2">{{id}}</td>
                         <td class="col-md-7">{{'STATES.'+info.state | translate}}</td>
                         <td class="col-md-1">

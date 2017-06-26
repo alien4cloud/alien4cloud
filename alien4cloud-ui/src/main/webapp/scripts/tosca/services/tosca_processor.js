@@ -13,13 +13,13 @@ define(function(require) {
     return {
       processNodeType: function(nodeType) {
         // if the node has not been processed yet
-        if(_.defined(nodeType.properties) && _.undefined(nodeType.propertiesMap)) {
+        if(_.definedPath(nodeType,'properties') && _.undefinedPath(nodeType,'propertiesMap')) {
           listToMapService.process(nodeType, 'properties');
         }
       },
       processNodeTemplate: function(nodeTemplate) {
         // if the node has not been processed yet
-        if(_.defined(nodeTemplate.properties) && _.undefined(nodeTemplate.propertiesMap)) {
+        if(_.definedPath(nodeTemplate,'properties') && _.undefinedPath(nodeTemplate,'propertiesMap')) {
           listToMapService.process(nodeTemplate, 'properties');
           listToMapService.process(nodeTemplate, 'requirements');
           listToMapService.process(nodeTemplate, 'capabilities');
@@ -34,12 +34,12 @@ define(function(require) {
       },
       processDataTypes: function(dataType) {
         // if the node has not been processed yet
-        if(_.defined(dataType.properties) && _.undefined(dataType.propertiesMap)) {
+        if(_.definedPath(dataType,'properties') && _.undefinedPath(dataType,'propertiesMap')) {
           listToMapService.process(dataType, 'properties');
         }
       },
       processCapabilityType: function(capabilityType) {
-        if(_.defined(capabilityType.properties) && _.undefined(capabilityType.propertiesMap)) {
+        if(_.definedPath(capabilityType,'properties') && _.undefinedPath(capabilityType,'propertiesMap')) {
           listToMapService.process(capabilityType, 'properties');
         }
       }

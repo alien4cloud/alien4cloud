@@ -145,7 +145,7 @@ define(function (require) {
                   if (inputParameter.definition) {
                     inputParameter.interface = interfaceName;
                     inputParameter.operation = operation;
-                    inputParameter.paramValue = inputParameter.paramValue || '';
+                    inputParameter.paramValue = inputParameter.paramValue || _.get(inputParameter, 'default.value') || '';
                     // if (inputParameter.type === 'timestamp') {
                     //   inputParameter.paramValue = Date.now();
                     // }

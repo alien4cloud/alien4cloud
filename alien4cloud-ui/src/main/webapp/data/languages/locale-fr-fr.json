@@ -41,12 +41,12 @@
         "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
       },
       "SETUP": {
-        "TITLE": "Configuration du déployment",
-        "MESSAGE": "Configurez et préparez le prochain déployment."
+        "TITLE": "Configuration du déploiement",
+        "MESSAGE": "Configurez et préparez le prochain déploiement."
       },
       "DEPLOYED_INFOS": {
-        "TITLE": "Déployment actif",
-        "MESSAGE": "Informations concernant le déployment actif."
+        "TITLE": "Déploiement actif",
+        "MESSAGE": "Informations concernant le déploiement actif."
       },
       "VERSION" : "Version déployée"
     },
@@ -121,7 +121,6 @@
       "STATUS" : "Statut",
       "VALUE" : "Valeur"
     },
-    "SHOW_DEPLOYED_APP" : "Afficher seulement les applications déployées.",
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "Ajouter un Noeud",
       "ADD_RELATIONSHIP" : "Ajouter une relation",
@@ -439,6 +438,7 @@
   "CODE" : "fr-fr",
   "COMMON" : {
     "ADD" : "Ajouter",
+    "ADD_USER_ATTRIBUTE": "Ajouter un attribut utilisateur",
     "ATTRIBUTES" : "Attributs",
     "AUTHOR" : "Auteur",
     "AUTHORIZED": "Authorisé",
@@ -455,6 +455,7 @@
     "ID" : "Id",
     "INFO" : "Information",
     "INFOS" : "Informations",
+    "KEY": "Clef",
     "MESSAGE" : "Message",
     "NAME" : "Nom",
     "NO" : "Non",
@@ -556,6 +557,7 @@
       "TOSCA_VERSION_NOT_FIRST" : "La version de TOSCA doit-être la première ligne du document TOSCA.",
       "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT" : "La dépendance transitive [{{problem}}] est en conflit avec la dépendance directe [{{context}}]. Le conflit a été résolu en utilisant la version [{{note}}] de la dépendance directe.",
       "TYPE_NOT_FOUND" : "Le type [ {{note}} ] référencé n'existe ni dans l'archive ni dans ses dépendances. Veuillez valider les imports de dépendances ou ajouter le type à votre archive.",
+      "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION": "Substitution hérite le type concret [ {{note}} ], merci d'utiliser un type abstrait.",
       "ToscaPropertyConstraint" : "La contrainte [ {{path}} ] n'est pas correctement définie ou ne peut-être appliquée sur la propriété (type).",
       "ToscaPropertyConstraintDuplicate" : "La contrainte [ {{path}} ] est déjà présente. Une même contrainte ne peut-être définie plusieurs fois.",
       "ToscaPropertyDefaultValueConstraints" : "La valeur par défaut de la propriété [ {{path}} ] ne respecte pas les contraintes définies sur celle-ci.",
@@ -944,7 +946,7 @@
   "OK" : "OK",
   "OPTIONAL" : "Optionnel",
   "ORCHESTRATORS" : {
-    "ORCHESTRATOR": "Orchestrator",
+    "ORCHESTRATOR": "Orchestrateur",
     "ARTIFACTS" : {
       "MANAGED" : "Artefacts supportés"
     },
@@ -1092,7 +1094,7 @@
         "CONFIRM_MESSAGE": "Voulez-vous vraiment exposer ce déploiement en tant que service?"
       },
       "UNBIND": {
-        "MESSAGE": "Dissocier ce service de cet environment.",
+        "MESSAGE": "Dissocier le service de cet environment.",
         "CONFIRM_TITLE": "Dissocier le service",
         "CONFIRM_MESSAGE": "Voulez-vous vraiment dissocier ce service de cet environment?\nLe service sera supprimé s'il n'est utilisé par aucune resource. Sinon, Vous devrez alors contacter votre administrateur pour un nettoyage."
       }

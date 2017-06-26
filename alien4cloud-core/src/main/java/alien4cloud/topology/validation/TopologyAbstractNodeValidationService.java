@@ -7,19 +7,19 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.task.SuggestionsTask;
 import lombok.SneakyThrows;
 
 /**
- * Performs validation by checking that no nodes in a topology are abstract (and cannot be instanciated).
+ * Performs validation by checking that no nodes in a deployment topology are abstract (and cannot be instantiated).
  */
 @Component
 public class TopologyAbstractNodeValidationService {
@@ -30,16 +30,29 @@ public class TopologyAbstractNodeValidationService {
     private TopologyService topologyService;
 
     /**
-     * Find replacements components for abstract nodes in a Topology
+     * Build user error messages (contained into SuggestionsTask) if an abstract node is not substituted
      */
     @SneakyThrows({ IOException.class })
-    public List<SuggestionsTask> findReplacementForAbstracts(Topology topology) {
-        Map<String, NodeType> nodeTempNameToAbstractIndexedNodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, true, true, true);
+    public List<SuggestionsTask> findReplacementForAbstracts(DeploymentTopology deploymentTopology) {
+        Map<String, NodeType> nodeTempNameToAbstractIndexedNodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(deploymentTopology, true, true, true);
+
+        // node type can be abstract if its substitute is a service (a service CANNOT be registered with a concrete type in A4C)
+        exclude(nodeTempNameToAbstractIndexedNodeTypes, deploymentTopology.getSubstitutedNodes());
+
         Map<String, Map<String, Set<String>>> nodeTemplatesToFilters = Maps.newHashMap();
         for (Map.Entry<String, NodeType> idntEntry : nodeTempNameToAbstractIndexedNodeTypes.entrySet()) {
-            topologyService.processNodeTemplate(topology, Maps.immutableEntry(idntEntry.getKey(), topology.getNodeTemplates().get(idntEntry.getKey())),
+            topologyService.processNodeTemplate(deploymentTopology, Maps.immutableEntry(idntEntry.getKey(), deploymentTopology.getNodeTemplates().get(idntEntry.getKey())),
                     nodeTemplatesToFilters);
         }
-        return topologyService.searchForNodeTypes(topology.getWorkspace(), nodeTemplatesToFilters, nodeTempNameToAbstractIndexedNodeTypes);
+        return topologyService.searchForNodeTypes(deploymentTopology.getWorkspace(), nodeTemplatesToFilters, nodeTempNameToAbstractIndexedNodeTypes);
+    }
+
+    private void exclude(Map<String, NodeType> nodeTempNameToAbstractIndexedNodeTypes, Map<String, String> substitutedNodes) {
+        if(substitutedNodes == null){
+            return;
+        }
+        substitutedNodes.forEach((k,v) -> {
+            nodeTempNameToAbstractIndexedNodeTypes.remove(k);
+        });
     }
 }

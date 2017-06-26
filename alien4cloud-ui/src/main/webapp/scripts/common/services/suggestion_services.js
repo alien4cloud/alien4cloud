@@ -30,10 +30,20 @@ define(function (require) {
         return result.data;
       });
     };
+  
+    var getAbstractNodetypeSuggestions = function(keyword) {
+      return nodetypeSuggestionResource.get({
+        text : keyword,
+        isAbstract: true
+      }).$promise.then(function(result) {
+        return result.data;
+      });
+    };
 
     return {
       tagNameSuggestions : getTagNameSuggestions,
-      nodetypeSuggestions : getNodetypeSuggestions
+      nodetypeSuggestions : getNodetypeSuggestions,
+      abstractNodetypeSuggestions : getAbstractNodetypeSuggestions
     };
 
   }]); // factory

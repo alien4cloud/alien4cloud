@@ -2,6 +2,8 @@ package alien4cloud.paas.wf.validation;
 
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -55,6 +57,8 @@ public class StateSequenceValidation implements Rule {
 
     private static final Map<String, Integer> INSTALL_STATES_SEQUENCE;
     private static final Map<String, Integer> UNINSTALL_STATES_SEQUENCE;
+    private static final Map<String, Integer> START_STATES_SEQUENCE;
+    private static final Map<String, Integer> STOP_STATES_SEQUENCE;
 
     static {
         INSTALL_STATES_SEQUENCE = new HashMap<String, Integer>();
@@ -65,11 +69,17 @@ public class StateSequenceValidation implements Rule {
         INSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.CONFIGURED, 4);
         INSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STARTING, 5);
         INSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STARTED, 6);
+        START_STATES_SEQUENCE = new HashMap<String, Integer>();
+        START_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STARTING, 0);
+        START_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STARTED, 1);
         UNINSTALL_STATES_SEQUENCE = new HashMap<String, Integer>();
         UNINSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STOPPING, 0);
         UNINSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STOPPED, 1);
         UNINSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.DELETING, 2);
         UNINSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.DELETED, 3);
+        STOP_STATES_SEQUENCE = new HashMap<String, Integer>();
+        STOP_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STOPPING, 0);
+        STOP_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STOPPED, 1);
     }
 
     @Override
@@ -198,6 +208,10 @@ public class StateSequenceValidation implements Rule {
         } else if (workflow.getName().equals(INSTALL)) {
             return INSTALL_STATES_SEQUENCE;
         } else if (workflow.getName().equals(UNINSTALL)) {
+            return UNINSTALL_STATES_SEQUENCE;
+        } else if (workflow.getName().equals(START)) {
+            return INSTALL_STATES_SEQUENCE;
+        } else if (workflow.getName().equals(STOP)) {
             return UNINSTALL_STATES_SEQUENCE;
         } else {
             return null;

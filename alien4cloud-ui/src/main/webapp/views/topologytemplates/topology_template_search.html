@@ -23,7 +23,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="topology in searchConfig.result.data" ng-click="onSelect({topology: topology})" id="topology_{{topology.archiveName}}" class="clickable">
+          <tr ng-repeat="topology in searchConfig.result.data" ng-click="onSelect({topology: topology})" id="topology_{{topology.archiveName}}" class="clickable"
+            ng-class="{info: isSelected({topology: topology})}">
             <td>
               <i class="pull-left media-object fa fa-sitemap fa-2x"></i>
             </td>

@@ -43,8 +43,8 @@ public class PaaSUtils {
     public static PaaSNodeTemplate getMandatoryHostTemplate(final PaaSNodeTemplate paaSNodeTemplate) {
         PaaSNodeTemplate nodeTemplate = getHostTemplate(paaSNodeTemplate);
         if (nodeTemplate == null) {
-            throw new PaaSTechnicalException("Cannot get the service name: The node template <" + paaSNodeTemplate.getId()
-                    + "> is not declared as hosted on a compute.");
+            throw new PaaSTechnicalException(
+                    "Cannot get the service name: The node template <" + paaSNodeTemplate.getId() + "> is not declared as hosted on a compute.");
         } else {
             return nodeTemplate;
         }
@@ -84,16 +84,13 @@ public class PaaSUtils {
      * @param nodeTemplates The map of @{@link PaaSNodeTemplate} to process. Should contain ALL the nodes, or at least the nodes parts of a relationship
      */
     public static void injectPropertiesAsOperationInputs(Map<String, PaaSNodeTemplate> nodeTemplates) {
-        AlienUtils
-                .safe(nodeTemplates)
-                .values()
-                .forEach(paaSNodeTemplate -> {
-                    // process node template
-                        processNodeTemplateProperties(paaSNodeTemplate);
-                        // process relationships
-                        paaSNodeTemplate.getRelationshipTemplates().forEach(
-                                paaSRelationshipTemplate -> processRelationshipTemplateProperties(paaSRelationshipTemplate, nodeTemplates));
-                    });
+        AlienUtils.safe(nodeTemplates).values().forEach(paaSNodeTemplate -> {
+            // process node template
+            processNodeTemplateProperties(paaSNodeTemplate);
+            // process relationships
+            paaSNodeTemplate.getRelationshipTemplates()
+                    .forEach(paaSRelationshipTemplate -> processRelationshipTemplateProperties(paaSRelationshipTemplate, nodeTemplates));
+        });
 
     }
 
@@ -129,9 +126,9 @@ public class PaaSUtils {
         }
         template.getCapabilities().forEach((capabilityName, capability) -> {
             // input name: CAPABILITIES_<capabilityName>_<propertyName>
-                injectPropertiesAsInputs(ToscaFunctionConstants.SELF, capabilityName, capability.getProperties(), interfaces, baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR,
-                        ToscaFunctionConstants.SELF, CAPABILITIES, capabilityName, baseName));
-            });
+            injectPropertiesAsInputs(ToscaFunctionConstants.SELF, capabilityName, capability.getProperties(), interfaces,
+                    baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.SELF, CAPABILITIES, capabilityName, baseName));
+        });
     }
 
     /**
@@ -152,7 +149,8 @@ public class PaaSUtils {
      * @param paaSRelationshipTemplate The {@link PaaSRelationshipTemplate} to process
      * @param paaSNodeTemplates All the nodes of the topology
      */
-    public static void processRelationshipTemplateProperties(PaaSRelationshipTemplate paaSRelationshipTemplate, Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+    public static void processRelationshipTemplateProperties(PaaSRelationshipTemplate paaSRelationshipTemplate,
+            Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
         RelationshipTemplate template = paaSRelationshipTemplate.getTemplate();
         // inject relationship properties
         injectPropertiesAsInputs(ToscaFunctionConstants.SELF, null, template.getProperties(), paaSRelationshipTemplate.getInterfaces(),
@@ -171,10 +169,12 @@ public class PaaSUtils {
     }
 
     private static void injectTargetedCapabilityProperties(PaaSNodeTemplate target, String capabilityName, Map<String, Interface> interfaces) {
-        Capability capability = target.getTemplate().getCapabilities().get(capabilityName);
-        // input name: TARGET_CAPABILITIES_<capabilityName>_<propertyName>
-        injectPropertiesAsInputs(ToscaFunctionConstants.TARGET, capabilityName, capability.getProperties(), interfaces,
-                baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.TARGET, CAPABILITIES, capabilityName, baseName));
+        if (target.getTemplate().getCapabilities() != null && target.getTemplate().getCapabilities().containsKey(capabilityName)) {
+            Capability capability = target.getTemplate().getCapabilities().get(capabilityName);
+            // input name: TARGET_CAPABILITIES_<capabilityName>_<propertyName>
+            injectPropertiesAsInputs(ToscaFunctionConstants.TARGET, capabilityName, capability.getProperties(), interfaces, baseName -> StringUtils
+                    .joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.TARGET, CAPABILITIES, capabilityName, baseName));
+        }
     }
 
     private static void injectSourcePropertiesAsInputs(PaaSNodeTemplate source, Map<String, Interface> interfaces) {
@@ -186,13 +186,13 @@ public class PaaSUtils {
 
     private static void injectTargetPropertiesAsInputs(PaaSNodeTemplate target, Map<String, Interface> interfaces) {
         // input name: TARGET_<propertyName>
-        injectPropertiesAsInputs(ToscaFunctionConstants.TARGET, null , target.getTemplate().getProperties(), interfaces,
+        injectPropertiesAsInputs(ToscaFunctionConstants.TARGET, null, target.getTemplate().getProperties(), interfaces,
                 baseName -> StringUtils.joinWith(AlienUtils.DEFAULT_PREFIX_SEPARATOR, ToscaFunctionConstants.TARGET, baseName));
 
     }
 
-    private static void injectPropertiesAsInputs(String entity, String capabilityName, Map<String, AbstractPropertyValue> properties, Map<String, Interface> interfaces,
-            Function<String, String> inputNameBuilder) {
+    private static void injectPropertiesAsInputs(String entity, String capabilityName, Map<String, AbstractPropertyValue> properties,
+            Map<String, Interface> interfaces, Function<String, String> inputNameBuilder) {
         if (MapUtils.isEmpty(interfaces) || MapUtils.isEmpty(properties)) {
             return;
         }
@@ -227,8 +227,8 @@ public class PaaSUtils {
             }
 
             // DO NOT OVERRIDE
-                operation.getInputParameters().putIfAbsent(inputName, finalValue);
-            });
+            operation.getInputParameters().putIfAbsent(inputName, finalValue);
+        });
     }
 
 }

@@ -55,7 +55,7 @@ public class PropertyValueService {
         }
     }
 
-    private static String getValueInUnit(String propertyValue, String unit, boolean ceil, String toscaType) {
+    public static String getValueInUnit(String propertyValue, String unit, boolean ceil, String toscaType) {
         IPropertyType type = ToscaTypes.fromYamlTypeName(toscaType);
         if (type instanceof ScalarType) {
             try {

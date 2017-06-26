@@ -5,12 +5,13 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -33,6 +34,7 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Tag;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import io.swagger.annotations.Api;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
@@ -47,8 +49,8 @@ public class SuggestionController {
     private static final int SUGGESTION_COUNT = 10;
     private static final String TAG_FIELD = "tags";
     private static final String[] INDEXES = new String[] { ElasticSearchDAO.TOSCA_ELEMENT_INDEX, Application.class.getSimpleName().toLowerCase() };
-    private static final Class<?>[] CLASSES = new Class<?>[] { Application.class, NodeType.class, ArtifactType.class,
-            CapabilityType.class, RelationshipType.class };
+    private static final Class<?>[] CLASSES = new Class<?>[] { Application.class, NodeType.class, ArtifactType.class, CapabilityType.class,
+            RelationshipType.class };
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
@@ -101,18 +103,22 @@ public class SuggestionController {
     @ApiIgnore
     @RequestMapping(value = "/nodetypes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<String[]> nodeTypeSuggest(@RequestParam("text") String searchText) {
+    public RestResponse<String[]> nodeTypeSuggest(@RequestParam("text") String searchText,
+            @RequestParam(value = "isAbstract", required = false) Boolean isAbstract) {
         if (searchText == null || searchText.trim().isEmpty()) {
             return RestResponseBuilder.<String[]> builder().data(new String[0]).build();
         }
+        searchText = StringUtils.lowerCase(searchText);
         QueryBuilder queryOnText = QueryBuilders.regexpQuery("elementId", ".*?" + searchText + ".*");
         // FIXME the way of getting the highest version of a component has changed
         // QueryBuilder queryOnHighest = QueryBuilders.termQuery("highestVersion", true);
-        QueryBuilder query = QueryBuilders.boolQuery().must(queryOnText);
-        return RestResponseBuilder.<String[]> builder()
-                .data(dao.selectPath(dao.getIndexForType(NodeType.class), new String[] { MappingBuilder.indexTypeFromClass(NodeType.class) }, query,
-                        SortOrder.ASC, "elementId", 0, 10))
-                .build();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery().must(queryOnText);
+        QueryBuilder query = boolQueryBuilder;
+        if (isAbstract != null) {
+            query = boolQueryBuilder.must(QueryBuilders.termQuery("abstract", isAbstract));
+        }
+        return RestResponseBuilder.<String[]> builder().data(dao.selectPath(dao.getIndexForType(NodeType.class),
+                new String[] { MappingBuilder.indexTypeFromClass(NodeType.class) }, query, SortOrder.ASC, "elementId", 0, 10)).build();
     }
 
 }

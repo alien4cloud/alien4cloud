@@ -150,32 +150,6 @@ h4 .editable-error {
   color: white;
 }
 
-#editor-head-menu .ui-select-container {
-  min-width: 140px;
-  display: inline-block;
-  vertical-align: text-top;
-
-  span {
-    height: 22px;
-    outline: 0px none;
-    padding: 0px;
-    font-size: 12px;
-    padding-top: 1px;
-
-    i {
-      left: 92%;
-    }
-  }
-
-  input {
-    height: 22px;
-    outline: 0px none;
-    padding: 0px;
-    font-size: 12px;
-    padding-top: 1px;
-  }
-}
-
 /*
   Vertical menu
 */
@@ -251,4 +225,62 @@ h4 .editable-error {
 
 #runtime-events-box .runtime-events-table tbody tr td:last-child {
   white-space: pre-wrap;
+}
+
+/* ui-select */
+#editor-app-version-select .ui-select-search,
+#editor-topo-version-select .ui-select-search {
+      outline: 0px none;
+      //width: auto;
+      height: 22px;
+      padding-top: 0px;
+      padding-bottom: 1px;
+      padding-right: 4px;
+      padding-left: 4px;
+      font-size: 12px;
+  }
+
+#editor-app-version-select .ui-select-choices-row-inner,
+#editor-topo-version-select .ui-select-choices-row-inner{
+      width: auto;
+      height: 22px;
+      font-size: 12px;
+  }
+
+#editor-app-version-select .ui-select-dropdown,
+#editor-topo-version-select .ui-select-dropdown{
+  width:auto;
+}
+
+#editor-head-menu {
+
+  .ui-select-container {
+    display: inline-block;
+
+    width: auto;
+    min-width: 140px;
+    vertical-align: middle;
+    margin-top:-1px;
+
+    span {
+      font-size: 12px;
+      height: 22px;
+      outline: 0px none;
+      padding-top: 1px;
+      padding-bottom: 1px;
+
+      i {
+        right: 4px;
+      }
+    }
+
+    input {
+      font-size: 12px;
+      height: 22px;
+      outline: 0px none;
+      padding-top: 1px;
+      padding-bottom: 1px;
+      width: auto;
+    }
+  }
 }

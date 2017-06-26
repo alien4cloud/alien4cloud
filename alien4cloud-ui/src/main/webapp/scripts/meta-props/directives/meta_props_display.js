@@ -14,8 +14,8 @@ define(function (require) {
         'target': '=',
         'resturl': '=',
         'params': '=',
-        'collapsable': '=',
-        'collapse': '='
+        'collapsable': '=?',
+        'titled': '=?'
       },
       link: {}
     };

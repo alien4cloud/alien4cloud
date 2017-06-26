@@ -2,12 +2,7 @@ package alien4cloud.deployment;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;

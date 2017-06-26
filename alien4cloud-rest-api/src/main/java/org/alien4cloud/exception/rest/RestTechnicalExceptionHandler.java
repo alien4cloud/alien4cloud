@@ -91,8 +91,9 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public RestResponse<Void> gitException(GitException e) {
-        log.error("Failed to import archive from git location.", e);
-        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_IMPORT_FAILED).message(e.getMessage()).build()).build();
+        log.error("Failed to import archive from git location.", e.getMessage() + ":" + e.getCause());
+        String message = (e.getCause() == null) ? e.getMessage() : e.getMessage() + ":" + e.getCause();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_IMPORT_FAILED).message(message).build()).build();
     }
 
     @ExceptionHandler(value = { GitMergingStateException.class, GitConflictException.class })
@@ -516,6 +517,14 @@ public class RestTechnicalExceptionHandler {
         log.error("Operation on referenced resource error", e);
         return RestResponseBuilder.<Usage[]> builder().data(e.getUsages())
                 .error(RestErrorBuilder.builder(RestErrorCode.RESOURCE_USED_ERROR).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = LocationSupportException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> locationSupportExceptionHandler(LocationSupportException e) {
+        log.error("Location support exception", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.ORCHESTRATOR_LOCATION_SUPPORT_VIOLATION).message(e.getMessage()).build()).build();
     }
 
 }

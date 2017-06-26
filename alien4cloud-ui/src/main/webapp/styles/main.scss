@@ -216,6 +216,10 @@ a.accordion-toggle[ng-click] {
   text-align: center;
 }
 
+.align-right {
+  text-align: right;
+}
+
 .detail-bloc {
   margin-top: 20px;
 }
@@ -515,4 +519,8 @@ img.icon_32 {
 }
 .info-popover-sm, .info-popover-lg {
   max-width: 400px;
+}
+
+.default-cursor {
+  cursor: default;
 }

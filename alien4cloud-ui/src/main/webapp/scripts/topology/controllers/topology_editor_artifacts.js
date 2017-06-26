@@ -35,6 +35,9 @@ define(function (require) {
                   },
                   artifact: function() {
                     return artifact;
+                  },
+                  topology: function(){
+                    return scope.topology.topology;
                   }
                 }
               });
@@ -47,7 +50,9 @@ define(function (require) {
                     artifactReference: artifact.reference,
                     artifactRepository: artifact.repository,
                     repositoryUrl: artifact.repositoryUrl,
-                    repositoryName: artifact.repositoryName
+                    repositoryName: artifact.repositoryName,
+                    archiveName: artifact.archiveName,
+                    archiveVersion: artifact.archiveVersion,
                   }
                 );
               });

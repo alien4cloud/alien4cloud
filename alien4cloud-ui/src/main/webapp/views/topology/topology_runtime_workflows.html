@@ -24,7 +24,7 @@
             <div class="col-md-5">
               <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button"
                  ng-click="launchWorkflow()"
-                 ng-disabled="topology.topology.workflows[currentWorkflowName].standard || isLaunchingWorkflow" >
+                 ng-disabled="isLaunchingWorkflow" >
                 <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
               </button>
             </div>
