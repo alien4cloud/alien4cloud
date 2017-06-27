@@ -35,7 +35,6 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "vertical-menu";
 
 // Navbar and global layout
-
 .navbar-logout-dropdown {
   z-index: 2000;
 }
@@ -523,4 +522,8 @@ img.icon_32 {
 
 .default-cursor {
   cursor: default;
+}
+
+.tooltip-inner {
+  word-wrap: break-word;
 }
