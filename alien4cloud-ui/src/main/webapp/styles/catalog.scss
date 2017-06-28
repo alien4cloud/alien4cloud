@@ -7,7 +7,7 @@
   border: 1px solid #ededed;
   position: relative;
   display: inline-block;
-  margin: 0 5px 5px 0;
+  margin: 0 8px 8px 0;
   vertical-align: top;
   text-align: left;
 }
@@ -28,6 +28,11 @@
 
 .small .catalog-element-info {
   max-height: 80px;
+}
+
+.catalog-description {
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .catalog-archive-info {
