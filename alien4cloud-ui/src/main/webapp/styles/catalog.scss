@@ -13,7 +13,7 @@
 }
 
 .catalog-cell:hover {
-  background-color: $list-group-hover-bg;
+  background-color: rgb(224, 224, 224);
   cursor: pointer;
 }
 
@@ -22,7 +22,7 @@
 }
 
 .catalog-element-info {
-  max-height: 160px;
+  max-height: 150px;
   overflow: hidden;
 }
 
@@ -36,5 +36,5 @@
 }
 
 .catalog-archive-info {
-  width: 200px;
+  width: 198px;
 }
