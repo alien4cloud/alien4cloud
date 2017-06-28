@@ -30,6 +30,7 @@
         </h5>
       </div>
       <p ng-if="globalContext" class="small text-muted" style="padding: 8px;">{{component.description}}</p>
+      <info ng-if="!globalContext" content="component.description" size="lg"></info>
     </div>
     <div style="position: absolute; bottom: 0px;">
       <ng-include src="'views/components/search_component_archive_dislay.html'"></ng-include>
