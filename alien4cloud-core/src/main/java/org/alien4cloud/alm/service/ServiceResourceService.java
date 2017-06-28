@@ -13,6 +13,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.events.ServiceDeletedEvent;
 import alien4cloud.orchestrators.locations.events.OnLocationResourceChangeEvent;
 import org.alien4cloud.alm.service.events.ServiceChangedEvent;
 import org.alien4cloud.alm.service.events.ServiceUsageRequestEvent;
@@ -106,6 +107,7 @@ public class ServiceResourceService {
         // ensure uniqueness and save
         save(serviceResource, true);
 
+        // TODO: send an event: a service has been created
         return serviceResource.getId();
     }
 
@@ -401,6 +403,8 @@ public class ServiceResourceService {
     public synchronized void delete(String id) {
         failIdUsed(id);
         alienDAO.delete(ServiceResource.class, id);
+        // trigger an event: a service has been deleted
+        publisher.publishEvent(new ServiceDeletedEvent(this, id));
     }
 
     private void failIdUsed(String id) {
