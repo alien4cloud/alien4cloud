@@ -36,7 +36,7 @@
               <i ng-if="serviceResource.environmentId" class="fa fa-star" uib-tooltip="{{ 'SERVICES.MANAGED.NAME' | translate }}"></i>
             </td>
             <td>{{serviceResource.version}}</td>
-            <td>{{serviceResource.nodeInstance.nodeTemplate.type}}</td>
+            <td><span ng-bind-html="dotWb(serviceResource.nodeInstance.nodeTemplate.type)"></span></td>
             <td>{{serviceResource.nodeInstance.attributeValues.state}}</td>
             <td>
               <delete-confirm id='delete-service_{{serviceResource.id}}' func="delete(serviceResource.id)"

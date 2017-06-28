@@ -91,11 +91,14 @@ define(function(require) {
       }
     ]);
 
-    alien4cloud.run(['$templateCache', '$rootScope', '$state', 'editableOptions', 'editableThemes', 'authService',
-      function($templateCache, $rootScope, $state, editableOptions, editableThemes, authService) {
+    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', 'editableOptions', 'editableThemes', 'authService',
+      function($templateCache, $rootScope, $state, $sce, editableOptions, editableThemes, authService) {
         templateInjector($templateCache);
         var statusFetched = false; // flag to know if we have fetched current user status (logged in and roles)
         $rootScope._ = _;
+        $rootScope.dotWb = function(inputStr) {
+          return $sce.trustAsHtml(inputStr.replace(/\./g, '.<wbr>'));
+        };
         // check when the state is about to change
         $rootScope.$on('$stateChangeStart', function(event, toState, toParams) {
           if (!statusFetched && _.defined(event)) {
