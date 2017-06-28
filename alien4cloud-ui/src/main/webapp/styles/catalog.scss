@@ -1,0 +1,34 @@
+
+.catalog-cell {
+  background-color: white;
+  width: 200px;
+  height: 200px;
+  border: 1px solid #ededed;
+  position: relative;
+  display: inline-block;
+  margin: 0 5px 5px 0;
+  vertical-align: top;
+  text-align: left;
+}
+
+.catalog-cell:hover {
+  background-color: $list-group-hover-bg;
+  cursor: pointer;
+}
+
+.small .catalog-cell {
+  height: 120px;
+}
+
+.catalog-element-info {
+  max-height: 160px;
+  overflow: hidden;
+}
+
+.small .catalog-element-info {
+  max-height: 80px;
+}
+
+.catalog-archive-info {
+  width: 200px;
+}
