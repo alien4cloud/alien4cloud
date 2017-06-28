@@ -29,7 +29,7 @@
             ng-click="handleBadgeClick(badge, component, $event)" />
         </h5>
       </div>
-      <p ng-if="globalContext" class="small text-muted">{{component.description}}</p>
+      <p ng-if="globalContext" class="small text-muted" style="padding: 8px;">{{component.description}}</p>
     </div>
     <div style="position: absolute; bottom: 0px;">
       <ng-include src="'views/components/search_component_archive_dislay.html'"></ng-include>
