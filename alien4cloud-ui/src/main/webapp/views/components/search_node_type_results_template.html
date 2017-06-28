@@ -29,6 +29,9 @@
             ng-click="handleBadgeClick(badge, component, $event)" />
         </h5>
       </div>
+      <small ng-if="!globalContext">
+        <a class=" btn btn-default btn-xs" id="btn-{{component.elementId}}" ng-href="#/components/details/{{component.elementId}}:{{component.archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
+      </small>
       <p ng-if="globalContext" class="small text-muted" style="padding: 8px;">{{component.description}}</p>
       <info ng-if="!globalContext" content="component.description" size="lg"></info>
     </div>
