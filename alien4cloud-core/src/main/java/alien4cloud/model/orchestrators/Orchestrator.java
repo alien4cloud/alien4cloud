@@ -28,8 +28,6 @@ public class Orchestrator {
 
     @NotBlank
     @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
-
     @StringFieldMulti(
             main = @StringField(indexType = IndexType.not_analyzed),
             multiNames = "lower_case",

@@ -11,6 +11,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.events.ManagedServiceResetEvent;
+import org.alien4cloud.alm.events.ManagedServiceUpdatedEvent;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
@@ -60,6 +62,7 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
     private DeploymentService deploymentService;
     @Resource
     private IPaasEventService paasEventService;
+
 
     @Inject
     private ManagedServiceResourceService managedServiceResourceService;
@@ -215,6 +218,9 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         }
 
         serviceResourceService.save(serviceResource);
+
+        // trigger a ManagedServiceUpdateEvent
+        publisher.publishEvent(new ManagedServiceUpdatedEvent(this, serviceResource, topology));
     }
 
     private void mapCapabilityRequirementAttributes(ServiceResource serviceResource, Map<String, Map<String, InstanceInformation>> instanceInformation,
@@ -272,6 +278,8 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         serviceResource.setDeploymentId(null);
         serviceResource.setState(ToscaNodeLifecycleConstants.INITIAL);
         serviceResourceService.save(serviceResource);
+        // trigger a ManagedServiceServiceReset
+        publisher.publishEvent(new ManagedServiceResetEvent(this, serviceResource));
     }
 
     /**

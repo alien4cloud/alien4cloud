@@ -1,10 +1,10 @@
-<div class="pull-right center">
-  <div class="btn-group-vertical btn-group-xs">
-    <span class="btn btn-default disabled">
-      <i class="fa fa-archive"></i> {{component.archiveName}}
+<div class="catalog-archive-info">
+  <div class="btn-group-vertical btn-group-xs btn-block">
+    <span class="btn btn-default btn-square disabled" uib-tooltip="{{component.archiveName}}" tooltip-placement="top" tooltip-append-to-body="true">
+      <i class="fa fa-archive"></i> {{component.archiveName | limitTo: 31 : -31 }}
     </span>
     <div class="btn-group btn-group-xs" uib-dropdown>
-      <button type="button" class="btn btn-default" uib-dropdown-toggle id="{{component.id}}_vfetch"
+      <button type="button" class="btn btn-default btn-square" uib-dropdown-toggle id="{{component.id}}_vfetch"
         ng-click="fetchElementVersion(component, $event)">
         {{component.selectedVersion}} <i class="fa fa-caret-down"></i>
       </button>

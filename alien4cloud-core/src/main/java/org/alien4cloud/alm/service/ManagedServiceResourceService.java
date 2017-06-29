@@ -9,6 +9,9 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.events.ManagedServiceCreatedEvent;
+import org.alien4cloud.alm.events.ManagedServiceDeletedEvent;
+import org.alien4cloud.alm.events.ManagedServiceUnbindEvent;
 import org.alien4cloud.alm.service.exceptions.InvalidDeploymentStatusException;
 import org.alien4cloud.alm.service.exceptions.MissingSubstitutionException;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
@@ -17,6 +20,7 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +70,8 @@ public class ManagedServiceResourceService {
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     /**
      * Create a Service resource associated with the given environment.
@@ -121,6 +127,11 @@ public class ManagedServiceResourceService {
             managedServiceResourceEventService.updateRunningService((DeploymentTopology) topology, serviceResourceService.getOrFail(serviceId), deployment,
                     state);
         }
+        ServiceResource serviceResource = serviceResourceService.getOrFail(serviceId);
+
+        // trigger a ManagedServiceCreatedEvent
+        publisher.publishEvent(new ManagedServiceCreatedEvent(this, serviceResource));
+
         return serviceId;
     }
 
@@ -170,6 +181,7 @@ public class ManagedServiceResourceService {
         ServiceResource serviceResource = getOrFail(environmentId);
         serviceResource.setEnvironmentId(null);
         serviceResourceService.save(serviceResource);
+        publisher.publishEvent(new ManagedServiceUnbindEvent(this, serviceResource));
     }
 
     /**
@@ -182,6 +194,7 @@ public class ManagedServiceResourceService {
     public void delete(String environmentId) {
         ServiceResource serviceResource = getOrFail(environmentId);
         serviceResourceService.delete(serviceResource.getId());
+        publisher.publishEvent(new ManagedServiceDeletedEvent(this, serviceResource));
     }
 
     @EventListener
