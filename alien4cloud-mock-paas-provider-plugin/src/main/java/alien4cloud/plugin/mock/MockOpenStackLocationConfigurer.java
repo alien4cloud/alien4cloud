@@ -83,8 +83,8 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
 
     @Override
     public List<String> getResourcesTypes() {
-        return Lists.newArrayList("org.alien4cloud.nodes.mock.openstack.Image", "org.alien4cloud.nodes.mock.openstack.Flavor", "org.alien4cloud.nodes.mock.Compute",
-                "org.alien4cloud.nodes.mock.BlockStorage", "org.alien4cloud.nodes.mock.Network");
+        return Lists.newArrayList("org.alien4cloud.nodes.mock.openstack.Image", "org.alien4cloud.nodes.mock.openstack.Flavor",
+                "org.alien4cloud.nodes.mock.Compute", "org.alien4cloud.nodes.mock.BlockStorage", "org.alien4cloud.nodes.mock.Network");
     }
 
     @Override
@@ -119,6 +119,6 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
         ComputeContext computeContext = resourceGeneratorService.buildComputeContext("org.alien4cloud.nodes.mock.Compute", null, IMAGE_ID_PROP, FLAVOR_ID_PROP,
                 resourceAccessor);
 
-        return resourceGeneratorService.generateComputeFromImageAndFlavor(imageContext, flavorContext, computeContext, resourceAccessor);
+        return resourceGeneratorService.generateComputeFromImageAndFlavor(imageContext, flavorContext, computeContext, null, resourceAccessor);
     }
 }

@@ -84,7 +84,7 @@ public class LocationResourceGeneratorService {
             for (LocationResourceTemplate flavor : flavors) {
                 String defaultComputeName = generateDefaultName(image, flavor);
                 int count = 0;
-                ComputeContext computeContext = isWindowsImage(image) ? windowsComputeContext : linuxComputeContext;
+                ComputeContext computeContext = isWindowsImage(image) && windowsComputeContext != null ? windowsComputeContext : linuxComputeContext;
                 for (NodeType indexedNodeType : computeContext.getNodeTypes()) {
                     String name = StringUtils.isNotBlank(computeContext.getGeneratedNamePrefix()) ? computeContext.getGeneratedNamePrefix()
                             : defaultComputeName;
