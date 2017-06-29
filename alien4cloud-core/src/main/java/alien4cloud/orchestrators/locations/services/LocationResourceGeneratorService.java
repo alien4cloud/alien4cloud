@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,8 @@ import alien4cloud.topology.TopologyServiceCore;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Location Resource Generator Service provides utilities to generate location resources .
@@ -63,12 +67,13 @@ public class LocationResourceGeneratorService {
      *
      * @param imageContext
      * @param flavorContext
-     * @param computeContext
+     * @param linuxComputeContext
+     * @param windowsComputeContext
      * @param resourceAccessor
      * @return
      */
     public List<LocationResourceTemplate> generateComputeFromImageAndFlavor(ImageFlavorContext imageContext, ImageFlavorContext flavorContext,
-            ComputeContext computeContext, ILocationResourceAccessor resourceAccessor) {
+            ComputeContext linuxComputeContext, ComputeContext windowsComputeContext, ILocationResourceAccessor resourceAccessor) {
         List<LocationResourceTemplate> images = imageContext.getTemplates();
         List<LocationResourceTemplate> flavors = flavorContext.getTemplates();
         Set<CSARDependency> dependencies = resourceAccessor.getDependencies();
@@ -79,6 +84,7 @@ public class LocationResourceGeneratorService {
             for (LocationResourceTemplate flavor : flavors) {
                 String defaultComputeName = generateDefaultName(image, flavor);
                 int count = 0;
+                ComputeContext computeContext = isWindowsImage(image) ? windowsComputeContext : linuxComputeContext;
                 for (NodeType indexedNodeType : computeContext.getNodeTypes()) {
                     String name = StringUtils.isNotBlank(computeContext.getGeneratedNamePrefix()) ? computeContext.getGeneratedNamePrefix()
                             : defaultComputeName;
@@ -87,8 +93,8 @@ public class LocationResourceGeneratorService {
                     }
                     NodeTemplate node = topologyService.buildNodeTemplate(dependencies, indexedNodeType, null);
                     // set the imageId
-                    node.getProperties()
-                            .put(computeContext.getImageIdPropertyName(), image.getTemplate().getProperties().get(imageContext.getIdPropertyName()));
+                    node.getProperties().put(computeContext.getImageIdPropertyName(),
+                            image.getTemplate().getProperties().get(imageContext.getIdPropertyName()));
                     // set the flavorId
                     node.getProperties().put(computeContext.getFlavorIdPropertyName(),
                             flavor.getTemplate().getProperties().get(flavorContext.getIdPropertyName()));
@@ -109,6 +115,24 @@ public class LocationResourceGeneratorService {
         }
 
         return generated;
+    }
+
+    /**
+     * Find if an image is windows image, defaults to linux if property is not configured.
+     * 
+     * @param image The image to check.
+     * @return True if the image is windows.
+     */
+    private boolean isWindowsImage(LocationResourceTemplate image) {
+
+        if (image.getTemplate() == null || safe(image.getTemplate().getCapabilities()).get(NormativeComputeConstants.OS_CAPABILITY) == null
+                || safe(image.getTemplate().getCapabilities().get(NormativeComputeConstants.OS_CAPABILITY).getProperties())
+                        .get(NormativeComputeConstants.OS_TYPE) == null) {
+            return false;
+        }
+
+        return "windows".equals(((ScalarPropertyValue) image.getTemplate().getCapabilities().get(NormativeComputeConstants.OS_CAPABILITY).getProperties()
+                .get(NormativeComputeConstants.OS_TYPE)).getValue().toLowerCase());
     }
 
     private String generateDefaultName(LocationResourceTemplate image, LocationResourceTemplate flavor) {
