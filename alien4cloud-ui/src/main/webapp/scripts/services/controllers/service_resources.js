@@ -40,13 +40,13 @@ define(function (require) {
       };
 
       $scope.newAttribute = {
-        "key": '',
-        "value": {
-          "default": null,
-          "definition": false,
-          "type": 'string',
-          "description": 'user_defined_attribute',
-          "value": ''
+        'key': '',
+        'value': {
+          'default': null,
+          'definition': false,
+          'type': 'string',
+          'description': 'user_defined_attribute',
+          'value': ''
         }
       };
 
@@ -119,11 +119,16 @@ define(function (require) {
         $scope.updateAttribute(attributeKey, null);
       };
 
+
+      function isBlank(str) {
+          return (!str || (/^\s*$/).test(str));
+      }
+
       $scope.addAttributeFromUser = function () {
         if(isBlank($scope.newAttribute.key)){
           return;
         }
-        
+
         var clone = _.clone($scope.newAttribute, true);
         $scope.selectedNodeType.attributesFromUser.push(clone);
         $scope.selectedNodeType.attributes.push(clone);
@@ -136,11 +141,7 @@ define(function (require) {
       };
 
       function isAttributeFromModel(attributeKey) {
-        return _.defined($scope.selectedService.nodeInstance.nodeTemplate.attributes.find(e => e.key == attributeKey)); 
-      }
-
-      function isBlank(str) {
-          return (!str || (/^\s*$/).test(str));
+        return _.defined($scope.selectedService.nodeInstance.nodeTemplate.attributes.find(e => e.key === attributeKey));
       }
 
       $scope.modelAttributeKeys = [];
@@ -157,13 +158,13 @@ define(function (require) {
         for (var key in attrValues) {
           if (attrValues.hasOwnProperty(key) && !isAttributeFromModel(key)) {
             $scope.selectedNodeType.attributesFromUser.push({
-              "key": key,
-              "value": {
-                "default": null,
-                "definition": false,
-                "type": 'string',
-                "description": 'user_defined_attribute',
-                "value": attrValues[key]
+              'key': key,
+              'value': {
+                'default': null,
+                'definition': false,
+                'type': 'string',
+                'description': 'user_defined_attribute',
+                'value': attrValues[key]
               }
             });
           }

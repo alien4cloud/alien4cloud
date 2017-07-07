@@ -2,6 +2,7 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
   require('scripts/components/controllers/component_search');
 
   modules.get('a4c-components').directive('alienSearchNodeType', ['$interval', function ($interval) {
@@ -25,13 +26,18 @@ define(function (require) {
         pre: function (scope, element) {
           scope.queryComponentType = 'NODE_TYPE';
           function resize() {
+            if(_.undefined(scope.heightInfo) ){
+              return;
+            }
             scope.searchHeight = scope.heightInfo.height - element.position().top - 2;
             if (scope.globalContext) {
               scope.searchStyle = 'overflow: auto; margin-bottom: 0px; height: ' + scope.searchHeight + 'px;';
-              scope.listHeight = scope.searchHeight;
+              scope.resultStyle = 'overflow: auto; margin-bottom: 0px; height: ' + (scope.searchHeight - 75) + 'px;';
+              // scope.listHeight = scope.searchHeight;
             } else {
               scope.searchStyle = '';
-              scope.listHeight = scope.searchHeight - 42;
+              scope.resultStyle = 'overflow: auto; margin-bottom: 0px; max-height: ' + (scope.searchHeight) + 'px;';
+              // scope.listHeight = scope.searchHeight - 42;
             }
           }
 
