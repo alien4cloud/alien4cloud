@@ -31,8 +31,7 @@
           <tr ng-repeat="serviceResource in serviceResources" id='service_{{serviceResource.id}}' class="clickable" ng-click="selectService(serviceResource)"
           ng-class="{'warning': selectedService.id === serviceResource.id}">
             <td>
-              <!-- <img ng-if = "serviceResource.environmentId.length" ng-src="images/cloudalien.png" style="height: 17px; width: 17px;"> -->
-              {{serviceResource.name}}
+              <span ng-bind-html="dotWb(serviceResource.name)"></span>
               <i ng-if="serviceResource.environmentId" class="fa fa-star" uib-tooltip="{{ 'SERVICES.MANAGED.NAME' | translate }}"></i>
             </td>
             <td>{{serviceResource.version}}</td>
