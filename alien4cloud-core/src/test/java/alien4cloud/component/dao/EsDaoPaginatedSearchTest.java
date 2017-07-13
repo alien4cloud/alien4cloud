@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
-@DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
+@DirtiesContext
 @Slf4j
 public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     private final ObjectMapper jsonMapper = new ObjectMapper();

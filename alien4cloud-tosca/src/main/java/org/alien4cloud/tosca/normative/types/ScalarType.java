@@ -10,8 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Abstract type for all scalar type with unit
- * 
- * @author Minh Khang VU
  */
 public abstract class ScalarType<T extends ScalarUnit<U>, U extends Unit> implements IComparablePropertyType<T> {
     private static final Pattern SCALAR_UNIT_PATTERN = Pattern.compile("^\\s*(\\d+(?:\\.\\d+)?)\\s+(\\p{Alnum}+)\\s*$");

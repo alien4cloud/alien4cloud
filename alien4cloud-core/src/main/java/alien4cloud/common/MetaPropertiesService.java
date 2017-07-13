@@ -35,8 +35,8 @@ public class MetaPropertiesService {
      * @throws ConstraintValueDoNotMatchPropertyTypeException
      * @throws ConstraintViolationException
      */
-    public ConstraintInformation upsertMetaProperty(IMetaProperties resource, String key, String value)
-            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
+    public ConstraintInformation upsertMetaProperty(IMetaProperties resource, String key, String value) throws ConstraintViolationException,
+            ConstraintValueDoNotMatchPropertyTypeException {
         MetaPropConfiguration propertyDefinition = alienDAO.findById(MetaPropConfiguration.class, key);
         if (propertyDefinition == null) {
             throw new NotFoundException("Property update operation failed. Could not find property definition with id <" + propertyDefinition + ">.");
@@ -44,7 +44,7 @@ public class MetaPropertiesService {
 
         if (value != null) {
             // by convention updateproperty with null value => reset to default if exists
-            ConstraintPropertyService.checkSimplePropertyConstraint(key, value, propertyDefinition);
+            ConstraintPropertyService.checkPropertyConstraint(key, value, propertyDefinition);
         }
 
         if (resource.getMetaProperties() == null) {

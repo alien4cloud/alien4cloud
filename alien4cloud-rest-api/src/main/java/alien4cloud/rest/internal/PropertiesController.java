@@ -3,7 +3,6 @@ package alien4cloud.rest.internal;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,7 +31,7 @@ public class PropertiesController {
     public RestResponse<ConstraintInformation> checkPropertyDefinition(@RequestBody PropertyValidationRequest propertyValidationRequest) {
         if (propertyValidationRequest.getPropertyDefinition() != null) {
             try {
-                ConstraintPropertyService.checkSimplePropertyConstraint(propertyValidationRequest.getDefinitionId(), propertyValidationRequest.getValue(),
+                ConstraintPropertyService.checkPropertyConstraint(propertyValidationRequest.getDefinitionId(), propertyValidationRequest.getValue(),
                         propertyValidationRequest.getPropertyDefinition());
             } catch (ConstraintViolationException e) {
                 log.error("Constraint violation error for property <" + propertyValidationRequest.getDefinitionId() + "> with value <"
