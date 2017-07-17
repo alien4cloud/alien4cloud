@@ -65,6 +65,14 @@ public class ToscaSerializerTest {
         pd2.setDefault(new ScalarPropertyValue("10"));
         topology.getInputs().put("input2", pd2);
 
+        PropertyDefinition pd3 = new PropertyDefinition();
+        pd3.setType("map");
+        pd3.setRequired(false);
+        PropertyDefinition entrySchema = new PropertyDefinition();
+        entrySchema.setType("integer");
+        pd3.setEntrySchema(entrySchema);
+        topology.getInputs().put("input3", pd3);
+
         topology.setNodeTemplates(new HashMap<String, NodeTemplate>());
         topology.getNodeTemplates().put("node1", new NodeTemplate());
         topology.getNodeTemplates().get("node1").setType("the.node.Type");
@@ -105,7 +113,7 @@ public class ToscaSerializerTest {
         velocityCtx.put("application_description", "Here is a \nmultiline description");
 
         StringWriter writer = new StringWriter();
-        VelocityUtil.generate("org/alien4cloud/tosca/exporter/topology-alien_dsl_1_3_0.yml.vm", writer, velocityCtx);
+        VelocityUtil.generate("org/alien4cloud/tosca/exporter/topology-alien_dsl_1_4_0.yml.vm", writer, velocityCtx);
         System.out.println(writer.toString());
     }
 
