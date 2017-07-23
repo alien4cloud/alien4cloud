@@ -55,7 +55,7 @@ import alien4cloud.utils.services.ApplicationUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
-@DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
+@DirtiesContext
 public class FunctionEvaluatorTest {
     private static boolean INITIALIZED = false;
 

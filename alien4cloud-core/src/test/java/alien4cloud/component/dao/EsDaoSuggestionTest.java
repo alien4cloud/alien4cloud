@@ -19,6 +19,7 @@ import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -45,6 +46,7 @@ import com.google.common.collect.Lists;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
 @Slf4j
+@DirtiesContext
 public class EsDaoSuggestionTest extends AbstractDAOTest {
     private static final String APPLICATION_INDEX = Application.class.getSimpleName().toLowerCase();
     private static final String TAG_NAME_PATH = "tags.name";

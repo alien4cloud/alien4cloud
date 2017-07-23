@@ -37,6 +37,10 @@ topology_template:
     ${inputEntry.key}:
       type: ${inputEntry.value.type}
       required: $inputEntry.value.required
+#if($inputEntry.value.entrySchema)
+      entry_schema:
+        type: ${inputEntry.value.entrySchema.type}
+#end## if entry_schema
 #if($inputEntry.value.default)
       default: $propertyUtils.formatPropertyValue(6, $inputEntry.value.default)
 #end## if default defined

@@ -38,9 +38,8 @@ define(function (require) {
            **********************************************************/
           $scope.updateInputValue = function (definition, inputValue, inputId) {
             // No update if it's the same value
-            if(_.get($scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId], 'value') === inputValue){
-              return;
-            }
+            // Cannot be done with complex object
+
             var updatedProperties = {};
             updatedProperties[inputId] = inputValue;
             return deploymentTopologyServices.updateInputProperties({
