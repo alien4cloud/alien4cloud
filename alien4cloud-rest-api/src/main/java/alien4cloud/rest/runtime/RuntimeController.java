@@ -24,12 +24,7 @@ import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.google.common.collect.Lists;
@@ -205,7 +200,7 @@ public class RuntimeController {
                     PropertyDefinition currentOperationParameter = (PropertyDefinition) inputParameter.getValue();
                     if (StringUtils.isNotBlank(requestInputParameter)) {
                         // recover the good property definition for the current parameter
-                        ConstraintPropertyService.checkSimplePropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
+                        ConstraintPropertyService.checkPropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
                     } else if (currentOperationParameter.isRequired()) {
                         // input param not in the request, id required this is a missing parameter...
                         missingParams.add(inputParameter.getKey());

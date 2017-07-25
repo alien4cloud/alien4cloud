@@ -220,18 +220,6 @@ define(function (require) {
         }
       };
 
-      $scope.heightStyle = function () {
-        if ($scope.globalContext) {
-          return {
-            overflow: 'auto',
-            height: $scope.height + 'px'
-          };
-        }
-        return {
-          overflow: 'auto'
-        };
-      };
-
       //get the icon
       $scope.getIcon = toscaService.getIcon;
 

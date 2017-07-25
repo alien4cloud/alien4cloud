@@ -85,8 +85,8 @@ public class DeploymentInputService {
             // No orchestrator assigned for the topology do nothing
             return;
         }
-        Map<String, PropertyDefinition> propertyDefinitionMap = orchestratorDeploymentService
-                .getDeploymentPropertyDefinitions(deploymentTopology.getOrchestratorId());
+        Map<String, PropertyDefinition> propertyDefinitionMap = orchestratorDeploymentService.getDeploymentPropertyDefinitions(deploymentTopology
+                .getOrchestratorId());
         if (propertyDefinitionMap != null) {
             // Reset deployment properties as it might have changed between cloud
             Map<String, String> propertyValueMap = deploymentTopology.getProviderDeploymentProperties();
@@ -107,15 +107,14 @@ public class DeploymentInputService {
                 String existingValue = propertyValueMap.get(propertyDefinitionEntry.getKey());
                 if (existingValue != null) {
                     try {
-                        ConstraintPropertyService.checkSimplePropertyConstraint(propertyDefinitionEntry.getKey(), existingValue,
-                                propertyDefinitionEntry.getValue());
+                        ConstraintPropertyService.checkPropertyConstraint(propertyDefinitionEntry.getKey(), existingValue, propertyDefinitionEntry.getValue());
                     } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                        PropertyUtil.setScalarDefaultValueOrNull(propertyValueMap, propertyDefinitionEntry.getKey(),
-                                propertyDefinitionEntry.getValue().getDefault());
+                        PropertyUtil.setScalarDefaultValueOrNull(propertyValueMap, propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue()
+                                .getDefault());
                     }
                 } else {
-                    PropertyUtil.setScalarDefaultValueIfNotNull(propertyValueMap, propertyDefinitionEntry.getKey(),
-                            propertyDefinitionEntry.getValue().getDefault());
+                    PropertyUtil.setScalarDefaultValueIfNotNull(propertyValueMap, propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue()
+                            .getDefault());
                 }
             }
             deploymentTopology.setProviderDeploymentProperties(propertyValueMap);

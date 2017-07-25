@@ -4,9 +4,6 @@ import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
 import org.alien4cloud.tosca.normative.primitives.Time;
 import org.alien4cloud.tosca.normative.primitives.TimeUnit;
 
-/**
- * @author Minh Khang VU
- */
 public class TimeType extends ScalarType<Time, TimeUnit> {
 
     public static final String NAME = "scalar-unit.time";

@@ -12,11 +12,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
 import alien4cloud.rest.internal.model.PropertyRequest;
@@ -39,8 +35,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @Slf4j
 @ApiIgnore
 @RestController
-@RequestMapping(value = { "/rest/orchestrators/{orchestratorId}", "/rest/v1/orchestrators/{orchestratorId}",
-        "/rest/latest/orchestrators/{orchestratorId}" }, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = { "/rest/orchestrators/{orchestratorId}", "/rest/v1/orchestrators/{orchestratorId}", "/rest/latest/orchestrators/{orchestratorId}" }, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "", description = "Operations on deployment properties")
 public class OrchestratorDeploymentPropertiesController {
     @Inject
@@ -58,7 +53,7 @@ public class OrchestratorDeploymentPropertiesController {
             PropertyDefinition propertyDefinition = deploymentPropertyDefinitions.get(deploymentPropertyValidationRequest.getDefinitionId());
             if (propertyDefinition != null && propertyDefinition.getConstraints() != null) {
                 try {
-                    ConstraintPropertyService.checkSimplePropertyConstraint(deploymentPropertyValidationRequest.getDefinitionId(),
+                    ConstraintPropertyService.checkPropertyConstraint(deploymentPropertyValidationRequest.getDefinitionId(),
                             deploymentPropertyValidationRequest.getValue(), propertyDefinition);
                 } catch (ConstraintViolationException e) {
                     log.error("Constraint violation error for property <" + deploymentPropertyValidationRequest.getDefinitionId() + "> with value <"
@@ -81,8 +76,7 @@ public class OrchestratorDeploymentPropertiesController {
      *
      * @param orchestratorId Id of the orchestrator for which to get properties.
      */
-    @ApiOperation(value = "Get deployment properties for an orchestrator.", notes = "Deployments properties are properties that can be set by the Application Deployer before deployment. They depends on the IPaaSProvider plugin associated with an orchestrator.", authorizations = {
-            @Authorization("ADMIN") })
+    @ApiOperation(value = "Get deployment properties for an orchestrator.", notes = "Deployments properties are properties that can be set by the Application Deployer before deployment. They depends on the IPaaSProvider plugin associated with an orchestrator.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/deployment-property-definitions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<Map<String, PropertyDefinition>> getDeploymentPropertyDefinitions(

@@ -44,6 +44,7 @@ public class OrchestratorPropertiesValidationService {
 
         Map<String, PropertyDefinition> deploymentProperties = orchestratorDeploymentService
                 .getDeploymentPropertyDefinitions(orchestratorDeploymentProperties.getOrchestratorId());
+
         if (MapUtils.isEmpty(deploymentProperties)) {
             return null;
         }
@@ -88,7 +89,7 @@ public class OrchestratorPropertiesValidationService {
                 throw new NotFoundException("property <" + propertyEntry.getKey() + "> is not defined for this orchestrator");
             }
             if (propertyDefinition.getConstraints() != null) {
-                ConstraintPropertyService.checkSimplePropertyConstraint(propertyEntry.getKey(), propertyEntry.getValue(), propertyDefinition);
+                ConstraintPropertyService.checkPropertyConstraint(propertyEntry.getKey(), propertyEntry.getValue(), propertyDefinition);
             }
         }
     }

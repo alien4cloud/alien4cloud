@@ -16,13 +16,16 @@ import org.alien4cloud.tosca.catalog.index.IArchiveIndexerAuthorizationFilter;
 import org.alien4cloud.tosca.catalog.index.ICsarAuthorizationFilter;
 import org.alien4cloud.tosca.catalog.index.ICsarSearchService;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,16 +51,15 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -77,6 +79,8 @@ public class CloudServiceArchiveController {
     private ICsarAuthorizationFilter csarAuthorizationFilter;
     @Resource
     private IArchiveIndexerAuthorizationFilter archiveIndexerAuthorizationFilter;
+    @Resource
+    private ICsarRepositry archiveRepositry;
 
     private Path tempDirPath;
 
@@ -175,6 +179,18 @@ public class CloudServiceArchiveController {
         List<Usage> relatedResourceList = csarService.getCsarRelatedResourceList(csar);
         CsarInfoDTO csarInfo = new CsarInfoDTO(csar, relatedResourceList);
         return RestResponseBuilder.<CsarInfoDTO> builder().data(csarInfo).build();
+    }
+
+    @ApiOperation(value = "Download a CSAR given its id.", notes = "Returns zipped content of a CSAR.")
+    @RequestMapping(value = "/{csarId:.+?}/download", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @SneakyThrows
+    public ResponseEntity<InputStreamResource> download(@PathVariable String csarId) {
+        Csar csar = csarService.getOrFail(csarId);
+        csarAuthorizationFilter.checkReadAccess(csar);
+        Path csarToDownload = archiveRepositry.getCSAR(csar.getName(), csar.getVersion());
+        return ResponseEntity.ok().contentLength(csarToDownload.toFile().length()).contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(new InputStreamResource(Files.newInputStream(csarToDownload)));
     }
 
     @ApiOperation(value = "Search for cloud service archives.")

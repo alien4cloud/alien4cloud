@@ -1,13 +1,11 @@
 package org.alien4cloud.tosca.normative.types;
 
 import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
+
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.Version;
 
-/**
- * @author Minh Khang VU
- */
 public class VersionType implements IComparablePropertyType<Version> {
 
     public static final String NAME = "version";
