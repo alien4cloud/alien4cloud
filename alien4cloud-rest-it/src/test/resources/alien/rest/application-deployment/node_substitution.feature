@@ -1,4 +1,4 @@
-Feature: Match location for a deployment configuration
+Feature: Node matching and substitution
   Background:
     Given I am authenticated with "ADMIN" role
     And There are these users in the system
@@ -49,9 +49,9 @@ Feature: Match location for a deployment configuration
     Given I successfully grant access to the resource type "LOCATION" named "Thark location" to the user "frodon"
     And I am authenticated with user named "frodon"
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
 
     When I authenticate with "ADMIN" role
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the user "frodon"
@@ -62,16 +62,16 @@ Feature: Match location for a deployment configuration
     And The deployment topology should have the substituted nodes
       | Compute | Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
 
   @reset
   Scenario: Set a substitution for a node, group has access
     Given I successfully grant access to the resource type "LOCATION" named "Thark location" to the group "hobbits"
     And I am authenticated with user named "sam"
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
 
     When I authenticate with "ADMIN" role
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Manual_Small_Ubuntu" to the group "hobbits"
@@ -82,16 +82,16 @@ Feature: Match location for a deployment configuration
     And The deployment topology should have the substituted nodes
       | Compute | Manual_Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
 
   @reset
   Scenario: Set a substitution for a node, application has access
     Given I successfully grant access to the resource type "LOCATION" named "Thark location" to the application "ALIEN"
     And I am authenticated with user named "tom"
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
 
     When I authenticate with "ADMIN" role
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the application "ALIEN"
@@ -102,7 +102,7 @@ Feature: Match location for a deployment configuration
     And The deployment topology should have the substituted nodes
       | Compute | Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
 
   # grant access to the second resource to tom
     Given I authenticate with "ADMIN" role
@@ -124,9 +124,9 @@ Feature: Match location for a deployment configuration
     Given I successfully grant access to the resource type "LOCATION" named "Thark location" to the environment "Environment" of the application "ALIEN"
     And I am authenticated with user named "tom"
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
 
     When I authenticate with "ADMIN" role
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the environment "Environment" of the application "ALIEN"
@@ -137,7 +137,7 @@ Feature: Match location for a deployment configuration
     And The deployment topology should have the substituted nodes
       | Compute | Small_Ubuntu | org.alien4cloud.nodes.mock.Compute |
     When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-    Then I should receive a RestResponse with an error code 102
+    Then I should receive a RestResponse with an error code 504
 
   # grant access to the second resource to tom
     Given I authenticate with "ADMIN" role

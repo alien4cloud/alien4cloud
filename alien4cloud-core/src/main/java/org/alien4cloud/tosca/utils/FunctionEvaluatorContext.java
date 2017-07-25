@@ -1,7 +1,10 @@
 package org.alien4cloud.tosca.utils;
 
 import java.util.Map;
+import java.util.function.Function;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
 
@@ -17,6 +20,12 @@ public class FunctionEvaluatorContext {
     /** The inputs as provided by the user. */
     private Map<String, PropertyValue> inputs;
 
+    /**
+     * Function evaluation context for pre-deployment get_inputs and get_property resolving.
+     *
+     * @param topology The topology on which to evaluate the function.
+     * @param inputs The inputs as provided by the user.
+     */
     public FunctionEvaluatorContext(Topology topology, Map<String, PropertyValue> inputs) {
         this.topology = topology;
         this.inputs = inputs;

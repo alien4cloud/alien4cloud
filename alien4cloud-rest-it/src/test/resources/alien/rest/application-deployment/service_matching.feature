@@ -1,4 +1,4 @@
-Feature: Match location for a deployment configuration
+Feature: Service matching and substitution
 
   # Note We use compute service even if this is not the best service example as it is good enough for matching testing
 

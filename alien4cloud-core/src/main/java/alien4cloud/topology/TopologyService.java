@@ -173,7 +173,7 @@ public class TopologyService {
      * @param nodeTemplatesToFilters The map of filters in which to add the filter for the new Node.
      */
     public void processNodeTemplate(final Topology topology, final Entry<String, NodeTemplate> nodeTempEntry,
-                                    Map<String, Map<String, Set<String>>> nodeTemplatesToFilters) {
+            Map<String, Map<String, Set<String>>> nodeTemplatesToFilters) {
         String capabilityFilterKey = "capabilities.type";
         String requirementFilterKey = "requirements.type";
         NodeTemplate template = nodeTempEntry.getValue();
@@ -213,7 +213,7 @@ public class TopologyService {
      * Search for nodeTypes given some filters. Apply AND filter strategy when multiple values for a filter key.
      */
     public List<SuggestionsTask> searchForNodeTypes(String workspace, Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
-                                                    Map<String, NodeType> toExcludeIndexedNodeTypes) throws IOException {
+            Map<String, NodeType> toExcludeIndexedNodeTypes) throws IOException {
         if (nodeTemplatesToFilters == null || nodeTemplatesToFilters.isEmpty()) {
             return null;
         }
@@ -394,7 +394,7 @@ public class TopologyService {
          * TODO: Cache the result or do not use TopologyDTOBuilder
          * because it is then called again at the end of the operation execution (EditorController.execute)
          */
-        TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(topology);
+        TopologyDTO topologyDTO = topologyDTOBuilder.initTopologyDTO(topology, new TopologyDTO());
         topologyDTO.getNodeTypes().forEach(throwTypeNotFound());
         topologyDTO.getRelationshipTypes().forEach(throwTypeNotFound());
         topologyDTO.getCapabilityTypes().forEach(throwTypeNotFound());

@@ -7,7 +7,6 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation;
-import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
@@ -18,14 +17,13 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.tosca.context.ToscaContext;
-import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import alien4cloud.utils.PropertyUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOperation> implements IEditorCommitableProcessor<DeleteInputOperation> {
+public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -93,19 +91,6 @@ public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOper
                     AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(pd);
                     propertyEntry.setValue(pv);
                 }
-            }
-        }
-    }
-
-    @Override
-    public void beforeCommit(DeleteInputOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-        // Update the configuration of existing deployment topologies
-        DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
-        for (DeploymentTopology deploymentTopology : deploymentTopologies) {
-            if (deploymentTopology.getInputProperties() != null && deploymentTopology.getInputProperties().containsKey(operation.getInputName())) {
-                deploymentTopology.getInputProperties().remove(operation.getInputName());
-                alienDAO.save(deploymentTopology);
             }
         }
     }

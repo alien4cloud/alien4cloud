@@ -6,6 +6,9 @@ import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpressionCon
 import java.nio.file.Files;
 import java.util.List;
 
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
 import org.alien4cloud.exception.rest.FieldErrorDTO;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -58,6 +61,9 @@ public class CommonStepDefinitions {
         indicesToClean.add(ApplicationEnvironment.class.getSimpleName().toLowerCase());
         indicesToClean.add(ApplicationVersion.class.getSimpleName().toLowerCase());
         indicesToClean.add(DeploymentTopology.class.getSimpleName().toLowerCase());
+        indicesToClean.add(DeploymentInputs.class.getSimpleName().toLowerCase());
+        indicesToClean.add(DeploymentMatchingConfiguration.class.getSimpleName().toLowerCase());
+        indicesToClean.add(OrchestratorDeploymentProperties.class.getSimpleName().toLowerCase());
         indicesToClean.add(ElasticSearchDAO.TOSCA_ELEMENT_INDEX);
         indicesToClean.add(Application.class.getSimpleName().toLowerCase());
         indicesToClean.add(Orchestrator.class.getSimpleName().toLowerCase());

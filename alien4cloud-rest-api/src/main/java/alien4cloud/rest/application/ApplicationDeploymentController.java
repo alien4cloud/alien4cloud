@@ -3,18 +3,14 @@ package alien4cloud.rest.application;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.service.ServiceResource;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.alien4cloud.alm.service.ServiceResourceService;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
@@ -33,6 +29,7 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
+import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.deployment.DeployService;
 import alien4cloud.deployment.DeploymentRuntimeService;
@@ -41,14 +38,13 @@ import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.deployment.UndeployService;
 import alien4cloud.deployment.WorkflowExecutionService;
-import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationTopologyVersion;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.MaintenanceModeException;
@@ -59,6 +55,8 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.model.DeployApplicationRequest;
 import alien4cloud.rest.application.model.EnvironmentStatusDTO;
+import alien4cloud.rest.deployment.DeploymentTopologyDTO;
+import alien4cloud.rest.deployment.DeploymentTopologyDTOBuilder;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -66,14 +64,13 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyValidationResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
-
-import static alien4cloud.utils.AlienUtils.safe;
 
 @Slf4j
 @RestController
@@ -107,6 +104,13 @@ public class ApplicationDeploymentController {
     @Inject
     private ServiceResourceService serviceResourceService;
 
+    @Inject
+    private ApplicationVersionService applicationVersionService;
+    @Inject
+    private TopologyServiceCore topologyServiceCore;
+    @Inject
+    private DeploymentTopologyDTOBuilder deploymentTopologyDTOBuilder;
+
     /**
      * Trigger deployment of the application on the current configured PaaS.
      *
@@ -134,14 +138,12 @@ public class ApplicationDeploymentController {
             throw new AlreadyExistException("Environment with id <" + environmentId + "> for application <" + applicationId + "> is already deployed");
         }
 
-        DeploymentTopology deploymentTopology = getDeploymentTopologyAndCheckAuthorization(environment);
-
-        // service attributes can be modified by a user (user attributes)
-        // reload latest version of attributeValues
-        refreshServiceAttributesValues(deploymentTopology);
-
         // prepare the deployment
-        TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);
+        ApplicationTopologyVersion topologyVersion = applicationVersionService
+                .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
+        Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
+        DeploymentTopologyDTO deploymentTopologyDTO = deploymentTopologyDTOBuilder.prepareDeployment(topology, application, environment);
+        TopologyValidationResult validation = deploymentTopologyDTO.getValidation();
 
         // if not valid, then return validation errors
         if (!validation.isValid()) {
@@ -152,24 +154,8 @@ public class ApplicationDeploymentController {
         }
 
         // process with the deployment
-        deployService.deploy(deploymentTopology, application);
+        deployService.deploy(deploymentTopologyDTO.getTopology(), application);
         return RestResponseBuilder.<Void> builder().build();
-    }
-
-    private void refreshServiceAttributesValues(DeploymentTopology deploymentTopology) {
-        boolean needUpdate = false;
-        for(Map.Entry<String, NodeTemplate> entry : safe(deploymentTopology.getNodeTemplates()).entrySet()) {
-            NodeTemplate nodeTemplate = entry.getValue();
-            if(nodeTemplate instanceof ServiceNodeTemplate){
-                ServiceNodeTemplate service = (ServiceNodeTemplate) nodeTemplate;
-                ServiceResource serviceResource = serviceResourceService.getOrFail(service.getServiceResourceId());
-                service.setAttributeValues(Maps.newHashMap(serviceResource.getNodeInstance().getAttributeValues()));
-                needUpdate = true;
-            }
-        }
-        if(needUpdate){
-            deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
-        }
     }
 
     /**
@@ -239,12 +225,13 @@ public class ApplicationDeploymentController {
                     + ">, can't update it");
         }
 
-        DeploymentTopology deploymentTopology = getDeploymentTopologyAndCheckAuthorization(environment);
+        ApplicationTopologyVersion topologyVersion = applicationVersionService
+                .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
+        Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
+        DeploymentTopologyDTO deploymentTopologyDTO = deploymentTopologyDTOBuilder.prepareDeployment(topology, application, environment);
+        TopologyValidationResult validation = deploymentTopologyDTO.getValidation();
 
-        deploymentService.checkDeploymentUpdateFeasibility(deployment, deploymentTopology);
-
-        // prepare the deployment
-        TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology, environment);
+        deploymentService.checkDeploymentUpdateFeasibility(deployment, deploymentTopologyDTO.getTopology());
 
         // if not valid, then return validation errors
         if (!validation.isValid()) {
@@ -255,7 +242,7 @@ public class ApplicationDeploymentController {
         }
 
         // process with the deployment
-        deployService.update(deploymentTopology, application, deployment, new IPaaSCallback<Object>() {
+        deployService.update(deploymentTopologyDTO.getTopology(), application, deployment, new IPaaSCallback<Object>() {
             @Override
             public void onSuccess(Object data) {
                 result.setResult(RestResponseBuilder.<Void> builder().build());
@@ -269,19 +256,6 @@ public class ApplicationDeploymentController {
         });
 
         return result;
-    }
-
-    private DeploymentTopology getDeploymentTopologyAndCheckAuthorization(ApplicationEnvironment environment) {
-        // Get the deployment configurations
-        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environment.getId());
-        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        // Check authorization on the location
-        // get the target locations of the deployment topology
-        Map<String, Location> locationMap = deploymentTopologyService.getLocations(deploymentTopology);
-        for (Location location : locationMap.values()) {
-            locationSecurityService.checkAuthorisation(location, environment);
-        }
-        return deploymentTopology;
     }
 
     /**
@@ -306,13 +280,11 @@ public class ApplicationDeploymentController {
         AuthorizationUtil.checkAuthorizationForEnvironment(applicationService.getOrFail(applicationId), environment,
                 ApplicationEnvironmentRole.APPLICATION_USER);
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
-        DeploymentTopology deploymentTopology;
+        DeploymentTopology deploymentTopology = null;
         if (deployment != null) {
             deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
-        } else {
-            deploymentTopology = deploymentTopologyService.getDeploymentTopology(environment.getId());
         }
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTOBuilder.buildTopologyDTO(deploymentTopology)).build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTOBuilder.initTopologyDTO(deploymentTopology, new TopologyDTO())).build();
     }
 
     @ApiOperation(value = "Deprecated Get the deployment status for the environements that the current user is allowed to see for a given application.", notes = "Returns the current status of an application list from the PaaS it is deployed on for all environments.")

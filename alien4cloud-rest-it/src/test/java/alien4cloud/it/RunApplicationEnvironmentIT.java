@@ -10,6 +10,7 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(features = {
         //
         "classpath:alien/rest/application-environment"
+        // "classpath:alien/rest/application-environment/application_environment_copy_inputs.feature"
         // "classpath:alien/rest/application-environment/application_environment_delete.feature"
         // "classpath:alien/rest/application-environment/application_environment_update.feature"
         // "classpath:alien/rest/application-environment/application_environment_roles.feature"

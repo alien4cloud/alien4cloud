@@ -280,13 +280,11 @@ public class DeploymentService {
      * @throws ImpossibleDeploymentUpdateException when the update is not possible
      */
     public void checkDeploymentUpdateFeasibility(Deployment deployment, DeploymentTopology deploymentTopology) {
-
         // for now just check if the locations are identical
         Set<String> deploymentLocations = Sets.newHashSet(deployment.getLocationIds());
         Collection<String> deploymentTopologyLocations = TopologyLocationUtils.getLocationIds(deploymentTopology).values();
         if (!CollectionUtils.isEqualCollection(deploymentLocations, deploymentTopologyLocations)) {
             throw new ImpossibleDeploymentUpdateException("Locations between the current deployment and the deployment topology do not match");
         }
-
     }
 }

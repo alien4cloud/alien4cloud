@@ -77,8 +77,6 @@ public class DeployService {
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
     @Inject
-    private DeploymentTopologyValidationService deploymentTopologyValidationService;
-    @Inject
     private ArtifactProcessorService artifactProcessorService;
     @Inject
     private DeploymentInputService deploymentInputService;
@@ -104,14 +102,8 @@ public class DeployService {
         final Location firstLocation = locations.values().iterator().next();
         String deploymentPaaSId = generateOrchestratorDeploymentId(deploymentTopology.getEnvironmentId(), firstLocation.getOrchestratorId());
         return deploymentLockService.doWithDeploymentWriteLock(deploymentPaaSId, () -> {
-            // FIXME check that all nodes to match are matched
-            // FIXME check that all required properties are defined
-            // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
-
             // Get the orchestrator that will perform the deployment
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
-
-            String deploymentTopologyId = deploymentTopology.getId();
 
             // Create a deployment object to be kept in ES.
             final Deployment deployment = new Deployment();
@@ -180,10 +172,6 @@ public class DeployService {
         final Location firstLocation = locations.values().iterator().next();
 
         deploymentLockService.doWithDeploymentWriteLock(existingDeployment.getOrchestratorDeploymentId(), () -> {
-            // FIXME check that all nodes to match are matched
-            // FIXME check that all required properties are defined
-            // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
-
             // Get the orchestrator that will perform the deployment
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
 
@@ -223,11 +211,9 @@ public class DeployService {
         alienMonitorDao.save(deploymentTopology);
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
-        // Process all input artifact, replace all artifact inside the topology with input artifact
-        deploymentInputService.processInputArtifacts(deploymentTopology);
         PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology);
-		// Process services relationships to inject the service side based on the service resource.
-		serviceResourceRelationshipService.process(deploymentContext);
+        // Process services relationships to inject the service side based on the service resource.
+        serviceResourceRelationshipService.process(deploymentContext);
         // Download and process all remote artifacts before deployment
         artifactProcessorService.processArtifacts(deploymentContext);
 
@@ -273,21 +259,6 @@ public class DeployService {
             throw new OrchestratorDeploymentIdConflictException("Conflict detected with the generated paasId <" + orchestratorDeploymentId + ">.");
         }
         return orchestratorDeploymentId;
-    }
-
-    /**
-     * Performs some actions such as final validation Prepare a deployment topology for deployment.
-     * Note that this operation is actually changing the content of the deployment topology.
-     *
-     * @param deploymentTopology The deployment topology to update for deployment.
-     * @return The result of the topology validation.
-     */
-    @ToscaContextual
-    public TopologyValidationResult prepareForDeployment(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
-        // finalize the deploymentTopology for deployment
-        Map<String, PropertyValue> inputs = deploymentTopologyService.processForDeployment(deploymentTopology, environment);
-        // perform validation of the processed deployment topology.
-        return deploymentTopologyValidationService.validateProcessedDeploymentTopology(deploymentTopology, inputs);
     }
 
     // Inner class used to build context for generation of the orchestrator id.

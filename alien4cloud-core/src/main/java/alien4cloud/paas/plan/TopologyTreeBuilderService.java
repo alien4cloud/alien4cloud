@@ -178,7 +178,7 @@ public class TopologyTreeBuilderService {
         PaaSTopology paaSTopology = buildPaaSTopology(buildPaaSNodeTemplates(topology));
 
         // Reuse this utility to query all types and inject them in the PaaSTopology
-        TopologyDTO topologyDTO = topologyDTOBuilder.buildTopologyDTO(topology);
+        TopologyDTO topologyDTO = topologyDTOBuilder.initTopologyDTO(topology, new TopologyDTO());
         paaSTopology.setDataTypes(topologyDTO.getDataTypes());
         paaSTopology.setCapabilityTypes(topologyDTO.getCapabilityTypes());
         paaSTopology.setRelationshipTypes(topologyDTO.getRelationshipTypes());

@@ -1,6 +1,8 @@
 package alien4cloud.topology.task;
 
 public enum TaskCode {
+    /* This code is to be used when a task is actually just there to dispatch a log message. */
+    LOG,
     IMPLEMENT,
     IMPLEMENT_RELATIONSHIP,
     REPLACE,
@@ -18,6 +20,8 @@ public enum TaskCode {
     LOCATION_POLICY,
     LOCATION_UNAUTHORIZED,
     LOCATION_DISABLED,
+    /* No matching node found on location for criterias */
+    NO_NODE_MATCHES,
 
     ORCHESTRATOR_PROPERTY,
     INPUT_PROPERTY,
