@@ -12,10 +12,10 @@ public final class NormativeComputeConstants {
     public static final String MEM_SIZE = "mem_size";
 
     public static final String OS_CAPABILITY = "os";
-    public static final String OS_ARCH = "os_arch";
-    public static final String OS_TYPE = "os_type";
-    public static final String OS_DISTRIBUTION = "os_distribution";
-    public static final String OS_VERSION = "os_version";
+    public static final String OS_ARCH = "arch";
+    public static final String OS_TYPE = "type";
+    public static final String OS_DISTRIBUTION = "distribution";
+    public static final String OS_VERSION = "version";
 
     public static final String IP_ADDRESS = "ip_address";
 
