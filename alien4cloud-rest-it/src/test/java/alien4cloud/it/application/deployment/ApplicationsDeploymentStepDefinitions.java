@@ -662,7 +662,7 @@ public class ApplicationsDeploymentStepDefinitions {
         int countNotStarted = 0;
         for (Map.Entry<String, Object> instanceInformationEntry : nodeInformation.entrySet()) {
             Map<String, Object> instanceInformation = (Map<String, Object>) instanceInformationEntry.getValue();
-            if (!Objects.equals(InstanceStatus.SUCCESS, instanceInformation.get("instanceStatus"))) {
+            if (!Objects.equals(InstanceStatus.SUCCESS.toString(), instanceInformation.get("instanceStatus"))) {
                 countNotStarted++;
             }
         }

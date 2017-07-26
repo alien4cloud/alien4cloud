@@ -5,12 +5,12 @@ import static alien4cloud.utils.AlienUtils.safe;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.DeleteInputArtifactOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
-import org.springframework.stereotype.Component;
-
-import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.stereotype.Component;
+
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.utils.InputArtifactUtil;
 
 /**

@@ -82,14 +82,7 @@ define(function (require) {
         $scope.$digest();
       }
 
-      // register for resize events
-      window.onresize = function () {
-        $scope.onResize();
-      };
-
       resizeServices.register(onResize, 0, 0);
-      $scope.heightInfo = {height: resizeServices.getHeight(0)};
-      $scope.widthInfo = {width: resizeServices.getWidth(0)};
     }
   ]);
 });

@@ -35,15 +35,14 @@ public class RestConstraintValidator {
             return null;
         }
         try {
-            ConstraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
+            ConstraintPropertyService.checkPropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
         } catch (ConstraintFunctionalException e) {
             return fromException(e, propertyName, propertyValue);
         }
         return null;
     }
 
-    public static RestResponse<ConstraintUtil.ConstraintInformation> fromException(ConstraintFunctionalException ex, String propertyName,
-            Object propertyValue) {
+    public static RestResponse<ConstraintUtil.ConstraintInformation> fromException(ConstraintFunctionalException ex, String propertyName, Object propertyValue) {
         if (ex instanceof ConstraintViolationException) {
             ConstraintViolationException e = (ConstraintViolationException) ex;
             log.debug("Constraint violation error for property <" + propertyName + "> with value <" + propertyValue + ">", e);

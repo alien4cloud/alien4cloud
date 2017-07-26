@@ -66,7 +66,7 @@ Feature: Manage location resources
   Scenario: Update a resource with wrong value type should fail
     When I create a resource of type "org.alien4cloud.nodes.mock.openstack.Flavor" named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the capability "host" property "disk_size" to "should-fail" for the resource named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
-    Then I should receive a RestResponse with an error code 800
+    Then I should receive a RestResponse with an error code 804
 
   @reset
   Scenario: Create a custom resource

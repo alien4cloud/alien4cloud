@@ -1,6 +1,7 @@
 package alien4cloud.utils;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -91,28 +92,6 @@ public final class PropertyUtil {
             return paths[0];
         } else {
             return null;
-        }
-    }
-
-    /**
-     * Merge from map into 'into' map
-     *
-     * @param from from map
-     * @param into into map
-     * @param keysToConsider if defined only keys contained by this set are considered
-     */
-    public static void mergeProperties(Map<String, AbstractPropertyValue> from, Map<String, AbstractPropertyValue> into, Set<String> keysToConsider) {
-        if (MapUtils.isNotEmpty(from)) {
-            for (Map.Entry<String, AbstractPropertyValue> fromEntry : from.entrySet()) {
-                if (keysToConsider != null && !keysToConsider.contains(fromEntry.getKey())) {
-                    // If the key filter do not contain the key then do not consider
-                    continue;
-                }
-                AbstractPropertyValue existingValue = into.get(fromEntry.getKey());
-                if (fromEntry.getValue() != null || existingValue == null) {
-                    into.put(fromEntry.getKey(), fromEntry.getValue());
-                }
-            }
         }
     }
 

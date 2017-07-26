@@ -47,7 +47,7 @@ public class TopologyDTOBuilder {
     @ToscaContextual
     public TopologyDTO buildTopologyDTO(EditionContext context) {
         TopologyDTO topologyDTO = new TopologyDTO();
-        buildAbstractTopologyDTO(context.getTopology(), topologyDTO);
+        initTopologyDTO(context.getTopology(), topologyDTO);
         topologyDTO.setArchiveContentTree(context.getArchiveContentTree());
         topologyDTO.setLastOperationIndex(context.getLastOperationIndex());
         topologyDTO.setOperations(context.getOperations());
@@ -87,27 +87,25 @@ public class TopologyDTOBuilder {
     }
 
     /**
-     * Build a topology dto from a topology.
-     *
-     * @param topology The topology from which to build the DTO object.
-     * @param <T> The type of topology (can be a topology or a deployment topology)
-     * @return An instance of TopologyDTO (FIXME Should return an Abstract Topology DTO and renamed as not abstract)
+     * Initialize an abstract topology DTO by filling in the node types, relationship types, capability types etc. from the context.
+     * 
+     * @param topology The topology to wrap into a DTO object.
+     * @param topologyDTO The topology DTO object that contains the topology and all referenced tosca types.
+     * @param <T> The topology type.
+     * @param <V> The abstract dto actual type.
+     * @return The instance of abstract topology DTO given as a parameter initialized with all the types used in the given topology.
      */
     @ToscaContextual
-    public <T extends Topology> TopologyDTO buildTopologyDTO(T topology) {
-        TopologyDTO topologyDTO = new TopologyDTO();
-        if (topology != null) {
-            buildAbstractTopologyDTO(topology, topologyDTO);
+    public <T extends Topology, V extends AbstractTopologyDTO<T>> V initTopologyDTO(T topology, V topologyDTO) {
+        if (topology == null) {
+            return topologyDTO;
         }
-        return topologyDTO;
-    }
-
-    private <T extends Topology> void buildAbstractTopologyDTO(T topology, AbstractTopologyDTO<T> topologyDTO) {
         topologyDTO.setTopology(topology);
         topologyDTO.setNodeTypes(getNodeTypes(topology));
         topologyDTO.setRelationshipTypes(getRelationshipTypes(topology));
         topologyDTO.setCapabilityTypes(getCapabilityTypes(topologyDTO));
         topologyDTO.setDataTypes(getDataTypes(topologyDTO));
+        return topologyDTO;
     }
 
     private <T extends Topology> Map<String, NodeType> getNodeTypes(T topology) {

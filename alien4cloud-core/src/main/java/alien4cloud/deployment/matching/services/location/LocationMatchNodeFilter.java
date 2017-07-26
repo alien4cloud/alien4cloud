@@ -33,7 +33,6 @@ public class LocationMatchNodeFilter {
     private LocationMatchNodesArtifactsElector artifactsElector;
 
     public void filter(List<ILocationMatch> toFilter, Topology topology) {
-
         // create a context to keep requested tosca elements.
         NodeMatchContext nodeMatchContext = new NodeMatchContext();
         nodeMatchContext.topology = topology;

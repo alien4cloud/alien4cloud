@@ -24,5 +24,4 @@ public class ConstraintViolationException extends ConstraintFunctionalException 
         super(message, cause);
         this.constraintInformation = constraintInformation;
     }
-
 }

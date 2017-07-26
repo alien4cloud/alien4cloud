@@ -19,6 +19,7 @@ public class TaskDeserializer extends AbstractFieldValueDiscriminatorPolymorphic
         addToRegistry(PropertiesTask.class, TaskCode.INPUT_PROPERTY, TaskCode.PROPERTIES, TaskCode.ORCHESTRATOR_PROPERTY);
         addToRegistry(ScalableTask.class, TaskCode.SCALABLE_CAPABILITY_INVALID);
         addToRegistry(LocationPolicyTask.class, TaskCode.LOCATION_POLICY);
+        addToRegistry(NodeMatchingTask.class, TaskCode.NO_NODE_MATCHES);
         addToRegistry(NodeFiltersTask.class, TaskCode.NODE_FILTER_INVALID);
         addToRegistry(RequirementsTask.class, TaskCode.SATISFY_LOWER_BOUND);
         addToRegistry(WorkflowTask.class, TaskCode.WORKFLOW_INVALID);

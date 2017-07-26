@@ -7,19 +7,14 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation;
-import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Maps;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
-import alien4cloud.model.deployment.DeploymentTopology;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -27,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation> implements IEditorCommitableProcessor<AddInputOperation> {
+public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -49,23 +44,6 @@ public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation>
         topology.setInputs(inputs);
 
         log.debug("Add a new input <{}> for the topology <{}>.", operation.getInputName(), topology.getId());
-    }
-
-    @Override
-    public void beforeCommit(AddInputOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-        // Update default values for each deployment topology
-        PropertyValue defaultValue = operation.getPropertyDefinition().getDefault();
-        if (defaultValue != null) {
-            DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
-            for (DeploymentTopology deploymentTopology : deploymentTopologies) {
-                if (deploymentTopology.getInputProperties() == null) {
-                    deploymentTopology.setInputProperties(Maps.newHashMap());
-                }
-                deploymentTopology.getInputProperties().put(operation.getInputName(), defaultValue);
-                alienDAO.save(deploymentTopology);
-            }
-        }
     }
 
     @Override

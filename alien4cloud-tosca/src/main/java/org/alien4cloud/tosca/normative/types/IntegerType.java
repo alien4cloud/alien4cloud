@@ -2,9 +2,6 @@ package org.alien4cloud.tosca.normative.types;
 
 import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
 
-/**
- * @author Minh Khang VU
- */
 public class IntegerType implements IComparablePropertyType<Long> {
 
     public static final String NAME = "integer";

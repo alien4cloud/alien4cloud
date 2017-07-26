@@ -14,6 +14,7 @@ import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
@@ -27,34 +28,28 @@ import alien4cloud.utils.InputArtifactUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 @Service
 public class DeploymentInputService {
     @Inject
     private OrchestratorDeploymentService orchestratorDeploymentService;
 
     /**
-     * Fill-in the inputs properties definitions (and default values) based on the properties definitions from the topology.
-     *
-     * @param topology The deployment topology to impact.
+     * Ensure that the specified input values matches the eventually updated input definitions.
+     * 
+     * @param inputDefinitions Inputs definitions as specified in the topology.
+     * @param inputValues Input properties values as specified by the user.
+     * @return the updated inputs values.
      */
-    @ToscaContextual
-    public void processInputProperties(DeploymentTopology topology) {
-        Map<String, PropertyValue> inputProperties = topology.getInputProperties();
-        Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
-        if (MapUtils.isEmpty(inputDefinitions)) {
-            topology.setInputProperties(null);
-            return;
-        }
-        if (inputProperties == null) {
-            inputProperties = Maps.newHashMap();
-            topology.setInputProperties(inputProperties);
-        } else {
+    public void synchronizeInputs(Map<String, PropertyDefinition> inputDefinitions, Map<String, PropertyValue> inputValues) {
+        if (!MapUtils.isEmpty(inputValues)) {
             // Ensure that previous defined values are still compatible with the latest input definition (as the topology may have changed).
-            Iterator<Map.Entry<String, PropertyValue>> inputPropertyEntryIterator = inputProperties.entrySet().iterator();
+            Iterator<Map.Entry<String, PropertyValue>> inputPropertyEntryIterator = inputValues.entrySet().iterator();
             while (inputPropertyEntryIterator.hasNext()) {
                 Map.Entry<String, PropertyValue> inputPropertyEntry = inputPropertyEntryIterator.next();
                 // remove if the value is null, or the input is not register as one
-                if (inputPropertyEntry.getValue() == null || !inputDefinitions.containsKey(inputPropertyEntry.getKey())) {
+                if (inputPropertyEntry.getValue() == null || !safe(inputDefinitions).containsKey(inputPropertyEntry.getKey())) {
                     inputPropertyEntryIterator.remove();
                 } else {
                     try {
@@ -68,70 +63,13 @@ public class DeploymentInputService {
             }
         }
         // set default values for every unset property.
-        for (Map.Entry<String, PropertyDefinition> inputDefinitionEntry : inputDefinitions.entrySet()) {
-            PropertyValue existingValue = inputProperties.get(inputDefinitionEntry.getKey());
+        for (Map.Entry<String, PropertyDefinition> inputDefinitionEntry : safe(inputDefinitions).entrySet()) {
+            PropertyValue existingValue = inputValues.get(inputDefinitionEntry.getKey());
             if (existingValue == null) {
                 // If user has not specified a value and there is
                 PropertyValue defaultValue = inputDefinitionEntry.getValue().getDefault();
                 if (defaultValue != null) {
-                    inputProperties.put(inputDefinitionEntry.getKey(), defaultValue);
-                }
-            }
-        }
-    }
-
-    private static void processInputArtifactForTemplate(Map<String, List<DeploymentArtifact>> artifactMap, AbstractTemplate template) {
-        for (DeploymentArtifact da : template.getArtifacts().values()) {
-            String inputArtifactId = InputArtifactUtil.getInputArtifactId(da);
-            if (inputArtifactId != null) {
-                List<DeploymentArtifact> das = artifactMap.get(inputArtifactId);
-                if (das == null) {
-                    das = Lists.newArrayList();
-                    artifactMap.put(inputArtifactId, das);
-                }
-                das.add(da);
-            }
-        }
-    }
-
-    /**
-     * Inject input artifacts in the corresponding nodes.
-     */
-    public void processInputArtifacts(DeploymentTopology topology) {
-        if (topology.getInputArtifacts() != null && !topology.getInputArtifacts().isEmpty()) {
-
-            // we'll build a map inputArtifactId -> List<DeploymentArtifact>
-            Map<String, List<DeploymentArtifact>> artifactMap = Maps.newHashMap();
-            // iterate over nodes in order to remember all nodes referencing an input artifact
-            for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
-                if (MapUtils.isNotEmpty(nodeTemplate.getArtifacts())) {
-                    processInputArtifactForTemplate(artifactMap, nodeTemplate);
-                }
-                if (MapUtils.isNotEmpty(nodeTemplate.getRelationships())) {
-                    nodeTemplate.getRelationships().entrySet().stream()
-                            .filter(relationshipTemplateEntry -> MapUtils.isNotEmpty(relationshipTemplateEntry.getValue().getArtifacts()))
-                            .forEach(relationshipTemplateEntry -> processInputArtifactForTemplate(artifactMap, relationshipTemplateEntry.getValue()));
-                }
-            }
-
-            Map<String, DeploymentArtifact> allInputArtifact = new HashMap<>();
-            allInputArtifact.putAll(topology.getInputArtifacts());
-            if (MapUtils.isNotEmpty(topology.getUploadedInputArtifacts())) {
-                allInputArtifact.putAll(topology.getUploadedInputArtifacts());
-            }
-            for (Map.Entry<String, DeploymentArtifact> inputArtifact : allInputArtifact.entrySet()) {
-                List<DeploymentArtifact> nodeArtifacts = artifactMap.get(inputArtifact.getKey());
-                if (nodeArtifacts != null) {
-                    for (DeploymentArtifact nodeArtifact : nodeArtifacts) {
-                        nodeArtifact.setArtifactRef(inputArtifact.getValue().getArtifactRef());
-                        nodeArtifact.setArtifactName(inputArtifact.getValue().getArtifactName());
-                        nodeArtifact.setArtifactRepository(inputArtifact.getValue().getArtifactRepository());
-                        nodeArtifact.setRepositoryName(inputArtifact.getValue().getRepositoryName());
-                        nodeArtifact.setRepositoryCredential(inputArtifact.getValue().getRepositoryCredential());
-                        nodeArtifact.setRepositoryURL(inputArtifact.getValue().getRepositoryURL());
-                        nodeArtifact.setArchiveName(inputArtifact.getValue().getArchiveName());
-                        nodeArtifact.setArchiveVersion(inputArtifact.getValue().getArchiveVersion());
-                    }
+                    inputValues.put(inputDefinitionEntry.getKey(), defaultValue);
                 }
             }
         }
@@ -147,8 +85,8 @@ public class DeploymentInputService {
             // No orchestrator assigned for the topology do nothing
             return;
         }
-        Map<String, PropertyDefinition> propertyDefinitionMap = orchestratorDeploymentService
-                .getDeploymentPropertyDefinitions(deploymentTopology.getOrchestratorId());
+        Map<String, PropertyDefinition> propertyDefinitionMap = orchestratorDeploymentService.getDeploymentPropertyDefinitions(deploymentTopology
+                .getOrchestratorId());
         if (propertyDefinitionMap != null) {
             // Reset deployment properties as it might have changed between cloud
             Map<String, String> propertyValueMap = deploymentTopology.getProviderDeploymentProperties();
@@ -169,15 +107,14 @@ public class DeploymentInputService {
                 String existingValue = propertyValueMap.get(propertyDefinitionEntry.getKey());
                 if (existingValue != null) {
                     try {
-                        ConstraintPropertyService.checkSimplePropertyConstraint(propertyDefinitionEntry.getKey(), existingValue,
-                                propertyDefinitionEntry.getValue());
+                        ConstraintPropertyService.checkPropertyConstraint(propertyDefinitionEntry.getKey(), existingValue, propertyDefinitionEntry.getValue());
                     } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                        PropertyUtil.setScalarDefaultValueOrNull(propertyValueMap, propertyDefinitionEntry.getKey(),
-                                propertyDefinitionEntry.getValue().getDefault());
+                        PropertyUtil.setScalarDefaultValueOrNull(propertyValueMap, propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue()
+                                .getDefault());
                     }
                 } else {
-                    PropertyUtil.setScalarDefaultValueIfNotNull(propertyValueMap, propertyDefinitionEntry.getKey(),
-                            propertyDefinitionEntry.getValue().getDefault());
+                    PropertyUtil.setScalarDefaultValueIfNotNull(propertyValueMap, propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue()
+                            .getDefault());
                 }
             }
             deploymentTopology.setProviderDeploymentProperties(propertyValueMap);

@@ -10,15 +10,14 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.RenameInputOperation;
-import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
@@ -27,8 +26,6 @@ import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.deployment.DeploymentTopology;
-import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -36,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOperation> implements IEditorCommitableProcessor<RenameInputOperation> {
+public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -97,19 +94,6 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
                         functionPropertyValue.setParameters(Arrays.asList(newInputName));
                     }
                 }
-            }
-        }
-    }
-
-    @Override
-    public void beforeCommit(RenameInputOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-        DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
-        for (DeploymentTopology deploymentTopology : deploymentTopologies) {
-            if (deploymentTopology.getInputProperties() != null && deploymentTopology.getInputProperties().containsKey(operation.getInputName())) {
-                PropertyValue previousValue = deploymentTopology.getInputProperties().remove(operation.getInputName());
-                deploymentTopology.getInputProperties().put(operation.getNewInputName(), previousValue);
-                alienDAO.save(deploymentTopology);
             }
         }
     }

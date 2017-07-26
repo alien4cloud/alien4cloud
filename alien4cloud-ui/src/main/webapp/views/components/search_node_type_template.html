@@ -26,7 +26,7 @@
           </form>
         </div>
         <!-- Displaying active filters -->
-        <div uib-collapse="collapseAdvancedSearch && !globalContext">
+        <div uib-collapse="collapseAdvancedSearch && !globalContext" ng-class="{'well': !globalContext}">
           <facets facet-filters="facetFilters"
                   default-filters="defaultFilters"
                   facet-id-converter="facetIdConverter"

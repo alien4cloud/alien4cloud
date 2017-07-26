@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.Csar;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -99,8 +102,13 @@ public class ApplicationEnvironmentController {
             @RequestBody GetInputCandidatesRequest getInputCandidatesRequest) {
         FilteredSearchRequest filteredSearchRequest = new FilteredSearchRequest(null, 0, Integer.MAX_VALUE, null);
         GetMultipleDataResult<ApplicationEnvironment> authorizedEnvironments = searchAuthorizedEnvironments(applicationId, filteredSearchRequest);
+        // TODO implement something more generic to check if a configuration to copy exist.
         List<ApplicationEnvironment> environmentsWithInputs = Arrays.stream(authorizedEnvironments.getData())
-                .filter(environment -> deploymentTopologyService.isDeploymentTopologyExist(environment)).collect(Collectors.toList());
+                .filter(environment -> alienDAO.exist(DeploymentInputs.class,
+                        AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId()))
+                        || alienDAO.exist(DeploymentMatchingConfiguration.class,
+                                AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId())))
+                .collect(Collectors.toList());
         if (getInputCandidatesRequest != null && (StringUtils.isNotBlank(getInputCandidatesRequest.getApplicationEnvironmentId())
                 || StringUtils.isNotBlank(getInputCandidatesRequest.getApplicationTopologyVersion()))) {
             // If one of this information is given, we can deduct a certain preference

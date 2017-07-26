@@ -113,7 +113,7 @@ Feature: Deploy an application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     Then I should receive a RestResponse with an error code 102
     When I deploy it
-    Then I should receive a RestResponse with an error code 500
+    Then I should receive a RestResponse with an error code 614
 
   @reset
   Scenario: Deploy an application on location with appropriate group authorization with success
@@ -141,7 +141,7 @@ Feature: Deploy an application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     Then I should receive a RestResponse with an error code 102
     When I deploy it
-    Then I should receive a RestResponse with an error code 500
+    Then I should receive a RestResponse with an error code 614
 
   @reset
   Scenario: Deploy an application on location with appropriate application authorization should success

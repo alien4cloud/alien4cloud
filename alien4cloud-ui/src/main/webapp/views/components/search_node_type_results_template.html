@@ -3,7 +3,7 @@
   data="searchResult.data">
 </empty-place-holder>
 
-<div ng-class="{'small': !globalContext}" style= "text-align: center;">
+<div ng-class="{'small': !globalContext}" style= "text-align: center; {{resultStyle}}">
   <div class="catalog-cell"
     ng-repeat="component in searchResult.data"
     id="li_{{component.id}}"

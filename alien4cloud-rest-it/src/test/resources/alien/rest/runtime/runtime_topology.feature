@@ -19,9 +19,7 @@ Feature: get runtime topology
     And I grant access to the resource type "LOCATION" named "Thark location" to the user "sangoku"
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Medium_Ubuntu" to the user "sangoku"
     And I am authenticated with user named "sangoku"
-    And I upload the archive "tosca base types 1.0"
-    And I should receive a RestResponse with no error
-    And I upload the archive "sample apache lb types 0.1"
+    And I upload the archive "custom-interface-mock-types"
     And I should receive a RestResponse with no error
 
     And I pre register orchestrator properties
@@ -29,58 +27,37 @@ Feature: get runtime topology
       | numberBackup  | 1                       |
       | managerEmail  | admin@alien.fr          |
 
-    Given I create a new application with name "ALIEN" and description "" and node templates
-      | apacheLBGroovy | fastconnect.nodes.apacheLBGroovy:0.1 |
-      | Compute        | tosca.nodes.Compute:1.0              |
+    And I create a new application with name "ALIEN" and description "" and node templates
+      | Compute         | tosca.nodes.Compute:1.0.0-SNAPSHOT                     |
+      | customInterface | alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT |
     And I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
-      | nodeName               | apacheLBGroovy                                                                        |
+      | nodeName               | customInterface                                                                       |
       | relationshipName       | hostedOnCompute                                                                       |
       | relationshipType       | tosca.relationships.HostedOn                                                          |
-      | relationshipVersion    | 1.0                                                                                   |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
       | requirementName        | host                                                                                  |
       | target                 | Compute                                                                               |
       | targetedCapabilityName | host                                                                                  |
-    And I execute the operation
-      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
-      | nodeName      | Compute                                                                               |
-      | propertyName  | os_type                                                                               |
-      | propertyValue | linux                                                                                 |
-    And I execute the operation
-      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
-      | nodeName      | Compute                                                                               |
-      | propertyName  | os_arch                                                                               |
-      | propertyValue | x86_64                                                                                |
-    And I execute the operation
-      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateCapabilityPropertyValueOperation |
-      | nodeName       | Compute                                                                                     |
-      | capabilityName | compute                                                                                     |
-      | propertyName   | containee_types                                                                             |
-      | propertyValue  | dummy                                                                                       |
-    And I execute the operation
-      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateCapabilityPropertyValueOperation |
-      | nodeName       | Compute                                                                                     |
-      | capabilityName | host                                                                                        |
-      | propertyName   | containee_types                                                                             |
-      | propertyValue  | dummy                                                                                       |
     And I save the topology
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
 
   @reset
   Scenario: Runtime topology should not be impacted by updates on the version topology when snapshot
     When I deploy it
-    When I execute the operation
+    And I should receive a RestResponse with no error
+    And I execute the operation
       | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation |
-      | nodeName | apacheLBGroovy                                                           |
+      | nodeName | customInterface                                                           |
     And I save the topology
-    When I ask the runtime topology of the application "ALIEN" on the location "Thark location" of "Mount doom orchestrator"
-    Then I should receive a RestResponse with no error
-    And The RestResponse should contain a nodetemplate named "apacheLBGroovy" and type "fastconnect.nodes.apacheLBGroovy"
+    And I ask the runtime topology of the application "ALIEN" on the location "Thark location" of "Mount doom orchestrator"
+    And I should receive a RestResponse with no error
+    And The RestResponse should contain a nodetemplate named "customInterface" and type "alien4cloud.tests.nodes.CustomInterface"
     And The RestResponse should contain a nodetemplate named "Compute" and type "org.alien4cloud.nodes.mock.Compute"
     When I try to retrieve the created topology
-    Then I should receive a RestResponse with no error
+    And I should receive a RestResponse with no error
     And The RestResponse should contain a nodetemplate named "Compute" and type "tosca.nodes.Compute"
-    And The RestResponse should not contain a nodetemplate named "apacheLBGroovy"
+    And The RestResponse should not contain a nodetemplate named "customInterface"
 
 #  @reset
 #  Scenario: get_input must be processed in a runtime topology

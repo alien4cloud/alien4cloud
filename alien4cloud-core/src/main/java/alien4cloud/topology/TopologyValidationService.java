@@ -65,11 +65,6 @@ public class TopologyValidationService {
         // validate abstract relationships
         dto.addTasks(topologyAbstractRelationshipValidationService.validateAbstractRelationships(topology));
 
-        // validate abstract node types and find suggestions
-        // in this step, this is a warning, since they can be replaced by nodes comming from the location
-        // TODO should we do this here or not?
-        // dto.addToWarningList(topologyAbstractNodeValidationService.findReplacementForAbstracts(topology));
-
         // validate requirements lowerBounds
         dto.addTasks(topologyRequirementBoundsValidationServices.validateRequirementsLowerBounds(topology));
 

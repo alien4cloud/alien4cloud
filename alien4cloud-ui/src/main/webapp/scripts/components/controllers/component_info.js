@@ -7,7 +7,7 @@ define(function (require) {
   var _ = require('lodash');
 
   states.state('components.detail.info', {
-    url: '/details/:id/info',
+    url: '/info',
     templateUrl: 'views/components/component_info.html',
     controller: 'ComponentInfoCtrl',
     menu: {

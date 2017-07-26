@@ -1,19 +1,20 @@
 package alien4cloud.topology.validation;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
 import alien4cloud.deployment.exceptions.LocationRequiredException;
-import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
-import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -38,19 +39,17 @@ public class LocationPolicyValidationService {
     @Resource
     private LocationSecurityService locationSecurityService;
 
-    public List<LocationPolicyTask> validateLocationPolicies(DeploymentTopology deploymentTopology) {
+    public List<LocationPolicyTask> validateLocationPolicies(Topology topology, DeploymentMatchingConfiguration matchingConfiguration) {
         List<LocationPolicyTask> tasks = Lists.newArrayList();
         Location location = null;
         Orchestrator orchestrator = null;
         try {
-            Map<String, String> locationIds = TopologyLocationUtils.getLocationIdsOrFail(deploymentTopology);
-
-            String locationId = locationIds.get(AlienConstants.GROUP_ALL);
+            String locationId = safe(matchingConfiguration.getLocationIds()).get(AlienConstants.GROUP_ALL);
             location = locationService.getOrFail(locationId);
             orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
 
             // if a location already exists, then check the rigths on it
-            locationSecurityService.checkAuthorisation(location, deploymentTopology.getEnvironmentId());
+            locationSecurityService.checkAuthorisation(location, matchingConfiguration.getEnvironmentId());
             // check the orchestrator is still enabled
 
             if (!Objects.equals(orchestrator.getState(), OrchestratorState.CONNECTED)) {

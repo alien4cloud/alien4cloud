@@ -20,10 +20,12 @@ import org.alien4cloud.tosca.model.templates.Requirement;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 
 import alien4cloud.utils.MapUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class to perform function evaluation on a topology template.
  */
+@Slf4j
 public class FunctionEvaluator {
     /**
      * Resolve the actual value of a property.
@@ -181,7 +183,7 @@ public class FunctionEvaluator {
         StringBuilder sb = new StringBuilder();
 
         for (AbstractPropertyValue abstractPropertyValue : concatPropertyValue.getParameters()) {
-            PropertyValue propertyValue = resolveValue(evaluatorContext, template, properties, abstractPropertyValue);
+            AbstractPropertyValue propertyValue = resolveValue(evaluatorContext, template, properties, abstractPropertyValue);
             if (propertyValue instanceof ScalarPropertyValue) {
                 sb.append(((ScalarPropertyValue) propertyValue).getValue());
             } else if (propertyValue instanceof ListPropertyValue) {
@@ -192,6 +194,10 @@ public class FunctionEvaluator {
                         throw new IllegalArgumentException("Concat can only be resolved for strings or list of strings.");
                     }
                 }
+            } else if (propertyValue instanceof FunctionPropertyValue
+                    && ToscaFunctionConstants.GET_INPUT.equals(((FunctionPropertyValue) propertyValue).getFunction())) {
+                // just ignore that as unprocessed inputs are from voluntary callback in the evaluator context for later processing.
+                log.debug("Ignoring contact of an unresolved get_input function.");
             } else {
                 throw new IllegalArgumentException("Concat can only be resolved for strings or list of strings.");
             }

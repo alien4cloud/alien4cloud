@@ -24,7 +24,9 @@ define(function(require) {
                 }
               }
             }
-            this.processSubstitutionResources(deploymentTopology.availableSubstitutions);
+            if(_.defined(deploymentTopology.availableSubstitutions)) {
+              this.processSubstitutionResources(deploymentTopology.availableSubstitutions);  
+            }
           },
           processSubstitutionResources: function(substitutionResources) {
             var availableSubstitutionsIds = substitutionResources.availableSubstitutions;

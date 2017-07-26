@@ -67,14 +67,9 @@ public class NodeMatcherService {
         return defaultNodeMatcher;
     }
 
-    public Map<String, List<LocationResourceTemplate>> match(Map<String, NodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch, String locationId) {
-        return match(nodesTypes, nodesToMatch, locationId, null);
-    }
-
-    public Map<String, List<LocationResourceTemplate>> match(Map<String, NodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch, String locationId,
+    public Map<String, List<LocationResourceTemplate>> match(Map<String, NodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch, Location location,
             String environmentId) {
         Map<String, List<LocationResourceTemplate>> matchingResult = Maps.newHashMap();
-        Location location = locationService.getOrFail(locationId);
 
         // fetch location resources
         LocationResources locationResources = locationResourceService.getLocationResources(location);
@@ -82,13 +77,13 @@ public class NodeMatcherService {
         filterOnAuthorization(locationResources.getNodeTemplates(), environmentId);
 
         // fetch service resources
-        List<ServiceResource> services = serviceResourceService.searchByLocation(locationId);
+        List<ServiceResource> services = serviceResourceService.searchByLocation(location.getId());
         // self filtering: remove managed service linked to this location
         filterSelfManagedService(services, environmentId);
         // Authorization filtering of location resources
         filterOnAuthorization(services, environmentId);
         // from serviceResource to locationResource
-        populateLocationResourcesWithServiceResource(locationResources, services, locationId);
+        populateLocationResourcesWithServiceResource(locationResources, services, location.getId());
 
         Map<String, MatchingConfiguration> matchingConfigurations = locationMatchingConfigurationService.getMatchingConfiguration(location);
         Set<String> typesManagedByLocation = Sets.newHashSet();

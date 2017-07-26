@@ -1,12 +1,9 @@
 package org.alien4cloud.tosca.normative.types;
 
+import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
 import org.alien4cloud.tosca.normative.primitives.Frequency;
 import org.alien4cloud.tosca.normative.primitives.FrequencyUnit;
-import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
 
-/**
- * @author Minh Khang VU
- */
 public class FrequencyType extends ScalarType<Frequency, FrequencyUnit> {
 
     public static final String NAME = "scalar-unit.frequency";

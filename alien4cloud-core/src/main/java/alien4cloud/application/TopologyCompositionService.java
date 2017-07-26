@@ -262,6 +262,7 @@ public class TopologyCompositionService {
         for (Entry<String, NodeTemplate> nodeEntry : topology.getNodeTemplates().entrySet()) {
             String nodeName = nodeEntry.getKey();
             String type = nodeEntry.getValue().getType();
+            // FIXME use tosca context, beware of child topologies (dependencies to use ? conflicts ?)
             NodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, type, topology.getDependencies());
             if (nodeType.getSubstitutionTopologyId() != null) {
                 // this node type is a proxy for a topology template

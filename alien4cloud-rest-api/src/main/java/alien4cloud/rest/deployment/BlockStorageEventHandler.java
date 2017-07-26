@@ -6,6 +6,9 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -13,6 +16,8 @@ import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +34,6 @@ import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyUtils;
-import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -84,12 +88,13 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         Deployment deployment = deploymentService.get(persistentResourceEvent.getDeploymentId());
 
         String deploymentTopologyId = DeploymentTopology.generateId(deployment.getVersionId(), deployment.getEnvironmentId());
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrFail(deploymentTopologyId);
+        String topologyId = deployment.getSourceId() + ":" + deployment.getVersionId();
+        Topology topology = topoServiceCore.getOrFail(topologyId);
 
         // The deployment topology may have changed and the node removed, in such situations there is nothing to update as the block won't be reused.
         NodeTemplate nodeTemplate;
         try {
-            nodeTemplate = TopologyUtils.getNodeTemplate(deploymentTopology, persistentResourceEvent.getNodeTemplateId());
+            nodeTemplate = TopologyUtils.getNodeTemplate(topology, persistentResourceEvent.getNodeTemplateId());
         } catch (NotFoundException e) {
             log.warn("Fail to update persistent resource for node {}", persistentResourceEvent.getNodeTemplateId(), e);
             return;
@@ -101,25 +106,30 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             if (abstractPropertyValue != null && abstractPropertyValue instanceof FunctionPropertyValue) { // the value is set in the topology
                 FunctionPropertyValue function = (FunctionPropertyValue) abstractPropertyValue;
                 if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT) && propertyValue instanceof String) {
+                    DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class,
+                            AbstractDeploymentConfig.generateId(deployment.getVersionId(), deployment.getEnvironmentId()));
                     // the value is set in the input (deployment setup)
-                    log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentTopology.getId(),
-                            function.getTemplateName());
+                    log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentInputs.getId(), function.getTemplateName());
                     log.debug("Property <{}> to update: <{}>. New value is <{}>", propertyName,
                             persistentResourceEvent.getPersistentProperties().get(propertyName), propertyValue);
-                    deploymentTopology.getInputProperties().put(function.getTemplateName(), new ScalarPropertyValue((String) propertyValue));
+                    deploymentInputs.getInputs().put(function.getTemplateName(), new ScalarPropertyValue((String) propertyValue));
+                    alienDAO.save(deploymentInputs);
                 } else {
                     // this is not supported / print a warning
                     log.warn("Failed to store the id of the created block storage <{}> for deployment <{}> application <{}> environment <{}>");
                     return;
                 }
             } else {
+                DeploymentMatchingConfiguration matchingConfiguration = alienDAO.findById(DeploymentMatchingConfiguration.class,
+                        AbstractDeploymentConfig.generateId(deployment.getVersionId(), deployment.getEnvironmentId()));
                 log.info("Updating deployment topology: Persistent resource property <{}> for node template <{}.{}> to add a value", propertyName,
-                        deploymentTopology.getId(), persistentResourceEvent.getNodeTemplateId());
+                        matchingConfiguration.getId(), persistentResourceEvent.getNodeTemplateId());
                 log.debug("Value to add: <{}>. New value is <{}>", persistentResourceEvent.getPersistentProperties().get(propertyName), propertyValue);
-                nodeTemplate.getProperties().put(propertyName, getPropertyValue(propertyValue));
+                matchingConfiguration.getMatchedNodesConfiguration().get(persistentResourceEvent.getNodeTemplateId()).getProperties().put(propertyName,
+                        getPropertyValue(propertyValue));
+                alienDAO.save(matchingConfiguration);
             }
         }
-        alienDAO.save(deploymentTopology);
     }
 
     private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent,

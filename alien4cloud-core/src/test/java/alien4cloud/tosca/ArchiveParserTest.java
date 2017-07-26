@@ -11,6 +11,7 @@ import org.alien4cloud.tosca.catalog.ArchiveParser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -24,6 +25,7 @@ import alien4cloud.utils.FileUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:tosca/archive-parser-application-context.xml")
+@DirtiesContext
 public class ArchiveParserTest {
     private Path artifactsDirectory = Paths.get("../target/it-artifacts");
     private RepositoryManager repositoryManager = new RepositoryManager();

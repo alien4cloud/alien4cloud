@@ -6,9 +6,11 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +20,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.TaskCode;
@@ -35,17 +36,19 @@ public class OrchestratorPropertiesValidationService {
     @Inject
     private OrchestratorDeploymentService orchestratorDeploymentService;
 
-    public PropertiesTask validate(DeploymentTopology deploymentTopology) {
-        if (StringUtils.isBlank(deploymentTopology.getOrchestratorId())) {
+    public PropertiesTask validate(OrchestratorDeploymentProperties orchestratorDeploymentProperties) {
+
+        if (orchestratorDeploymentProperties == null || StringUtils.isBlank(orchestratorDeploymentProperties.getOrchestratorId())) {
             return null;
         }
 
         Map<String, PropertyDefinition> deploymentProperties = orchestratorDeploymentService
-                .getDeploymentPropertyDefinitions(deploymentTopology.getOrchestratorId());
+                .getDeploymentPropertyDefinitions(orchestratorDeploymentProperties.getOrchestratorId());
+
         if (MapUtils.isEmpty(deploymentProperties)) {
             return null;
         }
-        Map<String, String> properties = deploymentTopology.getProviderDeploymentProperties();
+        Map<String, String> properties = orchestratorDeploymentProperties.getProviderDeploymentProperties();
         if (properties == null) {
             properties = Maps.newHashMap();
         }
@@ -86,7 +89,7 @@ public class OrchestratorPropertiesValidationService {
                 throw new NotFoundException("property <" + propertyEntry.getKey() + "> is not defined for this orchestrator");
             }
             if (propertyDefinition.getConstraints() != null) {
-                ConstraintPropertyService.checkSimplePropertyConstraint(propertyEntry.getKey(), propertyEntry.getValue(), propertyDefinition);
+                ConstraintPropertyService.checkPropertyConstraint(propertyEntry.getKey(), propertyEntry.getValue(), propertyDefinition);
             }
         }
     }
