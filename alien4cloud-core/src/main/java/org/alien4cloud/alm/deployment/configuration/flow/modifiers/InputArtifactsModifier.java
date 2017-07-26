@@ -1,8 +1,12 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
@@ -32,6 +36,19 @@ public class InputArtifactsModifier implements ITopologyModifier {
                 .orElseThrow(() -> new IllegalArgumentException("Input modifier requires an environment context.")).getEnvironment();
         DeploymentInputs deploymentInputs = context.getConfiguration(DeploymentInputs.class, InputsModifier.class.getSimpleName())
                 .orElse(new DeploymentInputs(environment.getTopologyVersion(), environment.getId()));
+
+        if (deploymentInputs == null) {
+            processInputArtifacts(topology, Maps.newHashMap());
+        }
+
+        // Cleanup inputs artifacts that does not exists anymore
+        Iterator<Entry<String, DeploymentArtifact>> inputArtifactsIterator = safe(deploymentInputs.getInputArtifacts()).entrySet().iterator();
+        while (inputArtifactsIterator.hasNext()) {
+            Entry<String, DeploymentArtifact> inputArtifactEntry = inputArtifactsIterator.next();
+            if (!topology.getInputArtifacts().containsKey(inputArtifactEntry.getKey())) {
+                inputArtifactsIterator.remove();
+            }
+        }
 
         processInputArtifacts(topology, deploymentInputs.getInputArtifacts());
     }
