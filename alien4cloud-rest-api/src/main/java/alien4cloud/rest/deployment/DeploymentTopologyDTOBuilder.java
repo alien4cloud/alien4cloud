@@ -1,5 +1,7 @@
 package alien4cloud.rest.deployment;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -42,13 +44,11 @@ import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.ReflectionUtil;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
 /**
  * Construct a deployment topology dto for rest api and ui consumption.
  */
 @Service
-public class DeploymentTopologyDTOBuilder {
+public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder {
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
     @Inject
@@ -60,12 +60,14 @@ public class DeploymentTopologyDTOBuilder {
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
 
+    @Override
     @ToscaContextual
     public DeploymentTopologyDTO prepareDeployment(Topology topology, Application application, ApplicationEnvironment environment) {
         FlowExecutionContext executionContext = flowExecutor.executeDeploymentFlow(topology, application, environment);
         return build(executionContext);
     }
 
+    @Override
     @ToscaContextual
     public DeploymentTopologyDTO prepareDeployment(Topology topology, Application application, ApplicationEnvironment environment,
             ApplicationTopologyVersion topologyVersion, IDeploymentConfigAction deploymentConfigAction) {
@@ -76,6 +78,7 @@ public class DeploymentTopologyDTOBuilder {
         return build(executionContext);
     }
 
+    @Override
     @ToscaContextual
     public DeploymentTopologyDTO prepareDeployment(Topology topology, Supplier<FlowExecutionContext> contextSupplier) {
         return build(contextSupplier.get());

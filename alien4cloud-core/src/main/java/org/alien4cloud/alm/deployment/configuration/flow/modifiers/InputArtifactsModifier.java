@@ -6,17 +6,19 @@ import java.util.Map;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.utils.InputArtifactUtil;
-import org.springframework.stereotype.Component;
 
 /**
  * Inject input artifacts into the topology.
@@ -26,7 +28,12 @@ public class InputArtifactsModifier implements ITopologyModifier {
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
+        ApplicationEnvironment environment = context.getEnvironmentContext()
+                .orElseThrow(() -> new IllegalArgumentException("Input modifier requires an environment context.")).getEnvironment();
+        DeploymentInputs deploymentInputs = context.getConfiguration(DeploymentInputs.class, InputsModifier.class.getSimpleName())
+                .orElse(new DeploymentInputs(environment.getTopologyVersion(), environment.getId()));
 
+        processInputArtifacts(topology, deploymentInputs.getInputArtifacts());
     }
 
     /**
