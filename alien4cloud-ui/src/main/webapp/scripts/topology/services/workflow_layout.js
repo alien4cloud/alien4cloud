@@ -8,10 +8,34 @@ define(function (require) {
       // This service performs layout on a simple directed graph.
       return {
         spacing: 20,
+
         /**
         * Replace a set of nodes that are linked only together (single successor) by a single node
         */
         simplify: function(graph, simpleGraph, nodeKey) {
+          this.doSimplify(graph, simpleGraph, nodeKey);
+          this.addUnprocessed(graph, simpleGraph);
+        },
+
+        addUnprocessed: function(graph, simpleGraph) {
+          _.each(graph.nodes(), function(nodeKey) {
+            var node = graph.node(nodeKey);
+            if(_.undefined(node.simplified) || !node.simplified) {
+              simpleGraph.setNode(nodeKey, node);
+              // add all edges from the unprocessed node (not connected to end).
+              var edges = graph.outEdges(nodeKey);
+              _.each(edges, function(edge) {
+                var edgeData = graph.edge(edge.v, edge.w);
+                simpleGraph.setEdge(edge.v, edge.w, edgeData);
+              });
+            }
+          });
+        },
+
+        /**
+        * Replace a set of nodes that are linked only together (single successor) by a single node
+        */
+        doSimplify: function(graph, simpleGraph, nodeKey) {
           // merge nodes that can be merged all together
           var instance = this;
           // if I have a single successor and the successor is in the same parent group
@@ -31,7 +55,6 @@ define(function (require) {
           var node = graph.node(nodeKey);
           node.id = nodeKey;
           node.simplified = true;
-
           if(_.defined(successors) && successors.length === 1 && graph.predecessors(successors[0]).length === 1 &&
             graph.parent(nodeKey) === graph.parent(successors[0])) {
             // nodes can be merged
@@ -80,9 +103,10 @@ define(function (require) {
           }
           var predecessors = graph.predecessors(nodeKey);
           _.each(predecessors, function(predecessorKey) {
-            instance.simplify(graph, simpleGraph, predecessorKey);
+            instance.doSimplify(graph, simpleGraph, predecessorKey);
           });
         },
+
 
         unwrap: function(graph, nodeKey) {
           // merge nodes that can be merged all together
@@ -156,91 +180,6 @@ define(function (require) {
             ];
             edge.points = points;
           });
-        },
-
-
-        /**
-        * Performs layout on the input graph.
-        */
-        layout: function(graph, simpleGraph, endKey) {
-          // this.groupIncrement = 0;
-          // x layout is done by node and is quite simple as based on position of all predecessors
-          // y layout is first based on potential constraints that groups nodes together and rely on bbox calculations
-
-          // var endNode = graph.node(endKey);
-          // var graphGroup = this.createGroup();
-          // create group hierarchy
-
-
-          // Simplify the layout to remove as many nodes as possible as graph computation can be expensive
-          this.simplify(graph, simpleGraph, endKey);
-          // sub-layout every merged node
-
-          // this.horizontal(graph, endKey, endNode, 1000, 0);
-        },
-
-        xPadding: 20,
-        yPadding: 20,
-        groupIncrement: 0, // used to create new groups
-        createGroup: function(groupId) {
-          if(_.undefined(groupId)) {
-            groupId = 'plan-layout-group-' + this.groupIncrement++;
-          }
-          return {
-            id: groupId,
-            children: [],
-            bbox: {},
-            predecessor: null,
-            successor: null,
-            update: function() {
-              // update the height of the group bbox
-              this.shift(this.bbox.minY());
-            },
-            shift: function() {
-              // update the y value of the bbox and shift me
-              if(_.defined(this.successor)) {
-                this.successor.shift(this.bbox.minY());
-              }
-            }
-          };
-        },
-
-        /**
-        * Compute horizontal positions of nodes and edges
-        */
-        horizontal: function(graph, nodeKey, node, x, y) {
-          var instance = this;
-
-          var successors = graph.successors(nodeKey);
-          var successorCoordinates = node.successorCoordinates;
-          if(_.undefined(successorCoordinates)) {
-            successorCoordinates = [];
-            node.successorCoordinates = successorCoordinates;
-          }
-          if(successors.length === 0 || successors.length === (successorCoordinates.length+1)) {
-            // compute and store the node position
-            var minX = x; // x should be min
-            var minY = y; // y should be the middle of common group
-            _.each(node.successorCoordinates, function(coordinates){
-              minX = Math.min(coordinates.x, minX);
-              minY = Math.min(coordinates.y, minY);
-            });
-            node.x = minX;
-            node.y = minY;
-
-            // compute the predecessors
-            var predecessors = graph.predecessors(nodeKey);
-            // compute the y locations based on the predecessor
-            _.each(predecessors, function(predecessorKey) {
-              var predecessor = graph.node(predecessorKey);
-              var xShift = (node.width/2) + (predecessor.width/2) + instance.xPadding;
-              // we should be under the target bbox
-              instance.horizontal(graph, predecessorKey, predecessor, x-xShift, y);
-            });
-          } else {
-            // store the value for later computation
-            node.successorCoordinates.push({x: x, y: y});
-          }
         }
       };
     } // function
