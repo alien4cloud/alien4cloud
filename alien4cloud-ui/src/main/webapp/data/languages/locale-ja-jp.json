@@ -130,6 +130,8 @@
       "CARDINALITIES_TOOLTIP" : "lowerBound..upperBound (remaining)",
       "CHANGE_RELATIONSHIP" : "Change an existing relationship",
       "DEPENDENCIES" : {
+        "VERSION_CONFLICT_TITLE": "Archive version conflict",
+        "VERSION_CONFLICT_MSG": "The version of the node you added creates a conflict on TOSCA archive {{name}}. Current topology version is {{current}} while selected new node version is {{new}}. If you continue alien 4 cloud will update the topology with the highest version. Do you want to continue ?",
         "CHANGE_VERSION" : {
           "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology.",
           "TITLE" : "Change version"

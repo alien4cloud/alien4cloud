@@ -133,6 +133,8 @@
       "CARDINALITIES_TOOLTIP" : "minimun..maximum (restant)",
       "CHANGE_RELATIONSHIP" : "Changer une relation existante",
       "DEPENDENCIES" : {
+        "VERSION_CONFLICT_TITLE": "Conflict de version d'archive",
+        "VERSION_CONFLICT_MSG": "La version du noeud ajouté créé un conflict sur l'archive {{name}}. La version actuelle de la topologie est {{current}} alors que celle du noeud sélectionné est {{new}}. Si vous continuez, alien4cloud va résoudre le conflict en sélectionnant la version la plus élevée. Voulez vous continuer ?",
         "CHANGE_VERSION" : {
           "CONFIRM" : "Confirmez-vous le changement de version de la dépendance ? Cette opération peut affecter certains nodes et/ou relations dans la topologie.",
           "TITLE" : "Modifier la version"
