@@ -3,21 +3,20 @@ package org.alien4cloud.tosca.catalog.index;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +34,10 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO searchDAO;
+
+
+    @Value("${components.search.boost.name_query_similitude:100}")
+    private Integer nameQuerySimilitudeBoost;
 
     @Override
     public Csar getArchive(String archiveName, String archiveVersion) {
@@ -166,7 +169,22 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
     // we need to override for aspect purpose
     @Override
     public FacetedSearchResult search(Class<? extends AbstractToscaType> clazz, String query, Integer size, Map<String, String[]> filters) {
-        return super.search(clazz, query, size, filters);
+        FacetedSearchResult result = super.search(clazz, query, size, filters);
+        reorderIfNodeType(clazz, query, result);
+        return result;
+    }
+
+    private void reorderIfNodeType(Class<? extends AbstractToscaType> clazz, String query, FacetedSearchResult result) {
+        if(clazz.isAssignableFrom(NodeType.class)){
+            Arrays.sort(result.getData(), Comparator.comparingLong(value -> {
+                NodeType nodeType = (NodeType)value;
+                if(nodeType.getElementId().toLowerCase().contains(query.toLowerCase())){
+                    return nameQuerySimilitudeBoost * nodeType.getAlienScore();
+                }else{
+                    return nodeType.getAlienScore();
+                }
+            }).reversed());
+        }
     }
 
     @Override
