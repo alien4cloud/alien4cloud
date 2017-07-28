@@ -112,6 +112,8 @@ public class NodeFilterValidationService {
                 NodeFilterToSatisfy nodeFilterToSatisfy = new NodeFilterToSatisfy();
                 nodeFilterToSatisfy.setRelationshipName(relationshipEntry.getKey());
                 nodeFilterToSatisfy.setTargetName(targetNode.getName());
+                nodeFilterToSatisfy.setMissingCapabilities(Lists.<String> newArrayList());
+                nodeFilterToSatisfy.setViolations(Lists.<Violations> newArrayList());
 
                 validateNodeFilter(nodeFilter, targetNode, targetType, capabilityTypes, nodeFilterToSatisfy, skipInputs);
 
@@ -191,7 +193,6 @@ public class NodeFilterValidationService {
 
     private void validateNodeFilterCapabilities(NodeFilter nodeFilter, NodeTemplate target, NodeType targetType, Map<String, CapabilityType> capabilityTypes,
             NodeFilterToSatisfy nodeFilterToSatisfy, boolean skipInputs) {
-        nodeFilterToSatisfy.setMissingCapabilities(Lists.<String> newArrayList());
         if (nodeFilter.getCapabilities() == null || nodeFilter.getCapabilities().isEmpty()) {
             return;
         }
@@ -209,9 +210,6 @@ public class NodeFilterValidationService {
 
             List<Violations> violations = validatePropertyFilters(filterDefinitionEntry.getValue().getProperties(),
                     target.getCapabilities().get(definition.getId()).getProperties(), capabilityType.getProperties(), skipInputs);
-            if (nodeFilterToSatisfy.getViolations() == null) {
-                nodeFilterToSatisfy.setViolations(Lists.<Violations> newArrayList());
-            }
             violations.forEach(violation -> violation.capabilityName = capabilityName);
             nodeFilterToSatisfy.getViolations().addAll(violations);
         }
