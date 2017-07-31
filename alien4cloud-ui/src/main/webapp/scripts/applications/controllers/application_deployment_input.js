@@ -66,6 +66,7 @@ define(function (require) {
                 var modalInstance = $uibModal.open({
                   templateUrl: 'views/applications/application_deployment_input_artifact_modal.html',
                   controller: 'ApplicationInputArtifactModalCtrl',
+                  size: 'lg',
                   resolve: {
                     archiveContentTree: function () {
                       return $scope.topologyDTO.archiveContentTree;

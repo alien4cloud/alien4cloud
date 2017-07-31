@@ -70,22 +70,22 @@
       </div>
       <div class="modal-body">
         <div class="form-group" ng-class="{'has-error': !isRepositoryUnique() }">
-          <label for="repository_id" class="col-lg-3 control-label">{{'EDITOR.ARTIFACTS.REPOS.ID' | translate}}</label>
-          <div class="col-lg-9">
+          <label for="repository_id" class="col-lg-2 control-label">{{'EDITOR.ARTIFACTS.REPOS.ID' | translate}}</label>
+          <div class="col-lg-10">
             <input type="text" class="form-control" id="repository_id" ng-model="selectedRepository.id" value="{{ selectedRepository.id }}" required ng-disabled="!isRemoteArtifact(selectedRepository.classifier)" placeholder="{{'EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE' | translate}}">
             </input>
           </div>
         </div>
         <div class="form-group">
-          <label for="repository_url" class="col-lg-3 control-label">{{'EDITOR.ARTIFACTS.REPOS.URL' | translate}}</label>
-          <div class="col-lg-9">
+          <label for="repository_url" class="col-lg-2 control-label">{{'EDITOR.ARTIFACTS.REPOS.URL' | translate}}</label>
+          <div class="col-lg-10">
           <input type="text" class="form-control" id="repository_url" ng-model="selectedRepository.url" value="{{ selectedRepository.url }}" required ng-disabled="selectedRepository.classifier !== 'new'">
           </input>
           </div>
         </div>
         <div class="form-group">
-          <label for="repository_type" class="col-lg-3 control-label">{{'EDITOR.ARTIFACTS.REPOS.TYPE' | translate}}</label>
-          <div class="col-lg-9">
+          <label for="repository_type" class="col-lg-2 control-label">{{'EDITOR.ARTIFACTS.REPOS.TYPE' | translate}}</label>
+          <div class="col-lg-10">
           <select class="form-control" id="repository_type" ng-model="selectedRepository.type" required ng-disabled="selectedRepository.classifier !== 'new'" ng-if="selectedRepository.classifier === 'new'">
             <option ng-repeat="type in repositoryTypes" value="{{type}}">
             {{type}}
@@ -96,8 +96,8 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="repository_file" class="col-lg-3 control-label">{{'EDITOR.ARTIFACTS.REPOS.FILE' | translate}}</label>
-          <div class="col-lg-9">
+          <label for="repository_file" class="col-lg-2 control-label">{{'EDITOR.ARTIFACTS.REPOS.FILE' | translate}}</label>
+          <div class="col-lg-10">
             <input type="text" class="form-control" id="repository_file" ng-model="selectedRepository.file" value="{{ selectedRepository.file }}" required ng-disabled="!isRemoteArtifact(selectedRepository.classifier)">
             </input>
           </div>
