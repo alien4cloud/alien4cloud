@@ -1,8 +1,8 @@
-<uib-tabset>
+<uib-tabset active="activeTabIndex">
   <div class="modal-header">
      <h3>{{'EDITOR.ARTIFACTS.SELECT' | translate}}</h3>
   </div>
-  <uib-tab heading="{{'EDITOR.ARTIFACTS.REPOS.LOCAL_FS' | translate}}" id="local-tab" active="activeTab === 'local_fs'" ng-click="setActiveTab('local_fs')">
+  <uib-tab heading="{{'EDITOR.ARTIFACTS.REPOS.LOCAL_FS' | translate}}" id="local-tab" ng-click="setActiveTabIndex(0)">
     <form name="selectArtifactForm" class="form-horizontal" role="form" ng-submit="save(selectArtifactForm.$valid)" novalidate>
 
       <div class="modal-body">
@@ -31,8 +31,8 @@
     </form>
   </uib-tab>
 
-  <uib-tab heading="{{'EDITOR.ARTIFACTS.REPOS.A4C_CSAR' | translate}}" id="local-tab" active="activeTab === 'csar'" ng-click="setActiveTab('csar')">
-    <form name="selectArtifactForm" class="form-horizontal" role="form" ng-submit="save(selectArtifactForm.$valid)" novalidate>
+  <uib-tab heading="{{'EDITOR.ARTIFACTS.REPOS.A4C_CSAR' | translate}}" id="local-tab" ng-click="setActiveTabIndex(1)">
+    <form name="selectArtifactForm" class="form-horizontal" role="form" ng-submit="save(selectedCSARArtifact.valid)" novalidate>
 
       <div class="modal-body">
         <treecontrol class="tree-classic" tree-model="treedata" options="opts" on-selection="onCSARFileSelected(node)" on-node-toggle="onCSARFileSelected(node)" selected-node="selected" expanded-nodes="expandedNodes">
@@ -44,26 +44,27 @@
         <a class="btn btn-default" ng-click="cancel()">
           {{'CANCEL' | translate}}
         </a>
-        <button id="select-artifact-button" ng-disabled="selectArtifactForm.$invalid" class="btn btn-primary">
+        <button id="select-artifact-button" ng-disabled="!selectedCSARArtifact.valid" class="btn btn-primary">
           {{'SELECT' | translate}}
         </button>
       </div>
     </form>
   </uib-tab>
-  <uib-tab heading="{{'EDITOR.ARTIFACTS.REPOS.REMOTE' | translate}}" id="remote-tab" active="activeTab === 'remote'" ng-click="setActiveTab('remote')">
+
+  <uib-tab heading="{{'EDITOR.ARTIFACTS.REPOS.REMOTE' | translate}}" id="remote-tab" ng-click="setActiveTabIndex(2)">
     <form name="selectRemoteRepositoryForm" class="form-horizontal" role="form" ng-submit="selectRemote(selectRemoteRepositoryForm.$valid)" novalidate>
       <div class="modal-header">
           <select class="form-control" ng-model="selectedRepositoryIdx" ng-change="repositorySelected(selectedRepositoryIdx)">
-            <option disabled>── {{'EDITOR.ARTIFACTS.REPOS.ARCHIVE_REPOSITORIES' | translate}} ──</option>
-            <option ng-repeat="repository in repositories | filter: { classifier: 'archive' }" value="{{repository.idx}}" ng-selected="repository.id === initialRepositoryName">
+            <option disabled ng-value="-3">── {{'EDITOR.ARTIFACTS.REPOS.ARCHIVE_REPOSITORIES' | translate}} ──</option>
+            <option ng-repeat="repository in repositories | filter: { classifier: 'archive' }" ng-value="{{repository.idx}}">
             {{repository.id}}
             </option>
-            <option disabled>── {{'EDITOR.ARTIFACTS.REPOS.GLOBAL_REPOSITORIES' | translate}} ──</option>
-            <option ng-repeat="repository in repositories | filter: { classifier: 'global' }" value="{{repository.idx}}">
+            <option disabled ng-value="-2">── {{'EDITOR.ARTIFACTS.REPOS.GLOBAL_REPOSITORIES' | translate}} ──</option>
+            <option ng-repeat="repository in repositories | filter: { classifier: 'global' }" ng-value="{{repository.idx}}">
             {{repository.id}}
             </option>
-            <option disabled>── {{'EDITOR.ARTIFACTS.REPOS.NEW_REPOSITORY' | translate}} ──</option>
-            <option ng-repeat="repository in repositories | filter: { classifier: 'new' }" value="{{repository.idx}}">
+            <option disabled ng-value="-1">── {{'EDITOR.ARTIFACTS.REPOS.NEW_REPOSITORY' | translate}} ──</option>
+            <option ng-repeat="repository in repositories | filter: { classifier: 'new' }" ng-value="{{repository.idx}}">
             {{'EDITOR.ARTIFACTS.REPOS.NEW_REPOSITORY' | translate}}
             </option>
           </select>
@@ -72,7 +73,7 @@
         <div class="form-group" ng-class="{'has-error': !isRepositoryUnique() }">
           <label for="repository_id" class="col-lg-2 control-label">{{'EDITOR.ARTIFACTS.REPOS.ID' | translate}}</label>
           <div class="col-lg-10">
-            <input type="text" class="form-control" id="repository_id" ng-model="selectedRepository.id" value="{{ selectedRepository.id }}" required ng-disabled="!isRemoteArtifact(selectedRepository.classifier)" placeholder="{{'EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE' | translate}}">
+            <input type="text" class="form-control" id="repository_id" ng-model="selectedRepository.id" value="{{ selectedRepository.id }}" required ng-disabled="!isRepositoryNameEditable(selectedRepository)" placeholder="{{'EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE' | translate}}">
             </input>
           </div>
         </div>

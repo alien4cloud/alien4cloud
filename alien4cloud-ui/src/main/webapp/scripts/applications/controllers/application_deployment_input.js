@@ -75,7 +75,7 @@ define(function (require) {
                       return $scope.availableRepositories;
                     },
                     artifact: function () {
-                      return artifact;
+                      return $scope.deploymentContext.deploymentTopologyDTO.topology.uploadedInputArtifacts[artifactKey];
                     },
                     application: function() {
                       return $scope.application;

@@ -2,6 +2,7 @@ package org.alien4cloud.alm.deployment.configuration.services;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,14 +62,24 @@ public class InputArtifactService {
             artifact.setArtifactName(artifactFile.getOriginalFilename());
             artifact.setArtifactRef(artifactFileId);
             artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
+            artifact.setRepositoryName(null);
+            artifact.setRepositoryURL(null);
             alienDAO.save(deploymentInputs);
         }
     }
 
     public void updateInputArtifact(ApplicationEnvironment environment, Topology topology, String inputArtifactId, DeploymentArtifact updatedArtifact) {
         checkInputArtifactExist(inputArtifactId, topology);
-        DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class,
-                AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId()));
+        String deploymentInputsId = AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId());
+        DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class, deploymentInputsId);
+
+        if(deploymentInputs == null){
+            deploymentInputs= new DeploymentInputs(environment.getTopologyVersion(), environment.getId());
+            Date now = new Date();
+            deploymentInputs.setCreationDate(now);
+            deploymentInputs.setLastUpdateDate(now);
+        }
+
         DeploymentArtifact artifact = getDeploymentArtifact(inputArtifactId, deploymentInputs);
 
         artifact.setArtifactName(updatedArtifact.getArtifactName());
