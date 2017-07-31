@@ -26,104 +26,104 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentSetupCtrl',
-      ['$scope', '$resource', 'Upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices', '$uibModal', 'topologyServices', '$state',
-        function ($scope, $resource, $upload, applicationServices, $http, $filter, deploymentTopologyServices, $uibModal, topologyServices) {
+    ['$scope', '$resource', 'Upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices', '$uibModal', 'topologyServices', '$state',
+      function ($scope, $resource, $upload, applicationServices, $http, $filter, deploymentTopologyServices, $uibModal, topologyServices) {
 
-          $scope.isAllowedInputDeployment = function () {
-            return _.isNotEmpty($filter('allowedInputs')(_.get($scope, 'deploymentContext.deploymentTopologyDTO.topology.inputs')));
-          };
+        $scope.isAllowedInputDeployment = function () {
+          return _.isNotEmpty($filter('allowedInputs')(_.get($scope, 'deploymentContext.deploymentTopologyDTO.topology.inputs')));
+        };
 
-          /* ******************************************************
-           *      Handle properties inputs
-           **********************************************************/
-          $scope.updateInputValue = function (definition, inputValue, inputId) {
-            // No update if it's the same value
-            // Cannot be done with complex object
+        /* ******************************************************
+         *      Handle properties inputs
+         **********************************************************/
+        $scope.updateInputValue = function (definition, inputValue, inputId) {
+          // No update if it's the same value
+          // Cannot be done with complex object
 
-            var updatedProperties = {};
-            updatedProperties[inputId] = inputValue;
-            return deploymentTopologyServices.updateInputProperties({
-              appId: $scope.application.id,
-              envId: $scope.deploymentContext.selectedEnvironment.id
-            }, angular.toJson({
-              inputProperties: updatedProperties
-            }), function (result) {
-              if (!result.error) {
-                $scope.updateScopeDeploymentTopologyDTO(result.data);
+          var updatedProperties = {};
+          updatedProperties[inputId] = inputValue;
+          return deploymentTopologyServices.updateInputProperties({
+            appId: $scope.application.id,
+            envId: $scope.deploymentContext.selectedEnvironment.id
+          }, angular.toJson({
+            inputProperties: updatedProperties
+          }), function (result) {
+            if (!result.error) {
+              $scope.updateScopeDeploymentTopologyDTO(result.data);
+            }
+          }).$promise;
+        };
+
+        /* ******************************************************
+         *      Handle inputs artifacts
+         **********************************************************/
+        $scope.openInputArtifactModal = function (artifactKey, artifact) {
+          var key = artifactKey;
+          topologyServices.availableRepositories({
+            topologyId: $scope.topologyId
+          }, function (result) {
+            $scope.availableRepositories = result.data;
+            var modalInstance = $uibModal.open({
+              templateUrl: 'views/applications/application_deployment_input_artifact_modal.html',
+              controller: 'ApplicationInputArtifactModalCtrl',
+              size: 'lg',
+              resolve: {
+                archiveContentTree: function () {
+                  return $scope.topologyDTO.archiveContentTree;
+                },
+                availableRepositories: function () {
+                  return $scope.availableRepositories;
+                },
+                artifact: function () {
+                  return $scope.deploymentContext.deploymentTopologyDTO.topology.uploadedInputArtifacts[artifactKey];
+                },
+                application: function () {
+                  return $scope.application;
+                },
+                deploymentContext: function () {
+                  return $scope.deploymentContext;
+                },
+                artifactKey: function () {
+                  return artifactKey;
+                },
+                updateScopeDeploymentTopologyDTO: function () {
+                  return $scope.updateScopeDeploymentTopologyDTO;
+                },
+                topology: function () {
+                  return $scope.topologyDTO.topology;
+                }
+
               }
-            }).$promise;
-          };
+            });
 
-          /* ******************************************************
-           *      Handle inputs artifacts
-           **********************************************************/
-          $scope.openInputArtifactModal = function (artifactKey, artifact) {
-            var key = artifactKey;
-            topologyServices.availableRepositories({
-                topologyId: $scope.topologyId
-              }, function (result) {
-                $scope.availableRepositories = result.data;
-                var modalInstance = $uibModal.open({
-                  templateUrl: 'views/applications/application_deployment_input_artifact_modal.html',
-                  controller: 'ApplicationInputArtifactModalCtrl',
-                  size: 'lg',
-                  resolve: {
-                    archiveContentTree: function () {
-                      return $scope.topologyDTO.archiveContentTree;
-                    },
-                    availableRepositories: function () {
-                      return $scope.availableRepositories;
-                    },
-                    artifact: function () {
-                      return $scope.deploymentContext.deploymentTopologyDTO.topology.uploadedInputArtifacts[artifactKey];
-                    },
-                    application: function() {
-                      return $scope.application;
-                    },
-                    deploymentContext: function(){
-                      return $scope.deploymentContext;
-                    },
-                    artifactKey: function(){
-                      return artifactKey;
-                    },
-                    updateScopeDeploymentTopologyDTO: function(){
-                      return $scope.updateScopeDeploymentTopologyDTO;
-                    },
-                    topology: function(){
-                      return $scope.topologyDTO.topology;
-                    }
-
+            modalInstance.result.then(function (selectedArtifact) {
+              if (selectedArtifact) {
+                var inputArtifactsDao = $resource('rest/latest/applications/' + $scope.application.id + '/environments/' + $scope.deploymentContext.selectedEnvironment.id + '/deployment-topology/inputArtifacts/' + key + '/update', {}, {
+                  'update': {
+                    method: 'POST'
                   }
                 });
 
-                modalInstance.result.then(function (selectedArtifact) {
-                  if(selectedArtifact){
-                    var inputArtifactsDao = $resource('rest/latest/applications/' + $scope.application.id + '/environments/' + $scope.deploymentContext.selectedEnvironment.id + '/deployment-topology/inputArtifacts/' + key + '/update', {}, {
-                      'update': {
-                        method: 'POST'
-                      }
-                    });
-
-                    inputArtifactsDao.update({
-                      artifactType: selectedArtifact.artifactType,
-                      artifactName   : selectedArtifact.artifactName,
-                      artifactRef: selectedArtifact.reference,
-                      artifactRepository : selectedArtifact.repository,
-                      archiveName: selectedArtifact.archiveName,
-                      archiveVersion: selectedArtifact.archiveVersion,
-                      repositoryURL: selectedArtifact.repositoryUrl,
-                      repositoryCredential: selectedArtifact.repositoryCredential,
-                      repositoryName: selectedArtifact.repositoryName
-                    }).$promise.
-                    then(response => {
-                      if(!response.error){
-                        $scope.updateScopeDeploymentTopologyDTO(response.data);
-                      }
-                    });
-                  }
-              });
+                inputArtifactsDao.update({
+                  artifactType: selectedArtifact.artifactType,
+                  artifactName: selectedArtifact.artifactName,
+                  artifactRef: selectedArtifact.reference,
+                  artifactRepository: selectedArtifact.repository,
+                  archiveName: selectedArtifact.archiveName,
+                  archiveVersion: selectedArtifact.archiveVersion,
+                  repositoryURL: selectedArtifact.repositoryUrl,
+                  repositoryCredential: selectedArtifact.repositoryCredential,
+                  repositoryName: selectedArtifact.repositoryName
+                }).$promise.
+                  then(response => {
+                    if (!response.error) {
+                      $scope.updateScopeDeploymentTopologyDTO(response.data);
+                    }
+                  });
+              }
             });
-          };
-        } // function
-      ]); //controller
+          });
+        };
+      } // function
+    ]); //controller
 }); //Define
