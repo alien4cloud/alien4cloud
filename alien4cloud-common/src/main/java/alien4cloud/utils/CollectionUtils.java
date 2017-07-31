@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 public final class CollectionUtils {
     private CollectionUtils() {
     }
@@ -49,13 +51,12 @@ public final class CollectionUtils {
             target = Maps.newLinkedHashMap();
         }
 
-        if (source != null) {
-            for (Entry<T, ? extends V> entry : source.entrySet()) {
-                if (override || !target.containsKey(entry.getKey())) {
-                    target.put(entry.getKey(), entry.getValue());
-                }
+        for (Entry<T, ? extends V> entry : safe(source).entrySet()) {
+            if (override || !target.containsKey(entry.getKey())) {
+                target.put(entry.getKey(), entry.getValue());
             }
         }
+
         return target.isEmpty() ? null : target;
     }
 
@@ -79,15 +80,14 @@ public final class CollectionUtils {
             target = Maps.newLinkedHashMap();
         }
 
-        if (source != null) {
-            for (Entry<T, ? extends V> entry : source.entrySet()) {
-                if ((overrideNull && target.get(entry.getKey()) == null) || !target.containsKey(entry.getKey())) {
-                    target.put(entry.getKey(), entry.getValue());
-                } else {
-                    untouched.add(entry.getKey());
-                }
+        for (Entry<T, ? extends V> entry : safe(source).entrySet()) {
+            if ((overrideNull && target.get(entry.getKey()) == null) || !target.containsKey(entry.getKey())) {
+                target.put(entry.getKey(), entry.getValue());
+            } else {
+                untouched.add(entry.getKey());
             }
         }
+
         return target.isEmpty() ? null : target;
     }
 
