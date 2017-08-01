@@ -91,7 +91,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public RestResponse<Void> gitException(GitException e) {
-        log.error("Failed to import archive from git location.", e.getMessage() + ":" + e.getCause());
+        log.error("Failed to import archive from git location.", e);
         String message = (e.getCause() == null) ? e.getMessage() : e.getMessage() + ":" + e.getCause();
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_IMPORT_FAILED).message(message).build()).build();
     }

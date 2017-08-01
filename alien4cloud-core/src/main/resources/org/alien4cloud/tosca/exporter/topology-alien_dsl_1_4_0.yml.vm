@@ -93,6 +93,10 @@ ${utils.formatArtifact($artifactEntry.value, 4)}
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.properties))
       properties:$propertyUtils.formatProperties(4, $nodeTemplateEntry.value.properties)
 #end## if
+#set($serviceAttributes = $utils.getServiceAttributes($nodeTemplateEntry.value))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($serviceAttributes))
+      attributes:$propertyUtils.formatProperties(4, $serviceAttributes)
+#end## if
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.relationships))
       requirements:
 #foreach($relationship in ${nodeTemplateEntry.value.relationships.values()})

@@ -1,8 +1,6 @@
 package alien4cloud.utils;
 
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
@@ -120,7 +118,11 @@ public final class PropertyUtil {
                 return (String) value;
             } else if (value instanceof PropertyValue) {
                 PropertyValue pv = (PropertyValue) value;
-                return pv.getValue() == null ? null : JsonUtil.toString(pv.getValue());
+                if (pv instanceof ScalarPropertyValue) {
+                    return ((ScalarPropertyValue) pv).getValue();
+                } else {
+                    return pv.getValue() == null ? null : JsonUtil.toString(pv.getValue());
+                }
             } else {
                 return JsonUtil.toString(value);
             }
