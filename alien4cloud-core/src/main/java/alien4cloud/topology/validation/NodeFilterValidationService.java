@@ -211,7 +211,11 @@ public class NodeFilterValidationService {
             List<Violations> violations = validatePropertyFilters(filterDefinitionEntry.getValue().getProperties(),
                     target.getCapabilities().get(definition.getId()).getProperties(), capabilityType.getProperties(), skipInputs);
             violations.forEach(violation -> violation.capabilityName = capabilityName);
-            nodeFilterToSatisfy.getViolations().addAll(violations);
+            if (nodeFilterToSatisfy.getViolations() == null) {
+                nodeFilterToSatisfy.setViolations(violations);
+            } else {
+                nodeFilterToSatisfy.getViolations().addAll(violations);
+            }
         }
     }
 
