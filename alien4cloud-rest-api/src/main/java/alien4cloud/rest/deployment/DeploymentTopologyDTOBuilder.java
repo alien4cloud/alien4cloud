@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
+import alien4cloud.topology.task.LogTask;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutor;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
@@ -103,6 +104,9 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
 
         // Convert log result to validation result.
         TopologyValidationResult validationResult = new TopologyValidationResult();
+        for (AbstractTask task : executionContext.getLog().getInfos()) {
+            validationResult.addInfo(task);
+        }
         for (AbstractTask task : executionContext.getLog().getWarnings()) {
             validationResult.addWarning(task);
         }

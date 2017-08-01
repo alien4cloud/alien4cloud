@@ -22,19 +22,12 @@ define(function(require) {
 
   modules.get('a4c-applications').factory('tasksProcessor',
     [ function() {
-        // This service post-process tasks (required and warning)
+        // This service groups tasks by code to ease display
         return {
-          // Just group warnings by category (code) for the display
-          processWarnings: function (validationDTO) {
-            processTaskType(validationDTO, 'warningList');
-          },
-          // Just group tasks by category (code) for the display
-          processRequired: function (validationDTO) {
-            processTaskType(validationDTO, 'taskList');
-          },
           processAll: function (validationDTO) {
-            this.processWarnings(validationDTO);
-            this.processRequired(validationDTO);
+            processTaskType(validationDTO, 'infoList');
+            processTaskType(validationDTO, 'warningList');
+            processTaskType(validationDTO, 'taskList');
           }
         };
       } // function

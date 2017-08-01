@@ -2,20 +2,19 @@ package alien4cloud.topology;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import org.apache.commons.collections4.CollectionUtils;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.collect.Lists;
 
 import alien4cloud.json.deserializer.TaskDeserializer;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.collect.Lists;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Validation result that contains a boolean determining if a topology is valid for deployment.
@@ -38,6 +37,10 @@ public class TopologyValidationResult {
     @ConditionalOnAttribute(ConditionalAttributes.REST)
     @JsonDeserialize(contentUsing = TaskDeserializer.class)
     private List<AbstractTask> warningList;
+
+    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @JsonDeserialize(contentUsing = TaskDeserializer.class)
+    private List<AbstractTask> infoList;
 
     public <T extends AbstractTask> void addTasks(List<T> tasks) {
         if (CollectionUtils.isEmpty(tasks)) {
@@ -77,5 +80,15 @@ public class TopologyValidationResult {
             warningList = Lists.newArrayList();
         }
         warningList.add(warning);
+    }
+
+    public <T extends AbstractTask> void addInfo(T info) {
+        if (info == null) {
+            return;
+        }
+        if (infoList == null) {
+            infoList = Lists.newArrayList();
+        }
+        infoList.add(info);
     }
 }

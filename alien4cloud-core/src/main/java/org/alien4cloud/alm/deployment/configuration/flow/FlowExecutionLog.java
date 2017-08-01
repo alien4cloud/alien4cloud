@@ -38,6 +38,10 @@ public class FlowExecutionLog {
         warnings.add(task);
     }
 
+    public void warn(String message) {
+        warnings.add(new LogTask(message));
+    }
+
     public void error(AbstractTask task) {
         errors.add(task);
     }
