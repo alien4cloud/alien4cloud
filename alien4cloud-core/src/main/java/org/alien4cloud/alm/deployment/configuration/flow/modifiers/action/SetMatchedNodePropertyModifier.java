@@ -6,6 +6,7 @@ import java.beans.IntrospectionException;
 import java.util.Map;
 import java.util.Optional;
 
+import alien4cloud.utils.services.ConstraintPropertyService;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.NodeMatchingConfigAutoSelectModifier;
@@ -103,11 +104,11 @@ public class SetMatchedNodePropertyModifier implements ITopologyModifier {
         ensureNotSet(nodeTemplate.getProperties().get(propertyName), "in the portable topology", propertyName, propertyValue);
 
         // Perform the update of the property
-        propertyService.setPropertyValue(nodeTemplate, propertyDefinition, propertyName, propertyValue);
+        ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
 
         // Update the configuration
         NodePropsOverride nodePropsOverride = getNodePropsOverride(matchingConfiguration);
-        nodePropsOverride.getProperties().put(propertyName, nodeTemplate.getProperties().get(propertyName));
+        nodePropsOverride.getProperties().put(propertyName, PropertyService.asPropertyValue(propertyValue));
 
         context.saveConfiguration(matchingConfiguration);
     }
@@ -133,16 +134,15 @@ public class SetMatchedNodePropertyModifier implements ITopologyModifier {
         AbstractPropertyValue originalNodePropertyValue = safe(nodeTemplate.getCapabilities().get(capabilityName).getProperties()).get(propertyName);
         ensureNotSet(originalNodePropertyValue, "in the portable topology", propertyName, propertyValue);
 
-        // Set the value and check constraints
-        propertyService.setCapabilityPropertyValue(nodeTemplate.getCapabilities().get(capabilityName), propertyDefinition, propertyName, propertyValue);
+        // Set check constraints
+        ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
 
         // Update the configuration
         NodePropsOverride nodePropsOverride = getNodePropsOverride(matchingConfiguration);
         if (nodePropsOverride.getCapabilities().get(capabilityName) == null) {
             nodePropsOverride.getCapabilities().put(capabilityName, new NodeCapabilitiesPropsOverride());
         }
-        nodePropsOverride.getCapabilities().get(capabilityName).getProperties().put(propertyName,
-                nodeTemplate.getCapabilities().get(capabilityName).getProperties().get(propertyName));
+        nodePropsOverride.getCapabilities().get(capabilityName).getProperties().put(propertyName, PropertyService.asPropertyValue(propertyValue));
 
         context.saveConfiguration(matchingConfiguration);
     }
