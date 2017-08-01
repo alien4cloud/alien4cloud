@@ -27,5 +27,8 @@ public enum TaskCode {
     INPUT_PROPERTY,
     NODE_NOT_SUBSTITUTED,
 
-    FORBIDDEN_OPERATION
+    FORBIDDEN_OPERATION,
+
+    /** Specific code for cloudify */
+    CFY_MULTI_RELATIONS
 }

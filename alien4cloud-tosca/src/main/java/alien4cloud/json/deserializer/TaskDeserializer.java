@@ -28,6 +28,7 @@ public class TaskDeserializer extends AbstractFieldValueDiscriminatorPolymorphic
         addToRegistry(InputArtifactTask.class, TaskCode.INPUT_ARTIFACT_INVALID);
         addToRegistry(AbstractRelationshipTask.class, TaskCode.IMPLEMENT_RELATIONSHIP);
         addToRegistry(IllegalOperationsTask.class, TaskCode.FORBIDDEN_OPERATION);
+        addToRegistry(LogTask.class, TaskCode.LOG);
     }
 
     @Override
@@ -36,12 +37,7 @@ public class TaskDeserializer extends AbstractFieldValueDiscriminatorPolymorphic
         AbstractTask result = super.deserializeAfterRead(jp, ctxt, mapper, root);
 
         if (result == null) {
-            Map data = mapper.treeToValue(root, Map.class);
-            if (data.containsKey("nodeTemplateName")) {
-                result = mapper.treeToValue(root, TopologyTask.class);
-            } else {
-                failedToFindImplementation(jp, root);
-            }
+            result = mapper.treeToValue(root, LogTask.class);
         }
 
         return result;

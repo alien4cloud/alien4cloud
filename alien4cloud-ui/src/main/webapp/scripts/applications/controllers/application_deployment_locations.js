@@ -28,7 +28,7 @@ define(function(require) {
       priority: 200,
       step: {
         // task code in validation DTO bound to this step
-        taskCodes: ['LOCATION_POLICY', 'LOCATION_DISABLED', 'LOCATION_UNAUTHORIZED']
+        taskCodes: ['LOCATION_POLICY', 'LOCATION_DISABLED', 'LOCATION_UNAUTHORIZED', 'CFY_MULTI_RELATIONS']
       }
     }
   });
