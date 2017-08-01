@@ -103,12 +103,16 @@ public class SetMatchedNodePropertyModifier implements ITopologyModifier {
         ensureNotSet(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName, propertyValue);
         ensureNotSet(nodeTemplate.getProperties().get(propertyName), "in the portable topology", propertyName, propertyValue);
 
-        // Perform the update of the property
-        ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
-
         // Update the configuration
         NodePropsOverride nodePropsOverride = getNodePropsOverride(matchingConfiguration);
-        nodePropsOverride.getProperties().put(propertyName, PropertyService.asPropertyValue(propertyValue));
+
+        // Perform the update of the property
+        ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+        if (propertyValue == null) {
+            nodePropsOverride.getProperties().remove(propertyName);
+        } else {
+            nodePropsOverride.getProperties().put(propertyName, PropertyService.asPropertyValue(propertyValue));
+        }
 
         context.saveConfiguration(matchingConfiguration);
     }
@@ -134,15 +138,19 @@ public class SetMatchedNodePropertyModifier implements ITopologyModifier {
         AbstractPropertyValue originalNodePropertyValue = safe(nodeTemplate.getCapabilities().get(capabilityName).getProperties()).get(propertyName);
         ensureNotSet(originalNodePropertyValue, "in the portable topology", propertyName, propertyValue);
 
-        // Set check constraints
-        ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
-
         // Update the configuration
         NodePropsOverride nodePropsOverride = getNodePropsOverride(matchingConfiguration);
-        if (nodePropsOverride.getCapabilities().get(capabilityName) == null) {
-            nodePropsOverride.getCapabilities().put(capabilityName, new NodeCapabilitiesPropsOverride());
+        if (propertyValue == null && nodePropsOverride.getCapabilities().get(capabilityName) != null) {
+            nodePropsOverride.getCapabilities().get(capabilityName).getProperties().remove(propertyName);
+        } else {
+            // Set check constraints
+            ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+
+            if (nodePropsOverride.getCapabilities().get(capabilityName) == null) {
+                nodePropsOverride.getCapabilities().put(capabilityName, new NodeCapabilitiesPropsOverride());
+            }
+            nodePropsOverride.getCapabilities().get(capabilityName).getProperties().put(propertyName, PropertyService.asPropertyValue(propertyValue));
         }
-        nodePropsOverride.getCapabilities().get(capabilityName).getProperties().put(propertyName, PropertyService.asPropertyValue(propertyValue));
 
         context.saveConfiguration(matchingConfiguration);
     }
