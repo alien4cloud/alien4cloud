@@ -197,7 +197,7 @@ define(function(require) {
         //register the checking topo function for others states to use it
         $scope.checkTopology = checkTopology;
 
-        function doGoToNextInvalidStep(){
+        var goToNextInvalidStep = function(){
           //menus are sorted by priority. first step is the top one
           var stepToGo = $scope.menu[0];
 
@@ -211,25 +211,27 @@ define(function(require) {
 
           //go to the found step
           $state.go(stepToGo.state);
-        }
+        };
 
-        function goToNextInvalidStep() {
+        $scope.goToNextInvalidStep = goToNextInvalidStep;
+
+        function refreshDeploymentSetupStatus() {
           //refresh initial topo validation first
           $scope.setTopologyIdFromEnvironment($scope.deploymentContext.selectedEnvironment);
           checkTopology();
           //then refresh deployment context
           refreshDeploymentContext($scope.deploymentContext, $scope.application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu).then(function() {
             //finally, go to the next invalid step
-            doGoToNextInvalidStep();
+            goToNextInvalidStep();
           });
         }
 
         $scope.onEnvironmentChange = function() {
           // update the global environment
-          appEnvironments.select($scope.deploymentContext.selectedEnvironment.id, goToNextInvalidStep);
+          appEnvironments.select($scope.deploymentContext.selectedEnvironment.id, refreshDeploymentSetupStatus);
         };
 
-        goToNextInvalidStep(); // immediately go to the next invalid tab
+        refreshDeploymentSetupStatus(); // immediately refresh setup status and go to the next invalid tab
 
         $scope.showTodoList = function() {
           return $scope.validTopologyDTOLoaded && !$scope.validTopologyDTO.valid && $scope.isManager;

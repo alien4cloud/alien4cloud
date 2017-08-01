@@ -74,7 +74,8 @@ define(function(require) {
           }, angular.toJson(configRequest), function(response) {
             $scope.updateScopeDeploymentTopologyDTO(response.data);
             $scope.deploymentContext.selectedLocation = locationMatch.location;
-            $state.go(thisMenu.nextStep.state);
+            $scope.goToNextInvalidStep();
+            // $state.go(thisMenu.nextStep.state);
           });
         };
 
