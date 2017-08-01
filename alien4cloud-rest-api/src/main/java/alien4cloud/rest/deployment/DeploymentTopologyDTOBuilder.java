@@ -134,6 +134,10 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
         deploymentTopologyDTO.setLocationPolicies(matchingConfiguration.getLocationIds());
         // Good enough approximation as it doesn't contains just the location dependencies.
         deploymentTopology.setLocationDependencies(executionContext.getTopology().getDependencies());
+        if (executionContext.getExecutionCache().get(FlowExecutionContext.MATCHING_ORIGINAL_NODES) == null) {
+            return deploymentTopologyDTO;
+        }
+
         // used by ui to know if a property is editable. This should however be done differently with a better v2 api.
         deploymentTopology.setOriginalNodes((Map<String, NodeTemplate>) executionContext.getExecutionCache().get(FlowExecutionContext.MATCHING_ORIGINAL_NODES));
         deploymentTopology.setSubstitutedNodes(matchingConfiguration.getMatchedLocationResources());
