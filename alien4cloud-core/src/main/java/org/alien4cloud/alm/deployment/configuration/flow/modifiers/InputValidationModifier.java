@@ -42,25 +42,24 @@ public class InputValidationModifier implements ITopologyModifier {
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
         Optional<DeploymentInputs> inputsOptional = context.getConfiguration(DeploymentInputs.class, InputValidationModifier.class.getSimpleName());
-        if (inputsOptional.isPresent()) {
-            // Define a task regarding properties
-            PropertiesTask task = new PropertiesTask();
-            task.setCode(TaskCode.INPUT_PROPERTY);
-            task.setProperties(Maps.newHashMap());
-            task.getProperties().put(TaskLevel.REQUIRED, Lists.newArrayList());
-            Map<String, PropertyValue> inputValues = safe(inputsOptional.get().getInputs());
-            for (Entry<String, PropertyDefinition> propDef : safe(topology.getInputs().entrySet())) {
-                if (propDef.getValue().isRequired() && inputValues.get(propDef.getKey()) == null) {
-                    task.getProperties().get(TaskLevel.REQUIRED).add(propDef.getKey());
-                }
+        // Define a task regarding properties
+        PropertiesTask task = new PropertiesTask();
+        task.setCode(TaskCode.INPUT_PROPERTY);
+        task.setProperties(Maps.newHashMap());
+        task.getProperties().put(TaskLevel.REQUIRED, Lists.newArrayList());
+        Map<String, PropertyValue> inputValues = safe(inputsOptional.orElse(new DeploymentInputs()).getInputs());
+        for (Entry<String, PropertyDefinition> propDef : safe(topology.getInputs()).entrySet()) {
+            if (propDef.getValue().isRequired() && inputValues.get(propDef.getKey()) == null) {
+                task.getProperties().get(TaskLevel.REQUIRED).add(propDef.getKey());
             }
-
-            if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))) {
-                context.log().error(task);
-            }
-
-            // Check input artifacts
-            deploymentInputArtifactValidationService.validate(inputsOptional.get());
         }
+
+        if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))) {
+            context.log().error(task);
+        }
+
+        // Check input artifacts
+        deploymentInputArtifactValidationService.validate(topology, inputsOptional.orElse(new DeploymentInputs()))
+                .forEach(inputArtifactTask -> context.log().error(inputArtifactTask));
     }
 }

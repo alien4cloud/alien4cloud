@@ -1,15 +1,12 @@
 package alien4cloud.deployment;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Service;
 
@@ -45,8 +42,6 @@ public class DeploymentTopologyValidationService {
     @Inject
     private NodeFilterValidationService nodeFilterValidationService;
     @Inject
-    private DeploymentInputArtifactValidationService deploymentInputArtifactValidationService;
-    @Inject
     private ApplicationEnvironmentService environmentService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
@@ -59,7 +54,8 @@ public class DeploymentTopologyValidationService {
      * @param topology The deployment topology to check.
      * @return A DeploymentTopologyValidationResult with a list of errors and/or warnings er steps.
      */
-    public TopologyValidationResult validateProcessedDeploymentTopology(Topology topology, DeploymentMatchingConfiguration matchingConfiguration, OrchestratorDeploymentProperties orchestratorDeploymentProperties) {
+    public TopologyValidationResult validateProcessedDeploymentTopology(Topology topology, DeploymentMatchingConfiguration matchingConfiguration,
+            OrchestratorDeploymentProperties orchestratorDeploymentProperties) {
         TopologyValidationResult dto = new TopologyValidationResult();
         if (topology.getNodeTemplates() == null || topology.getNodeTemplates().size() < 1) {
             dto.setValid(false);
