@@ -84,17 +84,18 @@ public class PostMatchingNodeSetupModifier implements ITopologyModifier {
 
         Iterator<Entry<String, NodeCapabilitiesPropsOverride>> capabilitiesOverrideIter = safe(nodePropsOverride.getCapabilities()).entrySet().iterator();
         while (capabilitiesOverrideIter.hasNext()) {
-            Entry<String, NodeCapabilitiesPropsOverride> capabilityProperties = capabilitiesOverrideIter.next();
-            Capability capability = safe(nodeTemplate.getCapabilities()).get(capabilityProperties.getKey());
+            Entry<String, NodeCapabilitiesPropsOverride> overrideCapabilityProperties = capabilitiesOverrideIter.next();
+            Capability capability = safe(nodeTemplate.getCapabilities()).get(overrideCapabilityProperties.getKey());
             if (capability == null) { // Manage clean logic
                 configChanged.changed = true;
                 capabilitiesOverrideIter.remove();
             } else { // Merge logic
-                capability.setProperties(mergeProperties(capability.getProperties(), capabilityProperties.getValue().getProperties(), s -> {
+                capability.setProperties(mergeProperties(overrideCapabilityProperties.getValue().getProperties(), capability.getProperties(), s -> {
                     configChanged.changed = true;
                     context.getLog()
-                            .info("The property <" + s + "> previously specified to configure capability <" + capabilityProperties.getKey() + "> of node <"
-                                    + nodeTemplateId + "> cannot be set anymore as it is already specified by the location resource or in the topology.");
+                            .info("The property <" + s + "> previously specified to configure capability <" + overrideCapabilityProperties.getKey()
+                                    + "> of node <" + nodeTemplateId
+                                    + "> cannot be set anymore as it is already specified by the location resource or in the topology.");
                 }));
             }
         }
