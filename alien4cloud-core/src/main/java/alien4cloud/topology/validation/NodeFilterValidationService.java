@@ -134,7 +134,7 @@ public class NodeFilterValidationService {
 
     private List<Violations> validateNodeFilterProperties(NodeFilter nodeFilter, NodeTemplate target, NodeType targetType, boolean skipInputs) {
         if (nodeFilter.getProperties() == null || nodeFilter.getProperties().isEmpty()) {
-            return null;
+            return Lists.newArrayList();
         }
 
         Map<String, List<PropertyConstraint>> propertyFilters = nodeFilter.getProperties();
