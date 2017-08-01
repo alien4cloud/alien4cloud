@@ -1,6 +1,7 @@
 package alien4cloud.topology.task;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -9,6 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public class LogTask extends AbstractTask {
     private String message;
 

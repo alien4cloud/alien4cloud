@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
@@ -70,18 +71,24 @@ public class MatchingSubstitutionService {
 
         // add a modifier that will actually perform the configuration of a substitution from user request (after cleanup and prior to node matching
         // auto-selection).
-        List<ITopologyModifier> modifierList = getModifierListWithSelectionAction(nodeId, locationResourceTemplateId);
+        SetMatchedNodeModifier setMatchedNodeModifier = new SetMatchedNodeModifier(nodeId, locationResourceTemplateId);
+        List<ITopologyModifier> modifierList = getModifierListWithSelectionAction(setMatchedNodeModifier);
 
         flowExecutor.execute(topology, modifierList, executionContext);
+        if (!setMatchedNodeModifier.isExecuted()) {
+            throw new NotFoundException("Requested substitution <" + locationResourceTemplateId + "> for node <" + nodeId
+                    + "> is not available as a match. Please check that inputs and location are configured and ask your admin to grant you access to requested resources on the location.");
+        }
+
         return executionContext;
     }
 
-    private List<ITopologyModifier> getModifierListWithSelectionAction(String nodeId, String locationResourceTemplateId) {
+    private List<ITopologyModifier> getModifierListWithSelectionAction(SetMatchedNodeModifier matchedNodeModifier) {
         List<ITopologyModifier> modifierList = flowExecutor.getDefaultFlowModifiers();
 
         for (int i = 0; i < modifierList.size(); i++) {
             if (modifierList.get(i) == nodeMatchingConfigAutoSelectModifier) {
-                modifierList.add(i + 1, new SetMatchedNodeModifier(nodeId, locationResourceTemplateId));
+                modifierList.add(i + 1, matchedNodeModifier);
                 return modifierList;
             }
         }
