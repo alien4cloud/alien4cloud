@@ -37,6 +37,9 @@ define(function(require) {
         $state.go('admin');
         hopscotchService.startTour('admin.home');
       };
+      $scope.getTranslationKey = function(key) {
+        return getRealTranslationKey(key);
+      };
     }]
   });
   states.state('restricted', {
@@ -46,6 +49,23 @@ define(function(require) {
 
   require('scripts/common/services/rest_technical_error_interceptor');
   var templateInjector = require('a4c-templates');
+
+  alien4cloud.getRealTranslationKey = function(key) {
+    var enTraduction = 'locale-en-us.json';  // this occurence should be renamed during the build
+    var jaTraduction = 'locale-ja-jp.json';
+    var frTraduction = 'locale-fr-fr.json';
+
+    if (key === 'en-us' && enTraduction !== 'locale-en-us.json') {
+      return enTraduction;
+    }
+    if (key === 'ja-jp' && jaTraduction !== 'locale-ja-jp.json') {
+      return jaTraduction;
+    }
+    if (key === 'fr-fr' && frTraduction !== 'locale-fr-fr.json') {
+      return frTraduction;
+    }
+    return 'locale-' + key;
+  };
 
   alien4cloud.startup = function() {
 
@@ -63,26 +83,9 @@ define(function(require) {
       }
     ]);
 
-   var getRealTranslationKey = function(key) {
-     var enTraduction = 'locale-en-us.json';  // this occurence should be renamed during the build
-     var jaTraduction = 'locale-ja-jp.json';
-     var frTraduction = 'locale-fr-fr.json';
-
-     if (key === 'en-us' && enTraduction !== 'locale-en-us.json') {
-       return enTraduction;
-     }
-     if (key === 'ja-jp' && jaTraduction !== 'locale-ja-jp.json') {
-       return jaTraduction;
-     }
-     if (key === 'fr-fr' && frTraduction !== 'locale-fr-fr.json') {
-       return frTraduction;
-     }
-     return 'locale-' + key;
-   };
-
     alien4cloud.config(['$translateProvider',
       function($translateProvider) {
-        var translationKey = getRealTranslationKey('en-us');
+        var translationKey = alien4cloud.getRealTranslationKey('en-us');
         $translateProvider.translations({CODE: translationKey});
         // Default language to load
         $translateProvider.preferredLanguage(translationKey);

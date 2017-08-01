@@ -22,6 +22,9 @@ local.properties
 .settings/**/*
 .loadpath
 
+# VS code IDE files
+alien4cloud-ui/.vscode/
+
 # External tool builders
 .externalToolBuilders/
 
