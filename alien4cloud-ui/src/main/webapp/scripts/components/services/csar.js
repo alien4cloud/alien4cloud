@@ -58,13 +58,29 @@ define(function (require) {
       return resourtceList;
     };
 
+    // Download the csar
+    var downloadCsar = $resource('rest/latest/csars/:csarId/download', {}, {
+       'download': {
+          method: 'GET',
+          responseType: 'arraybuffer',
+          transformResponse: function(data, headers, status) {
+            var response = {};
+            response.data = data;
+            response.headers = headers();
+            response.status = status;
+            return response;
+          }
+       }
+    })
+
 
     return {
       'getAndDeleteCsar': resultGetAndDelete,
       'searchCsar': searchCsar,
       'createNodeType': nodeTypeCreateDAO,
       'nodeTypeCRUDDAO': nodeTypeCRUDDAO,
-      'builtErrorResultList': builtResultList
+      'builtErrorResultList': builtResultList,
+      'downloadCsar': downloadCsar.download
     };
   }]);
 });

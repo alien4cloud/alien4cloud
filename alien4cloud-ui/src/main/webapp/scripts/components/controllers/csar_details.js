@@ -46,6 +46,24 @@ define(function (require) {
         });
       };
 
+      //Download the csar
+      $scope.downloadCsar = function(csarId) {
+        csarService.downloadCsar({
+          csarId: $stateParams.csarId
+        }, function(response) {
+          var anchor = angular.element('<a/>');
+          anchor.css({display: 'none'});
+          angular.element(document.body).append(anchor);
+          var url = URL.createObjectURL(new Blob([response.data], {'type':'application/octet-stream'}));
+          anchor.attr({
+            href: url,
+            target: '_blank',
+            download: $stateParams.csarId + '.zip'
+          })[0].click();
+          anchor.remove();
+        })
+      };
+
     }
   ]); // controller
 });// define
