@@ -175,10 +175,10 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
     }
 
     private void reorderIfNodeType(Class<? extends AbstractToscaType> clazz, String query, FacetedSearchResult result) {
-        if(clazz.isAssignableFrom(NodeType.class)){
+        if(NodeType.class.isAssignableFrom(clazz)){
             Arrays.sort(result.getData(), Comparator.comparingLong(value -> {
                 NodeType nodeType = (NodeType)value;
-                if(nodeType.getElementId().toLowerCase().contains(query.toLowerCase())){
+                if(query != null && nodeType.getElementId().toLowerCase().contains(query.toLowerCase())){
                     return nameQuerySimilitudeBoost * nodeType.getAlienScore();
                 }else{
                     return nodeType.getAlienScore();
