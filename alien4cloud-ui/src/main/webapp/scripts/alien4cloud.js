@@ -63,15 +63,33 @@ define(function(require) {
       }
     ]);
 
+   var getRealTranslationKey = function(key) {
+     var enTraduction = 'locale-en-us.json';  // this occurence should be renamed during the build
+     var jaTraduction = 'locale-ja-jp.json';
+     var frTraduction = 'locale-fr-fr.json';
+
+     if (key === 'en-us' && enTraduction !== 'locale-en-us.json') {
+       return enTraduction;
+     }
+     if (key === 'ja-jp' && jaTraduction !== 'locale-ja-jp.json') {
+       return jaTraduction;
+     }
+     if (key === 'fr-fr' && frTraduction !== 'locale-fr-fr.json') {
+       return frTraduction;
+     }
+     return 'locale-' + key;
+   };
+
     alien4cloud.config(['$translateProvider',
       function($translateProvider) {
-        $translateProvider.translations({CODE: 'en-us'});
+        var translationKey = getRealTranslationKey('en-us');
+        $translateProvider.translations({CODE: translationKey});
         // Default language to load
-        $translateProvider.preferredLanguage('en-us');
+        $translateProvider.preferredLanguage(translationKey);
 
         var options = {
           files: [{
-            prefix: 'data/languages/locale-',
+            prefix: 'data/languages/',
             suffix: '.json'
           }]
         };

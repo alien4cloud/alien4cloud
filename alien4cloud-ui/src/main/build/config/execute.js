@@ -67,33 +67,69 @@ module.exports = {
           }
           var requireFile, bootstrapFile, dependenciesFile;
           files.forEach( function(file) {
-            if(file.indexOf('alien4cloud-bootstrap.js') !== -1) {
+            if (file.indexOf('alien4cloud-bootstrap.js') !== -1) {
               bootstrapFile = file;
             }
-            if(file.indexOf('require.config.js') !== -1) {
+            if (file.indexOf('require.config.js') !== -1) {
               requireFile = file;
             }
-            if(file.indexOf('alien4cloud-dependencies.js') !== -1) {
+            if (file.indexOf('alien4cloud-dependencies.js') !== -1) {
               dependenciesFile = file;
             }
           });
 
           var requireFilePath = path.join(dir, requireFile);
-          fs.readFile(requireFilePath, 'utf8', function (err, data) {
-            var result = data.replace('alien4cloud-bootstrap', bootstrapFile.substring(0, bootstrapFile.length-3));
-            result = result.replace('alien4cloud-templates', templateFile.substring(0, templateFile.length-3));
-            result = result.replace('alien4cloud-dependencies', dependenciesFile.substring(0, dependenciesFile.length-3));
+          fs.readFile(requireFilePath, 'utf8', function (err, dataRequireFile) {
+            var resultRequireFile = dataRequireFile.replace('alien4cloud-bootstrap', bootstrapFile.substring(0, bootstrapFile.length-3));
+            resultRequireFile = resultRequireFile.replace('alien4cloud-templates', templateFile.substring(0, templateFile.length-3));
+            resultRequireFile = resultRequireFile.replace('alien4cloud-dependencies', dependenciesFile.substring(0, dependenciesFile.length-3));
 
+            // rename translation file
+            fs.readdir('target/webapp/data/languages', function(err, files) {
+              if (err) {
+                grunt.log.error(err);
+                done(err);
+              }
+              var enTranslation, frTranslation, jaTranslation;
+              files.forEach( function(file) {
+                if (file.indexOf('locale-en-us.json') !== -1) {
+                  enTranslation = file;
+                }
+                if (file.indexOf('locale-fr-fr.json') !== -1) {
+                  frTranslation = file;
+                }
+                if (file.indexOf('locale-ja-jp.json') !== -1) {
+                  jaTranslation = file;
+                }
+              });
 
-            fs.writeFile(requireFilePath, result, 'utf8', function (err) {
-               if (err) {
-                 grunt.log.error(err);
-                 done(err);
-               } else {
-                 done();
-               }
+              var alienBoostrapFilePath = path.join(dir, bootstrapFile);
+              fs.readFile(alienBoostrapFilePath, 'utf8', function (err, dataAlienBoostrapFile) {
+                var resultAlienBoostrapFile = dataAlienBoostrapFile.replace('locale-en-us.json', enTranslation.substring(0, enTranslation.length-5));
+                resultAlienBoostrapFile = resultAlienBoostrapFile.replace('locale-fr-fr.json', frTranslation.substring(0, frTranslation.length-5));
+                resultAlienBoostrapFile = resultAlienBoostrapFile.replace('locale-ja-jp.json', jaTranslation.substring(0, jaTranslation.length-5));
+
+                // use async to clean this code
+                fs.writeFile(requireFilePath, resultRequireFile, 'utf8', function (err) {
+                  fs.writeFile(alienBoostrapFilePath, resultAlienBoostrapFile, 'utf8', function (err) {
+                    if (err) {
+                      grunt.log.error(err);
+                      done(err);
+                    } else {
+                      done();
+                    }
+                  });
+                  if (err) {
+                    grunt.log.error(err);
+                    done(err);
+                  } else {
+                    done();
+                  }
+                });
+              });
             });
           });
+
         });
       });
     }
