@@ -144,7 +144,13 @@ define(function(require) {
         }
 
         $scope.updateDeploymentProperty = function (propertyDefinition, propertyName, propertyValue) {
-          if (propertyValue === $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName]) {
+          if(_.defined($scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties) && propertyValue === $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName]) {
+            console.log('defined and equals');
+          }
+          if(_.undefined($scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties) && _.undefined(propertyValue)) {
+            console.log('both undefined');
+          }
+          if ((_.defined($scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties) && propertyValue === $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName]) || (_.undefined($scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties) && _.undefined(propertyValue))) {
             return; // no change
           }
           var deploymentPropertyObject = {
@@ -156,6 +162,9 @@ define(function(require) {
             orchestratorId: $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId
           }, angular.toJson(deploymentPropertyObject), function (data) {
             if (data.error === null) {
+              if(_.undefined($scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties)) {
+                $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties = {};
+              }
               $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName] = propertyValue;
               // Update deployment setup when properties change
               deploymentTopologyServices.updateInputProperties({

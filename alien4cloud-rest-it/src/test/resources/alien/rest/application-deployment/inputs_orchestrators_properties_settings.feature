@@ -1,4 +1,4 @@
-Feature: inputs and orchestrator proerties settings in deployment topology
+Feature: inputs and orchestrator properties settings in deployment topology
 
   Background:
     Given I am authenticated with "ADMIN" role
@@ -21,8 +21,10 @@ Feature: inputs and orchestrator proerties settings in deployment topology
     And I update the property "imageId" to "img1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "flavorId" to "1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I grant access to the resource type "LOCATION" named "Thark location" to the user "frodon"
+    And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the user "frodon"
 
     And I create a new application with name "ALIEN" and description "ALIEN_1" and node templates
+      | Compute   | tosca.nodes.Compute:1.0.0-SNAPSHOT   |
       | WebServer | tosca.nodes.WebServer:1.0.0-SNAPSHOT |
 
     And I add a role "APPLICATION_MANAGER" to user "frodon" on the resource type "APPLICATION" named "ALIEN"
@@ -70,7 +72,17 @@ Feature: inputs and orchestrator proerties settings in deployment topology
 #####################################
   @reset
   Scenario: Setting values to orchestrator properties
-    Given I am authenticated with user named "frodon"
+    Given I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | WebServer                                                                             |
+      | relationshipName       | hostedOnCompute                                                                       |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | Compute                                                                               |
+      | targetedCapabilityName | host                                                                                  |
+    And I save the topology
+    And I am authenticated with user named "frodon"
     When I set the following orchestrator properties
       | managementUrl | http://cloudifyurl:8099 |
       | numberBackup  | 1                       |
@@ -81,7 +93,17 @@ Feature: inputs and orchestrator proerties settings in deployment topology
 
   @reset
   Scenario: Setting wrong values to orchestrator properties should fail
-    Given I am authenticated with user named "frodon"
+    Given I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | WebServer                                                                             |
+      | relationshipName       | hostedOnCompute                                                                       |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | Compute                                                                               |
+      | targetedCapabilityName | host                                                                                  |
+    And I save the topology
+    And I am authenticated with user named "frodon"
     When I set the following orchestrator properties
       | numberBackup | not an integer |
     Then I should receive a RestResponse with an error code 804
