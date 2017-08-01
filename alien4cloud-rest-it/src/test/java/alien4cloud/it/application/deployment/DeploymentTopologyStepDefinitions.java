@@ -1,6 +1,8 @@
 package alien4cloud.it.application.deployment;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,14 +36,10 @@ import alien4cloud.rest.deployment.DeploymentTopologyDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.topology.TopologyValidationResult;
-import alien4cloud.topology.task.InputArtifactTask;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
-import cucumber.api.DataTable;
-import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import lombok.AllArgsConstructor;
@@ -262,34 +260,6 @@ public class DeploymentTopologyStepDefinitions {
         map = AlienUtils.safe(map);
         for (Entry<String, AbstractPropertyValue> entry : expectedMap.entrySet()) {
             assertEquals(entry.getValue(), map.get(entry.getKey()));
-        }
-    }
-
-    @When("^I check for the valid status of the deployment topology$")
-    public void iCheckForTheValidStatusOfTheDeploymentTopology() throws Throwable {
-        I_get_the_deployment_toology_for_the_current_application();
-    }
-
-    @Then("^the deployment topology should not be valid$")
-    public void theDeploymentTopologyShouldNotBeValid() throws Throwable {
-        Assert.assertFalse("the deployment topology is valid", JsonUtil
-                .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation().isValid());
-    }
-
-    @Then("^the deployment topology should be valid$")
-    public void theDeploymentTopologyShouldBeValid() throws Throwable {
-        Assert.assertTrue("the deployment topology is not valid", JsonUtil
-                .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation().isValid());
-    }
-
-    @And("^the missing inputs artifacts should be$")
-    public void theMissingInputsArtifactsShouldBe(DataTable expectedInputArtifactsTable) throws Throwable {
-        TopologyValidationResult topologyValidationResult = JsonUtil
-                .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation();
-        for (List<String> expectedRow : expectedInputArtifactsTable.raw()) {
-            boolean missingFound = topologyValidationResult.getTaskList().stream()
-                    .anyMatch(task -> task instanceof InputArtifactTask && ((InputArtifactTask) task).getInputArtifactName().equals(expectedRow.get(0)));
-            Assert.assertTrue(expectedRow.get(0) + " does not appear in the task list for the deployment topology", missingFound);
         }
     }
 

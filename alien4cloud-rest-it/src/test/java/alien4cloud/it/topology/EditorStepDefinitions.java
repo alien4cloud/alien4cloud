@@ -47,7 +47,7 @@ public class EditorStepDefinitions {
 
     @Given("^I execute the operation$")
     public void i_execute_the_operation(DataTable operationDT) throws Throwable {
-        Map<String, String> operationMap = Maps.newHashMap();
+        Map<String, String> operationMap = Maps.newLinkedHashMap();
         for (DataTableRow row : operationDT.getGherkinRows()) {
             operationMap.put(row.getCells().get(0), row.getCells().get(1));
         }

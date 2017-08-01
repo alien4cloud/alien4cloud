@@ -2,11 +2,12 @@ package org.alien4cloud.alm.deployment.configuration.model;
 
 import java.util.Map;
 
+import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.ObjectField;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.ObjectField;
 
 @Getter
 @Setter
@@ -19,7 +20,8 @@ public class OrchestratorDeploymentProperties extends AbstractDeploymentConfig {
     @ObjectField(enabled = false)
     private Map<String, String> providerDeploymentProperties;
 
-    public OrchestratorDeploymentProperties(String versionId, String environmentId) {
+    public OrchestratorDeploymentProperties(String versionId, String environmentId, String orchestratorId) {
         super(versionId, environmentId);
+        this.orchestratorId = orchestratorId;
     }
 }

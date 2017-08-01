@@ -44,8 +44,7 @@ public class OrchestratorPropertiesService {
                 AbstractDeploymentConfig.generateId(locationChangedEvent.getEnvironment().getTopologyVersion(), locationChangedEvent.getEnvironment().getId()));
         if (properties == null) {
             properties = new OrchestratorDeploymentProperties(locationChangedEvent.getEnvironment().getTopologyVersion(),
-                    locationChangedEvent.getEnvironment().getId());
-            properties.setOrchestratorId(locationChangedEvent.getOrchestratorId());
+                    locationChangedEvent.getEnvironment().getId(), locationChangedEvent.getOrchestratorId());
             alienDAO.save(properties);
         } else {
             if (!locationChangedEvent.getOrchestratorId().equals(properties.getOrchestratorId())) {
@@ -100,8 +99,8 @@ public class OrchestratorPropertiesService {
         if (sourceProperties == null || MapUtils.isEmpty(sourceProperties.getProviderDeploymentProperties())) {
             return;
         }
-        OrchestratorDeploymentProperties targetProperties = new OrchestratorDeploymentProperties(target.getTopologyVersion(), target.getId());
-        targetProperties.setOrchestratorId(sourceProperties.getOrchestratorId());
+        OrchestratorDeploymentProperties targetProperties = new OrchestratorDeploymentProperties(target.getTopologyVersion(), target.getId(),
+                sourceProperties.getOrchestratorId());
         targetProperties.setProviderDeploymentProperties(sourceProperties.getProviderDeploymentProperties());
         alienDAO.save(targetProperties);
     }
