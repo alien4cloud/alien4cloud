@@ -18,7 +18,6 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.topology.task.PropertiesTask;
-import alien4cloud.topology.validation.LocationPolicyValidationService;
 import alien4cloud.topology.validation.NodeFilterValidationService;
 import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
 import alien4cloud.topology.validation.TopologyPropertiesValidationService;
@@ -35,8 +34,6 @@ public class DeploymentTopologyValidationService {
     private TopologyAbstractNodeValidationService topologyAbstractNodeValidationService;
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
-    @Inject
-    private LocationPolicyValidationService locationPolicyValidationService;
     @Inject
     private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
     @Inject
@@ -75,11 +72,10 @@ public class DeploymentTopologyValidationService {
         // validate abstract node types
         dto.addTasks(topologyAbstractNodeValidationService.findReplacementForAbstracts(topology, matchingConfiguration.getMatchedLocationResources()));
 
-        // TODO Perform validation of policies
+        // TODO Perform here validation of policies
         // If a policy is not matched on the location this is a warning as we allow deployment but some features may be missing
         // If a policy requires a configuration or cannot be applied du to any reason the policy implementation itself can trigger some errors (see Orchestrator
         // plugins)
-        dto.addTasks(locationPolicyValidationService.validateLocationPolicies(topology, matchingConfiguration));
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
         // check also location / ENVIRONMENT meta properties

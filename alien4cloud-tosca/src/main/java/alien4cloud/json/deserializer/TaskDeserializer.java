@@ -1,13 +1,27 @@
 package alien4cloud.json.deserializer;
 
-import java.util.Map;
-
-import alien4cloud.topology.task.*;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import alien4cloud.topology.task.AbstractRelationshipTask;
+import alien4cloud.topology.task.AbstractTask;
+import alien4cloud.topology.task.ArtifactTask;
+import alien4cloud.topology.task.IllegalOperationsTask;
+import alien4cloud.topology.task.InputArtifactTask;
+import alien4cloud.topology.task.LocationPolicyTask;
+import alien4cloud.topology.task.LogTask;
+import alien4cloud.topology.task.NodeFiltersTask;
+import alien4cloud.topology.task.NodeMatchingTask;
+import alien4cloud.topology.task.PropertiesTask;
+import alien4cloud.topology.task.RequirementsTask;
+import alien4cloud.topology.task.ScalableTask;
+import alien4cloud.topology.task.SuggestionsTask;
+import alien4cloud.topology.task.TaskCode;
+import alien4cloud.topology.task.UnavailableLocationTask;
+import alien4cloud.topology.task.WorkflowTask;
 
 /**
  * Custom deserializer to handle multiple {@link AbstractTask} types.
@@ -29,6 +43,7 @@ public class TaskDeserializer extends AbstractFieldValueDiscriminatorPolymorphic
         addToRegistry(AbstractRelationshipTask.class, TaskCode.IMPLEMENT_RELATIONSHIP);
         addToRegistry(IllegalOperationsTask.class, TaskCode.FORBIDDEN_OPERATION);
         addToRegistry(LogTask.class, TaskCode.LOG);
+        addToRegistry(UnavailableLocationTask.class, TaskCode.LOCATION_DISABLED, TaskCode.LOCATION_UNAUTHORIZED);
     }
 
     @Override

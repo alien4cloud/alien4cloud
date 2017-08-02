@@ -1,4 +1,4 @@
-package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
+package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
 import java.util.Iterator;
 import java.util.List;
@@ -10,10 +10,10 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.stereotype.Component;
 
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.topology.task.LocationPolicyTask;
-import org.springframework.stereotype.Component;
 
 /**
  * This modifier cleanup the user matching configuration in case it is not valid anymore based on the choices available (that must be fetched from prior

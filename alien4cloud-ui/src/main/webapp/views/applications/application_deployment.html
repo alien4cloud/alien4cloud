@@ -44,24 +44,26 @@
         {{'APPLICATIONS.DEPLOYMENT.SETUP.TITLE' | translate}}
       </uib-tab-heading>
       <p > {{'APPLICATIONS.DEPLOYMENT.SETUP.MESSAGE' | translate}} </p>
-      <div class="row" ng-if="deploymentContext.deploymentTopologyDTO.validation.taskList['LOG'].length > 0">
-        <div class="col-md-12">
-          <div class="text-danger" ng-repeat="task in deploymentContext.deploymentTopologyDTO.validation.taskList['LOG']">
-            <i class="fa fa-times-circle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+      <div style="margin-bottom: 1em">
+        <div class="row" ng-if="deploymentContext.deploymentTopologyDTO.validation.taskList['LOG'].length > 0">
+          <div class="col-md-12">
+            <div class="text-danger" ng-repeat="task in deploymentContext.deploymentTopologyDTO.validation.taskList['LOG']">
+              <i class="fa fa-times-circle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="row" ng-if="deploymentContext.deploymentTopologyDTO.validation.warningList['LOG'].length > 0">
-        <div class="col-md-12">
-          <div class="text-warning" ng-repeat="task in deploymentContext.deploymentTopologyDTO.validation.warningList['LOG']">
-            <i class="fa fa-exclamation-triangle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+        <div class="row" ng-if="deploymentContext.deploymentTopologyDTO.validation.warningList['LOG'].length > 0">
+          <div class="col-md-12">
+            <div class="text-warning" ng-repeat="task in deploymentContext.deploymentTopologyDTO.validation.warningList['LOG']">
+              <i class="fa fa-exclamation-triangle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="row" ng-if="deploymentContext.deploymentTopologyDTO.validation.infoList['LOG'].length > 0">
-        <div class="col-md-12">
-          <div class="text-info" ng-repeat="task in deploymentContext.deploymentTopologyDTO.validation.infoList['LOG']">
-            <i class="fa fa-info fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+        <div class="row" ng-if="deploymentContext.deploymentTopologyDTO.validation.infoList['LOG'].length > 0">
+          <div class="col-md-12">
+            <div class="text-info" ng-repeat="task in deploymentContext.deploymentTopologyDTO.validation.infoList['LOG']">
+              <i class="fa fa-info fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+            </div>
           </div>
         </div>
       </div>

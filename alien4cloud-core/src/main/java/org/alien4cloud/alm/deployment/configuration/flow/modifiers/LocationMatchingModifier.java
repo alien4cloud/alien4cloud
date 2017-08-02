@@ -1,12 +1,13 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
-import alien4cloud.model.application.ApplicationEnvironment;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
@@ -17,13 +18,12 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Maps;
 
 import alien4cloud.deployment.matching.services.location.LocationMatchingService;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
-import alien4cloud.topology.task.LocationPolicyTask;
+import alien4cloud.topology.validation.LocationPolicyValidationService;
 import alien4cloud.tosca.context.ToscaContext;
-
-import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * This processor actually does not change the topology but check that location settings are defined and up-to-date in order to allow other processors to
@@ -35,15 +35,29 @@ public class LocationMatchingModifier implements ITopologyModifier {
     private LocationMatchingService locationMatchingService;
     @Inject
     private LocationService locationService;
+    @Inject
+    private LocationPolicyValidationService locationPolicyValidationService;
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
+
+        // first process
+        processLocationMatching(topology, context);
+
+        Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
+                LocationMatchingModifier.class.getSimpleName());
+
+        // perform validation
+        locationPolicyValidationService.validateLocationPolicies(configurationOptional.orElse(new DeploymentMatchingConfiguration()))
+                .forEach(locationPolicyTask -> context.log().error(locationPolicyTask));
+    }
+
+    private void processLocationMatching(Topology topology, FlowExecutionContext context) {
         // The configuration has already been loaded by a previous topology modifier.
         Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
                 LocationMatchingModifier.class.getSimpleName());
 
         if (!configurationOptional.isPresent()) {
-            context.log().error(new LocationPolicyTask());
             return;
         }
         DeploymentMatchingConfiguration matchingConfiguration = configurationOptional.get();
@@ -51,7 +65,6 @@ public class LocationMatchingModifier implements ITopologyModifier {
         // If some of the locations defined does not exist anymore then just reset the deployment matching configuration
         Map<String, String> locationIds = matchingConfiguration.getLocationIds();
         if (MapUtils.isEmpty(locationIds)) {
-            context.log().error(new LocationPolicyTask());
             return;
         }
 
@@ -82,6 +95,7 @@ public class LocationMatchingModifier implements ITopologyModifier {
         for (String locationId : locationIds.values()) {
             if (!locationMatchMap.containsKey(locationId)) { // A matched location is not a valid choice anymore.
                 resetMatchingConfiguration(context);
+                // TODO info log the reason why the location is no more a valid match
                 return;
             }
         }
@@ -100,7 +114,6 @@ public class LocationMatchingModifier implements ITopologyModifier {
         ApplicationEnvironment environment = context.getEnvironmentContext()
                 .orElseThrow(() -> new IllegalArgumentException("Input modifier requires an environment context.")).getEnvironment();
         context.saveConfiguration(new DeploymentMatchingConfiguration(environment.getTopologyVersion(), environment.getId()));
-        context.log().error(new LocationPolicyTask());
     }
 
     /**

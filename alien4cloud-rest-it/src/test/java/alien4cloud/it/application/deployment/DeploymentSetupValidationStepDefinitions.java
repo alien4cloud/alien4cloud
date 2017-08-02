@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.junit.Assert;
 
@@ -20,6 +21,7 @@ import alien4cloud.topology.task.InputArtifactTask;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
+import alien4cloud.topology.task.UnavailableLocationTask;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -84,4 +86,25 @@ public class DeploymentSetupValidationStepDefinitions {
         }
     }
 
+    @And("^there should be a missing location policy task$")
+    public void thereShouldBeAMissingLocationPolicyTask() throws Throwable {
+        TopologyValidationResult topologyValidationResult = JsonUtil
+                .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation();
+        boolean missingFound = topologyValidationResult.getTaskList().stream().anyMatch(task -> task.getCode().equals(TaskCode.LOCATION_POLICY));
+        Assert.assertTrue(" Expected a task LOCATION_POLICY for the deployment setup", missingFound);
+    }
+
+    @And("^there should be an unavailable location task with code \"([^\"]*)\" and the following orchestrators and locations$$")
+    public void thereShouldBeADisabledLocationPolicyTask(String taskCodeStr, Map<String, String> orchLocationCouple) throws Throwable {
+        TaskCode taskCode = TaskCode.valueOf(taskCodeStr);
+        TopologyValidationResult topologyValidationResult = JsonUtil
+                .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation();
+        for (Entry<String, String> expectedEntry : orchLocationCouple.entrySet()) {
+            boolean missingFound = topologyValidationResult.getTaskList().stream()
+                    .anyMatch(task -> task instanceof UnavailableLocationTask && task.getCode().equals(taskCode)
+                            && Objects.equals(((UnavailableLocationTask) task).getOrchestratorName(), expectedEntry.getKey())
+                            && Objects.equals(((UnavailableLocationTask) task).getLocationName(), expectedEntry.getValue()));
+            Assert.assertTrue(" Expected a task " + taskCode + " for the deployment setup", missingFound);
+        }
+    }
 }
