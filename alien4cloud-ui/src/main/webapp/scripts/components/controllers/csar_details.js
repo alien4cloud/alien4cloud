@@ -49,7 +49,7 @@ define(function (require) {
       //Download the csar
       $scope.downloadCsar = function(csarId) {
         csarService.downloadCsar({
-          csarId: $stateParams.csarId
+          csarId: csarId
         }, function(response) {
           var anchor = angular.element('<a/>');
           anchor.css({display: 'none'});
@@ -58,10 +58,10 @@ define(function (require) {
           anchor.attr({
             href: url,
             target: '_blank',
-            download: $stateParams.csarId + '.zip'
+            download: csarId + '.zip'
           })[0].click();
           anchor.remove();
-        })
+        });
       };
 
     }
