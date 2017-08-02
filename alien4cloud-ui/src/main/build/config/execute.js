@@ -91,39 +91,27 @@ module.exports = {
                 grunt.log.error(err);
                 done(err);
               }
+
+              // prefix all translation file with the concat of all hash files
               var enTranslation, frTranslation, jaTranslation, splitArray;
-              var newName, source, target;
+              var source, target;
               var hash = '';
               files.forEach( function(file) {
                 hash = hash + file.split('.')[0];
               });
               files.forEach( function(file) {
-                newName = hash + '.' + file.split('.')[1] + '.json';
                 source = path.join(dirLanguages, file);
-                target = path.join(dirLanguages, newName);
+                target = path.join(dirLanguages, hash + '.' + file.split('.')[1] + '.json');
                 fs.rename(source, target);
               });
 
+              // set the hash in a4c-bootstrap to configure angular-translate
               var alienBoostrapFilePath = path.join(dir, bootstrapFile);
               fs.readFile(alienBoostrapFilePath, 'utf8', function (err, dataAlienBoostrapFile) {
                 var resultAlienBoostrapFile = dataAlienBoostrapFile.replace('hashPrefixForTraductionFile', hash);
-                // use async to clean this code
-                fs.writeFile(requireFilePath, resultRequireFile, 'utf8', function (err) {
-                  fs.writeFile(alienBoostrapFilePath, resultAlienBoostrapFile, 'utf8', function (err) {
-                    if (err) {
-                      grunt.log.error(err);
-                      done(err);
-                    } else {
-                      done();
-                    }
-                  });
-                  if (err) {
-                    grunt.log.error(err);
-                    done(err);
-                  } else {
-                    done();
-                  }
-                });
+                fs.writeFileSync(requireFilePath, resultRequireFile, 'utf8');
+                fs.writeFileSync(alienBoostrapFilePath, resultAlienBoostrapFile, 'utf8');
+                done();
               });
             });
           });

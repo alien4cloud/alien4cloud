@@ -69,13 +69,13 @@ define(function(require) {
     alien4cloud.config(['$translateProvider',
       function($translateProvider) {
         // Default language to load
-        var hashTraduction = 'hashPrefixForTraductionFile'; // this variable is change during the build
-        var translationKey = 'en-us';
-        $translateProvider.translations({CODE: translationKey});
-        $translateProvider.preferredLanguage(translationKey);
+        $translateProvider.translations({CODE: 'en-us'});
+        $translateProvider.preferredLanguage('en-us');
 
-        var prefix
+        var prefix;
+        var hashTraduction = 'hashPrefixForTraductionFile'; // this variable is change during the build
         if (hashTraduction !== 'hashPrefixForTraductionFile') {
+          // change prefix during the build to add a file translation revision
           prefix = 'data/languages/' + hashTraduction + '.locale-';
         } else {
           prefix = 'data/languages/locale-';
