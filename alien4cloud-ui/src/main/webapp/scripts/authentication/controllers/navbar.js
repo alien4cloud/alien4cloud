@@ -2,8 +2,6 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  require('a4c-dependencies');
-  var bootstrap = require('a4c-bootstrap');
 
   require('scripts/authentication/services/quicksearch');
   require('scripts/common/services/hopscotch_service');
@@ -52,7 +50,7 @@ define(function (require) {
 
       /* i18n */
       $scope.changeLanguage = function(langKey) {
-        $translate.use(bootstrap.getTranslationKey(langKey));
+        $translate.use(langKey);
       };
 
       $scope.status = authService;

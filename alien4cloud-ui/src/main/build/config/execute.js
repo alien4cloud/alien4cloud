@@ -37,7 +37,7 @@ module.exports = {
         });
       });
 		}
-	},
+  },
   revrename: {
     // Edit the requirejs config file to load the alien4cloud-bootstrap.js file after being renamed by rev
     call: function(grunt, options, async) {
@@ -85,30 +85,28 @@ module.exports = {
             resultRequireFile = resultRequireFile.replace('alien4cloud-dependencies', dependenciesFile.substring(0, dependenciesFile.length-3));
 
             // rename translation file
-            fs.readdir('target/webapp/data/languages', function(err, files) {
+            var dirLanguages = 'target/webapp/data/languages';
+            fs.readdir(dirLanguages, function(err, files) {
               if (err) {
                 grunt.log.error(err);
                 done(err);
               }
-              var enTranslation, frTranslation, jaTranslation;
+              var enTranslation, frTranslation, jaTranslation, splitArray;
+              var newName, source, target;
+              var hash = '';
               files.forEach( function(file) {
-                if (file.indexOf('locale-en-us.json') !== -1) {
-                  enTranslation = file;
-                }
-                if (file.indexOf('locale-fr-fr.json') !== -1) {
-                  frTranslation = file;
-                }
-                if (file.indexOf('locale-ja-jp.json') !== -1) {
-                  jaTranslation = file;
-                }
+                hash = hash + file.split('.')[0];
+              });
+              files.forEach( function(file) {
+                newName = hash + '.' + file.split('.')[1] + '.json';
+                source = path.join(dirLanguages, file);
+                target = path.join(dirLanguages, newName);
+                fs.rename(source, target);
               });
 
               var alienBoostrapFilePath = path.join(dir, bootstrapFile);
               fs.readFile(alienBoostrapFilePath, 'utf8', function (err, dataAlienBoostrapFile) {
-                var resultAlienBoostrapFile = dataAlienBoostrapFile.replace('locale-en-us.json', enTranslation.substring(0, enTranslation.length-5));
-                resultAlienBoostrapFile = resultAlienBoostrapFile.replace('locale-fr-fr.json', frTranslation.substring(0, frTranslation.length-5));
-                resultAlienBoostrapFile = resultAlienBoostrapFile.replace('locale-ja-jp.json', jaTranslation.substring(0, jaTranslation.length-5));
-
+                var resultAlienBoostrapFile = dataAlienBoostrapFile.replace('hashPrefixForTraductionFile', hash);
                 // use async to clean this code
                 fs.writeFile(requireFilePath, resultRequireFile, 'utf8', function (err) {
                   fs.writeFile(alienBoostrapFilePath, resultAlienBoostrapFile, 'utf8', function (err) {

@@ -21,9 +21,6 @@ define(function (require) {
           alien4cloud.startup();
         });
       });
-    },
-    getTranslationKey: function(key) {
-      return alien4cloud.getRealTranslationKey(key);
     }
   };
 });
