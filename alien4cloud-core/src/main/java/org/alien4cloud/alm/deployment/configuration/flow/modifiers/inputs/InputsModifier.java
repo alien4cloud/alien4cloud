@@ -53,9 +53,13 @@ public class InputsModifier implements ITopologyModifier {
         Map<String, PropertyValue> locationInputs = inputService.getLocationContextualInputs(locations, topology.getInputs());
 
         // If the initial topology or any modifier configuration has changed since last inputs update then we refresh inputs.
-        if (deploymentInputs.getLastUpdateDate() == null || deploymentInputs.getLastUpdateDate().after(context.getLastFlowParamUpdate())) {
+        if (deploymentInputs.getLastUpdateDate() == null || deploymentInputs.getLastUpdateDate().before(context.getLastFlowParamUpdate())) {
             // FIXME exclude the application and location provided inputs from this method as it process them...
-            deploymentInputService.synchronizeInputs(topology.getInputs(), deploymentInputs.getInputs());
+            boolean updated = deploymentInputService.synchronizeInputs(topology.getInputs(), deploymentInputs.getInputs());
+            if (updated) {
+                // save the config if changed. This is for ex, if an input has been deleted from the topology
+                context.saveConfiguration(deploymentInputs);
+            }
         }
 
         Map<String, PropertyValue> inputValues = deploymentInputs.getInputs();

@@ -37,20 +37,23 @@ public class InputArtifactsModifier implements ITopologyModifier {
         DeploymentInputs deploymentInputs = context.getConfiguration(DeploymentInputs.class, InputsModifier.class.getSimpleName())
                 .orElse(new DeploymentInputs(environment.getTopologyVersion(), environment.getId()));
 
-        if (deploymentInputs == null) {
-            processInputArtifacts(topology, Maps.newHashMap());
-        }
-
+        boolean updated = false;
         // Cleanup inputs artifacts that does not exists anymore
         Iterator<Entry<String, DeploymentArtifact>> inputArtifactsIterator = safe(deploymentInputs.getInputArtifacts()).entrySet().iterator();
         while (inputArtifactsIterator.hasNext()) {
             Entry<String, DeploymentArtifact> inputArtifactEntry = inputArtifactsIterator.next();
             if (!topology.getInputArtifacts().containsKey(inputArtifactEntry.getKey())) {
                 inputArtifactsIterator.remove();
+                updated = true;
             }
         }
 
         processInputArtifacts(topology, deploymentInputs.getInputArtifacts());
+
+        // should save if deploymentInput updated
+        if (updated) {
+            context.saveConfiguration(deploymentInputs);
+        }
     }
 
     /**

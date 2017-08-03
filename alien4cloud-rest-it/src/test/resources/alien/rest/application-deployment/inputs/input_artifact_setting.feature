@@ -1,6 +1,7 @@
-Feature: Input artifact validation in deployment setup
+Feature: inputs artifacts providing in deployment setup
 # Tested features with this scenario:
-#  - end to end features on input artifact
+#  - providing of input artifact via local filesystem upload
+#  - providing of input artifact via topology archive file selection
 
   Background:
 
@@ -31,13 +32,26 @@ Feature: Input artifact validation in deployment setup
       | inputName    | war_file                                                                                    |
     And I save the topology
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    And I set the following orchestrator properties
+      | managerEmail  | toto@titi.fr            |
+      | managementUrl | http://cloudifyurl:8099 |
+      | numberBackup  | 1                       |
 
   @reset
-  Scenario: Unfilled input artifact should be considered invalid
-    When I check for the valid status of the deployment topology
-    Then the deployment topology should not be valid
-    And the missing inputs artifacts should be
-      | war_file |
+  Scenario: Providing an input artifact via local filesystem upload should succeed
+    Given I get the deployment topology for the current application
+    And the deployment topology should not have any input artifacts
     When I upload a file located at "src/test/resources/data/artifacts/myWar.war" for the input artifact "war_file"
-    And I check for the valid status of the deployment topology
-    Then there should be no missing artifacts tasks
+    And I get the deployment topology for the current application
+    Then the deployment topology should have the following inputs artifacts
+      | war_file | myWar.war |
+
+  @reset
+  Scenario: Providing an input artifact via local archive file selection should succeed
+    Given I get the deployment topology for the current application
+    And the deployment topology should not have any input artifacts
+    When I upload a file located at "src/test/resources/data/artifacts/myWar.war" to the archive path "nested/myWarUpdated.war"
+    When I select the file "nested/myWarUpdated.war" from the current topology archive for the input artifact "war_file"
+    And I get the deployment topology for the current application
+    Then the deployment topology should have the following inputs artifacts
+      | war_file | nested/myWarUpdated.war |

@@ -107,4 +107,12 @@ public class DeploymentSetupValidationStepDefinitions {
             Assert.assertTrue(" Expected a task " + taskCode + " for the deployment setup", missingFound);
         }
     }
+
+    @Then("^there should be no missing artifacts tasks$")
+    public void thereShouldBeNoMissingArtifactsTasks() throws Throwable {
+        TopologyValidationResult topologyValidationResult = JsonUtil
+                .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation();
+        boolean missingFound = topologyValidationResult.getTaskList().stream().anyMatch(task -> task instanceof InputArtifactTask);
+        Assert.assertFalse(" Expected NO missing artifacts tasks for the deployment topology", missingFound);
+    }
 }
