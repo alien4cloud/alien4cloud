@@ -119,5 +119,43 @@ module.exports = {
         });
       });
     }
-  }
+  },
+
+
+  minify: {
+		// simple inline function call
+		call: function(grunt, options, async) {
+      'use strict';
+      var done = async();
+
+      var fs = require('fs');
+      var path = require('path');
+      var UglifyJS = require("uglify-es");
+
+      var dir = 'target/webapp/scripts';
+      fs.readdir(dir, function(err, files) {
+        if(err) {
+          grunt.log.error(err);
+          done(err);
+        }
+        var a4cBootstrap, a4cDependencies;
+        files.forEach( function(file) {
+          if (file.indexOf('alien4cloud-bootstrap.js') !== -1) {
+            a4cBootstrap = file;
+          }
+        });
+        var filePath = path.join(dir, a4cBootstrap);
+        fs.readFile(filePath, 'utf8', function (err, data) {
+          var result = UglifyJS.minify(data);         
+          var filePathBis = path.join(dir, a4cBootstrap + 'MINIFY');
+          fs.writeFileSync(filePathBis, result.code, 'utf8');
+
+          var filePathTer = path.join(dir, a4cBootstrap + 'TMP');
+          fs.rename(filePath, filePathTer);
+          fs.rename(filePathBis, filePath);
+        });
+        done();
+      });
+		}
+  },
 };
