@@ -43,15 +43,15 @@
       </button>
     </div>
 
-    <ui-select id="editor-app-version-select" ng-if="versionContext.versions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.change(selectedVersion)" reset-search-input="true" close-on-select="true">
+    <ui-select id="editor-app-version-select" ng-if="versionContext.versions != null" ng-model="userSelection.version" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.change(userSelection.version)" reset-search-input="true" close-on-select="true">
       <ui-select-match placeholder="Select or search a version...">{{$select.selected.version | truncate: 80}}</ui-select-match>
       <ui-select-choices repeat="versionRpt in versionContext.versions | filter: $select.search">
         <span ng-bind-html="versionRpt.version | highlight: $select.search"></span>
       </ui-select-choices>
     </ui-select>
-    <ui-select id="editor-topo-version-select" ng-if="selectedVersion && _.defined(selectedVersion.topologyVersions)" ng-model="selectedTopologyVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.changeTopologyVersion(selectedTopologyVersion)" reset-search-input="true" close-on-select="true">
+    <ui-select id="editor-topo-version-select" ng-if="userSelection.version && _.defined(userSelection.version.topologyVersions)" ng-model="userSelection.topologyVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.changeTopologyVersion(userSelection.topologyVersion)" reset-search-input="true" close-on-select="true">
       <ui-select-match placeholder="Select or search a version...">{{$select.selected.key | truncate: 80}}</ui-select-match>
-      <ui-select-choices repeat="topologyVersionRpt.key as (key, topologyVersionRpt) in selectedVersion.topologyVersions | filter: {'key':$select.search}">
+      <ui-select-choices repeat="topologyVersionRpt.key as (key, topologyVersionRpt) in userSelection.version.topologyVersions | filter: {'key':$select.search}">
         <span ng-bind-html="topologyVersionRpt.key | highlight: $select.search"></span>
       </ui-select-choices>
     </ui-select>

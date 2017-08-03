@@ -45,6 +45,18 @@ define(function (require) {
       $scope.isAllowedModify = _.defined($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
       $scope.appEnvironments = appEnvironments;
 
+      $scope.getTabIndex = function (environmentId) {
+        var envs = appEnvironments.environments;
+        if (_.defined(envs)) {
+          for (var i = 0, len = envs.length; i < len; i++) {
+            if (envs[i].id === environmentId) {
+              return i;
+            }
+          }
+        }
+        return -1;
+      };
+
       $scope.setEnvironment = function setEnvironment(environmentId) {
         if (_.undefined(environmentId)) {
           environmentId = $scope.selectedEnvironment.id;
