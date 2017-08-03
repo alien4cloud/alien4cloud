@@ -746,8 +746,9 @@
     "MENU_WORKFLOW" : "Workflows",
     "OPERATION" : "Operation",
     "REDO" : "Rejouer",
-    "SAVE" : "Sauver",
+    "SAVE" : "Sauvegarder",
     "UNDO" : "Annuler",
+    "DOWNLOAD": "Télécharger",
     "VALIDATION" : {
       "CURRENT_TOPOLOGY" : "Topologie courante",
       "CURRENT_TOPOLOGY_NO_OPERATIONS" : "La topologie actuelle n'a pas changé.",

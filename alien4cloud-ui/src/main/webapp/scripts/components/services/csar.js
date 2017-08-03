@@ -73,6 +73,19 @@ define(function (require) {
        }
     })
 
+    var buildCsarZip = function(response, document, csarId) {
+        var anchor = angular.element('<a/>');
+        anchor.css({display: 'none'});
+        angular.element(document.body).append(anchor);
+        var url = URL.createObjectURL(new Blob([response.data], {'type':'application/octet-stream'}));
+        anchor.attr({
+          href: url,
+          target: '_blank',
+          download: csarId + '.zip'
+        })[0].click();
+        anchor.remove();
+    }
+
 
     return {
       'getAndDeleteCsar': resultGetAndDelete,
@@ -80,7 +93,8 @@ define(function (require) {
       'createNodeType': nodeTypeCreateDAO,
       'nodeTypeCRUDDAO': nodeTypeCRUDDAO,
       'builtErrorResultList': builtResultList,
-      'downloadCsar': downloadCsar.download
+      'downloadCsar': downloadCsar.download,
+      'buildCsarZip': buildCsarZip
     };
   }]);
 });

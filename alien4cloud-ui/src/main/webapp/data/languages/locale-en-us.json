@@ -748,6 +748,7 @@
     "REDO": "Redo",
     "SAVE": "Save",
     "UNDO": "Undo",
+    "DOWNLOAD": "Download",
     "VALIDATION": {
       "CURRENT_TOPOLOGY": "Current topology",
       "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology hasn't changed.",
