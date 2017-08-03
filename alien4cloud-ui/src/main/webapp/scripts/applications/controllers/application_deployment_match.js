@@ -21,7 +21,7 @@ define(function(require) {
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'],
       priority: 300,
       step: {
-        taskCodes: ['NODE_NOT_SUBSTITUTED', 'IMPLEMENT', 'REPLACE']
+        taskCodes: ['NO_NODE_MATCHES', 'NODE_NOT_SUBSTITUTED', 'IMPLEMENT', 'REPLACE']
       }
     }
   });

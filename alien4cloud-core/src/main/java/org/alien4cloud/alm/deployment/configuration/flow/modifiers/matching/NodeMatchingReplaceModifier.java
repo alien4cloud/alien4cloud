@@ -1,4 +1,4 @@
-package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
+package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
 import static alien4cloud.utils.AlienUtils.safe;
 

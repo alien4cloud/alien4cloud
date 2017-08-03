@@ -82,8 +82,14 @@ public class OrchestratorsDefinitionsSteps {
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
+    @Deprecated
     @When("^I disable \"([^\"]*)\"$")
     public void I_disable(String orchestratorName) throws Throwable {
+        I_disable_the_orchestrator(orchestratorName);
+    }
+
+    @When("^I disable the orchestrator \"([^\"]*)\"$")
+    public void I_disable_the_orchestrator(String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/orchestrators/" + orchestratorId + "/instance"));
     }

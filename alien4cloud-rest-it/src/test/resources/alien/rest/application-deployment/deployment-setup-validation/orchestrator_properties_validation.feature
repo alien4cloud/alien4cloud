@@ -1,4 +1,4 @@
-Feature: inputs and orchestrator properties validation in deployment setup
+Feature: orchestrator properties validation in deployment setup
 
   Background:
     Given I am authenticated with "ADMIN" role
@@ -19,7 +19,7 @@ Feature: inputs and orchestrator properties validation in deployment setup
 
 
 #  @reset
-#  Scenario: Unfilled NOT REQUIRED property should be considered valid
+#  Scenario: Unfilled NOT REQUIRED orchestrators property should be considered valid
 
   @reset
   Scenario: Missing REQUIRED orchestrators property value should be considered invalid
@@ -27,6 +27,13 @@ Feature: inputs and orchestrator properties validation in deployment setup
     Then the deployment topology should not be valid
     And the missing orchestrator properties should be
       | managerEmail  |
+      | managementUrl |
+      | numberBackup  |
+    When I set the following orchestrator properties
+      | managerEmail | toto@titi.fr |
+    And I check for the valid status of the deployment topology
+    Then the deployment topology should not be valid
+    And the missing orchestrator properties should be
       | managementUrl |
       | numberBackup  |
 

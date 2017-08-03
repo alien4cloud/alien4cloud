@@ -1,4 +1,4 @@
-package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
+package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
 import java.util.List;
 import java.util.Map;
@@ -9,6 +9,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -16,7 +17,6 @@ import com.google.common.collect.Sets;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.topology.task.LocationPolicyTask;
 import alien4cloud.topology.task.NodeMatchingTask;
-import org.springframework.stereotype.Component;
 
 /**
  * This node matching modifier is responsible for automatic selection of location resources that are not yet selected by the user.
@@ -59,7 +59,7 @@ public class NodeMatchingConfigAutoSelectModifier implements ITopologyModifier {
             if (!lastUserSubstitutions.containsKey(entry.getKey())) {
                 if (entry.getValue().isEmpty()) {
                     // warn that no node has been found on the location with the topology criteria
-                    context.log().error(new NodeMatchingTask());
+                    context.log().error(new NodeMatchingTask(entry.getKey()));
                 } else {
                     // Only take the first element as selected if no configuration has been set before
                     // let an info so the user know that we made a default selection for him
