@@ -18,6 +18,10 @@
       <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
     </button>
 
+    <button class="btn btn-success btn-xs" ng-click="download()">
+      <i class="fa fa-download"></i> {{'EDITOR.DOWNLOAD' | translate}}
+    </button>
+
     <div class="btn-group" role="group">
       <button type="button" class="btn btn-primary btn-xs" ng-click="undo()"
         ng-disabled="0 === (topology.lastOperationIndex + 1)">
