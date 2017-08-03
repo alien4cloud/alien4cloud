@@ -31,6 +31,7 @@ import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
@@ -390,6 +391,15 @@ public class ToscaSerializerUtils {
             } else {
                 return Collections.emptyMap();
             }
+        } else {
+            return Collections.emptyMap();
+        }
+    }
+
+    public Map<String, DeploymentArtifact> getServiceRelationshipArtifacts(NodeTemplate source, NodeTemplate target,
+            RelationshipTemplate relationshipTemplate) {
+        if (source instanceof ServiceNodeTemplate || target instanceof ServiceNodeTemplate) {
+            return relationshipTemplate.getArtifacts();
         } else {
             return Collections.emptyMap();
         }

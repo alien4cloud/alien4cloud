@@ -107,6 +107,14 @@ ${utils.formatArtifact($artifactEntry.value, 4)}
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($relationship.properties))
             properties:$propertyUtils.formatProperties(7, $relationship.properties)
 #end## if
+#set($serviceRelationshipArtifacts = $utils.getServiceRelationshipArtifacts($nodeTemplateEntry.value, $topology.nodeTemplates.get(${relationship.target}), $relationship))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($serviceRelationshipArtifacts))
+            artifacts:
+#foreach($artifactEntry in ${serviceRelationshipArtifacts.entrySet()})
+              $artifactEntry.key:
+${utils.formatArtifact($artifactEntry.value, 8)}
+#end## of $artifactEntry iteration
+#end## if has artifacts
 #if($utils.doesInterfacesContainsImplementedOperation($relationship.interfaces))
             interfaces:
 #foreach($interfaceEntry in ${relationship.interfaces.entrySet()})
