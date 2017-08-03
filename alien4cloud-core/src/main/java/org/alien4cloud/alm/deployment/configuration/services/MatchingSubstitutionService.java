@@ -147,13 +147,16 @@ public class MatchingSubstitutionService {
 
     private List<ITopologyModifier> getMatchingFlow() {
         List<ITopologyModifier> modifierList = flowExecutor.getDefaultFlowModifiers();
-        NodeMatchingModifier nodeMatchingModifier = (NodeMatchingModifier) modifierList.stream().filter(modifier -> modifier instanceof NodeMatchingModifier)
-                .findFirst().orElseThrow(() -> new IllegalArgumentException(
-                        "Unexpected exception in deployment flow to update node substitution; unable to find the master node matching modifier to inject selection action modifier."));
+        // only keep modifiers until NodeMatchingModifier
+        for (int i = 0; i < modifierList.size(); i++) {
+            if (modifierList.get(i) instanceof NodeMatchingModifier) {
+                // only keep node matching modifiers until nodeMatchingConfigAutoSelectModifier
+                ((NodeMatchingModifier) modifierList.get(i)).removeModifiersAfter(nodeMatchingConfigAutoSelectModifier);
+                return modifierList.subList(0, i + 1);
+            }
+        }
 
-        // only keep node matching modifiers until nodeMatchingConfigAutoSelectModifier
-        nodeMatchingModifier.removeModifiersAfter(nodeMatchingConfigAutoSelectModifier);
-        return modifierList;
-
+        throw new IllegalArgumentException("Unexpected exception in deployment flow to update node substitution; unable to find the "
+                + NodeMatchingModifier.class.getSimpleName() + " modifier to proceed.");
     }
 }
