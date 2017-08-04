@@ -18,9 +18,9 @@
       <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
     </button>
 
-    <button class="btn btn-success btn-xs" ng-click="download()">
+    <a class="btn btn-success btn-xs" href="/rest/latest/csars/{{topology.topology.id}}/download" download="{{topology.topology.id}}.zip">
       <i class="fa fa-download"></i> {{'EDITOR.DOWNLOAD' | translate}}
-    </button>
+    </a>
 
     <div class="btn-group" role="group">
       <button type="button" class="btn btn-primary btn-xs" ng-click="undo()"

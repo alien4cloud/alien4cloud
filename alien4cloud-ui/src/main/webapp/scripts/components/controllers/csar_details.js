@@ -46,15 +46,6 @@ define(function (require) {
         });
       };
 
-      //Download the csar
-      $scope.downloadCsar = function(csarId) {
-        csarService.downloadCsar({
-          csarId: csarId
-        }, function(response) {
-          csarService.buildCsarZip(response, document, csarId);
-        });
-      };
-
     }
   ]); // controller
 });// define

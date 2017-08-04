@@ -22,17 +22,14 @@ define(function (require) {
   require('scripts/topology/services/topology_services');
   require('scripts/topology/controllers/topology_editor_versions');
 
-  // for downloading the topology
-  require('scripts/components/services/csar');
-
   // manage websockets for topology editor
   require('scripts/topology/services/topology_editor_events_services');
   require('scripts/common/directives/parsing_errors');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
     ['$scope', 'menu', 'layoutService', 'context', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
-    'hotkeys','topologyRecoveryServices', 'csarService', '$uibModal', '$translate', 'toaster', '$state',
-    function($scope, menu, layoutService, context, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, csarService, $uibModal, $translate, toaster, $state) {
+    'hotkeys','topologyRecoveryServices', '$uibModal', '$translate', 'toaster', '$state',
+    function($scope, menu, layoutService, context, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $uibModal, $translate, toaster, $state) {
       // This controller acts as a specific layout for the topology edition.
       layoutService.process(menu);
       $scope.menu = menu;
@@ -206,15 +203,6 @@ define(function (require) {
         }
         var at = $scope.topology.lastOperationIndex + 1;
         undoRedo(at);
-      };
-
-      // Download the topology csar
-      $scope.download = function() {
-        csarService.downloadCsar({
-          csarId: $scope.topology.topology.id
-        }, function(response) {
-          csarService.buildCsarZip(response, document, $scope.topology.topology.id);
-        });
       };
 
 
