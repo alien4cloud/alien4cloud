@@ -28,7 +28,7 @@ public class MaintenanceStepsDefinition {
     }
 
     @When("^I update maintenance state, message: \"([^\"]*)\" percent: (\\d+)$")
-    public void updateState(String message, Float percent) throws Throwable {
+    public void updateState(String message, Integer percent) throws Throwable {
         MaintenanceUpdateDTO updateDTO = new MaintenanceUpdateDTO(message, percent);
         Context.getInstance()
                 .registerRestResponse(getRestClientInstance().putJSon("/rest/v1/maintenance", Context.getJsonMapper().writeValueAsString(updateDTO)));
