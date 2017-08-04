@@ -6,6 +6,7 @@ define(function (require) {
   var angular = require('angular');
   var d3 = require('d3');
   var _ = require('lodash');
+  var alienUtils = require('scripts/utils/alien_utils');
 
   require('scripts/common/services/pie_chart_service.js');
   require('scripts/applications/services/application_services');
@@ -70,6 +71,7 @@ define(function (require) {
         $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
         $scope.applicationEnvironmentMap = {};
         d3.selectAll('.d3-tip').remove();
+        $scope.fromStatusToCssClasses = alienUtils.fromDeploymentStatusToCssClasses;
 
         $scope.openNewApp = function () {
           var modalInstance = $uibModal.open({

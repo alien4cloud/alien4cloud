@@ -142,14 +142,7 @@
         <uib-tabset active="getTabIndex(selectedEnvironment.id)">
           <uib-tab ng-repeat="selectedEnvironment in appEnvironments.environments" id="tab-env-{{selectedEnvironment.name}}" select="setEnvironment(selectedEnvironment.id)">
             <uib-tab-heading>
-              <i class="pull-left fa fa-x" uib-tooltip="{{'DEPLOYMENT.STATUS.' + selectedEnvironment.status | translate }}" tooltip-append-to-body="true" ng-class="{
-                'fa-circle text-success' : selectedEnvironment.status == 'DEPLOYED',
-                'fa-circle text-muted' : selectedEnvironment.status == 'UNDEPLOYED',
-                'fa-warning text-warning' : selectedEnvironment.status == 'WARNING',
-                'fa-circle text-danger' : selectedEnvironment.status == 'FAILURE',
-                'fa-question-circle text-muted' : selectedEnvironment.status == 'UNKNOWN',
-                'fa-spinner fa-spin' : selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' || selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
-              }"></i> {{selectedEnvironment.name}}
+              <i class="pull-left fa fa-x {{fromStatusToCssClasses(selectedEnvironment)}}" uib-tooltip="{{'DEPLOYMENT.STATUS.' + selectedEnvironment.status | translate }}" tooltip-append-to-body="true" ></i> {{selectedEnvironment.name}}
             </uib-tab-heading>
             <div class = "row">
               <display-outputs></display-outputs>
@@ -160,23 +153,11 @@
       <div class="row col-md-12" ng-if="appEnvironments.environments.length >= 10">
         <ui-select ng-model="selectedEnvironment" on-select="setEnvironment(selectedEnvironment.id)" reset-search-input="true" close-on-select="true" append-to-body="true" theme="bootstrap">
           <ui-select-match placeholder="Select or search an environment...">
-             <i class="pull-left fa fa-x" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
-               'fa-circle text-success' : $select.selected.status == 'DEPLOYED',
-               'fa-circle text-muted' : $select.selected.status == 'UNDEPLOYED',
-               'fa-warning text-warning' : $select.selected.status == 'WARNING',
-               'fa-circle text-danger' : $select.selected.status == 'FAILURE',
-               'fa-question-circle text-muted' : $select.selected.status == 'UNKNOWN',
-               'fa-spinner fa-spin' : $select.selected.status == 'DEPLOYMENT_IN_PROGRESS' || $select.selected.status == 'UNDEPLOYMENT_IN_PROGRESS'
-             }"></i> {{$select.selected.name}}</ui-select-match>
+             <i class="pull-left fa fa-x {{fromStatusToCssClasses(selectedEnvironment)}}" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true"
+             ></i> {{$select.selected.name}}</ui-select-match>
           <ui-select-choices repeat="e in appEnvironments.environments | filter: $select.search | orderBy: 'name'">
-            <i class="fa fa-x" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
-              'fa-circle text-success' : e.status == 'DEPLOYED',
-              'fa-circle text-muted' : e.status == 'UNDEPLOYED',
-              'fa-warning text-warning' : e.status == 'WARNING',
-              'fa-circle text-danger' : e.status == 'FAILURE',
-              'fa-question-circle text-muted' : e.status == 'UNKNOWN',
-              'fa-spinner fa-spin' : e.status == 'DEPLOYMENT_IN_PROGRESS' || e.status == 'UNDEPLOYMENT_IN_PROGRESS'
-            }"></i> <span ng-bind-html="e.name | highlight: $select.search"></span>
+            <i class="fa fa-x {{fromStatusToCssClasses(selectedEnvironment)}}" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true"
+            ></i> <span ng-bind-html="e.name | highlight: $select.search"></span>
           </ui-select-choices>
         </ui-select>
         <div style="margin-top: 1em">

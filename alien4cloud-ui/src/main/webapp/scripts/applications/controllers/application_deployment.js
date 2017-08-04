@@ -5,6 +5,7 @@ define(function(require) {
   var states = require('states');
   var _ = require('lodash');
   var angular = require('angular');
+  var alienUtils = require('scripts/utils/alien_utils');
 
   require('scripts/common/filters/inputs');
 
@@ -112,6 +113,7 @@ define(function(require) {
         $scope.deploymentContext = deploymentContext;
         var pageStateId = $state.current.name;
         $scope.menu = menu;
+        $scope.fromStatusToCssClasses = alienUtils.fromDeploymentStatusToCssClasses;
 
         // Initialization
         $scope.application = applicationResult.data;

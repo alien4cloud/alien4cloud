@@ -131,7 +131,6 @@ define(function (require) {
             instance.updateEnvironment(result.data);
           });
         }
-
       };
 
       return function(application, defaultSelectedEnvironmentId) {
