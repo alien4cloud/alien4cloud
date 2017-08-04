@@ -139,8 +139,8 @@
         <h3><i class="fa fa-share-alt-square"></i> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</h3>
       </legend>
       <div class="row col-md-12" ng-if="appEnvironments.environments.length < 10">
-        <uib-tabset>
-          <uib-tab ng-repeat="selectedEnvironment in appEnvironments.environments" id="tab-env-{{selectedEnvironment.name}}" select="setEnvironment(selectedEnvironment.id)" active="selectedEnvironment.active">
+        <uib-tabset active="getTabIndex(selectedEnvironment.id)">
+          <uib-tab ng-repeat="selectedEnvironment in appEnvironments.environments" id="tab-env-{{selectedEnvironment.name}}" select="setEnvironment(selectedEnvironment.id)">
             <uib-tab-heading>
               <i class="pull-left fa fa-x" uib-tooltip="{{'DEPLOYMENT.STATUS.' + selectedEnvironment.status | translate }}" tooltip-append-to-body="true" ng-class="{
                 'fa-circle text-success' : selectedEnvironment.status == 'DEPLOYED',

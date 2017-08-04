@@ -12,6 +12,7 @@ define(function (require) {
   require('scripts/applications/services/environment_event_services');
   require('scripts/applications/services/application_event_services');
   require('scripts/applications/services/application_environment_builder');
+  require('scripts/common/services/user_context_services');
 
   require('scripts/applications/controllers/application_info');
   require('scripts/applications/controllers/application_topology');
@@ -34,9 +35,9 @@ define(function (require) {
           }).$promise;
         }
       ],
-      appEnvironments: ['application', 'appEnvironmentsBuilder', '$stateParams',
-        function(application, appEnvironmentsBuilder, $stateParams) {
-          return appEnvironmentsBuilder(application.data, $stateParams.openOnEnvironment);
+      appEnvironments: ['application', 'appEnvironmentsBuilder', '$stateParams','userContextServices',
+        function(application, appEnvironmentsBuilder, $stateParams, userContextServices) {
+          return appEnvironmentsBuilder(application.data, $stateParams.openOnEnvironment, userContextServices);
         }
       ],
       archiveVersions: ['$http', 'application', 'applicationVersionServices',
