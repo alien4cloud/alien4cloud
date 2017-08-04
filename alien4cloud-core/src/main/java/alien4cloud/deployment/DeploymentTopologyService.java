@@ -2,14 +2,12 @@ package alien4cloud.deployment;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -23,8 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class DeploymentTopologyService {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
     @Inject
     private LocationService locationService;
 

@@ -23,7 +23,7 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_versions');
 
   // for downloading the topology
-  require('scripts/components/services/csar')
+  require('scripts/components/services/csar');
 
   // manage websockets for topology editor
   require('scripts/topology/services/topology_editor_events_services');
@@ -215,7 +215,7 @@ define(function (require) {
         }, function(response) {
           csarService.buildCsarZip(response, document, $scope.topology.topology.id);
         });
-      }
+      };
 
 
       // -- Begin GIT SECTIONS --

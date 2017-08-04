@@ -191,12 +191,12 @@ define(function (require) {
       newRepositoryEntry.classifier = 'new';
       $scope.repositories.push(newRepositoryEntry);
 
-      if(!artifactRepositoryFound){
+      if (!artifactRepositoryFound) {
         $scope.repositorySelected(newRepositoryEntry.idx);
         $scope.selectedRepository.id = artifact.repositoryName;
         $scope.selectedRepository.type = artifact.artifactRepository;
         $scope.selectedRepository.url = artifact.repositoryURL;
-        $scope.selectedRepository.file = artifact.artifactName
+        $scope.selectedRepository.file = artifact.artifactName;
       }
     }
   ]);

@@ -37,9 +37,6 @@ define(function(require) {
         $state.go('admin');
         hopscotchService.startTour('admin.home');
       };
-      $scope.getTranslationKey = function(key) {
-        return getRealTranslationKey(key);
-      };
     }]
   });
   states.state('restricted', {
@@ -81,7 +78,7 @@ define(function(require) {
         } else {
           prefix = 'data/languages/locale-';
         }
-         
+
         var options = {
           files: [{
             prefix: prefix,

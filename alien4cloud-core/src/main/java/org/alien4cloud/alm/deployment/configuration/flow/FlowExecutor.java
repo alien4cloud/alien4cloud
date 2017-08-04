@@ -6,27 +6,17 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.CfyMultirelationshipErrorModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.EditorTopologyValidator;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.LocationMatchingModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingNodeSetupModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PreDeploymentTopologyValidator;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.SubstitutionCompositionModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.*;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputArtifactsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputValidationModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputsModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCandidateModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigCleanupModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingReplaceModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.*;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.deployment.matching.services.nodes.NodeMatcherService;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.tosca.context.ToscaContextual;
@@ -67,8 +57,6 @@ public class FlowExecutor {
     private CfyMultirelationshipErrorModifier cfyMultirelationshipErrorModifier;
     @Inject
     private InputValidationModifier inputValidationModifier;
-    @Inject
-    private NodeMatcherService nodeMatcherService;
     @Inject
     private NodeMatchingCandidateModifier nodeMatchingCandidateModifier;
     @Inject

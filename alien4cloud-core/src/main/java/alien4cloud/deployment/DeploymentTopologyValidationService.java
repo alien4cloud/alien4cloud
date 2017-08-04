@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 
-import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyValidationResult;
@@ -38,8 +37,6 @@ public class DeploymentTopologyValidationService {
     private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
     @Inject
     private NodeFilterValidationService nodeFilterValidationService;
-    @Inject
-    private ApplicationEnvironmentService environmentService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject

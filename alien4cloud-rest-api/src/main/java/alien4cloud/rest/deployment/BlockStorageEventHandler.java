@@ -9,12 +9,7 @@ import javax.annotation.Resource;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
-import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
@@ -87,7 +82,6 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
     private void updateApplicationTopology(PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, final Map<String, Object> persistentProperties) {
         Deployment deployment = deploymentService.get(persistentResourceEvent.getDeploymentId());
 
-        String deploymentTopologyId = DeploymentTopology.generateId(deployment.getVersionId(), deployment.getEnvironmentId());
         String topologyId = deployment.getSourceId() + ":" + deployment.getVersionId();
         Topology topology = topoServiceCore.getOrFail(topologyId);
 

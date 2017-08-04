@@ -71,7 +71,7 @@ define(function (require) {
             return response;
           }
        }
-    })
+    });
 
     var buildCsarZip = function(response, document, csarId) {
         var anchor = angular.element('<a/>');
@@ -84,7 +84,7 @@ define(function (require) {
           download: csarId + '.zip'
         })[0].click();
         anchor.remove();
-    }
+    };
 
 
     return {

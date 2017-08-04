@@ -9,7 +9,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -46,8 +45,6 @@ import alien4cloud.paas.model.PaaSDeploymentLog;
 import alien4cloud.paas.model.PaaSDeploymentLogLevel;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
-import alien4cloud.topology.TopologyValidationResult;
-import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.PropertyUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -78,8 +75,6 @@ public class DeployService {
     private DeploymentTopologyService deploymentTopologyService;
     @Inject
     private ArtifactProcessorService artifactProcessorService;
-    @Inject
-    private DeploymentInputService deploymentInputService;
     @Inject
     private ApplicationEventPublisher eventPublisher;
     @Inject

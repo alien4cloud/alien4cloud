@@ -17,7 +17,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutor;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.action.SetMatchedNodeModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigCleanupModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingModifier;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
@@ -46,8 +45,6 @@ public class MatchingSubstitutionService {
     private IGenericSearchDAO alienDAO;
     @Inject
     private FlowExecutor flowExecutor;
-    @Inject
-    private NodeMatchingConfigCleanupModifier nodeMatchingConfigCleanupModifier;
     @Inject
     private NodeMatchingConfigAutoSelectModifier nodeMatchingConfigAutoSelectModifier;
     @Inject

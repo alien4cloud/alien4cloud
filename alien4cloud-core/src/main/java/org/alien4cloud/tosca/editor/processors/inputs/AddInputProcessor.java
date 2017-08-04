@@ -2,17 +2,12 @@ package org.alien4cloud.tosca.editor.processors.inputs;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation> {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
-    @Inject
-    private DeploymentTopologyService deploymentTopologyService;
-
     @Override
     protected void processInputOperation(AddInputOperation operation, Map<String, PropertyDefinition> inputs) {
         if (operation.getInputName() == null || operation.getInputName().isEmpty() || !operation.getInputName().matches("\\w+")) {
