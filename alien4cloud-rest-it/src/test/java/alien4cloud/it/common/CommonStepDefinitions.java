@@ -61,7 +61,6 @@ public class CommonStepDefinitions {
         indicesToClean = Lists.newArrayList();
         indicesToClean.add(ApplicationEnvironment.class.getSimpleName().toLowerCase());
         indicesToClean.add(ApplicationVersion.class.getSimpleName().toLowerCase());
-        indicesToClean.add(DeploymentTopology.class.getSimpleName().toLowerCase());
         indicesToClean.add(DeploymentInputs.class.getSimpleName().toLowerCase());
         indicesToClean.add(DeploymentMatchingConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(OrchestratorDeploymentProperties.class.getSimpleName().toLowerCase());
