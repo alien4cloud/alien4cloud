@@ -104,8 +104,9 @@ define(function(require) {
       }
     ]);
 
-    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', 'editableOptions', 'editableThemes', 'authService',
-      function($templateCache, $rootScope, $state, $sce, editableOptions, editableThemes, authService) {
+    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', 'editableOptions', 'editableThemes', 'authService', 'restTechnicalErrorInterceptor',
+      function($templateCache, $rootScope, $state, $sce, editableOptions, editableThemes, authService, restTechnicalErrorInterceptor) {
+        restTechnicalErrorInterceptor.$state = $state;
         templateInjector($templateCache);
         var statusFetched = false; // flag to know if we have fetched current user status (logged in and roles)
         $rootScope._ = _;

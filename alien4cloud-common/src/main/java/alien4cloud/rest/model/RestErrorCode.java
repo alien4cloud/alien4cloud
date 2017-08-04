@@ -4,6 +4,9 @@ package alien4cloud.rest.model;
  * Error codes for rest services.
  */
 public enum RestErrorCode {
+    // Maintenance
+    MAINTENANCE(0),
+
     // Authentication
     AUTHENTICATION_REQUIRED_ERROR(100),
     AUTHENTICATION_FAILED_ERROR(101),

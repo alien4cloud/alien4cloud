@@ -10,6 +10,7 @@ import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
 import org.alien4cloud.exception.rest.FieldErrorDTO;
+import org.alien4cloud.server.MaintenanceModeState;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.lang3.StringUtils;
@@ -81,6 +82,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(Repository.class.getSimpleName().toLowerCase());
         indicesToClean.add(ServiceResource.class.getSimpleName().toLowerCase());
 
+        indicesToClean.add(MaintenanceModeState.class.getSimpleName().toLowerCase());
         indicesToClean.add(Plugin.class.getSimpleName().toLowerCase());
         indicesToClean.add(PluginConfiguration.class.getSimpleName().toLowerCase());
     }

@@ -44,7 +44,7 @@
   }, {
     "title": "Suivi : métriques de A4C",
     "content": "Visualisez ici des informations techniques concernant votre instance d'Alien 4 Cloud (mémoire, processeur,...)",
-    "target": "homepage.am.admin.metrics",
+    "target": "homepage.am.admin.server",
     "placement": "bottom"
   }, {
     "title": "Suivi : audit des opérations",

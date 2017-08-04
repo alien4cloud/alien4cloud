@@ -5,12 +5,15 @@ import org.junit.runner.RunWith;
 import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
 
+/**
+ * Run integration tests for maintenance mode management.
+ */
 @RunWith(Cucumber.class)
 @CucumberOptions(features = {
         //
-        "classpath:alien/rest/groups"
+        "classpath:alien/rest/maintenance"
         //
 }, format = { "pretty", "html:target/cucumber/groups", "json:target/cucumber/cucumber-groups.json" })
-// @Ignore
-public class RunGroupsIT {
+
+public class RunMaintenanceModeIT {
 }

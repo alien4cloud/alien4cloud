@@ -31,7 +31,7 @@ define(function (require) {
 
   // require admin modules
   require('scripts/admin/plugins/plugin');
-  require('scripts/admin/metrics/metrics');
+  require('scripts/admin/server/server');
   require('scripts/admin/audit/audit');
   require('scripts/meta-props/controllers/meta_props_list');
 

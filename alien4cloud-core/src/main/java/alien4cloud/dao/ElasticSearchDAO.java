@@ -5,10 +5,10 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
-import alien4cloud.model.deployment.DeploymentTopology;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
+import org.alien4cloud.server.MaintenanceModeState;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
@@ -94,10 +94,11 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(Deployment.class);
         initIndice(CsarGitRepository.class);
 
-        initIndice(DeploymentTopology.class);
         initIndice(DeploymentInputs.class);
         initIndice(DeploymentMatchingConfiguration.class);
         initIndice(OrchestratorDeploymentProperties.class);
+
+        initIndice(MaintenanceModeState.class);
 
         initIndices(SUGGESTION_INDEX, null, AbstractSuggestionEntry.class, SuggestionEntry.class, SimpleSuggestionEntry.class);
 

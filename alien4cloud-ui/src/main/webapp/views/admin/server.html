@@ -1,7 +1,8 @@
 <div>
-  <h2 translate="metrics.title">Application Metrics</h2>
+  <h2>{{'SERVER.STATE' | translate}}</h2>
   <p>
-    <button type="button" class="btn btn-primary" ng-click="refresh()"><span class="fa fa-refresh"></span>&nbsp;{{'metrics.refresh.button' | translate}}</button>
+    <button type="button" class="btn btn-primary" ng-click="refresh()"><i class="fa fa-refresh"></i> {{'metrics.refresh.button' | translate}}</button>
+    <button type="button" class="btn btn-danger" ng-click="maintenance()"><i class="fa fa-wrench"></i> {{'SERVER.MAINTENANCE.ENABLE' | translate}}</button>
   </p>
 
   <h3 translate="metrics.jvm.title">JVM Metrics</h3>

@@ -917,7 +917,7 @@
   "N/A" : "N/A",
   "NAVADMIN" : {
     "MENU_AUDIT" : "Audit",
-    "MENU_METRICS" : "Métriques",
+    "MENU_METRICS" : "Status du serveur",
     "MENU_ORCHESTRATORS" : "Orchestrateurs",
     "MENU_PLUGINS" : "Plugins",
     "MENU_TAGS" : "Méta-propriétés",
@@ -1072,6 +1072,22 @@
     "USERS" : "Utilisateurs"
   },
   "SELECT" : "Selectionner",
+  "SERVER": {
+    "STATE": "Status du server",
+    "MAINTENANCE": {
+      "DISABLE": "Terminer la maintenance",
+      "DISABLE_CONFIRM": "Voulez vous vraiment désactiver le mode maintenance ?",
+      "ENABLE": "Commencer une maintenance",
+      "ENABLE_CONFIRM": "Voulez vous vraiment activer le mode maintenance ? Lorsque celui-ci est activé l'API REST renvoiera une erreur et les utilisateurs seront redirigés vers l'écran de status de maintenance.",
+      "MESSAGE": "Le serveur est actuellement en maintenance, veuillez réessayer votre requête plus tard ou contactez votre administrateur.",
+      "TITLE": "Maintenance",
+      "UPDATE": {
+        "PROGRESS": "Progression (%)",
+        "MESSAGE": "Message",
+        "TITLE": "Mise à jour du status"
+      }
+    }
+  },
   "SERVICES" : {
     "SERVICE": "Service",
     "CATALOG": "Catalogue des services",

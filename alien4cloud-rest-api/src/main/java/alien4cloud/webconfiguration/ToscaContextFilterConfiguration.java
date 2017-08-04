@@ -13,5 +13,4 @@ public class ToscaContextFilterConfiguration {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean(new ToscaContextFilter());
         return registrationBean;
     }
-
 }

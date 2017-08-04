@@ -913,7 +913,7 @@
   "N/A" : "N/A",
   "NAVADMIN" : {
     "MENU_AUDIT" : "操作ログ",
-    "MENU_METRICS" : "メトリック",
+    "MENU_METRICS" : "Server state",
     "MENU_ORCHESTRATORS" : "オーケストレータ",
     "MENU_PLUGINS" : "プラグイン",
     "MENU_TAGS" : "メタプロパティ",
@@ -1066,7 +1066,24 @@
     "USERS" : "ユーザ"
   },
   "SELECT" : "Select",
+  "SERVER": {
+    "STATE": "Server state",
+    "MAINTENANCE": {
+      "DISABLE": "End maintenance",
+      "DISABLE_CONFIRM": "Are you sure you want to turn maintenance mode off ?",
+      "ENABLE": "Start maintenance",
+      "ENABLE_CONFIRM": "Are you sure that you want to turn maintenance mode on ? In maintenance mode the REST API will respond with an error and users will be redirected to maintenance state display screen.",
+      "MESSAGE": "The server is currently in maintenance, please try your request later or contact your admin.",
+      "TITLE": "Maintenance",
+      "UPDATE": {
+        "PROGRESS": "Progress (%)",
+        "MESSAGE": "Message",
+        "TITLE": "Update maintenance state"
+      }
+    }
+  },
   "SERVICES": {
+    "SERVICE": "Service",
     "CATALOG": "Services catalog",
     "DETAIL": {
       "BACK": "Back to catalog",
@@ -1079,6 +1096,21 @@
       "NODE_TYPE": "Type",
       "NODE_TYPE_VERSION": "Type version",
       "TITLE": "New service"
+    },
+    "MANAGED": {
+      "NAME": "Managed service",
+      "TITLE": "Service management",
+      "NO_SUBSTITUTION_MESSAGE": "The topology must define a substitution type for it to be exposed as a service.",
+      "CREATE": {
+        "MESSAGE": "Expose this deployment as a service (other applications will be able to use it during matching phase).",
+        "CONFIRM_TITLE": "Expose as service",
+        "CONFIRM_MESSAGE": "Do you really want to expose this as a service ?"
+      },
+      "UNBIND": {
+        "MESSAGE": "Unbind the service from this environment.",
+        "CONFIRM_TITLE": "Unbind service",
+        "CONFIRM_MESSAGE": "Do you really want to unbind the service from the environment?\n If not used anywhere, the service will be deleted. Otherwise, You should then contact your administrator to clean it up if needed."
+      }
     }
   },
   "START_DATE" : "開始日",

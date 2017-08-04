@@ -85,4 +85,18 @@ public class User implements SocialUserDetails {
         return this.username;
     }
 
+    @JsonIgnore
+    public String getName() {
+        String name = null;
+        if (firstName != null) {
+            name = firstName;
+        }
+        if (lastName != null) {
+            name = name == null ? lastName : name + " " + lastName;
+        }
+        if (name == null) {
+            name = username;
+        }
+        return name;
+    }
 }

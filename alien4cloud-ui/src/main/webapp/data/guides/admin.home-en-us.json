@@ -44,7 +44,7 @@
   }, {
     "title": "Monitoring : A4C metrics",
     "content": "Technical informations about your running Alien 4 Cloud (memory, cpu,...)",
-    "target": "homepage.am.admin.metrics",
+    "target": "homepage.am.admin.server",
     "placement": "bottom"
   }, {
     "title": "Monitoring : operations audit",
