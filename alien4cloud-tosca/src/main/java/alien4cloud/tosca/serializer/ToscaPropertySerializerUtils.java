@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 
 import alien4cloud.paas.exception.NotSupportedException;
 
@@ -146,6 +150,9 @@ public class ToscaPropertySerializerUtils {
         StringBuilder buffer = new StringBuilder();
         for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
             if (propertyEntry.getValue() != null) {
+                if (propertyEntry.getValue() instanceof PropertyValue && ((PropertyValue) propertyEntry.getValue()).getValue() == null) {
+                    continue;
+                }
                 buffer.append("\n").append(indent(indentLevel)).append(propertyEntry.getKey()).append(": ")
                         .append(formatPropertyValue(indentLevel, propertyEntry.getValue()));
             }
