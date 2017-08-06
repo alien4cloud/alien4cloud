@@ -33,6 +33,10 @@ treecontrol li {
     word-break: break-all;
 }
 
+treecontrol > ul > li {
+  padding: 0px;
+}
+
 treecontrol li.tree-expanded i.tree-leaf-head, treecontrol li.tree-collapsed i.tree-leaf-head {display:none;}
 treecontrol li.tree-expanded i.tree-branch-head, treecontrol li.tree-collapsed i.tree-branch-head {display:inline;}
 treecontrol li.tree-leaf i.tree-branch-head {display:none;}

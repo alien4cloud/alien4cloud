@@ -47,7 +47,10 @@ define(function (require) {
           }
           if(_.defined(node) && _.defined(node.children)) {
             for(var i=0;i<node.children.length;i++) {
-              this.expand(node.children[i], true);
+              this.expand(expandedNodes, fullPath, node.children[i], true);
+              if(_.includes(expandedNodes, node.children[i])){
+                break;
+              }
             }
           }
         },
