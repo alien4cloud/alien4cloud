@@ -124,7 +124,7 @@
           </uib-tab-heading>
           <ul class="list-group" style="overflow: auto; height: {{ dimensions.height + 'px' }};">
             <li class="list-group-item media clickable-media favorite"
-                ng-repeat="resource in ctrl.favorites | orderBy : ['-provided', 'elementId']"
+                ng-repeat="resource in favorites | orderBy : ['-provided', 'elementId']"
                 alien-draggable drag-enabled="true" drag-data="resource">
               <div class="media-left" ng-init="nodeIcon = getIcon(resource.elementId)">
                 <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
