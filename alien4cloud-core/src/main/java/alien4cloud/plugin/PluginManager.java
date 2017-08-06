@@ -179,7 +179,12 @@ public class PluginManager {
     /**
      * Upload a plugin from a given path.
      *
-     * @param uploadedPluginPath The path of the plugin to upload.
+     * @param uploadedPluginPath The path of the plugin to upload.<br>
+     *            The state of the new uploaded plugin will be determined as follow:
+     *            <ul>
+     *            <li>plugin doesn't exists: load and enable</li>
+     *            <li>plugin exists: keep the state (reload if enabled)</li>
+     *            </ul>
      * @return the uploaded plugin
      * @throws IOException In case there is an issue with the access to the plugin file.
      * @throws PluginLoadingException
@@ -204,7 +209,7 @@ public class PluginManager {
             String pluginPathId = getPluginPathId();
             Plugin plugin = new Plugin(descriptor, pluginPathId);
 
-            // check plugin already exists and is enabled
+            // check plugin already exists and is loaded
             if (pluginContexts.get(plugin.getId()) != null) {
                 log.warn("Uploading Plugin <{}> impossible (already exists and enabled)", plugin.getId());
                 throw new AlreadyExistException("A plugin with the given id already exists and is enabled.");
@@ -225,9 +230,11 @@ public class PluginManager {
             if (Files.exists(pluginUiSourcePath)) {
                 FileUtil.copy(pluginUiSourcePath, pluginUiPath);
             }
-
-            loadPlugin(plugin);
-            plugin.setConfigurable(isPluginConfigurable(plugin.getId()));
+            if (oldPlugin == null || oldPlugin.isEnabled()) {
+                loadPlugin(plugin);
+                plugin.setEnabled(true);
+            }
+            plugin.setConfigurable(isPluginConfigurable(plugin));
             alienDAO.save(plugin);
             log.info("Plugin <" + plugin.getId() + "> has been enabled.");
             return plugin;
@@ -387,6 +394,23 @@ public class PluginManager {
      * @throws ClassNotFoundException If we cannot load the class
      */
     private void loadPlugin(Plugin plugin, Path pluginPath, Path pluginUiPath) throws IOException, ClassNotFoundException {
+        // get the plugin spring context
+        AnnotationConfigApplicationContext pluginContext = getPluginContext(plugin, pluginPath, pluginUiPath);
+
+        ManagedPlugin managedPlugin = (ManagedPlugin) pluginContext.getBean("alien-plugin-context");
+
+        Map<String, PluginComponentDescriptor> componentDescriptors = getPluginComponentDescriptorAsMap(plugin);
+
+        // expose plugin elements so they are available to plugins that depends from them.
+        expose(managedPlugin, componentDescriptors);
+        // register plugin elements in Alien
+        link(plugin, managedPlugin, componentDescriptors);
+
+        // install static resources to be available for the application.
+        pluginContexts.put(plugin.getId(), managedPlugin);
+    }
+
+    private AnnotationConfigApplicationContext getPluginContext(Plugin plugin, Path pluginPath, Path pluginUiPath) throws IOException, ClassNotFoundException {
         // create a class loader to manage this plugin.
         final List<URL> classPathUrls = Lists.newArrayList();
         pluginPath = pluginPath.toRealPath();
@@ -434,17 +458,7 @@ public class PluginManager {
             pluginContext.refresh();
             pluginContext.start();
         });
-        ManagedPlugin managedPlugin = (ManagedPlugin) pluginContext.getBean("alien-plugin-context");
-
-        Map<String, PluginComponentDescriptor> componentDescriptors = getPluginComponentDescriptorAsMap(plugin);
-
-        // expose plugin elements so they are available to plugins that depends from them.
-        expose(managedPlugin, componentDescriptors);
-        // register plugin elements in Alien
-        link(plugin, managedPlugin, componentDescriptors);
-
-        // install static resources to be available for the application.
-        pluginContexts.put(plugin.getId(), managedPlugin);
+        return pluginContext;
     }
 
     private void registerDependencies(Plugin plugin, AnnotationConfigApplicationContext pluginContext) {
@@ -550,8 +564,33 @@ public class PluginManager {
      */
     public boolean isPluginConfigurable(String pluginId) {
         AnnotationConfigApplicationContext pluginContext = pluginContexts.get(pluginId).getPluginContext();
+        return hasAnyPluginConfiguratorBean(pluginContext);
+    }
+
+    private boolean hasAnyPluginConfiguratorBean(AnnotationConfigApplicationContext pluginContext) {
         Map<String, IPluginConfigurator> configurators = pluginContext.getBeansOfType(IPluginConfigurator.class);
         return MapUtils.isNotEmpty(configurators);
+    }
+
+    /**
+     * Return true if the plugin can be configured using a configuration object (basically if the plugin spring context contains an instance of
+     * {@link IPluginConfigurator}.
+     *
+     * @param plugin the plugin for which to know if configurable.
+     * @return True if the plugin can be configured, false if not.
+     */
+    public boolean isPluginConfigurable(Plugin plugin) throws PluginLoadingException {
+        if (pluginContexts.containsKey(plugin.getId())) {
+            return isPluginConfigurable(plugin.getId());
+        }
+        try {
+            AnnotationConfigApplicationContext pluginContext = getPluginContext(plugin, getPluginPath(plugin.getPluginPathId()),
+                    getPluginUiPath(plugin.getPluginPathId()));
+            return hasAnyPluginConfiguratorBean(pluginContext);
+        } catch (Exception e) {
+            log.error("Failed to load plugin context <" + plugin.getId() + ">. alien will ignore this plugin.", e);
+            throw new PluginLoadingException("Failed to load plugin <" + plugin.getId() + ">", e);
+        }
     }
 
     /**
@@ -604,6 +643,14 @@ public class PluginManager {
             }
         }
         return pluginComponents;
+    }
+
+    public Plugin getPluginOrFail(String pluginId) {
+        Plugin plugin = alienDAO.findById(Plugin.class, pluginId);
+        if (plugin == null) {
+            throw new NotFoundException("Location [" + pluginId + "] doesn't exists.");
+        }
+        return plugin;
     }
 
     @AllArgsConstructor(suppressConstructorProperties = true)

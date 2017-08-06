@@ -81,6 +81,6 @@ public class Plugin {
     public Plugin(PluginDescriptor descriptor, String pluginPathId) {
         this.descriptor = descriptor;
         this.pluginPathId = pluginPathId;
-        this.enabled = true;
+        this.enabled = false;
     }
 }
