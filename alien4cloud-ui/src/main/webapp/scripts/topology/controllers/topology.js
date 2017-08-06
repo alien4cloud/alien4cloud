@@ -33,7 +33,7 @@ define(function (require) {
   require('scripts/topology/services/topology_editor_events_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
-    ['$scope', '$uibModal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService',
+    ['$scope', '$uibModal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService','hotkeys',
     'defaultFilters',
     'topoEditArtifacts',
     'topoEditDisplay',
@@ -46,7 +46,7 @@ define(function (require) {
     'topoEditRelationships',
     'topoEditSubstitution',
     'topoEditDependencies',
-    function($scope, $uibModal, $timeout, componentService, nodeTemplateService, toscaService,
+    function($scope, $uibModal, $timeout, componentService, nodeTemplateService, toscaService, hotkeys,
     defaultFilters,
     topoEditArtifacts,
     topoEditDisplay,
@@ -59,6 +59,9 @@ define(function (require) {
     topoEditRelationships,
     topoEditSubstitution,
     topoEditDependencies) {
+
+      var currentCopiedNode = null;
+
       $scope.defaultFilters = defaultFilters;
       $scope.isRuntime = false;
 
@@ -234,6 +237,41 @@ define(function (require) {
           $scope.$digest();
         }
       };
+
+      // key binding
+       function copy() {
+        console.log('Saving the selected node template for copy...', $scope.selectedNodeTemplate);
+        currentCopiedNode = $scope.selectedNodeTemplate;
+      }
+      hotkeys.bindTo($scope)
+        .add ({
+          combo: 'mod+c',
+          description: 'copy the selected node template.',
+          callback: function(e) {
+            copy();
+            if(e.preventDefault) {
+              e.preventDefault();
+            } else {
+              e.returnValue = false;
+            }
+          }
+        })
+        .add ({
+          combo: 'mod+v',
+          description: 'paste the last copied node template.',
+          callback: function(e) {
+            if(_.defined(currentCopiedNode)){
+              $scope.nodes.copy(currentCopiedNode.name);
+            }else{
+              console.log("nothing to paste...");
+            }
+            if(e.preventDefault) {
+              e.preventDefault();
+            } else {
+              e.returnValue = false;
+            }
+          }
+        });
     }
   ]);
 }); // define

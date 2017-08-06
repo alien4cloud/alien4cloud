@@ -142,6 +142,16 @@ define(function (require) {
             scope.selectedNodeTemplate.name,
             true
           );
+        },
+        /*copy a node in the topology. Also copy the hosted nodes hierarchy. Discard any oter relationship*/
+        copy: function(nodeName) {
+          var scope = this.scope;
+          scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation',
+              nodeName: nodeName
+            },
+            null, null, nodeName
+          );
         }
       };
 
