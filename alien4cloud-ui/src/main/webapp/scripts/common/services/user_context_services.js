@@ -16,15 +16,12 @@ define(function (require) {
     };
 
     var getTopologyContext = function (applicationId) {
-      console.log('appId -> ' + _.get(previousTopologiesContext[applicationId], 'version.version') + '/' + _.get(previousTopologiesContext[applicationId], 'variant'));
       return previousTopologiesContext[applicationId];
-    }
+    };
 
     var updateTopologyContext = function (applicationId, version, variant) {
-      console.log('update -> ' + applicationId + ' ' + version.version + '/' + variant);
-
       previousTopologiesContext[applicationId] = {
-        version: _.cloneDeep(version),
+        version: version.id,
         variant: variant
       };
     };
@@ -47,13 +44,3 @@ define(function (require) {
 
   }); // factory
 }); // define
-
-
-/*
-var userContextServices = function () {
-  "use strict";
-
-
-
-};
-*/
