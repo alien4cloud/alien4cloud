@@ -10,7 +10,9 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
@@ -34,6 +36,8 @@ public class NodeTypeScoreService implements Runnable {
     private IGenericSearchDAO alienESDAO;
     @Resource(name = "node-type-score-scheduler")
     private TaskScheduler scheduler;
+    @Resource
+    private Environment environment;
 
     @Value("${components.search.boost.frequency}")
     private long frequencyH = 1;
@@ -51,6 +55,9 @@ public class NodeTypeScoreService implements Runnable {
         Date date = new Date(System.currentTimeMillis() + frequencyMs);
         log.info("Type score is scheduled with {} ms frequency", frequencyMs);
         scheduler.scheduleAtFixedRate(this, date, frequencyMs);
+        if(environment.acceptsProfiles("security-demo")){
+            scheduler.schedule(this, new Date());
+        }
     }
 
     @Override
