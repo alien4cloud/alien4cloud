@@ -2,6 +2,7 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
 
   modules.get('a4c-common').factory('userContextServices', function () {
     var previousEnvironmentsContext = {};
