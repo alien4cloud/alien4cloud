@@ -97,21 +97,4 @@ public class DeploymentTopology extends Topology {
 
     @ObjectField(enabled = false)
     private Map<String, DeploymentArtifact> uploadedInputArtifacts;
-
-    /**
-     * Utility method to generate an id for a deployment topology by concatenating version id and environment id
-     *
-     * @param versionId id of the version
-     * @param environmentId id of the environment
-     * @return concatenated id
-     */
-    public static String generateId(String versionId, String environmentId) {
-        if (versionId == null) {
-            throw new IndexingServiceException("version id is mandatory");
-        }
-        if (environmentId == null) {
-            throw new IndexingServiceException("environment id is mandatory");
-        }
-        return versionId + "::" + environmentId;
-    }
 }
