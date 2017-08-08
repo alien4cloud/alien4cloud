@@ -4,8 +4,8 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditVersions', [ 'topologyServices', 'topologyRecoveryServices','userContextServices',
-    function(topologyServices, topologyRecoveryServices, userContextServices) {
+  modules.get('a4c-topology-editor').factory('topoEditVersions', [ 'topologyServices', 'topologyRecoveryServices','userContextServices','$state',
+    function(topologyServices, topologyRecoveryServices, userContextServices, $state) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
         this.scope.userSelection = {};
@@ -48,12 +48,28 @@ define(function (require) {
 
         change: function(version) {
           this.setSelectedDefaultVersion(version);
-          this.refreshTopology();
+          this.managedRefreshTopology(true);
         },
 
         changeTopologyVersion: function(selectedTopologyVersion) {
           this.setSelectedVersionVariant(this.scope.userSelection.version, selectedTopologyVersion);
-          this.refreshTopology();
+          this.managedRefreshTopology(true);
+        },
+
+        managedRefreshTopology: function(forceReload){
+          if(forceReload){
+            // Con:
+            // Flickering
+            // Pro:
+            // No known bug
+            $state.reload();
+          }else{
+            // Pro:
+            // No flickering
+            // Con:
+            // known bug: when 2 nodes have the same name, the image is not updated
+            this.refreshTopology();
+          }
         },
 
         refreshTopology: function() {
