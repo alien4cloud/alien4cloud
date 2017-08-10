@@ -112,7 +112,7 @@ public class TopologyPropertiesValidationService {
                 continue;
             }
             addRequiredPropertyIdToTaskProperties("relationships[" + relationshipEntry.getKey() + "]", relationship.getProperties(),
-                    getRelationshipPropertyDefinition(nodeTemplate), task, skipInputProperties);
+                    safe(ToscaContext.getOrFail(RelationshipType.class, relationshipEntry.getValue().getType()).getProperties()), task, skipInputProperties);
         }
         for (Map.Entry<String, Capability> capabilityEntry : safe(nodeTemplate.getCapabilities()).entrySet()) {
             Capability capability = capabilityEntry.getValue();
@@ -120,7 +120,7 @@ public class TopologyPropertiesValidationService {
                 continue;
             }
             addRequiredPropertyIdToTaskProperties("capabilities[" + capabilityEntry.getKey() + "]", capability.getProperties(),
-                    getCapabilitiesPropertyDefinition(nodeTemplate), task, skipInputProperties);
+                    safe(ToscaContext.getOrFail(CapabilityType.class, capabilityEntry.getValue().getType()).getProperties()), task, skipInputProperties);
             if (capability.getType().equals(NormativeCapabilityTypes.SCALABLE)) {
                 Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
                 verifyScalableProperties(scalableProperties, toReturnTaskList, nodeTempalteName, skipInputProperties);
@@ -130,32 +130,6 @@ public class TopologyPropertiesValidationService {
         if (MapUtils.isNotEmpty(task.getProperties())) {
             toReturnTaskList.add(task);
         }
-    }
-
-    private Map<String, PropertyDefinition> getCapabilitiesPropertyDefinition(NodeTemplate nodeTemplate) {
-        Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
-
-        for (Map.Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
-            CapabilityType indexedCapabilityType = ToscaContext.get(CapabilityType.class, capabilityEntry.getValue().getType());
-            if (indexedCapabilityType.getProperties() != null && !indexedCapabilityType.getProperties().isEmpty()) {
-                relatedProperties.putAll(indexedCapabilityType.getProperties());
-            }
-        }
-
-        return relatedProperties;
-    }
-
-    private Map<String, PropertyDefinition> getRelationshipPropertyDefinition(NodeTemplate nodeTemplate) {
-        Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
-
-        for (Map.Entry<String, RelationshipTemplate> relationshipTemplateEntry : nodeTemplate.getRelationships().entrySet()) {
-            RelationshipType indexedRelationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplateEntry.getValue().getType());
-            if (indexedRelationshipType.getProperties() != null && !indexedRelationshipType.getProperties().isEmpty()) {
-                relatedProperties.putAll(indexedRelationshipType.getProperties());
-            }
-        }
-
-        return relatedProperties;
     }
 
     private void verifyScalableProperties(Map<String, AbstractPropertyValue> scalableProperties, List<PropertiesTask> toReturnTaskList, String nodeTemplateId,
