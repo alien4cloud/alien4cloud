@@ -25,13 +25,17 @@ import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.CloneUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -127,7 +131,9 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
         copyValue(topology.getOutputProperties(), toCopy, copyName);
 
         // output capabilities properties
-        copyValue(topology.getOutputCapabilityProperties(), toCopy, copyName);
+        // FIXME THIS IS UGGLY
+        // FIXME We use this custom method as using copyValue methos fails: it deser the Set into an Array
+        copyCapaOutputsProps(topology.getOutputCapabilityProperties(), toCopy, copyName);
 
         // output attributes
         copyValue(topology.getOutputAttributes(), toCopy, copyName);
@@ -158,7 +164,36 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
 
         if (map.containsKey(keyName)) {
             V value = map.get(keyName);
-            map.put(copyKeyName, value != null ? CloneUtil.clone(value) : null);
+            map.put(copyKeyName, value != null ? clone(value) : null);
+        }
+    }
+
+    /**
+     *
+     * FIXME THIS IS UGGLY
+     * FIXME We use this custom method as using copyValue methos fails: it deser the Set into an Array
+     * Hack to clone values of outputCapabilityProperties, as when using the clone method, it deserialize Set into Array
+     * 
+     * @param map
+     * @param keyName
+     * @param copyKeyName
+     */
+
+    private void copyCapaOutputsProps(Map<String, Map<String, Set<String>>> map, String keyName, String copyKeyName) {
+        if (MapUtils.isEmpty(map)) {
+            return;
+        }
+        if (map.containsKey(keyName)) {
+            Map<String, Set<String>> value = map.get(keyName);
+            if (value != null) {
+                Map<String, Set<String>> newValue = Maps.newHashMap();
+                for (Map.Entry<String, Set<String>> entry : value.entrySet()) {
+                    newValue.put(entry.getKey(), Sets.newHashSet(entry.getValue()));
+                }
+                map.put(copyKeyName, newValue);
+            } else {
+                map.put(copyKeyName, null);
+            }
         }
     }
 
@@ -169,5 +204,12 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
 
     private String copyName(String name, Collection<String> existingSet) {
         return TopologyUtils.getNexAvailableName(name + "_" + "copy", "", safe(existingSet));
+    }
+
+    @SneakyThrows
+    private <T> T clone(T object) {
+        ObjectMapper mapper = ElasticSearchMapper.getInstance();
+        final byte[] bytes = mapper.writeValueAsBytes(object);
+        return mapper.readValue(bytes, (Class<T>) object.getClass());
     }
 }
