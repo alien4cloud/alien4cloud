@@ -5,6 +5,7 @@ define(function (require) {
   var states = require('states');
   var _ = require('lodash');
   var angular = require('angular');
+  var alienUtils = require('scripts/utils/alien_utils');
 
   require('scripts/applications/services/application_services');
   require('scripts/applications/services/application_environment_services');
@@ -30,6 +31,7 @@ define(function (require) {
     ['$scope', '$state', 'authService', 'Upload', '$translate', 'applicationServices', 'suggestionServices', 'toaster', 'application', 'appEnvironments',
     function($scope, $state, authService, $upload, $translate, applicationServices, suggestionServices,  toaster, applicationResult, appEnvironments) {
       $scope.applicationServices = applicationServices;
+      $scope.fromStatusToCssClasses = alienUtils.fromDeploymentStatusToCssClasses;
 
       /* Tag name with all letters a-Z and - and _ and no space */
       $scope.tagKeyPattern = /^[\-\w\d_]*$/;
@@ -44,6 +46,18 @@ define(function (require) {
 
       $scope.isAllowedModify = _.defined($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
       $scope.appEnvironments = appEnvironments;
+
+      $scope.getTabIndex = function (environmentId) {
+        var envs = appEnvironments.environments;
+        if (_.defined(envs)) {
+          for (var i = 0, len = envs.length; i < len; i++) {
+            if (envs[i].id === environmentId) {
+              return i;
+            }
+          }
+        }
+        return -1;
+      };
 
       $scope.setEnvironment = function setEnvironment(environmentId) {
         if (_.undefined(environmentId)) {

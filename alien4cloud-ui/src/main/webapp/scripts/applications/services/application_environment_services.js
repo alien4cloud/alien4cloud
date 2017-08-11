@@ -1,9 +1,9 @@
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
   var angular = require('angular');
-  
+
   modules.get('a4c-applications', ['ngResource']).factory('applicationEnvironmentServices', ['$resource',
     function ($resource) {
       // Search for application environments
@@ -16,7 +16,7 @@ define(function (require) {
           }
         }
       });
-      
+
       var applicationEnvironmentInputsCandidateResource = $resource('rest/latest/applications/:applicationId/environments/input-candidates', {}, {
         'search': {
           method: 'POST',
@@ -26,7 +26,7 @@ define(function (require) {
           }
         }
       });
-      
+
       var getAllEnvironmentsForApplication = function (applicationId) {
         var searchRequestObject = {
           'query': '',
@@ -39,7 +39,7 @@ define(function (require) {
           return result.data.data;
         }).$promise;
       };
-      
+
       var applicationEnvironmentResource = $resource('rest/latest/applications/:applicationId/environments', {}, {
         'create': {
           method: 'POST',
@@ -49,7 +49,7 @@ define(function (require) {
           }
         }
       });
-      
+
       var applicationEnvironmentMiscResource = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId', {}, {
         'get': {
           method: 'GET'
@@ -61,27 +61,27 @@ define(function (require) {
           method: 'PUT'
         }
       });
-      
+
       var applicationEnvironmentTopologyVersionUpdate =
         $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/topology-version', {}, {
           'update': {
             method: 'PUT'
           }
         });
-      
+
       var applicationEnvironmentTopology = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/topology', {}, {
         'get': {
           method: 'GET'
         }
       });
-      
+
       var envEnumTypes = $resource('rest/latest/enums/environmenttype', {}, {
         'get': {
           method: 'GET',
           cache: true
         }
       });
-      
+
       /*Users roles on an environment*/
       var manageEnvUserRoles = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/roles/users/:username/:role', {}, {
         'addUserRole': {
@@ -109,7 +109,7 @@ define(function (require) {
           }
         }
       });
-      
+
       var manageEnvGroupRoles = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/roles/groups/:groupId/:role', {}, {
         'addGroupRole': {
           method: 'PUT',
@@ -136,7 +136,7 @@ define(function (require) {
           }
         }
       });
-      
+
       return {
         'create': applicationEnvironmentResource.create,
         'get': applicationEnvironmentMiscResource.get,

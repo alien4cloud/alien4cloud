@@ -51,6 +51,7 @@ define(function (require) {
             // cleanup layout data from graph
             _.each(graph.nodes(), function(nodeKey) {
               var node = graph.node(nodeKey);
+              node.id = nodeKey;
               delete node.simplified;
               delete node.merged;
               delete node.unwraped;

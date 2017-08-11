@@ -2,6 +2,7 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+
   require('scripts/authentication/services/quicksearch');
   require('scripts/common/services/hopscotch_service');
   require('angular-translate');

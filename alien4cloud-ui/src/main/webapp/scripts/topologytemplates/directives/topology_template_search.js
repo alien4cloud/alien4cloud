@@ -19,7 +19,7 @@ define(function (require) {
         archiveLink: '=',
         defaultFilters: '=',
         staticFacets: '=',
-        isSelected: '&?',
+        isSelected: '&?'
       }
     };
   });

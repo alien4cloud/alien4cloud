@@ -56,13 +56,13 @@
                      ng-click="nodesswap.getPossibleReplacements(selectedNodeTemplate)">
                     <i class="fa fa-exchange"></i>
                   </a>
-                  <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
+                  <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" style="min-width:360px; max-width:600px;">
                     <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.SELECT_NODETYPE' | translate }}</li>
-                    <li ng-repeat="suggestedNode in suggestedReplacements">
+                    <li ng-repeat="suggestedNode in suggestedReplacements" style="word-break: break-all;">
                       <a id="newnode_{{suggestedNode.elementId}}"
                          ng-click="nodesswap.swapNodeTemplate(selectedNodeTemplate, suggestedNode)">
                         <img ng-src="img?id={{getIcon(suggestedNode.tags)}}&quality=QUALITY_32" />&nbsp;
-                        {{suggestedNode.elementId}}
+                         <span ng-bind-html="dotWb(suggestedNode.elementId)"></span>
                       </a>
                     </li>
                   </ul>
@@ -101,11 +101,11 @@
 
           <div class="row" style="margin-left: -10px; margin-right: -10px; margin-bottom: 10px;">
             <div class="col-md-12">
-              <div class="input-group">
+              <div class="input-group" style="word-break: break-all;" >
                 <span class="input-group-addon">
                   <span><i>{{'COMMON.TYPE' | translate}}</i></span>
                 </span>
-                <span class="form-control">
+                <span class="form-control" style="float: none;">
                   <a href="/#/components/details/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank">
                     {{selectedNodeTemplate.type}}
                   </a>

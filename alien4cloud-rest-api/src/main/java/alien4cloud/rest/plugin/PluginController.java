@@ -72,7 +72,7 @@ public class PluginController {
         Path pluginPath = null;
         try {
             // save the plugin archive in the temp directory
-            pluginPath =  Files.createTempFile(tempDirPath, null, ".zip");
+            pluginPath = Files.createTempFile(tempDirPath, null, ".zip");
             FileUploadUtil.safeTransferTo(pluginPath, pluginArchive);
             // upload the plugin archive
             Plugin plugin = pluginManager.uploadPlugin(pluginPath);
@@ -188,7 +188,7 @@ public class PluginController {
     @ApiOperation(value = "Get a plugin configuration object.", notes = "Retrieve a plugin configuration object.  Role required [ ADMIN ]")
     @RequestMapping(value = "/{pluginId:.+}/config", method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<Object> getPluginConfiguration(@PathVariable String pluginId) {
+    public RestResponse<Object> getPluginConfiguration(@PathVariable String pluginId) throws PluginLoadingException {
         RestResponse<Object> response = RestResponseBuilder.<Object> builder().build();
 
         // check if a config object already exist in the repository
@@ -198,7 +198,7 @@ public class PluginController {
             return response;
         }
 
-        if (pluginManager.isPluginConfigurable(pluginId)) {
+        if (pluginManager.isPluginConfigurable(pluginManager.getPluginOrFail(pluginId))) {
             Object configObject = pluginManager.getConfiguratorFor(pluginId).getDefaultConfiguration();
             response.setData(configObject);
         }

@@ -1,0 +1,34 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: input_artifact_test
+  template_version: 0.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+description: Integration test archive to test input artifacts.
+
+artifact_types:
+  org.alien4cloud.tests.artifacts.deployment.War:
+    derived_from: tosca.artifacts.Root
+    description: A web application archive
+    file_ext: [ war ]
+
+node_types:
+  org.alien4cloud.tests.nodes.InputArtifactDemo:
+    derived_from: tosca.nodes.SoftwareComponent
+    artifacts:
+      - war_file:
+          type: org.alien4cloud.tests.artifacts.deployment.War
+
+topology_template:
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+
+    ArtifactDemo:
+      type: org.alien4cloud.tests.nodes.InputArtifactDemo
+      requirements:
+        - host: Compute

@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
@@ -30,6 +31,8 @@ import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -377,6 +380,29 @@ public class ToscaSerializerUtils {
                         || "alien_topology".equals(artifact.getValue().getArtifactRepository())
                         || (artifact.getValue().getArtifactRef() != null && GET_INPUT_ARTIFACT_PATTERN.matcher(artifact.getValue().getArtifactRef()).matches()))
                 .collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry::getValue)));
+    }
+
+    public Map<String, AbstractPropertyValue> getServiceAttributes(NodeTemplate nodeTemplate) {
+        if (nodeTemplate instanceof ServiceNodeTemplate) {
+            ServiceNodeTemplate serviceNodeTemplate = (ServiceNodeTemplate) nodeTemplate;
+            if (serviceNodeTemplate.getAttributeValues() != null) {
+                return serviceNodeTemplate.getAttributeValues().entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, entry -> new ScalarPropertyValue(entry.getValue())));
+            } else {
+                return Collections.emptyMap();
+            }
+        } else {
+            return Collections.emptyMap();
+        }
+    }
+
+    public Map<String, DeploymentArtifact> getServiceRelationshipArtifacts(NodeTemplate source, NodeTemplate target,
+            RelationshipTemplate relationshipTemplate) {
+        if (source instanceof ServiceNodeTemplate || target instanceof ServiceNodeTemplate) {
+            return relationshipTemplate.getArtifacts();
+        } else {
+            return Collections.emptyMap();
+        }
     }
 
     public static boolean isNull(Object o) {

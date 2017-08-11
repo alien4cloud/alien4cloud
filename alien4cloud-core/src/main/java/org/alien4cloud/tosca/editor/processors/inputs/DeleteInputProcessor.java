@@ -2,9 +2,6 @@ package org.alien4cloud.tosca.editor.processors.inputs;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -20,8 +17,6 @@ import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
@@ -33,11 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOperation> {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
-    @Inject
-    private DeploymentTopologyService deploymentTopologyService;
-
     @Override
     protected void processInputOperation(DeleteInputOperation operation, Map<String, PropertyDefinition> inputs) {
         Topology topology = EditionContextManager.getTopology();

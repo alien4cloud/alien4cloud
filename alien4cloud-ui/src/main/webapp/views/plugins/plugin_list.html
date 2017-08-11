@@ -25,45 +25,47 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th></th>
+              <!-- <th></th> -->
               <th>{{ 'COMMON.ID' | translate}}</th>
               <th>{{ 'COMMON.VERSION' | translate}}</th>
               <th>{{ 'COMMON.NAME' | translate}}</th>
-              <th>{{ 'COMMON.DESCRIPTION' | translate}}</th>
               <th>{{ 'PLUGINS.BEANS' | translate}}</th>
+              <th></th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             <tr ng-repeat="plugin in data.data" id='plugin_{{plugin.id}}'>
-              <td><i class="fa fa-circle fa-2x" ng-class="{'text-success': plugin.enabled,'text-danger': !plugin.enabled}"
-                  uib-tooltip="{{'COMMON.ENABLED_' + plugin.enabled | translate }}"></i></td>
+              <!-- <td><i class="fa fa-circle fa-2x" ng-class="{'text-success': plugin.enabled,'text-danger': !plugin.enabled}"
+                  uib-tooltip="{{'COMMON.ENABLED_' + plugin.enabled | translate }}"></i></td> -->
               <td>{{plugin.descriptor.id}}</td>
               <td>{{plugin.descriptor.version}}</td>
               <td>{{plugin.descriptor.name}}</td>
-              <td>{{plugin.description}}</td>
               <td>
                   <div ng-repeat="component in plugin.descriptor.componentDescriptors">
                     <i class="fa fa-cloud-upload" ng-if="component.type === 'IPaaSProvider'"></i> {{component.name}}
                   </div>
               </td>
-              <td>
+              <td style="vertical-align: middle">
                 <div class="pull-right">
-                  <a ng-click="enable(plugin.id)" ng-if="!plugin.enabled" class="btn btn-success btn-sm" uib-tooltip="{{ 'PLUGINS.ENABLE' | translate}}"
-                     tooltip-append-to-body="true"> <i class="fa fa-circle fa-fw"></i>
-                  </a>
-                  <a ng-click="disable(plugin.id)" ng-if="plugin.enabled" class="btn btn-danger btn-sm" uib-tooltip="{{ 'PLUGINS.DISABLE' | translate}}"
-                     tooltip-append-to-body="true"> <i class="fa fa-circle"></i>
-                  </a>
-                  <a id='plugin_{{plugin.id}}_configure' ng-click="openConfiguration(plugin.id)" ng-if="plugin.configurable" class="btn btn-default btn-sm"
-                     uib-tooltip="{{ 'PLUGINS.CONFIGURE' | translate}}" tooltip-append-to-body="true">
+
+                  <a id='plugin_{{plugin.id}}_configure' ng-click="openConfiguration(plugin.id)" ng-if="plugin.configurable" class="btn btn-default btn-xs"
+                    uib-tooltip="{{ 'PLUGINS.CONFIGURE' | translate}}" tooltip-append-to-body="true">
                     <i class="fa fa-cog"></i>
                   </a>
 
+                  <div id="srv-state" class="switch vertical-center" ng-click="toggleState(plugin)">
+                    <div class="pending-switch-slider" ng-class="{'disabled' : !plugin.enabled , 'enabled': plugin.enabled, 'pending': plugin.pending, 'loaded': !plugin.pending}"></div>
+                  </div>
+
                   <!-- Remove a plugin -->
-                  <delete-confirm id="delete-plugin_{{plugin.id}}" func="remove(plugin.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                  <delete-confirm id="delete-plugin_{{plugin.id}}" func="remove(plugin.id)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
                   </delete-confirm>
+
                 </div>
+              </td>
+              <td style="vertical-align: middle; text-align: right">
+                  <info content="plugin.descriptor.description" size="sm"></info>
               </td>
             </tr>
           </tbody>

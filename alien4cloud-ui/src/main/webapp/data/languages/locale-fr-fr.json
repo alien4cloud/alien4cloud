@@ -133,6 +133,8 @@
       "CARDINALITIES_TOOLTIP" : "minimun..maximum (restant)",
       "CHANGE_RELATIONSHIP" : "Changer une relation existante",
       "DEPENDENCIES" : {
+        "VERSION_CONFLICT_TITLE": "Conflict de version d'archive",
+        "VERSION_CONFLICT_MSG": "La version du noeud ajouté créé un conflict sur l'archive {{name}}. La version actuelle de la topologie est {{current}} alors que celle du noeud sélectionné est {{new}}. Si vous continuez, alien4cloud va résoudre le conflict en sélectionnant la version la plus élevée. Voulez vous continuer ?",
         "CHANGE_VERSION" : {
           "CONFIRM" : "Confirmez-vous le changement de version de la dépendance ? Cette opération peut affecter certains nodes et/ou relations dans la topologie.",
           "TITLE" : "Modifier la version"
@@ -744,8 +746,9 @@
     "MENU_WORKFLOW" : "Workflows",
     "OPERATION" : "Operation",
     "REDO" : "Rejouer",
-    "SAVE" : "Sauver",
+    "SAVE" : "Sauvegarder",
     "UNDO" : "Annuler",
+    "DOWNLOAD": "Télécharger",
     "VALIDATION" : {
       "CURRENT_TOPOLOGY" : "Topologie courante",
       "CURRENT_TOPOLOGY_NO_OPERATIONS" : "La topologie actuelle n'a pas changé.",
@@ -914,7 +917,7 @@
   "N/A" : "N/A",
   "NAVADMIN" : {
     "MENU_AUDIT" : "Audit",
-    "MENU_METRICS" : "Métriques",
+    "MENU_METRICS" : "Status du serveur",
     "MENU_ORCHESTRATORS" : "Orchestrateurs",
     "MENU_PLUGINS" : "Plugins",
     "MENU_TAGS" : "Méta-propriétés",
@@ -1069,6 +1072,22 @@
     "USERS" : "Utilisateurs"
   },
   "SELECT" : "Selectionner",
+  "SERVER": {
+    "STATE": "Status du server",
+    "MAINTENANCE": {
+      "DISABLE": "Terminer la maintenance",
+      "DISABLE_CONFIRM": "Voulez vous vraiment désactiver le mode maintenance ?",
+      "ENABLE": "Commencer une maintenance",
+      "ENABLE_CONFIRM": "Voulez vous vraiment activer le mode maintenance ? Lorsque celui-ci est activé l'API REST renvoiera une erreur et les utilisateurs seront redirigés vers l'écran de status de maintenance.",
+      "MESSAGE": "Le serveur est actuellement en maintenance, veuillez réessayer votre requête plus tard ou contactez votre administrateur.",
+      "TITLE": "Maintenance",
+      "UPDATE": {
+        "PROGRESS": "Progression (%)",
+        "MESSAGE": "Message",
+        "TITLE": "Mise à jour du status"
+      }
+    }
+  },
   "SERVICES" : {
     "SERVICE": "Service",
     "CATALOG": "Catalogue des services",

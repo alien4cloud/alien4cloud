@@ -1,4 +1,4 @@
-package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
+package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
 import java.util.List;
 import java.util.Map;
@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -32,14 +31,14 @@ import alien4cloud.utils.AlienConstants;
  * It does not update topology or matching configurations, these operations are done in sub-sequent modifiers.
  */
 @Component
-public class NodeMatchingCandidateModifer implements ITopologyModifier {
+public class NodeMatchingCandidateModifier implements ITopologyModifier {
     @Inject
     private NodeMatcherService nodeMatcherService;
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
         Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
-                NodeMatchingCandidateModifer.class.getSimpleName());
+                NodeMatchingCandidateModifier.class.getSimpleName());
 
         if (!configurationOptional.isPresent()) { // we should not end-up here as location matching should be processed first
             context.log().error(new LocationPolicyTask());

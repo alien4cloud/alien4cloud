@@ -38,7 +38,8 @@ public class OrchestratorPropertiesValidationModifier implements ITopologyModifi
 
         OrchestratorDeploymentProperties orchestratorDeploymentProperties = context
                 .getConfiguration(OrchestratorDeploymentProperties.class, OrchestratorPropertiesValidationModifier.class.getSimpleName())
-                .orElse(new OrchestratorDeploymentProperties(environment.getTopologyVersion(), environment.getId()));
+                .orElse(new OrchestratorDeploymentProperties(environment.getTopologyVersion(), environment.getId(),
+                        configurationOptional.get().getOrchestratorId()));
         orchestratorPropertiesValidationService.validate(orchestratorDeploymentProperties);
     }
 }

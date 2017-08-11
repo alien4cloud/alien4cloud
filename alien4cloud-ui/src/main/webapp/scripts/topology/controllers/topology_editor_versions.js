@@ -4,47 +4,74 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditVersions', [ 'topologyServices', 'topologyRecoveryServices',
-    function(topologyServices, topologyRecoveryServices) {
+  modules.get('a4c-topology-editor').factory('topoEditVersions', [ 'topologyServices', 'topologyRecoveryServices','userContextServices','$state',
+    function(topologyServices, topologyRecoveryServices, userContextServices, $state) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
+        this.scope.userSelection = {};
+
         // initialize the version to be used.
-        if(_.defined(scope.versionContext.versionName)) {
-          for (var i = 0; i < this.scope.versionContext.versions.length; i++) {
-            if (this.scope.versionContext.versions[i].version === scope.versionContext.versionName) {
-              this.setSelectedVersion(this.scope.versionContext.versions[i]);
-              break;
-            }
-          }
+        var previousVersionFromCache = userContextServices.getTopologyContext(scope.versionContext.versions[0].applicationId);
+        if(_.defined(previousVersionFromCache)){
+          var previousVersionFromContext = _.find(scope.versionContext.versions, { 'id': previousVersionFromCache.version });
+          this.setSelectedVersionVariant(previousVersionFromContext, previousVersionFromCache.variant);
         } else {
           // select the last version number (first in the array)
-          this.setSelectedVersion(scope.versionContext.versions[0]);
+          this.setSelectedDefaultVersion(scope.versionContext.versions[0]);
         }
       };
-
+      
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
 
-        setSelectedVersion: function(version) {
-          this.scope.selectedVersion = version;
-          if(_.defined(version.topologyVersions)) {
+        setSelectedDefaultVersion: function (version) {
+          this.scope.userSelection.version = version;
+          // legacy behavior
+          if (_.defined(version.topologyVersions)) {
             // case there is topology versions pick the first one
-            this.scope.selectedTopologyVersion = _.findKey(version.topologyVersions, function(item) {return _.defined(item.archiveId);});
-            this.scope.topologyId = version.topologyVersions[this.scope.selectedTopologyVersion].archiveId;
+            this.scope.userSelection.topologyVersion = _.findKey(version.topologyVersions, function (item) { return _.defined(item.archiveId); });
+            this.scope.topologyId = version.topologyVersions[this.scope.userSelection.topologyVersion].archiveId;
           } else {
-            this.scope.topologyId = this.scope.selectedVersion.id;
+            this.scope.topologyId = this.scope.userSelection.version.id;
           }
+
+          userContextServices.updateTopologyContext(version.applicationId, version, this.scope.userSelection.topologyVersion);
+        },
+
+        setSelectedVersionVariant: function(version, variant) {
+          this.scope.userSelection.version = version;
+          this.scope.userSelection.topologyVersion = variant;
+          this.scope.topologyId = version.topologyVersions[variant].archiveId;
+
+          userContextServices.updateTopologyContext(version.applicationId, version, variant);
         },
 
         change: function(version) {
-          this.setSelectedVersion(version);
-          this.refreshTopology();
+          this.setSelectedDefaultVersion(version);
+          this.managedRefreshTopology(true);
         },
+
         changeTopologyVersion: function(selectedTopologyVersion) {
-          this.scope.selectedTopologyVersion = selectedTopologyVersion;
-          this.scope.topologyId = this.scope.selectedVersion.topologyVersions[this.scope.selectedTopologyVersion].archiveId;
-          this.refreshTopology();
+          this.setSelectedVersionVariant(this.scope.userSelection.version, selectedTopologyVersion);
+          this.managedRefreshTopology(true);
         },
+
+        managedRefreshTopology: function(forceReload){
+          if(forceReload){
+            // Con:
+            // Flickering
+            // Pro:
+            // No known bug
+            $state.reload();
+          }else{
+            // Pro:
+            // No flickering
+            // Con:
+            // known bug: when 2 nodes have the same name, the image is not updated
+            this.refreshTopology();
+          }
+        },
+
         refreshTopology: function() {
           var instance = this;
           topologyServices.dao.get({

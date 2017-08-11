@@ -1,13 +1,10 @@
 package alien4cloud.deployment.matching.services.nodes;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -34,9 +31,7 @@ import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationMatchingConfigurationService;
 import alien4cloud.orchestrators.locations.services.LocationSecurityService;
-import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AbstractSecurityEnabledResource;
-import org.alien4cloud.alm.service.ServiceResourceService;
 
 /**
  * Node matcher service will filter location resources for all substitutable nodes of the topology. It will return only location resources that can substitute a
@@ -46,8 +41,6 @@ import org.alien4cloud.alm.service.ServiceResourceService;
 public class NodeMatcherService {
     @Inject
     private DefaultNodeMatcher defaultNodeMatcher;
-    @Inject
-    private LocationService locationService;
     @Inject
     private ServiceResourceService serviceResourceService;
     @Inject

@@ -37,7 +37,7 @@ module.exports = {
         });
       });
 		}
-	},
+  },
   revrename: {
     // Edit the requirejs config file to load the alien4cloud-bootstrap.js file after being renamed by rev
     call: function(grunt, options, async) {
@@ -67,33 +67,55 @@ module.exports = {
           }
           var requireFile, bootstrapFile, dependenciesFile;
           files.forEach( function(file) {
-            if(file.indexOf('alien4cloud-bootstrap.js') !== -1) {
+            if (file.indexOf('alien4cloud-bootstrap.js') !== -1) {
               bootstrapFile = file;
             }
-            if(file.indexOf('require.config.js') !== -1) {
+            if (file.indexOf('require.config.js') !== -1) {
               requireFile = file;
             }
-            if(file.indexOf('alien4cloud-dependencies.js') !== -1) {
+            if (file.indexOf('alien4cloud-dependencies.js') !== -1) {
               dependenciesFile = file;
             }
           });
 
           var requireFilePath = path.join(dir, requireFile);
-          fs.readFile(requireFilePath, 'utf8', function (err, data) {
-            var result = data.replace('alien4cloud-bootstrap', bootstrapFile.substring(0, bootstrapFile.length-3));
-            result = result.replace('alien4cloud-templates', templateFile.substring(0, templateFile.length-3));
-            result = result.replace('alien4cloud-dependencies', dependenciesFile.substring(0, dependenciesFile.length-3));
+          fs.readFile(requireFilePath, 'utf8', function (err, dataRequireFile) {
+            var resultRequireFile = dataRequireFile.replace('alien4cloud-bootstrap', bootstrapFile.substring(0, bootstrapFile.length-3));
+            resultRequireFile = resultRequireFile.replace('alien4cloud-templates', templateFile.substring(0, templateFile.length-3));
+            resultRequireFile = resultRequireFile.replace('alien4cloud-dependencies', dependenciesFile.substring(0, dependenciesFile.length-3));
 
+            // rename translation file
+            var dirLanguages = 'target/webapp/data/languages';
+            fs.readdir(dirLanguages, function(err, files) {
+              if (err) {
+                grunt.log.error(err);
+                done(err);
+              }
 
-            fs.writeFile(requireFilePath, result, 'utf8', function (err) {
-               if (err) {
-                 grunt.log.error(err);
-                 done(err);
-               } else {
-                 done();
-               }
+              // prefix all translation file with the concat of all hash files
+              var enTranslation, frTranslation, jaTranslation, splitArray;
+              var source, target;
+              var hash = '';
+              files.forEach( function(file) {
+                hash = hash + file.split('.')[0];
+              });
+              files.forEach( function(file) {
+                source = path.join(dirLanguages, file);
+                target = path.join(dirLanguages, hash + '.' + file.split('.')[1] + '.json');
+                fs.rename(source, target);
+              });
+
+              // set the hash in a4c-bootstrap to configure angular-translate
+              var alienBoostrapFilePath = path.join(dir, bootstrapFile);
+              fs.readFile(alienBoostrapFilePath, 'utf8', function (err, dataAlienBoostrapFile) {
+                var resultAlienBoostrapFile = dataAlienBoostrapFile.replace('hashPrefixForTraductionFile', hash);
+                fs.writeFileSync(requireFilePath, resultRequireFile, 'utf8');
+                fs.writeFileSync(alienBoostrapFilePath, resultAlienBoostrapFile, 'utf8');
+                done();
+              });
             });
           });
+
         });
       });
     }

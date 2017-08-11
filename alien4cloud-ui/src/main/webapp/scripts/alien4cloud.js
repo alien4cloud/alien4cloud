@@ -48,30 +48,43 @@ define(function(require) {
   var templateInjector = require('a4c-templates');
 
   alien4cloud.startup = function() {
+    // Path initialization for ace ide so it find modules after minification
+    var config = window.ace.require('ace/config');
+    config.set('basePath', 'bower_components/ace-builds/src-min-noconflict');
 
     // add requirements to alien4cloud
     modules.link(alien4cloud);
 
-    alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$locationProvider',
-      function($stateProvider, $urlRouterProvider, $httpProvider, $locationProvider) {
+    alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$locationProvider', '$qProvider',
+      function($stateProvider, $urlRouterProvider, $httpProvider, $locationProvider, $qProvider) {
         $httpProvider.interceptors.push('restTechnicalErrorInterceptor');
         $httpProvider.defaults.headers.common['A4C-Agent'] = 'AngularJS_UI';
         $urlRouterProvider.otherwise('/');
         states.config($stateProvider);
         $locationProvider.html5Mode(false);
         $locationProvider.hashPrefix('');
+        $qProvider.errorOnUnhandledRejections(false);
       }
     ]);
 
     alien4cloud.config(['$translateProvider',
       function($translateProvider) {
-        $translateProvider.translations({CODE: 'en-us'});
         // Default language to load
+        $translateProvider.translations({CODE: 'en-us'});
         $translateProvider.preferredLanguage('en-us');
+
+        var prefix;
+        var hashTraduction = 'hashPrefixForTraductionFile'; // this variable is change during the build
+        if (hashTraduction !== 'hashPrefixForTraductionFile') {
+          // change prefix during the build to add a file translation revision
+          prefix = 'data/languages/' + hashTraduction + '.locale-';
+        } else {
+          prefix = 'data/languages/locale-';
+        }
 
         var options = {
           files: [{
-            prefix: 'data/languages/locale-',
+            prefix: prefix,
             suffix: '.json'
           }]
         };
@@ -91,8 +104,9 @@ define(function(require) {
       }
     ]);
 
-    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', 'editableOptions', 'editableThemes', 'authService',
-      function($templateCache, $rootScope, $state, $sce, editableOptions, editableThemes, authService) {
+    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', 'editableOptions', 'editableThemes', 'authService', 'restTechnicalErrorInterceptor',
+      function($templateCache, $rootScope, $state, $sce, editableOptions, editableThemes, authService, restTechnicalErrorInterceptor) {
+        restTechnicalErrorInterceptor.$state = $state;
         templateInjector($templateCache);
         var statusFetched = false; // flag to know if we have fetched current user status (logged in and roles)
         $rootScope._ = _;

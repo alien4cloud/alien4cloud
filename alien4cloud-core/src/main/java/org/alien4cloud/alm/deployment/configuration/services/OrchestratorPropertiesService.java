@@ -42,17 +42,11 @@ public class OrchestratorPropertiesService {
         // Remove the values of the orchestrator specific properties.
         OrchestratorDeploymentProperties properties = alienDAO.findById(OrchestratorDeploymentProperties.class,
                 AbstractDeploymentConfig.generateId(locationChangedEvent.getEnvironment().getTopologyVersion(), locationChangedEvent.getEnvironment().getId()));
-        if (properties == null) {
+        if (properties == null || !locationChangedEvent.getOrchestratorId().equals(properties.getOrchestratorId())) {
+            // Either no orchestrator properties set until now or orchestrator has changed, so reset properties
             properties = new OrchestratorDeploymentProperties(locationChangedEvent.getEnvironment().getTopologyVersion(),
-                    locationChangedEvent.getEnvironment().getId());
-            properties.setOrchestratorId(locationChangedEvent.getOrchestratorId());
+                    locationChangedEvent.getEnvironment().getId(), locationChangedEvent.getOrchestratorId());
             alienDAO.save(properties);
-        } else {
-            if (!locationChangedEvent.getOrchestratorId().equals(properties.getOrchestratorId())) {
-                // orchestrator has changed so reset properties
-                properties.setProviderDeploymentProperties(null);
-                alienDAO.save(properties);
-            }
         }
     }
 
@@ -100,8 +94,8 @@ public class OrchestratorPropertiesService {
         if (sourceProperties == null || MapUtils.isEmpty(sourceProperties.getProviderDeploymentProperties())) {
             return;
         }
-        OrchestratorDeploymentProperties targetProperties = new OrchestratorDeploymentProperties(target.getTopologyVersion(), target.getId());
-        targetProperties.setOrchestratorId(sourceProperties.getOrchestratorId());
+        OrchestratorDeploymentProperties targetProperties = new OrchestratorDeploymentProperties(target.getTopologyVersion(), target.getId(),
+                sourceProperties.getOrchestratorId());
         targetProperties.setProviderDeploymentProperties(sourceProperties.getProviderDeploymentProperties());
         alienDAO.save(targetProperties);
     }

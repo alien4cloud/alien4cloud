@@ -4,8 +4,8 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-applications').factory('appEnvironmentsBuilder', ['applicationEnvironmentServices', 'authService',
-    function(applicationEnvironmentServices, authService) {
+  modules.get('a4c-applications').factory('appEnvironmentsBuilder', ['applicationEnvironmentServices', 'authService','userContextServices',
+    function(applicationEnvironmentServices, authService, userContextServices) {
 
       var AppEnvironmentsPromise = function(application, defaultSelectedEnvironmentId) {
         var instance = this;
@@ -15,8 +15,12 @@ define(function (require) {
           var data = result.data.data;
           instance.environments = _.undefined(data) ? [] : data;
 
-          instance.selected = null;
-          if(_.isNotEmpty(data)){
+          // select previous env
+          instance.selected = userContextServices.getEnvironmentConntext(instance.application.id);
+
+          // if no previous then instance.selected == null
+          // and will select defaut env or the first one
+          if(!instance.selected && _.isNotEmpty(data)){
             if(_.defined(defaultSelectedEnvironmentId)) {
               instance.select(defaultSelectedEnvironmentId);
               if(_.undefined(instance.selected)) {
@@ -90,6 +94,10 @@ define(function (require) {
         * @param envChangedCallback An optional callback to be triggered once the environment has been selected.
         */
         doSelect: function(environment, envChangedCallback) {
+          if(!_.isEqual(this.selected, environment)){
+            userContextServices.updateEnvironmentContext(environment.applicationId, environment);
+          }
+
           this.selected = environment;
           this.selected.active = true;
           if(_.defined(envChangedCallback)) {
@@ -123,7 +131,6 @@ define(function (require) {
             instance.updateEnvironment(result.data);
           });
         }
-
       };
 
       return function(application, defaultSelectedEnvironmentId) {

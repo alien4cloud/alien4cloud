@@ -7,8 +7,10 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditNodes', ['toscaService', '$filter',
-    function(toscaService, $filter) {
+  require('scripts/common/controllers/confirm_modal');
+
+  modules.get('a4c-topology-editor').factory('topoEditNodes', ['toscaService', '$filter', '$uibModal', '$translate',
+    function(toscaService, $filter, $uibModal, $translate) {
       var nodeNamePattern = '^\\w+$';
 
       var TopologyEditorMixin = function(scope) {
@@ -31,12 +33,38 @@ define(function (require) {
         },
         /** this has to be exposed to the scope as we cannot rely on drag and drop callbacks for ui tests */
         add: function(nodeType, hostNodeName) {
-          var nodeTemplName = toscaService.generateNodeTemplateName(nodeType.elementId, this.scope.topology.topology.nodeTemplates);
-          this.doAddNodeTemplate(nodeTemplName, nodeType, hostNodeName);
+          var self = this;
+          var nodeTemplateName = toscaService.generateNodeTemplateName(nodeType.elementId, this.scope.topology.topology.nodeTemplates);
+          // Add node operation automatically change dependency version to higher so if different warn the user.
+          var currentVersion = this.getDepVersionIfDifferent(nodeType.archiveName, nodeType.archiveVersion, this.scope.topology.topology.dependencies);
+          if(_.defined(currentVersion)) {
+            var modalInstance = $uibModal.open({
+              templateUrl: 'views/common/confirm_modal.html',
+              controller: 'ConfirmModalCtrl',
+              resolve: {
+                title: function() {
+                  return 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.VERSION_CONFLICT_TITLE';
+                },
+                content: function() {
+                  return $translate('APPLICATIONS.TOPOLOGY.DEPENDENCIES.VERSION_CONFLICT_MSG', {
+                    name: nodeType.archiveName,
+                    current: currentVersion,
+                    new: nodeType.archiveVersion
+                  });
+                }
+              }
+            });
+            modalInstance.result.then(function () {
+              self.doAddNodeTemplate(nodeTemplateName, nodeType, hostNodeName);
+            });
+          } else {
+            this.doAddNodeTemplate(nodeTemplateName, nodeType, hostNodeName);
+          }
         },
         /** Actually trigger the node template addition. */
         doAddNodeTemplate: function(nodeTemplateName, selectedNodeType, targetNodeTemplateName) {
           var scope = this.scope;
+          // Add node operation automatically change dependency version to higher so if different warn the user.
           scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation',
             nodeName: nodeTemplateName,
@@ -47,6 +75,20 @@ define(function (require) {
               scope.relationships.autoOpenRelationshipModal(nodeTemplateName, targetNodeTemplateName);
             }
           }, null, nodeTemplateName);
+        },
+        getDepVersionIfDifferent: function(archiveName, archiveVersion, dependencies) {
+          if(_.undefined(dependencies)) {
+            return null;
+          }
+          for(var i=0; i< dependencies.length; i++) {
+            if(dependencies[i].name === archiveName) {
+              if(dependencies[i].version === archiveVersion) {
+                return null;
+              }
+              return dependencies[i].version;
+            }
+          }
+          return null;
         },
         /* Update node template name */
         updateName: function(newName) {

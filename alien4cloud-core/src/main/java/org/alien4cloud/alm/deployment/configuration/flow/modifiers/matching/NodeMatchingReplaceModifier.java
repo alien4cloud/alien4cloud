@@ -1,4 +1,4 @@
-package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
+package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
@@ -123,8 +123,10 @@ public class NodeMatchingReplaceModifier implements ITopologyModifier {
         locationNode.setName(abstractTopologyNode.getName());
         // Also merge relationships
         locationNode.setRelationships(abstractTopologyNode.getRelationships());
+        // TODO Log all properties defined in the topology but not merged into the final node
+        Set<String> topologyNotMergedProps = Sets.newHashSet();
         // Merge properties from the topology node but prevent any override.
-        locationNode.setProperties(CollectionUtils.merge(abstractTopologyNode.getProperties(), locationNode.getProperties(), false));
+        locationNode.setProperties(CollectionUtils.merge(abstractTopologyNode.getProperties(), locationNode.getProperties(), true, topologyNotMergedProps));
         // The location node is the node from orchestrator which must be a child type of the abstract topology node so should loop on this node to do
         // not miss any capability
         for (Map.Entry<String, Capability> locationCapabilityEntry : safe(locationNode.getCapabilities()).entrySet()) {
@@ -132,7 +134,8 @@ public class NodeMatchingReplaceModifier implements ITopologyModifier {
             Capability locationCapability = locationCapabilityEntry.getValue();
             Capability abstractCapability = safe(abstractTopologyNode.getCapabilities()).get(locationCapabilityEntry.getKey());
             if (abstractCapability != null && MapUtils.isNotEmpty(abstractCapability.getProperties())) {
-                locationCapability.setProperties(CollectionUtils.merge(abstractCapability.getProperties(), locationCapability.getProperties(), false));
+                locationCapability.setProperties(
+                        CollectionUtils.merge(abstractCapability.getProperties(), locationCapability.getProperties(), true, topologyNotMergedProps));
             }
         }
     }

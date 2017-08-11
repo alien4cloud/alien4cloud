@@ -253,11 +253,8 @@ public class ManagedServiceResourceService {
     }
 
     private String getRelationshipId(Map<String, RelationshipType> relationshipTypeMap, Topology topology, String relationshipTypeName) {
-        RelationshipType relationshipType = relationshipTypeMap.get(relationshipTypeName);
-        if (relationshipType == null) {
-            relationshipType = toscaTypeSearchService.getElementInDependencies(RelationshipType.class, topology.getDependencies());
-            relationshipTypeMap.put(relationshipTypeName, relationshipType);
-        }
+        RelationshipType relationshipType = relationshipTypeMap.computeIfAbsent(relationshipTypeName,
+                k -> toscaTypeSearchService.getElementInDependencies(RelationshipType.class, relationshipTypeName, topology.getDependencies()));
         return relationshipType.getId();
     }
 }

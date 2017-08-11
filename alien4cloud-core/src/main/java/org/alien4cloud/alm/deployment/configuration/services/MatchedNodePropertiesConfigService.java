@@ -68,7 +68,7 @@ public class MatchedNodePropertiesConfigService {
 
         for (int i = 0; i < modifierList.size(); i++) {
             if (modifierList.get(i) == postMatchingNodeSetupModifier) {
-                modifierList.add(i + 1, new SetMatchedNodePropertyModifier(propertyService, nodeId, optionalCapabilityName, propertyName, propertyValue));
+                modifierList.add(i, new SetMatchedNodePropertyModifier(propertyService, nodeId, optionalCapabilityName, propertyName, propertyValue));
                 return modifierList;
             }
         }

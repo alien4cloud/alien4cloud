@@ -5,6 +5,7 @@ define(function(require) {
   var states = require('states');
   var _ = require('lodash');
   var angular = require('angular');
+  var alienUtils = require('scripts/utils/alien_utils');
 
   require('scripts/common/filters/inputs');
 
@@ -29,7 +30,7 @@ define(function(require) {
     nextStepMenu.disabled = currentStepMenu.disabled || (_.get(currentStepMenu, 'step.status', 'SUCCESS')!=='SUCCESS');
   };
 
-  function enabledOrDisableMenus(menus){
+  function enabledOrDisableMenus(menus) {
     _.each(menus, function(menu){
       //if there is a nextStep, then compute the status of this menu, otherwise it is enabled by default
       if (_.defined(menu.nextStep)){
@@ -38,12 +39,12 @@ define(function(require) {
     });
   }
 
-  function updateStepsStatuses(menus, validationDTO){
+  function updateStepsStatuses(menus, validationDTO) {
     //set the status of each menu, based on the defined taskCodes and their presence in the validationDTO
-    _.each(menus, function(menu){
-      if(_.definedPath(menu, 'step.taskCodes')){
+    _.each(menus, function(menu) {
+      if(_.definedPath(menu, 'step.taskCodes')) {
         delete menu.step.status;
-        _.each(menu.step.taskCodes, function(taskCode){
+        _.each(menu.step.taskCodes, function(taskCode) {
           if(_.definedPath(validationDTO, 'taskList['+taskCode+']')){
             menu.step.status = 'ERROR';
             return;
@@ -56,13 +57,18 @@ define(function(require) {
   }
 
   function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menus) {
+    console.log('Refresh deployment context');
     return deploymentTopologyServices.get({
       appId: application.id,
       envId: deploymentContext.selectedEnvironment.id
     }).$promise.then(function(response) {
+        console.log('Got response', response);
         deploymentTopologyProcessor.process(response.data);
+        console.log('processed', response);
         deploymentContext.deploymentTopologyDTO = response.data;
         tasksProcessor.processAll(deploymentContext.deploymentTopologyDTO.validation);
+        console.log('task processed', deploymentContext.deploymentTopologyDTO.validation);
+        console.log('process step statuses');
         updateStepsStatuses(menus, deploymentContext.deploymentTopologyDTO.validation);
         return deploymentContext;
       });
@@ -112,6 +118,7 @@ define(function(require) {
         $scope.deploymentContext = deploymentContext;
         var pageStateId = $state.current.name;
         $scope.menu = menu;
+        $scope.fromStatusToCssClasses = alienUtils.fromDeploymentStatusToCssClasses;
 
         // Initialization
         $scope.application = applicationResult.data;
@@ -197,7 +204,7 @@ define(function(require) {
         //register the checking topo function for others states to use it
         $scope.checkTopology = checkTopology;
 
-        function doGoToNextInvalidStep(){
+        var goToNextInvalidStep = function(){
           //menus are sorted by priority. first step is the top one
           var stepToGo = $scope.menu[0];
 
@@ -211,25 +218,27 @@ define(function(require) {
 
           //go to the found step
           $state.go(stepToGo.state);
-        }
+        };
 
-        function goToNextInvalidStep() {
+        $scope.goToNextInvalidStep = goToNextInvalidStep;
+
+        function refreshDeploymentSetupStatus() {
           //refresh initial topo validation first
           $scope.setTopologyIdFromEnvironment($scope.deploymentContext.selectedEnvironment);
           checkTopology();
           //then refresh deployment context
           refreshDeploymentContext($scope.deploymentContext, $scope.application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu).then(function() {
             //finally, go to the next invalid step
-            doGoToNextInvalidStep();
+            goToNextInvalidStep();
           });
         }
 
         $scope.onEnvironmentChange = function() {
           // update the global environment
-          appEnvironments.select($scope.deploymentContext.selectedEnvironment.id, goToNextInvalidStep);
+          appEnvironments.select($scope.deploymentContext.selectedEnvironment.id, refreshDeploymentSetupStatus);
         };
 
-        goToNextInvalidStep(); // immediately go to the next invalid tab
+        refreshDeploymentSetupStatus(); // immediately refresh setup status and go to the next invalid tab
 
         $scope.showTodoList = function() {
           return $scope.validTopologyDTOLoaded && !$scope.validTopologyDTO.valid && $scope.isManager;

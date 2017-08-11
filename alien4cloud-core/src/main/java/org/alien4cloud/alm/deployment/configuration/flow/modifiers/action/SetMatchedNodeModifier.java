@@ -6,27 +6,34 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.NodeMatchingConfigAutoSelectModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.templates.Topology;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.topology.task.LocationPolicyTask;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Modifier to be injected in the flow after the NodeMatchingModifier to select and apply a specific matching for a node.
  */
-@AllArgsConstructor
 public class SetMatchedNodeModifier implements ITopologyModifier {
     private String nodeId;
     private String locationResourceTemplateId;
+    // Flag to know if the flow has reach the execution of the set matched node modifier.
+    @Getter
+    private boolean executed = false;
+
+    public SetMatchedNodeModifier(String nodeId, String locationResourceTemplateId) {
+        this.nodeId = nodeId;
+        this.locationResourceTemplateId = locationResourceTemplateId;
+    }
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
+        executed = true;
         Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
                 NodeMatchingConfigAutoSelectModifier.class.getSimpleName());
 

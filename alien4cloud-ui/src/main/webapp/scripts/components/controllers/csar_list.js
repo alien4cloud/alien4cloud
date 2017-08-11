@@ -66,6 +66,7 @@ define(function (require) {
           $scope.searchConfig.service.search();
         });
       };
+
     }
   ]); // controller
 }); // define

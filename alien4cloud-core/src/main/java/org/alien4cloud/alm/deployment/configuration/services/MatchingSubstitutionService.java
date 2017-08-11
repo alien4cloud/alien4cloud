@@ -15,9 +15,9 @@ import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutor;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.NodeMatchingConfigAutoSelectModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.NodeMatchingConfigCleanupModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.action.SetMatchedNodeModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingModifier;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.Csar;
@@ -31,6 +31,7 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.topology.TopologyServiceCore;
@@ -44,8 +45,6 @@ public class MatchingSubstitutionService {
     private IGenericSearchDAO alienDAO;
     @Inject
     private FlowExecutor flowExecutor;
-    @Inject
-    private NodeMatchingConfigCleanupModifier nodeMatchingConfigCleanupModifier;
     @Inject
     private NodeMatchingConfigAutoSelectModifier nodeMatchingConfigAutoSelectModifier;
     @Inject
@@ -70,24 +69,27 @@ public class MatchingSubstitutionService {
 
         // add a modifier that will actually perform the configuration of a substitution from user request (after cleanup and prior to node matching
         // auto-selection).
-        List<ITopologyModifier> modifierList = getModifierListWithSelectionAction(nodeId, locationResourceTemplateId);
+        SetMatchedNodeModifier setMatchedNodeModifier = new SetMatchedNodeModifier(nodeId, locationResourceTemplateId);
+        List<ITopologyModifier> modifierList = getModifierListWithSelectionAction(setMatchedNodeModifier);
 
         flowExecutor.execute(topology, modifierList, executionContext);
+        if (!setMatchedNodeModifier.isExecuted()) {
+            throw new NotFoundException("Requested substitution <" + locationResourceTemplateId + "> for node <" + nodeId
+                    + "> is not available as a match. Please check that inputs and location are configured and ask your admin to grant you access to requested resources on the location.");
+        }
+
         return executionContext;
     }
 
-    private List<ITopologyModifier> getModifierListWithSelectionAction(String nodeId, String locationResourceTemplateId) {
+    private List<ITopologyModifier> getModifierListWithSelectionAction(SetMatchedNodeModifier matchedNodeModifier) {
         List<ITopologyModifier> modifierList = flowExecutor.getDefaultFlowModifiers();
+        NodeMatchingModifier nodeMatchingModifier = (NodeMatchingModifier) modifierList.stream().filter(modifier -> modifier instanceof NodeMatchingModifier)
+                .findFirst().orElseThrow(() -> new IllegalArgumentException(
+                        "Unexpected exception in deployment flow to update node substitution; unable to find the master node matching modifier to inject selection action modifier."));
 
-        for (int i = 0; i < modifierList.size(); i++) {
-            if (modifierList.get(i) == nodeMatchingConfigAutoSelectModifier) {
-                modifierList.add(i + 1, new SetMatchedNodeModifier(nodeId, locationResourceTemplateId));
-                return modifierList;
-            }
-        }
-
-        throw new IllegalArgumentException(
-                "Unexpected exception in deployment flow to update node substitution; unable to find the matching config cleanup modifier to inject selection action modifier.");
+        // inject the SetMatchedNodeModifier into the nodeMatchingModifiers, just after nodeMatchingConfigAutoSelectModifier
+        nodeMatchingModifier.addModifierAfter(matchedNodeModifier, nodeMatchingConfigAutoSelectModifier);
+        return modifierList;
     }
 
     @EventListener
@@ -142,14 +144,16 @@ public class MatchingSubstitutionService {
 
     private List<ITopologyModifier> getMatchingFlow() {
         List<ITopologyModifier> modifierList = flowExecutor.getDefaultFlowModifiers();
-
+        // only keep modifiers until NodeMatchingModifier
         for (int i = 0; i < modifierList.size(); i++) {
-            if (modifierList.get(i) == nodeMatchingConfigAutoSelectModifier) {
+            if (modifierList.get(i) instanceof NodeMatchingModifier) {
+                // only keep node matching modifiers until nodeMatchingConfigAutoSelectModifier
+                ((NodeMatchingModifier) modifierList.get(i)).removeModifiersAfter(nodeMatchingConfigAutoSelectModifier);
                 return modifierList.subList(0, i + 1);
             }
         }
 
-        throw new IllegalArgumentException(
-                "Unexpected exception in deployment flow to update node substitution; unable to find the matching config cleanup modifier to inject selection action modifier.");
+        throw new IllegalArgumentException("Unexpected exception in deployment flow to update node substitution; unable to find the "
+                + NodeMatchingModifier.class.getSimpleName() + " modifier to proceed.");
     }
 }

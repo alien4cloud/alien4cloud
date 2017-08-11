@@ -5,25 +5,46 @@ define(function (require) {
   var states = require('states');
   var _ = require('lodash');
 
-  require('scripts/admin/metrics/metrics_service');
+  require('scripts/admin/server/metrics_service');
 
   // register the state to access the metrics
-  states.state('admin.metrics', {
+  states.state('admin.server', {
     url: '/metrics',
-    templateUrl: 'views/admin/metrics.html',
+    templateUrl: 'views/admin/server.html',
     controller: 'MetricsCtrl',
     menu: {
-      id: 'am.admin.metrics',
-      key: 'NAVADMIN.MENU_METRICS',
-      state: 'admin.metrics',
+      id: 'am.admin.server',
+      key: 'NAVADMIN.MENU_SERVER',
+      state: 'admin.server',
       icon: 'fa fa-tachometer',
       priority: 600
     }
   });
 
   modules.get('alien4cloud-admin').controller('MetricsCtrl', [
-    '$scope', 'metricsService', 'healthCheckService', 'threadDumpService',
-    function ($scope, metricsService, healthCheckService, threadDumpService) {
+    '$scope', '$uibModal', '$state', '$translate', '$alresource','metricsService', 'healthCheckService', 'threadDumpService',
+    function ($scope, $uibModal, $state, $translate, $alresource,metricsService, healthCheckService, threadDumpService) {
+      var maintenanceService = $alresource('rest/latest/maintenance/');
+      $scope.maintenance = function () {
+        var modalInstance = $uibModal.open({
+          templateUrl: 'views/common/confirm_modal.html',
+          controller: 'ConfirmModalCtrl',
+          resolve: {
+            title: function() {
+              return 'SERVER.MAINTENANCE.ENABLE';
+            },
+            content: function() {
+              return $translate('SERVER.MAINTENANCE.ENABLE_CONFIRM');
+            }
+          }
+        });
+        modalInstance.result.then(function () {
+          maintenanceService.create([], undefined, function() {
+            $state.go('maintenance');
+          });
+        });
+      };
+
       $scope.refresh = function() {
         healthCheckService.check().then(function(promise) {
           $scope.healthCheck = promise;

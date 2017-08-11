@@ -5,32 +5,46 @@ define(function (require) {
 
   modules.get('a4c-applications', ['ui.bootstrap']).controller('ApplicationInputArtifactModalCtrl', ['$scope', 'Upload', '$uibModalInstance', '$translate', 'explorerService','archiveContentTree', 'availableRepositories', 'artifact', 'artifactKey', 'application', 'deploymentContext','updateScopeDeploymentTopologyDTO', 'topology', 'toaster',
     function($scope, $upload, $uibModalInstance, $translate, explorerService, archiveContentTree, availableRepositories, artifact, artifactKey, application, deploymentContext,updateScopeDeploymentTopologyDTO, topology, toaster) {
-      $scope.artifact = {};
 
+      var newRepositoryName = 'MyRepository';
       $scope.deploymentContext = deploymentContext;
-
+      $scope.initialArtifactClassifier;
       $scope.opts = explorerService.getOps(false);
       $scope.treedata = {
         children: [],
         name: 'loading...'
       };
 
-      if (artifact.artifactRepository === 'alien_topology') {
-        $scope.activeTab = 'csar';
-      } else if(artifact.artifactRepository === 'alien_repository'){
-        $scope.activeTab = 'local_fs';
-      }else{
-        $scope.activeTab = 'remote';
+      if(_.undefined(artifact)){
+        artifact = {
+          repositoryName: newRepositoryName
+        };  
       }
+
       $scope.initialRepositoryName = artifact.repositoryName;
 
+
+      if(_.isEqual(artifact.artifactRepository, 'alien_repository')){
+        $scope.activeTabIndex = 0;
+        $scope.initialArtifactClassifier = 'local_fs';
+      } else if (_.isEqual(artifact.artifactRepository, 'alien_topology')) {
+        $scope.activeTabIndex = 1;
+        $scope.initialArtifactClassifier = 'csar';
+      } else {
+        $scope.activeTabIndex = 2;
+        $scope.initialArtifactClassifier = 'remote';
+      }
+
+
       // tab local file
+      $scope.selectedCSARArtifact = {};
       $scope.onCSARFileSelected = function(node) {
         var dirName = node.fullPath.substring(node.fullPath.split('/', 2).join('/').length+1);
-        $scope.artifact.repository = 'alien_topology';
-        $scope.artifact.reference = dirName;
-        $scope.artifact.archiveVersion = topology.archiveVersion;
-        $scope.artifact.archiveName = topology.archiveName;
+        $scope.selectedCSARArtifact.repository = 'alien_topology';
+        $scope.selectedCSARArtifact.reference = dirName;
+        $scope.selectedCSARArtifact.archiveVersion = topology.archiveVersion;
+        $scope.selectedCSARArtifact.archiveName = topology.archiveName;
+        $scope.selectedCSARArtifact.valid = true;
       };
 
       var root = archiveContentTree.children[0];
@@ -40,9 +54,13 @@ define(function (require) {
         return classifier === 'archive' || classifier === 'global' || classifier === 'new';
       };
 
+      $scope.isRepositoryNameEditable = function(repository) {
+        return _.undefined(repository) || _.undefined(repository.classifier) || repository.classifier === 'new';
+      };
+
       $scope.save = function(valid) {
         if (valid) {
-          $uibModalInstance.close($scope.artifact);
+          $uibModalInstance.close($scope.selectedCSARArtifact);
         }
       };
 
@@ -81,7 +99,9 @@ define(function (require) {
       };
 
       // remote tab
+      $scope.selectedRepositoryIdx = 0;
       $scope.repositorySelected = function(selectedRepositoryIdx) {
+        $scope.selectedRepositoryIdx = selectedRepositoryIdx;
         // we clone the repo because the use can change it's id (if it's not an archive repo)
         $scope.selectedRepository = {};
         $scope.selectedRepository.id = $scope.repositories[selectedRepositoryIdx].id;
@@ -97,15 +117,16 @@ define(function (require) {
             toaster.pop('error', $translate.instant('EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE'), $translate.instant('EDITOR.ARTIFACTS.REPOS.MUST_BE_UNIQUE'), 3000, 'trustedHtml', null);
             return;
           }
-          var artifact = {};
-          artifact.repository = $scope.selectedRepository.type;
-          artifact.reference = $scope.selectedRepository.file;
-          artifact.repositoryUrl = $scope.selectedRepository.url;
-          artifact.repositoryName = $scope.selectedRepository.id;
-          artifact.archiveVersion = null;
-          artifact.archiveName = null;
+          var selectedRemoteArtifact = {
+            repository: $scope.selectedRepository.type,
+            reference: $scope.selectedRepository.file,
+            repositoryUrl: $scope.selectedRepository.url,
+            repositoryName: $scope.selectedRepository.id,
+            archiveVersion: null,
+            archiveName: null
+          };
 
-          $uibModalInstance.close(artifact);
+          $uibModalInstance.close(selectedRemoteArtifact);
         }
       };
 
@@ -120,10 +141,9 @@ define(function (require) {
         }
         return true;
       };
-      $scope.setActiveTab = function(tab) {
-        $scope.activeTab = tab;
+      $scope.setActiveTabIndex = function(index) {
+        $scope.activeTabIndex = index;
       };
-      
 
       // here build the data structure for the select box
       $scope.selectedRepository = undefined;
@@ -131,6 +151,8 @@ define(function (require) {
       $scope.repositories = [];
       var idx = 0;
       var availableRepository;
+      var artifactRepositoryFound = false;
+      var isRemoteArtifact = _.isEqual($scope.initialArtifactClassifier, 'remote');
       for (var i = 0; i < availableRepositories.archiveRepository.length; i++) {
         availableRepository = {};
         availableRepository.idx = idx++;
@@ -139,11 +161,13 @@ define(function (require) {
         availableRepository.url = availableRepositories.archiveRepository[i].url;
         availableRepository.classifier = 'archive';
         $scope.repositories.push(availableRepository);
-        if (!$scope.isLocalRepository && $scope.initialRepositoryName === availableRepository.id) {
+        if (isRemoteArtifact && $scope.initialRepositoryName === availableRepository.id) {
           $scope.repositorySelected(availableRepository.idx);
           $scope.selectedRepository.file = artifact.artifactRef;
+          artifactRepositoryFound = true;
         }
       }
+
       for (i = 0; i < availableRepositories.alienRepository.length; i++) {
         availableRepository = {};
         availableRepository.idx = idx++;
@@ -152,16 +176,28 @@ define(function (require) {
         availableRepository.url = availableRepositories.alienRepository[i].url;
         availableRepository.classifier = 'global';
         $scope.repositories.push(availableRepository);
+        if (isRemoteArtifact && $scope.initialRepositoryName === availableRepository.id) {
+          $scope.repositorySelected(availableRepository.idx);
+          $scope.selectedRepository.file = artifact.artifactRef;
+          artifactRepositoryFound = true;
+        }
       }
-      availableRepository = {};
-      availableRepository.idx = idx++;
-      availableRepository.id = 'MyRepository';
-      availableRepository.type = '';
-      availableRepository.url = '';
-      availableRepository.classifier = 'new';
-      $scope.repositories.push(availableRepository);
 
+      var newRepositoryEntry = {};
+      newRepositoryEntry.idx = idx++;
+      newRepositoryEntry.id = newRepositoryName;
+      newRepositoryEntry.type = '';
+      newRepositoryEntry.url = '';
+      newRepositoryEntry.classifier = 'new';
+      $scope.repositories.push(newRepositoryEntry);
 
+      if (!artifactRepositoryFound) {
+        $scope.repositorySelected(newRepositoryEntry.idx);
+        $scope.selectedRepository.id = artifact.repositoryName;
+        $scope.selectedRepository.type = artifact.artifactRepository;
+        $scope.selectedRepository.url = artifact.repositoryURL;
+        $scope.selectedRepository.file = artifact.artifactName;
+      }
     }
   ]);
 });

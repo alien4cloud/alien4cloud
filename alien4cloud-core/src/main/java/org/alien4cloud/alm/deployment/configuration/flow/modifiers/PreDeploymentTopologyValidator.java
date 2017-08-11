@@ -1,7 +1,9 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
 
-import alien4cloud.deployment.DeploymentTopologyValidationService;
-import alien4cloud.exception.NotFoundException;
+import static alien4cloud.utils.AlienUtils.safe;
+
+import javax.inject.Inject;
+
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
@@ -9,7 +11,10 @@ import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeployment
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import alien4cloud.deployment.DeploymentTopologyValidationService;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.task.AbstractTask;
 
 /**
  * Perform validation of the topology before deployment.
@@ -26,7 +31,23 @@ public class PreDeploymentTopologyValidator implements ITopologyModifier {
                 .getConfiguration(DeploymentMatchingConfiguration.class, PreDeploymentTopologyValidator.class.getSimpleName())
                 .orElseThrow(() -> new NotFoundException("Failed to find deployment configuration for pre-deployment validation."));
         OrchestratorDeploymentProperties orchestratorDeploymentProperties = context
-                .getConfiguration(OrchestratorDeploymentProperties.class, PreDeploymentTopologyValidator.class.getSimpleName()).orElse(null);
-        deploymentTopologyValidationService.validateProcessedDeploymentTopology(topology, matchingConfiguration, orchestratorDeploymentProperties);
+                .getConfiguration(OrchestratorDeploymentProperties.class, PreDeploymentTopologyValidator.class.getSimpleName())
+                .orElse(new OrchestratorDeploymentProperties(matchingConfiguration.getVersionId(), matchingConfiguration.getEnvironmentId(),
+                        matchingConfiguration.getOrchestratorId()));
+        TopologyValidationResult validationResult = deploymentTopologyValidationService.validateProcessedDeploymentTopology(topology, matchingConfiguration,
+                orchestratorDeploymentProperties);
+
+        for (AbstractTask task : safe(validationResult.getTaskList())) {
+            context.log().error(task);
+        }
+
+        for (AbstractTask task : safe(validationResult.getInfoList())) {
+            context.log().info(task);
+        }
+
+        for (AbstractTask task : safe(validationResult.getWarningList())) {
+            context.log().warn(task);
+        }
+
     }
 }

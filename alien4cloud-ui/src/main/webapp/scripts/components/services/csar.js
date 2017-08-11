@@ -45,19 +45,18 @@ define(function (require) {
 
     // Prepare result html for toaster message
     var builtResultList = function builtResultList(resultObject) {
-      var resourtceList;
+      var resourceList;
       if (resultObject.error) {
         var baseResponse = $translate.instant('CSAR.ERRORS.' + resultObject.error.code);
-        resourtceList = baseResponse + ' : <ul>';
+        resourceList = baseResponse + ' : <ul>';
         resultObject.data.forEach(function getResource(resource) {
-          resourtceList += '<li>';
-          resourtceList += resource.resourceName + ' (' + resource.resourceType + ')';
-          resourtceList += '</li>';
+          resourceList += '<li>';
+          resourceList += resource.resourceName + ' (' + resource.resourceType + ')';
+          resourceList += '</li>';
         });
       }
-      return resourtceList;
+      return resourceList;
     };
-
 
     return {
       'getAndDeleteCsar': resultGetAndDelete,

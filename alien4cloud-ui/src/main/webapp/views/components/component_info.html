@@ -9,7 +9,7 @@
         <div class="col-md-10">
           <div id="compElementIdDetail">
             <h1>
-              <span>{{ component.elementId | splitAndGet:'.':'last' }} <small>({{component.elementId}})</small></span>
+              <span>{{ component.elementId | splitAndGet:'.':'last' }} <small>(<span ng-bind-html="dotWb(component.elementId)"></span>)</small></span>
               <img ng-if="component.abstract"
                   class="icon_24"
                   alt="abstract_ico"

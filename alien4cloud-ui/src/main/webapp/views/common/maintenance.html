@@ -1,0 +1,34 @@
+<div class="container">
+  <h2><i class="fa fa-wrench"></i> {{'SERVER.MAINTENANCE.TITLE' | translate}}</h2>
+  <div ng-show="maintenanceState">
+  <p>{{'SERVER.MAINTENANCE.MESSAGE' | translate}}</p>
+    <div ng-show="isAdmin" class="well">
+      <h3>{{'SERVER.MAINTENANCE.DISABLE' | translate}}</h3>
+      <button id="maintenanceDisable" type="button" class="btn btn-danger" ng-click="disable()"><i class="fa fa-wrench"></i> {{'SERVER.MAINTENANCE.DISABLE' | translate}}</button>
+      <h3>{{'SERVER.MAINTENANCE.UPDATE.TITLE' | translate}}</h3>
+      <form novalidate name="form" ng-submit="update()">
+        <div class="form-group">
+          <label for="maintenanceMessage">{{'SERVER.MAINTENANCE.UPDATE.MESSAGE' | translate}}</label>
+          <input type="text" ng-model="message" name="message" class="form-control" id="maintenanceMessage" placeholder="{{'SERVER.MAINTENANCE.UPDATE.MESSAGE' | translate}}">
+        </div>
+        <div class="form-group" ng-class="{'has-error' : form.progress.$invalid}">
+          <label for="maintenanceProgress">{{'SERVER.MAINTENANCE.UPDATE.PROGRESS' | translate}}</label>
+          <input type="number" min="{{maintenanceState.data.progressPercent}}" max="100" ng-model="progress" name="progress" integer class="form-control" id="maintenanceProgress" placeholder="{{'SERVER.MAINTENANCE.UPDATE.PROGRESS' | translate}}">
+        </div>
+        <button id="maintenanceUpdate" type="submit" class="btn btn-default" ng-disabled="form.$invalid">{{'OK' | translate}}</button>
+      </form>
+    </div>
+
+    <div class="progress progress-striped" style="margin-bottom: 10px;" ng-show="maintenanceState.data.progressPercent">
+      <div class="progress-bar progress-bar-warning" role="progressbar"
+        aria-valuenow="{{maintenanceState.data.progressPercent}}"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        style="width: {{maintenanceState.data.progressPercent}}%">{{maintenanceState.data.progressPercent}} %
+      </div>
+    </div>
+    <div ng-repeat="log in maintenanceState.data.log">
+      <div>{{ log.date | date : 'yyyy-MM-dd HH:mm:ss' }} <i class="fa fa-user"></i> {{log.user}}: {{log.message}}</div>
+    </div>
+  </div>
+</div>

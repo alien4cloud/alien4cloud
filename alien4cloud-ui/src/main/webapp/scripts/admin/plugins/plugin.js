@@ -81,26 +81,61 @@ define(function (require) {
         }
       });
 
-      $scope.enable = function(pluginId) {
+      // Prepare result html for toaster message
+      function buildResultList(resultObject) {
+        var baseResponse = $translate.instant('PLUGINS.ERRORS.' + resultObject.error.code);
+        var resourtceList = baseResponse + ' : <ul>';
+        resultObject.data.forEach(function getResource(resource) {
+          resourtceList += '<li>';
+          resourtceList += resource.resourceType + ' : ' + resource.resourceName;
+          resourtceList += '</li>';
+        });
+        return resourtceList;
+      }
+
+      function handleError(result) {
+        var resultHtml = buildResultList(result);
+        // toaster message
+        toaster.pop('error', $translate.instant('PLUGINS.ERRORS.' + result.error.code + '_TITLE'), resultHtml, 4000, 'trustedHtml', null);
+      }
+
+      function enablePlugin(plugin) {
+        plugin.pending=true;
         enableResource.enable([], {
-          pluginId: pluginId
+          pluginId: plugin.id
         }, function(result) {
+          plugin.pending=false;
           if (!result.error) {
-            $scope.searchService.search();
+            plugin.enabled = !plugin.enabled;
           }
         });
-      };
+      }
 
-      $scope.disable = function(pluginId) {
+      function disablePlugin(plugin) {
+        plugin.pending=true;
         disableResource.disable([], {
-          pluginId: pluginId
+          pluginId: plugin.id
         }, function(result) {
+          plugin.pending=false;
           if (!result.error) {
-            $scope.searchService.search();
+            plugin.enabled = !plugin.enabled;
           } else {
             handleError(result);
           }
         });
+      }
+
+      $scope.toggleState = function(plugin) {
+        switch (plugin.enabled) {
+          case true:
+            disablePlugin(plugin);
+            break;
+          case false:
+            enablePlugin(plugin);
+            break;
+          default:
+            return;
+        }
       };
 
       $scope.remove = function(pluginId) {
@@ -114,24 +149,6 @@ define(function (require) {
           }
         });
       };
-
-      function handleError(result) {
-        var resultHtml = builtResultList(result);
-        // toaster message
-        toaster.pop('error', $translate.instant('PLUGINS.ERRORS.' + result.error.code + '_TITLE'), resultHtml, 4000, 'trustedHtml', null);
-      }
-
-      // Prepare result html for toaster message
-      function builtResultList(resultObject) {
-        var baseResponse = $translate.instant('PLUGINS.ERRORS.' + resultObject.error.code);
-        var resourtceList = baseResponse + ' : <ul>';
-        resultObject.data.forEach(function getResource(resource) {
-          resourtceList += '<li>';
-          resourtceList += resource.resourceType + ' : ' + resource.resourceName;
-          resourtceList += '</li>';
-        });
-        return resourtceList;
-      }
 
       $scope.openConfiguration = function(pluginId) {
         $scope.toConfigPluginId = pluginId;

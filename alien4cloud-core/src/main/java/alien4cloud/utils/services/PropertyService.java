@@ -37,14 +37,18 @@ public class PropertyService {
         }
 
         ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+        properties.put(propertyName, asPropertyValue(propertyValue));
+    }
+
+    public static <T extends AbstractPropertyValue> T asPropertyValue(Object propertyValue) {
         if (propertyValue instanceof PropertyValue) {
-            properties.put(propertyName, (T) propertyValue);
+            return (T) propertyValue;
         } else if (propertyValue instanceof String) {
-            properties.put(propertyName, (T) new ScalarPropertyValue((String) propertyValue));
+            return (T) new ScalarPropertyValue((String) propertyValue);
         } else if (propertyValue instanceof Map) {
-            properties.put(propertyName, (T) new ComplexPropertyValue((Map<String, Object>) propertyValue));
+            return (T) new ComplexPropertyValue((Map<String, Object>) propertyValue);
         } else if (propertyValue instanceof List) {
-            properties.put(propertyName, (T) new ListPropertyValue((List<Object>) propertyValue));
+            return (T) new ListPropertyValue((List<Object>) propertyValue);
         } else {
             throw new InvalidArgumentException("Property type " + propertyValue.getClass().getName() + " is invalid");
         }

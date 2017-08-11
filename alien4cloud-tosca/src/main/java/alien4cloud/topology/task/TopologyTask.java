@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(suppressConstructorProperties = true)
-public class TopologyTask extends AbstractTask {
+public abstract class TopologyTask extends AbstractTask {
     // Name of the node template that needs to be fixed.
     private String nodeTemplateName;
     // related component

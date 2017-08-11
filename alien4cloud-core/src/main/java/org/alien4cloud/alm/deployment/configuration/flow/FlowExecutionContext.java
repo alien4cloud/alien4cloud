@@ -1,7 +1,6 @@
 package org.alien4cloud.alm.deployment.configuration.flow;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -12,7 +11,6 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.deployment.matching.ILocationMatch;
 import lombok.Getter;
 import lombok.Setter;
 

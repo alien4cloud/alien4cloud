@@ -121,7 +121,7 @@ define(function (require) {
 
 
       function isBlank(str) {
-          return (!str || (/^\s*$/).test(str));
+        return (!str || (/^\s*$/).test(str));
       }
 
       $scope.addAttributeFromUser = function () {

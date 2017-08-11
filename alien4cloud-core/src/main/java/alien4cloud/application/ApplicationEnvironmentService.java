@@ -26,7 +26,6 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentLockService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
-import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.deployment.OrchestratorPropertiesValidationService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
@@ -57,8 +56,6 @@ public class ApplicationEnvironmentService {
     private ApplicationVersionService applicationVersionService;
     @Inject
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
-    @Inject
-    private DeploymentTopologyService deploymentTopologyService;
     @Inject
     private ApplicationEventPublisher publisher;
     @Inject

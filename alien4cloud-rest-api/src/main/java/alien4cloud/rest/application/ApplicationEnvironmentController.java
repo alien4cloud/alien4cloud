@@ -32,7 +32,6 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.ApplicationVersionNotFoundException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.model.application.Application;
@@ -68,8 +67,6 @@ public class ApplicationEnvironmentController {
     private ApplicationVersionService applicationVersionService;
     @Inject
     private ApplicationEnvironmentDTOBuilder dtoBuilder;
-    @Inject
-    private DeploymentTopologyService deploymentTopologyService;
 
     /**
      * Search for application environment for a given application id

@@ -2,11 +2,11 @@
   <div class="topology-row" style="height: {{dimensions.height}}px;">
     <div id="tree-box" class="topology-column" style="width: {{displays.tree.size}}px;">
       <div class="topology-column-box">
-        <div class="topology-column-content-left" style="padding-top: 10px;">
+        <div class="topology-column-content-left" style="padding-top: 10px; padding-left: 10px;">
           <treecontrol class="tree-classic" tree-model="treedata" options="opts" on-selection="showSelected(node)" on-node-toggle="onToggled(node)" selected-node="selected" expanded-nodes="expandedNodes">
             {{node.name}}
           </treecontrol>
-          <div style="margin: 10px;">
+          <div style="margin: 10px 10px 0 0;">
             <form name="formAddFile" ng-submit="addFile(filePath)">
               <div class="input-group">
                 <input type="text" class="form-control" id="file-path" name="path" ng-model="filePath"/>
@@ -47,7 +47,7 @@
           </button>
           <span class="text-info">{{aceFilePath}}<span>
         </div>
-        <div ng-model="editorContent"  ui-ace="{mode: mode, useWrapMode: true, readonly: released, onLoad : aceLoaded}" style="margin-top:10px; height: {{dimensions.height - 58}}px;">
+        <div ng-model="editorContent" ui-ace="{mode: mode, useWrapMode: true, readonly: released, onLoad : aceLoaded}" style="margin-top:10px; height: {{dimensions.height - 58}}px;">
         </div>
       </div>
       <div ng-if="isImage" style="margin-top:10px;" class="well"><img ng-src="{{imageUrl}}" /></div>

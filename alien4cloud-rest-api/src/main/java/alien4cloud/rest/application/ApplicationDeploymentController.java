@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -17,12 +16,7 @@ import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.google.common.collect.Maps;
@@ -31,13 +25,7 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.deployment.DeployService;
-import alien4cloud.deployment.DeploymentRuntimeService;
-import alien4cloud.deployment.DeploymentRuntimeStateService;
-import alien4cloud.deployment.DeploymentService;
-import alien4cloud.deployment.DeploymentTopologyService;
-import alien4cloud.deployment.UndeployService;
-import alien4cloud.deployment.WorkflowExecutionService;
+import alien4cloud.deployment.*;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
@@ -45,7 +33,6 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
@@ -86,8 +73,6 @@ public class ApplicationDeploymentController {
     @Inject
     private DeployService deployService;
     @Inject
-    private DeploymentTopologyService deploymentTopologyService;
-    @Inject
     private UndeployService undeployService;
     @Inject
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
@@ -97,13 +82,8 @@ public class ApplicationDeploymentController {
     private WorkflowExecutionService workflowExecutionService;
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
-    @Resource
-    private LocationSecurityService locationSecurityService;
     @Inject
     private ApplicationEnvironmentDTOBuilder dtoBuilder;
-    @Inject
-    private ServiceResourceService serviceResourceService;
-
     @Inject
     private ApplicationVersionService applicationVersionService;
     @Inject

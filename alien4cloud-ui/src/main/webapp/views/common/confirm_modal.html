@@ -1,0 +1,13 @@
+<div id="confirm-modal">
+  <div class="modal-header">
+    <h4>{{ title | translate}}</h4>
+  </div>
+  <div class="modal-body">
+    {{content | translate}}
+    <br/>
+  </div>
+  <div class="modal-footer">
+    <button id="btn-confirm" class="btn btn-primary" ng-click="confirm()">{{'OK' | translate}}</button>
+    <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+  </div>
+</div>

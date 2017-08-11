@@ -5,9 +5,6 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.util.Arrays;
 import java.util.Map;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.RenameInputOperation;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -21,8 +18,6 @@ import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
@@ -34,11 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOperation> {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
-    @Inject
-    private DeploymentTopologyService deploymentTopologyService;
-
     @Override
     protected void processInputOperation(RenameInputOperation operation, Map<String, PropertyDefinition> inputs) {
         if (!inputs.containsKey(operation.getInputName())) {

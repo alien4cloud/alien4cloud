@@ -52,14 +52,7 @@
                 <div>
                   <div class="col-md-1"> </div>
                   <div class="col-md-5">
-                    <i class="fa fa-2x vertical-center" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true" ng-class="{
-                      'fa-circle text-success' : environment.status == 'DEPLOYED' || environment.status == 'UPDATED',
-                      'fa-circle text-muted' : environment.status == 'UNDEPLOYED' || environment.status == 'UPDATE_FAILURE',
-                      'fa-warning text-warning' : environment.status == 'WARNING',
-                      'fa-circle text-danger' : environment.status == 'FAILURE',
-                      'fa-question-circle text-muted' : environment.status == 'UNKNOWN',
-                      'fa-spinner fa-spin' : environment.status == 'DEPLOYMENT_IN_PROGRESS' || environment.status == 'UNDEPLOYMENT_IN_PROGRESS' || environment.status == 'UPDATE_IN_PROGRESS'
-                    }"></i>
+                    <i class="fa fa-2x vertical-center {{fromStatusToCssClasses(environment)}}" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true"></i>
                     <span>{{environment.name}}</span>
                   </div>
                   <div class="col-md-3">

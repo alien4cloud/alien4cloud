@@ -1,27 +1,22 @@
 package alien4cloud.deployment;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 
-import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.topology.task.PropertiesTask;
-import alien4cloud.topology.validation.LocationPolicyValidationService;
 import alien4cloud.topology.validation.NodeFilterValidationService;
 import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
 import alien4cloud.topology.validation.TopologyPropertiesValidationService;
@@ -39,15 +34,9 @@ public class DeploymentTopologyValidationService {
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
     @Inject
-    private LocationPolicyValidationService locationPolicyValidationService;
-    @Inject
     private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
     @Inject
     private NodeFilterValidationService nodeFilterValidationService;
-    @Inject
-    private DeploymentInputArtifactValidationService deploymentInputArtifactValidationService;
-    @Inject
-    private ApplicationEnvironmentService environmentService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
@@ -59,7 +48,8 @@ public class DeploymentTopologyValidationService {
      * @param topology The deployment topology to check.
      * @return A DeploymentTopologyValidationResult with a list of errors and/or warnings er steps.
      */
-    public TopologyValidationResult validateProcessedDeploymentTopology(Topology topology, DeploymentMatchingConfiguration matchingConfiguration, OrchestratorDeploymentProperties orchestratorDeploymentProperties) {
+    public TopologyValidationResult validateProcessedDeploymentTopology(Topology topology, DeploymentMatchingConfiguration matchingConfiguration,
+            OrchestratorDeploymentProperties orchestratorDeploymentProperties) {
         TopologyValidationResult dto = new TopologyValidationResult();
         if (topology.getNodeTemplates() == null || topology.getNodeTemplates().size() < 1) {
             dto.setValid(false);
@@ -79,11 +69,10 @@ public class DeploymentTopologyValidationService {
         // validate abstract node types
         dto.addTasks(topologyAbstractNodeValidationService.findReplacementForAbstracts(topology, matchingConfiguration.getMatchedLocationResources()));
 
-        // TODO Perform validation of policies
+        // TODO Perform here validation of policies
         // If a policy is not matched on the location this is a warning as we allow deployment but some features may be missing
         // If a policy requires a configuration or cannot be applied du to any reason the policy implementation itself can trigger some errors (see Orchestrator
         // plugins)
-        dto.addTasks(locationPolicyValidationService.validateLocationPolicies(topology, matchingConfiguration));
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
         // check also location / ENVIRONMENT meta properties

@@ -1,17 +1,27 @@
 package alien4cloud.topology;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.BiConsumer;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
+import alien4cloud.application.ApplicationService;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.VersionConflictException;
+import alien4cloud.model.application.Application;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.ApplicationRole;
+import alien4cloud.security.model.Role;
+import alien4cloud.topology.exception.UpdateTopologyException;
+import alien4cloud.topology.task.SuggestionsTask;
+import alien4cloud.topology.task.TaskCode;
+import alien4cloud.tosca.container.ToscaTypeLoader;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.context.ToscaContextual;
+import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.VersionUtil;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
@@ -32,29 +42,17 @@ import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import alien4cloud.application.ApplicationService;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.exception.VersionConflictException;
-import alien4cloud.model.application.Application;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.model.Role;
-import alien4cloud.topology.exception.UpdateTopologyException;
-import alien4cloud.topology.task.SuggestionsTask;
-import alien4cloud.topology.task.TaskCode;
-import alien4cloud.tosca.container.ToscaTypeLoader;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.utils.MapUtil;
-import alien4cloud.utils.VersionUtil;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.BiConsumer;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
@@ -145,7 +143,27 @@ public class TopologyService {
         if (CollectionUtils.isEmpty(topoTasks)) {
             return null;
         }
-        return topoTasks.get(0).getSuggestedNodeTypes();
+        return removeDuplicatedNodeTypeForReplacement(indexedNodeType.getElementId(), topoTasks.get(0).getSuggestedNodeTypes());
+    }
+
+    /**
+     * Remove nodeType with same elementId but different version
+     * and the same nodeType of with a different version
+     */
+    private NodeType[] removeDuplicatedNodeTypeForReplacement(String elementIdToReplace, NodeType[] suggestedNodeTypes) {
+        ArrayList<NodeType> filterData = new ArrayList<>();
+        if (ArrayUtils.isNotEmpty(suggestedNodeTypes)) {
+            List<String> addedArchiveName = new ArrayList<>();
+            addedArchiveName.add(elementIdToReplace);
+
+            for (int i = suggestedNodeTypes.length-1 ; i >= 0 ; i--) {
+                if(!addedArchiveName.contains(suggestedNodeTypes[i].getElementId())){
+                    addedArchiveName.add(suggestedNodeTypes[i].getElementId());
+                    filterData.add(suggestedNodeTypes[i]);
+                }
+            }
+        }
+        return filterData.toArray(new NodeType[filterData.size()]);
     }
 
     private void addFilters(String nodeTempName, String filterKey, String filterValueToAdd, Map<String, Map<String, Set<String>>> nodeTemplatesToFilters) {

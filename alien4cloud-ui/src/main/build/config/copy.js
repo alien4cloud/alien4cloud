@@ -43,6 +43,7 @@ module.exports = {
         'bower_components/json3/lib/json3.min.js',
         'bower_components/requirejs/require.js',
         'bower_components/font-awesome/**/*',
+        'bower_components/ace-builds/src-min-noconflict/**/*',
         'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/**/*',
         'bower_components/roboto-fontface/**/*'
       ]

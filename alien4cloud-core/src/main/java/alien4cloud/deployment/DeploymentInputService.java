@@ -1,34 +1,25 @@
 package alien4cloud.deployment;
 
-import java.util.HashMap;
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
-import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
-import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
-import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.utils.InputArtifactUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
-
-import static alien4cloud.utils.AlienUtils.safe;
 
 @Service
 public class DeploymentInputService {
@@ -40,9 +31,10 @@ public class DeploymentInputService {
      * 
      * @param inputDefinitions Inputs definitions as specified in the topology.
      * @param inputValues Input properties values as specified by the user.
-     * @return the updated inputs values.
+     * @return true if there is an update on inputValues (removal or addition). false if nothing has changed
      */
-    public void synchronizeInputs(Map<String, PropertyDefinition> inputDefinitions, Map<String, PropertyValue> inputValues) {
+    public boolean synchronizeInputs(Map<String, PropertyDefinition> inputDefinitions, Map<String, PropertyValue> inputValues) {
+        boolean updated = false;
         if (!MapUtils.isEmpty(inputValues)) {
             // Ensure that previous defined values are still compatible with the latest input definition (as the topology may have changed).
             Iterator<Map.Entry<String, PropertyValue>> inputPropertyEntryIterator = inputValues.entrySet().iterator();
@@ -58,6 +50,7 @@ public class DeploymentInputService {
                     } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
                         // Property is not valid anymore for the input, remove the old value
                         inputPropertyEntryIterator.remove();
+                        updated = true;
                     }
                 }
             }
@@ -70,9 +63,12 @@ public class DeploymentInputService {
                 PropertyValue defaultValue = inputDefinitionEntry.getValue().getDefault();
                 if (defaultValue != null) {
                     inputValues.put(inputDefinitionEntry.getKey(), defaultValue);
+                    updated = true;
                 }
             }
         }
+
+        return updated;
     }
 
     /**
@@ -85,10 +81,10 @@ public class DeploymentInputService {
             // No orchestrator assigned for the topology do nothing
             return;
         }
-        Map<String, PropertyDefinition> propertyDefinitionMap = orchestratorDeploymentService.getDeploymentPropertyDefinitions(deploymentTopology
-                .getOrchestratorId());
+        Map<String, PropertyDefinition> propertyDefinitionMap = orchestratorDeploymentService
+                .getDeploymentPropertyDefinitions(deploymentTopology.getOrchestratorId());
         if (propertyDefinitionMap != null) {
-            // Reset deployment properties as it might have changed between cloud
+            // Reset deployment properties as it might have changed between orchestrators
             Map<String, String> propertyValueMap = deploymentTopology.getProviderDeploymentProperties();
             if (propertyValueMap == null) {
                 propertyValueMap = Maps.newHashMap();
@@ -109,12 +105,12 @@ public class DeploymentInputService {
                     try {
                         ConstraintPropertyService.checkPropertyConstraint(propertyDefinitionEntry.getKey(), existingValue, propertyDefinitionEntry.getValue());
                     } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                        PropertyUtil.setScalarDefaultValueOrNull(propertyValueMap, propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue()
-                                .getDefault());
+                        PropertyUtil.setScalarDefaultValueOrNull(propertyValueMap, propertyDefinitionEntry.getKey(),
+                                propertyDefinitionEntry.getValue().getDefault());
                     }
                 } else {
-                    PropertyUtil.setScalarDefaultValueIfNotNull(propertyValueMap, propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue()
-                            .getDefault());
+                    PropertyUtil.setScalarDefaultValueIfNotNull(propertyValueMap, propertyDefinitionEntry.getKey(),
+                            propertyDefinitionEntry.getValue().getDefault());
                 }
             }
             deploymentTopology.setProviderDeploymentProperties(propertyValueMap);

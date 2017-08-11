@@ -103,6 +103,9 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
 
         // Convert log result to validation result.
         TopologyValidationResult validationResult = new TopologyValidationResult();
+        for (AbstractTask task : executionContext.getLog().getInfos()) {
+            validationResult.addInfo(task);
+        }
         for (AbstractTask task : executionContext.getLog().getWarnings()) {
             validationResult.addWarning(task);
         }
@@ -134,6 +137,7 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
         deploymentTopologyDTO.setLocationPolicies(matchingConfiguration.getLocationIds());
         // Good enough approximation as it doesn't contains just the location dependencies.
         deploymentTopology.setLocationDependencies(executionContext.getTopology().getDependencies());
+
         // used by ui to know if a property is editable. This should however be done differently with a better v2 api.
         deploymentTopology.setOriginalNodes((Map<String, NodeTemplate>) executionContext.getExecutionCache().get(FlowExecutionContext.MATCHING_ORIGINAL_NODES));
         deploymentTopology.setSubstitutedNodes(matchingConfiguration.getMatchedLocationResources());
@@ -143,7 +147,7 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
                 .get(FlowExecutionContext.MATCHED_LOCATION_RESOURCE_TEMPLATES);
         Map<String, LocationResourceTemplate> substitutedLocationResourceTemplate = Maps.newHashMap(); //
         matchingConfiguration.getMatchedLocationResources().forEach((nodeKey, locationResourceId) -> substitutedLocationResourceTemplate.put(locationResourceId,
-                allLocationResourcesTemplates.get(locationResourceId)));
+                safe(allLocationResourcesTemplates).get(locationResourceId)));
         deploymentTopologyDTO.setLocationResourceTemplates(substitutedLocationResourceTemplate);
 
         DeploymentSubstitutionConfiguration substitutionConfiguration = new DeploymentSubstitutionConfiguration();
@@ -162,7 +166,7 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
         ApplicationEnvironment environment = executionContext.getEnvironmentContext().get().getEnvironment();
         OrchestratorDeploymentProperties orchestratorDeploymentProperties = executionContext
                 .getConfiguration(OrchestratorDeploymentProperties.class, this.getClass().getSimpleName())
-                .orElse(new OrchestratorDeploymentProperties(environment.getTopologyVersion(), environment.getId()));
+                .orElse(new OrchestratorDeploymentProperties(environment.getTopologyVersion(), environment.getId(), matchingConfiguration.getOrchestratorId()));
         deploymentTopology.setProviderDeploymentProperties(orchestratorDeploymentProperties.getProviderDeploymentProperties());
 
         return deploymentTopologyDTO;

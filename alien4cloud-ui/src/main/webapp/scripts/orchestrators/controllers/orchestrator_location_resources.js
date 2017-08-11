@@ -21,9 +21,12 @@ define(function(require) {
       function($scope, locationResourcesService, locationResourcesPropertyService,
                locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService,
                locationResourcesPortabilityService, resizeServices, componentService, resourceSecurityFactory) {
-        var vm = this;
 
-        $scope.resourcesTypes = _.values($scope.resourcesTypesMap);
+        $scope.dimensions = { width: 800, height: 500 };
+        resizeServices.registerContainer(function (width, height) {
+          $scope.dimensions = { width: width, height: height };
+          $scope.$digest();
+        }, '#resource-catalog');
 
         function computeTypes() {
           // pick all resource types from the location - this will include orchestrator & custom types
@@ -37,19 +40,14 @@ define(function(require) {
         }
 
         var init = function(){
+          $scope.resourcesTypes = _.values($scope.resourcesTypesMap);
           if (_.isNotEmpty($scope.resourcesTypes)) {
             $scope.selectedConfigurationResourceType = {value: $scope.resourcesTypes[0]};
           }
-          $scope.dimensions = { width: 800, height: 500 };
-          resizeServices.registerContainer(function (width, height) {
-            $scope.dimensions = { width: width, height: height };
-            $scope.$digest();
-          }, '#resource-catalog');
-
-          vm.favorites = computeTypes();
+          $scope.favorites = computeTypes();
         };
 
-        $scope.$watch('resourcesTypes', function(){
+        $scope.$watch('resourcesTypesMap', function(){
           init();
         });
 
@@ -79,7 +77,7 @@ define(function(require) {
             $scope.context.location.dependencies = updatedDependencies;
 
             // if ResourceType is not in the fav list then get its type and add it to resource types map
-            if ($scope.showCatalog && _.findIndex(vm.favorites, 'id', newResource.id) === -1) {
+            if ($scope.showCatalog && _.findIndex($scope.favorites, 'id', newResource.id) === -1) {
               var typeId = newResource.resourceType;
               var componentId = newResource.id;
 
@@ -117,7 +115,7 @@ define(function(require) {
                 newResource.elementId = newResource.resourceType;
                 delete newResource.resourceType;
                 newResource.provided = false;
-                vm.favorites.push(newResource);
+                $scope.favorites.push(newResource);
               });
             } else {
               // If the type is in the fav list then we already have its node and capability types
@@ -143,15 +141,15 @@ define(function(require) {
             // Clean the favorites list
             var deletedType = resourceTemplate.template.type;
             // If the type of the template is provided by the orchestrator, never delete it from the fav list
-            var favIndex = _.findIndex(vm.favorites, { 'elementId': deletedType });
-            if (favIndex === -1 || vm.favorites[favIndex].provided) {
+            var favIndex = _.findIndex($scope.favorites, { 'elementId': deletedType });
+            if (favIndex === -1 || $scope.favorites[favIndex].provided) {
               return;
             }
             // The template was a custom resource - if its still used do not delete it from the fav list
             if (_.find($scope.resourcesTemplates, function (tplt) { return tplt.template.type === deletedType; })) {
               return;
             }
-            vm.favorites.splice(favIndex, 1);
+            $scope.favorites.splice(favIndex, 1);
           });
         };
 

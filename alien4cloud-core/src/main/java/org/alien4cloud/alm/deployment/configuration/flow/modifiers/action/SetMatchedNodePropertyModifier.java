@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.NodeMatchingConfigAutoSelectModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodeCapabilitiesPropsOverride;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
@@ -25,13 +25,12 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 
-import com.google.common.collect.Maps;
-
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.topology.task.LocationPolicyTask;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
+import alien4cloud.utils.services.ConstraintPropertyService;
 import alien4cloud.utils.services.PropertyService;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -102,12 +101,16 @@ public class SetMatchedNodePropertyModifier implements ITopologyModifier {
         ensureNotSet(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName, propertyValue);
         ensureNotSet(nodeTemplate.getProperties().get(propertyName), "in the portable topology", propertyName, propertyValue);
 
-        // Perform the update of the property
-        propertyService.setPropertyValue(nodeTemplate, propertyDefinition, propertyName, propertyValue);
-
         // Update the configuration
         NodePropsOverride nodePropsOverride = getNodePropsOverride(matchingConfiguration);
-        nodePropsOverride.getProperties().put(propertyName, nodeTemplate.getProperties().get(propertyName));
+
+        // Perform the update of the property
+        if (propertyValue == null) {
+            nodePropsOverride.getProperties().remove(propertyName);
+        } else {
+            ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+            nodePropsOverride.getProperties().put(propertyName, PropertyService.asPropertyValue(propertyValue));
+        }
 
         context.saveConfiguration(matchingConfiguration);
     }
@@ -133,16 +136,19 @@ public class SetMatchedNodePropertyModifier implements ITopologyModifier {
         AbstractPropertyValue originalNodePropertyValue = safe(nodeTemplate.getCapabilities().get(capabilityName).getProperties()).get(propertyName);
         ensureNotSet(originalNodePropertyValue, "in the portable topology", propertyName, propertyValue);
 
-        // Set the value and check constraints
-        propertyService.setCapabilityPropertyValue(nodeTemplate.getCapabilities().get(capabilityName), propertyDefinition, propertyName, propertyValue);
-
         // Update the configuration
         NodePropsOverride nodePropsOverride = getNodePropsOverride(matchingConfiguration);
-        if (nodePropsOverride.getCapabilities().get(capabilityName) == null) {
-            nodePropsOverride.getCapabilities().put(capabilityName, new NodeCapabilitiesPropsOverride());
+        if (propertyValue == null && nodePropsOverride.getCapabilities().get(capabilityName) != null) {
+            nodePropsOverride.getCapabilities().get(capabilityName).getProperties().remove(propertyName);
+        } else {
+            // Set check constraints
+            ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+
+            if (nodePropsOverride.getCapabilities().get(capabilityName) == null) {
+                nodePropsOverride.getCapabilities().put(capabilityName, new NodeCapabilitiesPropsOverride());
+            }
+            nodePropsOverride.getCapabilities().get(capabilityName).getProperties().put(propertyName, PropertyService.asPropertyValue(propertyValue));
         }
-        nodePropsOverride.getCapabilities().get(capabilityName).getProperties().put(propertyName,
-                nodeTemplate.getCapabilities().get(capabilityName).getProperties().get(propertyName));
 
         context.saveConfiguration(matchingConfiguration);
     }

@@ -3,6 +3,9 @@
   <div class="text-danger" style="margin: 10px 0px" ng-if="deploymentContext.deploymentTopologyDTO.validation.taskList['LOCATION_UNAUTHORIZED'].length>0">
     <i class="fa fa-exclamation-triangle"></i><em><b style="white-space: pre-wrap;"> {{'APPLICATIONS.TOPOLOGY.LOCATION_UNAUTHORIZED_MESSAGE' | translate: deploymentContext.deploymentTopologyDTO.validation.taskList['LOCATION_UNAUTHORIZED'][0] }}</b></em>
   </div>
+  <div class="text-danger" style="margin: 10px 0px" ng-if="deploymentContext.deploymentTopologyDTO.validation.taskList['CFY_MULTI_RELATIONS'].length>0">
+    <i class="fa fa-exclamation-triangle"></i><em><b style="white-space: pre-wrap;"> {{ deploymentContext.deploymentTopologyDTO.validation.taskList['CFY_MULTI_RELATIONS'][0].message }}</b></em>
+  </div>
   <!-- End disabled location -->
 
   <empty-place-holder data="deploymentContext.locationMatches"></empty-place-holder>

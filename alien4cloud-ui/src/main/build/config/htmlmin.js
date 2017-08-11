@@ -5,6 +5,7 @@ module.exports = {
   dist: {
     options: {
       collapseWhitespace: true,
+      conservativeCollapse: true,
       collapseBooleanAttributes: false,
       removeCommentsFromCDATA: true,
       removeOptionalTags: false

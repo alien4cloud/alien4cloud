@@ -52,8 +52,7 @@ public class InputArtifactService {
     public void updateInputArtifact(ApplicationEnvironment environment, Topology topology, String inputArtifactId, MultipartFile artifactFile)
             throws IOException {
         checkInputArtifactExist(inputArtifactId, topology);
-        DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class,
-                AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId()));
+        DeploymentInputs deploymentInputs = getDeploymentInputs(environment.getTopologyVersion(), environment.getId());
         // FIXME ensure that deployment inputs are up-to date
         DeploymentArtifact artifact = getDeploymentArtifact(inputArtifactId, deploymentInputs);
         try (InputStream artifactStream = artifactFile.getInputStream()) {
@@ -61,14 +60,16 @@ public class InputArtifactService {
             artifact.setArtifactName(artifactFile.getOriginalFilename());
             artifact.setArtifactRef(artifactFileId);
             artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
+            artifact.setRepositoryName(null);
+            artifact.setRepositoryURL(null);
             alienDAO.save(deploymentInputs);
         }
     }
 
     public void updateInputArtifact(ApplicationEnvironment environment, Topology topology, String inputArtifactId, DeploymentArtifact updatedArtifact) {
         checkInputArtifactExist(inputArtifactId, topology);
-        DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class,
-                AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId()));
+        DeploymentInputs deploymentInputs = getDeploymentInputs(environment.getTopologyVersion(), environment.getId());
+
         DeploymentArtifact artifact = getDeploymentArtifact(inputArtifactId, deploymentInputs);
 
         artifact.setArtifactName(updatedArtifact.getArtifactName());
@@ -82,6 +83,15 @@ public class InputArtifactService {
         artifact.setArchiveVersion(updatedArtifact.getArchiveVersion());
 
         alienDAO.save(deploymentInputs);
+    }
+
+    private DeploymentInputs getDeploymentInputs(String versionId, String environmentId) {
+        DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class, AbstractDeploymentConfig.generateId(versionId, environmentId));
+        if (deploymentInputs == null) {
+            deploymentInputs = new DeploymentInputs(versionId, environmentId);
+        }
+
+        return deploymentInputs;
     }
 
     private void checkInputArtifactExist(String inputArtifactId, Topology topology) {

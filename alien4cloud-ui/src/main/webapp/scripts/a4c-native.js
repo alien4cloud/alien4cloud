@@ -5,6 +5,7 @@ define(function () {
   // Return native alien4cloud modules to be packaged.
   return ['scripts/authentication/controllers/navbar',
         'scripts/admin/admin',
+        'scripts/common/controllers/maintenance',
         'scripts/applications/controllers/application_list',
         'scripts/users/controllers/users',
         'scripts/orchestrators/controllers/orchestrator_list',

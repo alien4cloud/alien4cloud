@@ -52,7 +52,7 @@ define(function (require) {
                     repositoryUrl: artifact.repositoryUrl,
                     repositoryName: artifact.repositoryName,
                     archiveName: artifact.archiveName,
-                    archiveVersion: artifact.archiveVersion,
+                    archiveVersion: artifact.archiveVersion
                   }
                 );
               });
