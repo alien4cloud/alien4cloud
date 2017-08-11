@@ -16,7 +16,6 @@ import org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -34,7 +33,6 @@ import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.utils.CloneUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,15 +56,15 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
         Topology topology = EditionContextManager.getTopology();
 
         // Retrieve existing node template
-        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
-        NodeTemplate nodeTemplateToCopy = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
-        copyNodeTemplate(nodeTemplateToCopy, null, nodeTemplates, topology);
+        NodeTemplate nodeTemplateToCopy = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), TopologyUtils.getNodeTemplates(topology));
+        copyNodeTemplate(nodeTemplateToCopy, null, topology);
 
     }
 
-    private void copyNodeTemplate(NodeTemplate nodeTemplateToCopy, NodeTemplate hostNodeTemplate, Map<String, NodeTemplate> nodeTemplates, Topology topology) {
+    private void copyNodeTemplate(NodeTemplate nodeTemplateToCopy, NodeTemplate hostNodeTemplate, Topology topology) {
+        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
         // Build the new one
-        NodeTemplate newNodeTemplate = CloneUtil.clone(nodeTemplateToCopy);
+        NodeTemplate newNodeTemplate = clone(nodeTemplateToCopy);
         newNodeTemplate.setName(copyName(nodeTemplateToCopy.getName(), nodeTemplates.keySet()));
 
         if (hostNodeTemplate != null) {
@@ -86,7 +84,7 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
         // copy outputs
         copyOutputs(topology, nodeTemplateToCopy.getName(), newNodeTemplate.getName());
 
-        // TODO: check substitutions settings
+        // TODO: should we check substitutions settings ?
 
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
 
@@ -97,14 +95,13 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
                 relationshipTemplate -> workflowBuilderService.addRelationship(topologyContext, newNodeTemplate.getName(), relationshipTemplate.getName()));
 
         // copy hosted nodes
-        safe(getHostedNodes(nodeTemplates, nodeTemplateToCopy.getName()))
-                .forEach(nodeTemplate -> copyNodeTemplate(nodeTemplate, newNodeTemplate, nodeTemplates, topology));
+        safe(getHostedNodes(nodeTemplates, nodeTemplateToCopy.getName())).forEach(nodeTemplate -> copyNodeTemplate(nodeTemplate, newNodeTemplate, topology));
 
     }
 
-    private List<NodeTemplate> getHostedNodes(Map<String, NodeTemplate> nodeTemplates, String nodedName) {
+    private List<NodeTemplate> getHostedNodes(Map<String, NodeTemplate> nodeTemplates, String nodeName) {
         return nodeTemplates.values().stream().filter(nodeTemplate -> safe(nodeTemplate.getRelationships()).values().stream()
-                .anyMatch(relTemp -> relTemp.getTarget().equals(nodedName) && isHostedOn(relTemp.getType()))).collect(Collectors.toList());
+                .anyMatch(relTemp -> relTemp.getTarget().equals(nodeName) && isHostedOn(relTemp.getType()))).collect(Collectors.toList());
     }
 
     private void keepHostedOnRelationship(NodeTemplate nodeTemplate, String newTargetName) {
@@ -133,28 +130,10 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
         // output capabilities properties
         // FIXME THIS IS UGGLY
         // FIXME We use this custom method as using copyValue methos fails: it deser the Set into an Array
-        copyCapaOutputsProps(topology.getOutputCapabilityProperties(), toCopy, copyName);
+        copyCapabilitiesOutputProperties(topology.getOutputCapabilityProperties(), toCopy, copyName);
 
         // output attributes
         copyValue(topology.getOutputAttributes(), toCopy, copyName);
-
-        // substitution mapping
-        if (topology.getSubstitutionMapping() != null) {
-            if (topology.getSubstitutionMapping().getCapabilities() != null) {
-                for (SubstitutionTarget st : topology.getSubstitutionMapping().getCapabilities().values()) {
-                    if (st.getNodeTemplateName().equals(toCopy)) {
-                        st.setNodeTemplateName(copyName);
-                    }
-                }
-            }
-            if (topology.getSubstitutionMapping().getRequirements() != null) {
-                for (SubstitutionTarget st : topology.getSubstitutionMapping().getRequirements().values()) {
-                    if (st.getNodeTemplateName().equals(toCopy)) {
-                        st.setNodeTemplateName(copyName);
-                    }
-                }
-            }
-        }
     }
 
     private <V> void copyValue(Map<String, V> map, String keyName, String copyKeyName) {
@@ -179,7 +158,7 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
      * @param copyKeyName
      */
 
-    private void copyCapaOutputsProps(Map<String, Map<String, Set<String>>> map, String keyName, String copyKeyName) {
+    private void copyCapabilitiesOutputProperties(Map<String, Map<String, Set<String>>> map, String keyName, String copyKeyName) {
         if (MapUtils.isEmpty(map)) {
             return;
         }
