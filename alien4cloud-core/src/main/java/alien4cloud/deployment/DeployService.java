@@ -172,24 +172,6 @@ public class DeployService {
                     existingDeployment.setVersionId(deploymentTopology.getVersionId());
                     alienDao.save(existingDeployment);
                     callback.onSuccess(data);
-
-                    // Trigger post update workflow if defined in both the initial and current topologies.
-                    if (deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null
-                            && deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null) {
-                        log(existingDeployment, "Launching post update workflow", null, PaaSDeploymentLogLevel.INFO);
-                        orchestratorPlugin.launchWorkflow(deploymentContext, NormativeWorkflowNameConstants.POST_UPDATE, Maps.newHashMap(),
-                                new IPaaSCallback<Object>() {
-                                    @Override
-                                    public void onSuccess(Object data) {
-                                        log(existingDeployment, "Post update workflow execution completed successfully", null, PaaSDeploymentLogLevel.INFO);
-                                    }
-
-                                    @Override
-                                    public void onFailure(Throwable throwable) {
-                                        log(existingDeployment, throwable);
-                                    }
-                                });
-                    }
                 }
 
                 @Override
