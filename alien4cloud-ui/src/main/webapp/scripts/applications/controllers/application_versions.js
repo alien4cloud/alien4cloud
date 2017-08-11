@@ -166,8 +166,8 @@ define(function (require) {
                     return;
                   }
                 });
-                //emit an event to the parent scopes. This is for example to refresh the environments
-                $scope.$emit('applicationVersionChanged', version);
+              //emit an event to the parent scopes. This is for example to refresh the environments
+              $scope.$emit('applicationVersionChanged', version);
             }
             $scope.searchService.search();
             refreshAllAppVersions();

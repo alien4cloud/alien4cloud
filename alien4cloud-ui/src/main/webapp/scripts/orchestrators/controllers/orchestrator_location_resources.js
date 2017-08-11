@@ -24,8 +24,8 @@ define(function(require) {
 
         $scope.dimensions = { width: 800, height: 500 };
         resizeServices.registerContainer(function (width, height) {
-         $scope.dimensions = { width: width, height: height };
-         $scope.$digest();
+          $scope.dimensions = { width: width, height: height };
+          $scope.$digest();
         }, '#resource-catalog');
 
         function computeTypes() {

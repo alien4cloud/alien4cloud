@@ -48,6 +48,9 @@ define(function(require) {
   var templateInjector = require('a4c-templates');
 
   alien4cloud.startup = function() {
+    // Path initialization for ace ide so it find modules after minification
+    var config = window.ace.require('ace/config');
+    config.set('basePath', 'bower_components/ace-builds/src-min-noconflict');
 
     // add requirements to alien4cloud
     modules.link(alien4cloud);

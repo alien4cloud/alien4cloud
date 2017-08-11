@@ -30,7 +30,7 @@ define(function(require) {
     nextStepMenu.disabled = currentStepMenu.disabled || (_.get(currentStepMenu, 'step.status', 'SUCCESS')!=='SUCCESS');
   };
 
-  function enabledOrDisableMenus(menus){
+  function enabledOrDisableMenus(menus) {
     _.each(menus, function(menu){
       //if there is a nextStep, then compute the status of this menu, otherwise it is enabled by default
       if (_.defined(menu.nextStep)){
@@ -39,12 +39,12 @@ define(function(require) {
     });
   }
 
-  function updateStepsStatuses(menus, validationDTO){
+  function updateStepsStatuses(menus, validationDTO) {
     //set the status of each menu, based on the defined taskCodes and their presence in the validationDTO
-    _.each(menus, function(menu){
-      if(_.definedPath(menu, 'step.taskCodes')){
+    _.each(menus, function(menu) {
+      if(_.definedPath(menu, 'step.taskCodes')) {
         delete menu.step.status;
-        _.each(menu.step.taskCodes, function(taskCode){
+        _.each(menu.step.taskCodes, function(taskCode) {
           if(_.definedPath(validationDTO, 'taskList['+taskCode+']')){
             menu.step.status = 'ERROR';
             return;
@@ -57,13 +57,18 @@ define(function(require) {
   }
 
   function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menus) {
+    console.log('Refresh deployment context');
     return deploymentTopologyServices.get({
       appId: application.id,
       envId: deploymentContext.selectedEnvironment.id
     }).$promise.then(function(response) {
+        console.log('Got response', response);
         deploymentTopologyProcessor.process(response.data);
+        console.log('processed', response);
         deploymentContext.deploymentTopologyDTO = response.data;
         tasksProcessor.processAll(deploymentContext.deploymentTopologyDTO.validation);
+        console.log('task processed', deploymentContext.deploymentTopologyDTO.validation);
+        console.log('process step statuses');
         updateStepsStatuses(menus, deploymentContext.deploymentTopologyDTO.validation);
         return deploymentContext;
       });

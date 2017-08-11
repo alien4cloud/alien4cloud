@@ -9,6 +9,7 @@ module.exports = {
     options:    {
       htmlmin:  {
         collapseWhitespace: true,
+        conservativeCollapse: true,
         collapseBooleanAttributes: false,
         removeCommentsFromCDATA: true,
         removeOptionalTags: false
