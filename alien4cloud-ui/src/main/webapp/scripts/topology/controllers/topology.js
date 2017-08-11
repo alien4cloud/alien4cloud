@@ -32,8 +32,10 @@ define(function (require) {
 
   require('scripts/topology/services/topology_editor_events_services');
 
+  require('scripts/common/controllers/confirm_modal');
+
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
-    ['$scope', '$uibModal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService','hotkeys',
+    ['$scope', '$uibModal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService','hotkeys', '$translate',
     'defaultFilters',
     'topoEditArtifacts',
     'topoEditDisplay',
@@ -46,7 +48,7 @@ define(function (require) {
     'topoEditRelationships',
     'topoEditSubstitution',
     'topoEditDependencies',
-    function($scope, $uibModal, $timeout, componentService, nodeTemplateService, toscaService, hotkeys,
+    function($scope, $uibModal, $timeout, componentService, nodeTemplateService, toscaService, hotkeys, $translate,
     defaultFilters,
     topoEditArtifacts,
     topoEditDisplay,
@@ -239,9 +241,32 @@ define(function (require) {
       };
 
       // key binding
-       function copy() {
-        console.log('Saving the selected node template for copy...', $scope.selectedNodeTemplate);
+      function copy() {
         currentCopiedNode = $scope.selectedNodeTemplate;
+      }
+      function paste(){
+        if(_.defined(currentCopiedNode)){
+          $scope.nodes.copy(currentCopiedNode.name);
+        }
+      }
+      function deleteSelectedNode() {
+        if(_.defined($scope.selectedNodeTemplate)){
+          var modalInstance = $uibModal.open({
+            templateUrl: 'views/common/confirm_modal.html',
+            controller: 'ConfirmModalCtrl',
+            resolve: {
+              title: function() {
+                return 'DELETE';
+              },
+              content: function() {
+                return $translate('DELETE_CONFIRM');
+              }
+            }
+          });
+          modalInstance.result.then(function () {
+            $scope.nodes.delete($scope.selectedNodeTemplate.name);
+          });
+        }
       }
       hotkeys.bindTo($scope)
         .add ({
@@ -260,11 +285,19 @@ define(function (require) {
           combo: 'mod+v',
           description: 'paste the last copied node template.',
           callback: function(e) {
-            if(_.defined(currentCopiedNode)){
-              $scope.nodes.copy(currentCopiedNode.name);
-            }else{
-              console.log("nothing to paste...");
+            paste();
+            if(e.preventDefault) {
+              e.preventDefault();
+            } else {
+              e.returnValue = false;
             }
+          }
+        })
+        .add ({
+          combo: 'del',
+          description: 'Delete the selected node template.',
+          callback: function(e) {
+            deleteSelectedNode();
             if(e.preventDefault) {
               e.preventDefault();
             } else {
