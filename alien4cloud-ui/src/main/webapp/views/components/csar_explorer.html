@@ -9,7 +9,7 @@
       </treecontrol>
     </div>
     <div class="col-md-10">
-      <div ng-if="!isImage" ng-model="editorContent" ui-ace="{mode: mode}" readonly="true" style="height: 500px;"></div>
+      <div ng-if="!isImage" ng-model="editorContent" ui-ace="{workerPath: 'bower_components/ace-builds/src-min', modePath: 'bower_components/ace-builds/src-min', themePath: 'bower_components/ace-builds/src-min', mode: mode}" readonly="true" style="height: 500px;"></div>
       <img ng-if="isImage" ng-src="{{imageUrl}}" />
     </div>
   </div>

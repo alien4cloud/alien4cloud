@@ -47,7 +47,7 @@
           </button>
           <span class="text-info">{{aceFilePath}}<span>
         </div>
-        <div ng-model="editorContent"  ui-ace="{mode: mode, useWrapMode: true, readonly: released, onLoad : aceLoaded}" style="margin-top:10px; height: {{dimensions.height - 58}}px;">
+        <div ng-model="editorContent" ui-ace="{workerPath: 'bower_components/ace-builds/src-min', modePath: 'bower_components/ace-builds/src-min', themePath: 'bower_components/ace-builds/src-min', mode: mode, useWrapMode: true, readonly: released, onLoad : aceLoaded}" style="margin-top:10px; height: {{dimensions.height - 58}}px;">
         </div>
       </div>
       <div ng-if="isImage" style="margin-top:10px;" class="well"><img ng-src="{{imageUrl}}" /></div>
