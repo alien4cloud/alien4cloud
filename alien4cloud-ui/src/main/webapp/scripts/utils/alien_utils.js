@@ -18,6 +18,8 @@ define(function () {
         return 'fa-warning text-warning';
 
       case 'FAILURE':
+      return 'fa-circle text-danger';
+      
       case 'UNKNOWN':
         return 'fa-question-circle text-muted';
 
