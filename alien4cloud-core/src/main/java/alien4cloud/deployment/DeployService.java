@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.paas.model.DeploymentStatus;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import org.apache.commons.lang3.ArrayUtils;
@@ -172,6 +173,11 @@ public class DeployService {
                     existingDeployment.setVersionId(deploymentTopology.getVersionId());
                     alienDao.save(existingDeployment);
                     callback.onSuccess(data);
+                    // Trigger post update workflow if defined in both the initial and current topologies.
+                    if (deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null
+                            && deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null) {
+                        schedulePostUpdateWorkflow(System.currentTimeMillis(), existingDeployment, orchestratorPlugin, deploymentContext);
+                    }
                 }
 
                 @Override
@@ -187,6 +193,54 @@ public class DeployService {
 
             return null;
         });
+    }
+
+    private long timeout = 60 * 60 * 1000;
+
+    private void schedulePostUpdateWorkflow(final long startTime, final Deployment existingDeployment, final IOrchestratorPlugin orchestratorPlugin,
+            PaaSTopologyDeploymentContext deploymentContext) {
+        // We have to wait for status to be update success
+        if ((System.currentTimeMillis() - startTime) < timeout) {
+            orchestratorPlugin.getStatus(deploymentContext, new IPaaSCallback<DeploymentStatus>() {
+                @Override
+                public void onSuccess(DeploymentStatus data) {
+                    if (data != null && DeploymentStatus.UPDATED.equals(data)) {
+                        log(existingDeployment, "Launching post update workflow", null, PaaSDeploymentLogLevel.INFO);
+                        orchestratorPlugin.launchWorkflow(deploymentContext, NormativeWorkflowNameConstants.POST_UPDATE, Maps.newHashMap(),
+                                new IPaaSCallback<Object>() {
+                                    @Override
+                                    public void onSuccess(Object data) {
+                                        log(existingDeployment, "Post update workflow execution completed successfully", null, PaaSDeploymentLogLevel.INFO);
+                                    }
+
+                                    @Override
+                                    public void onFailure(Throwable throwable) {
+                                        log(existingDeployment, throwable);
+                                    }
+                                });
+                    } else if (data != null && DeploymentStatus.UPDATE_FAILURE.equals(data)) {
+                        log(existingDeployment, "Update failed, not launching post update workflow.", null, PaaSDeploymentLogLevel.WARN);
+                    } else {
+                        try {
+                            Thread.sleep(10000L);
+                            schedulePostUpdateWorkflow(startTime, existingDeployment, orchestratorPlugin, deploymentContext);
+                        } catch (InterruptedException e) {
+                            log(existingDeployment, e);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    log(existingDeployment,
+                            "Error while waiting to launch post update workflow. Please do it yourself after update is completed. " + throwable.getMessage(),
+                            ExceptionUtils.getStackTrace(throwable), PaaSDeploymentLogLevel.ERROR);
+                }
+            });
+        } else {
+            log(existingDeployment, "Timeout reached before launch of post update workflow. Please do it yourself after update is completed.", null,
+                    PaaSDeploymentLogLevel.ERROR);
+        }
     }
 
     private void log(Deployment deployment, Throwable throwable) {
