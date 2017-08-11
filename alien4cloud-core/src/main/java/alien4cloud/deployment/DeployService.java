@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
+import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -130,27 +131,14 @@ public class DeployService {
             orchestratorPlugin.deploy(deploymentContext, new IPaaSCallback<Object>() {
                 @Override
                 public void onSuccess(Object data) {
-                    log.info("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
+                    log.debug("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
                             firstLocation.getId(), deployment.getId());
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     log.error("Deployment failed with cause", t);
-                    PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
-                    deploymentLog.setDeploymentId(deployment.getId());
-                    deploymentLog.setDeploymentPaaSId(deployment.getOrchestratorDeploymentId());
-                    deploymentLog.setContent(t.getMessage() + "\n" + ExceptionUtils.getStackTrace(t));
-                    deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
-                    deploymentLog.setTimestamp(new Date());
-                    deploymentLoggingService.save(deploymentLog);
-
-                    PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
-                    messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
-                    messageMonitorEvent.setOrchestratorId(deploymentLog.getDeploymentPaaSId());
-                    messageMonitorEvent.setMessage(t.getMessage());
-                    messageMonitorEvent.setDate(deploymentLog.getTimestamp().getTime());
-                    alienMonitorDao.save(messageMonitorEvent);
+                    log(deployment, t);
 
                 }
             });
@@ -173,6 +161,10 @@ public class DeployService {
             PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, existingDeployment,
                     locations);
 
+            // After update we allow running a post_update workflow automatically, however as adding workflow in update depends on orchestrator we have to check
+            // if such option is possible on the selected orchestrator.
+            final DeploymentTopology deployedTopology = alienMonitorDao.findById(DeploymentTopology.class, existingDeployment.getId());
+
             // enrich the callback
             IPaaSCallback<Object> callbackWrapper = new IPaaSCallback<Object>() {
                 @Override
@@ -180,10 +172,29 @@ public class DeployService {
                     existingDeployment.setVersionId(deploymentTopology.getVersionId());
                     alienDao.save(existingDeployment);
                     callback.onSuccess(data);
+
+                    // Trigger post update workflow if defined in both the initial and current topologies.
+                    if (deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null
+                            && deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null) {
+                        log(existingDeployment, "Launching post update workflow", null, PaaSDeploymentLogLevel.INFO);
+                        orchestratorPlugin.launchWorkflow(deploymentContext, NormativeWorkflowNameConstants.POST_UPDATE, Maps.newHashMap(),
+                                new IPaaSCallback<Object>() {
+                                    @Override
+                                    public void onSuccess(Object data) {
+                                        log(existingDeployment, "Post update workflow execution completed successfully", null, PaaSDeploymentLogLevel.INFO);
+                                    }
+
+                                    @Override
+                                    public void onFailure(Throwable throwable) {
+                                        log(existingDeployment, throwable);
+                                    }
+                                });
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable throwable) {
+                    log(existingDeployment, throwable);
                     callback.onFailure(throwable);
                 }
             };
@@ -194,6 +205,29 @@ public class DeployService {
 
             return null;
         });
+    }
+
+    private void log(Deployment deployment, Throwable throwable) {
+        log(deployment, throwable.getMessage(), ExceptionUtils.getStackTrace(throwable), PaaSDeploymentLogLevel.ERROR);
+    }
+
+    private void log(Deployment deployment, String message, String stack, PaaSDeploymentLogLevel level) {
+        PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
+        deploymentLog.setDeploymentId(deployment.getId());
+        deploymentLog.setDeploymentPaaSId(deployment.getOrchestratorDeploymentId());
+        String content = stack == null ? message : message + "\n" + stack;
+        deploymentLog.setContent(content);
+        deploymentLog.setLevel(level);
+        deploymentLog.setTimestamp(new Date());
+        deploymentLoggingService.save(deploymentLog);
+
+        PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
+        messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
+        messageMonitorEvent.setOrchestratorId(deploymentLog.getDeploymentPaaSId());
+        messageMonitorEvent.setMessage(message);
+        messageMonitorEvent.setDate(deploymentLog.getTimestamp().getTime());
+        alienMonitorDao.save(messageMonitorEvent);
+
     }
 
     private PaaSTopologyDeploymentContext saveDeploymentTopologyAndGenerateDeploymentContext(final DeploymentTopology deploymentTopology,
