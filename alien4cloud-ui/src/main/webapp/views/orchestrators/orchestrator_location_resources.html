@@ -22,17 +22,17 @@
                 class="clickable"
                 ng-class="{'warning': selectedResourceTemplate == template}"
                 ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.value.elementId">
-                <td ng-if="showMultiSelect">
-                  <a ng-click="toggleTemplate(template, $event)" class="ng-scope">
-                      <i class="fa fa-fw fa-square-o" ng-class="{'fa-check-square-o' : isSelected(template),  'fa-square-o': !isSelected(template)}"></i>
-                  </a>
-                </td>
+              <td ng-if="showMultiSelect">
+                <a ng-click="toggleTemplate(template, $event)" class="ng-scope">
+                    <i class="fa fa-fw fa-square-o" ng-class="{'fa-check-square-o' : isSelected(template),  'fa-square-o': !isSelected(template)}"></i>
+                </a>
+              </td>
               <td ng-init="nodeIcon = getIcon(template.template.type)">
                 <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
                 <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
               </td>
               <td>{{template.name}}</td>
-              <td>{{template.template.type}}</td>
+              <td style="word-break: break-all;">{{template.template.type}}</td>
             </tr>
           </tbody>
         </table>
@@ -138,7 +138,9 @@
                        tooltip-append-to-body="true">
                   <i class="fa fa-magic" style="color:goldenrod"></i>
                 </small>
-                <h4 class="media-heading">{{ resource.elementId }}</h4>
+                <h4 class="media-heading" style="word-break: break-all;">
+                  {{ resource.elementId}}
+                </h4>
                 <p>
                   <b>{{'COMMON.SOURCE' | translate}}:</b> {{ resource.archiveName }}:{{ resource.archiveVersion }}
                 </p>
