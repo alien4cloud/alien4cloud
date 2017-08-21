@@ -5,8 +5,8 @@ import lombok.Setter;
 
 /**
  * Copy a node template operation. <br>
- * If the node is a host, then copy along with it all hosted nodes.<br>
- * Discard any other relationship.
+ * If the node is a host, then copy along with it hostedOn hierarchy.<br>
+ * Discard any relationship targeting a node out of the copied hostedOn hierarchy.
  *
  */
 @Getter

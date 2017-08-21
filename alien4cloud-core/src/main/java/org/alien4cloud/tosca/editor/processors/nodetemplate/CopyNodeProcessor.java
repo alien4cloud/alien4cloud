@@ -76,7 +76,7 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
      */
     private void processRelationships(Map<String, String> copiedNodes, Map<String, NodeTemplate> nodeTemplates, Topology topology) {
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
-        copiedNodes.values().forEach(nodeName -> cleanRelationships(nodeName, copiedNodes, nodeTemplates, topologyContext));
+        copiedNodes.values().forEach(nodeName -> copyAndCleanRelationships(nodeName, copiedNodes, nodeTemplates, topologyContext));
         ;
     }
 
@@ -118,11 +118,12 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
 
     /**
      * Discard all relationship targeting an "external" node. External here in terms of the hostedOn hierarchy
+     * Copy the valid ones
      * 
      * @param nodeName
      * @param validTargets A map of oldName -> copyName, we should keep relationships targeting one of these nodes.
      */
-    private void cleanRelationships(String nodeName, Map<String, String> validTargets, Map<String, NodeTemplate> nodeTemplates,
+    private void copyAndCleanRelationships(String nodeName, Map<String, String> validTargets, Map<String, NodeTemplate> nodeTemplates,
             WorkflowsBuilderService.TopologyContext topologyContext) {
 
         NodeTemplate nodeTemplate = nodeTemplates.get(nodeName);
