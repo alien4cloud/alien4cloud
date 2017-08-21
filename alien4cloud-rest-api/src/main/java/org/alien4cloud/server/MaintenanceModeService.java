@@ -98,7 +98,7 @@ public class MaintenanceModeService {
         if (!maintenanceModeState.isUserTriggered()) {
             throw new IllegalAccessError("Maintenance mode has not been enabled by a user, you are not allowed to update it.");
         }
-
+        doUpdate(user, message, progressPercentage);
     }
 
     /**
