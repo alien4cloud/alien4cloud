@@ -1,0 +1,110 @@
+<div class="breadcrumb-panel">
+  {{application.name}}
+</div>
+<div class="row">
+  <div class=col-md-6>
+    <!-- application infos -->
+    <div class="row">
+      <div class="col-md-4" style="text-align: center;">
+        <!-- Image section -->
+        <div id="am.applications.detail.drag-and-drop" class="drop-box" ng-show="!application.imageId && isManager" ngf-drop="onImageSelected($files)">{{'APPLICATIONS.IMAGE_UPLOAD' | translate}}</div>
+        <img ng-show="noshow = (application.imageId && isManager)" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ngf-drop="onImageSelected($files)" />
+        <img ng-show="!noshow && application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" />
+      </div>
+      <div class="col-md-8">
+        <div id="app-name" class="h1" style="display: inline-block;" ng-switch="isManager">
+          <span ng-switch-when="true" editable-text="application.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateApplication('name',$data)" blur="submit" ng-if="isManager">
+            {{application.name}} <i class="fa fa-edit"></i>
+          </span>
+          <span ng-switch-default>
+            {{application.name}}
+          </span>
+        </div>
+        <div id="app-desc" ng-switch="isManager">
+          <span ng-switch-when="true" editable-textarea="application.description" buttons="no" e-required onbeforesave="updateApplication('description',$data)" blur="submit">
+            {{application.description || 'description'}} <i class="fa fa-edit"></i>
+          </span>
+          <span ng-switch-default>
+            {{application.description}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="row grp-margin">
+      <div class="col-md-4">
+        <strong>{{'CREATION_DATE' | translate }}</strong>
+      </div>
+      <div class="col-md-8">{{application.creationDate | date:'medium'}}</div>
+    </div>
+    <div class="row grp-margin">
+      <div class="col-md-4">
+        <strong>{{'UPDATE_DATE' | translate }}</strong>
+      </div>
+      <div class="col-md-8">{{application.lastUpdateDate | date:'medium'}}</div>
+    </div>
+    <!-- dynamic sub-states menu -->
+    <div class="grp-margin">
+      <a ng-repeat="menuItem in menu"
+         id="{{menuItem.id}}"
+         ng-click="onItemClick($event, menuItem)"
+         ui-sref="{{menuItem.state}}"
+         uib-tooltip="{{menuItem.key | translate}}"
+         tooltip-placement="right"
+         tooltip-append-to-body="true"
+         class="btn btn-primary btn-rnd-menu"
+         ng-class="{'disabled' : menuItem.disabled}">
+        <i class="{{menuItem.icon}} fa-fw" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
+      </a>
+      <delete-confirm id="btn-delete-app" ng-if="isManager" func="removeApplication(application.id)" position="left" bssize="btn-rnd-menu" fastyle="fa-trash-o fa-fw">
+      </delete-confirm>
+    </div>
+    <!-- tags and meta-properties -->
+    <meta-properties-display
+      ng-if="isManager && application.metaProperties"
+      properties-type="'application'"
+      target="application"
+      resturl="'rest/latest/applications/:applicationId/properties'"
+      params="{applicationId: application.id}">
+    </meta-properties-display>
+    <div class="grp-margin" ng-if="isManager || application.tags.length > 0">
+      <a4c-tags base-url="rest/latest/applications/:applicationId/tags"
+        resource-key="applicationId"
+        resource-id="application.id"
+        tags="application.tags"
+        manager="isManager"></a4c-tags>
+    </div>
+  </div>
+  <div class=col-md-6>
+    <!-- environments list -->
+    <h3>Work on an environment</h3>
+    <div>
+      <div class="text-muted">
+        Prepare next deployment for an environment: associate a version, edit it's topology, configure deployment options and deploy.<br>Manage the current deployment for the environment.
+      </div>
+      <table class="table table-condensed grp-margin">
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Next version</th>
+          <th>Deployed version</th>
+        </tr>
+        <tr ng-repeat="environment in environments" id='env_{{environment.id}}' class="clickable" ng-click="onEnvironment(environment.id)">
+          <td><i class="fa {{statusCss(environment)}}" tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true"
+          ></i></td>
+          <td>{{environment.name}}</td>
+          <td>{{environment.environmentType}}</td>
+          <td>{{environment.currentVersionName}}</td>
+          <td>{{environment.deployedVersion}}</td>
+        </tr>
+      </table>
+    </div>
+    <!-- versions list -->
+    <div>
+      <h3>Edit a version's topology</h3>
+      <div class="text-muted">
+        Edit a version's topology out of the scope of an environment (allow the edition of a version that is not currently selected for deployment on any environment)
+      </div>
+    </div>
+  </div>
+</div>

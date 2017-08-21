@@ -118,7 +118,7 @@ define(function(require) {
         $scope.deploymentContext = deploymentContext;
         var pageStateId = $state.current.name;
         $scope.menu = menu;
-        $scope.fromStatusToCssClasses = alienUtils.fromDeploymentStatusToCssClasses;
+        $scope.fromStatusToCssClasses = alienUtils.getStatusCss;
 
         // Initialization
         $scope.application = applicationResult.data;

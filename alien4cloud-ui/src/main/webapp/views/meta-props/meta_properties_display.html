@@ -1,7 +1,6 @@
-<div class="meta-properties-display-div row" ng-controller="MetaPropertiesCtrl">
-  <div class="col-md-12" style="margin-top: 10px;" ng-init="collapseObj = {collapsed: false}">
-    <div
-      id="toogle-meta-properties"
+<div class="meta-properties-display-div row grp-margin" ng-controller="MetaPropertiesCtrl">
+  <div class="col-md-12" ng-init="collapseObj = {collapsed: false}" ng-if="_.isNotEmpty(properties)">
+    <div id="toogle-meta-properties"
       ng-if = "titled"
       ng-class="{'clickable': collapsable }"
       ng-click="collapseObj.collapsed = !collapseObj.collapsed">
@@ -13,7 +12,7 @@
       <div>
         <empty-place-holder data="properties"></empty-place-holder>
       </div>
-      <table class="table table-condensed" id="tabProperties" ng-if="_.isNotEmpty(properties)">
+      <table class="table table-condensed" id="tabProperties">
         <tr ng-repeat="metaProperty in properties">
           <td ng-init="propertyDefinition = metaProperty">
             <property-display id="meta_properties_{{metaProperty.name}}"

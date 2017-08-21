@@ -1,0 +1,50 @@
+<div>
+  <h4>Tags</h4>
+  <div class="table-responsive grp-margin">
+    <table class="table table-condensed">
+      <tr ng-repeat="tag in tags" ng-if="!isInternalTag(tag.name)">
+        <td>
+          <span>
+            <strong>{{tag.name}}</strong>
+          </span>
+        </td>
+        <td ng-switch="manager">
+          <span ng-switch-when="true" editable-text="tags[$index].value" ng-show="manager" buttons="no" e-required onaftersave="updateTag(tag.name,$data)" blur="submit">
+            {{tag.value}}
+            <i class="fa fa-pencil-square-o"></i>
+          </span>
+          <span ng-switch-default="true">
+            {{tag.value}}
+          </span>
+        </td>
+        <td>
+          <a ng-click="deleteTag(tag)" ng-show="manager">
+            <i class="fa fa-trash-o text-danger"></i>
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="3" ng-show="manager">
+          <form name="formAddTag" class="form-inline" ng-submit="addTag(newTag)">
+            <div ng-class="{'form-group':true, 'has-error': newTag.val && formAddTag.tagkey.$invalid}">
+              <input type="text" class="form-control" id="input-key" name="tagkey" ng-model="newTag.key" ng-pattern="tagKeyPattern" uib-typeahead="item for item in tagSuggestion.get($viewValue)" typeahead-min-length="tagSuggestion.minLength" required/>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="input-value" name="tagvalue" ng-model="newTag.val"/>
+            </div>
+            <div class="form-group">
+              <button ng-disabled="formAddTag.tagkey.$invalid" type="submit" class="btn btn-primary btn-sm" id="btn-add-tag">
+                <i class="fa fa-plus-circle"></i>
+              </button>
+            </div>
+            <div class="form-group">
+              <p ng-class="{'text-danger': formAddTag.tagkey.$invalid}" ng-show="newTag.val && formAddTag.tagkey.$invalid">
+                {{ 'COMPONENTS.FORM_ERRORS.TAG_KEY' | translate }}
+              </p>
+            </div>
+          </form>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

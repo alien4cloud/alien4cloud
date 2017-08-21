@@ -35,6 +35,18 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "users";
 @import "vertical-menu";
 
+.grp-margin {
+  margin-top: 10px;
+}
+
+.btn-rnd-menu {
+  padding: 15px 16px;
+  margin-left: 4px;
+  font-size: 28px;
+  line-height: 1.33;
+  border-radius: 50%;
+}
+
 // Navbar and global layout
 .navbar-logout-dropdown {
   z-index: 2000;

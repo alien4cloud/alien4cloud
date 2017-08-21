@@ -107,7 +107,6 @@
                   <div ng-class="{'form-group':true, 'has-error': newTag.val && formAddTag.tagkey.$invalid}">
                     <input type="text" class="form-control" id="input-key" name="tagkey" ng-model="newTag.key" ng-pattern="tagKeyPattern" uib-typeahead="item for item in tagSuggestion.get($viewValue)" typeahead-min-length="tagSuggestion.minLength" required/>
                   </div>
-                  <!-- Don't remove : Space between 2 inputs -->
                   <div class="form-group">
                     <input type="text" class="form-control" id="input-value" name="tagvalue" ng-model="newTag.val"/>
                   </div>
