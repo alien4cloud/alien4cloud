@@ -122,6 +122,75 @@ Feature: Topology editor: copy node
     And The SPEL expression "nodeTemplates['Java_copy_copy'].relationships" should return "null"
 
 
+  Scenario: Copying a node template should also copy its hosted nodes, along with internal relationships
+    Given I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Compute                                                               |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Java                                                                  |
+      | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Java2                                                                 |
+      | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Java3                                                                 |
+      | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | Java                                                                                  |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0                                                                                   |
+      | requirementName        | host                                                                                  |
+      | target                 | Compute                                                                               |
+      | targetedCapabilityName | host                                                                                  |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | Java2                                                                                 |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0                                                                                   |
+      | requirementName        | host                                                                                  |
+      | target                 | Compute                                                                               |
+      | targetedCapabilityName | host                                                                                  |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | Java                                                                                  |
+      | relationshipName       | MyRelationship2                                                                       |
+      | relationshipType       | tosca.relationships.DependsOn                                                         |
+      | relationshipVersion    | 1.0                                                                                   |
+      | requirementName        | dependency                                                                            |
+      | target                 | Java2                                                                                 |
+      | targetedCapabilityName | feature                                                                               |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | Java                                                                                  |
+      | relationshipName       | MyRelationship3                                                                       |
+      | relationshipType       | tosca.relationships.DependsOn                                                         |
+      | relationshipVersion    | 1.0                                                                                   |
+      | requirementName        | dependency                                                                            |
+      | target                 | Java3                                                                                 |
+      | targetedCapabilityName | feature                                                                               |
+    When I execute the operation
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation |
+      | nodeName | Compute                                                                |
+    Then No exception should be thrown
+    And The SPEL expression "nodeTemplates.size()" should return 7
+    And The SPEL expression "nodeTemplates['Compute_copy'].type" should return "tosca.nodes.Compute"
+    And The SPEL expression "nodeTemplates['Java_copy'].type" should return "fastconnect.nodes.Java"
+    And The SPEL expression "nodeTemplates['Java2_copy'].type" should return "fastconnect.nodes.Java"
+
+    ## There should be only 2 relationships in Java_copy node, targeting Compute_copy and Java2_copy.
+    And The SPEL expression "nodeTemplates['Java_copy'].relationships.size()" should return 2
+    And The SPEL expression "nodeTemplates['Java_copy'].relationships['MyRelationship_copy'].target" should return "Compute_copy"
+    And The SPEL expression "nodeTemplates['Java_copy'].relationships['MyRelationship2_copy'].target" should return "Java2_copy"
+    And The SPEL expression "nodeTemplates['Java2_copy'].relationships.size()" should return 1
+    And The SPEL expression "nodeTemplates['Java2_copy'].relationships['MyRelationship_copy'].target" should return "Compute_copy"
+
   Scenario: Copying a node template should not impact the original node
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
