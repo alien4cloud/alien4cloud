@@ -1,39 +1,40 @@
 @charset 'utf-8';
+
 $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
-@import "bootstrap_variables";
-@import "alien-variables";
+@import "variables/bootstrap_variables";
+@import "variables/alien-variables";
 
 $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "font-awesome/scss/font-awesome";
 
-@import 'bootstrap-sass-official/assets/stylesheets/bootstrap';
+@import 'bootstrap/bootstrap';
 
 // fonts
-@import "helveticaneue-thin";
-@import "roboto-thin";
+@import "font_styles/helveticaneue-thin";
+@import "font_styles/roboto-thin";
+@import "font_styles/bold-override";
 
-@import "a4c_forms";
-@import "a4c_power_toggle";
-@import "ace-editor";
-@import "catalog";
-@import "application";
-@import "bold-override";
-@import "dragdrop";
-@import "editable";
-@import "fileupload";
-@import "form-generator";
-@import "hopscotch";
-@import "horizontal-menu";
-@import "lang";
-@import "location-resources-directive";
-@import "plans";
-@import "search-directive";
-@import "topology-plan";
-@import "topology-svg";
-@import "topology";
-@import "tree-control";
-@import "users";
-@import "vertical-menu";
+@import "alien/a4c_forms";
+@import "alien/a4c_power_toggle";
+@import "alien/ace-editor";
+@import "alien/catalog";
+@import "alien/application";
+@import "alien/dragdrop";
+@import "alien/editable";
+@import "alien/fileupload";
+@import "alien/form-generator";
+@import "alien/hopscotch";
+@import "alien/horizontal-menu";
+@import "alien/lang";
+@import "alien/location-resources-directive";
+@import "alien/plans";
+@import "alien/search-directive";
+@import "alien/topology-plan";
+@import "alien/topology-svg";
+@import "alien/topology";
+@import "alien/tree-control";
+@import "alien/users";
+@import "alien/vertical-menu";
 
 .grp-margin {
   margin-top: 10px;

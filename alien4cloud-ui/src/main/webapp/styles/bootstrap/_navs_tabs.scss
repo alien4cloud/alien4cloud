@@ -1,0 +1,37 @@
+// Overrides the tab style from bootstrap
+// Give the tabs something to sit on
+.nav-tabs {
+  border-bottom: 1px solid $nav-tabs-border-color;
+  > li {
+    float: left;
+    // Make the list-items overlay the bottom border
+    margin-bottom: -1px;
+
+    // Actual tabs (as links)
+    > a {
+      color: $text-color;
+      margin-right: 2px;
+      line-height: $line-height-base;
+      &:hover {
+        border-color: $nav-tabs-link-hover-border-color $nav-tabs-link-hover-border-color $nav-tabs-border-color;
+      }
+    }
+
+    // Active state, and its :hover to override normal :hover
+    &.active > a {
+      &,
+      &:hover,
+      &:focus {
+        color: $component-active-bg;
+        background-color: $nav-tabs-active-link-hover-bg;
+        border-bottom: 4px solid $component-active-bg;
+        cursor: default;
+      }
+    }
+  }
+  // pulling this in mainly for less shorthand
+  &.nav-justified {
+    @extend .nav-justified;
+    @extend .nav-tabs-justified;
+  }
+}

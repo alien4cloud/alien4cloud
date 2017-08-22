@@ -1,8 +1,3 @@
-@import "bootstrap_variables";
-
-$fa-font-path: "../bower_components/font-awesome/fonts" !default;
-@import "font-awesome/scss/_variables";
-
 treecontrol {
     /* prevent user selection */
     -moz-user-select: -moz-none;

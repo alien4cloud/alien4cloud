@@ -1,7 +1,5 @@
 // Styles for angular xeditable
 
-@import "bootstrap_variables";
-
 .property-required {
   font-weight: 500;
   color: $state-danger-text;
@@ -74,5 +72,5 @@ select.form-control-inline {
 }
 
 .editable-number, .editable-texarea {
-  white-space: nowrap; 
+  white-space: nowrap;
 }
