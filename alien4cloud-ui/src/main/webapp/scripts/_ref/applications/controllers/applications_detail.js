@@ -16,7 +16,8 @@ define(function (require) {
 
   require('scripts/_ref/applications/controllers/applications_detail_environment');
 
-  require('scripts/applications/services/application_environment_builder');
+  require('scripts/_ref/applications/services/application_environments_manager_factory');
+
   require('scripts/applications/services/application_services');
   require('scripts/applications/services/application_version_services');
 
@@ -25,36 +26,39 @@ define(function (require) {
 
   require('scripts/meta-props/directives/meta_props_display');
 
-  require('scripts/layout/layout');
-
   states.state('applications.detail', {
     url: '/detail/:id',
     template: '<ui-view/>',
-    // templateUrl: 'views/_ref/applications/applications_detail.html',
-    // controller: 'ApplicationDetailCtrl',
+    controller: 'ApplicationDetailCtrl',
     resolve: {
       application: ['applicationServices', '$stateParams',
         function(applicationServices, $stateParams) {
-          return applicationServices.get({
-            applicationId: $stateParams.id
-          }).$promise;
+          return _.catch(function() {
+            return applicationServices.get({
+              applicationId: $stateParams.id
+            }).$promise;
+          });
         }
       ],
-      appEnvironments: ['application', 'appEnvironmentsBuilder', '$stateParams','userContextServices',
-        function(application, appEnvironmentsBuilder, $stateParams, userContextServices) {
-          return appEnvironmentsBuilder(application.data, $stateParams.openOnEnvironment, userContextServices);
+      applicationEnvironmentsManager: ['application', 'applicationEnvironmentsManagerFactory',
+        function(applicationResponse, applicationEnvironmentsManagerFactory) {
+          return _.catch(function() {
+            return applicationEnvironmentsManagerFactory(applicationResponse.data);
+          });
         }
       ],
       archiveVersions: ['$http', 'application', 'applicationVersionServices',
         function($http, application, applicationVersionServices) {
-          var searchAppVersionRequestObject = {
-            'from': 0,
-            'size': 400
-          };
-          return applicationVersionServices.searchVersion({
-            delegateId: application.data.id
-          }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
-            return result.data;
+          return _.catch(function() {
+            var searchAppVersionRequestObject = {
+              'from': 0,
+              'size': 400
+            };
+            return applicationVersionServices.searchVersion({
+              delegateId: application.data.id
+            }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
+              return result.data;
+            });
           });
         }
       ]
@@ -65,24 +69,30 @@ define(function (require) {
     }
   });
 
+  modules.get('a4c-applications').controller('ApplicationDetailCtrl',['$scope', 'applicationEnvironmentsManager',
+    function($scope, applicationEnvironmentsManager) {
+      applicationEnvironmentsManager.onEnvironmentStateChangedCallback = function() {
+        $scope.$digest();
+      };
+  }]);
+
   states.state('applications.detail.info', {
     url: '/infos',
     templateUrl: 'views/_ref/applications/applications_detail.html',
-    controller: 'ApplicationDetailCtrl'
+    controller: 'ApplicationInfoCtrl'
   });
   states.forward('applications.detail', 'applications.detail.info');
 
-  modules.get('a4c-applications').controller('ApplicationDetailCtrl',
-    ['$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'layoutService', 'authService', 'applicationServices', 'application', 'appEnvironments', 'archiveVersions',
-    function ($scope, $state, $translate, toaster, $upload, menu, layoutService, authService, applicationServices, applicationResponse, environments, versions) {
+  modules.get('a4c-applications').controller('ApplicationInfoCtrl',
+    ['$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'authService', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
+    function ($scope, $state, $translate, toaster, $upload, menu, authService, applicationServices, applicationResponse, applicationEnvironmentsManager, versions) {
       $scope.application = applicationResponse.data;
       if(!$scope.application.tags) {
         $scope.application.tags = {};
       }
-      $scope.environments = environments.environments;
+      $scope.environments = applicationEnvironmentsManager.environments;
       $scope.statusCss = alienUtils.getStatusCss;
 
-      layoutService.process(menu);
       $scope.menu = menu;
       $scope.onItemClick = function($event, menuItem) {
         if (menuItem.disabled) {

@@ -90,7 +90,7 @@
           <th>Deployed version</th>
         </tr>
         <tr ng-repeat="environment in environments" id='env_{{environment.id}}' class="clickable" ng-click="onEnvironment(environment.id)">
-          <td><i class="fa {{statusCss(environment)}}" tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true"
+          <td><i class="fa {{statusCss(environment)}}" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true"
           ></i></td>
           <td>{{environment.name}}</td>
           <td>{{environment.environmentType}}</td>

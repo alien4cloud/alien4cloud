@@ -1,3 +1,24 @@
 <div class="breadcrumb-panel">
-  <a href="#" ng-click="">{{application.name}}</a> > {{environment.name}}
+  <a href="#" ng-click="onApplication($event)">{{application.name}}</a> > {{environment.name}}
 </div>
+<div class="row grp-margin">
+    <div class="col-md-1">
+      <i class="fa fa-4x {{statusCss(environment)}}"></i>
+    </div>
+    <!--  Environment status -->
+    <div class="col-md-11">
+        <h4>{{environment.name}} ({{environment.environmentType}})</h4>
+        <h4 class="{{statusCss(environment)}}">{{'DEPLOYMENT.STATUS.' + environment.status | translate}}</h4>
+    </div>
+</div>
+<ul class="nav nav-tabs grp-margin">
+  <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active"
+    ng-class="{'disabled' : menuItem.disabled}">
+    <a id="{{menuItem.id}}"
+       ng-click="onItemClick($event, menuItem)"
+       ui-sref="{{menuItem.state}}">
+      <i class="{{menuItem.icon}}" ng-if="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
+    </a>
+  </li>
+</ul>
+<div ui-view></div>

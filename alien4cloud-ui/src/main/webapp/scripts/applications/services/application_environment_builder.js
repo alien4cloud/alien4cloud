@@ -134,6 +134,7 @@ define(function (require) {
       };
 
       return function(application, defaultSelectedEnvironmentId) {
+        
         return new AppEnvironmentsPromise(application, defaultSelectedEnvironmentId).then(function(result){
           return result;
         });

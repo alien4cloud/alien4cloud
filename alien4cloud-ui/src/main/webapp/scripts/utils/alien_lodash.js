@@ -6,7 +6,14 @@ define(function (require) {
   var $ = require('jquery');
 
   _.mixin({
-    undefined : function(val) {
+    catch: function(delegate) {
+      try {
+        return delegate();
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    undefined: function(val) {
       return _.isUndefined(val) || _.isNull(val);
     },
     defined: function(val) {
