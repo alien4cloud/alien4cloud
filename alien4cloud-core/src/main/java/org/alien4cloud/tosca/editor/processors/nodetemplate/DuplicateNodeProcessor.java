@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -35,13 +35,13 @@ import alien4cloud.utils.CloneUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Copy a node template processor. <br>
+ * Duplicate node template processor. <br>
  * If the node is a host, then copy along with it all hosted nodes.<br>
- * Discard any relationship that targets a node out of the copied hosted hierarchy.
+ * Discard any relationship that targets a node out of the duplicated hosted hierarchy.
  */
 @Slf4j
 @Component
-public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOperation> {
+public class DuplicateNodeProcessor implements IEditorOperationProcessor<DuplicateNodeOperation> {
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
@@ -50,55 +50,56 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
-    public void process(CopyNodeOperation operation) {
+    public void process(DuplicateNodeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
 
         Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
         // Retrieve existing node template
-        NodeTemplate nodeTemplateToCopy = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
+        NodeTemplate nodeTemplateToDuplicate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
 
-        // map that will contains a mapping of the copied node and their new names
-        Map<String, String> copiedNodesNameMappings = Maps.newHashMap();
+        // map that will contains a mapping of the duplicated node and their new names
+        Map<String, String> duplicatedNodesNameMappings = Maps.newHashMap();
 
-        // first copy the node templates
-        copyNodeTemplate(nodeTemplateToCopy, copiedNodesNameMappings, nodeTemplates, topology);
+        // first duplicate the node templates
+        duplicateNodeTemplate(nodeTemplateToDuplicate, duplicatedNodesNameMappings, nodeTemplates, topology);
 
         // then clean the relationships, discarding all that targets a node not in hostedNodes
-        processRelationships(copiedNodesNameMappings, nodeTemplates, topology);
+        processRelationships(duplicatedNodesNameMappings, nodeTemplates, topology);
     }
 
     /**
-     * Process relationships of the copied nodes: Copy what we want to keep and discard the others
+     * Process relationships of the duplicated nodes: Copy what we want to keep and discard the others
      *
-     * @param copiedNodes Map of nodeToCopyName--> copyNodeName
+     * @param duplicatedNodes Map of nodeToDuplicateName--> duplicatedNodeName
      * @param nodeTemplates
      * @param topology
      */
-    private void processRelationships(Map<String, String> copiedNodes, Map<String, NodeTemplate> nodeTemplates, Topology topology) {
+    private void processRelationships(Map<String, String> duplicatedNodes, Map<String, NodeTemplate> nodeTemplates, Topology topology) {
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
-        copiedNodes.values().forEach(nodeName -> copyAndCleanRelationships(nodeName, copiedNodes, nodeTemplates, topologyContext));
+        duplicatedNodes.values().forEach(nodeName -> copyAndCleanRelationships(nodeName, duplicatedNodes, nodeTemplates, topologyContext));
         ;
     }
 
-    private void copyNodeTemplate(NodeTemplate nodeTemplateToCopy, Map<String, String> copiedNodesNameMappings, Map<String, NodeTemplate> nodeTemplates,
-            Topology topology) {
+    private void duplicateNodeTemplate(NodeTemplate nodeTemplateToDuplicate, Map<String, String> duplicatedNodesNameMappings,
+            Map<String, NodeTemplate> nodeTemplates, Topology topology) {
         // Build the new one
-        NodeTemplate newNodeTemplate = CloneUtil.clone(nodeTemplateToCopy);
-        newNodeTemplate.setName(copyName(nodeTemplateToCopy.getName(), nodeTemplates.keySet()));
+        NodeTemplate newNodeTemplate = CloneUtil.clone(nodeTemplateToDuplicate);
+        newNodeTemplate.setName(copyName(nodeTemplateToDuplicate.getName(), nodeTemplates.keySet()));
 
         // load type
-        NodeType type = ToscaContext.getOrFail(NodeType.class, nodeTemplateToCopy.getType());
+        NodeType type = ToscaContext.getOrFail(NodeType.class, nodeTemplateToDuplicate.getType());
         topologyService.loadType(topology, type);
 
-        log.debug("Copying node template <{}>. Name is <{}> on the topology <{}> .", nodeTemplateToCopy.getName(), newNodeTemplate.getName(), topology.getId());
+        log.debug("Duplicating node template <{}> into <{}> on the topology <{}> .", nodeTemplateToDuplicate.getName(), newNodeTemplate.getName(),
+                topology.getId());
         // Put the new one in the topology
         nodeTemplates.put(newNodeTemplate.getName(), newNodeTemplate);
 
         // register the name mapping for further use
-        copiedNodesNameMappings.put(nodeTemplateToCopy.getName(), newNodeTemplate.getName());
+        duplicatedNodesNameMappings.put(nodeTemplateToDuplicate.getName(), newNodeTemplate.getName());
 
         // copy outputs
-        copyOutputs(topology, nodeTemplateToCopy.getName(), newNodeTemplate.getName());
+        copyOutputs(topology, nodeTemplateToDuplicate.getName(), newNodeTemplate.getName());
 
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
 
@@ -106,8 +107,8 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
         workflowBuilderService.addNode(topologyContext, newNodeTemplate.getName(), newNodeTemplate);
 
         // copy hosted nodes
-        safe(getHostedNodes(nodeTemplates, nodeTemplateToCopy.getName()))
-                .forEach(nodeTemplate -> copyNodeTemplate(nodeTemplate, copiedNodesNameMappings, nodeTemplates, topology));
+        safe(getHostedNodes(nodeTemplates, nodeTemplateToDuplicate.getName()))
+                .forEach(nodeTemplate -> duplicateNodeTemplate(nodeTemplate, duplicatedNodesNameMappings, nodeTemplates, topology));
 
     }
 
@@ -121,7 +122,7 @@ public class CopyNodeProcessor implements IEditorOperationProcessor<CopyNodeOper
      * Copy the valid ones
      * 
      * @param nodeName
-     * @param validTargets A map of oldName -> copyName, we should keep relationships targeting one of these nodes.
+     * @param validTargets A map of oldNodeName -> duplicatedNodeName, we should keep relationships targeting one of these nodes.
      */
     private void copyAndCleanRelationships(String nodeName, Map<String, String> validTargets, Map<String, NodeTemplate> nodeTemplates,
             WorkflowsBuilderService.TopologyContext topologyContext) {

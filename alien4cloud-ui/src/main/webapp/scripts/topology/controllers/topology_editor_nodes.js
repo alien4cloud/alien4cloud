@@ -143,11 +143,11 @@ define(function (require) {
             true
           );
         },
-        /*copy a node in the topology. Also copy the hosted nodes hierarchy. Discard any oter relationship*/
-        copy: function(nodeName) {
+        /*duplicate a node in the topology. Also duplicate the hosted nodes hierarchy. Discard any relationship targeting a node out of the hosted hierarchy*/
+        duplicate: function(nodeName) {
           var scope = this.scope;
           scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation',
               nodeName: nodeName
             },
             null, null, nodeName

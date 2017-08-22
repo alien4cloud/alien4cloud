@@ -1,39 +1,39 @@
-Feature: Topology editor: copy node
+Feature: Topology editor: duplicate node
 
   Background:
     Given I am authenticated with "ADMIN" role
     And I create an empty topology
 
-  Scenario: Copy a node template in a topology
+  Scenario: Duplicate a node template in a topology
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template                                                              |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
-      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation |
-      | nodeName | Template                                                               |
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation |
+      | nodeName | Template                                                                    |
     Then No exception should be thrown
     And The SPEL expression "nodeTemplates.size()" should return 2
     And The SPEL expression "nodeTemplates['Template'].type" should return "tosca.nodes.Compute"
     And The SPEL expression "nodeTemplates['Template_copy'].type" should return "tosca.nodes.Compute"
 
-  Scenario: Copying a non existing node template in an empty topology should fail
+  Scenario: Duplicating a non existing node template in an empty topology should fail
     When I execute the operation
-      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation |
-      | nodeName | missingNode                                                            |
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation |
+      | nodeName | missingNode                                                                 |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
-  Scenario: Copying a non existing node template in a topology should fail
+  Scenario: Duplicating a non existing node template in a topology should fail
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template                                                              |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
-      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation |
-      | nodeName | missingNode                                                            |
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation |
+      | nodeName | missingNode                                                                 |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
-  Scenario: Copying a node template in a topology should also copy outputs
+  Scenario: Duplicating a node template in a topology should also copy outputs
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template                                                              |
@@ -53,8 +53,8 @@ Feature: Topology editor: copy node
       | propertyName   | port                                                                                                    |
 
     When I execute the operation
-      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation |
-      | nodeName | Template                                                               |
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation |
+      | nodeName | Template                                                                    |
     Then No exception should be thrown
     And The SPEL expression "nodeTemplates.size()" should return 2
     And The SPEL expression "nodeTemplates['Template'].type" should return "tosca.nodes.WebServer"
@@ -84,7 +84,7 @@ Feature: Topology editor: copy node
     And The SPEL expression "outputCapabilityProperties['Template_copy']['data_endpoint'].?[#this == 'port'].size()" should return 1
 
 
-  Scenario: Copying a node template should also copy its hosted nodes
+  Scenario: Duplicating a node template should also copy its hosted nodes
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -103,8 +103,8 @@ Feature: Topology editor: copy node
       | target                 | Compute                                                                               |
       | targetedCapabilityName | host                                                                                  |
     When I execute the operation
-      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation |
-      | nodeName | Compute                                                                |
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation |
+      | nodeName | Compute                                                                     |
     Then No exception should be thrown
     And The SPEL expression "nodeTemplates.size()" should return 4
     And The SPEL expression "nodeTemplates['Compute_copy'].type" should return "tosca.nodes.Compute"
@@ -112,17 +112,17 @@ Feature: Topology editor: copy node
     And The SPEL expression "nodeTemplates['Java_copy'].relationships.size()" should return 1
     And The SPEL expression "nodeTemplates['Java_copy'].relationships['MyRelationship_copy'].target" should return "Compute_copy"
 
-    ##Copy a hosted node only
+    ##Duplicate a hosted node only
     When I execute the operation
-      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation |
-      | nodeName | Java_copy                                                              |
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation |
+      | nodeName | Java_copy                                                                   |
     Then No exception should be thrown
     And The SPEL expression "nodeTemplates.size()" should return 5
     And The SPEL expression "nodeTemplates['Java_copy_copy'].type" should return "fastconnect.nodes.Java"
     And The SPEL expression "nodeTemplates['Java_copy_copy'].relationships" should return "null"
 
 
-  Scenario: Copying a node template should also copy its hosted nodes, along with internal relationships
+  Scenario: Duplicating a node template should also copy its hosted nodes, along with internal relationships
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -176,8 +176,8 @@ Feature: Topology editor: copy node
       | target                 | Java3                                                                                 |
       | targetedCapabilityName | feature                                                                               |
     When I execute the operation
-      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation |
-      | nodeName | Compute                                                                |
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation |
+      | nodeName | Compute                                                                     |
     Then No exception should be thrown
     And The SPEL expression "nodeTemplates.size()" should return 7
     And The SPEL expression "nodeTemplates['Compute_copy'].type" should return "tosca.nodes.Compute"
@@ -191,7 +191,7 @@ Feature: Topology editor: copy node
     And The SPEL expression "nodeTemplates['Java2_copy'].relationships.size()" should return 1
     And The SPEL expression "nodeTemplates['Java2_copy'].relationships['MyRelationship_copy'].target" should return "Compute_copy"
 
-  Scenario: Copying a node template should not impact the original node
+  Scenario: Duplicating a node template should not impact the original node
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -224,8 +224,8 @@ Feature: Topology editor: copy node
       | targetedCapabilityName | feature                                                                               |
     And The SPEL expression "nodeTemplates['Java'].relationships.size()" should return 2
     When I execute the operation
-      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.CopyNodeOperation |
-      | nodeName | Compute                                                                |
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation |
+      | nodeName | Compute                                                                     |
     Then No exception should be thrown
     And The SPEL expression "nodeTemplates.size()" should return 5
     And The SPEL expression "nodeTemplates['Compute_copy'].type" should return "tosca.nodes.Compute"

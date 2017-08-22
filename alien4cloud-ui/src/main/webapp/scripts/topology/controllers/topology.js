@@ -241,16 +241,13 @@ define(function (require) {
       };
 
       // key binding
-      function copy() {
-        currentCopiedNode = $scope.selectedNodeTemplate;
-      }
-      function paste(){
-        if(_.defined(currentCopiedNode)){
-          $scope.nodes.copy(currentCopiedNode.name);
+      function duplicateNode(node){
+        if(_.defined(node)){
+          $scope.nodes.duplicate(node.name);
         }
       }
-      function deleteSelectedNode() {
-        if(_.defined($scope.selectedNodeTemplate)){
+      function deleteNode(node) {
+        if(_.defined(node)){
           var modalInstance = $uibModal.open({
             templateUrl: 'views/common/confirm_modal.html',
             controller: 'ConfirmModalCtrl',
@@ -264,28 +261,16 @@ define(function (require) {
             }
           });
           modalInstance.result.then(function () {
-            $scope.nodes.delete($scope.selectedNodeTemplate.name);
+            $scope.nodes.delete(node.name);
           });
         }
       }
       hotkeys.bindTo($scope)
         .add ({
-          combo: 'mod+c',
-          description: 'copy the selected node template.',
+          combo: 'mod+d',
+          description: 'Duplicate the selected node template with his hostedOn hierarchy.',
           callback: function(e) {
-            copy();
-            if(e.preventDefault) {
-              e.preventDefault();
-            } else {
-              e.returnValue = false;
-            }
-          }
-        })
-        .add ({
-          combo: 'mod+v',
-          description: 'paste the last copied node template.',
-          callback: function(e) {
-            paste();
+            duplicateNode($scope.selectedNodeTemplate);
             if(e.preventDefault) {
               e.preventDefault();
             } else {
@@ -297,7 +282,7 @@ define(function (require) {
           combo: 'del',
           description: 'Delete the selected node template.',
           callback: function(e) {
-            deleteSelectedNode();
+            deleteNode($scope.selectedNodeTemplate);
             if(e.preventDefault) {
               e.preventDefault();
             } else {
