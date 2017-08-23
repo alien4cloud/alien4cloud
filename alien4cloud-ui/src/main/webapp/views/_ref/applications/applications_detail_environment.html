@@ -17,7 +17,7 @@
     <a id="{{menuItem.id}}"
        ng-click="onItemClick($event, menuItem)"
        ui-sref="{{menuItem.state}}">
-      <i class="{{menuItem.icon}}" ng-if="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
+      <i class="{{menuItem.icon}}" ng-if="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}} <span ng-if="menuItem.state === 'applications.detail.environment.deploynext'">{{environment.currentVersionName}}</<span><span ng-if="menuItem.state === 'applications.detail.environment.deploycurrent'">{{environment.deployedVersion}}</<span>
     </a>
   </li>
 </ul>

@@ -104,6 +104,11 @@ define(function (require) {
       // Application rights
       $scope.isManager = authService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
 
+      $scope.$on('$destroy', function() {
+        // We must stop all event registrations
+        applicationEnvironmentsManager.stopEvents();
+      });
+
       $scope.onEnvironment = function (environmentId) {
         $state.go('applications.detail.environment', {
           environmentId: environmentId

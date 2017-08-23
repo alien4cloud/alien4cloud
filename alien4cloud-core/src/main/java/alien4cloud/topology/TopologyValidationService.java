@@ -13,6 +13,7 @@ import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.task.AbstractRelationshipTask;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.topology.task.ArtifactTask;
+import alien4cloud.topology.task.EmptyTask;
 import alien4cloud.topology.task.InputArtifactTask;
 import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.PropertiesTask;
@@ -55,6 +56,7 @@ public class TopologyValidationService {
     public TopologyValidationResult validateTopology(Topology topology) {
         TopologyValidationResult dto = new TopologyValidationResult();
         if (MapUtils.isEmpty(topology.getNodeTemplates())) {
+            dto.addTask(new EmptyTask());
             dto.setValid(false);
             return dto;
         }

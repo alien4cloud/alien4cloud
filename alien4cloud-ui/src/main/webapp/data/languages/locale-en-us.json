@@ -925,11 +925,16 @@
     "MENU_USERS": "Users"
   },
   "NAVAPPLICATIONS": {
-    "MENU_DEPLOYMENT": "Deployments",
+    "MENU_DEPLOY_NEXT": "Prepare next deployment",
+    "MENU_DEPLOY_CURRENT": "Manage current deployment",
+    "MENU_DEPLOY_NEXT.VERSION": "Version",
+    "MENU_DEPLOY_NEXT.TOPOLOGY": "Topology",
+    "MENU_DEPLOY_NEXT.INPUTS": "Inputs",
+    "MENU_DEPLOY_NEXT.LOCATIONS": "Locations",
+    "MENU_DEPLOY_NEXT.MATCHING": "Matching",
+    "MENU_DEPLOY_NEXT.DEPLOY": "Deploy",
+
     "MENU_ENVIRONMENT": "Environments",
-    "MENU_INFO": "Informations",
-    "MENU_RUNTIME": "Runtime",
-    "MENU_TOPOLOGY": "Topology",
     "MENU_USERS": "Users and Groups",
     "MENU_VERSIONS": "Versions"
   },

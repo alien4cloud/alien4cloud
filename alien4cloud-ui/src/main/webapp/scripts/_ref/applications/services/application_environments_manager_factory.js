@@ -51,6 +51,12 @@ define(function (require) {
           }
         },
 
+        stopEvents: function() {
+          _.each(this.eventRegistrations, function(eventRegistration){
+            eventRegistration.close();
+          });
+        },
+
         //reload the environment given its id
         reload: function(environmentId) {
           var self = this;

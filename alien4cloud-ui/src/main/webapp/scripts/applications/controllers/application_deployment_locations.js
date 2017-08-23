@@ -36,7 +36,7 @@ define(function(require) {
   modules.get('a4c-applications').controller('ApplicationDeploymentLocationCtrl',
     ['$scope', 'locationsMatchingServices', '$state', 'menu', 'deploymentTopologyServices', 'deploymentContextUtils',
       function($scope, locationsMatchingServices, $state, menu, deploymentTopologyServices, deploymentContextUtils) {
-        var thisMenu = _.find(menu, {id:'am.applications.detail.deployment.locations' });
+
         if (_.has($scope, 'deploymentContext.deploymentTopologyDTO.topology.orchestratorId') && _.has($scope, 'deploymentContext.deploymentTopologyDTO.locationPolicies.' + GROUP_ALL)) {
           $scope.oldSelectedOrchestratorId = $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId;
           $scope.oldSelectedLocationId = $scope.deploymentContext.deploymentTopologyDTO.locationPolicies[GROUP_ALL];

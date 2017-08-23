@@ -1,0 +1,63 @@
+<div class="row grp-margin">
+  <!-- Input properties  -->
+  <div class="col-md-6">
+    <div class="content-head">
+      <i class="fa fa-sign-in"></i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}
+    </div>
+    <div class="content-body">
+      <empty-place-holder data="userInputs"></empty-place-holder>
+      <table class="table table-condensed" id="inputsTable"
+        ng-if="_.isNotEmpty(userInputs)">
+        <tr ng-repeat="(inputId, inputDefinition) in userInputs">
+          <td>
+            <property-display
+              definition="inputDefinition"
+              property-type="deploymentTopologyDTO.dataTypes[inputDefinition.type]"
+              dependencies="deploymentTopologyDTO.topology.dependencies"
+              property-name="inputId"
+              property-value="deploymentTopologyDTO.topology.inputProperties[inputId]"
+              on-save="updateInputValue(propertyDefinition, propertyValue, inputId)"
+              editable="true"
+              condensed="true">
+            </property-display>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Input artifacts  -->
+  <div class="col-md-6">
+    <div class="content-head">
+      <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate}}
+    </div>
+    <div class="content-body">
+      <div class="task-list-box" ng-if="deploymentTopologyDTO.validation.taskList['INPUT_ARTIFACT_INVALID']">
+        <input-artifacts-errors-display
+          tasks = "deploymentTopologyDTO.validation.taskList['INPUT_ARTIFACT_INVALID']">
+        </input-artifacts-errors-display>
+      </div>
+      <empty-place-holder data="deploymentTopologyDTO.topology.inputArtifacts"></empty-place-holder>
+      <ul ng-if="_.isNotEmpty(deploymentTopologyDTO.topology.inputArtifacts)">
+        <li ng-repeat="(artifactKey,artifactValue) in deploymentTopologyDTO.topology.inputArtifacts">
+          {{artifactKey}}
+          <div uib-collapse="isArtifactCollapsed">
+            <div class="row">
+              <div class="col-md-3">{{'COMMON.TYPE' | translate}}</div>
+              <div class="col-md-9">{{artifactValue.artifactType}}</div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
+              <div class="col-md-9">
+                <span>{{deploymentTopologyDTO.topology.uploadedInputArtifacts[artifactKey].artifactName | truncate:20}}</span>
+                <div class="fileUploadImg btn" uib-tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
+                  <span><i class="fa fa-upload text-primary" ng-click="openInputArtifactModal(artifactKey, artifactValue)"></i></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
