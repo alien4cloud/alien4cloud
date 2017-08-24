@@ -9,7 +9,8 @@ module.exports = function (grunt) {
       'autoprefixer', // update CSS to add browser specifics (moz- etc.)
       'copy:dist', // copy resource files to dist folders
       'execute:prerequire', // inject the native modules in the a4c bootstrap requirements so they are loaded before plugins
-      'requirejs:a4cdist', // Package all alien4cloud files into a single alien4cloud-bootstrap.js file (and minify it).
+      'requirejs:a4cdist', // Package all alien4cloud files into a single alien4cloud-bootstrap.js file.
+      'execute:minify', // Minify alien4cloud-bootstrap.js file.
       'requirejs:a4cdepdist', // Package all dependencies (bower components) into a single alien4cloud-dependencies.js file
       'clean:bower', // remove the bower_components directory from the build (to avoid shipping useless files)
       'copy:bower', // Copy back the bower_components that are required for the application to run (mainly requirejs file)
