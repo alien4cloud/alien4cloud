@@ -9,12 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
 
-import alien4cloud.application.ApplicationEnvironmentService.DeleteApplicationEnvironments;
-import alien4cloud.application.ApplicationVersionService.DeleteApplicationVersions;
-import alien4cloud.images.ImageDAO;
-import alien4cloud.model.application.ApplicationVersion;
 import org.alien4cloud.alm.events.AfterApplicationDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import org.elasticsearch.common.lang3.ArrayUtils;
@@ -26,13 +21,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.application.ApplicationEnvironmentService.DeleteApplicationEnvironments;
+import alien4cloud.application.ApplicationVersionService.DeleteApplicationVersions;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.images.ImageDAO;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.IResourceRoles;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.utils.NameValidationUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -77,8 +75,8 @@ public class ApplicationService {
         application.setName(name);
         application.setDescription(description);
 
-        application.setTags(Lists.<Tag> newArrayList());
-        application.setMetaProperties(Maps.<String, String> newHashMap());
+        application.setTags(Lists.newArrayList());
+        application.setMetaProperties(Maps.newHashMap());
 
         alienDAO.save(application);
         return archiveName;
@@ -199,7 +197,7 @@ public class ApplicationService {
      * @param applicationId
      * @return the related application
      */
-    public Application checkAndGetApplication(String applicationId, ApplicationRole... roles) {
+    public Application checkAndGetApplication(String applicationId, IResourceRoles... roles) {
         Application application = getOrFail(applicationId);
         roles = ArrayUtils.isEmpty(roles) ? ApplicationRole.values() : roles;
         AuthorizationUtil.checkAuthorizationForApplication(application, roles);

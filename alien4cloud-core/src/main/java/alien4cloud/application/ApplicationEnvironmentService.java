@@ -38,8 +38,11 @@ import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.IResourceRoles;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
+import alien4cloud.security.model.Role;
 import alien4cloud.utils.MapUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -247,8 +250,13 @@ public class ApplicationEnvironmentService {
      * @param roles {@link ApplicationRole} to check right on the underlying application
      * @return the corresponding application environment
      */
-    public ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, ApplicationRole... roles) {
+    public ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, IResourceRoles... roles) {
         ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
+        // Does the user is allowed access (application, environment) level ?
+        if(AuthorizationUtil.hasAuthorization(applicationEnvironment, Role.ADMIN, roles)){
+            return applicationEnvironment;
+        }
+        // Does the user is allowed to access at the application level
         applicationService.checkAndGetApplication(applicationEnvironment.getApplicationId(), roles);
         return applicationEnvironment;
     }
