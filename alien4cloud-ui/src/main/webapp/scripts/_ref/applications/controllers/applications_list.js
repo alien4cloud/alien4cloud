@@ -41,7 +41,7 @@ define(function (require) {
   modules.get('a4c-applications').controller('ApplicationListCtrl',
     ['$scope', '$state', '$uibModal', '$translate', 'toaster', 'pieChartService', 'authService', 'applicationServices', 'searchServiceFactory',
     function ($scope, $state, $uibModal, $translate, toaster, pieChartService, authService, applicationServices, searchServiceFactory) {
-      $scope.fromStatusToCssClasses = alienUtils.getStatusCss;
+      $scope.fromStatusToCssClasses = alienUtils.getStatusIconCss;
       $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
       $scope.queryManager = {};
       $scope.searchService = searchServiceFactory('rest/latest/applications/search', false, $scope.queryManager, 20);

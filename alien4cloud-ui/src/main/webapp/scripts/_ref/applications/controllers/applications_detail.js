@@ -105,7 +105,7 @@ define(function (require) {
         $scope.application.tags = {};
       }
       $scope.environments = applicationEnvironmentsManager.environments;
-      $scope.statusCss = alienUtils.getStatusCss;
+      $scope.statusCss = alienUtils.getStatusIconCss;
 
       // Add the resource layout controller to the scope (mixin)
       $controller('ResourceLayoutCtrl', {$scope: $scope, menu: menu, resourceLayoutService: resourceLayoutService, resource: $scope.application});

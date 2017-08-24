@@ -15,7 +15,7 @@ define(function () {
   };
 
   return {
-    getStatusCss: function(environmentDTO) {
+    getStatusIconCss: function(environmentDTO) {
       switch (_.get(environmentDTO, 'status')) {
         case 'DEPLOYED':
         case 'UPDATED':
@@ -38,7 +38,35 @@ define(function () {
         case 'DEPLOYMENT_IN_PROGRESS':
         case 'UPDATE_IN_PROGRESS':
         case 'UNDEPLOYMENT_IN_PROGRESS':
-            return 'fa-spinner fa-spin';
+            return 'fa-spinner fa-spin text-primary';
+        default:
+         return '';
+      }
+    },
+    getStatusTextCss: function(environmentDTO) {
+      switch (_.get(environmentDTO, 'status')) {
+        case 'DEPLOYED':
+        case 'UPDATED':
+          return 'text-success';
+
+        case 'UNDEPLOYED':
+          return 'text-muted';
+
+        case 'WARNING':
+        case 'UPDATE_FAILURE':
+          return 'text-warning';
+
+        case 'FAILURE':
+        return 'text-danger';
+
+        case 'UNKNOWN':
+          return 'fa-question-circle text-muted';
+
+        case 'INIT_DEPLOYMENT':
+        case 'DEPLOYMENT_IN_PROGRESS':
+        case 'UPDATE_IN_PROGRESS':
+        case 'UNDEPLOYMENT_IN_PROGRESS':
+            return 'text-primary';
         default:
          return '';
       }

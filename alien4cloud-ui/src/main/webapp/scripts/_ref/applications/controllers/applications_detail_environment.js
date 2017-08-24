@@ -43,7 +43,8 @@ define(function (require) {
     function ($scope, $state, userContextServices, applicationResponse, environment, menu) {
       $scope.application = applicationResponse.data;
       $scope.environment = environment;
-      $scope.statusCss = alienUtils.getStatusCss;
+      $scope.statusIconCss = alienUtils.getStatusIconCss;
+      $scope.statusTextCss = alienUtils.getStatusTextCss;
 
       $scope.menu = menu;
 

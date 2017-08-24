@@ -3,12 +3,12 @@
 </div>
 <div class="row grp-margin">
     <div class="col-md-1">
-      <i class="fa fa-4x {{statusCss(environment)}}"></i>
+      <i class="fa fa-4x {{statusIconCss(environment)}}"></i>
     </div>
     <!--  Environment status -->
     <div class="col-md-11">
         <h4>{{environment.name}} ({{environment.environmentType}})</h4>
-        <h4 class="{{statusCss(environment)}}">{{'DEPLOYMENT.STATUS.' + environment.status | translate}}</h4>
+        <h4 class="{{statusTextCss(environment)}}">{{'DEPLOYMENT.STATUS.' + environment.status | translate}}</h4>
     </div>
 </div>
 <ul class="nav nav-tabs grp-margin">
