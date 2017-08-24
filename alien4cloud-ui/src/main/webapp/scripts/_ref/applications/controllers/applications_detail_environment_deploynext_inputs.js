@@ -40,7 +40,7 @@ define(function (require) {
         updatedProperties[inputId] = inputValue;
         return deploymentTopologyServices.updateInputProperties({
           appId: $scope.application.id,
-          envId: $scope.deploymentContext.selectedEnvironment.id
+          envId: $scope.environment.id
         }, angular.toJson({
           inputProperties: updatedProperties
         }), function (result) {
@@ -71,13 +71,10 @@ define(function (require) {
                 return $scope.availableRepositories;
               },
               artifact: function () {
-                return $scope.deploymentContext.deploymentTopologyDTO.topology.uploadedInputArtifacts[artifactKey];
+                return $scope.deploymentTopologyDTO.topology.uploadedInputArtifacts[artifactKey];
               },
               application: function () {
                 return $scope.application;
-              },
-              deploymentContext: function () {
-                return $scope.deploymentContext;
               },
               artifactKey: function () {
                 return artifactKey;
@@ -93,7 +90,7 @@ define(function (require) {
 
           modalInstance.result.then(function (selectedArtifact) {
             if (selectedArtifact) {
-              var inputArtifactsDao = $resource('rest/latest/applications/' + $scope.application.id + '/environments/' + $scope.deploymentContext.selectedEnvironment.id + '/deployment-topology/inputArtifacts/' + key + '/update', {}, {
+              var inputArtifactsDao = $resource('rest/latest/applications/' + $scope.application.id + '/environments/' + $scope.environment.id + '/deployment-topology/inputArtifacts/' + key + '/update', {}, {
                 'update': {
                   method: 'POST'
                 }
