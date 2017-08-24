@@ -1,4 +1,4 @@
-Feature: Topology editor: Recover a topology after csar dependencies updates
+Feature: Topology editor: Change version of a csar dependency
 
   Background:
     Given I am authenticated with "ADMIN" role
@@ -107,9 +107,9 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
       | dependencyName    | test-topo-dependencies-types                                             |
       | dependencyVersion | 0.5-SNAPSHOT                                                             |
     When I execute the operation
-      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation   |
-      | nodeName          | OtherNode                                                               |
-      | indexedNodeTypeId | alien.test.nodes.TestComponentSourceAncestor:0.2-SNAPSHOT               |
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | OtherNode                                                             |
+      | indexedNodeTypeId | alien.test.nodes.TestComponentSourceAncestor:0.2-SNAPSHOT             |
     And The dto SPEL expression "dependencyConflicts.size()" should return 1
     And The dto SPEL expression "dependencyConflicts.^[source == 'test-topo-dependencies-types' ].dependency" should return "test-topo-dependencies-trans-types:0.1-SNAPSHOT"
     And The dto SPEL expression "dependencyConflicts.^[source == 'test-topo-dependencies-types' ].resolvedVersion" should return "0.2-SNAPSHOT"

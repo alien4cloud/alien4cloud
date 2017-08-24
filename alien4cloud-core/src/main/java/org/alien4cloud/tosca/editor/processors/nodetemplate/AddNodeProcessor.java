@@ -8,6 +8,7 @@ import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -38,6 +39,8 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
     private TopologyCompositionService topologyCompositionService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private EditorTopologyRecoveryHelperService recoveryHelperService;
 
     @Override
     public void process(AddNodeOperation operation) {
@@ -67,8 +70,10 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         }
 
         log.debug("Create node template <{}>", operation.getNodeName());
-        indexedNodeType = topologyService.loadType(topology, indexedNodeType);
-        NodeTemplate nodeTemplate = topologyServiceCore.buildNodeTemplate(topology.getDependencies(), indexedNodeType, null);
+
+        NodeType loadedIndexedNodeType = topologyService.loadType(topology, indexedNodeType);
+
+        NodeTemplate nodeTemplate = topologyServiceCore.buildNodeTemplate(topology.getDependencies(), loadedIndexedNodeType, null);
         nodeTemplate.setName(operation.getNodeName());
         topology.getNodeTemplates().put(operation.getNodeName(), nodeTemplate);
 

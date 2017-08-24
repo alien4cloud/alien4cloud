@@ -1,5 +1,45 @@
 package alien4cloud.topology;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.BiConsumer;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.editor.EditionContext;
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.mapping.FilterValuesStrategy;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -18,43 +58,8 @@ import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
-import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
-import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.editor.EditionContext;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.mapping.FilterValuesStrategy;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.BiConsumer;
-
-import static alien4cloud.utils.AlienUtils.safe;
 
 @Slf4j
 @Service
@@ -71,6 +76,8 @@ public class TopologyService {
     private ApplicationService appService;
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
+    @Inject
+    private EditorTopologyRecoveryHelperService recoveryHelperService;
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology, boolean failOnTypeNotFound) {
         // FIXME we should use ToscaContext here, and why not allowing the caller to pass ona Context?
@@ -156,8 +163,8 @@ public class TopologyService {
             List<String> addedArchiveName = new ArrayList<>();
             addedArchiveName.add(elementIdToReplace);
 
-            for (int i = suggestedNodeTypes.length-1 ; i >= 0 ; i--) {
-                if(!addedArchiveName.contains(suggestedNodeTypes[i].getElementId())){
+            for (int i = suggestedNodeTypes.length - 1; i >= 0; i--) {
+                if (!addedArchiveName.contains(suggestedNodeTypes[i].getElementId())) {
                     addedArchiveName.add(suggestedNodeTypes[i].getElementId());
                     filterData.add(suggestedNodeTypes[i]);
                 }
@@ -310,6 +317,8 @@ public class TopologyService {
     /**
      * Load a type into the topology (add dependency for this new type, upgrade if necessary ...)
      *
+     * If the dependency added has been upgraded into the topology, then recover the topology
+     *
      * @param topology the topology
      * @param element the element to load
      * @param <T> tosca element type
@@ -324,9 +333,9 @@ public class TopologyService {
 
         // FIXME Transitive dependencies could change here and thus types be affected ?
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);
-        typeLoader.loadType(type, toLoadDependency);
+        boolean upgraded = typeLoader.loadType(type, toLoadDependency);
         ToscaContext.get().resetDependencies(typeLoader.getLoadedDependencies());
-        // Validate does not induce missing types.
+        // Validate does not induce missing types
         try {
             this.checkForMissingTypes(topology);
         } catch (NotFoundException e) {
@@ -336,8 +345,15 @@ public class TopologyService {
                     + element.getArchiveVersion() + "] changes the topology dependencies and induces missing types. "
                     + "Try with another version instead. Not found : [" + e.getMessage() + "].", e);
         }
+
         topology.setDependencies(typeLoader.getLoadedDependencies());
-        return element;
+
+        // recover the topology if needed
+        if (upgraded) {
+            recover(topology, toLoadDependency);
+        }
+
+        return ToscaContext.getOrFail((Class<T>) element.getClass(), type);
     }
 
     public void unloadType(Topology topology, String... types) {
@@ -431,5 +447,18 @@ public class TopologyService {
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);
         topology.setDependencies(typeLoader.getLoadedDependencies());
     }
+
+    /**
+     * Recover a topology, given a set of dependencies (that might have changed)
+     * 
+     * @param topology The topology to recover
+     * @param dependencies The updated dependencies within the topology for witch to process the recovery
+     */
+    public void recover(Topology topology, CSARDependency... dependencies) {
+        // get recovering operations
+        List<AbstractEditorOperation> recoveringOperations = recoveryHelperService.buildRecoveryOperations(topology, Sets.newHashSet(dependencies));
+        // process every recovery operation
+        recoveryHelperService.processRecoveryOperations(topology, recoveringOperations);
+    };
 
 }
