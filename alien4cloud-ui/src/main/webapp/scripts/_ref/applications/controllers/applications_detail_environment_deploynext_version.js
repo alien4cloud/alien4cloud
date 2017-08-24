@@ -24,8 +24,37 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextVersionCtrl',
-    ['$scope', 'archiveVersions', 'deploymentTopologyDTO','applicationEnvironmentServices','environment',
-      function ($scope, archiveVersionsResponse, deploymentTopologyDTO, applicationEnvironmentServices, environment) {
+    ['$scope', 'archiveVersions', 'deploymentTopologyDTO', 'applicationEnvironmentServices', 'environment', 'application',
+      function ($scope, archiveVersionsResponse, deploymentTopologyDTO, applicationEnvironmentServices, environment, applicationResponse) {
+
+        function setSelectedTopologyId(topologyId) {
+          _.forEach($scope.archive.versions, function (version) {
+            if (_.defined(version.topologyVersions[topologyId])) {
+              $scope.onVersionSelected(null, version);
+              $scope.onTopologyVersionSelected(null, version.topologyVersions[topologyId]);
+              return;
+            }
+          });
+        }
+
+        function doUpdateTopologyVersion(applicationId, environmentId, selectedTopologyVersion) {
+          applicationEnvironmentServices.updateTopologyVersion({
+            applicationId: applicationId,
+            applicationEnvironmentId: environmentId
+          }, angular.toJson({
+            newTopologyVersion: selectedTopologyVersion,
+            environmentToCopyInput: null
+          })).$promise.then(function () {
+            // when OK
+            console.log('ok');
+            deploymentTopologyDTO.topology.archiveVersion = selectedTopologyVersion;
+          }).catch(function () {
+            // when Error
+            console.log('error');
+            setSelectedTopologyId(deploymentTopologyDTO.topology.archiveVersion);
+          });
+        }
+
         $scope.archive = {
           versions: archiveVersionsResponse.data
         };
@@ -50,58 +79,19 @@ define(function (require) {
 
           if (_.defined($event)) {
             $event.stopPropagation();
-          }
 
-          // update server info
-          $scope.setAppTopologyVersion(topologyVersion);
+            // update server info
+            var versionOnly = topologyVersion.archiveId.split(':')[1];
+            doUpdateTopologyVersion(applicationResponse.data.id, environment.id, versionOnly);
+          }
         };
 
         $scope.isSelectedVersion = function (version) {
           return version.id === _.get($scope, 'selectedAppVersion.id');
         };
 
-        $scope.setAppTopologyVersion = function(selectedTopologyVersion) {
-          applicationEnvironmentServices.getInputCandidates({
-            applicationId: $scope.application.id
-          }, angular.toJson({
-            applicationEnvironmentId: environment.id,
-            applicationTopologyVersion: selectedTopologyVersion.archiveId
-          })).$promise.then(function(result) {
-            console.log('result -> ' + result);
-            console.log('result -> ' + JSON.stringify(result));
-            /*
-            if (_.defined(result.data) && result.data.length > 0) {
-              var modalInstance = $uibModal.open({
-                templateUrl: 'views/applications/select_environment_to_copy_inputs.html',
-                controller: SelectEnvironmentToCopyInputCtrl,
-                resolve: {
-                  inputCandidates: function(){
-                    return result.data;
-                  }
-                }
-              });
-              modalInstance.result.then(function(inputCandidate) {
-                doUpdateTopologyVersion(environment, selectedTopologyVersion, inputCandidate);
-              });
-            } else {
-              doUpdateTopologyVersion(environment, selectedTopologyVersion, null);
-            }
-            */
-          });
-        };
-
-        function setSelectedTopologyId(topologyId) {
-          _.forEach($scope.archive.versions, function (version) {
-            if (_.defined(version.topologyVersions[topologyId])) {
-              $scope.onVersionSelected(null, version);
-              $scope.onTopologyVersionSelected(null, version.topologyVersions[topologyId]);
-              return;
-            }
-          });
-        }
-
         setSelectedTopologyId(deploymentTopologyDTO.topology.archiveVersion);
       }
     ]);
-    
+
 });
