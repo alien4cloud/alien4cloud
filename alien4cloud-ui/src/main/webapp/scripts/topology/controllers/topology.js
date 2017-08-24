@@ -61,9 +61,6 @@ define(function (require) {
     topoEditRelationships,
     topoEditSubstitution,
     topoEditDependencies) {
-
-      var currentCopiedNode = null;
-
       $scope.defaultFilters = defaultFilters;
       $scope.isRuntime = false;
 
