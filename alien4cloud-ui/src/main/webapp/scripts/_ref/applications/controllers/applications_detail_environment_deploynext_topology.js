@@ -6,6 +6,8 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
+  require('scripts/topology/directives/topology_validation_display');
+
   states.state('applications.detail.environment.deploynext.topology', {
     url: '/topology',
     templateUrl: 'views/_ref/applications/applications_detail_environment_deploynext_topology.html',
@@ -26,7 +28,7 @@ define(function (require) {
     ['$scope',
     function ($scope) {
       // Filter tasks to match only the screen task codes
-
+      $scope.canEditTopology = true;
     }
   ]);
 });

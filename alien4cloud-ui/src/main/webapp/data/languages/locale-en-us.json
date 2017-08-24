@@ -448,6 +448,7 @@
     "DATA": "Data",
     "DATE": "Date",
     "DESCRIPTION": "Description",
+    "EDIT": "Edit",
     "EMAIL": "Email",
     "EMAIL_INVALID": "Invalid Email.",
     "ENABLED_false": "Disabled",

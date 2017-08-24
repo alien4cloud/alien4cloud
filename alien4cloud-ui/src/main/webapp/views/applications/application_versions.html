@@ -3,7 +3,7 @@
     <!--  Create button -->
     <div class="col-md-9">
       <button class="btn btn-success" id="app-version-new-btn" ng-click="openNewAppVersion()">
-        <i class="fa fa fa-plus-circle"></i> {{'APPLICATIONS.VERSION.NEW' | translate}}
+        <i class="fa fa-plus-circle"></i> {{'APPLICATIONS.VERSION.NEW' | translate}}
       </button>
     </div>
 
@@ -46,7 +46,7 @@
               <div class="pull-right">
                 <button class="btn btn-sm btn-success" id="avt-new-btn-{{version.version}}" ng-click="openNewAppTopoVersion(version)"
                   uib-tooltip="{{'APPLICATIONS.VERSION.TOPOLOGY.NEW' | translate}}" tooltip-placement="left" tooltip-append-to-body="true">
-                  <i class="fa fa fa-plus-circle"></i>
+                  <i class="fa fa-plus-circle"></i>
                 </button>
                 <delete-confirm  id='delete-version-{{version.version}}' func="delete(version.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>

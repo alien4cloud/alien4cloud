@@ -22,6 +22,82 @@
         </div>
     </div>
 </div>
+
+FIXME
+
+<!-- If there is validation issues they are displayed here. -->
+<div class="col-md-12" ng-if="showTodoList() || showWarningList()">
+    <!-- warning list -->
+    <div class="row" ng-if="showWarningList()">
+        <div id="deploymentWarningList" class="col-md-12">
+            <h3 class="text-warning"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.WARNING.LABEL' | translate}}</h3>
+            <!-- Valid topology warning list -->
+            <div class="warning-list-box" ng-repeat="(taskCode, tasks) in deploymentTopologyDTO.validation.warningList" ng-switch="taskCode">
+                <!-- Properties warning list -->
+                <div ng-if="tasks.length>0" ng-switch-when="PROPERTIES">
+                    <h4 class="clickable" ng-init="isPropertiesGroupWarningsCollapsed = false"
+                        ng-click="isPropertiesGroupWarningsCollapsed = !isPropertiesGroupWarningsCollapsed">
+                        <i class="fa"
+                           ng-class="{'fa-caret-down' : !isPropertiesGroupWarningsCollapsed , 'fa-caret-right': isPropertiesGroupWarningsCollapsed }"></i>
+                        <span>{{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.LABEL' | translate}}</span>
+                    </h4>
+                    <div uib-collapse="isPropertiesGroupWarningsCollapsed">
+                        <table class="table table-condensed">
+                            <thead>
+                            <th>{{'COMMON.NODE' | translate}}</th>
+                            <th>
+                                <i class="fa fa-exclamation-triangle"
+                                   uib-tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i>
+                                {{'COMMON.PROPERTIES' | translate}}
+                            </th>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="task in tasks">
+                                <td>{{task.nodeTemplateName || '---'}}</td>
+                                <td>{{task.properties['WARNING'] | a2s:','}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div ng-if="tasks.length>0" ng-switch-when="FORBIDDEN_OPERATION">
+                    <h4 class="clickable" ng-init="isIllegalOperationWarningsCollapsed = false"
+                        ng-click="isIllegalOperationWarningsCollapsed = !isIllegalOperationWarningsCollapsed">
+                        <i class="fa"
+                           ng-class="{'fa-caret-down' : !isIllegalOperationWarningsCollapsed , 'fa-caret-right': isIllegalOperationWarningsCollapsed }"></i>
+                        <span>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.LABEL' | translate}}</span>
+                    </h4>
+                    <div uib-collapse="isIllegalOperationWarningsCollapsed">
+                        <p style="font-style: italic"><i class="fa fa-info-circle" aria-hidden="true">&nbsp;</i>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.LABEL_DETAILS'
+                            | translate}}</p>
+                        <table class="table table-condensed">
+                            <thead>
+                            <th>{{'COMMON.NODE' | translate}}</th>
+                            <th>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.SERVICE' | translate}}</th>
+                            <th>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.OPERATION' | translate}}</th>
+                            <th>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.RELATIONSHIP_TYPE' | translate}}</th>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="task in tasks">
+                                <td>{{task.nodeTemplateName || '---'}}</td>
+                                <td>{{task.serviceName || '---'}}</td>
+                                <td>{{task.operationName || '---'}}</td>
+                                <td>{{task.relationshipType || '---'}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- End : properties warning -->
+            </div>
+            <!-- End: Valid topology warning list -->
+        </div>
+        <!-- End : warning list display -->
+    </div>
+</div>
+
+ENDFIXME
+
 <!-- Steps navigation pills -->
 <ul class="nav nav-pills grp-margin">
   <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active"
