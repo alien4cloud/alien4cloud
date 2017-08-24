@@ -10,6 +10,14 @@
   border-bottom: 1px solid #333333;
   z-index: 300;
   overflow: hidden;
+
+  > a {
+    color: white;
+
+    &:hover {
+      color: #ddd;
+    }
+  }
 }
 
 // BELOW are old styles to remove after refactoring
