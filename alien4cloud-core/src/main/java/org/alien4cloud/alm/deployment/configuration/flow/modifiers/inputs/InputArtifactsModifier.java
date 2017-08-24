@@ -36,6 +36,9 @@ public class InputArtifactsModifier implements ITopologyModifier {
                 .orElseThrow(() -> new IllegalArgumentException("Input modifier requires an environment context.")).getEnvironment();
         DeploymentInputs deploymentInputs = context.getConfiguration(DeploymentInputs.class, InputsModifier.class.getSimpleName())
                 .orElse(new DeploymentInputs(environment.getTopologyVersion(), environment.getId()));
+        if(deploymentInputs.getInputArtifacts() == null) {
+            deploymentInputs.setInputArtifacts(Maps.newHashMap());
+        }
 
         boolean updated = false;
         // Cleanup inputs artifacts that does not exists anymore
