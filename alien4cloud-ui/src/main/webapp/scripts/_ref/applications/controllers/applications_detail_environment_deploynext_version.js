@@ -46,11 +46,9 @@ define(function (require) {
             environmentToCopyInput: null
           })).$promise.then(function () {
             // when OK
-            console.log('ok');
             deploymentTopologyDTO.topology.archiveVersion = selectedTopologyVersion;
           }).catch(function () {
             // when Error
-            console.log('error');
             setSelectedTopologyId(deploymentTopologyDTO.topology.archiveVersion);
           });
         }
