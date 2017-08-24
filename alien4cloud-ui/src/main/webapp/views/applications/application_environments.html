@@ -1,5 +1,4 @@
 <div>
-
   <div class="row" style="margin-bottom: 10px;">
     <!--  Create button -->
     <div class="col-md-9">
@@ -41,7 +40,7 @@
                 <ui-select id="{{environment.name}}-versionslistid" ng-model="environment.selectedAppVersion" append-to-body="true" reset-search-input="true" close-on-select="true" on-select="forceUserToChangeTopoVersion(environment)">
                   <ui-select-match placeholder="Select or search a version...">{{$select.selected.version | limitTo: 20}}{{$select.selected.version.length > 20 ? '...' : ''}}</ui-select-match>
                   <ui-select-choices repeat="appVersion in archiveVersions | filter: $select.search">
-                    <span ng-bind-html="appVersion.version | limitTo: 20 | highlight: $select.search"></span>
+                    <span ng-bind-html="appVersion.version | limitTo: 20"></span>
                     {{appVersion.version.length > 20 ? '...' : ''}}
                   </ui-select-choices>
                 </ui-select>
@@ -50,7 +49,7 @@
                 <ui-select id="{{environment.name}}-topo-versions" ng-if="environment.selectedAppVersion" ng-model="environment.selectedAppTopoVersion" append-to-body="true" on-select="setAppTopologyVersion(environment, environment.selectedAppTopoVersion)" reset-search-input="true" close-on-select="true">
                   <ui-select-match placeholder="Select or search a version...">{{$select.selected.key | limitTo: 20}}{{$select.selected.key.length > 20 ? '...' : ''}}</ui-select-match>
                   <ui-select-choices repeat="topologyVersionRpt.key as (key, topologyVersionRpt) in environment.selectedAppVersion.topologyVersions | filter: {'key':$select.search}">
-                    <span ng-bind-html="topologyVersionRpt.key | limitTo: 20 | highlight: $select.search"></span>{{topologyVersionRpt.key.length > 20 ? '...' : ''}}
+                    <span ng-bind-html="topologyVersionRpt.key | limitTo: 20"></span>{{topologyVersionRpt.key.length > 20 ? '...' : ''}}
                   </ui-select-choices>
                 </ui-select>
                 <span ng-if="!environment.selectedAppTopoVersion" class="text-danger">{{'APPLICATIONS.VERSION.CHANGE_TOPO_VERSION_WARNING' | translate}}</span>

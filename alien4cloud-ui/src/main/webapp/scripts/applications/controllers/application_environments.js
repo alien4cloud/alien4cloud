@@ -55,13 +55,15 @@ define(function (require) {
   ];
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentsCtrl',
-    ['$scope', '$state', '$translate', 'toaster', 'authService', '$uibModal', 'applicationEnvironmentServices', 'applicationVersionServices', 'appEnvironments', 'archiveVersions',
-    function($scope, $state, $translate, toaster, authService, $uibModal, applicationEnvironmentServices, applicationVersionServices, appEnvironments, archiveVersions) {
+    ['$scope', '$state', '$translate', 'toaster', 'authService', '$uibModal', 'applicationEnvironmentServices', 'applicationVersionServices',
+    'application', 'applicationEnvironmentsManager', 'archiveVersions',
+    function($scope, $state, $translate, toaster, authService, $uibModal, applicationEnvironmentServices, applicationVersionServices,
+      applicationResponse, applicationEnvironmentsManager, archiveVersions) {
+      $scope.application = applicationResponse.data;
       $scope.archiveVersions = archiveVersions.data;
-      $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
       $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function() {});
 
-      $scope.environments = appEnvironments.environments;
+      $scope.environments = applicationEnvironmentsManager.environments;
 
       function initEnvironment(environment) {
         // initialize the selectedAppVersion and selectedAppTopoVersion variables based on the environment currentVersionName (basically the application topo version currently configured).
@@ -116,7 +118,7 @@ define(function (require) {
             }, function (result) {
               if (_.undefined(result.error) ) {
                 initEnvironment(result.data);
-                appEnvironments.addEnvironment(result.data);
+                applicationEnvironmentsManager.add(result.data);
               }
             });
           });
@@ -131,7 +133,7 @@ define(function (require) {
             applicationEnvironmentId: appEnvId
           }, null, function deleteAppEnvironment(result) {
             if(result.data) {
-              appEnvironments.removeEnvironment(appEnvId);
+              applicationEnvironmentsManager.remove(appEnvId);
             }
           });
         }
@@ -156,7 +158,7 @@ define(function (require) {
           environmentToCopyInput: inputCandidateId
         }), function() {
           environment.currentVersionName = selectedTopologyVersion;
-          appEnvironments.updateEnvironment(environment);
+          applicationEnvironmentsManager.update(environment);
         });
       }
 
@@ -195,7 +197,7 @@ define(function (require) {
               fieldName = 'currentVersionName';
             }
             environment[fieldName] = fieldValue;
-            appEnvironments.updateEnvironment(environment);
+            applicationEnvironmentsManager.update(environment);
             done = true;
           }
         }

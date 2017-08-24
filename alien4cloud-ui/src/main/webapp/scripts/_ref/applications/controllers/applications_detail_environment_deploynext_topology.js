@@ -24,10 +24,10 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextTopologyCtrl',
-    ['$scope', '$state',
-    function ($scope, $state) {
+    ['$scope', '$state', 'authService',
+    function ($scope, $state, authService) {
       // Filter tasks to match only the screen task codes
-      $scope.canEditTopology = true;
+      $scope.canEditTopology = authService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
 
       $scope.editTopology = function() {
         $state.go('editor_app_env.editor', {
