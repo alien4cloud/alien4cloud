@@ -10,6 +10,8 @@ define(function (require) {
   var alienUtils = require('scripts/utils/alien_utils');
   var _ = require('lodash');
 
+  require('scripts/layout/resource_layout');
+
   require('scripts/applications/controllers/application_versions');
   require('scripts/applications/controllers/application_environments');
   require('scripts/applications/controllers/application_users');
@@ -84,8 +86,8 @@ define(function (require) {
   states.forward('applications.detail', 'applications.detail.info');
 
   modules.get('a4c-applications').controller('ApplicationInfoCtrl',
-    ['$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'authService', 'userContextServices', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
-    function ($scope, $state, $translate, toaster, $upload, menu, authService, userContextServices, applicationServices, applicationResponse, applicationEnvironmentsManager, versions) {
+    ['$controller', '$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'resourceLayoutService', 'authService', 'userContextServices', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
+    function ($controller, $scope, $state, $translate, toaster, $upload, menu, resourceLayoutService, authService, userContextServices, applicationServices, applicationResponse, applicationEnvironmentsManager, versions) {
       var navigationContext = userContextServices.getAppNavContext(applicationResponse.data.id);
       if(_.defined(navigationContext)) {
         if(navigationContext.type === 'environment') {
@@ -105,13 +107,8 @@ define(function (require) {
       $scope.environments = applicationEnvironmentsManager.environments;
       $scope.statusCss = alienUtils.getStatusCss;
 
-      $scope.menu = menu;
-      $scope.onItemClick = function($event, menuItem) {
-        if (menuItem.disabled) {
-          $event.preventDefault();
-          $event.stopPropagation();
-        }
-      };
+      // Add the resource layout controller to the scope (mixin)
+      $controller('ResourceLayoutCtrl', {$scope: $scope, menu: menu, resourceLayoutService: resourceLayoutService, resource: $scope.application});
 
       // Application rights
       $scope.isManager = authService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');

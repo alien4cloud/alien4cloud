@@ -75,47 +75,6 @@ define(function (require) {
         }
       }
 
-      function updateStepsStatuses(menu, validationDTO) {
-        // set the status of each menu, based on the defined taskCodes and their presence in the validationDTO
-        isLocationStepEnabled = false;
-        var nextDisabled = false;
-        _.each(menu, function(menuItem) {
-          if(_.definedPath(menuItem, 'step.taskCodes')) {
-            delete menuItem.step.status;
-            menuItem.disabled = false;
-            if(nextDisabled) {
-              menuItem.disabled = true;
-              return;
-            }
-            menuItem.step.status = 'SUCCESS';
-            _.each(menuItem.step.taskCodes, function(taskCode) {
-              if(_.definedPath(validationDTO, 'taskList['+taskCode+']')) {
-                menuItem.step.status = 'ERROR';
-                nextDisabled = true;
-                return false; // stop the _.each
-              }
-            });
-          }
-          if(menuItem.state === 'applications.detail.environment.deploynext.locations') {
-            isLocationStepEnabled = !menuItem.disabled;
-          }
-        });
-        initLocationMatches();
-      }
-
-      updateStepsStatuses(menu, deploymentTopologyDTO.validation);
-
-      $scope.updateScopeDeploymentTopologyDTO = function(deploymentTopologyDTO) {
-        if(_.undefined(deploymentTopologyDTO)){
-          return;
-        }
-        deploymentTopologyProcessor.process(deploymentTopologyDTO);
-        tasksProcessor.processAll(deploymentTopologyDTO.validation);
-
-        $scope.deploymentTopologyDTO = deploymentTopologyDTO;
-        updateStepsStatuses(menu, deploymentTopologyDTO.validation);
-      };
-
       // INITIALIZE the selected menu to the first invalid or latest step
       var goToNextInvalidStep = function() {
         //menus are sorted by priority. first step is the top one
@@ -131,6 +90,57 @@ define(function (require) {
 
         //go to the found step
         $state.go(stepToGo.state);
+      };
+
+      function updateStepsStatuses(menu, validationDTO) {
+        // set the status of each menu, based on the defined taskCodes and their presence in the validationDTO
+        isLocationStepEnabled = false;
+        var nextDisabled = false;
+        _.each(menu, function(menuItem) {
+          if(_.definedPath(menuItem, 'step.taskCodes')) {
+            delete menuItem.step.status;
+            menuItem.disabled = false;
+            if(nextDisabled) {
+              menuItem.disabled = true;
+              return;
+            }
+            menuItem.step.status = 'SUCCESS';
+            _.each(menuItem.step.taskCodes, function(taskCode) {
+              if(_.definedPath(validationDTO, 'taskList['+taskCode+']')) {
+                if(_.defined(menuItem.step.source)) {
+                  var source = _.get(validationDTO, ['taskList', taskCode, 0, menuItem.step.source]);
+                  if(menuItem.step.source === source) {
+                    menuItem.step.status = 'ERROR';
+                    nextDisabled = true;
+                    return false; // stop the _.each
+                  }
+                } else {
+                  menuItem.step.status = 'ERROR';
+                  nextDisabled = true;
+                  return false; // stop the _.each
+                }
+              }
+            });
+          }
+          if(menuItem.state === 'applications.detail.environment.deploynext.locations') {
+            isLocationStepEnabled = !menuItem.disabled;
+          }
+        });
+        initLocationMatches();
+        // TODO Change only if the previous selected was the last
+      }
+
+      updateStepsStatuses(menu, deploymentTopologyDTO.validation);
+
+      $scope.updateScopeDeploymentTopologyDTO = function(deploymentTopologyDTO) {
+        if(_.undefined(deploymentTopologyDTO)){
+          return;
+        }
+        deploymentTopologyProcessor.process(deploymentTopologyDTO);
+        tasksProcessor.processAll(deploymentTopologyDTO.validation);
+
+        $scope.deploymentTopologyDTO = deploymentTopologyDTO;
+        updateStepsStatuses(menu, deploymentTopologyDTO.validation);
       };
 
       goToNextInvalidStep();

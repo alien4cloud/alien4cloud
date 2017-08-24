@@ -1,5 +1,7 @@
 package alien4cloud.topology;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -54,6 +56,15 @@ public class TopologyValidationService {
      */
     @ToscaContextual
     public TopologyValidationResult validateTopology(Topology topology) {
+        TopologyValidationResult dto = doValidate(topology);
+        // set the source of the tasks to know that they are related to validation of the source topology and not deployment topology
+        addSource(dto.getTaskList());
+        addSource(dto.getWarningList());
+        addSource(dto.getInfoList());
+        return dto;
+    }
+
+    private TopologyValidationResult doValidate(Topology topology) {
         TopologyValidationResult dto = new TopologyValidationResult();
         if (MapUtils.isEmpty(topology.getNodeTemplates())) {
             dto.addTask(new EmptyTask());
@@ -89,6 +100,10 @@ public class TopologyValidationService {
         dto.setValid(isValidTaskList(dto.getTaskList()));
 
         return dto;
+    }
+
+    private void addSource(List<AbstractTask> tasks) {
+        safe(tasks).forEach(abstractTask -> abstractTask.setSource("topology"));
     }
 
     public static boolean hasOnlyPropertiesWarnings(List<PropertiesTask> properties) {

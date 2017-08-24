@@ -12,7 +12,7 @@
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
-            <li ng-repeat="env in envs" ng-class="{'option-selected' : env.id == selectedEnvironment.id}">
+            <li ng-repeat="env in environments" ng-class="{'option-selected' : env.id == selectedEnvironment.id}">
               <a id="environment_{{env.name}}" ng-click="changeUserEnvironment(env)">
                 <i class="fa fa-angle-right" ng-if="env.id == selectedEnvironment.id"></i> {{env.name}}
               </a>

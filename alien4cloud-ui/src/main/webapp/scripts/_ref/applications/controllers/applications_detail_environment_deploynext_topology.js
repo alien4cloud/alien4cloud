@@ -18,7 +18,8 @@ define(function (require) {
       icon: '',
       priority: 200,
       step: {
-        taskCodes: ['EMPTY', 'IMPLEMENT_RELATIONSHIP', 'SATISFY_LOWER_BOUND', 'PROPERTIES', 'SCALABLE_CAPABILITY_INVALID', 'NODE_FILTER_INVALID', 'WORKFLOW_INVALID']
+        taskCodes: ['EMPTY', 'IMPLEMENT_RELATIONSHIP', 'SATISFY_LOWER_BOUND', 'PROPERTIES', 'SCALABLE_CAPABILITY_INVALID', 'NODE_FILTER_INVALID', 'WORKFLOW_INVALID'],
+        source: 'topology'
       }
     }
   });
@@ -27,7 +28,7 @@ define(function (require) {
     ['$scope', '$state', 'authService',
     function ($scope, $state, authService) {
       // Filter tasks to match only the screen task codes
-      $scope.canEditTopology = authService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
+      $scope.canEditTopology = authService.hasResourceRoleIn($scope.application, ['APPLICATION_MANAGER', 'APPLICATION_DEVOPS']);
 
       $scope.editTopology = function() {
         $state.go('editor_app_env.editor', {

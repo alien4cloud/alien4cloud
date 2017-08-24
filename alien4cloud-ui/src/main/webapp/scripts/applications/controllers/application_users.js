@@ -37,10 +37,11 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationUsersCtrl', ['$scope', 'authService',
-    'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles', 'environmentRoles', 'applicationEnvironmentServices', 'appEnvironments',
-    function($scope, authService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult, environmentRolesResult, applicationEnvironmentServices, appEnvironments) {
+    'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles', 'environmentRoles', 'applicationEnvironmentServices', 'applicationEnvironmentsManager',
+    function($scope, authService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult, environmentRolesResult, applicationEnvironmentServices, applicationEnvironmentsManager) {
       $scope.application = applicationResult.data;
-      $scope.selectedEnvironment = appEnvironments.selected;
+      $scope.selectedEnvironment = applicationEnvironmentsManager.environments[0];
+      $scope.environments = applicationEnvironmentsManager.environments;
       $scope.appRoles = applicationRolesResult.data;
       $scope.environmentRoles = environmentRolesResult.data;
 
@@ -64,7 +65,7 @@ define(function (require) {
       _.each($scope.application.groupRoles, function(groupRoles, groupId) {
         groupIds.push(groupId);
       });
-      _.each($scope.envs, function(environment) {
+      _.each($scope.environments, function(environment) {
         initField(environment, 'userRoles');
         initField(environment, 'groupRoles');
         _.each(environment.userRoles, function(userRoles, username) {
@@ -166,11 +167,9 @@ define(function (require) {
 
       // switch environment
       $scope.changeUserEnvironment = function(switchToEnvironment) {
-        appEnvironments.select(switchToEnvironment.id, function() {
-          $scope.selectedEnvironment = appEnvironments.selected;
-          updateUserEnvironmentRoles();
-          updateGroupEnvironmentRoles();
-        });
+        $scope.selectedEnvironment = switchToEnvironment;
+        updateUserEnvironmentRoles();
+        updateGroupEnvironmentRoles();
       };
 
       // Handle selection for USER

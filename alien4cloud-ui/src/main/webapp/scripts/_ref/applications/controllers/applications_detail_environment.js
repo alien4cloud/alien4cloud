@@ -24,7 +24,6 @@ define(function (require) {
           return _.catch(function() {
             var environment = applicationEnvironmentsManager.get($stateParams.environmentId);
             userContextServices.setEnvironmentId(environment.applicationId, $stateParams.environmentId);
-            console.log(userContextServices);
             return environment;
           });
         }
@@ -36,6 +35,7 @@ define(function (require) {
     }
   });
 
+  // TODO Manually forward to the state with visibility (users should go to summary)
   states.forward('applications.detail.environment', 'applications.detail.environment.deploynext');
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentCtrl',

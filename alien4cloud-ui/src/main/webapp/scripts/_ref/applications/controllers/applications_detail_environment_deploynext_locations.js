@@ -26,10 +26,9 @@ define(function (require) {
   modules.get('a4c-applications').controller('AppEnvDeployNextLocationsCtrl',
     ['$scope', 'deploymentTopologyServices', 'locationsMatchingServices',
     function ($scope, deploymentTopologyServices, locationsMatchingServices) {
-
-      if (_.has($scope, 'deploymentContext.deploymentTopologyDTO.topology.orchestratorId') && _.has($scope, 'deploymentContext.deploymentTopologyDTO.locationPolicies.' + GROUP_ALL)) {
-        $scope.oldSelectedOrchestratorId = $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId;
-        $scope.oldSelectedLocationId = $scope.deploymentContext.deploymentTopologyDTO.locationPolicies[GROUP_ALL];
+      if (_.has($scope, 'deploymentTopologyDTO.topology.orchestratorId') && _.has($scope, 'deploymentTopologyDTO.locationPolicies.' + locationsMatchingServices.GROUP_ALL)) {
+        $scope.oldSelectedOrchestratorId = $scope.deploymentTopologyDTO.topology.orchestratorId;
+        $scope.oldSelectedLocationId = $scope.deploymentTopologyDTO.locationPolicies[locationsMatchingServices.GROUP_ALL];
       }
 
       //select a location
@@ -40,7 +39,7 @@ define(function (require) {
         }
 
         var groupsToLocations = {};
-        groupsToLocations[GROUP_ALL] = locationMatch.location.id;
+        groupsToLocations[locationsMatchingServices.GROUP_ALL] = locationMatch.location.id;
 
         var configRequest = {
           orchestratorId: locationMatch.location.orchestratorId,
@@ -49,10 +48,10 @@ define(function (require) {
 
         deploymentTopologyServices.setLocationPolicies({
           appId: $scope.application.id,
-          envId: $scope.deploymentContext.selectedEnvironment.id
+          envId: $scope.environment.id
         }, angular.toJson(configRequest), function(response) {
           $scope.updateScopeDeploymentTopologyDTO(response.data);
-          $scope.deploymentContext.selectedLocation = locationMatch.location;
+          $scope.selectedLocation = locationMatch.location;
           $scope.goToNextInvalidStep();
           // $state.go(thisMenu.nextStep.state);
         });

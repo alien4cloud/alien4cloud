@@ -46,6 +46,7 @@
     <div class="grp-margin">
       <a ng-repeat="menuItem in menu"
          id="{{menuItem.id}}"
+         ng-if="menuItem.show"
          ng-click="onItemClick($event, menuItem)"
          ui-sref="{{menuItem.state}}"
          uib-tooltip="{{menuItem.key | translate}}"

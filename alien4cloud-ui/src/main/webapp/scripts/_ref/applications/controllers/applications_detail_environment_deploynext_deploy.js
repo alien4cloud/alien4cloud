@@ -17,7 +17,7 @@ define(function (require) {
       icon: '',
       priority: 600,
       step: {
-        taskCodes: ['NODE_FILTER_INVALID', 'ORCHESTRATOR_PROPERTY','PROPERTIES', 'SCALABLE_CAPABILITY_INVALID']
+        taskCodes: ['NODE_FILTER_INVALID', 'ORCHESTRATOR_PROPERTY', 'PROPERTIES', 'SCALABLE_CAPABILITY_INVALID']
       }
     }
   });
