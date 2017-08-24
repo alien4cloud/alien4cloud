@@ -84,8 +84,20 @@ define(function (require) {
   states.forward('applications.detail', 'applications.detail.info');
 
   modules.get('a4c-applications').controller('ApplicationInfoCtrl',
-    ['$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'authService', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
-    function ($scope, $state, $translate, toaster, $upload, menu, authService, applicationServices, applicationResponse, applicationEnvironmentsManager, versions) {
+    ['$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'authService', 'userContextServices', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
+    function ($scope, $state, $translate, toaster, $upload, menu, authService, userContextServices, applicationServices, applicationResponse, applicationEnvironmentsManager, versions) {
+      var navigationContext = userContextServices.getAppNavContext(applicationResponse.data.id);
+      if(_.defined(navigationContext)) {
+        if(navigationContext.type === 'environment') {
+          // User was working on a version so forward there
+          $state.go('applications.detail.environment', {
+            environmentId: navigationContext.id
+          });
+        } else if(navigationContext.type === 'version') {
+          // TODO User was working on a version so forward there
+        }
+      }
+
       $scope.application = applicationResponse.data;
       if(!$scope.application.tags) {
         $scope.application.tags = {};

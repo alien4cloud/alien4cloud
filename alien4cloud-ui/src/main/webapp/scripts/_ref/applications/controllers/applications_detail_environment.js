@@ -12,15 +12,20 @@ define(function (require) {
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent');
 
+  require('scripts/common/services/user_context_services');
+
   states.state('applications.detail.environment', {
     url: '/environment/:environmentId',
     templateUrl: 'views/_ref/applications/applications_detail_environment.html',
     controller: 'ApplicationEnvironmentCtrl',
     resolve: {
-      environment: ['applicationEnvironmentsManager', '$stateParams',
-        function(applicationEnvironmentsManager, $stateParams) {
+      environment: ['applicationEnvironmentsManager', '$stateParams', 'userContextServices',
+        function(applicationEnvironmentsManager, $stateParams, userContextServices) {
           return _.catch(function() {
-            return applicationEnvironmentsManager.get($stateParams.environmentId);
+            var environment = applicationEnvironmentsManager.get($stateParams.environmentId);
+            userContextServices.setEnvironmentId(environment.applicationId, $stateParams.environmentId);
+            console.log(userContextServices);
+            return environment;
           });
         }
       ]
@@ -34,17 +39,18 @@ define(function (require) {
   states.forward('applications.detail.environment', 'applications.detail.environment.deploynext');
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentCtrl',
-    ['$scope', '$state', 'application', 'environment', 'menu',
-    function ($scope, $state, applicationResponse, environment, menu) {
+    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu',
+    function ($scope, $state, userContextServices, applicationResponse, environment, menu) {
       $scope.application = applicationResponse.data;
       $scope.environment = environment;
       $scope.statusCss = alienUtils.getStatusCss;
 
       $scope.menu = menu;
 
-      $scope.onApplication = function($event) {
+      $scope.goToApplication = function($event) {
         $event.preventDefault();
         $event.stopPropagation();
+        userContextServices.clear($scope.application.id);
         $state.go('applications.detail', { id: $scope.application.id });
       };
     }

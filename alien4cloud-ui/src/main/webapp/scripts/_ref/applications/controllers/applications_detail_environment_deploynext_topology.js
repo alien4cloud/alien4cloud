@@ -5,7 +5,7 @@ define(function (require) {
   var states = require('states');
 
   require('scripts/topology/directives/topology_validation_display');
-  var registerService = require('scripts/topology/editor_register_service');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_topology_editor');
 
   states.state('applications.detail.environment.deploynext.topology', {
     url: '/topology',
@@ -23,25 +23,6 @@ define(function (require) {
     }
   });
 
-  // TODO create a sub-state to load the environment name and have the breadcrumb there.
-  // Define editor states from root (to use full-screen and avoid dom and scopes pollution)
-  states.state('editor_application_environment', {
-    url: '/editor/application/:applicationId/environment/:environmentId/archive/:archiveId',
-    templateUrl: 'views/topology/topology_editor_layout.html',
-    controller: 'TopologyEditorCtrl',
-    resolve: {
-      context: ['$stateParams', function($stateParams) {
-        return {
-          applicationId: $stateParams.applicationId,
-          environmentId: $stateParams.environmentId,
-          archiveId: $stateParams.archiveId
-        };
-      }]
-    }
-  });
-
-  registerService('editor_application_environment');
-
   modules.get('a4c-applications').controller('AppEnvDeployNextTopologyCtrl',
     ['$scope', '$state',
     function ($scope, $state) {
@@ -49,7 +30,7 @@ define(function (require) {
       $scope.canEditTopology = true;
 
       $scope.editTopology = function() {
-        $state.go('editor_application_environment', {
+        $state.go('editor_app_env.editor', {
           applicationId: $scope.application.id,
           environmentId: $scope.environment.id,
           archiveId: $scope.application.id + ':' + $scope.environment.currentVersionName

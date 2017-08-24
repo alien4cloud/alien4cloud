@@ -1,0 +1,5 @@
+<!-- The breadcrump depends on the state -->
+<div class="vertical-panel-shift breadcrumb-panel">
+  <a href="#" ng-click="goToApplication($event)">{{application.name}}</a> > <a href="#" ng-click="goToEnvironment($event)">{{environment.name}}</a> > {{environment.currentVersionName}}
+</div>
+<div ui-view></div>

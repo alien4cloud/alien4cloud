@@ -6,7 +6,6 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var states = require('states');
   var _ = require('lodash');
   var angular = require('angular');
 
@@ -26,40 +25,12 @@ define(function (require) {
   // require('scripts/topology/services/topology_editor_events_services');
   require('scripts/common/directives/parsing_errors');
 
-  states.state('editor_application_version', {
-    url: '/editor/application/:applicationId/version/:versionId/archive/:archiveId',
-    templateUrl: 'views/topology/topology_editor_layout.html',
-    controller: 'TopologyEditorCtrl',
-    resolve: {
-      context: ['$stateParams', function($stateParams) {
-        return {
-          applicationId: $stateParams.applicationId,
-          versionId: $stateParams.versionId,
-          archiveId: $stateParams.archiveId
-        };
-      }]
-    }
-  });
-  states.state('editor_archive', {
-    url: '/editor/archive/:archiveId',
-    templateUrl: 'views/topology/topology_editor_layout.html',
-    controller: 'TopologyEditorCtrl',
-    resolve: {
-      context: ['$stateParams', function($stateParams) {
-        return {
-          archiveId: $stateParams.archiveId
-        };
-      }]
-    }
-  });
-
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
-    ['$scope', '$state', '$alresource', '$uibModal', '$translate', 'toaster', 'hotkeys', 'menu', 'context', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topologyRecoveryServices',
-    function($scope, $state, $alresource, $uibModal, $translate, toaster, hotkeys, menu, context, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topologyRecoveryServices) {
+    ['$scope', '$state', '$stateParams', '$alresource', '$uibModal', '$translate', 'toaster', 'hotkeys', 'menu', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topologyRecoveryServices',
+    function($scope, $state, $stateParams, $alresource, $uibModal, $translate, toaster, hotkeys, menu,  topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topologyRecoveryServices) {
       // This controller acts as a specific layout for the topology edition.
       $scope.menu = menu;
-      $scope.context = context;
-      $scope.topologyId = $scope.context.archiveId;
+      $scope.topologyId = $stateParams.archiveId;
 
       $scope.getShortName = toscaService.simpleName;
       // this allow to avoid file edition in the ui-ace.

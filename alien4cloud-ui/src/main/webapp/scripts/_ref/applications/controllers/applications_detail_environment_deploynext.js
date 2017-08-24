@@ -82,6 +82,7 @@ define(function (require) {
         _.each(menu, function(menuItem) {
           if(_.definedPath(menuItem, 'step.taskCodes')) {
             delete menuItem.step.status;
+            menuItem.disabled = false;
             if(nextDisabled) {
               menuItem.disabled = true;
               return;

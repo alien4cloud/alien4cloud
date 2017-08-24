@@ -5,43 +5,24 @@ define(function (require) {
   var _ = require('lodash');
 
   modules.get('a4c-common').factory('userContextServices', function () {
-    var previousEnvironmentsContext = {};
-    var previousTopologiesContext = {};
-
-    var getEnvironmentConntext = function (applicationId) {
-      return previousEnvironmentsContext[applicationId];
-    };
-
-    var updateEnvironmentContext = function (applicationId, environment) {
-      previousEnvironmentsContext[applicationId] = _.cloneDeep(environment);
-    };
-
-    var getTopologyContext = function (applicationId) {
-      return previousTopologiesContext[applicationId];
-    };
-
-    var updateTopologyContext = function (applicationId, version, variant) {
-      previousTopologiesContext[applicationId] = {
-        version: version.id,
-        variant: variant
-      };
-    };
-
-
-    // should be called when a user logout
-    var clear = function () {
-      previousEnvironmentsContext = {};
-      previousTopologiesContext = {};
-    };
-
     return {
-      'getEnvironmentConntext': getEnvironmentConntext,
-      'updateEnvironmentContext': updateEnvironmentContext,
-      'getTopologyContext': getTopologyContext,
-      'updateTopologyContext': updateTopologyContext,
-      'clear': clear
+      appNavContext: {},
+      getAppNavContext: function (applicationId) {
+        return this.appNavContext[applicationId];
+      },
+      setEnvironmentId: function (applicationId, environmentId) {
+        this.appNavContext[applicationId] = { type: 'environment', id: environmentId};
+      },
+      setVersionId: function (applicationId, versionId) {
+        this.appNavContext[applicationId] = { type: 'version', id: versionId};
+      },
+      clear: function(applicationId) {
+        if(_.defined(applicationId)) {
+          delete this.appNavContext[applicationId];
+        } else {
+          this.appNavContext = {};
+        }
+      }
     };
-
-
   }); // factory
 }); // define

@@ -11,10 +11,6 @@
     </a>
   </li>
 </ul>
-<!-- The breadcrump depends on the state -->
-<div class="vertical-panel-shift breadcrumb-panel">
-  <a href="#" ng-click="goToApplication($event)">{{context.applicationId}}</a> > <a href="#" ng-click="goToEnvironment($event)">{{context.environmentName}}</a> > {{topology.topology.archiveVersion}}
-</div>
 <div class="vertical-panel-shift">
   <div id="editor-head-menu" class="topology-editor">
     <button type="button" class="btn btn-success btn-xs" ng-click="save()"
