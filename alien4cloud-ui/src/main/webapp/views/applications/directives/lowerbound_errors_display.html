@@ -1,35 +1,30 @@
-<div ng-if="tasks.length>0">
-  <h4 class="clickable" ng-init="isToAddRelationsCollapsed = false"
-       ng-click="isToAddRelationsCollapsed = !isToAddRelationsCollapsed">
-    <i class="fa" ng-class="{'fa-caret-down' : !isToAddRelationsCollapsed , 'fa-caret-right': isToAddRelationsCollapsed }"></i>
-    <span>{{'APPLICATIONS.TOPOLOGY.TASK.TOADD_RELATIONSHIP_LABEL' | translate}}</span>
-  </h4>
-
-  <div uib-collapse="isToAddRelationsCollapsed " >
-    <table class="table table-condensed">
-      <thead>
-        <th></th>
-        <th>{{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}</th>
-      </thead>
-      <tbody>
-        <tr ng-repeat=" task in tasks">
-          <td>
-            <span>{{task.nodeTemplateName}}</span>
-            <span>({{task.component.elementId}})</span>
-          </td>
-          <td>
-            <div class="row" ng-repeat=" req in task.requirementsToImplement">
-              <div class="col-md-10">
-                <span>{{req.name}}</span>
-                <span>({{req.type}})</span>
-              </div>
-              <div class="col-md-2">
-                <span>{{req.remainingBound}}</span>
-              </div>
+<div class="content-head-error">
+  <span>{{'APPLICATIONS.TOPOLOGY.TASK.TOADD_RELATIONSHIP_LABEL' | translate}}</span>
+</div>
+<div class="content-body">
+  <table class="table table-condensed">
+    <thead>
+      <th></th>
+      <th>{{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat=" task in tasks">
+        <td>
+          <span>{{task.nodeTemplateName}}</span>
+          <span>({{task.component.elementId}})</span>
+        </td>
+        <td>
+          <div class="row" ng-repeat=" req in task.requirementsToImplement">
+            <div class="col-md-10">
+              <span>{{req.name}}</span>
+              <span>({{req.type}})</span>
             </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+            <div class="col-md-2">
+              <span>{{req.remainingBound}}</span>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
