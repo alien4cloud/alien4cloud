@@ -24,8 +24,10 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextVersionCtrl',
-    ['$scope', 'archiveVersions', 'deploymentTopologyDTO', 'applicationEnvironmentServices', 'environment', 'application',
-      function ($scope, archiveVersionsResponse, deploymentTopologyDTO, applicationEnvironmentServices, environment, applicationResponse) {
+    ['$scope', 'archiveVersions', 'applicationEnvironmentServices', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor',
+      function ($scope, archiveVersionsResponse, applicationEnvironmentServices, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor) {
+
+        $scope.loading = false;
 
         function setSelectedTopologyId(topologyId) {
           _.forEach($scope.archive.versions, function (version) {
@@ -38,6 +40,8 @@ define(function (require) {
         }
 
         function doUpdateTopologyVersion(applicationId, environmentId, selectedTopologyVersion) {
+          $scope.loading = true;
+
           applicationEnvironmentServices.updateTopologyVersion({
             applicationId: applicationId,
             applicationEnvironmentId: environmentId
@@ -45,12 +49,24 @@ define(function (require) {
             newTopologyVersion: selectedTopologyVersion,
             environmentToCopyInput: null
           })).$promise.then(function () {
-            // when OK
-            deploymentTopologyDTO.topology.archiveVersion = selectedTopologyVersion;
-            environment.currentVersionName = selectedTopologyVersion;
+            // when OK, update deploymentTopologyDTO
+            deploymentTopologyServices.get({
+              appId: applicationId,
+              envId: environmentId
+            }).$promise.then(function(response) {
+              var deploymentTopologyDTO = response.data;
+              $scope.updateScopeDeploymentTopologyDTO(deploymentTopologyDTO);
+              $scope.$parent.deploymentTopologyDTO = deploymentTopologyDTO;
+              $scope.$parent.environment.currentVersionName = selectedTopologyVersion;
+            }).catch(function() {
+              // when fail to get deploymentTopologyDTO
+              setSelectedTopologyId($scope.deploymentTopologyDTO.topology.archiveVersion);
+              $scope.loading = false;
+            });
           }).catch(function () {
-            // when Error
-            setSelectedTopologyId(deploymentTopologyDTO.topology.archiveVersion);
+            // when fail to update topology version
+            setSelectedTopologyId($scope.deploymentTopologyDTO.topology.archiveVersion);
+            $scope.loading = false;
           });
         }
 
@@ -81,7 +97,10 @@ define(function (require) {
 
             // update server info
             var versionOnly = topologyVersion.archiveId.split(':')[1];
-            doUpdateTopologyVersion(applicationResponse.data.id, environment.id, versionOnly);
+            console.log('$scope.application -> ' + JSON.stringify($scope.application));
+            console.log('$scope.environment -> ' + JSON.stringify($scope.environment));
+
+            doUpdateTopologyVersion($scope.application.id, $scope.environment.id, versionOnly);
           }
         };
 
@@ -89,7 +108,7 @@ define(function (require) {
           return version.id === _.get($scope, 'selectedAppVersion.id');
         };
 
-        setSelectedTopologyId(deploymentTopologyDTO.topology.archiveVersion);
+        setSelectedTopologyId($scope.deploymentTopologyDTO.topology.archiveVersion);
       }
     ]);
 
