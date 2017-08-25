@@ -6,7 +6,6 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_runtimeeditor');
-  require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_logs');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_info');
 
   states.state('applications.detail.environment.deploycurrent', {
