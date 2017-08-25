@@ -22,6 +22,8 @@ define(function (require) {
     }
   });
 
+  states.forward('applications.detail.environment.deploycurrent', 'applications.detail.environment.deploycurrent.info');
+  
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentCtrl',
     ['$scope', 'menu',
     function ($scope, menu) {
