@@ -47,6 +47,7 @@ define(function (require) {
           })).$promise.then(function () {
             // when OK
             deploymentTopologyDTO.topology.archiveVersion = selectedTopologyVersion;
+            environment.currentVersionName = selectedTopologyVersion;
           }).catch(function () {
             // when Error
             setSelectedTopologyId(deploymentTopologyDTO.topology.archiveVersion);
