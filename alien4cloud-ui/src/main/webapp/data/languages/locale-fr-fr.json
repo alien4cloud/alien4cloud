@@ -933,12 +933,19 @@
     "MENU_USERS" : "Utilisateurs et Groupes",
     "MENU_VERSIONS" : "Version"
   },
+  "NAVCATALOG": {
+    "ARCHIVES_PROMOTION": "Requêtes de promotion d'archives",
+    "BROWSE_COMPONENTS": "Consulter les composants",
+    "BROWSE_TOPOLOGIES": "Consulter les topologies",
+    "MANAGE_ARCHIVES": "Gerer les archvies"
+  },
   "NAVBAR" : {
     "BUTTON_LOGIN" : "Connexion",
     "BUTTON_LOGOUT" : "Déconnexion",
     "INPUT_SEARCH_MESSAGE" : "Que cherchez vous ?",
     "MENU_ADMIN" : "Administration",
     "MENU_APPS" : "Applications",
+    "MENU_CATALOG": "Catalogue",
     "MENU_COMPONENTS" : "Composants",
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS importés depuis Git",

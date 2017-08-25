@@ -1,0 +1,19 @@
+<!-- <div class="breadcrumb-panel">
+  <a ng-repeat = "menuItem in menu" ng-class="{'disabled' : menuItem.active}"
+    ng-click="onItemClick($event, menuItem)"
+    ui-sref="{{menuItem.state}}"
+    >
+    {{menuItem.key | translate}}
+  </a>
+</div> -->
+<ul class="nav nav-tabs grp-margin">
+  <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active"
+    ng-class="{'disabled' : menuItem.disabled}">
+    <a id="{{menuItem.id}}"
+       ng-click="onItemClick($event, menuItem)"
+       ui-sref="{{menuItem.state}}">
+      <i class="{{menuItem.icon}}" ng-if="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
+    </a>
+  </li>
+</ul>
+<div ui-view></div>

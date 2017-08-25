@@ -474,6 +474,7 @@
     "YES": "Yes"
   },
   "COMPONENTS": {
+    "BROWSE": "",
     "ABSTRACT": "Abstract component",
     "ACTIVE_FILTERS": "Active filters",
     "ARCHIVE": "Archive",
@@ -943,6 +944,12 @@
     "MENU_USERS": "Users and Groups",
     "MENU_VERSIONS": "Versions"
   },
+  "NAVCATALOG": {
+    "ARCHIVES_PROMOTION": "Archives promotion requests",
+    "BROWSE_COMPONENTS": "Browse components",
+    "MANAGE_ARCHIVES": "Manage archives",
+    "BROWSE_TOPOLOGIES": "Browse topologies"
+  },
   "NAVBAR": {
     "BUTTON_LOGIN": "Login",
     "BUTTON_LOGOUT": "Logout",
@@ -950,6 +957,7 @@
     "MENU_ADMIN": "Administration",
     "MENU_APPS": "Applications",
     "MENU_COMPONENTS": "Components",
+    "MENU_CATALOG": "Catalog",
     "MENU_CSARS": "CSARS",
     "MENU_CSARS_GIT": "CSARS Git Integration",
     "MENU_REPOSITORIES": "Artifacts repositories",
