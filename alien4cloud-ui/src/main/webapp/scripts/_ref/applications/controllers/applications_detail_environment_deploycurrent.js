@@ -5,6 +5,9 @@ define(function (require) {
   var states = require('states');
   var angular = require('angular');
   var _ = require('lodash');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_runtimeeditor');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_logs');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_info');
 
   states.state('applications.detail.environment.deploycurrent', {
     url: '/deploy_current',
@@ -20,9 +23,9 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentCtrl',
-    ['$scope',
-    function ($scope) {
-
+    ['$scope', 'menu',
+    function ($scope, menu) {
+      $scope.menu = menu;
     }
   ]);
 });

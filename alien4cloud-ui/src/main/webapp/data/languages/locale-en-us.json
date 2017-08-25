@@ -935,6 +935,10 @@
     "MENU_DEPLOY_NEXT.MATCHING": "Matching",
     "MENU_DEPLOY_NEXT.DEPLOY": "Deploy",
 
+    "MENU_DEPLOY_CURRENT.INFO" : "Info",
+    "MENU_DEPLOY_CURRENT.LOGS" : "Logs",
+    "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "Runtime view",
+
     "MENU_ENVIRONMENT": "Environments",
     "MENU_USERS": "Users and Groups",
     "MENU_VERSIONS": "Versions"
