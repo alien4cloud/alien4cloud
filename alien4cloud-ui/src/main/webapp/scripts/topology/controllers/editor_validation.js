@@ -20,7 +20,7 @@ define(function (require) {
             }
           });
         } else if($scope.topology.operations && $scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex===-1) {
-          // nothing to check
+          $scope.validCurrentTopologyDTO = $scope.validTopologyDTO;
           return;
         }
 

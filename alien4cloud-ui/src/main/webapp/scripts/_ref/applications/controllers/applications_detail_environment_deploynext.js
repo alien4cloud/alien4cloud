@@ -108,7 +108,7 @@ define(function (require) {
             _.each(menuItem.step.taskCodes, function(taskCode) {
               if(_.definedPath(validationDTO, 'taskList['+taskCode+']')) {
                 if(_.defined(menuItem.step.source)) {
-                  var source = _.get(validationDTO, ['taskList', taskCode, 0, menuItem.step.source]);
+                  var source = _.get(validationDTO, ['taskList', taskCode, 0, 'source']);
                   if(menuItem.step.source === source) {
                     menuItem.step.status = 'ERROR';
                     nextDisabled = true;

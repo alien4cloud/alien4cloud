@@ -9,10 +9,10 @@
   </div>
   <div class="col-md-10">
     <!-- error display -->
-    <topology-validation-display validation-dto="deploymentTopologyDTO.validation"></topology-validation-display>
+    <topology-validation-display validation-dto="topologyValidationDTO"></topology-validation-display>
 
     <div id="topology-preview">
-      <topology-rendering
+      <topology-rendering ng-if="_.isEmpty(topologyValidationDTO.taskList)"
         dimensions="topologyBox"
         topology="deploymentTopologyDTO"
         runtime="false">

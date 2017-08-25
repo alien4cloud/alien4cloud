@@ -3,6 +3,9 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
+
+  require('scripts/topology/directives/topology_errors_display');
 
   modules.get('a4c-topology-editor').directive('topologyValidationDisplay',
     [
@@ -19,6 +22,6 @@ define(function (require) {
   ]); // directive
 
   modules.get('a4c-topology-editor', []).controller('ValidationDisplayCtrl', ['$scope', function ($scope) {
-
+    $scope._ = _;
   }]);
 }); // define

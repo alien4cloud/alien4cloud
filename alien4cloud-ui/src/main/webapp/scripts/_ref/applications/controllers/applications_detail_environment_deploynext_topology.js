@@ -3,6 +3,7 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
+  var _ = require('lodash');
 
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_topology_editor');
 
@@ -32,13 +33,15 @@ define(function (require) {
       // Filter tasks to match only the screen task codes
       $scope.canEditTopology = authService.hasResourceRoleIn($scope.application, ['APPLICATION_MANAGER', 'APPLICATION_DEVOPS']);
 
+      $scope.topologyValidationDTO = _.get($scope.deploymentTopologyDTO, 'validation.bySources.topology');
+
+      // Filter the errors that have a topology source
       $scope.topologyBox = {
         width: 600,
         height: 300
       };
 
       resizeServices.registerContainer(function(width, height) {
-        console.log('Updating container size', width, height);
         $scope.topologyBox = {
           width: width - 10,
           height: height - 10
