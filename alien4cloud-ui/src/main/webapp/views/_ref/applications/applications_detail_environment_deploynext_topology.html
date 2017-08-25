@@ -10,5 +10,13 @@
   <div class="col-md-10">
     <!-- error display -->
     <topology-validation-display validation-dto="deploymentTopologyDTO.validation"></topology-validation-display>
+
+    <div id="topology-preview">
+      <topology-rendering
+        dimensions="topologyBox"
+        topology="deploymentTopologyDTO"
+        runtime="false">
+      </topology-rendering>
+    </div>
   </div>
 </div>
