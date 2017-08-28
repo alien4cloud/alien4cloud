@@ -10,6 +10,10 @@ import alien4cloud.exception.FunctionalException;
 public class PluginLoadingException extends FunctionalException {
     private static final long serialVersionUID = 1L;
 
+    public PluginLoadingException(String message) {
+        super(message);
+    }
+
     public PluginLoadingException(String message, Throwable cause) {
         super(message, cause);
     }

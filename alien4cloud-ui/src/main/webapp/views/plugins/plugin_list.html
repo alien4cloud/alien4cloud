@@ -49,10 +49,10 @@
               <td style="vertical-align: middle">
                 <div class="pull-right">
 
-                  <a id='plugin_{{plugin.id}}_configure' ng-click="openConfiguration(plugin.id)" ng-if="plugin.configurable" class="btn btn-default btn-xs"
+                  <button ng-disabled = "!plugin.enabled" id='plugin_{{plugin.id}}_configure' ng-click="openConfiguration(plugin.id)" ng-if="plugin.configurable" class="btn btn-default btn-xs"
                     uib-tooltip="{{ 'PLUGINS.CONFIGURE' | translate}}" tooltip-append-to-body="true">
                     <i class="fa fa-cog"></i>
-                  </a>
+                  </button>
 
                   <div id="srv-state" class="switch vertical-center" ng-click="toggleState(plugin)">
                     <div class="pending-switch-slider" ng-class="{'disabled' : !plugin.enabled , 'enabled': plugin.enabled, 'pending': plugin.pending, 'loaded': !plugin.pending}"></div>
