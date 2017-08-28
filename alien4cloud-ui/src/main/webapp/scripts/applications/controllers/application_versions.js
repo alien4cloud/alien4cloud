@@ -91,13 +91,13 @@ define(function (require) {
     };
   }];
 
-  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$translate', '$uibModal', '$alresource', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify', 'appEnvironments',
-    function($scope, $translate, $uibModal, $alresource, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify, appEnvironments) {
+  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$translate', '$uibModal', '$alresource', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify', 'applicationEnvironmentsManager',
+    function($scope, $translate, $uibModal, $alresource, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify, applicationEnvironmentsManager) {
       var topoVersionService = $alresource('rest/latest/applications/:appId/versions/:versionId/topologyVersions/:topoVersionId');
 
       $scope.isManager = userCanModify;
       $scope.archiveVersions = archiveVersions.data;
-      $scope.appEnvironments = appEnvironments;
+      $scope.applicationEnvironmentsManager = applicationEnvironmentsManager;
       $scope.searchAppVersionResult = archiveVersions.data;
       $scope.versionPattern = versionServices.pattern;
       $scope.searchService = searchServiceFactory(searchServiceUrl, false, $scope, 12);
@@ -160,7 +160,7 @@ define(function (require) {
           function() {
             // success
             if (fieldName === 'version') {
-              _.each($scope.appEnvironments.environments, function(env) {
+              _.each($scope.applicationEnvironmentsManager.environments, function(env) {
                   if (env.applicationId === version.applicationId && env.currentVersionName === version.version) {
                     env.currentVersionName = fieldValue;
                     return;
