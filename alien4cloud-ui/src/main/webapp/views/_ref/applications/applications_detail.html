@@ -83,21 +83,25 @@
         Prepare next deployment for an environment: associate a version, edit it's topology, configure deployment options and deploy.<br>Manage the current deployment for the environment.
       </div>
       <table class="table table-condensed grp-margin">
-        <tr>
-          <th></th>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Next version</th>
-          <th>Deployed version</th>
-        </tr>
-        <tr ng-repeat="environment in environments" id='env_{{environment.id}}' class="clickable" ng-click="onEnvironment(environment.id)">
-          <td><i class="fa {{statusCss(environment)}}" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true"
-          ></i></td>
-          <td>{{environment.name}}</td>
-          <td>{{environment.environmentType}}</td>
-          <td>{{environment.currentVersionName}}</td>
-          <td>{{environment.deployedVersion}}</td>
-        </tr>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Next version</th>
+            <th>Deployed version</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="environment in environments" id='env_{{environment.id}}' class="clickable" ng-click="onEnvironment(environment.id)">
+            <td><i class="fa {{statusCss(environment)}}" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true"
+            ></i></td>
+            <td>{{environment.name}}</td>
+            <td>{{environment.environmentType}}</td>
+            <td>{{environment.currentVersionName}}</td>
+            <td>{{environment.deployedVersion}}</td>
+          </tr>
+        </tbody>
       </table>
     </div>
     <!-- versions list -->
@@ -106,6 +110,27 @@
       <div class="text-muted">
         Edit a version's topology out of the scope of an environment (allow the edition of a version that is not currently selected for deployment on any environment)
       </div>
+      <table class="table table-condensed grp-margin">
+        <thead>
+          <tr>
+            <th></th>
+            <th colspan="2">Version</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody ng-repeat="version in versions" id='v_{{version.id}}' class="clickable" ng-click="onVersion(version.id)">
+          <tr>
+            <td rowspan="{{1 + _.size(version.topologyVersions)}}"><i class="fa" ng-class="{'fa-truck': version.released, 'fa-code': !version.released}"></i></td>
+            <td colspan="2">{{version.version}}</td>
+            <td>{{version.description}}</td>
+          </tr>
+          <tr ng-repeat="(variantVersion, variant) in version.topologyVersions">
+            <td></td>
+            <td><span class="text-muted" ng-bind-html="variantVersion | a4cHighlight: variant.qualifier:'text-default'"></span></td>
+            <td>{{variant.description}}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

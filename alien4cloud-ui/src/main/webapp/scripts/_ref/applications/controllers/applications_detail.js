@@ -24,6 +24,7 @@ define(function (require) {
   require('scripts/applications/services/application_version_services');
 
   require('scripts/_ref/common/directives/tags');
+  require('scripts/_ref/common/filters/highlight');
   require('scripts/common/services/user_context_services');
 
   require('scripts/meta-props/directives/meta_props_display');
@@ -87,7 +88,7 @@ define(function (require) {
 
   modules.get('a4c-applications').controller('ApplicationInfoCtrl',
     ['$controller', '$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'resourceLayoutService', 'authService', 'userContextServices', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
-    function ($controller, $scope, $state, $translate, toaster, $upload, menu, resourceLayoutService, authService, userContextServices, applicationServices, applicationResponse, applicationEnvironmentsManager, versions) {
+    function ($controller, $scope, $state, $translate, toaster, $upload, menu, resourceLayoutService, authService, userContextServices, applicationServices, applicationResponse, applicationEnvironmentsManager, versionsResponse) {
       var navigationContext = userContextServices.getAppNavContext(applicationResponse.data.id);
       if(_.defined(navigationContext)) {
         if(navigationContext.type === 'environment') {
@@ -99,6 +100,8 @@ define(function (require) {
           // TODO User was working on a version so forward there
         }
       }
+
+      $scope.versions = versionsResponse.data;
 
       $scope.application = applicationResponse.data;
       if(!$scope.application.tags) {

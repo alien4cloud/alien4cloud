@@ -36,6 +36,11 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "alien/users";
 @import "alien/vertical-menu";
 
+
+.text-default {
+  color: $text-color;
+}
+
 .grp-margin {
   margin-top: 10px;
 }

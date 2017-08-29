@@ -1,5 +1,9 @@
 <div class="row">
   <div class="col-md-2 grp-margin" ng-if="canEditTopology">
+    <div class="text-muted">
+      Note: The following topology is or may be associated with multiple environments.
+      When editing you will impact the version of the topology and eventually other environments.
+    </div>
     <button class="btn btn-default" id="edit-topo-btn" ng-click="editTopology()">
       <i class="fa fa-edit"></i> {{'COMMON.EDIT' | translate}}
     </button>
