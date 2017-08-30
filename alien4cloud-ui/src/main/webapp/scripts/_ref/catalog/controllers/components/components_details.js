@@ -3,7 +3,7 @@ define(function(require) {
 
   var states = require('states');
 
-  require('scripts/_ref/catalog/controllers/components/component_info');
+  require('scripts/_ref/catalog/controllers/components/components_info');
 
   states.state('catalog.components.detail', {
     url: '/detail/:id',

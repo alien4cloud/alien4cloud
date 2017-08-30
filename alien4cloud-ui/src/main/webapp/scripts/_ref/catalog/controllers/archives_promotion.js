@@ -18,5 +18,4 @@ define(function (require) {
       priority: 20,
     }
   });
-  states.forward('catalog', 'catalog.components');
 });

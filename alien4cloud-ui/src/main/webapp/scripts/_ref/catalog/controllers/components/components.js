@@ -5,13 +5,12 @@ define(function (require) {
   var states = require('states');
 
   // load other controllers to manage components
-  require('scripts/_ref/catalog/controllers/components/component_list');
+  require('scripts/_ref/catalog/controllers/components/components_list');
 
   // register root component management state
   states.state('catalog.components', {
     url: '/components',
     template: '<ui-view/>',
-    // templateUrl: 'views/_ref/catalog/components/bread.html',
     menu: {
       id: 'catalog.components',
       state: 'catalog.components',

@@ -4,7 +4,8 @@ define(function (require) {
 
   var states = require('states');
 
-  require('scripts/_ref/catalog/controllers/archives/csar_list');
+  require('scripts/_ref/catalog/controllers/archives/archives_list');
+  require('scripts/_ref/catalog/controllers/archives/archives_detail');
 
   // register archives management state
   states.state('catalog.archives', {
@@ -14,7 +15,6 @@ define(function (require) {
       id: 'catalog.archives',
       state: 'catalog.archives',
       key: 'NAVCATALOG.MANAGE_ARCHIVES',
-      // icon: 'fa fa-archive',
       priority: 10,
     }
   });

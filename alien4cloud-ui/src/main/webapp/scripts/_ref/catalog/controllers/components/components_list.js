@@ -6,16 +6,14 @@ define(function (require) {
   var states = require('states');
 
   require('scripts/common/services/resize_services');
-  // make sure that required directives are loaded
-  require('scripts/components/directives/search_node_type');
 
-  // load other locations to manage components
-  require('scripts/_ref/catalog/controllers/components/component_details');
+  require('scripts/_ref/catalog/directives/components_catalog');
+  require('scripts/_ref/catalog/controllers/components/components_details');
 
   states.state('catalog.components.list', {
     url: '/list',
-    templateUrl: 'views/_ref/catalog/components/component_list.html',
-    controller: 'SearchComponentCtrl2',
+    templateUrl: 'views/_ref/catalog/components/components_list.html',
+    controller: 'ComponentsListCtrl',
     resolve: {
       defaultFilters: [function () {
         return {};
@@ -32,16 +30,10 @@ define(function (require) {
     },
   });
 
-  modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('SearchComponentCtrl2', ['$scope', '$state', 'resizeServices', 'authService', 'defaultFilters', 'badges',
-    function ($scope, $state, resizeServices, authService, defaultFilters, badges) {
-      $scope.isComponentManager = authService.hasRole('COMPONENTS_MANAGER');
-
+  modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('ComponentsListCtrl', ['$scope', '$state', 'resizeServices', 'defaultFilters', 'badges',
+    function ($scope, $state, resizeServices, defaultFilters, badges) {
       $scope.defaultFilters = defaultFilters;
       $scope.badges = badges;
-
-      $scope.uploadSuccessCallback = function (data) {
-        $scope.refresh = data;
-      };
 
       $scope.openComponent = function (component) {
         $state.go('catalog.components.detail', {id: component.id});
