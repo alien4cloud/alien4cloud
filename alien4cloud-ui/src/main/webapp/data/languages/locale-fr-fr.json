@@ -925,13 +925,22 @@
     "MENU_USERS" : "Utilisateurs"
   },
   "NAVAPPLICATIONS" : {
-    "MENU_DEPLOYMENT" : "Déploiement",
-    "MENU_ENVIRONMENT" : "Environnements",
-    "MENU_INFO" : "Informations",
-    "MENU_RUNTIME" : "Runtime",
-    "MENU_TOPOLOGY" : "Topologie",
-    "MENU_USERS" : "Utilisateurs et Groupes",
-    "MENU_VERSIONS" : "Version"
+    "MENU_DEPLOY_NEXT": "Préparer le prochain déploiement",
+    "MENU_DEPLOY_CURRENT": "Gérer le déploiement actuel",
+    "MENU_DEPLOY_NEXT.VERSION": "Version",
+    "MENU_DEPLOY_NEXT.TOPOLOGY": "Topology",
+    "MENU_DEPLOY_NEXT.INPUTS": "Inputs",
+    "MENU_DEPLOY_NEXT.LOCATIONS": "Locations",
+    "MENU_DEPLOY_NEXT.MATCHING": "Matching",
+    "MENU_DEPLOY_NEXT.DEPLOY": "Deploy",
+
+    "MENU_DEPLOY_CURRENT.INFO" : "Info",
+    "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "Vue runtime",
+    "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER" : "Workflow",
+
+    "MENU_ENVIRONMENT": "Environnements",
+    "MENU_USERS": "Utilisateurs et Groupes",
+    "MENU_VERSIONS": "Versions"
   },
   "NAVCATALOG": {
     "ARCHIVES_PROMOTION": "Requêtes de promotion d'archives",

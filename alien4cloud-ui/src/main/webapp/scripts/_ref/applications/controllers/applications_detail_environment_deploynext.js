@@ -57,13 +57,6 @@ define(function (require) {
       }
       $scope.menu = menu;
 
-      $scope.onItemClick = function($event, menuItem) {
-        if (menuItem.disabled) {
-          $event.preventDefault();
-          $event.stopPropagation();
-        }
-      };
-
       var isLocationStepEnabled = false;
       // Fetch location matches information that are not in the deploymentTopologyDTO
       function initLocationMatches() {

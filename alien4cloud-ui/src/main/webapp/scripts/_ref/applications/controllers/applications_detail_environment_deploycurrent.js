@@ -5,8 +5,9 @@ define(function (require) {
   var states = require('states');
   var angular = require('angular');
   var _ = require('lodash');
-  require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_runtimeeditor');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_info');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_runtimeeditor');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_workflow');
 
   states.state('applications.detail.environment.deploycurrent', {
     url: '/deploy_current',
@@ -22,11 +23,27 @@ define(function (require) {
   });
 
   states.forward('applications.detail.environment.deploycurrent', 'applications.detail.environment.deploycurrent.info');
-  
+
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentCtrl',
-    ['$scope', 'menu',
-    function ($scope, menu) {
-      $scope.menu = menu;
-    }
-  ]);
+    ['$scope', 'menu', 'deploymentServices', 'topologyJsonProcessor',
+      function ($scope, menu, deploymentServices, topologyJsonProcessor) {
+        $scope.menu = menu;
+
+        function loadTopologyRuntime() {
+          delete $scope.topology;
+          $scope.$broadcast('a4cRuntimeTopologyLoading');
+          deploymentServices.runtime.getTopology({
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.environment.id
+          }, function (successResult) { // get the topology
+            $scope.topology = successResult.data;
+            topologyJsonProcessor.process($scope.topology);
+            // dispatch an event through the scope
+            $scope.$broadcast('a4cRuntimeTopologyLoaded');
+          });
+        }
+
+        loadTopologyRuntime();
+      }
+    ]);
 });

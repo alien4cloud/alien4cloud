@@ -20,8 +20,8 @@ define(function (require) {
     controller: 'ApplicationEnvironmentCtrl',
     resolve: {
       environment: ['applicationEnvironmentsManager', '$stateParams', 'userContextServices',
-        function(applicationEnvironmentsManager, $stateParams, userContextServices) {
-          return _.catch(function() {
+        function (applicationEnvironmentsManager, $stateParams, userContextServices) {
+          return _.catch(function () {
             var environment = applicationEnvironmentsManager.get($stateParams.environmentId);
             userContextServices.setEnvironmentId(environment.applicationId, $stateParams.environmentId);
             return environment;
@@ -39,21 +39,46 @@ define(function (require) {
   states.forward('applications.detail.environment', 'applications.detail.environment.deploynext');
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentCtrl',
-    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu',
-    function ($scope, $state, userContextServices, applicationResponse, environment, menu) {
-      $scope.application = applicationResponse.data;
-      $scope.environment = environment;
-      $scope.statusIconCss = alienUtils.getStatusIconCss;
-      $scope.statusTextCss = alienUtils.getStatusTextCss;
+    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu', 'topologyJsonProcessor', 'deploymentServices',
+      function ($scope, $state, userContextServices, applicationResponse, environment, menu, topologyJsonProcessor, deploymentServices) {
+        $scope.application = applicationResponse.data;
+        $scope.environment = environment;
+        $scope.statusIconCss = alienUtils.getStatusIconCss;
+        $scope.statusTextCss = alienUtils.getStatusTextCss;
+        $scope.isDeployed = false;
 
-      $scope.menu = menu;
+        $scope.menu = menu;
 
-      $scope.goToApplication = function($event) {
-        $event.preventDefault();
-        $event.stopPropagation();
-        userContextServices.clear($scope.application.id);
-        $state.go('applications.detail', { id: $scope.application.id });
-      };
-    }
-  ]);
+        $scope.setEnvironment = function(env){
+          $scope.environment = env;
+        };
+
+        $scope.goToApplication = function ($event) {
+          $event.preventDefault();
+          $event.stopPropagation();
+          userContextServices.clear($scope.application.id);
+          $state.go('applications.detail', { id: $scope.application.id });
+        };
+
+        $scope.onItemClick = function ($event, menuItem) {
+          if (menuItem.disabled) {
+            $event.preventDefault();
+            $event.stopPropagation();
+          }
+        };
+
+        function updateIsDeployed() {
+          $scope.isDeployed = ($scope.environment.status !== 'UNDEPLOYED');
+          // update menu entry
+          var deploycurrent = _.find($scope.menu, { 'state': 'applications.detail.environment.deploycurrent' });
+          deploycurrent.disabled = !$scope.isDeployed;
+        }
+
+        $scope.$watch('environment', function () {
+          updateIsDeployed();
+        });
+
+        updateIsDeployed();
+      }
+    ]);
 });

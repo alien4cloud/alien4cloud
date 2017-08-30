@@ -73,15 +73,6 @@ define(function (require) {
           this.eventRegistrations.push(registration);
         },
 
-        onDeploymentStatusEvent: function(environment, event) {
-          environment.status = event.deploymentStatus;
-          this.displayDeploymentStatusToaster(environment);
-          if(_.defined(this.onEnvironmentStateChangedCallback)) {
-            // Allow the application.detail controller to update the angular scope.
-            this.onEnvironmentStateChangedCallback();
-          }
-        },
-
         displayDeploymentStatusToaster: function(environment) {
           if (environment.status === 'FAILURE') {
             toaster.pop(
@@ -104,7 +95,16 @@ define(function (require) {
               4000, 'trustedHtml', null
             );
           }
-        }
+        },
+
+        onDeploymentStatusEvent: function(environment, event) {
+          environment.status = event.deploymentStatus;
+          this.displayDeploymentStatusToaster(environment);
+          if(_.defined(this.onEnvironmentStateChangedCallback)) {
+            // Allow the application.detail controller to update the angular scope.
+            this.onEnvironmentStateChangedCallback();
+          }
+        },
       };
 
       // The application environments manager factory load all environments and return an environments manager instance

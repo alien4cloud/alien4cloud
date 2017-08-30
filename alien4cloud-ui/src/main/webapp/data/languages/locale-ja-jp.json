@@ -921,11 +921,20 @@
     "MENU_USERS" : "ユーザ"
   },
   "NAVAPPLICATIONS" : {
-    "MENU_DEPLOYMENT" : "配備",
+    "MENU_DEPLOY_NEXT": "Prepare next deployment",
+    "MENU_DEPLOY_CURRENT": "Manage current deployment",
+    "MENU_DEPLOY_NEXT.VERSION": "Version",
+    "MENU_DEPLOY_NEXT.TOPOLOGY": "トポロジ",
+    "MENU_DEPLOY_NEXT.INPUTS": "Inputs",
+    "MENU_DEPLOY_NEXT.LOCATIONS": "Locations",
+    "MENU_DEPLOY_NEXT.MATCHING": "Matching",
+    "MENU_DEPLOY_NEXT.DEPLOY": "Deploy",
+
+    "MENU_DEPLOY_CURRENT.INFO" : "情報",
+    "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "ランタイム",
+    "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER" : "Workflow",
+
     "MENU_ENVIRONMENT" : "環境",
-    "MENU_INFO" : "情報",
-    "MENU_RUNTIME" : "ランタイム",
-    "MENU_TOPOLOGY" : "トポロジ",
     "MENU_USERS" : "ユーザとグループ",
     "MENU_VERSIONS" : "バージョン"
   },
