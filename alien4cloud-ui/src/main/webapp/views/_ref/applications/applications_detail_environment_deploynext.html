@@ -83,7 +83,7 @@
        ng-click="onItemClick($event, menuItem)"
        ui-sref="{{menuItem.state}}"
        ng-class="{'btn-success': menuItem.step.status === 'SUCCESS', 'btn-warning': menuItem.step.status ==='WARNING', 'btn-danger': menuItem.step.status ==='ERROR'}">
-      <i class="{{menuItem.icon}}" ng-if="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
+      <i class="fa" ng-class="{'fa-check': menuItem.step.status === 'SUCCESS', 'fa-exclamation': menuItem.step.status ==='WARNING', 'fa-times': menuItem.step.status ==='ERROR'}"></i> {{menuItem.key | translate}}
     </a>
   </li>
 </ul>

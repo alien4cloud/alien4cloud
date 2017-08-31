@@ -30,7 +30,7 @@
   <i class="fa fa-spinner fa-spin"></i> Searching
 </div>
 <!-- Display facets for easy filtering -->
-<div class="well" uib-collapse="!advancedSearch">
+<div uib-collapse="!advancedSearch">
   <!-- Displaying all terms and its facets -->
   <div ng-repeat="(term, termFacets) in queryManager.searchResult.facets">
     <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category clickable">

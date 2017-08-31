@@ -461,6 +461,7 @@
     "NODE" : "ノード",
     "PROPERTIES" : "プロパティ",
     "SOURCE" : "ソース",
+    "SEARCH": "検索...",
     "STATE" : "状態",
     "TARGET" : "ターゲット",
     "TYPE" : "タイプ",
