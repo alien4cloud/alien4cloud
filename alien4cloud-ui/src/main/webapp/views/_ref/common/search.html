@@ -18,24 +18,36 @@
         </h4>
       </div>
       <span class="input-group-btn">
-        <button type="submit" class="btn btn-default" data-loading-text="Loading..."><i
-                class="fa fa-search"></i></button>
-        <button class="btn btn-default" ng-click="toggleAdvancedSearch()"><i
-                class="fa fa-filter"></i></button>
+        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+        <button class="btn btn-default" ng-class="{'active': advancedSearch}" ng-click="advancedSearch = !advancedSearch">
+          <i class="fa fa-filter"></i>
+        </button>
       </span>
     </div>
   </form>
 </div>
-<!-- Display facets for easy filtering -->
-<facets ng-if="advancedSearch"
-        facet-filters="facetFilters"
-        default-filters="defaultFilters"
-        facet-id-converter="facetIdConverter"
-        facets="searchResult.facets"
-        filter-prefix="RUNTIME.LOG."
-        do-search="doSearch()">
-</facets>
 <div ng-show="searching">
   <i class="fa fa-spinner fa-spin"></i> Searching
+</div>
+<!-- Display facets for easy filtering -->
+<div uib-collapse="!advancedSearch">
+  <!-- Displaying all terms and its facets -->
+  <div ng-repeat="(term, termFacets) in queryManager.searchResult.facets">
+    <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
+      <span>{{ queryManager.facetIdConverter.toDisplayFacet(term, queryManager.labelPrefix) }}</span>
+      <i class="pull-right fa"
+         ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
+    </div>
+    <div class="facet-option" uib-collapse="isFacetCollapsed">
+      <ul class="nav facet-option">
+        <li ng-repeat="facet in termFacets">
+          <a href="" ng-click="addFilterValue(term, facet.facetValue)">
+            {{ queryManager.facetIdConverter.toDisplay(term, facet.facetValue) || 'N/A' }}
+            <span class="badge">{{facet.count}}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
 </div>
 <empty-place-holder data="queryManager.searchResult.data"></empty-place-holder>

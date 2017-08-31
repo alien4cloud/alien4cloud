@@ -5,7 +5,7 @@ define(function (require) {
   var $ = require('jquery');
   var _ = require('lodash');
 
-  const filterPattern = /^([\w,\.]+)=\[?([\"\w,\,\s]+)\]?$/;
+  const filterPattern = /^([\w,\.]+)=\[?([\.,\",\w,\,,\s]+)\]?$/;
 
   modules.get('a4c-common', []).directive('a4cSearch', function () {
     return {
@@ -26,6 +26,7 @@ define(function (require) {
   modules.get('a4c-common', []).controller('SearchCtrl', ['$scope', '$timeout', function ($scope, $timeout) {
     $scope.searchService.filtered(true);
     $scope.searching = false;
+    $scope.queryManager.facetFilters = [];
     $scope.queryManager.onSearchCompleted = function (searchResponse) {
       $scope.queryManager.searchResult = _.defined(searchResponse.data) ? searchResponse.data : undefined;
       $scope.searching = false;
@@ -64,7 +65,7 @@ define(function (require) {
         $scope.queryManager.query = $scope.searchBoxContent;
       }
       $scope.searching = true;
-      $scope.searchService.search();
+      $scope.searchService.search(undefined, $scope.queryManager.additionalBody);
       updateSize();
     };
 
@@ -84,9 +85,19 @@ define(function (require) {
 
     $scope.removeFilter = function(key) {
       delete $scope.queryManager.filters[key];
-      updateSize();
+      $scope.search();
     };
 
-    $scope.searchService.search();
+    $scope.addFilterValue = function(key, value) {
+      var filter = _.get($scope.queryManager, ['filters', key]);
+      if(_.defined(filter)) {
+        filter.push(value);
+      } else {
+        _.set($scope.queryManager, ['filters', key], [value]);
+      }
+      $scope.search();
+    };
+
+    $scope.search();
   }]);
 });

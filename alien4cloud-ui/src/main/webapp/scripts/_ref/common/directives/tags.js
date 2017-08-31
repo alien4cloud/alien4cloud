@@ -4,6 +4,8 @@ define(function (require) {
   var modules = require('modules');
   var angular = require('angular');
 
+  require('scripts/common/services/suggestion_services');
+
   modules.get('a4c-common', []).directive('a4cTags', function () {
     return {
       restrict: 'E',

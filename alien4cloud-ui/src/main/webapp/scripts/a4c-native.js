@@ -7,13 +7,10 @@ define(function () {
         'scripts/admin/admin',
         'scripts/common/controllers/maintenance',
         'scripts/_ref/applications/controllers/applications_list',
-        // 'scripts/applications/controllers/application_list',
         'scripts/users/controllers/users',
         'scripts/orchestrators/controllers/orchestrator_list',
         'scripts/services/controllers/service_resources',
-//        'scripts/components/controllers/component_list',
         'scripts/_ref/catalog/controllers/catalog',
-        'scripts/topologytemplates/controllers/topology_template_list',
         'scripts/common/directives/empty_place_holder',
         'scripts/common/directives/resizable_bar'];
 });

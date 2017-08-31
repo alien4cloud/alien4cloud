@@ -6,7 +6,6 @@ define(function (require) {
 
   modules.get('a4c-common').filter('a4cHighlight', ['$sce', function($sce) {
     return function(text, highlighted, cssClass) {
-      console.log('highlighting', text, highlighted, cssClass);
       if(highlighted) {
         var pattern = new RegExp(highlighted);
         return $sce.trustAsHtml(text.replace(pattern, '<span class="' + cssClass + '">' + highlighted + '</span>'));
