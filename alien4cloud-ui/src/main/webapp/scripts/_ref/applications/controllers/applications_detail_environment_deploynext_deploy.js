@@ -6,6 +6,9 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
+  require('scripts/services/directives/managed_service');
+  require('scripts/applications/services/application_services');
+
   states.state('applications.detail.environment.deploynext.deploy', {
     url: '/deploy',
     templateUrl: 'views/_ref/applications/applications_detail_environment_deploynext_deploy.html',
@@ -61,7 +64,7 @@ define(function (require) {
 
       function doUpdate() {
         $scope.setState('INIT_DEPLOYMENT');
-        
+
         applicationServices.deploymentUpdate({
           applicationId: $scope.application.id,
           applicationEnvironmentId: $scope.environment.id
