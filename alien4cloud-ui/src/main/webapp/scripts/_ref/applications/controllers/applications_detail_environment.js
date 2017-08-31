@@ -39,18 +39,47 @@ define(function (require) {
   states.forward('applications.detail.environment', 'applications.detail.environment.deploynext');
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentCtrl',
-    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu', 'topologyJsonProcessor', 'deploymentServices',
-      function ($scope, $state, userContextServices, applicationResponse, environment, menu, topologyJsonProcessor, deploymentServices) {
+    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu', 'applicationEnvironmentsManager',
+      function ($scope, $state, userContextServices, applicationResponse, environment, menu, applicationEnvironmentsManager) {
         $scope.application = applicationResponse.data;
         $scope.environment = environment;
         $scope.statusIconCss = alienUtils.getStatusIconCss;
         $scope.statusTextCss = alienUtils.getStatusTextCss;
-        $scope.isDeployed = false;
-
         $scope.menu = menu;
 
-        $scope.setEnvironment = function(env){
+        applicationEnvironmentsManager.onEnvironmentStateChangedCallback = function(env) {
+          $scope.setEnvironment(env);
+          $scope.$digest();
+        };
+
+        function updateMenu() {
+          // update menu entry
+          var deploycurrent = _.find($scope.menu, { 'state': 'applications.detail.environment.deploycurrent' });
+          deploycurrent.disabled = $scope.isState('UNDEPLOYED');
+        }
+
+        $scope.isState = function (stateName) {
+          return $scope.environment.status === stateName;
+        };
+
+        $scope.isAnyState = function (stateNames) {
+          return _.indexOf(stateNames, $scope.environment.status) !== -1;
+        };
+
+        $scope.setState = function(state){
+          $scope.environment.status = state;
+          updateMenu();          
+        };
+
+        $scope.setEnvironment = function (env) {
           $scope.environment = env;
+          updateMenu();
+        };
+
+        $scope.reloadEnvironment = function() {
+          applicationEnvironmentsManager.reload($scope.environment.id, function(environment) {
+            $scope.environment = environment;
+          });
         };
 
         $scope.goToApplication = function ($event) {
@@ -67,18 +96,12 @@ define(function (require) {
           }
         };
 
-        function updateIsDeployed() {
-          $scope.isDeployed = ($scope.environment.status !== 'UNDEPLOYED');
-          // update menu entry
-          var deploycurrent = _.find($scope.menu, { 'state': 'applications.detail.environment.deploycurrent' });
-          deploycurrent.disabled = !$scope.isDeployed;
-        }
-
-        $scope.$watch('environment', function () {
-          updateIsDeployed();
+        $scope.$watch('environment', function (env) {
+          $scope.setEnvironment(env);
         });
 
-        updateIsDeployed();
+        // update variables related to env status
+        $scope.setEnvironment($scope.environment);
       }
     ]);
 });

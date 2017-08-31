@@ -11,18 +11,18 @@
     <button id="btn-deploy"
             type="button"
             class="btn btn-success application-deploy-button pull-right"
-            ng-disabled="!deploymentTopologyDTO.validation.valid || isDeploying"
+            ng-disabled="!deploymentTopologyDTO.validation.valid || isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])"
             ng-click="deploy()"
             ng-if="environment.status === 'UNDEPLOYED'">
-      <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
+      <i class="fa" ng-class="{'fa-play': !isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS']), 'fa-spinner fa-spin': isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
     </button>
     <button id="btn-update"
             type="button"
             class="btn btn-primary application-deploy-button pull-right"
-            ng-disabled="!deploymentTopologyDTO.validation.valid || isDeploying"
+            ng-disabled="!deploymentTopologyDTO.validation.valid || isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])"
             ng-click="update()"
             ng-if="isUpdatable()">
-      <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.UPDATE_DEPLOYMENT' | translate}}
+      <i class="fa" ng-class="{'fa-play': !isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS']), 'fa-spinner fa-spin': isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])}"></i> {{'APPLICATIONS.UPDATE_DEPLOYMENT' | translate}}
     </button>
   </div>
 </div>

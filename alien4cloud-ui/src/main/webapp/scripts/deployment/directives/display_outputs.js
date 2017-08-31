@@ -14,12 +14,6 @@ define(function (require) {
         scope._ = _;
         scope.collapsable = scope.$eval(attrs.collapsable);
         scope.classes = scope.$eval(attrs.classes);
-        if(_.defined(scope.deploymentContext)) {
-          scope.selectedEnvironment = scope.deploymentContext.selectedEnvironment;
-          scope.$watch('deploymentContext.selectedEnvironment', function(newEnv) {
-            scope.selectedEnvironment = newEnv;
-          }, false);
-        }
 
         scope.isEmptyOutpts = function(){
           return _.isEmpty(scope.outputAttributesValue) &&

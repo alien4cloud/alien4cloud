@@ -420,7 +420,7 @@
       "INTEGRATION_TESTS": "Integration tests",
       "OTHER": "Other",
       "PRE_PRODUCTION": "Pre-production",
-      "PRODUCTION": "production",
+      "PRODUCTION": "Production",
       "USER_ACCEPTANCE_TESTS": "UAT"
     },
     "ERRORS": {
@@ -774,7 +774,7 @@
     "INTEGRATION_TESTS": "Integration tests",
     "OTHER": "Other",
     "PRE_PRODUCTION": "Pre-production",
-    "PRODUCTION": "production",
+    "PRODUCTION": "Production",
     "USER_ACCEPTANCE_TESTS": "UAT"
   },
   "ERRORS": {
@@ -939,7 +939,7 @@
     "MENU_DEPLOY_NEXT.INPUTS": "Inputs",
     "MENU_DEPLOY_NEXT.LOCATIONS": "Locations",
     "MENU_DEPLOY_NEXT.MATCHING": "Matching",
-    "MENU_DEPLOY_NEXT.DEPLOY": "Deploy",
+    "MENU_DEPLOY_NEXT.DEPLOY": "Review & deploy",
 
     "MENU_DEPLOY_CURRENT.INFO" : "Info",
     "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "Runtime view",

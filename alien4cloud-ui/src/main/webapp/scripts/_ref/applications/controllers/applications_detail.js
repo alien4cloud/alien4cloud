@@ -72,11 +72,8 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-applications').controller('ApplicationDetailCtrl',['$scope', 'applicationEnvironmentsManager',
-    function($scope, applicationEnvironmentsManager) {
-      applicationEnvironmentsManager.onEnvironmentStateChangedCallback = function() {
-        $scope.$digest();
-      };
+  modules.get('a4c-applications').controller('ApplicationDetailCtrl',['$scope',
+    function($scope) {
   }]);
 
   states.state('applications.detail.info', {

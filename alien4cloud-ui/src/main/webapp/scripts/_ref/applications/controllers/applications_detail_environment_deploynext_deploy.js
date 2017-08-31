@@ -48,20 +48,20 @@ define(function (require) {
           applicationId: $scope.application.id,
           applicationEnvironmentId: $scope.environment.id
         };
-        $scope.isDeploying = true;
+        $scope.setState('INIT_DEPLOYMENT');
         applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
           $scope.environment.status = 'INIT_DEPLOYMENT';
           // the deployed version is the current one
           $scope.environment.deployedVersion = $scope.environment.currentVersionName;
           $scope.setEnvironment($scope.environment);
-          $scope.isDeploying = false;
         }, function() {
-          $scope.isDeploying = false;
+          $scope.reloadEnvironment();
         });
       }
 
       function doUpdate() {
-        $scope.isDeploying = true;
+        $scope.setState('INIT_DEPLOYMENT');
+        
         applicationServices.deploymentUpdate({
           applicationId: $scope.application.id,
           applicationEnvironmentId: $scope.environment.id
@@ -69,11 +69,9 @@ define(function (require) {
           if (data.error === null) {
             $scope.environment.status = 'UPDATE_IN_PROGRESS';
             $scope.setEnvironment($scope.environment);
-            $scope.isDeploying = false;
           } else {
             $scope.environment.status = 'UPDATE_FAILURE';
             $scope.setEnvironment($scope.environment);
-            $scope.isDeploying = false;
             toaster.pop(
               'error',
               $translate.instant('DEPLOYMENT.STATUS.UPDATE_FAILURE'),
@@ -85,7 +83,7 @@ define(function (require) {
             );
           }
         }, function() {
-          $scope.isDeploying = false;
+          $scope.reloadEnvironment();
         });
       }
 

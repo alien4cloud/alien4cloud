@@ -1,13 +1,24 @@
 .language.flag-fr {
-  background-image: url("../images/flags/flags_iso/24/fr-fr.png");
+  background-image:url("../images/flags/iso/fr-fr.svg");
   background-repeat: no-repeat;
+}
 
-}
 .language.flag-us {
-  background-image: url("../images/flags/flags_iso/24/en-us.png");
+  background-image:url("../images/flags/iso/en-us.svg");
   background-repeat: no-repeat;
 }
+
 .language.flag-jp {
-  background-image: url("../images/flags/flags_iso/24/ja-jp.png");
+  background-image:url("../images/flags/iso/ja-jp.svg");
   background-repeat: no-repeat;
+}
+
+.language.flag-cn {
+  background-image:url("../images/flags/iso/zh-cn.svg");
+  background-repeat: no-repeat;
+}
+
+.language.flag {
+  width: 24px;
+  height: 24px;
 }

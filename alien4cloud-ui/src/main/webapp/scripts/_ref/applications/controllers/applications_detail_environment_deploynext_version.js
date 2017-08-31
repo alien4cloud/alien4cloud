@@ -97,9 +97,6 @@ define(function (require) {
 
             // update server info
             var versionOnly = topologyVersion.archiveId.split(':')[1];
-            console.log('$scope.application -> ' + JSON.stringify($scope.application));
-            console.log('$scope.environment -> ' + JSON.stringify($scope.environment));
-
             doUpdateTopologyVersion($scope.application.id, $scope.environment.id, versionOnly);
           }
         };

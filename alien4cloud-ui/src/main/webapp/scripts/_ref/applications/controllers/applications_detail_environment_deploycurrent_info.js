@@ -6,6 +6,7 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
   var alienUtils = require('scripts/utils/alien_utils');
+  require('scripts/deployment/directives/display_outputs');
 
   states.state('applications.detail.environment.deploycurrent.info', {
     url: '/info',
@@ -21,8 +22,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentInfoCtrl',
-  ['$scope', '$state', 'authService', 'Upload', '$translate', 'applicationServices', 'suggestionServices', 'toaster', 'application',
-  function($scope, $state, authService, $upload, $translate, applicationServices, suggestionServices,  toaster, applicationResult) {
+  ['$scope', 'authService', 'applicationServices', 'application', '$state',
+  function($scope, authService, applicationServices, applicationResult, $state) {
     $scope.applicationServices = applicationServices;
     $scope.fromStatusToCssClasses = alienUtils.getStatusIconCss;
 
@@ -36,21 +37,14 @@ define(function (require) {
     $scope.isUser = authService.hasResourceRole($scope.application, 'APPLICATION_USER');
     $scope.newAppName = $scope.application.name;
 
-    $scope.isAllowedModify = _.defined($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
-
-    // Image upload
-    $scope.doUpload = function(file) {
-      $upload.upload({
-        url: 'rest/latest/applications/' + $scope.application.id + '/image',
-        file: file
-      }).success(function(result) {
-        $scope.application.imageId = result.data;
-      });
-    };
-    $scope.onImageSelected = function($files) {
-      var file = $files[0];
-      $scope.doUpload(file);
-    };      
+    $scope.isAllowedModify = _.defined($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);   
+    
+    // switch back to 'current deploy' when undeployed completed
+    $scope.$watch('environment', function () {
+      if ($scope.environment.status === 'UNDEPLOYED') {
+        $state.go('applications.detail.environment.deploynext');
+      }
+    }, true);
   }
 ]);
 });

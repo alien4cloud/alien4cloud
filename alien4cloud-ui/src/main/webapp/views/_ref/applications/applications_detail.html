@@ -30,6 +30,8 @@
         </div>
       </div>
     </div>
+
+
     <div class="row grp-margin">
       <div class="col-md-4">
         <strong>{{'CREATION_DATE' | translate }}</strong>
@@ -42,6 +44,7 @@
       </div>
       <div class="col-md-8">{{application.lastUpdateDate | date:'medium'}}</div>
     </div>
+
     <!-- dynamic sub-states menu -->
     <div class="grp-margin">
       <a ng-repeat="menuItem in menu"
@@ -59,6 +62,8 @@
       <delete-confirm id="btn-delete-app" ng-if="isManager" func="removeApplication(application.id)" position="left" bssize="btn-rnd-menu" fastyle="fa-trash-o fa-fw">
       </delete-confirm>
     </div>
+
+
     <!-- tags and meta-properties -->
     <meta-properties-display
       ng-if="isManager && application.metaProperties"
@@ -67,7 +72,7 @@
       resturl="'rest/latest/applications/:applicationId/properties'"
       params="{applicationId: application.id}">
     </meta-properties-display>
-    <div class="grp-margin" ng-if="isManager || application.tags.length > 0">
+    <div class="block-margin" ng-if="isManager || application.tags.length > 0" style="margin-right:40px">
       <a4c-tags base-url="rest/latest/applications/:applicationId/tags"
         resource-key="applicationId"
         resource-id="application.id"
@@ -105,7 +110,7 @@
       </table>
     </div>
     <!-- versions list -->
-    <div>
+    <div class="block-margin">
       <h3>Edit a version's topology</h3>
       <div class="text-muted">
         Edit a version's topology out of the scope of an environment (allow the edition of a version that is not currently selected for deployment on any environment)

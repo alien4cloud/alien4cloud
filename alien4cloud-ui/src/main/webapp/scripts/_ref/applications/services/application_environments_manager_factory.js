@@ -58,18 +58,21 @@ define(function (require) {
         },
 
         //reload the environment given its id
-        reload: function(environmentId) {
+        reload: function(environmentId, optionalCallback) {
           var self = this;
           applicationEnvironmentServices.get({
             applicationId: this.application.id,
             applicationEnvironmentId: environmentId
           }, function(result){
             self.update(result.data);
+            if (_.defined(optionalCallback)) {
+              optionalCallback(result.data);
+            }
           });
         },
 
         registerEventListener: function(environment) {
-          var registration = environmentEventServicesFactory(this.application.id, environment, this.onDeploymentStatusEvent);
+          var registration = environmentEventServicesFactory(this.application.id, environment, this.onDeploymentStatusEvent.bind(this));
           this.eventRegistrations.push(registration);
         },
 
@@ -102,7 +105,7 @@ define(function (require) {
           this.displayDeploymentStatusToaster(environment);
           if(_.defined(this.onEnvironmentStateChangedCallback)) {
             // Allow the application.detail controller to update the angular scope.
-            this.onEnvironmentStateChangedCallback();
+            this.onEnvironmentStateChangedCallback(environment);
           }
         },
       };
