@@ -206,8 +206,7 @@ define(function (require) {
         if (event) {
           event.stopPropagation();
         }
-        component.selectedVersion = newVersion;
-        if (component.archiveVersion !== newVersion) {
+        if (component.archiveVersion !== newVersion.version) {
           // Retrieve the other version
           componentResource.get({
             id: newVersion.id
@@ -216,7 +215,7 @@ define(function (require) {
             var selectedVersionComponent = successResult.data;
             selectedVersionComponent.olderVersions = component.olderVersions;
             selectedVersionComponent.selectedVersion = newVersion.version;
-            $scope.searchResult.data[index] = selectedVersionComponent;
+            $scope.queryManager.searchResult.data[index] = selectedVersionComponent;
           });
         }
       };
