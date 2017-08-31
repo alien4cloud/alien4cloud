@@ -465,6 +465,7 @@
     "NODE": "Node",
     "PROPERTIES": "Properties",
     "RESOURCES": "Resources",
+    "SEARCH": "search...",
     "SOURCE": "Source",
     "STATE": "State",
     "TARGET": "Target",

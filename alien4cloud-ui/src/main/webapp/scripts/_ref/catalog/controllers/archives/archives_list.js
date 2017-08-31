@@ -35,7 +35,7 @@ define(function (require) {
         });
       }
 
-       $scope.queryManager = {};
+       $scope.queryManager = {labelPrefix: 'COMPONENTS.CSAR.'};
        $scope.searchService = searchServiceFactory('rest/latest/csars/search', false, $scope.queryManager, 20);
 
 

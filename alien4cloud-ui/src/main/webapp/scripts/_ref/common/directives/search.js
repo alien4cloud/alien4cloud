@@ -35,34 +35,39 @@ define(function (require) {
 
     $scope.searchBoxContent = undefined;
 
-    // //facetIdConverter
-    // if(_.undefined($scope.queryManager.facetIdConverter)){
-    //   $scope.queryManager.facetIdConverter = {};
-    // }
-    //
-    // $scope.queryManager.facetIdConverter.toDisplay = $scope.queryManager.facetIdConverter.toDisplay ||
-    //
-    // function (termId, facetId) {
-    //   var self = this;
-    //   if (_.isArray(facetId)) {
-    //     //process each value of the array
-    //     return _.transform(facetId, function (result, n) {
-    //       result.push(self.toDisplay(termId, n));
-    //     }, []);
-    //   } else {
-    //     if (termId === 'abstract') {
-    //       if (facetId === 'F' || facetId === false) { // jshint ignore:line
-    //         return $translate.instant('FALSE');
-    //       } else {
-    //         return $translate.instant('TRUE');
-    //       }
-    //     } else if (_.undefined(facetId)) {
-    //       return $translate.instant('N/A');
-    //     } else {
-    //       return facetId;
-    //     }
-    //   }
-    // },
+    $scope.queryManager.labelPrefix = $scope.queryManager.labelPrefix || '';
+
+    /*
+    * facetIdConverter defaults
+    */
+    if(_.undefined($scope.queryManager.facetIdConverter)){
+      $scope.queryManager.facetIdConverter = {};
+    }
+
+    $scope.queryManager.facetIdConverter.toDisplay = $scope.queryManager.facetIdConverter.toDisplay ||
+      function (termId, facetId) {
+        var self = this;
+        if (_.undefined(facetId)) {
+          return $translate.instant('N/A');
+        }else if (_.isArray(facetId)) {
+          //process each value of the array
+          return _.transform(facetId, function (result, n) {
+            result.push(self.toDisplay(termId, n));
+          }, []);
+        } else if (facetId === 'F' || facetId === false) { // jshint ignore:line
+          return $translate.instant('FALSE');
+        } else if (facetId ==='T' || facetId === true) {
+          return $translate.instant('TRUE');
+        } else {
+          return facetId;
+        }
+      };
+
+    $scope.queryManager.facetIdConverter.toDisplayFacet = $scope.queryManager.facetIdConverter.toDisplayFacet ||
+      function (termId, filterPrefix) {
+        var fullTerm = filterPrefix + termId;
+        return $translate.instant(fullTerm.toUpperCase());
+      };
 
     function updateSize() {
       $timeout(function() {

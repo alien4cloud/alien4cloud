@@ -463,6 +463,7 @@
     "NO" : "Non",
     "NODE" : "Noeud",
     "PROPERTIES" : "Propriétés",
+    "SEARCH": "Recercher...",
     "SOURCE" : "Source",
     "RESOURCES": "Ressources",
     "STATE" : "Etat",
@@ -649,9 +650,13 @@
     },
     "FROMGIT" : "Importés depuis Git",
     "IMPORTTOOLTIP" : "Importer",
+    "GIT": {
+      "GIT_IMPORT": "Import git"
+    },
     "IMPORT_ALL" : "Importer tout",
     "IMPORT_SUCCESS" : "L'import a été effectué",
     "LEGEND" : "Csars ajoutés",
+    "NEW": "Nouvelle archive",
     "NEW_GIT" : "Location Git",
     "PASSWORD" : "Mot de passe",
     "SAVE_LOCALLY" : "Conserver une copie locale du dépôt",
