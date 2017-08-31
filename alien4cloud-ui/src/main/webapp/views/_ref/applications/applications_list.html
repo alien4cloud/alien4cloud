@@ -13,7 +13,7 @@
     <div ng-repeat="application in queryManager.searchResult.data" class="alien-table-row grp-margin" ng-init="isEnvironmentsCollapsed = true">
       <div id="app_{{application.name}}" class="row clickable-media" ng-click="openApplication(application.id)">
         <div class="col-md-1" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; $event.stopPropagation();">
-          <i ng-if="applicationEnvironmentMap[application.id]" style="padding-right: .8em;" class="vertical-align-middle fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
+          <i ng-if="applicationEnvironmentMap[application.id]" style="padding-right: .8em;" class="vertical-center fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
         </div>
         <div class="col-md-4">
           <i class="vertical-center fa fa-desktop fa-2x" style="margin-right: .4em;" ng-if="!application.imageId"></i>

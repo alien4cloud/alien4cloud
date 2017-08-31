@@ -38,11 +38,6 @@ define(function (require) {
        $scope.queryManager = {labelPrefix: 'COMPONENTS.CSAR.'};
        $scope.searchService = searchServiceFactory('rest/latest/csars/search', false, $scope.queryManager, 20);
 
-
-      // $scope.onSearch = function (searchConfig) {
-      //   $scope.searchConfig = searchConfig;
-      // };
-
       $scope.openCsar = function (csarId) {
         $state.go('catalog.archives.detail', {id: csarId});
       };
