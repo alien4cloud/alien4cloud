@@ -23,7 +23,7 @@ define(function (require) {
     };
   });
   //'searchServiceFactory'
-  modules.get('a4c-common', []).controller('SearchCtrl', ['$scope', '$timeout', function ($scope, $timeout) {
+  modules.get('a4c-common', []).controller('SearchCtrl', ['$scope', '$timeout', '$translate', function ($scope, $timeout, $translate) {
     $scope.searchService.filtered(true);
     $scope.searching = false;
     $scope.queryManager.facetFilters = [];
@@ -34,6 +34,35 @@ define(function (require) {
     $scope.searchPadding = 6;
 
     $scope.searchBoxContent = undefined;
+
+    // //facetIdConverter
+    // if(_.undefined($scope.queryManager.facetIdConverter)){
+    //   $scope.queryManager.facetIdConverter = {};
+    // }
+    //
+    // $scope.queryManager.facetIdConverter.toDisplay = $scope.queryManager.facetIdConverter.toDisplay ||
+    //
+    // function (termId, facetId) {
+    //   var self = this;
+    //   if (_.isArray(facetId)) {
+    //     //process each value of the array
+    //     return _.transform(facetId, function (result, n) {
+    //       result.push(self.toDisplay(termId, n));
+    //     }, []);
+    //   } else {
+    //     if (termId === 'abstract') {
+    //       if (facetId === 'F' || facetId === false) { // jshint ignore:line
+    //         return $translate.instant('FALSE');
+    //       } else {
+    //         return $translate.instant('TRUE');
+    //       }
+    //     } else if (_.undefined(facetId)) {
+    //       return $translate.instant('N/A');
+    //     } else {
+    //       return facetId;
+    //     }
+    //   }
+    // },
 
     function updateSize() {
       $timeout(function() {

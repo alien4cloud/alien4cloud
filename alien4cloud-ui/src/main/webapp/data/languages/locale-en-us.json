@@ -651,9 +651,13 @@
     },
     "FROMGIT": "Imported from Git",
     "IMPORTTOOLTIP": "Import",
+    "GIT": {
+      "GIT_IMPORT": "Git import"
+    },
     "IMPORT_ALL": "Import all",
     "IMPORT_SUCCESS": "CSAR have been imported",
     "LEGEND": "Csars added",
+    "NEW": "New archive",
     "NEW_GIT": "Git Location",
     "PASSWORD": "Password",
     "SAVE_LOCALLY": "Save the repository locally",

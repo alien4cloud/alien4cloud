@@ -72,7 +72,7 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 }
 
 @media all and (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
-  #alien-navbar-collapse i + span {
+  #alien-navbar-collapse i span {
     display: inline-block;
     white-space: nowrap;
     overflow: hidden;
@@ -359,7 +359,7 @@ img.icon_32 {
 /* Vertical aligne for delete button in details pages (with xeditable spans) */
 .confirm-button-delete {
   display: inline-block;
-  margin-top: $line-height-computed + 3;
+  margin-top: $line-height-computed 3;
   vertical-align: top;
 }
 
@@ -554,4 +554,13 @@ img.icon_32 {
 
 .btn-square {
   border-radius: 0 !important;
+}
+
+.table-display {
+  display: table;
+}
+
+.table-display > div {
+  display: table-cell;
+  vertical-align: middle;
 }

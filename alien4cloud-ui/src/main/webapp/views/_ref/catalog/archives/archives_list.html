@@ -1,0 +1,79 @@
+<div class="table-display" style="width: 100%">
+  <div style="width: 20%">
+    <button class="btn btn-success" ng-click="openNewArchiveModal()" id="btn-add-template">
+      <i class="fa fa-plus-circle"></i> {{ 'CSAR.NEW' | translate}}
+    </button>
+    <button class="btn btn-info" ng-click="goToGitImportManagement()" id="btn-add-template">
+      <i class="fa fa-git"></i> {{ 'CSAR.GIT.GIT_IMPORT' | translate}}
+    </button>
+  </div>
+  <div style="width: 80%">
+    <upload-directive
+    target-url="'rest/latest/csars'"
+    drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
+    button-message="'COMPONENTS.UPLOAD'"
+    upload-success-callback="uploadSuccessCallback(data)" />
+  </div>
+</div>
+
+<div>
+  <a4c-search query-manager="queryManager"
+              search-service="searchService"
+              label-prefix="CSAR."></a4c-search>
+</div>
+<!-- CSAR search form -->
+  <!-- <div class="col-md-3" id="search-container">
+    <facet-search-panel search-url="rest/latest/csars/search"
+                        page-size="10"
+                        max-page-count="10"
+                        filter-prefix="COMPONENTS.CSAR."
+                        on-search="onSearch(searchConfig)"
+                        static-facets="staticFacets">
+    </facet-search-panel>
+  </div> -->
+
+  <!-- CSAR search result display -->
+<div class="grp-margin" id = "result-container">
+  <div class="table-responsive large-data-container" id="csars-table">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th></th>
+          <th>{{ 'COMMON.NAME' | translate}}</th>
+          <th>{{ 'COMMON.VERSION' | translate}}</th>
+          <th>{{ 'COMMON.DESCRIPTION' | translate}}</th>
+          <th>{{ 'COMMON.SOURCE' | translate}}</th>
+          <th>{{ 'UPDATE_DATE' | translate}}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="csar in queryManager.searchResult.data" ng-click="openCsar(csar.id)" id="csar_{{csar.id}}" name="csar_{{csar.id}}" class="clickable">
+          <td>
+            <i class="pull-left media-object fa fa-archive fa-2x"></i>
+          </td>
+          <td>{{csar.name}}</td>
+          <td>{{csar.version}}</td>
+          <td>{{csar.description || '---' }}</td>
+          <td>{{csar.importSource || '---' }}</td>
+          <td>{{(csar.importDate | date:'medium') || '---' }}</td>
+          <td>
+            <a class="btn btn-primary btn-sm" href="/rest/latest/csars/{{csar.id}}/download" ng-click="$event.stopPropagation()" download="{{csar.id}}.zip">
+              <i class="fa fa-download"></i>
+            </a>
+            <delete-confirm
+              ng-if="!csar.substitutionTopologyId && writeWorkspaces.indexOf(csar.workspace) >= 0"
+              id="delete-csar_{{csar.id}}" func="remove(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+            </delete-confirm>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <empty-place-holder
+      data="queryManager.searchResult.data">
+    </empty-place-holder>
+
+  </div>
+  <pagination-directive pagination-info="searchService.pagination"></pagination-directive>
+</div>
