@@ -6,7 +6,6 @@ define(function (require) {
 
   var registerEditorSubstates = require('scripts/topology/editor_register_service');
 
-
   states.state('editor_app_env', {
     url: '/editor/application/:applicationId/environment/:environmentId',
     templateUrl: 'views/_ref/applications/applications_detail_environment_deploynext_topology_editor.html',

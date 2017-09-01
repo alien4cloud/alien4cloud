@@ -29,6 +29,7 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "alien/horizontal-menu";
 @import "alien/lang";
 @import "alien/location-resources-directive";
+@import "alien/navleft";
 @import "alien/plans";
 @import "alien/search-directive";
 @import "alien/topology-plan";
@@ -475,7 +476,7 @@ img.icon_32 {
   width: 50%;
 }
 
-.detail-description {
+.inline-block {
   display: inline-block;
 }
 

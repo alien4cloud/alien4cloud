@@ -1,21 +1,24 @@
-
-.topology-editor {
+.editor-container {
   overflow: hidden !important;
 }
 
-@media(min-width: $screen-sm-min) {
-  .topology-editor {
-    margin-left: -20px;
-    margin-right: -20px;
-  }
-}
-
-@media(min-width: $screen-md-min) {
-  .topology-editor {
-    margin-left: -20px;
-    margin-right: -20px;
-  }
-}
+// .topology-editor {
+//   overflow: hidden !important;
+// }
+//
+// @media(min-width: $screen-sm-min) {
+//   .topology-editor {
+//     margin-left: -20px;
+//     margin-right: -20px;
+//   }
+// }
+//
+// @media(min-width: $screen-md-min) {
+//   .topology-editor {
+//     margin-left: -20px;
+//     margin-right: -20px;
+//   }
+// }
 
 .topology-row {
   display: table;
