@@ -22,8 +22,19 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentInfoCtrl',
-  ['$scope', 'authService', 'applicationServices', 'application', '$state',
-  function($scope, authService, applicationServices, applicationResult, $state) {
+  ['$scope', 'authService', 'applicationServices', 'application', '$state','breadcrumbsService', '$translate',
+  function($scope, authService, applicationServices, applicationResult, $state, breadcrumbsService, $translate) {
+
+    breadcrumbsService.putConfig({
+      state : 'applications.detail.environment.deploycurrent.info',
+      text: function(){
+        return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.INFO');
+      },
+      onClick: function(){
+        $state.go('applications.detail.environment.deploycurrent.info');
+      } 
+    });
+
     $scope.applicationServices = applicationServices;
     $scope.fromStatusToCssClasses = alienUtils.getStatusIconCss;
 

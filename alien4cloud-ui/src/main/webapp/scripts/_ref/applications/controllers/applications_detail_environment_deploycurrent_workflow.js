@@ -21,8 +21,19 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentWorkflowCtrl',
-    ['$scope', 'topoEditDisplay', 'topoEditWf', 'applicationServices',
-      function ($scope, topoEditDisplay, topoEditWf, applicationServices) {
+    ['$scope', 'topoEditDisplay', 'topoEditWf', 'applicationServices', 'breadcrumbsService', '$translate', '$state',
+      function ($scope, topoEditDisplay, topoEditWf, applicationServices, breadcrumbsService, $translate, $state) {
+
+        breadcrumbsService.putConfig({
+          state : 'applications.detail.environment.deploycurrent.workflow',
+          text: function(){
+            return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER');
+          },
+          onClick: function(){
+            $state.go('applications.detail.environment.deploycurrent.workflow');
+          } 
+        });
+
         $scope.displays = {
           workflows: { active: true, size: 400, selector: '#workflow-menu-box', only: ['workflows'] }
         };

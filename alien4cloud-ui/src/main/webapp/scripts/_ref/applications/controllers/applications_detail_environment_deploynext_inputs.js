@@ -24,8 +24,20 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextInputsCtrl',
-    ['$scope', '$filter', '$resource', '$uibModal', 'deploymentTopologyServices', 'topologyServices',
-    function ($scope, $filter, $resource, $uibModal, deploymentTopologyServices, topologyServices) {
+    ['$scope', '$filter', '$resource', '$uibModal', 'deploymentTopologyServices', 'topologyServices', 'breadcrumbsService','$translate',
+    function ($scope, $filter, $resource, $uibModal, deploymentTopologyServices, topologyServices, breadcrumbsService, $translate) {
+
+      breadcrumbsService.putConfig({
+        state : 'applications.detail.environment.deploynext.inputs',
+        text: function(){
+          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.INPUTS');
+        },
+        onClick: function(){
+          $state.go('applications.detail.environment.deploynext.inputs');
+        } 
+      });
+
+
       // Filter inputs to remove the internal inputs
       $scope.userInputs = $filter('internalInputs')($scope.deploymentTopologyDTO.topology.inputs);
 

@@ -1,9 +1,3 @@
-<!-- The breadcrump depends on the state -->
-<div class="vertical-panel-shift breadcrumb-panel">
-  <ol class="breadcrumb breadcrumb-arrow">
-    <li><a href="#" ng-click="goToApplication($event)">{{application.name}}</a></li>
-    <li><a href="#" ng-click="goToEnvironment($event)">{{environment.name}}</a></li>
-		<li class="active"><span>{{environment.currentVersionName}}</span></li>
-	</ol>
-</div>
+<a4c-breadcrumbs></a4c-breadcrumbs>
+
 <div ui-view></div>

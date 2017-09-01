@@ -33,7 +33,7 @@ define(function (require) {
             return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.VERSION');
           },
           onClick: function(){
-            console.log('yolo env');
+            $state.go('applications.detail.environment.deploynext.version');
           } 
         });
 

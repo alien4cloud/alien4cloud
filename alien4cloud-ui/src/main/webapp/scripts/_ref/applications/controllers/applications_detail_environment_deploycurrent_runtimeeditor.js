@@ -34,6 +34,8 @@ define(function (require) {
   '$interval',
   'toscaService',
   'topoEditDisplay',
+  'breadcrumbsService',
+  '$state',
   function($scope,
     applicationServices,
     $translate,
@@ -42,7 +44,20 @@ define(function (require) {
     toaster,
     $interval,
     toscaService,
-    topoEditDisplay) {
+    topoEditDisplay,
+    breadcrumbsService,
+    $state) {
+
+    breadcrumbsService.putConfig({
+      state : 'applications.detail.environment.deploycurrent.runtimeeditor',
+      text: function(){
+        return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.RUNTIME_EDITOR');
+      },
+      onClick: function(){
+        $state.go('applications.detail.environment.deploycurrent.runtimeeditor');
+      } 
+    });
+
     $scope.isRuntime = true;
 
     $scope.displays = {

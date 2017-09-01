@@ -24,8 +24,19 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextLocationsCtrl',
-    ['$scope', 'deploymentTopologyServices', 'locationsMatchingServices',
-    function ($scope, deploymentTopologyServices, locationsMatchingServices) {
+    ['$scope', 'deploymentTopologyServices', 'locationsMatchingServices', 'breadcrumbsService', '$translate', '$state',
+    function ($scope, deploymentTopologyServices, locationsMatchingServices, breadcrumbsService, $translate, $state) {
+
+      breadcrumbsService.putConfig({
+        state: 'applications.detail.environment.deploynext.locations',
+        text: function () {
+          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.LOCATIONS');
+        },
+        onClick: function () {
+          $state.go('applications.detail.environment.deploynext.locations');
+        }
+      });
+
       if (_.has($scope, 'deploymentTopologyDTO.topology.orchestratorId') && _.has($scope, 'deploymentTopologyDTO.locationPolicies.' + locationsMatchingServices.GROUP_ALL)) {
         $scope.oldSelectedOrchestratorId = $scope.deploymentTopologyDTO.topology.orchestratorId;
         $scope.oldSelectedLocationId = $scope.deploymentTopologyDTO.locationPolicies[locationsMatchingServices.GROUP_ALL];

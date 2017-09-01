@@ -50,13 +50,13 @@ define(function (require) {
         $scope.menu = menu;
 
         breadcrumbsService.putConfig({
-          state : 'applications.detail.environment',
-          text: function(){
+          state: 'applications.detail.environment',
+          text: function () {
             return $scope.environment.name;
           },
-          onClick: function(){
-            console.log('yolo env');
-          } 
+          onClick: function () {
+            $state.go('applications.detail.environment', { environmentId: $scope.environment.id });
+          }
         });
 
         applicationEnvironmentsManager.onEnvironmentStateChangedCallback = function(env) {

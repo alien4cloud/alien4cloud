@@ -23,8 +23,19 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextMatchingCtrl',
-    ['$scope', 'nodeTemplateService', 'deploymentTopologyServices',
-    function ($scope, nodeTemplateService, deploymentTopologyServices) {
+    ['$scope', 'nodeTemplateService', 'deploymentTopologyServices', 'breadcrumbsService', '$translate', '$state',
+    function ($scope, nodeTemplateService, deploymentTopologyServices, breadcrumbsService, $translate, $state) {
+
+      breadcrumbsService.putConfig({
+        state : 'applications.detail.environment.deploynext.matching',
+        text: function(){
+          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.MATCHING');
+        },
+        onClick: function(){
+          $state.go('applications.detail.environment.deploynext.matching');
+        } 
+      });
+
       $scope.getIcon = function(template, templateName) {
         var templateType;
         if (_.undefined(template)) {

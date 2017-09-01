@@ -26,8 +26,19 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextDeployCtrl',
-    ['$scope', '$alresource', '$translate', 'toaster', '$uibModal', 'deploymentTopologyServices', 'applicationServices',
-    function ($scope, $alresource, $translate, toaster, $uibModal, deploymentTopologyServices, applicationServices) {
+    ['$scope', '$alresource', '$translate', 'toaster', '$uibModal', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state',
+    function ($scope, $alresource, $translate, toaster, $uibModal, deploymentTopologyServices, applicationServices, breadcrumbsService, $state) {
+
+      breadcrumbsService.putConfig({
+        state : 'applications.detail.environment.deploynext.deploy',
+        text: function(){
+          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.DEPLOY');
+        },
+        onClick: function(){
+          $state.go('applications.detail.environment.deploynext.deploy');
+        } 
+      });
+      
       //  CONFIRMATION BEFORE DEPLOYMENT / UPDATE
       var ConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName',
         function(modalScope, $uibModalInstance, $translate, applicationName) {

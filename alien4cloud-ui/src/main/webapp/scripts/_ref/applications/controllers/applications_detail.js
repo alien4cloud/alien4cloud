@@ -93,11 +93,23 @@ define(function (require) {
   states.forward('applications.detail', 'applications.detail.info');
 
   modules.get('a4c-applications').controller('ApplicationInfoCtrl',
-    ['$controller', '$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'resourceLayoutService', 'authService', 'userContextServices', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
-    function ($controller, $scope, $state, $translate, toaster, $upload, menu, resourceLayoutService, authService, userContextServices, applicationServices, applicationResponse, applicationEnvironmentsManager, versionsResponse) {
+    ['$controller', '$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'resourceLayoutService', 'authService', 'breadcrumbsService', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
+    function ($controller, $scope, $state, $translate, toaster, $upload, menu, resourceLayoutService, authService, breadcrumbsService, applicationServices, applicationResponse, applicationEnvironmentsManager, versionsResponse) {
+      $scope.application = applicationResponse.data;
+
+      breadcrumbsService.putConfig({
+        state: 'applications.detail',
+        text: function () {
+          return $scope.application.name;
+        },
+        onClick: function () {
+          $state.go('applications.detail', { id: $scope.application.id });
+        }
+      });
+
       $scope.versions = versionsResponse.data;
 
-      $scope.application = applicationResponse.data;
+      
       if(!$scope.application.tags) {
         $scope.application.tags = {};
       }

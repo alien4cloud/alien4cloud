@@ -10,7 +10,12 @@ define(function (require) {
   states.state('editor_app_env', {
     url: '/editor/application/:applicationId/environment/:environmentId',
     templateUrl: 'views/_ref/applications/applications_detail_environment_deploynext_topology_editor.html',
-    controller: 'AppEnvTopoEditorCtrl'
+    controller: 'AppEnvTopoEditorCtrl',
+    data: {
+      breadcrumbs: {
+        state: 'applications.detail.environment.deploynext.topology.editor'
+      }
+    }
   });
 
   // Define editor states from root (to use full-screen and avoid dom and scopes pollution)
@@ -23,11 +28,66 @@ define(function (require) {
   states.forward('editor_app_env', 'editor_app_env.editor');
 
   modules.get('a4c-applications').controller('AppEnvTopoEditorCtrl',
-    ['$scope', '$state', '$stateParams', 'userContextServices', 'applicationServices', 'applicationEnvironmentServices',
-    function ($scope, $state, $stateParams, userContextServices, applicationServices, applicationEnvironmentServices) {
+    ['$scope', '$state', '$stateParams', 'userContextServices', 'applicationServices', 'applicationEnvironmentServices', 'breadcrumbsService',
+    function ($scope, $state, $stateParams, userContextServices, applicationServices, applicationEnvironmentServices, breadcrumbsService) {
+
+      var setupBreadCrumbs = function () {
+        
+        breadcrumbsService.putConfig({
+          state: 'applications.detail',
+          text: function () {
+            return $scope.application.name;
+          },
+          onClick: function () {
+            $state.go('applications.detail', { id: $scope.application.id });
+          }
+        });
+
+        breadcrumbsService.putConfig({
+          state: 'applications.detail.environment',
+          text: function () {
+            return $scope.environment.name;
+          },
+          onClick: function () {
+            $state.go('applications.detail.environment', { environmentId: $scope.environment.id });
+          }
+        });
+        
+        breadcrumbsService.putConfig({
+          state: 'applications.detail.environment.deploynext.topology',
+          text: function () {
+            return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.TOPOLOGY');
+          },
+          onClick: function () {
+            $state.go('applications.detail.environment.deploynext.topology');
+          }
+        });
+
+        breadcrumbsService.putConfig({
+          state: 'applications.detail.environment.deploynext.topology.editor',
+          text: function () {
+            return 'Editor (' + $scope.environment.currentVersionName + ')';
+          },
+          onClick: function () {
+            $state.go('editor_app_env.editor', {
+              applicationId: $scope.application.id,
+              environmentId: $scope.environment.id,
+              archiveId: $scope.application.id + ':' + $scope.environment.currentVersionName
+            });
+          }
+        });
+      };
+
+      var appAndEnvAvailable = function(){
+        return _.defined($scope.application) && _.defined($scope.environment);
+      };
 
       applicationServices.get({ applicationId: $stateParams.applicationId }, function(result) {
         $scope.application = result.data;
+
+        if(appAndEnvAvailable){
+          setupBreadCrumbs();
+        }
       });
 
       applicationEnvironmentServices.get({
@@ -35,6 +95,10 @@ define(function (require) {
         applicationEnvironmentId: $stateParams.environmentId
       }, function (result) {
         $scope.environment = result.data;
+
+        if(appAndEnvAvailable){
+          setupBreadCrumbs();
+        }
       });
 
       $scope.goToApplication = function($event) {

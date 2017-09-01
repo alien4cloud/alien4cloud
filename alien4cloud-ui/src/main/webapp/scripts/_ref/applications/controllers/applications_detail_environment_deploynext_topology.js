@@ -37,7 +37,7 @@ define(function (require) {
           return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.TOPOLOGY');
         },
         onClick: function(){
-          console.log('yolo env');
+          $state.go('applications.detail.environment.deploynext.topology');
         } 
       });
 
