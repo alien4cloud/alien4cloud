@@ -28,10 +28,10 @@
 </style>
 
 <div class="row">
-    <div class="col-sm-1">
+    <div class="col-sm-1" style="max-width:60px;">
         <ul class="nav nav-stacked grp-margin nav-vcenter nav-leftside nav-small">
             <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active" >
-                <a id="{{menuItem.id}}" 
+                <a id="{{menuItem.id}}"
                 ng-click="onItemClick($event, menuItem)"
                 ng-class="{'text-muted' : menuItem.disabled}"
                 ui-sref="{{menuItem.state}}"><i class="{{menuItem.icon}} fa-2x" ng-if="menuItem.icon"></i><br/>{{menuItem.key | translate}} </a>

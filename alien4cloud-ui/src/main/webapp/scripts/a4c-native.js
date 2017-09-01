@@ -12,6 +12,5 @@ define(function () {
         'scripts/services/controllers/service_resources',
         'scripts/_ref/catalog/controllers/catalog',
         'scripts/common/directives/empty_place_holder',
-        'scripts/topologytemplates/controllers/topology_template_list',
         'scripts/common/directives/resizable_bar'];
 });
