@@ -22,7 +22,7 @@
     margin-left: -5px;
 }
 .breadcrumb-arrow li+li:before {
-    padding: 0;
+    padding: 2px;
     content: "";
 }
 .breadcrumb-arrow li span {
@@ -65,7 +65,7 @@
 .breadcrumb-arrow li a:after {
     right: -11px;
     z-index: 2;
-    border-left: 11px solid $gray-dark;
+    border-left: 11px solid $gray-darker;
 }
 .breadcrumb-arrow li a:focus, .breadcrumb-arrow li a:hover {
     background-color: $gray-light;
