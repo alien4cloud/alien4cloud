@@ -28,8 +28,20 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextTopologyCtrl',
-    ['$scope', '$state', 'authService', 'resizeServices',
-    function ($scope, $state, authService, resizeServices) {
+    ['$scope', '$state', 'authService', 'resizeServices', 'breadcrumbsService', '$translate',
+    function ($scope, $state, authService, resizeServices, breadcrumbsService, $translate) {
+
+      breadcrumbsService.putConfig({
+        state : 'applications.detail.environment.deploynext.topology',
+        text: function(){
+          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.TOPOLOGY');
+        },
+        onClick: function(){
+          console.log('yolo env');
+        } 
+      });
+
+
       // Filter tasks to match only the screen task codes
       $scope.canEditTopology = authService.hasResourceRoleIn($scope.application, ['APPLICATION_MANAGER', 'APPLICATION_DEVOPS']);
 

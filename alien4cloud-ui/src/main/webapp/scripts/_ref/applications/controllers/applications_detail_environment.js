@@ -11,7 +11,9 @@ define(function (require) {
 
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent');
-
+  require('scripts/_ref/common/directives/breadcrumbs');
+  require('scripts/_ref/common/services/breadcrumbs_service');
+  
   require('scripts/common/services/user_context_services');
 
   states.state('applications.detail.environment', {
@@ -39,13 +41,23 @@ define(function (require) {
   states.forward('applications.detail.environment', 'applications.detail.environment.deploynext');
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentCtrl',
-    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu', 'applicationEnvironmentsManager',
-      function ($scope, $state, userContextServices, applicationResponse, environment, menu, applicationEnvironmentsManager) {
+    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu', 'applicationEnvironmentsManager', 'breadcrumbsService',
+      function ($scope, $state, userContextServices, applicationResponse, environment, menu, applicationEnvironmentsManager, breadcrumbsService) {
         $scope.application = applicationResponse.data;
         $scope.environment = environment;
         $scope.statusIconCss = alienUtils.getStatusIconCss;
         $scope.statusTextCss = alienUtils.getStatusTextCss;
         $scope.menu = menu;
+
+        breadcrumbsService.putConfig({
+          state : 'applications.detail.environment',
+          text: function(){
+            return $scope.environment.name;
+          },
+          onClick: function(){
+            console.log('yolo env');
+          } 
+        });
 
         applicationEnvironmentsManager.onEnvironmentStateChangedCallback = function(env) {
           $scope.setEnvironment(env);

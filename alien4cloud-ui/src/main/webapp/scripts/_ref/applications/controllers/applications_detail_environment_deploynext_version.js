@@ -24,8 +24,18 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextVersionCtrl',
-    ['$scope', 'archiveVersions', 'applicationEnvironmentServices', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor',
-      function ($scope, archiveVersionsResponse, applicationEnvironmentServices, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor) {
+    ['$scope', '$translate', 'archiveVersions', 'applicationEnvironmentServices', 'deploymentTopologyServices', 'breadcrumbsService',
+      function ($scope, $translate, archiveVersionsResponse, applicationEnvironmentServices, deploymentTopologyServices, breadcrumbsService) {
+
+        breadcrumbsService.putConfig({
+          state : 'applications.detail.environment.deploynext.version',
+          text: function(){
+            return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.VERSION');
+          },
+          onClick: function(){
+            console.log('yolo env');
+          } 
+        });
 
         $scope.loading = false;
 
