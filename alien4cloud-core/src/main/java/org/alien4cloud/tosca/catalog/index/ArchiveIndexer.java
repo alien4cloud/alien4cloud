@@ -195,6 +195,8 @@ public class ArchiveIndexer {
             source = CSARSource.OTHER;
         }
         archiveRoot.getArchive().setImportSource(source.name());
+        archiveRoot.getArchive().setHasTopology(archiveRoot.hasToscaTopologyTemplate() && !archiveRoot.getTopology().isEmpty());
+        archiveRoot.getArchive().setNodeTypesCount(archiveRoot.getNodeTypes().size());
         // TODO load transitives dependencies here before saving, as it is not done when parsing
         csarService.save(archiveRoot.getArchive());
         log.debug("Imported archive {}", archiveRoot.getArchive().getId());

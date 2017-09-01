@@ -1,5 +1,5 @@
-<div class="table-display" style="width: 100%">
-  <div style="width: 20%">
+<div class="row">
+  <div class="col-md-3" style="margin-top: 25px">
     <button class="btn btn-success" ng-click="openNewArchiveModal()" id="btn-add-template">
       <i class="fa fa-plus-circle"></i> {{ 'CSAR.NEW' | translate}}
     </button>
@@ -7,7 +7,7 @@
       <i class="fa fa-git"></i> {{ 'CSAR.GIT.GIT_IMPORT' | translate}}
     </button>
   </div>
-  <div style="width: 80%">
+  <div class="col-md-9">
     <upload-directive
     target-url="'rest/latest/csars'"
     drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
@@ -55,15 +55,16 @@
           <td>{{csar.version}}</td>
           <td>{{csar.importSource || '---' }}</td>
           <td>{{csar.description || '---' }}</td>
-          <td>
-            ---
-            <!-- <i ng-if="csar.hasTopology" style="margin-right: 5px" class="fa fa-sitemap"></i>
-            <span>
-              <i class="fa fa-cubes"></i><span class="badge">{{csar.componentsCount || '?'}}</span>
-            </span> -->
+          <td ng-init="empty=!csar.hasTopology && csar.nodeTypesCount==0">
+            <span ng-if="!empty">
+              <i ng-if="csar.hasTopology" style="margin-right: 5px" class="fa fa-sitemap"></i>
+              <span ng-if="csar.nodeTypesCount>0">
+                <i class="fa fa-cubes"></i><span class="badge">{{csar.nodeTypesCount}}</span>
+              </span>
+            </span>
+            <span ng-if="empty"> --- </span>
           </td>
           <td>
-
             <!-- Download the archive as .csar file-->
             <a class="btn btn-default btn-xs" href="/rest/latest/csars/{{csar.id}}/download" ng-click="$event.stopPropagation()" download="{{csar.id}}.zip" ng-attr-title="{{'COMMON.DOWNLOAD' | translate}}">
               <i class="fa fa-download"></i>

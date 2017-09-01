@@ -4,17 +4,6 @@ define(function (require) {
   var modules = require('modules');
 
   modules.get('a4c-components', ['ngResource']).factory('csarService', ['$resource', '$translate', function($resource, $translate) {
-    var nodeTypeCreateDAO = $resource('rest/latest/csars/:csarId/nodetypes/', {}, {
-      'upload': {
-        method: 'POST',
-        isArray: false,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
-        }
-      }
-    });
-
-    var nodeTypeCRUDDAO = $resource('rest/latest/csars/:csarId/nodetypes/:nodeTypeId', {}, {});
 
     var resultGetAndDelete = $resource('rest/latest/csars/:csarId', {
       csarId: '@csarId'
@@ -61,8 +50,6 @@ define(function (require) {
     return {
       'getAndDeleteCsar': resultGetAndDelete,
       'searchCsar': searchCsar,
-      'createNodeType': nodeTypeCreateDAO,
-      'nodeTypeCRUDDAO': nodeTypeCRUDDAO,
       'builtErrorResultList': builtResultList
     };
   }]);
