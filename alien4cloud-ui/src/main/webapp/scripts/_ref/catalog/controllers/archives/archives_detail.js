@@ -15,7 +15,7 @@ define(function (require) {
     controller: 'ArchivesDetailCtrl'
   });
 
-  modules.get('a4c-components').controller(
+  modules.get('a4c-catalog').controller(
     'ArchivesDetailCtrl', ['$scope', '$stateParams', '$state', 'csarService', 'deploymentServices', 'webSocketServices', '$translate', 'toaster',
     function($scope, $stateParams, $state, csarService, deploymentServices, webSocketServices, $translate, toaster) {
 

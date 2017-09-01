@@ -5,7 +5,7 @@ define(function (require) {
 
   require('scripts/_ref/catalog/controllers/components/components_search');
 
-  modules.get('a4c-components').directive('a4cComponentCatalog', function () {
+  modules.get('a4c-catalog').directive('a4cComponentCatalog', function () {
     return {
       templateUrl: 'views/_ref/catalog/components/components_catalog.html',
       restrict: 'E',

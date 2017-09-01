@@ -4,6 +4,8 @@ define(function(require) {
   var modules = require('modules');
   var _ = require('lodash');
 
+  require('scripts/topologytemplates/directives/topology_template_search');
+
   modules.get('a4c-applications').directive('topologyInitFromSelect', ['topologyServices', function(topologyServices) {
     return {
       templateUrl: 'views/applications/directives/topology_init_from_select.html',

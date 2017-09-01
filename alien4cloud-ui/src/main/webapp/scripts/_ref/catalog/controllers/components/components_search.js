@@ -8,7 +8,7 @@ define(function (require) {
   require('scripts/tosca/services/tosca_service');
   require('scripts/common/services/search_service_factory');
 
-  modules.get('a4c-components', ['a4c-tosca', 'a4c-search']).controller('a4cSearchComponentCtrl', ['$scope', '$alresource', 'toscaService', 'searchServiceFactory', '$state', '$translate',
+  modules.get('a4c-catalog', ['a4c-tosca', 'a4c-search']).controller('a4cSearchComponentCtrl', ['$scope', '$alresource', 'toscaService', 'searchServiceFactory', '$state', '$translate',
     function ($scope, $alresource, toscaService, searchServiceFactory, $state, $translate) {
       var alienInternalTags = ['icon'];
       $scope.getIcon = toscaService.getIcon;

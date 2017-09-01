@@ -21,7 +21,7 @@ define(function (require) {
   require('scripts/components/controllers/csar_explorer');
   require('scripts/common/directives/info.js');
 
-  modules.get('a4c-components', ['ngResource', 'ui.bootstrap', 'ui.router', 'a4c-auth']).controller('ComponentInfoCtrl',
+  modules.get('a4c-catalog', ['ngResource', 'ui.bootstrap', 'ui.router', 'a4c-auth']).controller('ComponentInfoCtrl',
     ['authService', '$scope', '$resource', '$state', '$stateParams', 'componentTagService', '$uibModal', 'suggestionServices', 'toscaService', 'component',
     function(authService, $scope, $resource, $state, $stateParams, componentTagService, $uibModal, suggestionServices, toscaService, component) {
       var alienInternalTags = ['icon'];

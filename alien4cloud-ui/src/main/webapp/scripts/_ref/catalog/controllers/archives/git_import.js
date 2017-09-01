@@ -17,7 +17,7 @@ define(function (require) {
   });
 
   /* Main CSAR search controller */
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('GitImportCtrl', ['$scope', '$uibModal', '$state', 'csarGitService', 'searchServiceFactory', '$translate', 'toaster',
+  modules.get('a4c-catalog', ['ui.router', 'ui.bootstrap']).controller('GitImportCtrl', ['$scope', '$uibModal', '$state', 'csarGitService', 'searchServiceFactory', '$translate', 'toaster',
   function($scope, $uibModal, $state, csarGitService, searchServiceFactory, $translate, toaster) {
     var statesToClasses = {
       'error': 'danger',
