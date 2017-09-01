@@ -1,11 +1,3 @@
-<!-- <div class="breadcrumb-panel">
-  <a ng-repeat = "menuItem in menu" ng-class="{'disabled' : menuItem.active}"
-    ng-click="onItemClick($event, menuItem)"
-    ui-sref="{{menuItem.state}}"
-    >
-    {{menuItem.key | translate}}
-  </a>
-</div> -->
 <ul class="nav nav-tabs grp-margin">
   <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active"
     ng-class="{'disabled' : menuItem.disabled}">

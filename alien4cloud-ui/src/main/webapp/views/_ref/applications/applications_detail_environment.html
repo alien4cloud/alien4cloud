@@ -1,5 +1,8 @@
 <div class="breadcrumb-panel">
-  <a href="#" ng-click="goToApplication($event)">{{application.name}}</a> > {{environment.name}}
+  <ol class="breadcrumb breadcrumb-arrow">
+		<li><a href="#" ng-click="goToApplication($event)">{{application.name}}</a></li>
+		<li class="active"><span>{{environment.name}}</span></li>
+	</ol>
 </div>
 <!--
 <div class="row grp-margin">
