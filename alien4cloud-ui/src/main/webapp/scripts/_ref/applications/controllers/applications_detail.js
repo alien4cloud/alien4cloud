@@ -72,15 +72,15 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-applications').controller('ApplicationDetailCtrl',['$scope','application', 'breadcrumbsService',
-    function($scope, application, breadcrumbsService) {
+  modules.get('a4c-applications').controller('ApplicationDetailCtrl',['$scope','application', 'breadcrumbsService','$state',
+    function($scope, application, breadcrumbsService, $state) {
       breadcrumbsService.putConfig({
         state : 'applications.detail',
         text: function(){
           return application.data.name;
         },
         onClick: function(){
-          console.log('yolo app');
+          $state.go('applications.detail', { id: application.data.id });
         }
       });
   }]);

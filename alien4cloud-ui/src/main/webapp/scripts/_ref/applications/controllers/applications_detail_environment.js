@@ -55,7 +55,10 @@ define(function (require) {
             return $scope.environment.name;
           },
           onClick: function () {
-            $state.go('applications.detail.environment', { environmentId: $scope.environment.id });
+            $state.go('applications.detail.environment', {
+              id: $scope.application.id,
+              environmentId: $scope.environment.id
+            });          
           }
         });
 

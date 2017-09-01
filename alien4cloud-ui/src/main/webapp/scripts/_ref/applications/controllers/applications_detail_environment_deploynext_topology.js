@@ -37,7 +37,10 @@ define(function (require) {
           return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.TOPOLOGY');
         },
         onClick: function(){
-          $state.go('applications.detail.environment.deploynext.topology');
+          $state.go('applications.detail.environment.deploynext.topology', {
+            id: $scope.application.id,
+            environmentId: $scope.environment.id
+          });
         } 
       });
 

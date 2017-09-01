@@ -10,12 +10,7 @@ define(function (require) {
   states.state('editor_app_env', {
     url: '/editor/application/:applicationId/environment/:environmentId',
     templateUrl: 'views/_ref/applications/applications_detail_environment_deploynext_topology_editor.html',
-    controller: 'AppEnvTopoEditorCtrl',
-    data: {
-      breadcrumbs: {
-        state: 'applications.detail.environment.deploynext.topology.editor'
-      }
-    }
+    controller: 'AppEnvTopoEditorCtrl'
   });
 
   // Define editor states from root (to use full-screen and avoid dom and scopes pollution)
@@ -28,15 +23,15 @@ define(function (require) {
   states.forward('editor_app_env', 'editor_app_env.editor');
 
   modules.get('a4c-applications').controller('AppEnvTopoEditorCtrl',
-    ['$scope', '$state', '$stateParams', 'userContextServices', 'applicationServices', 'applicationEnvironmentServices', 'breadcrumbsService',
-    function ($scope, $state, $stateParams, userContextServices, applicationServices, applicationEnvironmentServices, breadcrumbsService) {
+    ['$scope', '$state', '$stateParams', 'userContextServices', 'applicationServices', 'applicationEnvironmentServices', 'breadcrumbsService','$translate',
+    function ($scope, $state, $stateParams, userContextServices, applicationServices, applicationEnvironmentServices, breadcrumbsService, $translate) {
 
-      var setupBreadCrumbs = function () {
+      var setupBreadCrumbs = function (scope) {
         
         breadcrumbsService.putConfig({
           state: 'applications.detail',
           text: function () {
-            return $scope.application.name;
+            return scope.application.name;
           },
           onClick: function () {
             $state.go('applications.detail', { id: $scope.application.id });
@@ -46,11 +41,13 @@ define(function (require) {
         breadcrumbsService.putConfig({
           state: 'applications.detail.environment',
           text: function () {
-            return $scope.environment.name;
+            return scope.environment.name;
           },
           onClick: function () {
-            $state.go('applications.detail.environment', { environmentId: $scope.environment.id });
-          }
+            $state.go('applications.detail.environment', {
+              id: $scope.application.id,
+              environmentId: $scope.environment.id
+            });          }
         });
         
         breadcrumbsService.putConfig({
@@ -59,20 +56,23 @@ define(function (require) {
             return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.TOPOLOGY');
           },
           onClick: function () {
-            $state.go('applications.detail.environment.deploynext.topology');
+            $state.go('applications.detail.environment.deploynext.topology', {
+              id: scope.application.id,
+              environmentId: scope.environment.id
+            });
           }
         });
 
         breadcrumbsService.putConfig({
           state: 'applications.detail.environment.deploynext.topology.editor',
           text: function () {
-            return 'Editor (' + $scope.environment.currentVersionName + ')';
+            return 'Editor (' + scope.environment.currentVersionName + ')';
           },
           onClick: function () {
             $state.go('editor_app_env.editor', {
-              applicationId: $scope.application.id,
-              environmentId: $scope.environment.id,
-              archiveId: $scope.application.id + ':' + $scope.environment.currentVersionName
+              applicationId: scope.application.id,
+              environmentId: scope.environment.id,
+              archiveId: scope.application.id + ':' + scope.environment.currentVersionName
             });
           }
         });
@@ -85,8 +85,8 @@ define(function (require) {
       applicationServices.get({ applicationId: $stateParams.applicationId }, function(result) {
         $scope.application = result.data;
 
-        if(appAndEnvAvailable){
-          setupBreadCrumbs();
+        if(appAndEnvAvailable()){
+          setupBreadCrumbs($scope);
         }
       });
 
@@ -96,8 +96,8 @@ define(function (require) {
       }, function (result) {
         $scope.environment = result.data;
 
-        if(appAndEnvAvailable){
-          setupBreadCrumbs();
+        if(appAndEnvAvailable()){
+          setupBreadCrumbs($scope);
         }
       });
 
