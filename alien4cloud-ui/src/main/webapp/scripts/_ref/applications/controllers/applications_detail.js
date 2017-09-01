@@ -81,7 +81,7 @@ define(function (require) {
         },
         onClick: function(){
           console.log('yolo app');
-        } 
+        }
       });
   }]);
 
@@ -95,18 +95,6 @@ define(function (require) {
   modules.get('a4c-applications').controller('ApplicationInfoCtrl',
     ['$controller', '$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'resourceLayoutService', 'authService', 'userContextServices', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
     function ($controller, $scope, $state, $translate, toaster, $upload, menu, resourceLayoutService, authService, userContextServices, applicationServices, applicationResponse, applicationEnvironmentsManager, versionsResponse) {
-      var navigationContext = userContextServices.getAppNavContext(applicationResponse.data.id);
-      if(_.defined(navigationContext)) {
-        if(navigationContext.type === 'environment') {
-          // User was working on a version so forward there
-          $state.go('applications.detail.environment', {
-            environmentId: navigationContext.id
-          });
-        } else if(navigationContext.type === 'version') {
-          // TODO User was working on a version so forward there
-        }
-      }
-
       $scope.versions = versionsResponse.data;
 
       $scope.application = applicationResponse.data;
