@@ -5,8 +5,6 @@ define(function (require) {
   var states = require('states');
 
   require('scripts/components/services/csar');
-  require('scripts/common/services/websocket_services');
-  require('scripts/deployment/services/deployment_services');
 
   // register archives detail state
   states.state('catalog.archives.detail', {
@@ -16,8 +14,8 @@ define(function (require) {
   });
 
   modules.get('a4c-catalog').controller(
-    'ArchivesDetailCtrl', ['$scope', '$stateParams', '$state', 'csarService', 'deploymentServices', 'webSocketServices', '$translate', 'toaster',
-    function($scope, $stateParams, $state, csarService, deploymentServices, webSocketServices, $translate, toaster) {
+    'ArchivesDetailCtrl', ['$scope', '$stateParams', '$state', 'csarService', '$translate', 'toaster',
+    function($scope, $stateParams, $state, csarService, $translate, toaster) {
 
       /* Retrieve CSAR to display */
       csarService.getAndDeleteCsar.get({

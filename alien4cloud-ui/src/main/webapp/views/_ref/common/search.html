@@ -30,10 +30,10 @@
   <i class="fa fa-spinner fa-spin"></i> Searching
 </div>
 <!-- Display facets for easy filtering -->
-<div uib-collapse="!advancedSearch">
+<div uib-collapse="!advancedSearch" class="facet-panel">
   <!-- Displaying all terms and its facets -->
   <div ng-repeat="(term, termFacets) in queryManager.searchResult.facets">
-    <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category clickable">
+    <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
       <span>{{ queryManager.facetIdConverter.toDisplayFacet(term, queryManager.labelPrefix) }}</span>
       <i class="pull-right fa"
          ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
