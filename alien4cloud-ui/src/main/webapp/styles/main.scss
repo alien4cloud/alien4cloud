@@ -22,6 +22,7 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "alien/breadcrumb";
 @import "alien/dragdrop";
 @import "alien/editable";
+@import "alien/facet";
 @import "alien/fileupload";
 @import "alien/form-generator";
 @import "alien/hopscotch";
@@ -169,61 +170,6 @@ a.accordion-toggle[ng-click] {
   text-decoration: none;
 }
 
-.facet-category {
-  border-top: 1px solid #ddd;
-  font-weight: 500;
-  font-style: italic;
-  color: gray;
-  margin-top: 10px;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-top: 10px;
-}
-
-.facet-category-active {
-  color: inherit;
-  font-style: normal;
-  cursor: pointer;
-}
-
-.facet-category-active:hover{
-  background-color: whitesmoke;
-}
-
-.facet-choice .nav > li > a {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 4px 5px;
-}
-
-.facet-choice .nav > li > a:hover {
-  background-color: transparent;
-  border-left: 1px solid #d9534f;
-  color: #d9534f;
-  padding-left: 4px;
-  text-decoration: none;
-}
-
-.facet-option .nav > li > a {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 4px 5px;
-}
-
-.facet-option .nav > li > a:hover {
-  background-color: transparent;
-  border-left: 1px solid $brand-primary;
-  padding-left: 4px;
-  text-decoration: none;
-}
-
-.filter-category {
-  border-top: 1px solid #ddd;
-  margin-top: 10px;
-  padding-top: 10px;
-}
 
 .clickable-media:hover {
   background-color: whitesmoke;
