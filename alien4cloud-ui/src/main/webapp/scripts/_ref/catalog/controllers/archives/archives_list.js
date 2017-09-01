@@ -21,8 +21,8 @@ define(function (require) {
     controller: 'ArchivesListCtrl',
   });
 
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('ArchivesListCtrl', ['$scope', '$uibModal', '$state', 'csarService', '$translate', 'toaster', 'authService', 'searchServiceFactory',
-    function ($scope, $uibModal, $state, csarService, $translate, toaster, authService, searchServiceFactory) {
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('ArchivesListCtrl', ['$scope', '$state', 'csarService', '$translate', 'toaster', 'authService', 'searchServiceFactory',
+    function ($scope, $state, csarService, $translate, toaster, authService, searchServiceFactory) {
       $scope.writeWorkspaces = [];
       var isComponentManager = authService.hasOneRoleIn(['COMPONENT_MANAGER', 'ARCHITECT']);
       if (isComponentManager === true) {

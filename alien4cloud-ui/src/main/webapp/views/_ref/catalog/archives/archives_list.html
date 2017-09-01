@@ -56,26 +56,17 @@
           <td>{{csar.importSource || '---' }}</td>
           <td>{{csar.description || '---' }}</td>
           <td>
-            <i style="margin-right: 5px" class="fa fa-sitemap"></i>
+            ---
+            <!-- <i ng-if="csar.hasTopology" style="margin-right: 5px" class="fa fa-sitemap"></i>
             <span>
               <i class="fa fa-cubes"></i><span class="badge">{{csar.componentsCount || '?'}}</span>
-            </span>
+            </span> -->
           </td>
           <td>
-
-            <!-- Mark the archive as depracated-->
-            <a class="btn btn-default btn-xs" ng-click="$event.stopPropagation()" uib-tooltip="{{'CSAR.DEPRECIATE' | translate }}" tooltip-append-to-body="true">
-              <i class="fa fa-dropbox"></i>
-            </a>
 
             <!-- Download the archive as .csar file-->
             <a class="btn btn-default btn-xs" href="/rest/latest/csars/{{csar.id}}/download" ng-click="$event.stopPropagation()" download="{{csar.id}}.zip" ng-attr-title="{{'COMMON.DOWNLOAD' | translate}}">
               <i class="fa fa-download"></i>
-            </a>
-
-            <!-- Workspace display. Global in community version. Will be managed in workspace plugin-->
-            <a class="btn btn-xs btn-default" disabled ng-click="$event.stopPropagation()" >
-              <i class="fa fa-globe"></i><em>Global</em><span class="caret"></span>
             </a>
 
             <delete-confirm

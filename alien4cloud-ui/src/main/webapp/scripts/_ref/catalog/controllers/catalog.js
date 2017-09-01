@@ -8,7 +8,6 @@ define(function (require) {
   require('scripts/_ref/catalog/controllers/archives/archives');
   require('scripts/_ref/catalog/controllers/components/components');
 
-  require('scripts/_ref/catalog/controllers/archives_promotion');
   require('scripts/_ref/catalog/controllers/topologies');
 
   // register catalog root state
