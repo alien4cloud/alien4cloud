@@ -27,19 +27,12 @@
   </div>
 </div>
 
-
-
+<!-- Deployment informations -->
 <div class="row grp-margin">
   <div class="col-md-12">
-
-    <div class="content-head clickable" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
+    <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
       <i class="fa fa-cog"></i> {{'APPLICATIONS.DEPLOY_MODAL.TITLE' | translate}}
     </div>
-
-    <div>
-      {{'APPLICATIONS.DEPLOY_MODAL.MESSAGE' | translate}}
-    </div>
-
     <div class = "row" style="margin-top: 10px">
       <div class = "col-md-6">
         <span class = "detail-term"> {{'APPLICATIONS.APPLICATION' | translate }} : </span> <span class = "detail-description">{{application.name}}</span>
@@ -54,12 +47,13 @@
         <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate }} : </span> <span class = "detail-description">{{environment.environmentType}}</span>
       </div>
       <div class = "col-md-6">
-        <span class = "detail-term"> {{'ORCHESTRATORS.ORCHESTRATOR' | translate }} : </span> <span class = "detail-description">{{deploymentContext.orchestrator.name}}</span>
+        <span class = "detail-term"> {{'ORCHESTRATORS.ORCHESTRATOR' | translate }} : </span> <span class = "detail-description">{{orchestrator.name}}</span>
       </div>
       <div class = "col-md-6">
-        <span class = "detail-term"> {{'ORCHESTRATORS.LOCATIONS.LOCATION' | translate }} : </span> <span class = "detail-description">{{location.name}}</span>
+        <span class = "detail-term"> {{'ORCHESTRATORS.LOCATIONS.LOCATION' | translate }} : </span> <span class = "detail-description">{{selectedLocation.name}}</span>
       </div>
 
+      <!-- Resources -->
       <div class="col-md-12" style="margin-top: 20px;">
         <div class="content-head">
           <i class="fa fa-cubes"></i> {{'COMMON.RESOURCES' | translate}}

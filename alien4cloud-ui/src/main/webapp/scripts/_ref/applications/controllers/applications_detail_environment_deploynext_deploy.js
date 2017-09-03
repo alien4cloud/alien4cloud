@@ -36,9 +36,9 @@ define(function (require) {
         },
         onClick: function(){
           $state.go('applications.detail.environment.deploynext.deploy');
-        } 
+        }
       });
-      
+
       //  CONFIRMATION BEFORE DEPLOYMENT / UPDATE
       var ConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName',
         function(modalScope, $uibModalInstance, $translate, applicationName) {
@@ -56,6 +56,9 @@ define(function (require) {
           };
         }
       ];
+
+      $scope.locationResources = $scope.deploymentTopologyDTO.topology.substitutedNodes;
+      $scope.orchestrator = _.get(_.find($scope.locationMatches, {orchestrator: {id: $scope.selectedLocation.orchestratorId}}), 'orchestrator');
 
       function doDeploy() {
         var deployApplicationRequest = {

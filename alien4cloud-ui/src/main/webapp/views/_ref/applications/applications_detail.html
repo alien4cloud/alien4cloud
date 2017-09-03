@@ -45,8 +45,9 @@
     </div>
 
     <!-- dynamic sub-states menu -->
-    <div class="grp-margin">
+    <div class="grp-margin" style="margin-top:40px;">
       <a ng-repeat="menuItem in menu"
+         style="margin-left: 25px;"
          id="{{menuItem.id}}"
          ng-if="menuItem.show"
          ng-click="onItemClick($event, menuItem)"
@@ -58,7 +59,7 @@
          ng-class="{'disabled' : menuItem.disabled}">
         <i class="{{menuItem.icon}} fa-fw" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
       </a>
-      <delete-confirm id="btn-delete-app" ng-if="isManager" func="removeApplication(application.id)" position="left" bssize="btn-rnd-menu" fastyle="fa-trash-o fa-fw">
+      <delete-confirm id="btn-delete-app" style="margin-left: 25px;" ng-if="isManager" func="removeApplication(application.id)" position="left" bssize="btn-rnd-menu" fastyle="fa-trash-o fa-fw">
       </delete-confirm>
     </div>
 
