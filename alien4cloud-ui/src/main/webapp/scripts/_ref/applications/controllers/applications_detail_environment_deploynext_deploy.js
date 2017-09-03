@@ -26,9 +26,9 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextDeployCtrl',
-    ['$scope', '$alresource', '$translate', 'toaster', '$uibModal', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state',
-    function ($scope, $alresource, $translate, toaster, $uibModal, deploymentTopologyServices, applicationServices, breadcrumbsService, $state) {
-
+    ['$scope', '$alresource', '$translate', 'toaster', '$uibModal', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state', 'locationsMatchingServices', 'deploymentTopologyDTO',
+    function ($scope, $alresource, $translate, toaster, $uibModal, deploymentTopologyServices, applicationServices, breadcrumbsService, $state, locationsMatchingServices,  deploymentTopologyDTO) {
+      $scope.deploymentTopologyDTO = deploymentTopologyDTO;
       breadcrumbsService.putConfig({
         state : 'applications.detail.environment.deploynext.deploy',
         text: function(){
@@ -37,6 +37,13 @@ define(function (require) {
         onClick: function(){
           $state.go('applications.detail.environment.deploynext.deploy');
         }
+      });
+
+      $scope.$watch('deploymentContext.deploymentTopologyDTO', function() {
+        locationsMatchingServices.getLocationsMatches({topologyId: $scope.deploymentTopologyDTO.topology.id, environmentId: $scope.environment.id}, function(result) {
+          locationsMatchingServices.processLocationMatches($scope, result.data);
+          $scope.orchestrator = _.get(_.find($scope.locationMatches, {orchestrator: {id: $scope.deploymentTopologyDTO.topology.orchestratorId}}), 'orchestrator');
+        });
       });
 
       //  CONFIRMATION BEFORE DEPLOYMENT / UPDATE
@@ -56,9 +63,6 @@ define(function (require) {
           };
         }
       ];
-
-      $scope.locationResources = $scope.deploymentTopologyDTO.topology.substitutedNodes;
-      $scope.orchestrator = _.get(_.find($scope.locationMatches, {orchestrator: {id: $scope.selectedLocation.orchestratorId}}), 'orchestrator');
 
       function doDeploy() {
         var deployApplicationRequest = {

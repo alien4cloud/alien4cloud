@@ -32,7 +32,7 @@ define(function (require) {
             var stateName = toState.name;
             if (_.defined(_.get(toState, 'breadcrumbs.state'))) {
               stateName = toState.breadcrumbs.state;
-            } 
+            }
             if(stateName.startsWith('editor_app_env.')){
               stateName = stateName.replace('editor_app_env.', 'applications.detail.environment.deploynext.topology.');
             }
@@ -65,10 +65,8 @@ define(function (require) {
               });
             }
           }
-          console.log('items', items);
-
           $rootScope.$broadcast('breadcrumbsUpdated');
-        }
+        };
 
         return {
           putConfig: putConfig,

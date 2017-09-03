@@ -60,7 +60,7 @@
         </div>
         <div class="content-body" style="overflow: auto; max-height: 300px;">
           <table class="table table-condensed" id="locationResources">
-            <tr ng-repeat="(key, value) in locationResources">
+            <tr ng-repeat="(key, value) in deploymentTopologyDTO.topology.substitutedNodes">
               <td>
                 {{key}} :
               </td>
