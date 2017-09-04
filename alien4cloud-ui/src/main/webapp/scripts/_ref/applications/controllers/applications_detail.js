@@ -12,10 +12,10 @@ define(function (require) {
 
   require('scripts/layout/resource_layout');
 
-  require('scripts/applications/controllers/application_versions');
-  require('scripts/applications/controllers/application_users');
-
+  require('scripts/_ref/applications/controllers/applications_detail_users');
+  require('scripts/_ref/applications/controllers/applications_detail_versions');
   require('scripts/_ref/applications/controllers/applications_detail_environments');
+
   require('scripts/_ref/applications/controllers/applications_detail_environment');
 
   require('scripts/_ref/applications/services/application_environments_manager_factory');

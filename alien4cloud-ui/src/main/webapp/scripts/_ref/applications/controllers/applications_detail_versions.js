@@ -10,7 +10,7 @@ define(function (require) {
 
   states.state('applications.detail.versions', {
     url: '/versions',
-    templateUrl: 'views/applications/application_versions.html',
+    templateUrl: 'views/_ref/applications/applications_detail_versions.html',
     controller: 'ApplicationVersionsCtrl',
     resolve: {
       versionServices: ['applicationVersionServices', function(applicationVersionServices) { return applicationVersionServices; }],
@@ -91,8 +91,15 @@ define(function (require) {
     };
   }];
 
-  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$translate', '$uibModal', '$alresource', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify', 'applicationEnvironmentsManager',
-    function($scope, $translate, $uibModal, $alresource, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify, applicationEnvironmentsManager) {
+  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$translate', '$uibModal', '$alresource', 'breadcrumbsService', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify', 'applicationEnvironmentsManager',
+    function($scope, $translate, $uibModal, $alresource, breadcrumbsService, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify, applicationEnvironmentsManager) {
+      breadcrumbsService.putConfig({
+        state : 'applications.detail.versions',
+        text: function(){
+          return $translate.instant('NAVAPPLICATIONS.MENU_VERSIONS');
+        }
+      });
+
       var topoVersionService = $alresource('rest/latest/applications/:appId/versions/:versionId/topologyVersions/:topoVersionId');
 
       $scope.isManager = userCanModify;
@@ -121,7 +128,7 @@ define(function (require) {
 
       $scope.openNewAppVersion = function() {
         var modalInstance = $uibModal.open({
-          templateUrl: 'views/applications/application_version_new.html',
+          templateUrl: 'views/_ref/applications/applications_detail_versions_new.html',
           controller: NewApplicationVersionCtrl,
           scope: $scope,
           windowClass: 'new-app-modal'
@@ -180,7 +187,7 @@ define(function (require) {
       $scope.openNewAppTopoVersion = function(version) {
         $scope.selectedVersion = version;
         var modalInstance = $uibModal.open({
-          templateUrl: 'views/applications/application_version_topology_new.html',
+          templateUrl: 'views/_ref/applications/applications_detail_versions_variant_new.html',
           controller: NewApplicationTopologyVersionCtrl,
           scope: $scope,
           windowClass: 'new-app-modal'

@@ -104,7 +104,7 @@ define(function (require) {
       // Modal to create an new application environment
       $scope.openNewAppEnv = function() {
         var modalInstance = $uibModal.open({
-          templateUrl: 'views/applications/application_environment_new.html',
+          templateUrl: 'views/_ref/applications/applications_detail_environments_new.html',
           controller: NewApplicationEnvironmentCtrl,
           scope: $scope,
           resolve: {

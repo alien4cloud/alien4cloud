@@ -36,9 +36,15 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-applications').controller('ApplicationUsersCtrl', ['$scope', 'authService',
-    'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles', 'environmentRoles', 'applicationEnvironmentServices', 'applicationEnvironmentsManager',
-    function($scope, authService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult, environmentRolesResult, applicationEnvironmentServices, applicationEnvironmentsManager) {
+  modules.get('a4c-applications').controller('ApplicationUsersCtrl', ['$scope', '$translate', 'breadcrumbsService', 'authService', 'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles', 'environmentRoles', 'applicationEnvironmentServices', 'applicationEnvironmentsManager',
+    function($scope, $translate, breadcrumbsService, authService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult, environmentRolesResult, applicationEnvironmentServices, applicationEnvironmentsManager) {
+      breadcrumbsService.putConfig({
+        state : 'applications.detail.users',
+        text: function(){
+          return $translate.instant('NAVAPPLICATIONS.MENU_USERS');
+        }
+      });
+
       $scope.application = applicationResult.data;
       $scope.selectedEnvironment = applicationEnvironmentsManager.environments[0];
       $scope.environments = applicationEnvironmentsManager.environments;

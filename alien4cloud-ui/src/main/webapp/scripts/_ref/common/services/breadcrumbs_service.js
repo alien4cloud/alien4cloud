@@ -6,8 +6,8 @@ define(function (require) {
   var _ = require('lodash');
 
   modules.get('a4c-common').factory('breadcrumbsService',
-    ['$resource', '$rootScope',
-      function ($resource, $rootScope) {
+    ['$resource', '$rootScope', '$state',
+      function ($resource, $rootScope, $state) {
         var configByPath = {};
         var items = [];
 
@@ -39,16 +39,6 @@ define(function (require) {
             buildBreadcrumbs(stateName);
           });
 
-        var getItems = function () {
-          return items;
-        };
-
-        var putConfig = function (state) {
-          var stateName = state.state;
-          configByPath[stateName] = state;
-          buildBreadcrumbs(stateName);
-        };
-
         var buildBreadcrumbs = function (stateName) {
           items = [];
           var paths = buildPaths(stateName);
@@ -69,10 +59,20 @@ define(function (require) {
         };
 
         return {
-          putConfig: putConfig,
-          getItems: getItems
+          putConfig: function (config) {
+            if(_.undefined(config.onClick)) {
+              config.onClick = function() {
+                $state.go(config.state);
+              };
+            }
+            var stateName = config.state;
+            configByPath[stateName] = config;
+            buildBreadcrumbs(stateName);
+          },
+          getItems: function() {
+            return items;
+          }
         };
-
       }
     ]);
 });
