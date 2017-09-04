@@ -3,6 +3,7 @@ define(function (require) {
 
   var modules = require('modules');
   var $ = require('jquery');
+  var _ = require('lodash');
 
   modules.get('a4c-common').factory('resizeServices', ['$timeout', function($timeout) {
     // the default min width and height for the application
@@ -11,13 +12,15 @@ define(function (require) {
 
     return {
       registerContainer: function(callback, selector) {
+        console.log('registerContainer', selector);
         var instance = this;
         $timeout(function() { // make sure w wait for the DOM to be ready before, because $() does not return a promise
           var container = $(selector);
+          console.log('found container', selector);
           window.onresize = function() {
             if (container.size()) {
               var offsets = container.offset();
-              if (offsets && offsets.top && offsets.left) {
+              if (_.defined(offsets) && _.defined(offsets.top) && _.defined(offsets.left)) {
                 callback(instance.getWidth(offsets.left), instance.getHeight(offsets.top));
               }
             }

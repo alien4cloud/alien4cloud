@@ -1,5 +1,22 @@
 .editor-container {
   overflow: hidden !important;
+  position: relative;
+  margin-left: -20px;
+  margin-right: -20px;
+  margin-top: -10px;
+}
+
+.editor-left-menu {
+  position: absolute;
+  top: 30px;
+  left: 20px;
+  z-index: 999;
+}
+
+#editor-head-menu {
+  padding: 5px 20px 5px 20px;
+  background-color: #666666;
+  color: white;
 }
 
 // .topology-editor {
@@ -45,7 +62,7 @@
 .topology-column-menu {
   position: absolute;
   top: 0px;
-  width: 20px;
+  width: 10px;
   height: inherit;
   overflow-x: hidden;
   overflow-y: auto;
@@ -55,12 +72,12 @@
 
 .topology-column-menu-left {
   left: 0px;
-  border-left: solid 1px #cccccc;
+  border-left: solid 1px $gray;
 }
 
 .topology-column-menu-right {
   right: 0px;
-  border-right: solid 1px #cccccc;
+  border-right: solid 1px $gray;
 }
 
 .topology-column-content {
@@ -136,19 +153,6 @@ h4 .editable-error {
 
 #relationshipProperties .form-editable {
   margin-top: 0px;
-}
-
-#editor-head-menu .ui-select-placeholder {
-  display: none;
-}
-
-#editor-head-menu {
-  margin-top: -10px;
-  padding: 2px;
-  padding-left: 20px;
-  padding-right: 20px;
-  background-color: #666666;
-  color: white;
 }
 
 /*
@@ -251,37 +255,4 @@ h4 .editable-error {
 #editor-app-version-select .ui-select-dropdown,
 #editor-topo-version-select .ui-select-dropdown{
   width:auto;
-}
-
-#editor-head-menu {
-
-  .ui-select-container {
-    display: inline-block;
-
-    width: auto;
-    min-width: 140px;
-    vertical-align: middle;
-    margin-top:-1px;
-
-    span {
-      font-size: 12px;
-      height: 22px;
-      outline: 0px none;
-      padding-top: 1px;
-      padding-bottom: 1px;
-
-      i {
-        right: 4px;
-      }
-    }
-
-    input {
-      font-size: 12px;
-      height: 22px;
-      outline: 0px none;
-      padding-top: 1px;
-      padding-bottom: 1px;
-      width: auto;
-    }
-  }
 }

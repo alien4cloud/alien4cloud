@@ -367,11 +367,10 @@ img.icon_32 {
 }
 
 .splitter-icon {
-  height: 20px;
+  width: 10px;
   position: absolute;
-  top: 50%;
-  // left: 0%;
-  right: 0%;
+  bottom: 50%;
+  right: 0px;
 }
 
 .btn-transparent {

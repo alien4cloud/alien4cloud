@@ -3,6 +3,7 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
+  var _ = require('loadash');
 
   var registerEditorSubstates = require('scripts/topology/editor_register_service');
 
@@ -26,7 +27,6 @@ define(function (require) {
     function ($scope, $state, $stateParams, userContextServices, applicationServices, applicationEnvironmentServices, breadcrumbsService, $translate) {
 
       var setupBreadCrumbs = function (scope) {
-        
         breadcrumbsService.putConfig({
           state: 'applications.detail',
           text: function () {
@@ -48,7 +48,7 @@ define(function (require) {
               environmentId: $scope.environment.id
             });          }
         });
-        
+
         breadcrumbsService.putConfig({
           state: 'applications.detail.environment.deploynext.topology',
           text: function () {
