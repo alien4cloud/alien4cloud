@@ -3,7 +3,7 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
-  var _ = require('loadash');
+  var _ = require('lodash');
 
   var registerEditorSubstates = require('scripts/topology/editor_register_service');
 
