@@ -1,9 +1,21 @@
 .editor-container {
   overflow: hidden !important;
   position: relative;
-  margin-left: -20px;
-  margin-right: -20px;
   margin-top: -10px;
+}
+
+@media(min-width: $screen-sm-min) {
+  .editor-container {
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+}
+
+@media(min-width: $screen-md-min) {
+  .editor-container {
+    margin-left: -20px;
+    margin-right: -20px;
+  }
 }
 
 .editor-left-menu {
@@ -15,27 +27,9 @@
 
 #editor-head-menu {
   padding: 5px 20px 5px 20px;
-  background-color: #666666;
+  background-color: #666666;// $gray;
   color: white;
 }
-
-// .topology-editor {
-//   overflow: hidden !important;
-// }
-//
-// @media(min-width: $screen-sm-min) {
-//   .topology-editor {
-//     margin-left: -20px;
-//     margin-right: -20px;
-//   }
-// }
-//
-// @media(min-width: $screen-md-min) {
-//   .topology-editor {
-//     margin-left: -20px;
-//     margin-right: -20px;
-//   }
-// }
 
 .topology-row {
   display: table;
@@ -81,7 +75,7 @@
 }
 
 .topology-column-content {
-  padding-left: 20px;
+  padding-left: 10px;
   height: inherit;
   width: 100%;
   overflow-x: hidden;
@@ -89,7 +83,7 @@
 }
 
 .topology-column-content-left {
-  padding-right: 20px;
+  padding-right: 10px;
   height: inherit;
   width: 100%;
   overflow-x: hidden;
