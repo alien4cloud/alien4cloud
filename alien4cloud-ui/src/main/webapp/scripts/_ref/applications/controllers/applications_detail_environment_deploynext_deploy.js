@@ -46,25 +46,7 @@ define(function (require) {
         });
       });
 
-      //  CONFIRMATION BEFORE DEPLOYMENT / UPDATE
-      var ConfirmationModalCtrl = ['$scope', '$uibModalInstance', '$translate', 'applicationName',
-        function(modalScope, $uibModalInstance, $translate, applicationName) {
-          modalScope.locationResources = $scope.deploymentTopologyDTO.topology.substitutedNodes;
-          modalScope.application = applicationName;
-          modalScope.environment = $scope.environment;
-          modalScope.location = $scope.selectedLocation;
-          modalScope.orchestrator = _.get(_.find($scope.locationMatches, {orchestrator: {id: modalScope.location.orchestratorId}}), 'orchestrator');
-
-          modalScope.proceed = function (action) {
-            $uibModalInstance.close(action);
-          };
-          modalScope.cancel = function () {
-            $uibModalInstance.dismiss('canceled');
-          };
-        }
-      ];
-
-      function doDeploy() {
+      $scope.doDeploy = function() {
         var deployApplicationRequest = {
           applicationId: $scope.application.id,
           applicationEnvironmentId: $scope.environment.id
@@ -78,9 +60,9 @@ define(function (require) {
         }, function() {
           $scope.reloadEnvironment();
         });
-      }
+      };
 
-      function doUpdate() {
+      $scope.doUpdate = function() {
         $scope.setState('INIT_DEPLOYMENT');
 
         applicationServices.deploymentUpdate({
