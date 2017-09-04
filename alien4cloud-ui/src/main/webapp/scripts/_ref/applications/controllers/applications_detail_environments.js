@@ -10,7 +10,7 @@ define(function (require) {
 
   states.state('applications.detail.environments', {
     url: '/environment',
-    templateUrl: 'views/applications/application_environments.html',
+    templateUrl: 'views/_ref/applications/applications_detail_environments.html',
     controller: 'ApplicationEnvironmentsCtrl',
     menu: {
       id: 'am.applications.detail.environments',
@@ -55,10 +55,20 @@ define(function (require) {
   ];
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentsCtrl',
-    ['$scope', '$state', '$translate', 'toaster', 'authService', '$uibModal', 'applicationEnvironmentServices', 'applicationVersionServices',
+    ['$scope', '$state', '$translate', 'toaster', 'authService', 'breadcrumbsService', '$uibModal', 'applicationEnvironmentServices', 'applicationVersionServices',
     'application', 'applicationEnvironmentsManager', 'archiveVersions',
-    function($scope, $state, $translate, toaster, authService, $uibModal, applicationEnvironmentServices, applicationVersionServices,
+    function($scope, $state, $translate, toaster, authService, breadcrumbsService, $uibModal, applicationEnvironmentServices, applicationVersionServices,
       applicationResponse, applicationEnvironmentsManager, archiveVersions) {
+      breadcrumbsService.putConfig({
+        state : 'applications.detail.environments',
+        text: function(){
+          return $translate.instant('NAVAPPLICATIONS.MENU_ENVIRONMENT');
+        },
+        onClick: function(){
+          $state.go(this.state);
+        }
+      });
+
       $scope.application = applicationResponse.data;
       $scope.archiveVersions = archiveVersions.data;
       $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function() {});
