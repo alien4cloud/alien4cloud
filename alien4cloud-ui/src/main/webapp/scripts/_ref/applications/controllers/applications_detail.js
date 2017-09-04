@@ -13,9 +13,9 @@ define(function (require) {
   require('scripts/layout/resource_layout');
 
   require('scripts/applications/controllers/application_versions');
-  require('scripts/applications/controllers/application_environments');
   require('scripts/applications/controllers/application_users');
 
+  require('scripts/_ref/applications/controllers/applications_detail_environments');
   require('scripts/_ref/applications/controllers/applications_detail_environment');
 
   require('scripts/_ref/applications/services/application_environments_manager_factory');
@@ -31,7 +31,7 @@ define(function (require) {
 
   states.state('applications.detail', {
     url: '/detail/:id',
-    template: '<ui-view/>',
+    templateUrl: 'views/_ref/applications/applications_detail.html',
     controller: 'ApplicationDetailCtrl',
     resolve: {
       application: ['applicationServices', '$stateParams',
@@ -87,29 +87,18 @@ define(function (require) {
 
   states.state('applications.detail.info', {
     url: '/infos',
-    templateUrl: 'views/_ref/applications/applications_detail.html',
+    templateUrl: 'views/_ref/applications/applications_detail_info.html',
     controller: 'ApplicationInfoCtrl'
   });
   states.forward('applications.detail', 'applications.detail.info');
 
   modules.get('a4c-applications').controller('ApplicationInfoCtrl',
-    ['$controller', '$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'resourceLayoutService', 'authService', 'breadcrumbsService', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
-    function ($controller, $scope, $state, $translate, toaster, $upload, menu, resourceLayoutService, authService, breadcrumbsService, applicationServices, applicationResponse, applicationEnvironmentsManager, versionsResponse) {
+    ['$controller', '$scope', '$state', '$translate', 'toaster', 'Upload', 'menu', 'resourceLayoutService', 'authService', 'applicationServices', 'application', 'applicationEnvironmentsManager', 'archiveVersions',
+    function ($controller, $scope, $state, $translate, toaster, $upload, menu, resourceLayoutService, authService, applicationServices, applicationResponse, applicationEnvironmentsManager, versionsResponse) {
       $scope.application = applicationResponse.data;
-
-      breadcrumbsService.putConfig({
-        state: 'applications.detail',
-        text: function () {
-          return $scope.application.name;
-        },
-        onClick: function () {
-          $state.go('applications.detail', { id: $scope.application.id });
-        }
-      });
 
       $scope.versions = versionsResponse.data;
 
-      
       if(!$scope.application.tags) {
         $scope.application.tags = {};
       }

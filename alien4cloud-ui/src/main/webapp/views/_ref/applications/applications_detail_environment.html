@@ -1,18 +1,3 @@
-
-<a4c-breadcrumbs></a4c-breadcrumbs>
-
-<!--
-<div class="row grp-margin">
-    <div class="col-md-1">
-      <i class="fa fa-4x {{statusIconCss(environment)}}"></i>
-    </div>
-    <div class="col-md-11">
-        <h4>{{environment.name}} ({{environment.environmentType}})</h4>
-        <h4 class="{{statusTextCss(environment)}}">{{'DEPLOYMENT.STATUS.' + environment.status | translate}}</h4>
-    </div>
-</div>
--->
-
 <div class="row grp-margin">
     <div class="col-md-12">
         <i class="fa {{statusIconCss(environment)}}"></i> <span class="{{statusTextCss(environment)}}">{{'DEPLOYMENT.STATUS.' + environment.status | translate}}</span>
