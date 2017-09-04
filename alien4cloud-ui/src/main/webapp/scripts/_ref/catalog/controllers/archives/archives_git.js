@@ -12,13 +12,13 @@ define(function (require) {
 
   states.state('catalog.archives.git', {
     url: '/git',
-    templateUrl:  'views/components/csar_git.html',
+    templateUrl:  'views/_ref/catalog/archives/archives_git.html',
     controller: 'GitImportCtrl',
   });
 
   /* Main CSAR search controller */
-  modules.get('a4c-catalog', ['ui.router', 'ui.bootstrap']).controller('GitImportCtrl', ['$scope', '$uibModal', '$state', 'csarGitService', 'searchServiceFactory', '$translate', 'toaster',
-  function($scope, $uibModal, $state, csarGitService, searchServiceFactory, $translate, toaster) {
+  modules.get('a4c-catalog', ['ui.router', 'ui.bootstrap']).controller('GitImportCtrl', ['$scope', '$uibModal', '$state', 'csarGitService', 'searchServiceFactory', '$translate', 'toaster','breadcrumbsService',
+  function($scope, $uibModal, $state, csarGitService, searchServiceFactory, $translate, toaster, breadcrumbsService) {
     var statesToClasses = {
       'error': 'danger',
       'success': 'success',
@@ -27,6 +27,14 @@ define(function (require) {
     $scope.importInfos = [];
     $scope.importing = {};
     $scope.id = 0;
+
+    //here we register breadcrumbs config for catalog.components as this is forwarded to catalog.components.list
+    breadcrumbsService.putConfig({
+      state : 'catalog.archives.git',
+      text: function(){
+        return $translate.instant('CSAR.GIT.GIT_IMPORT');
+      }
+    });
 
     $scope.query = '';
     // onSearchCompleted is used as a callaback for the searchServiceFactory and triggered when the search operation is completed.

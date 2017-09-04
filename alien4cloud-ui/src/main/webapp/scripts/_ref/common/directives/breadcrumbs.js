@@ -2,8 +2,6 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var $ = require('jquery');
-  var _ = require('lodash');
   require('scripts/_ref/common/services/breadcrumbs_service');
 
 
@@ -19,7 +17,7 @@ define(function (require) {
     function ($scope, $rootScope, breadcrumbsService) {
 
       $scope.items = breadcrumbsService.getItems();
-      
+
       $rootScope.$on('breadcrumbsUpdated', function(){
         $scope.items = breadcrumbsService.getItems();
       });

@@ -5,7 +5,7 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('a4cSearchTopologyCtrl',
+  modules.get('a4c-catalog', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('a4cSearchTopologyCtrl',
     ['$scope', '$translate', 'searchServiceFactory', '$alresource',
     function($scope, $translate, searchServiceFactory, $alresource) {
 
@@ -86,6 +86,10 @@ define(function (require) {
             $scope.searchConfig.result.data[index] = response.data;
           });
         }
+      };
+
+      $scope.handleItemSelection = function(topology) {
+        $scope.onSelectItem({topology: topology});
       };
 
     }

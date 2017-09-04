@@ -26,6 +26,7 @@ define(function (require) {
     ['$scope', '$state', '$stateParams', 'userContextServices', 'applicationServices', 'applicationEnvironmentServices', 'breadcrumbsService','$translate',
     function ($scope, $state, $stateParams, userContextServices, applicationServices, applicationEnvironmentServices, breadcrumbsService, $translate) {
 
+      breadcrumbsService.registerMapping('editor_app_env.', 'applications.detail.environment.deploynext.topology.');
       var setupBreadCrumbs = function (scope) {
         breadcrumbsService.putConfig({
           state: 'applications.detail',

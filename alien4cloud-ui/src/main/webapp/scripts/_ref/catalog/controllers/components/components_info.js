@@ -22,8 +22,16 @@ define(function (require) {
   require('scripts/common/directives/info.js');
 
   modules.get('a4c-catalog', ['ngResource', 'ui.bootstrap', 'ui.router', 'a4c-auth']).controller('ComponentInfoCtrl',
-    ['authService', '$scope', '$resource', '$state', '$stateParams', 'componentTagService', '$uibModal', 'suggestionServices', 'toscaService', 'component',
-    function(authService, $scope, $resource, $state, $stateParams, componentTagService, $uibModal, suggestionServices, toscaService, component) {
+    ['authService', '$scope', '$resource', '$state', '$stateParams', 'componentTagService', '$uibModal', 'suggestionServices', 'toscaService', 'component', 'breadcrumbsService', '$filter',
+    function(authService, $scope, $resource, $state, $stateParams, componentTagService, $uibModal, suggestionServices, toscaService, component, breadcrumbsService, $filter) {
+
+      breadcrumbsService.putConfig({
+        state : 'catalog.components.detail.info',
+        text: function(){
+          return $filter('splitAndGet')($scope.component.elementId, '.', 'last') + ':' +$scope.component.archiveVersion;
+        }
+      });
+
       var alienInternalTags = ['icon'];
       // users with role COMPONENTS_MANAGER are allowed to add archives.
       $scope.isManager = authService.hasRole('COMPONENTS_MANAGER');

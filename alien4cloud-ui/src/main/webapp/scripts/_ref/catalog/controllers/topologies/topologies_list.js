@@ -6,6 +6,7 @@ define(function (require) {
   var states = require('states');
 
   require('scripts/_ref/catalog/directives/topologies_catalog');
+  require('scripts/_ref/catalog/controllers/topologies/topologies_csar_editor');
 
   states.state('catalog.topologies.list', {
     url: '/list',
@@ -13,11 +14,19 @@ define(function (require) {
     controller: 'A4CTopologiesListCtrl'
   });
 
-  modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('A4CTopologiesListCtrl',
-    ['$scope', '$state',
-    function($scope, $state) {
+  modules.get('a4c-catalog', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('A4CTopologiesListCtrl',
+    ['$scope', '$state', 'breadcrumbsService', '$translate',
+    function($scope, $state, breadcrumbsService, $translate) {
+
+      breadcrumbsService.putConfig({
+        state: 'catalog.topologies',
+        text: function () {
+          return $translate.instant('NAVCATALOG.TOPOLOGIES');
+        }
+      });
+
       $scope.onSelect = function(topology) {
-        $state.go('topologycatalog.csar', { archiveName: topology.archiveName, archiveVersion: topology.archiveVersion });
+        $state.go('editor_catalog_topology.editor', { archiveId: topology.id });
       };
     }
   ]); // controller

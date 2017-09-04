@@ -9,7 +9,7 @@ define(function (require) {
   // load other locations to manage archives
   require('scripts/components/services/csar');
   require('scripts/_ref/catalog/controllers/archives/archives_detail');
-  require('scripts/_ref/catalog/controllers/archives/git_import');
+  require('scripts/_ref/catalog/controllers/archives/archives_git');
   require('scripts/common/directives/pagination');
   require('scripts/authentication/services/authservices');
   require('scripts/_ref/common/directives/search');
@@ -21,8 +21,21 @@ define(function (require) {
     controller: 'ArchivesListCtrl',
   });
 
-  modules.get('a4c-catalog', ['ui.router', 'ui.bootstrap']).controller('ArchivesListCtrl', ['$scope', '$state', 'csarService', '$translate', 'toaster', 'authService', 'searchServiceFactory',
-    function ($scope, $state, csarService, $translate, toaster, authService, searchServiceFactory) {
+  modules.get('a4c-catalog', ['ui.router', 'ui.bootstrap']).controller('ArchivesListCtrl', ['$scope', '$state', 'csarService', '$translate', 'toaster', 'authService', 'searchServiceFactory', 'breadcrumbsService',
+    function ($scope, $state, csarService, $translate, toaster, authService, searchServiceFactory, breadcrumbsService) {
+
+      //here we register breadcrumbs config for catalog.archives as this is forwarded to catalog.archives.list
+      breadcrumbsService.putConfig({
+        state : 'catalog.archives',
+        text: function(){
+          return $translate.instant('NAVBAR.MENU_CSARS');
+        },
+        onClick: function(){
+          $state.go(this.state);
+        }
+      });
+
+
       $scope.writeWorkspaces = [];
       var isComponentManager = authService.hasOneRoleIn(['COMPONENT_MANAGER', 'ARCHITECT']);
       if (isComponentManager === true) {

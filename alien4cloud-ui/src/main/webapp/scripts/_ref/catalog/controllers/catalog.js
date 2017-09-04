@@ -4,6 +4,9 @@ define(function (require) {
 
   var states = require('states');
 
+  require('scripts/_ref/common/directives/breadcrumbs');
+  require('scripts/_ref/common/services/breadcrumbs_service');
+
   // load other locations to manage catalog contain
   require('scripts/_ref/catalog/controllers/archives/archives');
   require('scripts/_ref/catalog/controllers/components/components');

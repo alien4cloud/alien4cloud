@@ -956,7 +956,8 @@
     "ARCHIVES_PROMOTION": "Archives promotion requests",
     "BROWSE_COMPONENTS": "Browse components",
     "MANAGE_ARCHIVES": "Manage archives",
-    "BROWSE_TOPOLOGIES": "Browse topologies"
+    "BROWSE_TOPOLOGIES": "Browse topologies",
+    "TOPOLOGIES": "Topologies"
   },
   "NAVBAR": {
     "BUTTON_LOGIN": "Login",

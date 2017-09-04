@@ -14,8 +14,16 @@ define(function (require) {
   });
 
   modules.get('a4c-catalog').controller(
-    'ArchivesDetailCtrl', ['$scope', '$stateParams', '$state', 'csarService', '$translate', 'toaster',
-    function($scope, $stateParams, $state, csarService, $translate, toaster) {
+    'ArchivesDetailCtrl', ['$scope', '$stateParams', '$state', 'csarService', '$translate', 'toaster', 'breadcrumbsService',
+    function($scope, $stateParams, $state, csarService, $translate, toaster, breadcrumbsService) {
+
+      // register breadcrumbs config
+      breadcrumbsService.putConfig({
+        state : 'catalog.archives.detail',
+        text: function(){
+          return $stateParams.id;
+        }
+      });
 
       /* Retrieve CSAR to display */
       csarService.getAndDeleteCsar.get({
@@ -37,15 +45,6 @@ define(function (require) {
           }
         });
       };
-
-      //Go to runtime view for a deployment
-      $scope.viewTopologyTemplate = function(id){
-        //TODO go to topology template editor state
-        // $state.go('topologytemplates.detail.topology.editor', {
-        //   id:id
-        // });
-      };
-
     }
   ]); // controller
 });

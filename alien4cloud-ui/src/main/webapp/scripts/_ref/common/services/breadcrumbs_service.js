@@ -10,6 +10,7 @@ define(function (require) {
       function ($resource, $rootScope, $state) {
         var configByPath = {};
         var items = [];
+        var stateMappings = {};
 
         var buildPaths = function (stateName) {
           var paths = [];
@@ -26,18 +27,6 @@ define(function (require) {
           });
           return paths;
         };
-
-        $rootScope.$on('$stateChangeSuccess',
-          function (event, toState, toParams, fromState, fromParams) {
-            var stateName = toState.name;
-            if (_.defined(_.get(toState, 'breadcrumbs.state'))) {
-              stateName = toState.breadcrumbs.state;
-            }
-            if(stateName.startsWith('editor_app_env.')){
-              stateName = stateName.replace('editor_app_env.', 'applications.detail.environment.deploynext.topology.');
-            }
-            buildBreadcrumbs(stateName);
-          });
 
         var buildBreadcrumbs = function (stateName) {
           items = [];
@@ -58,6 +47,27 @@ define(function (require) {
           $rootScope.$broadcast('breadcrumbsUpdated');
         };
 
+        var processStateMapping = function(stateName) {
+          _.each(stateMappings, function(value, key){
+            if(stateName.startsWith(key)){
+              stateName = stateName.replace(key, value);
+              return;
+            }
+          });
+
+          return stateName;
+        };
+
+        $rootScope.$on('$stateChangeSuccess',
+          function (event, toState, toParams, fromState, fromParams) {
+            var stateName = toState.name;
+            if (_.defined(_.get(toState, 'breadcrumbs.state'))) {
+              stateName = toState.breadcrumbs.state;
+            }
+            stateName = processStateMapping(stateName);
+            buildBreadcrumbs(stateName);
+          });
+
         return {
           putConfig: function (config) {
             if(_.undefined(config.onClick)) {
@@ -71,6 +81,9 @@ define(function (require) {
           },
           getItems: function() {
             return items;
+          },
+          registerMapping: function(from, to) {
+            stateMappings[from] = to;
           }
         };
       }
