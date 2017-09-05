@@ -1,6 +1,3 @@
-/*
-* Application list is the entry point for the application management.
-*/
 define(function (require) {
   'use strict';
 
@@ -11,9 +8,7 @@ define(function (require) {
 
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent');
-  require('scripts/_ref/common/directives/breadcrumbs');
-  require('scripts/_ref/common/services/breadcrumbs_service');
-  
+
   require('scripts/common/services/user_context_services');
 
   states.state('applications.detail.environment', {
@@ -58,7 +53,7 @@ define(function (require) {
             $state.go('applications.detail.environment', {
               id: $scope.application.id,
               environmentId: $scope.environment.id
-            });          
+            });
           }
         });
 
@@ -83,7 +78,7 @@ define(function (require) {
 
         $scope.setState = function(state){
           $scope.environment.status = state;
-          updateMenu();          
+          updateMenu();
         };
 
         $scope.setEnvironment = function (env) {

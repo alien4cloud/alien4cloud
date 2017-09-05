@@ -17,6 +17,7 @@ define(function (require) {
   require('scripts/_ref/applications/controllers/applications_detail_environments');
 
   require('scripts/_ref/applications/controllers/applications_detail_environment');
+  require('scripts/_ref/applications/controllers/applications_detail_version');
 
   require('scripts/_ref/applications/services/application_environments_manager_factory');
 
@@ -25,9 +26,12 @@ define(function (require) {
 
   require('scripts/_ref/common/directives/tags');
   require('scripts/_ref/common/filters/highlight');
-  require('scripts/common/services/user_context_services');
+  require('scripts/_ref/common/directives/breadcrumbs');
+  require('scripts/_ref/common/services/breadcrumbs_service');
 
+  require('scripts/common/services/user_context_services');
   require('scripts/meta-props/directives/meta_props_display');
+
 
   states.state('applications.detail', {
     url: '/detail/:id',
@@ -119,6 +123,12 @@ define(function (require) {
       $scope.onEnvironment = function (environmentId) {
         $state.go('applications.detail.environment', {
           environmentId: environmentId
+        });
+      };
+
+      $scope.onVersion = function (versionId) {
+        $state.go('applications.detail.version', {
+          versionId: versionId
         });
       };
 
