@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.security.model.User;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import org.apache.commons.lang3.ArrayUtils;
@@ -93,7 +94,7 @@ public class DeployService {
      * @param deploymentSource Application to be deployed or the Csar that contains test toplogy to be deployed
      * @return The id of the generated deployment.
      */
-    public String deploy(final DeploymentTopology deploymentTopology, IDeploymentSource deploymentSource) {
+    public String deploy(final User deployer, final DeploymentTopology deploymentTopology, IDeploymentSource deploymentSource) {
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
         final Location firstLocation = locations.values().iterator().next();
@@ -109,6 +110,7 @@ public class DeployService {
             deployment.setLocationIds(locationIds.values().toArray(new String[locationIds.size()]));
             deployment.setOrchestratorDeploymentId(deploymentPaaSId);
             deployment.setSourceId(deploymentSource.getId());
+            deployment.setDeployerUsername(deployer.getUsername());
             String sourceName;
             if (deploymentSource.getName() == null) {
                 sourceName = UUID.randomUUID().toString();

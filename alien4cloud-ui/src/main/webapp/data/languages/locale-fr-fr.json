@@ -34,6 +34,12 @@
         "SERVICE_UNDEPLOYED_HELP" : "Le service sélectionné n'est pas déployé. Cela peut causer des problèmes lors du déploiement en cas de choix de ce service pour remplacer le noeud selectionné.",
         "TITLE" : "Matching"
       },
+      "HISTORY": {
+        "DEPLOYER": "Déploieur",
+        "DEPLOYED_AT": "Déploié à",
+        "UNDEPLOYED_AT": "Un-déploié à",
+        "DURATION": "Durée"
+      },
       "PROPERTIES" : {
         "REQUIRED" : "Obligatoire",
         "WARNING" : "Alerte",
@@ -940,6 +946,7 @@
     "MENU_DEPLOY_NEXT.LOCATIONS": "Locations",
     "MENU_DEPLOY_NEXT.MATCHING": "Matching",
     "MENU_DEPLOY_NEXT.DEPLOY": "Vérifier & déployer",
+    "MENU_HISTORY": "Historique de déploiement",
 
     "MENU_DEPLOY_CURRENT.INFO" : "Info",
     "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "Vue runtime",

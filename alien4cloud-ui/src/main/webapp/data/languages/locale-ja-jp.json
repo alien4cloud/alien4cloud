@@ -34,6 +34,12 @@
         "SERVICE_UNDEPLOYED_HELP" : "The selected servie is undeployed, this may cause issues on deployment if you select it as matched resource.",
         "TITLE" : "代入"
       },
+      "HISTORY": {
+        "DEPLOYER": "Deployer",
+        "DEPLOYED_AT": "Deployed at",
+        "UNDEPLOYED_AT": "Undeployed at",
+        "DURATION": "Duration"
+      },
       "PROPERTIES" : {
         "REQUIRED" : "Required",
         "WARNING" : "Warning",
@@ -924,7 +930,8 @@
     "MENU_DEPLOY_NEXT.LOCATIONS": "Locations",
     "MENU_DEPLOY_NEXT.MATCHING": "Matching",
     "MENU_DEPLOY_NEXT.DEPLOY": "Review & launch",
-
+    "MENU_HISTORY": "Deployment History",
+    
     "MENU_DEPLOY_CURRENT.INFO" : "情報",
     "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "ランタイム",
     "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER" : "Workflow",

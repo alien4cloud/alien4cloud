@@ -8,6 +8,7 @@ define(function (require) {
 
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_history');
 
   require('scripts/common/services/user_context_services');
 

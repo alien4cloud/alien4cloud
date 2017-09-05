@@ -9,6 +9,7 @@ define(function (require) {
   require('angular-cookies');
   require('angular-bootstrap');
   require('moment');
+  require('angular-moment');
   require('angular-bootstrap-datetimepicker-template');
   require('angular-bootstrap-datetimepicker');
   require('angular-resource');
