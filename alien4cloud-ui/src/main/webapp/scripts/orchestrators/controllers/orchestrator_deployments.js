@@ -21,9 +21,16 @@ define(function (require) {
   });
 
   modules.get('a4c-orchestrators').controller('OrchestratorDeploymentsCtrl',
-    ['$scope', '$uibModal', '$state', 'deploymentServices', 'orchestrator',
-    function($scope, $uibModal, $state, deploymentServices, orchestrator) {
+    ['$scope', '$uibModal', '$state', 'deploymentServices', 'orchestrator', 'breadcrumbsService', '$translate',
+    function($scope, $uibModal, $state, deploymentServices, orchestrator, breadcrumbsService, $translate) {
       $scope.orchestrator = orchestrator;
+
+      breadcrumbsService.putConfig({
+        state: 'admin.orchestrators.details.deployments',
+        text: function() {
+          return $translate.instant('ORCHESTRATORS.NAV.DEPLOYMENTS');
+        }
+      });
 
       function processDeployments(deployments){
         if (_.defined(deployments)){

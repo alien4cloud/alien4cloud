@@ -4,7 +4,7 @@ define(function () {
   'use strict';
   // Return native alien4cloud modules to be packaged.
   return ['scripts/authentication/controllers/navbar',
-        'scripts/admin/admin',
+        'scripts/_ref/admin/controllers/admin',
         'scripts/common/controllers/maintenance',
         'scripts/_ref/applications/controllers/applications_list',
         'scripts/users/controllers/users',

@@ -6,8 +6,7 @@
       </span>
     </div>
   </div>
-</div>
-<div class="row">
+
   <div class="col-sm-9" id="orchestrator-state">
     <i class="fa fa-2x ng-scope" ng-class="{
       'fa-circle text-success' : orchestrator.state === 'CONNECTED',
@@ -40,6 +39,7 @@
     <delete-confirm ng-if="orchestrator.state === 'DISABLED'" id="btn-delete-app" func="removeOrchestrator()" position="left" fastyle="fa-trash-o" text="{{'DELETE' | translate}}"></delete-confirm>
   </div>
 </div>
+
 <div class="row" ng-if="_.isNotEmpty(orchestratorProperties)">
   <div class="col-md-12">
     <hr class="separator-h">
@@ -50,4 +50,3 @@
     </meta-properties-display>
   </div>
 </div>
-<hr class="separator-h">

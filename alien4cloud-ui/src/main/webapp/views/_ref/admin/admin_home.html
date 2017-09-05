@@ -1,0 +1,11 @@
+<div ng-repeat="menuItem in menu" ng-if="menuItem.show" class="col-md-4">
+  <a id="homepage.{{menuItem.id}}"
+     ng-click="onItemClick($event, menuItem)"
+     ui-sref="{{menuItem.state}}"
+     ng-class="{'disabled' : menuItem.disabled}">
+    <div class="vertical-navbar-home well">
+      <i class="{{menuItem.icon}} fa-5x" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
+      <h3>{{menuItem.key | translate}}</h3>
+    </div>
+  </a>
+</div>

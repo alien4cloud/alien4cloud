@@ -1,23 +1,15 @@
-<ul class="vertical-navbar">
-  <li ng-repeat="menuItem in menu" ui-sref-active="active" ng-if="menuItem.show">
-    <a id="{{menuItem.id}}"
-      ng-click="onItemClick($event, menuItem)"
-      ui-sref="{{menuItem.state}}"
-      uib-tooltip="{{menuItem.key | translate}}"
-      tooltip-placement="right"
-      tooltip-append-to-body="true"
-      ng-class="{'disabled' : menuItem.disabled}">
-      <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
-    </a>
-  </li>
-</ul>
-<div class="horizontal-panel">
-  <!-- Application title -->
-  <div class="row">
-    <div class="col-md-12 pull-left">
-      <i class="fa fa-magic"></i> {{context.orchestrator.name}}
-      <i class="fa fa-puzzle-piece" style="margin-left: 20px;"></i> {{context.orchestrator.pluginId}}
-    </div>
+<div class="pull-left">
+    <ul class="nav nav-stacked grp-margin nav-vcenter nav-leftside nav-small">
+      <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active" >
+        <a id="{{menuItem.id}}"
+          ng-click="onItemClick($event, menuItem)"
+          ng-class="{'text-muted' : menuItem.disabled}"
+          ui-sref="{{menuItem.state}}"><i class="{{menuItem.icon}} fa-2x" ng-if="menuItem.icon"></i><br/>{{menuItem.key | translate}}</a>
+      </li>
+    </ul>
   </div>
-</div>
-<div class="vertical-panel-shift" ui-view></div>
+  
+  <div class="nav-small-margin" ui-view>
+  
+  </div>
+  

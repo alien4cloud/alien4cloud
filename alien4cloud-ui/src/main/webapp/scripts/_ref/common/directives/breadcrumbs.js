@@ -15,7 +15,6 @@ define(function (require) {
 
   modules.get('a4c-common', []).controller('BreadcrumbsCtrl', ['$scope', '$rootScope', 'breadcrumbsService',
     function ($scope, $rootScope, breadcrumbsService) {
-
       $scope.items = breadcrumbsService.getItems();
 
       $rootScope.$on('breadcrumbsUpdated', function(){

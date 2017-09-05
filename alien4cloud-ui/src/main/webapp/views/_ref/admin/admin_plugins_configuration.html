@@ -1,0 +1,12 @@
+<generic-form
+    ng-if="pluginConfigDefinition && pluginConfig"
+    root-object="pluginConfig"
+    form-title="{{toConfigPluginId}}"
+    type="pluginConfigDefinition"
+    is-cancelable="true"
+    show-tree="true"
+    show-path="true"
+    suggest="suggest(searchConfiguration, text)"
+    save="saveConfiguration(object)"
+    cancel="cancel(object)">
+</generic-form>
