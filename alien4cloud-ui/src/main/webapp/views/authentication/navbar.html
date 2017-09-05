@@ -20,7 +20,7 @@
     <ul class="nav navbar-nav navbar-right" style="margin-right:0px">
       <li uib-dropdown>
         <a id="navbar-rightdrop" href="#" uib-dropdown-toggle>
-          <span ng-if="status.currentStatus.data.isLogged">
+          <span ng-if="status.currentStatus.data.isLogged" style="margin-right:4px">
             <i class="fa fa-user"></i> {{ status.currentStatus.data.username }}
           </span>
           <img alt="" ng-src="images/flags/iso/{{ 'CODE' | translate }}.svg" class="language flag" />
