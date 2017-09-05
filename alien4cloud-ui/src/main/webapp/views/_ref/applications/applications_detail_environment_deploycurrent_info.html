@@ -1,6 +1,43 @@
 <div class="row grp-margin">
 
     <button style="margin:20px;" ng-disabled="isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])" class="btn btn-danger" ng-click="undeploy()">{{'APPLICATIONS.UNDEPLOY' | translate}}</button>
+    <div class="col-md-12">
+      <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
+        <i class="fa fa-cog"></i> Reminder of current deployment
+      </div>
+      <div class = "row" style="margin-top: 10px">
+        <div class = "col-md-6">
+          <span class = "detail-term"> {{'APPLICATIONS.APPLICATION' | translate }} : </span> <span class = "inline-block">{{application.name}}</span>
+        </div>
+        <div class = "col-md-6">
+          <span class = "detail-term"> {{'COMMON.VERSION' | translate }} : </span> <span class = "inline-block">{{topology.archiveVersion}}</span>
+        </div>
+        <div class = "col-md-6">
+          <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate }} : </span> <span class = "inline-block">{{environment.name}}</span>
+        </div>
+        <div class = "col-md-6">
+          <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate }} : </span> <span class = "inline-block">{{environment.environmentType}}</span>
+        </div>
+
+        <div class="col-md-12" style="margin-top: 20px;">
+          <div class="content-head">
+            <i class="fa fa-cubes"></i> Ressources installed
+          </div>
+          <div class="content-body" style="overflow: auto; max-height: 300px;">
+            <table class="table table-condensed" id="locationResources">
+              <tr ng-repeat="(key, value) in locationResources">
+                <td>
+                  {{key}}
+                </td>
+                <td>
+                  ( <i>{{value.type}}</i> )
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <display-outputs></display-outputs>
 

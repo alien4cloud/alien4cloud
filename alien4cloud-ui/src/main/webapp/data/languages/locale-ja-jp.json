@@ -13,21 +13,15 @@
     "ARCHIVE_NAME_HELP" : "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
     "AUTHORIZED" : "application authorized",
     "DEPLOY" : "デプロイ",
-    "DEPLOY_MODAL": {
-      "CONTENT": {
-        "HEADER" : "Are you sure you want to deploy the {{application}} application with {{type}} type and {{version}} version with the following matching:",
-        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
-      },
-      "TITLE": "Deployment informations"
+    "DEPLOYMENT_INFO" : "Deployment informations",
+    "DEPLOY_CONFIRM": {
+      "MESSAGE": "You sure to deploy this production environment ?",
+      "TITLE": "Attention"
     },
     "UPDATE_DEPLOYMENT" : "Update",
-    "UPDATE_MODAL": {
-      "CONTENT": {
-        "DOCUMENTATION": "More informations on deployment update are available in our ",
-        "HEADER" : "Are you sure you want to update the {{application}} application with {{type}} type and {{version}} version with the following matching:",
-        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
-      },
-      "TITLE": "Update deployment informations"
+    "UPDATE_CONFIRM": {
+      "MESSAGE": "Are you sure to update this production environment ?",
+      "TITLE": "Attention"
     },
     "DEPLOYMENT" : {
       "DEPLOY" : "デプロイ",

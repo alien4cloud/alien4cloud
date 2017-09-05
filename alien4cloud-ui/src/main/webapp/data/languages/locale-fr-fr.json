@@ -13,16 +13,15 @@
     "ARCHIVE_NAME_HELP" : "Le nom de l'archive TOSCA (Cloud Service Archive) liée à l'application. C'est également l'id unique et immutable de l'application.",
     "AUTHORIZED" : "application autorisée",
     "DEPLOY" : "Déployer",
-    "DEPLOY_MODAL": {
-      "MESSAGE": "Vous êtes sur le point de déployer ce qui suit:",
-      "RESOURCES_TO_CREATE": "Resources à creer",
-      "TITLE": "Informations de déploiement"
+    "DEPLOYMENT_INFO" : "Informations de déploiement",
+    "DEPLOY_CONFIRM": {
+      "MESSAGE": "Êtes-vous sûr de déployer cet environment de production ?",
+      "TITLE": "Attention"
     },
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
-    "UPDATE_MODAL": {
-      "MESSAGE": "Vous êtes sur le point de mettre à jour ce qui suit:",
-      "DOCUMENTATION": "Plus d'informations sur la mise à jour de déploiements...",
-      "TITLE": "Informations de mise à jour"
+    "UPDATE_CONFIRM": {
+      "MESSAGE": "Êtes-vous sûr de mettre à jour cet environment de production ?",
+      "TITLE": "Attention"
     },
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",

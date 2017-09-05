@@ -21,8 +21,8 @@
             class="btn btn-success application-deploy-button pull-right"
             ng-disabled="!deploymentTopologyDTO.validation.valid || isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])"
             ng-if="environment.status === 'UNDEPLOYED' && environment.environmentType === 'PRODUCTION'"
-            confirm=" "
-            confirm-title="Deploy ?"
+            confirm="{{ 'APPLICATIONS.DEPLOY_CONFIRM.MESSAGE' | translate }}"
+            confirm-title="{{ 'APPLICATIONS.DEPLOY_CONFIRM.TITLE' | translate }}"
             confirm-placement="left"
             confirm-class="popover"
             confirm-handler="doDeploy()"
@@ -59,7 +59,7 @@
 <div class="row grp-margin">
   <div class="col-md-12">
     <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
-      <i class="fa fa-cog"></i> {{'APPLICATIONS.DEPLOY_MODAL.TITLE' | translate}}
+      <i class="fa fa-cog"></i> {{'APPLICATIONS.DEPLOYMENT_INFO' | translate}}
     </div>
     <div class = "row" style="margin-top: 10px">
       <div class = "col-md-6">

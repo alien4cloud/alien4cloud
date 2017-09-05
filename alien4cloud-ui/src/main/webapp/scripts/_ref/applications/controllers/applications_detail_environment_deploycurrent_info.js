@@ -3,7 +3,6 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
-  var angular = require('angular');
   var _ = require('lodash');
   var alienUtils = require('scripts/utils/alien_utils');
   require('scripts/deployment/directives/display_outputs');
@@ -32,7 +31,7 @@ define(function (require) {
       },
       onClick: function(){
         $state.go('applications.detail.environment.deploycurrent.info');
-      } 
+      }
     });
 
     $scope.applicationServices = applicationServices;
@@ -48,8 +47,8 @@ define(function (require) {
     $scope.isUser = authService.hasResourceRole($scope.application, 'APPLICATION_USER');
     $scope.newAppName = $scope.application.name;
 
-    $scope.isAllowedModify = _.defined($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);   
-    
+    $scope.isAllowedModify = _.defined($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
+
     // switch back to 'current deploy' when undeployed completed
     $scope.$watch('environment', function () {
       if ($scope.environment.status === 'UNDEPLOYED') {

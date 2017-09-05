@@ -55,7 +55,7 @@ define(function (require) {
       },
       onClick: function(){
         $state.go('applications.detail.environment.deploycurrent.runtimeeditor');
-      } 
+      }
     });
 
     $scope.isRuntime = true;
@@ -97,19 +97,19 @@ define(function (require) {
     }
 
     var refreshNodeInstanceInMaintenanceMode = function() {
-      var hasNOdeInstanceInMaintenanceMode = false;
+      var hasNodeInstanceInMaintenanceMode = false;
       if (_.defined($scope.topology.instances)) {
         angular.forEach($scope.topology.instances, function(v) {
           if (_.defined(v)) {
             angular.forEach(v, function(vv) {
               if (_.defined(vv) && vv.instanceStatus === 'MAINTENANCE') {
-                hasNOdeInstanceInMaintenanceMode = true;
+                hasNodeInstanceInMaintenanceMode = true;
               }
             });
           }
         });
       }
-      $scope.hasNOdeInstanceInMaintenanceMode = hasNOdeInstanceInMaintenanceMode;
+      $scope.hasNodeInstanceInMaintenanceMode = hasNodeInstanceInMaintenanceMode;
     };
 
 
@@ -388,7 +388,7 @@ define(function (require) {
     };
 
     $scope.switchDeployementMaintenanceMode = function() {
-      if ($scope.hasNOdeInstanceInMaintenanceMode) {
+      if ($scope.hasNodeInstanceInMaintenanceMode) {
         deploymentServices.deploymentMaintenance.off({
           applicationId: $scope.application.id,
           applicationEnvironmentId: $scope.environment.id
