@@ -59,12 +59,16 @@ public class DeploymentService {
      *
      * @param orchestratorId Id of the cloud for which to get deployments (can be null to get deployments for all clouds).
      * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
+     * @param environmentId Id of the environment for which to get deployments (can be null to get deployments for all environments).
      * @return An array of deployments.
      */
-    public Deployment[] getDeployments(String orchestratorId, String sourceId, int from, int size) {
+    public Deployment[] getDeployments(String orchestratorId, String sourceId, String environmentId, int from, int size) {
         FilterBuilder filterBuilder = null;
         if (orchestratorId != null) {
             filterBuilder = FilterBuilders.termFilter("orchestratorId", orchestratorId);
+        }
+        if (environmentId != null) {
+            filterBuilder = FilterBuilders.termFilter("environmentId", environmentId);
         }
         if (sourceId != null) {
             FilterBuilder sourceFilter = FilterBuilders.termFilter("sourceId", sourceId);
@@ -198,10 +202,7 @@ public class DeploymentService {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "orchestratorId", "orchestratorDeploymentId", "endDate" },
                 new String[][] { new String[] { orchestratorId }, new String[] { orchestratorDeploymentId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class, activeDeploymentFilters, 1);
-        if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            return true;
-        }
-        return false;
+        return dataResult.getData() != null && dataResult.getData().length > 0;
     }
 
     public Map<String, PaaSTopologyDeploymentContext> getCloudActiveDeploymentContexts(String orchestratorId) {

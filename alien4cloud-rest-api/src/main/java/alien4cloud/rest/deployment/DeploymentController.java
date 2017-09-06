@@ -17,12 +17,7 @@ import org.elasticsearch.mapping.MappingBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -47,11 +42,7 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.rest.model.JsonRawRestResponse;
-import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.model.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -81,6 +72,7 @@ public class DeploymentController {
      *
      * @param orchestratorId Id of the orchestrator for which to get deployments (can be null to get deployments for all orchestrators).
      * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
+     * @param environmentId Id of the environment for which to get deployments (can be null to get deployments for all environments).
      * @param includeSourceSummary include or not the sources (application or csar) summary in the results.
      * @return A {@link RestResponse} with as data a list of {@link DeploymentDTO} that contains deployments and applications info.
      */
@@ -90,8 +82,9 @@ public class DeploymentController {
     public RestResponse<List<DeploymentDTO>> get(
             @ApiParam(value = "Id of the orchestrator for which to get deployments. If not provided, get deployments for all orchestrators") @RequestParam(required = false) String orchestratorId,
             @ApiParam(value = "Id of the application for which to get deployments. if not provided, get deployments for all applications") @RequestParam(required = false) String sourceId,
+            @ApiParam(value = "Id of the environment for which to get deployments. if not provided, get deployments without filtering by environment") @RequestParam(required = false) String environmentId,
             @ApiParam(value = "include or not the source (application or csar) summary in the results") @RequestParam(required = false, defaultValue = "false") boolean includeSourceSummary) {
-        return RestResponseBuilder.<List<DeploymentDTO>> builder().data(buildDeploymentsDTO(orchestratorId, sourceId, includeSourceSummary)).build();
+        return RestResponseBuilder.<List<DeploymentDTO>> builder().data(buildDeploymentsDTO(orchestratorId, sourceId, environmentId, includeSourceSummary)).build();
     }
 
     /**
@@ -99,11 +92,12 @@ public class DeploymentController {
      *
      * @param orchestratorId Id of the orchestrator for which to get deployments (can be null to get deployments for all orchestrator).
      * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
+     * @param environmentId Id of the environment for which to get deployments (can be null to get deployments for all environments).
      * @param includeSourceSummary include or not the applications summary in the results.
      * @return A list of {@link DeploymentDTO} that contains deployments and applications info.
      */
-    private List<DeploymentDTO> buildDeploymentsDTO(String orchestratorId, String sourceId, boolean includeSourceSummary) {
-        Deployment[] deployments = deploymentService.getDeployments(orchestratorId, sourceId, 0, 100);
+    private List<DeploymentDTO> buildDeploymentsDTO(String orchestratorId, String sourceId, String environmentId, boolean includeSourceSummary) {
+        Deployment[] deployments = deploymentService.getDeployments(orchestratorId, sourceId, environmentId,0, 100);
         List<DeploymentDTO> dtos = Lists.newArrayList();
         if (deployments.length == 0) {
             return dtos;
@@ -150,7 +144,7 @@ public class DeploymentController {
             locations = locationService.findByIds(FetchContext.SUMMARY, locationIds.toArray(new String[locationIds.size()]));
         }
 
-        return locations != null ? locations : Maps.<String, Location> newHashMap();
+        return locations != null ? locations : Maps.newHashMap();
     }
 
     private List<Location> getLocations(String[] locationIds, Map<String, Location> locationSummaries) {

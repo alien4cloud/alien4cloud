@@ -23,7 +23,7 @@ define(function (require) {
       function ($scope, $translate, deploymentServices, breadcrumbsService) {
 
         $scope.now = new Date();
-        
+
         breadcrumbsService.putConfig({
           state: 'applications.detail.environment.history',
           text: function () {
@@ -45,6 +45,7 @@ define(function (require) {
 
         deploymentServices.get({
           applicationId: $scope.application.id,
+          environmentId: $scope.environment.id,
           includeSourceSummary: false
         }, function (result) {
           processDeployments(result.data);
