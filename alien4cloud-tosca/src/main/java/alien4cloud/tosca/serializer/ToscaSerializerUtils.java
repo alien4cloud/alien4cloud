@@ -367,7 +367,7 @@ public class ToscaSerializerUtils {
         return buffer.toString();
     }
 
-    public static boolean canUseShortNotationForImplementationArtifactArtifact(Operation operation) {
+    public static boolean canUseShortNotationForImplementationArtifact(Operation operation) {
         return MapUtils.isEmpty(operation.getInputParameters()) && StringUtils.isEmpty(operation.getImplementationArtifact().getRepositoryName());
     }
 

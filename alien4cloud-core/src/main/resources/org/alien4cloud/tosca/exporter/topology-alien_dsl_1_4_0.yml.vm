@@ -122,7 +122,7 @@ ${utils.formatArtifact($artifactEntry.value, 8)}
               ${interfaceEntry.key}:
 #foreach($operationEntry in ${interfaceEntry.value.operations.entrySet()})
 #if($utils.isOperationImplemented($operationEntry.value))
-#set($enableImplementationArtifactShortNotation = $utils.canUseShortNotationForImplementationArtifactArtifact($operationEntry.value))
+#set($enableImplementationArtifactShortNotation = $utils.canUseShortNotationForImplementationArtifact($operationEntry.value))
 #if($enableImplementationArtifactShortNotation)
                 ${operationEntry.key}: $operationEntry.value.implementationArtifact.artifactRef
 #else
@@ -156,7 +156,7 @@ ${utils.formatArtifact($operationEntry.value.implementationArtifact, 10)}
         ${interfaceEntry.key}:
 #foreach($operationEntry in ${interfaceEntry.value.operations.entrySet()})
 #if($utils.isOperationImplemented($operationEntry.value))
-#set($enableImplementationArtifactShortNotation = $utils.canUseShortNotationForImplementationArtifactArtifact($operationEntry.value))
+#set($enableImplementationArtifactShortNotation = $utils.canUseShortNotationForImplementationArtifact($operationEntry.value))
 #if($enableImplementationArtifactShortNotation)
           ${operationEntry.key}: $operationEntry.value.implementationArtifact.artifactRef
 #else
