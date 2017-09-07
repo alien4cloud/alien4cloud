@@ -64,6 +64,11 @@ define(function (require) {
             return applicationVersionServices.searchVersion({
               delegateId: application.data.id
             }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
+              _.each(result.data.data, function(version) {
+                _.each(version.topologyVersion, function(variant, variantKey) {
+                  variant.version = variantKey;
+                });
+              });
               return result.data;
             });
           });
