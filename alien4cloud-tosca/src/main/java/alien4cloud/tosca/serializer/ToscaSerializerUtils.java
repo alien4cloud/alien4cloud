@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
@@ -348,7 +349,7 @@ public class ToscaSerializerUtils {
         return buffer.toString();
     }
 
-    public static String formatArtifact(DeploymentArtifact value, int indent) {
+    public static String formatArtifact(AbstractArtifact value, int indent) {
         String spaces = ToscaPropertySerializerUtils.indent(indent);
         StringBuilder buffer = new StringBuilder();
         if (StringUtils.isNotBlank(value.getArtifactRef())) {
@@ -364,6 +365,10 @@ public class ToscaSerializerUtils {
             buffer.setLength(buffer.length() - 1);
         }
         return buffer.toString();
+    }
+
+    public static boolean canUseShortNotationForImplementationArtifact(Operation operation) {
+        return MapUtils.isEmpty(operation.getInputParameters()) && StringUtils.isEmpty(operation.getImplementationArtifact().getRepositoryName());
     }
 
     private static final Pattern GET_INPUT_ARTIFACT_PATTERN = Pattern.compile("\\{ *get_input_artifact: +[^}]+}");

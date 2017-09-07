@@ -73,18 +73,22 @@ define(function(require) {
         $translateProvider.translations({CODE: 'en-us'});
         $translateProvider.preferredLanguage('en-us');
 
-        var prefix;
-        var hashTraduction = 'hashPrefixForTraductionFile'; // this variable is change during the build
-        if (hashTraduction !== 'hashPrefixForTraductionFile') {
-          // change prefix during the build to add a file translation revision
-          prefix = 'data/languages/' + hashTraduction + '.locale-';
-        } else {
-          prefix = 'data/languages/locale-';
-        }
+        /*
+        * When running in grunt mode, hashPrefix is set to empty so that we can load translation files as is
+        * On build, translation files are renamed to add a hash as prefix.
+        * So, hashPrefix is change during the build (see main/build/config/execute.js:revrename )from empty to the prefix hash.
+        */
+        // WARNING WARNING WARNING WARNING WARNING WARNING 
+        //we use a map as a hack. In fact, the providing of the hash is done after minification.
+        // if we use a simple: var hashPrefix='', the minification process will directly replace hashPrefix in the options.files below with ''
+        // when using a map, it will be replaced by {hashPrefix:''}.hashPrefix, allowing us to set the value as we want in execute:revrename
+        var complexPrefix = {
+          hashPrefix:''
+        };
 
         var options = {
           files: [{
-            prefix: prefix,
+            prefix: 'data/languages/' + complexPrefix.hashPrefix + 'locale-',
             suffix: '.json'
           }]
         };

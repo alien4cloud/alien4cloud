@@ -6,13 +6,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.junit.Assert;
-
-import alien4cloud.it.Context;
-import alien4cloud.it.provider.util.AttributeUtil;
-import alien4cloud.it.provider.util.HttpUtil;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -20,8 +14,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import alien4cloud.it.Context;
+import alien4cloud.it.provider.util.AttributeUtil;
+import alien4cloud.it.provider.util.HttpUtil;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class HttpStepsDefinitions {
@@ -49,6 +47,12 @@ public class HttpStepsDefinitions {
     public void The_URL_which_is_defined_in_attribute_of_the_node_should_work_and_the_html_should_contain(String attributeName, String nodeName,
             String expectedContent) throws Throwable {
         HttpUtil.checkUrl(AttributeUtil.getAttribute(nodeName, attributeName), expectedContent, 2 * 60 * 1000L);
+    }
+
+    @And("^The URL which is defined in attribute \"([^\"]*)\" of the node \"([^\"]*)\" of the application \"([^\"]*)\" should work and the html should contain \"([^\"]*)\"$")
+    public void The_URL_which_is_defined_in_attribute_of_the_node_of_the_application_should_work_and_the_html_should_contain(String attributeName,
+            String nodeName, String applicationName, String expectedContent) throws Throwable {
+        HttpUtil.checkUrl(AttributeUtil.getAttribute(nodeName, attributeName, applicationName, "Environment"), expectedContent, 2 * 60 * 1000L);
     }
 
     @Then("^I store the attribute \"(.*?)\" of the node \"(.*?)\" as registered string \"(.*?)\"$")
