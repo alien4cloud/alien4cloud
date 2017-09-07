@@ -1,8 +1,0 @@
-[ {
-  "name" : "tosca-normative-types",
-  "version" : "1.0.0-SNAPSHOT",
-  "toscaDefinitionsVersion" : "alien_dsl_1_1_0",
-  "templateAuthor" : "TOSCA TC",
-  "description" : "Contains the normative types definition as currently supported in Alien 4 Cloud. Alien DSL currently have some slight differences with TOSCA normative grammar.",
-  "id" : "tosca-normative-types:1.0.0-SNAPSHOT"
-} ]
