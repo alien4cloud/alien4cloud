@@ -66,6 +66,9 @@ public class ServiceResourceRelationshipService {
     }
 
     private void processSourceOperations(PaaSRelationshipTemplate paaSRelationshipTemplate, ServiceResource serviceResource, Interface templateInterface) {
+        // Drop default source operations as the service is the source of a relationship
+        dropOperations(templateInterface, PRE_CONFIGURE_SOURCE, POST_CONFIGURE_SOURCE, ADD_TARGET, REMOVE_TARGET);
+
         // for services that are source of a relationship, all operations related to source (the service) are not run.
         String relationshipTypeId = serviceResource.getRequirementsRelationshipTypes().get(paaSRelationshipTemplate.getTemplate().getRequirementName());
         if (relationshipTypeId != null) {
@@ -75,14 +78,14 @@ public class ServiceResourceRelationshipService {
             if (serviceInterface != null) {
                 overrideOperations(paaSRelationshipTemplate.getTemplate(), templateInterface, relationshipType, serviceInterface, PRE_CONFIGURE_SOURCE,
                         POST_CONFIGURE_SOURCE, ADD_TARGET, REMOVE_TARGET);
-                return;
             }
         }
-        // if operations are not overriden then just drop them.
-        dropOperations(templateInterface, PRE_CONFIGURE_SOURCE, POST_CONFIGURE_SOURCE, ADD_TARGET, REMOVE_TARGET);
     }
 
     private void processTargetOperations(PaaSRelationshipTemplate paaSRelationshipTemplate, ServiceResource serviceResource, Interface templateInterface) {
+        // Drop default target operations as the service is the target of a relationship
+        dropOperations(templateInterface, PRE_CONFIGURE_TARGET, POST_CONFIGURE_TARGET, ADD_SOURCE, REMOVE_SOURCE);
+
         // for services that are target of a relationship, all operations related to target (the service) are not run.
         if (paaSRelationshipTemplate.getTemplate().getTargetedCapabilityName() != null && serviceResource.getCapabilitiesRelationshipTypes() != null) {
             String relationshipTypeId = serviceResource.getCapabilitiesRelationshipTypes()
@@ -96,7 +99,6 @@ public class ServiceResourceRelationshipService {
                 }
             }
         }
-        dropOperations(templateInterface, PRE_CONFIGURE_TARGET, POST_CONFIGURE_TARGET, ADD_SOURCE, REMOVE_SOURCE);
     }
 
     /**
