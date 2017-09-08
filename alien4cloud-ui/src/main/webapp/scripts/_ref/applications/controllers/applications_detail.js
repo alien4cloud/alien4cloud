@@ -13,7 +13,6 @@ define(function (require) {
 
   require('scripts/common/services/user_context_services');
 
-
   states.state('applications.detail', {
     url: '/detail/:id',
     templateUrl: 'views/_ref/applications/applications_detail.html',
@@ -46,9 +45,10 @@ define(function (require) {
               delegateId: application.data.id
             }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
               _.each(result.data.data, function(version) {
-                _.each(version.topologyVersion, function(variant, variantKey) {
-                  variant.version = variantKey;
-                });
+                // sort the variant versions by qualifier
+                version.topologyVersions = _.zipObject(_.sortBy(_.pairs(version.topologyVersions), function(variantArr) {
+                    return variantArr[1].qualifier ? variantArr[1].qualifier : '';
+                  }));
               });
               return result.data;
             });
