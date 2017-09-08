@@ -12,11 +12,9 @@ define(function (require) {
 
     return {
       registerContainer: function(callback, selector) {
-        console.log('registerContainer', selector);
         var instance = this;
         $timeout(function() { // make sure w wait for the DOM to be ready before, because $() does not return a promise
           var container = $(selector);
-          console.log('found container', selector);
           window.onresize = function() {
             if (container.size()) {
               var offsets = container.offset();

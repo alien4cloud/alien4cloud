@@ -5,7 +5,7 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  require('scripts/common/services/user_context_services');
+  require('scripts/_ref/applications/controllers/applications_detail_version_editor');
 
   states.state('applications.detail.version', {
     url: '/version/:versionId',
@@ -34,10 +34,11 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationVersionCtrl',
-    ['$scope', '$state', 'breadcrumbsService', 'version',
-      function ($scope, $state, breadcrumbsService, version) {
+    ['$scope', '$state', 'breadcrumbsService', 'application', 'version',
+      function ($scope, $state, breadcrumbsService, applicationResponse, version) {
+        $scope.application = applicationResponse.data;
         $scope.version = version;
-        
+
         breadcrumbsService.putConfig({
           state: 'applications.detail.version',
           text: function () {
@@ -46,10 +47,18 @@ define(function (require) {
           onClick: function () {
             $state.go('applications.detail.version', {
               id: $scope.application.id,
-              environmentId: $scope.version.id
+              versionId: $scope.version.id
             });
           }
         });
+
+        $scope.editTopology = function(variantVersion) {
+          $state.go('editor_app_version.editor', {
+            applicationId: $scope.application.id,
+            versionId: $scope.version.id,
+            archiveId: variantVersion.archiveId
+          });
+        };
       }
     ]);
 });

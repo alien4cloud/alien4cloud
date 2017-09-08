@@ -23,8 +23,8 @@ define(function (require) {
   states.forward('editor_app_env', 'editor_app_env.editor');
 
   modules.get('a4c-applications').controller('AppEnvTopoEditorCtrl',
-    ['$scope', '$state', '$stateParams', 'userContextServices', 'applicationServices', 'applicationEnvironmentServices', 'breadcrumbsService','$translate',
-    function ($scope, $state, $stateParams, userContextServices, applicationServices, applicationEnvironmentServices, breadcrumbsService, $translate) {
+    ['$scope', '$state', '$stateParams', 'applicationServices', 'applicationEnvironmentServices', 'breadcrumbsService','$translate',
+    function ($scope, $state, $stateParams, applicationServices, applicationEnvironmentServices, breadcrumbsService, $translate) {
 
       breadcrumbsService.registerMapping('editor_app_env.', 'applications.detail.environment.deploynext.topology.');
       var setupBreadCrumbs = function (scope) {
@@ -100,22 +100,6 @@ define(function (require) {
           setupBreadCrumbs($scope);
         }
       });
-
-      $scope.goToApplication = function($event) {
-        $event.preventDefault();
-        $event.stopPropagation();
-        userContextServices.clear($stateParams.applicationId);
-        $state.go('applications.detail', { id: $stateParams.applicationId });
-      };
-
-      $scope.goToEnvironment = function($event) {
-        $event.preventDefault();
-        $event.stopPropagation();
-        $state.go('applications.detail.environment.deploynext.topology', {
-          id: $stateParams.applicationId,
-          environmentId: $stateParams.environmentId,
-        });
-      };
     }
   ]);
 });
