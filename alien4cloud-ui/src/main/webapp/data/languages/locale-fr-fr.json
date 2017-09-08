@@ -14,15 +14,11 @@
     "AUTHORIZED" : "application autorisée",
     "DEPLOY" : "Déployer",
     "DEPLOYMENT_INFO" : "Informations de déploiement",
-    "DEPLOY_CONFIRM": {
-      "MESSAGE": "Êtes-vous sûr de déployer cet environment de production ?",
-      "TITLE": "Attention"
-    },
+    "DEPLOY_CONFIRM": "Êtes-vous sûr de déployer cet environment de production ?",
+    "UNDEPLOY_CONFIRM": "Êtes-vous sûr de désinstaller cet environment de production ?",
+    "UPDATE_DEPLOYMENT" : "Update",
+    "UPDATE_CONFIRM": "Êtes-vous sûr de mettre à jour cet environment de production ?",
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
-    "UPDATE_CONFIRM": {
-      "MESSAGE": "Êtes-vous sûr de mettre à jour cet environment de production ?",
-      "TITLE": "Attention"
-    },
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",
       "INPUT" : "Input",
@@ -446,6 +442,7 @@
   "COMMON" : {
     "ADD" : "Ajouter",
     "ADD_USER_ATTRIBUTE": "Ajouter un attribut utilisateur",
+    "ATTENTION": "Attention",
     "ATTRIBUTES" : "Attributs",
     "AUTHOR" : "Auteur",
     "AUTHORIZED": "Authorisé",

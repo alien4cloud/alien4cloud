@@ -49,6 +49,13 @@ define(function (require) {
 
     $scope.isAllowedModify = _.defined($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
 
+    $scope.$on('a4cRuntimeTopologyLoaded', function() {
+      $scope.locationResources = {};
+      _.each(_.keys($scope.topology.topology.substitutedNodes), function (name) {
+        $scope.locationResources[name] = $scope.topology.topology.nodeTemplates[name];
+      });
+    });
+
     // switch back to 'current deploy' when undeployed completed
     $scope.$watch('environment', function () {
       if ($scope.environment.status === 'UNDEPLOYED') {

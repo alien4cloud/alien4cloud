@@ -14,15 +14,10 @@
     "AUTHORIZED": "application authorized",
     "DEPLOY": "Deploy",
     "DEPLOYMENT_INFO" : "Deployment informations",
-    "DEPLOY_CONFIRM": {
-      "MESSAGE": "Are you sure to deploy this production environment ?",
-      "TITLE": "Attention"
-    },
+    "DEPLOY_CONFIRM": "Are you sure to deploy this production environment ?",
+    "UNDEPLOY_CONFIRM": "Are you sure to undeploy this production environment ?",
     "UPDATE_DEPLOYMENT" : "Update",
-    "UPDATE_CONFIRM": {
-      "MESSAGE": "Are you sure to update this production environment ?",
-      "TITLE": "Attention"
-    },
+    "UPDATE_CONFIRM": "Are you sure to update this production environment ?",
     "DEPLOYMENT": {
       "DEPLOY": "Deploy",
       "INPUT": "Input",
@@ -446,6 +441,7 @@
   "COMMON": {
     "ADD": "Add",
     "ADD_USER_ATTRIBUTE": "Add a user attribute",
+    "ATTENTION": "Attention",
     "ATTRIBUTES": "Attributes",
     "AUTHOR": "Author",
     "AUTHORIZED": "Authorized",
@@ -949,7 +945,7 @@
     "MENU_DEPLOY_NEXT.MATCHING": "Matching",
     "MENU_DEPLOY_NEXT.DEPLOY": "Review & deploy",
     "MENU_HISTORY": "Deployment History",
-    
+
     "MENU_DEPLOY_CURRENT.INFO" : "Info",
     "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "Runtime view",
     "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER" : "Workflow",

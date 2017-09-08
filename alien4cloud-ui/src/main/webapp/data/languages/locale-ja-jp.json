@@ -14,15 +14,10 @@
     "AUTHORIZED" : "application authorized",
     "DEPLOY" : "デプロイ",
     "DEPLOYMENT_INFO" : "Deployment informations",
-    "DEPLOY_CONFIRM": {
-      "MESSAGE": "You sure to deploy this production environment ?",
-      "TITLE": "Attention"
-    },
+    "DEPLOY_CONFIRM": "Are you sure to deploy this production environment ?",
+    "UNDEPLOY_CONFIRM": "Are you sure to undeploy this production environment ?",
     "UPDATE_DEPLOYMENT" : "Update",
-    "UPDATE_CONFIRM": {
-      "MESSAGE": "Are you sure to update this production environment ?",
-      "TITLE": "Attention"
-    },
+    "UPDATE_CONFIRM": "Are you sure to update this production environment ?",
     "DEPLOYMENT" : {
       "DEPLOY" : "デプロイ",
       "INPUT" : "入力",
@@ -439,6 +434,7 @@
   "COMMON" : {
     "ADD" : "追加",
     "ADD_USER_ATTRIBUTE": "Add a user attribute",
+    "ATTENTION": "Attention",
     "ATTRIBUTES" : "属性",
     "AUTHOR" : "作成者",
     "CAPABILITIES" : "ケーパビリティ",
@@ -931,7 +927,7 @@
     "MENU_DEPLOY_NEXT.MATCHING": "Matching",
     "MENU_DEPLOY_NEXT.DEPLOY": "Review & launch",
     "MENU_HISTORY": "Deployment History",
-    
+
     "MENU_DEPLOY_CURRENT.INFO" : "情報",
     "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "ランタイム",
     "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER" : "Workflow",
