@@ -3,6 +3,7 @@ define(function (require) {
   'use strict';
 
   var states = require('states');
+  var modules = require('modules');
 
   require('scripts/_ref/catalog/controllers/archives/archives_list');
   require('scripts/_ref/catalog/controllers/archives/archives_detail');
@@ -11,6 +12,7 @@ define(function (require) {
   states.state('catalog.archives', {
     url: '/archives',
     template: '<ui-view/>',
+    controller: 'ArchivesCtrl',
     menu: {
       id: 'catalog.archives',
       state: 'catalog.archives',
@@ -19,4 +21,15 @@ define(function (require) {
     }
   });
   states.forward('catalog.archives', 'catalog.archives.list');
+
+  modules.get('a4c-catalog', ['ui.router']).controller('ArchivesCtrl', ['breadcrumbsService', '$translate',
+    function (breadcrumbsService, $translate) {
+      breadcrumbsService.putConfig({
+        state : 'catalog.archives',
+        text: function(){
+          return $translate.instant('NAVBAR.MENU_CSARS');
+        }
+      });
+    }
+  ]);
 });

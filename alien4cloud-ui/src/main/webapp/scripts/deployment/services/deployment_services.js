@@ -17,8 +17,8 @@ define(function (require) {
         }
       });
 
-      var deploymentsResource = $resource('rest/latest/deployments', {}, {
-        'get': {
+      var deploymentsResource = $resource('rest/latest/deployments/:deploymentId', {}, {
+        'search': {
           method: 'GET',
           params: {
             cloudId: '@orchestratorId',
@@ -27,6 +27,10 @@ define(function (require) {
             from: '@from',
             size: '@size'
           },
+          isArray: false
+        },
+        'get': {
+          method: 'GET',
           isArray: false
         }
       });
@@ -63,7 +67,8 @@ define(function (require) {
       var nonNativeNodesResource = $resource('rest/latest/runtime/:applicationId/environment/:applicationEnvironmentId/nonNatives');
 
       return {
-        'get': deploymentsResource.get,
+        'getById': deploymentsResource.get,
+        'get': deploymentsResource.search,
         'getEvents': deploymentEventResource.get,
         'getStatus': deploymentStatusResource.get,
         'undeploy': undeploymentResource.get,

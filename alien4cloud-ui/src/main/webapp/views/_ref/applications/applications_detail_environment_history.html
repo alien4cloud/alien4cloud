@@ -10,7 +10,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="deployment in deployments">
+            <tr class="clickable" ng-repeat="deployment in deployments" ng-click="handleHistoryClick(deployment)">
                 <td>
                     {{ deployment.deployment.deployerUsername || 'unknown' }}
                 </td>
@@ -24,11 +24,8 @@
                     {{ (deployment.deployment.endDate | date:'medium') || '---' }}
                 </td>
                 <td>
-                    <span ng-if="deployment.deployment.endDate"> 
-                        {{ (deployment.deployment.endDate - deployment.deployment.startDate) | amDurationFormat : 'millisecond' }}
-                    </span>
-                    <span ng-if="!deployment.deployment.endDate">
-                            {{ (now - deployment.deployment.startDate) | amDurationFormat : 'millisecond' }}
+                    <span>
+                        {{ ((deployment.deployment.endDate || now) - deployment.deployment.startDate) | amDurationFormat : 'millisecond' }}
                     </span>
                 </td>
             </tr>

@@ -21,20 +21,8 @@ define(function (require) {
     controller: 'ArchivesListCtrl',
   });
 
-  modules.get('a4c-catalog', ['ui.router', 'ui.bootstrap']).controller('ArchivesListCtrl', ['$scope', '$state', 'csarService', '$translate', 'toaster', 'authService', 'searchServiceFactory', 'breadcrumbsService',
-    function ($scope, $state, csarService, $translate, toaster, authService, searchServiceFactory, breadcrumbsService) {
-
-      //here we register breadcrumbs config for catalog.archives as this is forwarded to catalog.archives.list
-      breadcrumbsService.putConfig({
-        state : 'catalog.archives',
-        text: function(){
-          return $translate.instant('NAVBAR.MENU_CSARS');
-        },
-        onClick: function(){
-          $state.go(this.state);
-        }
-      });
-
+  modules.get('a4c-catalog', ['ui.router', 'ui.bootstrap']).controller('ArchivesListCtrl', ['$scope', '$state', 'csarService', '$translate', 'toaster', 'authService', 'searchServiceFactory',
+    function ($scope, $state, csarService, $translate, toaster, authService, searchServiceFactory) {
 
       $scope.writeWorkspaces = [];
       var isComponentManager = authService.hasOneRoleIn(['COMPONENT_MANAGER', 'ARCHITECT']);

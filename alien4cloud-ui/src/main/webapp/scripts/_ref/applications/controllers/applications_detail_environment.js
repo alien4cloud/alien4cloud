@@ -26,10 +26,6 @@ define(function (require) {
           });
         }
       ]
-    },
-    params: {
-      // optional id of the environment to automatically select when triggering this state
-      environmentId: null
     }
   });
 

@@ -32,14 +32,6 @@ define(function (require) {
 
   modules.get('a4c-catalog', ['ui.router', 'a4c-auth', 'a4c-common']).controller('ComponentsListCtrl', ['$scope', '$state', 'resizeServices', 'defaultFilters', 'badges', 'breadcrumbsService', '$translate',
     function ($scope, $state, resizeServices, defaultFilters, badges, breadcrumbsService, $translate) {
-      //here we register breadcrumbs config for catalog.components as this is forwarded to catalog.components.list
-      breadcrumbsService.putConfig({
-        state : 'catalog.components',
-        text: function(){
-          return $translate.instant('NAVBAR.MENU_COMPONENTS');
-        }
-      });
-
 
       $scope.defaultFilters = defaultFilters;
       $scope.badges = badges;
