@@ -15,6 +15,9 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 
@@ -204,7 +207,7 @@ public class WorkflowUtils {
         }
     }
 
-    public static String buildStepName(Workflow wf, AbstractStep step, int increment) {
+    public static String buildStepName(Workflow wf, WorkflowStep step, int increment) {
         StringBuilder nameBuilder = new StringBuilder(step.getStepAsString());
         if (increment > 0) {
             nameBuilder.append("_").append(increment);
@@ -217,8 +220,8 @@ public class WorkflowUtils {
         }
     }
 
-    public static boolean isStateStep(AbstractStep step) {
-        return (step instanceof NodeActivityStep) && ((NodeActivityStep) step).getActivity() instanceof SetStateActivity;
+    public static boolean isStateStep(WorkflowStep step) {
+        return step.getA;
     }
 
     public static String debugWorkflow(Workflow wf) {
@@ -257,13 +260,12 @@ public class WorkflowUtils {
         return stringBuilder.toString();
     }
 
-    public static NodeActivityStep addOperationStep(Workflow wf, String nodeId, String interfaceName, String operationName) {
-        OperationCallActivity task = new OperationCallActivity();
+    public static WorkflowStep addOperationStep(Workflow wf, String nodeId, String interfaceName, String operationName) {
+        CallOperationWorkflowActivity task = new CallOperationWorkflowActivity();
         task.setInterfaceName(interfaceName);
         task.setOperationName(operationName);
-        task.setNodeId(nodeId);
-        NodeActivityStep step = new NodeActivityStep();
-        step.setNodeId(nodeId);
+        WorkflowStep step = new WorkflowStep();
+        step.setTarget(nodeId);
         step.setActivity(task);
         step.setName(buildStepName(wf, step, 0));
         wf.addStep(step);

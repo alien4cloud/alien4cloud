@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DefaultDeclarativeWorkflows {
+    /* Map of workflow name -> default node declarative workflow */
     private Map<String, NodeDeclarativeWorkflow> nodeWorkflows;
     /* Map of workflow name -> default relationship declarative workflow */
     private Map<String, RelationshipDeclarativeWorkflow> relationshipWorkflows;

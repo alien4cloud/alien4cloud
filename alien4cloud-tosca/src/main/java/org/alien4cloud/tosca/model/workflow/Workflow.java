@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.model.workflow;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Workflow {
+    /** Name of the workflow **/
+    private String name;
     /** Description of the workflow. */
     private String description;
     /** Additional metadata for the workflow. */
@@ -25,4 +28,11 @@ public class Workflow {
     private List<PreconditionDefinition> preconditions;
     /** Initial steps of the workflow. */
     private Map<String, WorkflowStep> steps;
+
+    public void addStep(WorkflowStep step) {
+        if (steps == null) {
+            steps = new HashMap<>();
+        }
+        steps.put(step.getName(), step);
+    }
 }

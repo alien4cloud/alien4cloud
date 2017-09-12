@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.collect.Sets;
@@ -96,7 +98,7 @@ public class StateSequenceValidation implements Rule {
         }
         List<AbstractWorkflowError> errors = Lists.newArrayList();
         List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(workflow);
-        Map<String, Map<NodeActivityStep, Set<Path>>> pathsPerNodePerStepMap = getPathsPerNodePerStepMap(paths);
+        Map<String, Map<WorkflowStep, Set<Path>>> pathsPerNodePerStepMap = getPathsPerNodePerStepMap(paths);
         Map<String, Set<Path>> pathsPerNodeMap = getPathsPerNodeIntersectionMap(pathsPerNodePerStepMap);
         // now we have to ensure that for the remaining paths, the order is correct between steps
         for (Entry<String, Set<Path>> pathSetEntry : pathsPerNodeMap.entrySet()) {

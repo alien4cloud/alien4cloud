@@ -11,6 +11,8 @@ import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -18,7 +20,7 @@ import org.yaml.snakeyaml.nodes.Node;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.paas.wf.*;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
@@ -71,8 +73,8 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         instance.setArchiveVersion(archiveRoot.getArchive().getVersion());
 
         // Inputs validation
-        safe(instance.getInputs()).entrySet().stream().forEach(propertyDefinitionPostProcessor);
-        safe(instance.getInputArtifacts()).values().stream().forEach(typeDeploymentArtifactPostProcessor);
+        safe(instance.getInputs()).entrySet().forEach(propertyDefinitionPostProcessor);
+        safe(instance.getInputArtifacts()).values().forEach(typeDeploymentArtifactPostProcessor);
 
         int groupIndex = 0;
         // Groups validation
@@ -86,7 +88,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
             nodeTemplateEntry.getValue().setName(nodeTemplateEntry.getKey());
             nodeTemplatePostProcessor.process(nodeTemplateEntry.getValue());
         }
-        safe(instance.getNodeTemplates()).values().stream().forEach(nodeTemplateRelationshipPostProcessor);
+        safe(instance.getNodeTemplates()).values().forEach(nodeTemplateRelationshipPostProcessor);
 
         substitutionMappingPostProcessor.process(instance.getSubstitutionMapping());
 
@@ -125,14 +127,13 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         }
         normalizeWorkflowNames(topologyContext.getTopology().getWorkflows());
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
-            wf.setStandard(WorkflowUtils.isStandardWorkflow(wf));
             if (wf.getSteps() != null) {
-                for (AbstractStep step : wf.getSteps().values()) {
-                    if (step.getFollowingSteps() != null) {
-                        Iterator<String> followingIds = step.getFollowingSteps().iterator();
+                for (WorkflowStep step : wf.getSteps().values()) {
+                    if (step.getOnSuccess() != null) {
+                        Iterator<String> followingIds = step.getOnSuccess().iterator();
                         while (followingIds.hasNext()) {
                             String followingId = followingIds.next();
-                            AbstractStep followingStep = wf.getSteps().get(followingId);
+                            WorkflowStep followingStep = wf.getSteps().get(followingId);
                             if (followingStep == null) {
                                 followingIds.remove();
                                 ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNWON_WORKFLOW_STEP,
@@ -140,14 +141,6 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                             } else {
                                 followingStep.addPreceding(step.getName());
                             }
-                        }
-                    }
-                    if (step instanceof NodeActivityStep) {
-                        AbstractActivity activity = ((NodeActivityStep) step).getActivity();
-                        if (activity == null) {
-                            // add an error ?
-                        } else {
-                            activity.setNodeId(((NodeActivityStep) step).getNodeId());
                         }
                     }
                 }
@@ -176,9 +169,8 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                 wf.setName(newName);
                 workflows.put(newName, wf);
                 Node node = ParsingContextExecution.getObjectToNodeMap().get(oldName);
-                ParsingContextExecution.getParsingErrors().add(
-                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NAME, "Workflow", node.getStartMark(), oldName, node.getEndMark(),
-                                newName));
+                ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NAME, "Workflow",
+                        node.getStartMark(), oldName, node.getEndMark(), newName));
             }
         }
     }
