@@ -1,13 +1,19 @@
 package org.alien4cloud.tosca.model.workflow;
 
+import java.util.List;
+import java.util.Set;
+
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.conditions.AbstractConditionClause;
 
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A step in the workflow.
  */
+@Getter
+@Setter
 public class WorkflowStep {
     /** The target of the step (this can be a node template name, a group name). */
     private String target;
@@ -23,7 +29,7 @@ public class WorkflowStep {
     /** The list of activities to call in a sequence as part of that workflow step. */
     private List<AbstractWorkflowActivity> activities;
     /** The steps to trigger (in parallel if multiple) if the workflow step has been executed correctly. */
-    private List<WorkflowStep> onSuccess;
+    private Set<String> onSuccess;
     /** The steps to trigger (in parallel if multiple) if the workflow step has failed. */
-    private List<WorkflowStep> onFailure;
+    private Set<String> onFailure;
 }

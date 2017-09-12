@@ -2,9 +2,14 @@ package org.alien4cloud.tosca.model.workflow.conditions;
 
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Definition of a precondition that must be valid for a workflow or sub-workflow to be executed.
  */
+@Getter
+@Setter
 public class PreconditionDefinition {
     /** The target of the precondition (this can be a node template name, a group name). */
     private String target;

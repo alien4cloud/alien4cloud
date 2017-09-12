@@ -9,5 +9,5 @@ package org.alien4cloud.tosca.model.workflow.activities;
  * <li>Inline another workflow defined in the topology (to allow reusability)</li>
  * </ul>
  */
-public class AbstractWorkflowActivity {
+public abstract class AbstractWorkflowActivity {
 }
