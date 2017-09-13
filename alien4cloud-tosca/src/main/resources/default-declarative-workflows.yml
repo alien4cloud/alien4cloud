@@ -2,6 +2,9 @@
 # In the future when Tosca DSL for declarative workflow is defined, then it can be parsed and fill this configuration object
 node_workflows:
   install:
+    # If we join state and operation dependencies, we have a node workflow
+    # initial -> creating -> create -> created -> configuring -> configure -> configured -> starting -> start -> started
+
     # all set-state steps that should be created for the install workflow
     states:
       initial:
@@ -39,6 +42,9 @@ node_workflows:
         following_state: started
         operation_host: SELF
   uninstall:
+    # If we join state and operation dependencies, we have a node workflow
+    # stopping -> stop -> stopped -> deleting -> delete -> deleted
+
     # all set-state steps that should be created for the uninstall workflow
     states:
       stopping:
@@ -64,6 +70,10 @@ node_workflows:
 
 relationship_workflows:
   install:
+    # If we join all source and operation dependencies, we have a disjoint relationship workflow
+    # source.created -> pre_configure_source -> source.configure -> post_configure_source -> source.start -> source.started -> add_target
+    # target.created -> pre_configure_target -> target.configure -> target.configured -> post_configure_target -> target.start -> add_source
+
     # all call-operation steps that should be created for the install workflow
     operations:
       pre_configure_source:
@@ -101,6 +111,10 @@ relationship_workflows:
           preceding_state: started
         operation_host: SOURCE
   uninstall:
+    # If we join all source and operation dependencies, we have a disjoint relationship workflow
+    # remove_source -> target.stop
+    # remove_target -> source.stop
+
     operations:
       remove_source:
         # remove_source -> target.stop

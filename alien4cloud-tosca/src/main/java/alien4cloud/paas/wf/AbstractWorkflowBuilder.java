@@ -39,7 +39,7 @@ public abstract class AbstractWorkflowBuilder {
             throw new InconsistentWorkflowException(
                     String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", to));
         }
-        fromStep.getFollowingSteps().remove(to);
+        fromStep.getOnSuccess().remove(to);
         toStep.getPrecedingSteps().remove(from);
     }
 
@@ -140,7 +140,7 @@ public abstract class AbstractWorkflowBuilder {
      * @param before if true, the step will be added before the relatedStepId
      * @param activity
      */
-    public void addActivity(Workflow wf, String relatedStepId, boolean before, AbstractActivity activity, TopologyContext topologyContext) {
+    public void addActivity(Workflow wf, String relatedStepId, boolean before, AbstractWorkflowActivity activity, TopologyContext topologyContext) {
         if (WorkflowUtils.isNativeOrSubstitutionNode(activity.getNodeId(), topologyContext)) {
             throw new BadWorkflowOperationException("Activity can not be added for abstract nodes");
         }

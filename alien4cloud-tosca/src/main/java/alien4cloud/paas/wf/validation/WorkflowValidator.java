@@ -3,9 +3,9 @@ package alien4cloud.paas.wf.validation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 
 @Component
@@ -15,23 +15,21 @@ public class WorkflowValidator {
 
     public WorkflowValidator() {
         super();
-        rules = new ArrayList<Rule>();
+        rules = new ArrayList<>();
         rules.add(new CycleDetection());
         rules.add(new StateSequenceValidation());
         rules.add(new NodeValidation());
     }
 
-    public int validate(TopologyContext topologyContext, Workflow workflow) {
-        workflow.clearErrors();
-        int errorCount = 0;
+    public List<AbstractWorkflowError> validate(TopologyContext topologyContext, Workflow workflow) {
+        List<AbstractWorkflowError> allErrors = new ArrayList<>();
         for (Rule rule : rules) {
             List<AbstractWorkflowError> errors = rule.validate(topologyContext, workflow);
             if (errors != null) {
-                workflow.addErrors(errors);
-                errorCount += errors.size();
+                allErrors.addAll(errors);
             }
         }
-        return errorCount;
+        return allErrors;
     }
 
 }

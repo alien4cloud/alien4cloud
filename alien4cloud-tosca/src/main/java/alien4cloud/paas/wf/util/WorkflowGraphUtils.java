@@ -5,20 +5,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.elasticsearch.common.collect.Lists;
 
-import alien4cloud.paas.wf.AbstractStep;
 import alien4cloud.paas.wf.Path;
-import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
 
 public class WorkflowGraphUtils {
 
-    public static AbstractStep getRequiredStep(Workflow workflow, String stepId) {
+    public static WorkflowStep getRequiredStep(Workflow workflow, String stepId) {
         if (workflow.getSteps() == null) {
             throw new InconsistentWorkflowException("The workflow doesn't contain any steps");
         }
-        AbstractStep step = workflow.getSteps().get(stepId);
+        WorkflowStep step = workflow.getSteps().get(stepId);
         if (step == null) {
             throw new InconsistentWorkflowException(String.format("The workflow doesn't contains the expected step <%s> !", stepId));
         }
@@ -34,10 +34,10 @@ public class WorkflowGraphUtils {
         // the result
         List<Path> allPaths = new ArrayList<Path>();
         // find the entry steps
-        Set<AbstractStep> graphEntries = getGraphEntrySteps(workflow);
+        Set<WorkflowStep> graphEntries = getGraphEntrySteps(workflow);
         // all the steps: this set will be cleared while browsing the graph and will able us to detect orphans
-        Set<AbstractStep> allSteps = new HashSet<AbstractStep>(workflow.getSteps().values());
-        for (AbstractStep graphEntry : graphEntries) {
+        Set<WorkflowStep> allSteps = new HashSet<WorkflowStep>(workflow.getSteps().values());
+        for (WorkflowStep graphEntry : graphEntries) {
             List<Path> initialPaths = new ArrayList<Path>();
             // we have 1 initial path : it's the 'start'
             Path startPath = new Path();
@@ -47,7 +47,7 @@ public class WorkflowGraphUtils {
         while (!allSteps.isEmpty()) {
             // we have orphans steps that are not on any path, in cycles
             // so just peek the first one, and build paths until this set is empty
-            AbstractStep step = allSteps.iterator().next();
+            WorkflowStep step = allSteps.iterator().next();
             List<Path> initialPaths = new ArrayList<Path>();
             // initial path
             Path startPath = new Path();
@@ -60,8 +60,9 @@ public class WorkflowGraphUtils {
     /**
      * TODO: is this a tail recursive fn ?
      */
-    private static void recursivelyPopulatePaths(Workflow workflow, List<Path> allPaths, List<Path> predecessors, AbstractStep step, Set<AbstractStep> allSteps) {
-        boolean stepHasFollowers = step.getFollowingSteps() != null && !step.getFollowingSteps().isEmpty();
+    private static void recursivelyPopulatePaths(Workflow workflow, List<Path> allPaths, List<Path> predecessors, WorkflowStep step,
+            Set<WorkflowStep> allSteps) {
+        boolean stepHasFollowers = step.getOnSuccess() != null && !step.getOnSuccess().isEmpty();
         for (Path path : predecessors) {
             if (path.contains(step)) {
                 // the step is already in one of it's parent path, we have a cycle
@@ -79,8 +80,8 @@ public class WorkflowGraphUtils {
             }
         }
         if (stepHasFollowers) {
-            for (String followingId : step.getFollowingSteps()) {
-                AbstractStep followingStep = WorkflowGraphUtils.getRequiredStep(workflow, followingId);
+            for (String followingId : step.getOnSuccess()) {
+                WorkflowStep followingStep = WorkflowGraphUtils.getRequiredStep(workflow, followingId);
                 List<Path> followersPredecessors = Lists.newArrayList();
                 for (Path path : predecessors) {
                     if (!path.isCycle()) {
@@ -98,9 +99,9 @@ public class WorkflowGraphUtils {
     /**
      * The graph entry is the lists of steps that haven't predecessor: these steps are de-facto connected to 'start'.
      */
-    public static Set<AbstractStep> getGraphEntrySteps(Workflow workflow) {
-        Set<AbstractStep> entries = new HashSet<AbstractStep>();
-        for (AbstractStep step : workflow.getSteps().values()) {
+    public static Set<WorkflowStep> getGraphEntrySteps(Workflow workflow) {
+        Set<WorkflowStep> entries = new HashSet<>();
+        for (WorkflowStep step : workflow.getSteps().values()) {
             if (step.getPrecedingSteps() == null || step.getPrecedingSteps().isEmpty()) {
                 entries.add(step);
             }

@@ -15,6 +15,7 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.paas.wf.validation.AbstractWorkflowError;
 import alien4cloud.paas.wf.validation.WorkflowValidator;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.WorkflowTask;
@@ -36,21 +38,6 @@ public class WorkflowsBuilderService {
     private ICSARRepositorySearchService csarRepoSearchService;
 
     @Resource
-    private InstallWorkflowBuilder installWorkflowBuilder;
-
-    @Resource
-    private UninstallWorkflowBuilder uninstallWorkflowBuilder;
-
-    @Resource
-    private StartWorkflowBuilder startWorkflowBuilder;
-
-    @Resource
-    private StopWorkflowBuilder stopWorkflowBuilder;
-
-    @Resource
-    private CustomWorkflowBuilder customWorkflowBuilder;
-
-    @Resource
     private WorkflowValidator workflowValidator;
 
     public TopologyContext initWorkflows(TopologyContext topologyContext) {
@@ -61,28 +48,24 @@ public class WorkflowsBuilderService {
         }
         if (!wfs.containsKey(INSTALL)) {
             Workflow install = new Workflow();
-            install.setStandard(true);
             install.setName(INSTALL);
             wfs.put(INSTALL, install);
             reinitWorkflow(INSTALL, topologyContext);
         }
         if (!wfs.containsKey(UNINSTALL)) {
             Workflow uninstall = new Workflow();
-            uninstall.setStandard(true);
             uninstall.setName(UNINSTALL);
             wfs.put(UNINSTALL, uninstall);
             reinitWorkflow(UNINSTALL, topologyContext);
         }
         if (!wfs.containsKey(START)) {
             Workflow install = new Workflow();
-            install.setStandard(true);
             install.setName(START);
             wfs.put(START, install);
             reinitWorkflow(START, topologyContext);
         }
         if (!wfs.containsKey(STOP)) {
             Workflow uninstall = new Workflow();
-            uninstall.setStandard(true);
             uninstall.setName(STOP);
             wfs.put(STOP, uninstall);
             reinitWorkflow(STOP, topologyContext);
@@ -94,7 +77,6 @@ public class WorkflowsBuilderService {
         String workflowName = getWorkflowName(topology, name, 0);
         Workflow wf = new Workflow();
         wf.setName(workflowName);
-        wf.setStandard(false);
         Map<String, Workflow> wfs = topology.getWorkflows();
         if (wfs == null) {
             wfs = Maps.newLinkedHashMap();
@@ -124,7 +106,7 @@ public class WorkflowsBuilderService {
         }
     }
 
-    public int validateWorkflow(TopologyContext topologyContext, Workflow workflow) {
+    public List<AbstractWorkflowError> validateWorkflow(TopologyContext topologyContext, Workflow workflow) {
         return workflowValidator.validate(topologyContext, workflow);
     }
 
@@ -210,18 +192,8 @@ public class WorkflowsBuilderService {
     }
 
     private AbstractWorkflowBuilder getWorkflowBuilder(Workflow workflow) {
-        if (workflow.isStandard()) {
-            if (workflow.getName().equals(INSTALL)) {
-                return installWorkflowBuilder;
-            } else if (workflow.getName().equals(UNINSTALL)) {
-                return uninstallWorkflowBuilder;
-            } else if (workflow.getName().equals(START)) {
-                return startWorkflowBuilder;
-            } else if (workflow.getName().equals(STOP)) {
-                return stopWorkflowBuilder;
-            }
-        }
-        return customWorkflowBuilder;
+        // FIXME Build the workflow builder from declarative workflow configuration
+        return null;
     }
 
     public Workflow removeStep(Topology topology, String workflowName, String stepId, boolean force) {
@@ -252,7 +224,7 @@ public class WorkflowsBuilderService {
         return wf;
     }
 
-    public Workflow addActivity(Topology topology, String workflowName, String relatedStepId, boolean before, AbstractActivity activity) {
+    public Workflow addActivity(Topology topology, String workflowName, String relatedStepId, boolean before, AbstractWorkflowActivity activity) {
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
