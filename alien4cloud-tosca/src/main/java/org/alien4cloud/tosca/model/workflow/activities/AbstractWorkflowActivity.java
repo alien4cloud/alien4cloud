@@ -1,5 +1,8 @@
 package org.alien4cloud.tosca.model.workflow.activities;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * A workflow activity defines an operation to be performed in a TOSCA workflow. Activities allows to:
  * <ul>
@@ -9,5 +12,12 @@ package org.alien4cloud.tosca.model.workflow.activities;
  * <li>Inline another workflow defined in the topology (to allow reusability)</li>
  * </ul>
  */
+@Getter
+@Setter
 public abstract class AbstractWorkflowActivity {
+
+    /**
+     * The target node of the activity, this is a non tosca field to facilitate integration with Alien4Cloud
+     */
+    private String target;
 }

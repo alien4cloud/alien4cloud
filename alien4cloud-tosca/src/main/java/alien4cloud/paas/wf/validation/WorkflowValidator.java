@@ -21,15 +21,17 @@ public class WorkflowValidator {
         rules.add(new NodeValidation());
     }
 
-    public List<AbstractWorkflowError> validate(TopologyContext topologyContext, Workflow workflow) {
-        List<AbstractWorkflowError> allErrors = new ArrayList<>();
+    public int validate(TopologyContext topologyContext, Workflow workflow) {
+        workflow.clearErrors();
+        int errorCount = 0;
         for (Rule rule : rules) {
             List<AbstractWorkflowError> errors = rule.validate(topologyContext, workflow);
             if (errors != null) {
-                allErrors.addAll(errors);
+                workflow.addErrors(errors);
+                errorCount += errors.size();
             }
         }
-        return allErrors;
+        return errorCount;
     }
 
 }

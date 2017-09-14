@@ -2,14 +2,14 @@ package org.alien4cloud.tosca.editor.processors.workflow;
 
 import javax.inject.Inject;
 
-import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.AbstractWorkflowOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
-
 import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.paas.wf.Workflow;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+
 import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 
 /**
  * Abstract processor to get a workflow.
@@ -33,7 +33,7 @@ public abstract class AbstractWorkflowProcessor<T extends AbstractWorkflowOperat
      * @param workflow
      */
     protected void ensureNotStandard(Workflow workflow, String message) {
-        if (workflow.isStandard()) {
+        if (workflowBuilderService.isStandard(workflow.getName())) {
             throw new BadWorkflowOperationException(message);
         }
     }
@@ -47,7 +47,7 @@ public abstract class AbstractWorkflowProcessor<T extends AbstractWorkflowOperat
      * @param message Message for the exception to throw
      */
     protected void ensureStandard(Workflow workflow, String message) {
-        if (!workflow.isStandard()) {
+        if (!workflowBuilderService.isStandard(workflow.getName())) {
             throw new BadWorkflowOperationException(message);
         }
     }

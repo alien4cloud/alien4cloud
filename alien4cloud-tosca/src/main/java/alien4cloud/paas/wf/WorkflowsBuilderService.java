@@ -5,9 +5,11 @@ import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameCon
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -16,6 +18,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
@@ -24,10 +27,10 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.paas.wf.util.WorkflowUtils;
-import alien4cloud.paas.wf.validation.AbstractWorkflowError;
 import alien4cloud.paas.wf.validation.WorkflowValidator;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.WorkflowTask;
+import alien4cloud.utils.YamlParserUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -39,6 +42,18 @@ public class WorkflowsBuilderService {
 
     @Resource
     private WorkflowValidator workflowValidator;
+
+    private DefaultDeclarativeWorkflows defaultDeclarativeWorkflows;
+
+    @PostConstruct
+    public void loadDefaultDeclarativeWorkflows() throws IOException {
+        this.defaultDeclarativeWorkflows = YamlParserUtil.parse(
+                DefaultDeclarativeWorkflows.class.getClassLoader().getResourceAsStream("default-declarative-workflows.yml"), DefaultDeclarativeWorkflows.class);
+    }
+
+    public boolean isStandard(String workflowName) {
+        return this.defaultDeclarativeWorkflows.getNodeWorkflows().keySet().contains(workflowName);
+    }
 
     public TopologyContext initWorkflows(TopologyContext topologyContext) {
         Map<String, Workflow> wfs = topologyContext.getTopology().getWorkflows();
@@ -106,7 +121,7 @@ public class WorkflowsBuilderService {
         }
     }
 
-    public List<AbstractWorkflowError> validateWorkflow(TopologyContext topologyContext, Workflow workflow) {
+    public int validateWorkflow(TopologyContext topologyContext, Workflow workflow) {
         return workflowValidator.validate(topologyContext, workflow);
     }
 
@@ -274,7 +289,7 @@ public class WorkflowsBuilderService {
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
-        if (!wf.isStandard()) {
+        if (!isStandard(workflowName)) {
             throw new BadWorkflowOperationException(String.format("Reinit can not be performed on non standard workflow '%s'", workflowName));
         }
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);

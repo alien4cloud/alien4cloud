@@ -18,10 +18,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class WorkflowStep {
-    /**
-     * The id / name of the step in the workflow
-     */
-    private String name;
     /** The target of the step (this can be a node template name, a group name). */
     private String target;
     /**
@@ -40,8 +36,18 @@ public class WorkflowStep {
     /** The steps to trigger (in parallel if multiple) if the workflow step has failed. */
     private Set<String> onFailure;
 
+    /*
+     * ________________________________________________________________________________________________
+     * Everything underneath is non tosca, it does exist to facilitate implementation in Alien4Cloud
+     * ________________________________________________________________________________________________
+     */
+
+    /** The id / name of the step in the workflow **/
+    private String name;
     /** The steps that precedes immediately this step in the workflow sequence **/
     private Set<String> precedingSteps;
+    /** The node id of the host where the step will be executed **/
+    private String hostId;
 
     public AbstractWorkflowActivity getActivity() {
         if (activities == null) {
@@ -69,5 +75,20 @@ public class WorkflowStep {
             this.precedingSteps = new HashSet<>();
         }
         this.precedingSteps.add(name);
+    }
+
+    public void removePreceding(String name) {
+        this.precedingSteps.remove(name);
+    }
+
+    public void addFollowing(String name) {
+        if (this.onSuccess == null) {
+            this.onSuccess = new HashSet<>();
+        }
+        this.onSuccess.add(name);
+    }
+
+    public void removeFollowing(String name) {
+        this.onSuccess.remove(name);
     }
 }
