@@ -1,0 +1,8 @@
+int_input: ${int_variable}
+float_input: ${float_variable}
+string_input: ${string_variable}_${float_variable}
+complex_input:
+  sub1: ${sub_complex_variable}
+  sub2:
+    subfield21: ${int_variable}
+  field01: ${string_variable}
