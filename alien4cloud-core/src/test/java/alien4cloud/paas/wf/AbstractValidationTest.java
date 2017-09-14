@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.junit.Before;
 
 import alien4cloud.paas.wf.util.WorkflowUtils;
@@ -25,7 +26,6 @@ public abstract class AbstractValidationTest<R extends Rule> {
     public void prepare() {
         wf = new Workflow();
         wf.setName(INSTALL);
-        wf.setStandard(true);
     }
 
     protected void processValidation(boolean workflowShouldHaveErrors, int errorCount) {

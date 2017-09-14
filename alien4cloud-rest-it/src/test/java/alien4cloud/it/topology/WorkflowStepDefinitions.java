@@ -1,13 +1,16 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Set;
 
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+
 import alien4cloud.it.Context;
-import alien4cloud.paas.wf.AbstractStep;
-import alien4cloud.paas.wf.Workflow;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
@@ -28,8 +31,8 @@ public class WorkflowStepDefinitions {
         RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class, Context.getJsonMapper());
         String workflowName = Context.getInstance().getCurrentWorkflowName();
         Workflow workflow = topologyResponse.getData().getTopology().getWorkflows().get(workflowName);
-        AbstractStep step = workflow.getSteps().get(stepId);
-        Set<String> actualFollowers = step.getFollowingSteps();
+        WorkflowStep step = workflow.getSteps().get(stepId);
+        Set<String> actualFollowers = step.getOnSuccess();
         assertNotNull(actualFollowers);
         assertEquals(followers.size(), actualFollowers.size());
         for (String expectedFollower : followers) {
@@ -45,7 +48,7 @@ public class WorkflowStepDefinitions {
         RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class, Context.getJsonMapper());
         String workflowName = Context.getInstance().getCurrentWorkflowName();
         Workflow workflow = topologyResponse.getData().getTopology().getWorkflows().get(workflowName);
-        AbstractStep step = workflow.getSteps().get(stepId);
+        WorkflowStep step = workflow.getSteps().get(stepId);
         Set<String> actualPredecessors = step.getPrecedingSteps();
         assertNotNull(actualPredecessors);
         assertEquals(predecesors.size(), actualPredecessors.size());
@@ -62,8 +65,8 @@ public class WorkflowStepDefinitions {
         RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class, Context.getJsonMapper());
         String workflowName = Context.getInstance().getCurrentWorkflowName();
         Workflow workflow = topologyResponse.getData().getTopology().getWorkflows().get(workflowName);
-        AbstractStep step = workflow.getSteps().get(stepId);
-        assertTrue(step.getFollowingSteps() == null || step.getFollowingSteps().isEmpty());
+        WorkflowStep step = workflow.getSteps().get(stepId);
+        assertTrue(step.getOnSuccess() == null || step.getOnSuccess().isEmpty());
     }
 
     @Then("^The workflow step \"(.*?)\" has no predecessors$")
@@ -72,7 +75,7 @@ public class WorkflowStepDefinitions {
         RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class, Context.getJsonMapper());
         String workflowName = Context.getInstance().getCurrentWorkflowName();
         Workflow workflow = topologyResponse.getData().getTopology().getWorkflows().get(workflowName);
-        AbstractStep step = workflow.getSteps().get(stepId);
+        WorkflowStep step = workflow.getSteps().get(stepId);
         assertTrue(step.getPrecedingSteps() == null || step.getPrecedingSteps().isEmpty());
     }
 

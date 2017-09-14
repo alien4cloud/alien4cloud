@@ -1,12 +1,14 @@
 package alien4cloud.paas.wf;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.junit.Test;
 
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.paas.wf.validation.StateSequenceValidation;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StateSequenceValidationTest extends AbstractValidationTest<StateSequenceValidation> {
@@ -23,8 +25,8 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void testSimple() {
-        AbstractStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
+        WorkflowStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
         WorkflowUtils.linkSteps(a_ini, a_cre);
         processValidation(false, 0);
     }
@@ -34,8 +36,8 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void testSimpleBadOrderFail() {
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
-        AbstractStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
+        WorkflowStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
         WorkflowUtils.linkSteps(a_cre, a_ini);
         processValidation(true, 1);
     }
@@ -45,8 +47,8 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void testSimple2Nodes() {
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
-        AbstractStep b_ini = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.INITIAL);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
+        WorkflowStep b_ini = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.INITIAL);
         WorkflowUtils.linkSteps(a_cre, b_ini);
         processValidation(false, 0);
     }
@@ -62,8 +64,8 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void testSimpleParallelFail() {
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
-        AbstractStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
+        WorkflowStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
         processValidation(true, 1);
     }
 
@@ -72,9 +74,9 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void testSimpleMixed() {
-        AbstractStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
-        SimpleStep step2 = wf.addStep(new SimpleStep("step2"));
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
+        WorkflowStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
+        WorkflowStep step2 = wf.addStep(new SimpleStep("step2"));
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
         WorkflowUtils.linkSteps(a_ini, step2);
         WorkflowUtils.linkSteps(step2, a_cre);
         processValidation(false, 0);
@@ -91,12 +93,12 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void testComplexe() {
-        SimpleStep step1 = wf.addStep(new SimpleStep("step1"));
-        AbstractStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
-        SimpleStep step2 = wf.addStep(new SimpleStep("step2"));
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
-        SimpleStep step3 = wf.addStep(new SimpleStep("step3"));
-        AbstractStep a_con = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CONFIGURING);
+        WorkflowStep step1 = wf.addStep(new SimpleStep("step1"));
+        WorkflowStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
+        WorkflowStep step2 = wf.addStep(new SimpleStep("step2"));
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
+        WorkflowStep step3 = wf.addStep(new SimpleStep("step3"));
+        WorkflowStep a_con = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CONFIGURING);
         WorkflowUtils.linkSteps(step1, a_ini);
         WorkflowUtils.linkSteps(step1, step2);
         WorkflowUtils.linkSteps(a_ini, a_cre);
@@ -117,12 +119,12 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void testComplexeFailure() {
-        SimpleStep step1 = wf.addStep(new SimpleStep("step1"));
-        AbstractStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
-        SimpleStep step2 = wf.addStep(new SimpleStep("step2"));
-        AbstractStep a_con = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CONFIGURING);
-        SimpleStep step3 = wf.addStep(new SimpleStep("step3"));
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
+        WorkflowStep step1 = wf.addStep(new SimpleStep("step1"));
+        WorkflowStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
+        WorkflowStep step2 = wf.addStep(new SimpleStep("step2"));
+        WorkflowStep a_con = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CONFIGURING);
+        WorkflowStep step3 = wf.addStep(new SimpleStep("step3"));
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATING);
         WorkflowUtils.linkSteps(step1, a_ini);
         WorkflowUtils.linkSteps(step1, step2);
         WorkflowUtils.linkSteps(a_ini, a_con);
@@ -143,12 +145,12 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void testComplexe2Nodes() {
-        AbstractStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep a_con = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CONFIGURED);
-        AbstractStep a_sta = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.STARTED);
-        AbstractStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
-        AbstractStep b_sta = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.STARTED);
+        WorkflowStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep a_con = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CONFIGURED);
+        WorkflowStep a_sta = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.STARTED);
+        WorkflowStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
+        WorkflowStep b_sta = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.STARTED);
         WorkflowUtils.linkSteps(a_cre, a_con);
         WorkflowUtils.linkSteps(a_con, a_sta);
         WorkflowUtils.linkSteps(b_cre, b_con);
@@ -166,10 +168,10 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void testParallel() {
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
-        AbstractStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep b_sta = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.STARTED);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
+        WorkflowStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep b_sta = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.STARTED);
         WorkflowUtils.linkSteps(a_cre, b_con);
         WorkflowUtils.linkSteps(b_cre, b_sta);
         processValidation(true, 1);
@@ -186,10 +188,10 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test()
     public void test3() {
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
-        AbstractStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep b_sta = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.STARTED);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
+        WorkflowStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep b_sta = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.STARTED);
         WorkflowUtils.linkSteps(a_cre, b_con);
         WorkflowUtils.linkSteps(b_cre, b_sta);
         WorkflowUtils.linkSteps(b_cre, b_con);
@@ -208,10 +210,10 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void test33() {
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
-        AbstractStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep b_sta = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.STARTED);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
+        WorkflowStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep b_sta = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.STARTED);
         WorkflowUtils.linkSteps(a_cre, b_con);
         WorkflowUtils.linkSteps(b_cre, b_sta);
         WorkflowUtils.linkSteps(b_cre, b_con);
@@ -229,10 +231,10 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test
     public void test2errors() {
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
-        AbstractStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep b_init = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.INITIAL);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep a_ini = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.INITIAL);
+        WorkflowStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep b_init = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.INITIAL);
         WorkflowUtils.linkSteps(a_cre, a_ini);
         WorkflowUtils.linkSteps(b_cre, b_init);
         WorkflowUtils.linkSteps(b_cre, a_ini);
@@ -250,10 +252,10 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test()
     public void test333() {
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep a_con = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CONFIGURED);
-        AbstractStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep a_con = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CONFIGURED);
+        WorkflowStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
         WorkflowUtils.linkSteps(a_cre, a_con);
         WorkflowUtils.linkSteps(b_cre, b_con);
         WorkflowUtils.linkSteps(b_cre, a_con);
@@ -271,11 +273,11 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
      */
     @Test()
     public void test3333() {
-        AbstractStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep a_con = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CONFIGURED);
-        AbstractStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
-        AbstractStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
-        AbstractStep b_sta = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.STARTED);
+        WorkflowStep a_cre = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep a_con = buildStateStep(wf, "nodeA", ToscaNodeLifecycleConstants.CONFIGURED);
+        WorkflowStep b_cre = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CREATED);
+        WorkflowStep b_con = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.CONFIGURED);
+        WorkflowStep b_sta = buildStateStep(wf, "nodeB", ToscaNodeLifecycleConstants.STARTED);
         WorkflowUtils.linkSteps(a_cre, a_con);
         WorkflowUtils.linkSteps(b_cre, b_con);
         WorkflowUtils.linkSteps(b_cre, a_con);
@@ -284,11 +286,11 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
         processValidation(false, 0);
     }
 
-    private NodeActivityStep buildStateStep(Workflow wf, String nodeId, String stateName) {
-        NodeActivityStep step = new NodeActivityStep();
-        step.setNodeId(nodeId);
-        SetStateActivity activity = new SetStateActivity();
-        activity.setNodeId(nodeId);
+    private WorkflowStep buildStateStep(Workflow wf, String nodeId, String stateName) {
+        WorkflowStep step = new WorkflowStep();
+        step.setTarget(nodeId);
+        SetStateWorkflowActivity activity = new SetStateWorkflowActivity();
+        activity.setTarget(nodeId);
         activity.setStateName(stateName);
         step.setActivity(activity);
         step.setName(WorkflowUtils.buildStepName(wf, step, 0));

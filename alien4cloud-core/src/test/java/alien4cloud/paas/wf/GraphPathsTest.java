@@ -4,6 +4,8 @@ import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameCon
 
 import java.util.List;
 
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.junit.Test;
 
 import alien4cloud.paas.wf.util.WorkflowGraphUtils;
@@ -20,10 +22,9 @@ public class GraphPathsTest {
     @Test
     public void test1() {
         Workflow wf = new Workflow();
-        wf.setStandard(true);
         wf.setName(INSTALL);
-        AbstractStep a = wf.addStep(new SimpleStep("a"));
-        AbstractStep b = wf.addStep(new SimpleStep("b"));
+        WorkflowStep a = wf.addStep(new SimpleStep("a"));
+        WorkflowStep b = wf.addStep(new SimpleStep("b"));
         WorkflowUtils.linkSteps(a, b);
         List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(wf);
         log.info(paths.toString());
@@ -36,10 +37,9 @@ public class GraphPathsTest {
     @Test
     public void test2() {
         Workflow wf = new Workflow();
-        wf.setStandard(true);
         wf.setName(INSTALL);
-        AbstractStep a = wf.addStep(new SimpleStep("a"));
-        AbstractStep b = wf.addStep(new SimpleStep("b"));
+        WorkflowStep a = wf.addStep(new SimpleStep("a"));
+        WorkflowStep b = wf.addStep(new SimpleStep("b"));
         List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(wf);
         log.info(paths.toString());
     }
@@ -56,11 +56,10 @@ public class GraphPathsTest {
     @Test
     public void test23() {
         Workflow wf = new Workflow();
-        wf.setStandard(true);
         wf.setName(INSTALL);
-        AbstractStep a = wf.addStep(new SimpleStep("a"));
-        AbstractStep b = wf.addStep(new SimpleStep("b"));
-        AbstractStep c = wf.addStep(new SimpleStep("c"));
+        WorkflowStep a = wf.addStep(new SimpleStep("a"));
+        WorkflowStep b = wf.addStep(new SimpleStep("b"));
+        WorkflowStep c = wf.addStep(new SimpleStep("c"));
         WorkflowUtils.linkSteps(a, b);
         WorkflowUtils.linkSteps(a, c);
         List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(wf);
@@ -79,14 +78,13 @@ public class GraphPathsTest {
     @Test
     public void testComplexe() {
         Workflow wf = new Workflow();
-        wf.setStandard(true);
         wf.setName(INSTALL);
-        AbstractStep a = wf.addStep(new SimpleStep("a"));
-        AbstractStep b = wf.addStep(new SimpleStep("b"));
-        AbstractStep c = wf.addStep(new SimpleStep("c"));
-        AbstractStep d = wf.addStep(new SimpleStep("d"));
-        AbstractStep e = wf.addStep(new SimpleStep("e"));
-        AbstractStep f = wf.addStep(new SimpleStep("f"));
+        WorkflowStep a = wf.addStep(new SimpleStep("a"));
+        WorkflowStep b = wf.addStep(new SimpleStep("b"));
+        WorkflowStep c = wf.addStep(new SimpleStep("c"));
+        WorkflowStep d = wf.addStep(new SimpleStep("d"));
+        WorkflowStep e = wf.addStep(new SimpleStep("e"));
+        WorkflowStep f = wf.addStep(new SimpleStep("f"));
         WorkflowUtils.linkSteps(a, b);
         WorkflowUtils.linkSteps(a, c);
         WorkflowUtils.linkSteps(b, d);
@@ -108,10 +106,9 @@ public class GraphPathsTest {
     @Test
     public void testOrphan() {
         Workflow wf = new Workflow();
-        wf.setStandard(true);
         wf.setName(INSTALL);
-        AbstractStep a = wf.addStep(new SimpleStep("a"));
-        AbstractStep b = wf.addStep(new SimpleStep("b"));
+        WorkflowStep a = wf.addStep(new SimpleStep("a"));
+        WorkflowStep b = wf.addStep(new SimpleStep("b"));
         WorkflowUtils.linkSteps(a, b);
         WorkflowUtils.linkSteps(b, a);
         List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(wf);

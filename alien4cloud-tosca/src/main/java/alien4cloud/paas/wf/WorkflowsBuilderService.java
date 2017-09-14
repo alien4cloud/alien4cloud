@@ -62,33 +62,28 @@ public class WorkflowsBuilderService {
             topologyContext.getTopology().setWorkflows(wfs);
         }
         if (!wfs.containsKey(INSTALL)) {
-            Workflow install = new Workflow();
-            install.setName(INSTALL);
-            wfs.put(INSTALL, install);
-            reinitWorkflow(INSTALL, topologyContext);
+            initWorkflow(wfs, INSTALL, topologyContext);
         }
         if (!wfs.containsKey(UNINSTALL)) {
-            Workflow uninstall = new Workflow();
-            uninstall.setName(UNINSTALL);
-            wfs.put(UNINSTALL, uninstall);
-            reinitWorkflow(UNINSTALL, topologyContext);
+            initWorkflow(wfs, UNINSTALL, topologyContext);
         }
         if (!wfs.containsKey(START)) {
-            Workflow install = new Workflow();
-            install.setName(START);
-            wfs.put(START, install);
-            reinitWorkflow(START, topologyContext);
+            initWorkflow(wfs, START, topologyContext);
         }
         if (!wfs.containsKey(STOP)) {
-            Workflow uninstall = new Workflow();
-            uninstall.setName(STOP);
-            wfs.put(STOP, uninstall);
-            reinitWorkflow(STOP, topologyContext);
+            initWorkflow(wfs, STOP, topologyContext);
         }
         return topologyContext;
     }
 
-    public Workflow ceateWorkflow(Topology topology, String name) {
+    private void initWorkflow(Map<String, Workflow> wfs, String name, TopologyContext topologyContext) {
+        Workflow install = new Workflow();
+        install.setName(name);
+        wfs.put(name, install);
+        reinitWorkflow(name, topologyContext);
+    }
+
+    public Workflow createWorkflow(Topology topology, String name) {
         String workflowName = getWorkflowName(topology, name, 0);
         Workflow wf = new Workflow();
         wf.setName(workflowName);

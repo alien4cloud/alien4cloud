@@ -261,16 +261,16 @@ public abstract class AbstractWorkflowBuilder {
      * TODO : a better implem should be to just remove the links that rely to this relationship. But to do this, we have to associate the link with the
      * relationship (when the link is created consecutively to a relationship add).
      * 
-     * @param wf
-     * @param relationhipTarget
+     * @param wf the workflow
+     * @param relationshipTarget the relationship to remove
      */
-    public void removeRelationship(Workflow wf, String nodeId, String relationhipTarget) {
+    public void removeRelationship(Workflow wf, String nodeId, String relationshipTarget) {
         for (WorkflowStep step : wf.getSteps().values()) {
             if (step.getTarget().equals(nodeId)) {
                 if (step.getOnSuccess() != null) {
                     for (String followingId : step.getOnSuccess()) {
                         WorkflowStep followingStep = wf.getSteps().get(followingId);
-                        if (followingStep.getTarget().equals(relationhipTarget)) {
+                        if (followingStep.getTarget().equals(relationshipTarget)) {
                             unlinkSteps(step, followingStep);
                         }
                     }
@@ -278,7 +278,7 @@ public abstract class AbstractWorkflowBuilder {
                 if (step.getPrecedingSteps() != null) {
                     for (String precedingId : step.getPrecedingSteps()) {
                         WorkflowStep precedingStep = wf.getSteps().get(precedingId);
-                        if (precedingStep.getTarget().equals(relationhipTarget)) {
+                        if (precedingStep.getTarget().equals(relationshipTarget)) {
                             unlinkSteps(precedingStep, step);
                         }
                     }

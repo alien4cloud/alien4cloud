@@ -13,6 +13,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -140,6 +141,14 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                                         null, node.getStartMark(), null, node.getEndMark(), followingId));
                             } else {
                                 followingStep.addPreceding(step.getName());
+                            }
+                            if (StringUtils.isEmpty(step.getTargetRelationship())) {
+                                AbstractWorkflowActivity activity = step.getActivity();
+                                if (activity == null) {
+                                    // add an error ?
+                                } else {
+                                    activity.setTarget(step.getTarget());
+                                }
                             }
                         }
                     }

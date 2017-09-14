@@ -3,10 +3,10 @@ package org.alien4cloud.tosca.editor.processors.workflow;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.RenameWorkflowOperation;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import lombok.extern.slf4j.Slf4j;
 

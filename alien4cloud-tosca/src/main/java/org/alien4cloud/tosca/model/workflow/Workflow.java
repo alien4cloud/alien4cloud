@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.model.workflow;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,25 +32,23 @@ public class Workflow {
     /** List of preconditions that must be valid so the workflow or sub-workflow is executed. */
     private List<PreconditionDefinition> preconditions;
     /** Initial steps of the workflow. */
-    private Map<String, WorkflowStep> steps;
+    private Map<String, WorkflowStep> steps = new HashMap<>();
 
     /*
      * ________________________________________________________________________________________________
      * Everything underneath is non tosca, it does exist to facilitate implementation in Alien4Cloud
      * ________________________________________________________________________________________________
      */
-    private Set<String> hosts;
-    private List<AbstractWorkflowError> errors;
+    private Set<String> hosts = new HashSet<>();
+    private List<AbstractWorkflowError> errors = new ArrayList<>();
 
-    public void addStep(WorkflowStep step) {
-        if (steps == null) {
-            steps = new HashMap<>();
-        }
+    public WorkflowStep addStep(WorkflowStep step) {
         steps.put(step.getName(), step);
+        return step;
     }
 
     public void clearErrors() {
-        errors = new ArrayList<AbstractWorkflowError>();
+        errors = new ArrayList<>();
     }
 
     public boolean hasErrors() {
@@ -57,10 +56,6 @@ public class Workflow {
     }
 
     public void addErrors(List<AbstractWorkflowError> errorsToAdd) {
-        if (errors == null) {
-            errors = new ArrayList<AbstractWorkflowError>(errorsToAdd);
-        } else {
-            errors.addAll(errorsToAdd);
-        }
+        errors.addAll(errorsToAdd);
     }
 }
