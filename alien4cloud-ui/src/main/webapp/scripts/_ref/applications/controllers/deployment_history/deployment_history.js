@@ -2,22 +2,13 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var states = require('states');
   var _ = require('lodash');
 
-  require('scripts/_ref/applications/controllers/applications_detail_environment_history_detail');
+  require('scripts/deployment/services/deployment_services');
 
-  states.state('applications.detail.environment.history.list', {
-    url: '',
-    templateUrl: 'views/_ref/applications/applications_detail_environment_history.html',
-    controller: 'ApplicationEnvHistoryCtrl',
-  });
-
-  modules.get('a4c-applications').controller('ApplicationEnvHistoryCtrl',
-    ['$scope', '$translate', '$state', 'deploymentServices',
-      function ($scope, $translate, $state, deploymentServices) {
-
-        $scope.now = new Date();
+  modules.get('a4c-applications').controller('DeploymentHistoryCtrl',
+    ['$scope', '$state', 'deploymentServices', 'historyConf',
+      function ($scope, $state, deploymentServices, historyConf) {
 
         function processDeployments(deployments) {
           if (_.defined(deployments)) {
@@ -31,16 +22,15 @@ define(function (require) {
           }
         }
 
-        deploymentServices.get({
-          environmentId: $scope.environment.id,
-          includeSourceSummary: false
-        }, function (result) {
+        $scope.now = new Date();
+
+        deploymentServices.get(historyConf.searchParam, function (result) {
           processDeployments(result.data);
           $scope.deployments = result.data;
         });
 
         var goToDeploymentDetail = function(deployment) {
-          $state.go('applications.detail.environment.history.detail', {
+          $state.go(historyConf.rootState+'.detail', {
             deploymentId: deployment.deployment.id,
             deploymentDTO: deployment
           });

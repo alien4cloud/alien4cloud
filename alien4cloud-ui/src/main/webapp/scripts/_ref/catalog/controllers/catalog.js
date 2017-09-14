@@ -16,7 +16,7 @@ define(function (require) {
   // register catalog root state
   states.state('catalog', {
     url: '/catalog',
-    templateUrl: 'views/_ref/layout/tab_menu_layout.html',
+    templateUrl: 'views/_ref/layout/tab_menu_with_breadcrumbs_layout.html',
     controller: 'LayoutCtrl',
     menu: {
       id: 'menu.catalog',

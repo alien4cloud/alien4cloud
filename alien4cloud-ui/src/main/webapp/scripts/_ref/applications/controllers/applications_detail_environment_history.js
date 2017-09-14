@@ -2,8 +2,7 @@ define(function (require) {
   'use strict';
 
   var states = require('states');
-
-  require('scripts/_ref/applications/controllers/applications_detail_environment_history_list');
+  var regsterDeploymentHistoryStates = require('scripts/_ref/applications/services/deployment_detail_register_service');
 
   states.state('applications.detail.environment.history', {
     url: '/history',
@@ -20,10 +19,10 @@ define(function (require) {
       id: 'applications.detail.environment.history',
       state: 'applications.detail.environment.history',
       key: 'NAVAPPLICATIONS.MENU_HISTORY',
-      icon: '',
       priority: 300
     }
   });
 
-  states.forward('applications.detail.environment.history','applications.detail.environment.history.list');
+  regsterDeploymentHistoryStates('applications.detail.environment.history',function($stateParams) {
+    return {environmentId: $stateParams.environmentId};});
 });
