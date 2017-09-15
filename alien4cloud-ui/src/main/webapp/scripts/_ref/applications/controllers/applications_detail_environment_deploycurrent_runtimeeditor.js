@@ -400,6 +400,18 @@ define(function (require) {
         }, {}, undefined);
       }
     };
+
+    /**
+    * First load. This is necessary if we come on the runtime view state once the application is fully deployed
+    **/
+    var firstLoad = function () {
+      if(_.defined($scope.topology) && _.undefined($scope.topology.instances)){
+        refreshInstancesStatuses();
+        refreshNodeInstanceInMaintenanceMode();
+      }
+    };
+
+    firstLoad();
   }
 ]);
 });
