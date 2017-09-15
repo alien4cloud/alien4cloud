@@ -13,7 +13,7 @@ define(function (require) {
 
   states.state('applications.detail.environment.deploycurrent', {
     url: '/deploy_current',
-    templateUrl: 'views/_ref/applications/applications_detail_environment_deploycurrent.html',
+    templateUrl: 'views/_ref/layout/vertical_menu_left_layout.html',
     controller: 'ApplicationEnvDeployCurrentCtrl',
     menu: {
       id: 'applications.detail.environment.deploycurrent',

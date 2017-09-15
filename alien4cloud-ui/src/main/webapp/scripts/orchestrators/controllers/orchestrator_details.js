@@ -29,7 +29,7 @@ define(function (require) {
         }
       ]
     },
-    templateUrl: 'views/orchestrators/orchestrator_details_layout.html',
+    templateUrl: 'views/_ref/layout/vertical_menu_left_layout.html',
     controller: 'OrchestratorDetailsCtrl'
   });
 
@@ -71,7 +71,7 @@ define(function (require) {
   modules.get('a4c-orchestrators').controller('OrchestratorDetailsInfoCtrl',
     ['$scope', '$uibModal', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'globalRestErrorHandler', 'breadcrumbsService',
     function($scope, $uibModal, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, globalRestErrorHandler, breadcrumbsService) {
-      
+
       breadcrumbsService.putConfig({
         state: 'admin.orchestrators.details.info',
         text: function() {
