@@ -82,3 +82,13 @@
 .progress {
   margin-bottom: 0px;
 }
+
+.drop-box-browse {
+  cursor: pointer;
+  color: #3572b0;
+  font-family: inherit;
+  font-size: inherit;
+}
+.drop-box-browse:hover {
+  text-decoration: underline;
+}

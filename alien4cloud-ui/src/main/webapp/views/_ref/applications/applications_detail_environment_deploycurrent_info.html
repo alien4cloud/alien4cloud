@@ -1,22 +1,22 @@
 <div class="row grp-margin">
     <!-- UNDEPLOY BUTTON -->
-    <button style="margin:20px;"
+    <a style="margin:20px;"
             class="btn btn-danger"
             ng-if="environment.environmentType !== 'PRODUCTION'"
-            ng-disabled="isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])"
+            ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
             ng-click="doUndeploy()">{{'APPLICATIONS.UNDEPLOY' | translate}}
-    </button>
-    <button style="margin:20px;"
+    </a>
+    <a style="margin:20px;"
             class="btn btn-danger"
             ng-if="environment.environmentType === 'PRODUCTION'"
-            ng-disabled="isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])"
+            ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
             confirm="{{ 'APPLICATIONS.UNDEPLOY_CONFIRM' | translate }}"
             confirm-title="{{ 'COMMON.ATTENTION' | translate }}"
             confirm-placement="right"
             confirm-class="popover"
             confirm-handler="doUndeploy()"
             ng-click="$event.stopPropagation();">{{'APPLICATIONS.UNDEPLOY' | translate}}
-    </button>
+    </a>
     <div class="col-md-12">
       <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
         <i class="fa fa-cog"></i> Reminder of current deployment

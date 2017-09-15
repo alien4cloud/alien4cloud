@@ -466,6 +466,7 @@
     "NAME": "Name",
     "NO": "No",
     "NODE": "Node",
+    "OR": "or",
     "PROPERTIES": "Properties",
     "RESOURCES": "Resources",
     "SEARCH": "Search...",
@@ -1187,6 +1188,7 @@
   "TRUE": "True",
   "UPDATE_DATE": "Update date",
   "UPLOAD": {
+    "BROWSE": "browse",
     "COMPLETE": "Complete"
   },
   "USERS": {

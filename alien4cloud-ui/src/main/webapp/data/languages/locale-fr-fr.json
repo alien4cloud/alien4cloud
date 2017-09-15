@@ -466,6 +466,7 @@
     "NAME" : "Nom",
     "NO" : "Non",
     "NODE" : "Noeud",
+    "OR": "ou",
     "PROPERTIES" : "Propriétés",
     "SEARCH": "Rechercher...",
     "SOURCE" : "Source",
@@ -1186,6 +1187,7 @@
   "TRUE" : "Vrai",
   "UPDATE_DATE" : "Date de mise à jour",
   "UPLOAD" : {
+    "BROWSE": "parcourir",
     "COMPLETE" : "Terminé"
   },
   "USERS" : {

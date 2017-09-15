@@ -1,6 +1,13 @@
 <div ng-controller="UploadCtrl">
   <div class="drop-box" ng-show="dropSupported" ngf-drop="uploadCtrl.onFileSelect($files)">
-    <i class="fa fa-file-text"></i> {{ dragAndDropMessage | translate }}
+    <i class="fa fa-file-text"></i> {{ dragAndDropMessage | translate }}, {{'COMMON.OR' | translate}}
+    <label>
+      <span class="drop-box-browse">{{ 'UPLOAD.BROWSE' | translate }}</span>.
+      <input type="file"
+        ngf-select="uploadCtrl.onFileSelect($files)"
+        style="display:none"
+        multiple />
+    </label>
   </div>
 
   <div class="fileUploadBtn btn btn-success" ng-show="!dropSupported" >
