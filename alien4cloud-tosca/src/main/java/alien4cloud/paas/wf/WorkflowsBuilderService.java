@@ -43,16 +43,15 @@ public class WorkflowsBuilderService {
     @Resource
     private WorkflowValidator workflowValidator;
 
+    @Resource
+    private CustomWorkflowBuilder customWorkflowBuilder;
+
     private DefaultDeclarativeWorkflows defaultDeclarativeWorkflows;
 
     @PostConstruct
     public void loadDefaultDeclarativeWorkflows() throws IOException {
         this.defaultDeclarativeWorkflows = YamlParserUtil.parse(
                 DefaultDeclarativeWorkflows.class.getClassLoader().getResourceAsStream("default-declarative-workflows.yml"), DefaultDeclarativeWorkflows.class);
-    }
-
-    public boolean isStandard(String workflowName) {
-        return this.defaultDeclarativeWorkflows.getNodeWorkflows().keySet().contains(workflowName);
     }
 
     public TopologyContext initWorkflows(TopologyContext topologyContext) {
@@ -62,24 +61,25 @@ public class WorkflowsBuilderService {
             topologyContext.getTopology().setWorkflows(wfs);
         }
         if (!wfs.containsKey(INSTALL)) {
-            initWorkflow(wfs, INSTALL, topologyContext);
+            initStandardWorkflow(wfs, INSTALL, topologyContext);
         }
         if (!wfs.containsKey(UNINSTALL)) {
-            initWorkflow(wfs, UNINSTALL, topologyContext);
+            initStandardWorkflow(wfs, UNINSTALL, topologyContext);
         }
         if (!wfs.containsKey(START)) {
-            initWorkflow(wfs, START, topologyContext);
+            initStandardWorkflow(wfs, START, topologyContext);
         }
         if (!wfs.containsKey(STOP)) {
-            initWorkflow(wfs, STOP, topologyContext);
+            initStandardWorkflow(wfs, STOP, topologyContext);
         }
         return topologyContext;
     }
 
-    private void initWorkflow(Map<String, Workflow> wfs, String name, TopologyContext topologyContext) {
-        Workflow install = new Workflow();
-        install.setName(name);
-        wfs.put(name, install);
+    private void initStandardWorkflow(Map<String, Workflow> wfs, String name, TopologyContext topologyContext) {
+        Workflow workflow = new Workflow();
+        workflow.setName(name);
+        workflow.setStandard(true);
+        wfs.put(name, workflow);
         reinitWorkflow(name, topologyContext);
     }
 
@@ -87,6 +87,7 @@ public class WorkflowsBuilderService {
         String workflowName = getWorkflowName(topology, name, 0);
         Workflow wf = new Workflow();
         wf.setName(workflowName);
+        wf.setStandard(false);
         Map<String, Workflow> wfs = topology.getWorkflows();
         if (wfs == null) {
             wfs = Maps.newLinkedHashMap();
@@ -202,26 +203,28 @@ public class WorkflowsBuilderService {
     }
 
     private AbstractWorkflowBuilder getWorkflowBuilder(Workflow workflow) {
-        // FIXME Build the workflow builder from declarative workflow configuration
-        return null;
+        if (workflow.isStandard()) {
+            return new DefaultWorkflowBuilder(defaultDeclarativeWorkflows);
+        } else {
+            return customWorkflowBuilder;
+        }
     }
 
-    public Workflow removeStep(Topology topology, String workflowName, String stepId, boolean force) {
+    public void removeStep(Topology topology, String workflowName, String stepId) {
         TopologyContext topologyContext = buildTopologyContext(topology);
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        builder.removeStep(wf, stepId, force);
+        builder.removeStep(wf, stepId, false);
         if (log.isDebugEnabled()) {
             log.debug(WorkflowUtils.debugWorkflow(wf));
         }
         workflowValidator.validate(topologyContext, wf);
-        return wf;
     }
 
-    public Workflow renameStep(Topology topology, String workflowName, String stepId, String newStepName) {
+    public void renameStep(Topology topology, String workflowName, String stepId, String newStepName) {
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
@@ -231,10 +234,9 @@ public class WorkflowsBuilderService {
         if (log.isDebugEnabled()) {
             log.debug(WorkflowUtils.debugWorkflow(wf));
         }
-        return wf;
     }
 
-    public Workflow addActivity(Topology topology, String workflowName, String relatedStepId, boolean before, AbstractWorkflowActivity activity) {
+    public void addActivity(Topology topology, String workflowName, String relatedStepId, boolean before, AbstractWorkflowActivity activity) {
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
@@ -247,10 +249,9 @@ public class WorkflowsBuilderService {
             log.debug(WorkflowUtils.debugWorkflow(wf));
         }
         workflowValidator.validate(topologyContext, wf);
-        return wf;
     }
 
-    public Workflow swapSteps(Topology topology, String workflowName, String stepId, String targetId) {
+    public void swapSteps(Topology topology, String workflowName, String stepId, String targetId) {
         TopologyContext topologyContext = buildTopologyContext(topology);
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
@@ -263,7 +264,6 @@ public class WorkflowsBuilderService {
             log.debug(WorkflowUtils.debugWorkflow(wf));
         }
         workflowValidator.validate(topologyContext, wf);
-        return wf;
     }
 
     public void renameNode(Topology topology, String nodeTemplateName, String newNodeTemplateName) {
@@ -279,19 +279,18 @@ public class WorkflowsBuilderService {
         }
     }
 
-    public Workflow reinitWorkflow(String workflowName, TopologyContext topologyContext) {
+    public void reinitWorkflow(String workflowName, TopologyContext topologyContext) {
         Workflow wf = topologyContext.getTopology().getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
-        if (!isStandard(workflowName)) {
+        if (!wf.isStandard()) {
             throw new BadWorkflowOperationException(String.format("Reinit can not be performed on non standard workflow '%s'", workflowName));
         }
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
         wf = builder.reinit(wf, topologyContext);
         WorkflowUtils.fillHostId(wf, topologyContext);
         workflowValidator.validate(topologyContext, wf);
-        return wf;
     }
 
     public interface TopologyContext {
@@ -311,7 +310,7 @@ public class WorkflowsBuilderService {
     private class DefaultTopologyContext implements TopologyContext {
         private Topology topology;
 
-        public DefaultTopologyContext(Topology topology) {
+        DefaultTopologyContext(Topology topology) {
             super();
             this.topology = topology;
         }
@@ -332,7 +331,7 @@ public class WorkflowsBuilderService {
 
         private Map<Class<? extends AbstractToscaType>, Map<String, AbstractToscaType>> cache = Maps.newHashMap();
 
-        public CachedTopologyContext(TopologyContext wrapped) {
+        CachedTopologyContext(TopologyContext wrapped) {
             super();
             this.wrapped = wrapped;
         }

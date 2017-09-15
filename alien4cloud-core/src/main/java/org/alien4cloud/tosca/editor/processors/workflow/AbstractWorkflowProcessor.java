@@ -33,7 +33,7 @@ public abstract class AbstractWorkflowProcessor<T extends AbstractWorkflowOperat
      * @param workflow
      */
     protected void ensureNotStandard(Workflow workflow, String message) {
-        if (workflowBuilderService.isStandard(workflow.getName())) {
+        if (workflow.isStandard()) {
             throw new BadWorkflowOperationException(message);
         }
     }
@@ -47,7 +47,7 @@ public abstract class AbstractWorkflowProcessor<T extends AbstractWorkflowOperat
      * @param message Message for the exception to throw
      */
     protected void ensureStandard(Workflow workflow, String message) {
-        if (!workflowBuilderService.isStandard(workflow.getName())) {
+        if (!workflow.isStandard()) {
             throw new BadWorkflowOperationException(message);
         }
     }

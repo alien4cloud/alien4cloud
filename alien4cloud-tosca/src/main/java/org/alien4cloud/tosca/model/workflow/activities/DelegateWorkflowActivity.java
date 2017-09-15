@@ -11,4 +11,9 @@ import lombok.Setter;
 public class DelegateWorkflowActivity extends AbstractWorkflowActivity {
     /** The name of the delegate workflow. */
     private String delegate;
+
+    @Override
+    public String getRepresentation() {
+        return delegate;
+    }
 }

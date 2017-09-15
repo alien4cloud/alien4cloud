@@ -11,4 +11,9 @@ import lombok.Setter;
 public class CallOperationWorkflowActivity extends AbstractWorkflowActivity {
     private String interfaceName;
     private String operationName;
+
+    @Override
+    public String getRepresentation() {
+        return operationName;
+    }
 }

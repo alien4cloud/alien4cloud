@@ -20,7 +20,7 @@ public class RemoveStepProcessor extends AbstractWorkflowProcessor<RemoveStepOpe
     protected void processWorkflowOperation(RemoveStepOperation operation, Workflow workflow) {
         Topology topology = EditionContextManager.getTopology();
         log.debug("removing step <{}> from workflow <{}> from topology <{}>", operation.getStepId(), workflow.getName(), topology.getId());
-        workflowBuilderService.removeStep(topology, workflow.getName(), operation.getStepId(), false);
+        workflowBuilderService.removeStep(topology, workflow.getName(), operation.getStepId());
     }
 
 }

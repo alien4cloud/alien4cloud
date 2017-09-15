@@ -11,4 +11,9 @@ import lombok.Setter;
 public class InlineWorkflowActivity extends AbstractWorkflowActivity {
     /** The name a topology workflow to inline. */
     private String inline;
+
+    @Override
+    public String getRepresentation() {
+        return inline;
+    }
 }

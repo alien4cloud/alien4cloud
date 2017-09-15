@@ -269,6 +269,20 @@ public class WorkflowUtils {
         return step;
     }
 
+    public static WorkflowStep addRelationshipOperationStep(Workflow wf, String nodeId, String relationshipId, String interfaceName, String operationName) {
+        CallOperationWorkflowActivity task = new CallOperationWorkflowActivity();
+        task.setInterfaceName(interfaceName);
+        task.setOperationName(operationName);
+        task.setTarget(nodeId);
+        WorkflowStep step = new WorkflowStep();
+        step.setTarget(nodeId);
+        step.setTargetRelationship(relationshipId);
+        step.setActivity(task);
+        step.setName(buildStepName(wf, step, 0));
+        wf.addStep(step);
+        return step;
+    }
+
     public static WorkflowStep addStateStep(Workflow wf, String nodeId, String stateName) {
         SetStateWorkflowActivity task = new SetStateWorkflowActivity();
         task.setStateName(stateName);

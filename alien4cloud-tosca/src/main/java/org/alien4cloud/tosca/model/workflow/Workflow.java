@@ -39,6 +39,7 @@ public class Workflow {
      * Everything underneath is non tosca, it does exist to facilitate implementation in Alien4Cloud
      * ________________________________________________________________________________________________
      */
+    private boolean isStandard;
     private Set<String> hosts = new HashSet<>();
     private List<AbstractWorkflowError> errors = new ArrayList<>();
 

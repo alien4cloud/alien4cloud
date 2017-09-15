@@ -128,6 +128,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         }
         normalizeWorkflowNames(topologyContext.getTopology().getWorkflows());
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
+            wf.setStandard(WorkflowUtils.isStandardWorkflow(wf));
             if (wf.getSteps() != null) {
                 for (WorkflowStep step : wf.getSteps().values()) {
                     if (step.getOnSuccess() != null) {

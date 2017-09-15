@@ -13,4 +13,8 @@ public class SetStateWorkflowActivity extends AbstractWorkflowActivity {
     /* The new state of the node or relationship */
     private String stateName;
 
+    @Override
+    public String getRepresentation() {
+        return stateName;
+    }
 }

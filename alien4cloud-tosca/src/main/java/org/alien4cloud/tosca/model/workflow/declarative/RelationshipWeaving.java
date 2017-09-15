@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class RelationshipWeaving {
 
-    private Map<String, RelationshipWeavingDependencies> states;
+    private Map<String, OperationDeclarativeWorkflow> states;
 
-    private Map<String, RelationshipWeavingDependencies> operations;
+    private Map<String, OperationDeclarativeWorkflow> operations;
 }

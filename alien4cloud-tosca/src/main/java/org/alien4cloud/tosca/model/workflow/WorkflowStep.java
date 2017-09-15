@@ -8,6 +8,8 @@ import java.util.Set;
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.conditions.AbstractConditionClause;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import alien4cloud.paas.exception.NotSupportedException;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,6 +51,7 @@ public class WorkflowStep {
     /** The node id of the host where the step will be executed **/
     private String hostId;
 
+    @JsonIgnore
     public AbstractWorkflowActivity getActivity() {
         if (activities == null) {
             return null;
@@ -59,6 +62,7 @@ public class WorkflowStep {
         return activities.iterator().next();
     }
 
+    @JsonIgnore
     public void setActivity(AbstractWorkflowActivity activity) {
         if (activities == null) {
             activities = new ArrayList<>();
@@ -66,8 +70,10 @@ public class WorkflowStep {
         activities.add(activity);
     }
 
+    @JsonIgnore
     public String getStepAsString() {
-        return getTarget() + "_" + getActivity();
+        String sid = getTarget() + (getTargetRelationship() != null ? "_" + getTargetRelationship() : "");
+        return sid + "_" + getActivity().getRepresentation();
     }
 
     public void addPreceding(String name) {

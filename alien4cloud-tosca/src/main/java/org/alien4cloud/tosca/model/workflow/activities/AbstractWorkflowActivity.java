@@ -1,5 +1,8 @@
 package org.alien4cloud.tosca.model.workflow.activities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,10 +17,14 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")
 public abstract class AbstractWorkflowActivity {
 
     /**
      * The target node of the activity, this is a non tosca field to facilitate integration with Alien4Cloud
      */
     private String target;
+
+    @JsonIgnore
+    public abstract String getRepresentation();
 }
