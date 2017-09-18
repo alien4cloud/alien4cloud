@@ -17,7 +17,8 @@ define(function (require) {
         'dragAndDropMessage' : '=',
         'buttonMessage' : '=',
         'beforeUploadCallback': '&', // should take two param named 'scope' and 'files'
-        'uploadSuccessCallback': '&'
+        'uploadSuccessCallback': '&',
+        'getWorkspaceSpecifics': '&?' // should take one param named 'scope'
       }
     };
   });
@@ -102,6 +103,11 @@ define(function (require) {
   }]);
 
   modules.get('a4c-common', ['ngFileUpload']).controller('UploadCtrl', [ '$scope', 'Upload', '$q', 'uploadServiceFactory', function($scope, $upload, $q, uploadServiceFactory) {
+
+    if(_.defined($scope.getWorkspaceSpecifics) && _.isFunction($scope.getWorkspaceSpecifics())){
+      $scope.getWorkspaceSpecifics()($scope);
+    }
+
     var uploadService = uploadServiceFactory($scope);
     //build the upload directive data
     function buildUploadData(file) {
@@ -109,7 +115,7 @@ define(function (require) {
 
       //these can be simple values or functions
       var url = angular.isFunction($scope.targetUrl()) ? $scope.targetUrl()() : $scope.targetUrl();
-      var requestData = angular.isFunction($scope.requestData()) ? $scope.requestData()() : $scope.requestData();
+      var requestData = angular.isFunction($scope.requestData()) ? $scope.requestData()($scope) : $scope.requestData();
 
       if(_.defined(url)){
         data.url = url;

@@ -132,12 +132,15 @@ define(function (require) {
       };
 
       //on search completed
-      $scope.onSearchCompleted = function (searchResult) {
-        // inject static facets
-        if (_.defined($scope.staticFacets)) {
-          _.each($scope.staticFacets, function (facet, facetKey) {
-            searchResult.data.facets[facetKey] = facet;
+      $scope.queryManager.onSearchCompleted = function (searchResponse) {
+        if(_.defined(searchResponse.data) ) {
+          // inject static facets
+          _.forEach($scope.staticFacets, function (facet, facetKey) {
+            searchResponse.data.facets[facetKey] = facet;
           });
+          $scope.queryManager.searchResult = searchResponse.data;
+        }else {
+          $scope.queryManager.searchResult = undefined;
         }
       };
 

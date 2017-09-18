@@ -30,8 +30,8 @@ define(function (require) {
     },
   });
 
-  modules.get('a4c-catalog', ['ui.router', 'a4c-auth', 'a4c-common']).controller('ComponentsListCtrl', ['$scope', '$state', 'resizeServices', 'defaultFilters', 'badges', 'breadcrumbsService', '$translate',
-    function ($scope, $state, resizeServices, defaultFilters, badges, breadcrumbsService, $translate) {
+  modules.get('a4c-catalog', ['ui.router', 'a4c-auth', 'a4c-common']).controller('ComponentsListCtrl', ['$scope', '$state', 'resizeServices', 'defaultFilters', 'badges',
+    function ($scope, $state, resizeServices, defaultFilters, badges) {
 
       $scope.defaultFilters = defaultFilters;
       $scope.badges = badges;

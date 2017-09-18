@@ -10,6 +10,8 @@
   <div class="col-md-9">
     <upload-directive
     target-url="'rest/latest/csars'"
+    get-workspace-specifics="getWorkspaceSpecifics"
+    request-data="getRequestData"
     drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
     button-message="'COMPONENTS.UPLOAD'"
     upload-success-callback="uploadSuccessCallback(data)" />
@@ -20,19 +22,9 @@
   <a4c-search query-manager="queryManager"
               search-service="searchService"></a4c-search>
 </div>
-<!-- CSAR search form -->
-  <!-- <div class="col-md-3" id="search-container">
-    <facet-search-panel search-url="rest/latest/csars/search"
-                        page-size="10"
-                        max-page-count="10"
-                        filter-prefix="COMPONENTS.CSAR."
-                        on-search="onSearch(searchConfig)"
-                        static-facets="staticFacets">
-    </facet-search-panel>
-  </div> -->
 
   <!-- CSAR search result display -->
-<div class="grp-margin" id = "result-container">
+<div class="grp-margin" id = "result-container" ng-if = "_.isNotEmpty(queryManager.searchResult.data)">
   <div class="table-responsive large-data-container" id="csars-table">
     <table class="table table-hover table-vertical-center">
       <thead>
@@ -70,19 +62,16 @@
               <i class="fa fa-download"></i>
             </a>
 
+            <ng-include ng-if="archiveWorkspaceTemplateUrl" src="archiveWorkspaceTemplateUrl"></ng-include>
+
             <delete-confirm
-              ng-if="!csar.substitutionTopologyId && writeWorkspaces.indexOf(csar.workspace) >= 0"
+              ng-if="!csar.substitutionTopologyId && _.findIndex(writeWorkspaces, {id:csar.workspace}) >= 0"
               id="delete-csar_{{csar.id}}" func="remove(csar.id);" position="left" bssize="btn-xs" fastyle="fa-trash-o">
             </delete-confirm>
           </td>
         </tr>
       </tbody>
     </table>
-
-    <empty-place-holder
-      data="queryManager.searchResult.data">
-    </empty-place-holder>
-
   </div>
   <pagination-directive pagination-info="searchService.pagination"></pagination-directive>
 </div>

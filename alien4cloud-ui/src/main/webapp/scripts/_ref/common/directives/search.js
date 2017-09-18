@@ -27,10 +27,20 @@ define(function (require) {
     $scope.searchService.filtered(true);
     $scope.searching = false;
     $scope.queryManager.facetFilters = [];
+
+    /*
+    * onSearchCompleted default
+    */
+    var providedOnSearchCompleted = $scope.queryManager.onSearchCompleted;
     $scope.queryManager.onSearchCompleted = function (searchResponse) {
-      $scope.queryManager.searchResult = _.defined(searchResponse.data) ? searchResponse.data : undefined;
+      if(_.isFunction(providedOnSearchCompleted)){
+        providedOnSearchCompleted(searchResponse);
+      }else {
+        $scope.queryManager.searchResult = _.defined(searchResponse.data) ? searchResponse.data : undefined;
+      }
       $scope.searching = false;
     };
+
     $scope.searchPadding = 6;
 
     $scope.searchBoxContent = undefined;
@@ -124,7 +134,7 @@ define(function (require) {
 
     $scope.addFilterValue = function(key, value) {
       var filter = _.get($scope.queryManager, ['filters', key]);
-      if(_.defined(filter)) {
+      if(_.defined(filter) && !_.includes(filter, value)) {
         filter.push(value);
       } else {
         _.set($scope.queryManager, ['filters', key], [value]);

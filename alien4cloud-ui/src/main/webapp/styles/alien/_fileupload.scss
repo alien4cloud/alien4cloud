@@ -11,7 +11,6 @@
 
 .drop-box div {
   position: absolute;
-  top: 47%;
 }
 
 .drop-box-for-image {
@@ -91,4 +90,10 @@
 }
 .drop-box-browse:hover {
   text-decoration: underline;
+}
+
+.drop-box-workspace {
+  color: black;
+  font-size: 15px;
+  font-style: italic;
 }
