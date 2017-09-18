@@ -112,8 +112,10 @@ define(function (require) {
         if (action === 'revoke') {
           request.applicationsToDelete = request.applicationsToAdd;
           request.environmentsToDelete = request.environmentsToAdd;
+          request.environmentTypesToDelete = request.environmentTypesToAdd;
           delete request.applicationsToAdd;
           delete request.environmentsToAdd;
+          delete request.environmentTypesToAdd;
         }
         locationResourcesSecurityService.updateEnvironmentsPerApplicationBatch.grant(_.merge(params, {force:result.force}), angular.toJson(request), function(successResponse) {
           console.log(successResponse);

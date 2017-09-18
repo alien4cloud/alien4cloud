@@ -770,6 +770,7 @@
     "PRODUCTION": "production",
     "USER_ACCEPTANCE_TESTS": "UAT"
   },
+  "ENVIRONMENT_TYPE_ALL": "All environment types",
   "ERRORS": {
     "100": "Authentication required",
     "101": "Authentication error, please check your login and password",

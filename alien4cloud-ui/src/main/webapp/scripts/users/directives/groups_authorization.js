@@ -9,6 +9,7 @@ define(function (require) {
     return {
       templateUrl: 'views/users/groups_authorization_directive.html',
       restrict: 'E',
+      windowClass: 'authorization-modal',
       scope: {
         /*The resource to secure*/
         'resource': '=',

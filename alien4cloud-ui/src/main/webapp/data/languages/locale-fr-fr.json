@@ -770,6 +770,7 @@
     "PRODUCTION" : "production",
     "USER_ACCEPTANCE_TESTS" : "Tests utilisateurs"
   },
+  "ENVIRONMENT_TYPE_ALL": "Tous les types d'environment",
   "ERRORS" : {
     "100" : "Authentification requise",
     "101" : "Erreur d'authentification, vérifiez vos login et mot de passe",
