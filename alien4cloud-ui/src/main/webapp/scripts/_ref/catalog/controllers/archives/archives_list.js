@@ -27,11 +27,11 @@ define(function (require) {
       $scope.writeWorkspaces = [];
       var isComponentManager = authService.hasOneRoleIn(['COMPONENT_MANAGER', 'ARCHITECT']);
       if (isComponentManager === true) {
-        $scope.writeWorkspaces.push('ALIEN_GLOBAL_WORKSPACE');
+        $scope.writeWorkspaces.push({id:'ALIEN_GLOBAL_WORKSPACE'});
       } else if (isComponentManager.hasOwnProperty('then')) {
         isComponentManager.then(function (hasRole) {
           if (hasRole) {
-            $scope.writeWorkspaces.push('ALIEN_GLOBAL_WORKSPACE');
+            $scope.writeWorkspaces.push({id:'ALIEN_GLOBAL_WORKSPACE'});
           }
         });
       }
