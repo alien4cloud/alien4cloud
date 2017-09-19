@@ -2,12 +2,15 @@ package alien4cloud.paas.wf;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity;
@@ -17,6 +20,7 @@ import org.alien4cloud.tosca.model.workflow.declarative.NodeDeclarativeWorkflow;
 import org.alien4cloud.tosca.model.workflow.declarative.OperationDeclarativeWorkflow;
 import org.alien4cloud.tosca.model.workflow.declarative.RelationshipDeclarativeWorkflow;
 import org.alien4cloud.tosca.model.workflow.declarative.RelationshipWeaving;
+import org.alien4cloud.tosca.model.workflow.declarative.RelationshipWeavingDeclarativeWorkflow;
 import org.apache.commons.lang3.StringUtils;
 
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
@@ -113,6 +117,25 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
         }
     }
 
+    private RelationshipWeavingDeclarativeWorkflow getRelationshipWeavingDeclarativeWorkflow(String relationshipTypeName,
+            WorkflowsBuilderService.TopologyContext toscaTypeFinder, String workflowName) {
+        RelationshipType indexedRelationshipType = toscaTypeFinder.findElement(RelationshipType.class, relationshipTypeName);
+        List<String> typesToCheck = new ArrayList<>();
+        typesToCheck.add(indexedRelationshipType.getElementId());
+        if (indexedRelationshipType.getDerivedFrom() != null) {
+            typesToCheck.addAll(indexedRelationshipType.getDerivedFrom());
+        }
+        Map<String, Map<String, RelationshipWeavingDeclarativeWorkflow>> weavingConfigsPerRelationshipType = defaultDeclarativeWorkflows
+                .getRelationshipsWeaving();
+        for (String typeToCheck : typesToCheck) {
+            if (weavingConfigsPerRelationshipType.containsKey(typeToCheck)) {
+                return weavingConfigsPerRelationshipType.get(typeToCheck).get(workflowName);
+            }
+        }
+        // This will never happen if the declarative configuration has tosca.relationships.Root configured
+        throw new IllegalStateException("Default declarative configuration for workflow must have tosca.relationships.Root configured");
+    }
+
     @Override
     public void addRelationship(Workflow wf, String nodeId, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate,
             WorkflowsBuilderService.TopologyContext toscaTypeFinder) {
@@ -136,10 +159,12 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
                     declareStepDependencies(relationshipOperationDependencies.getTarget(), currentStep, targetStateSteps, targetOperationSteps);
                     declareStepDependencies(relationshipOperationDependencies, currentStep, Collections.emptyMap(), relationshipOperationSteps);
                 });
-                RelationshipWeaving sourceWeaving = defaultDeclarativeWorkflows.getRelationshipsWeaving().get(wf.getName()).getSource();
-                declareWeaving(sourceWeaving, sourceStateSteps, sourceOperationsSteps, targetStateSteps, targetOperationSteps);
-                RelationshipWeaving targetWeaving = defaultDeclarativeWorkflows.getRelationshipsWeaving().get(wf.getName()).getTarget();
-                declareWeaving(targetWeaving, targetStateSteps, targetOperationSteps, sourceStateSteps, sourceOperationsSteps);
+                RelationshipWeavingDeclarativeWorkflow relationshipWeavingDeclarativeWorkflow = getRelationshipWeavingDeclarativeWorkflow(
+                        relationshipTemplate.getType(), toscaTypeFinder, wf.getName());
+                declareWeaving(relationshipWeavingDeclarativeWorkflow.getSource(), sourceStateSteps, sourceOperationsSteps, targetStateSteps,
+                        targetOperationSteps);
+                declareWeaving(relationshipWeavingDeclarativeWorkflow.getTarget(), targetStateSteps, targetOperationSteps, sourceStateSteps,
+                        sourceOperationsSteps);
             }
         }
     }

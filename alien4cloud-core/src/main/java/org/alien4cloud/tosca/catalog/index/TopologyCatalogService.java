@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.tosca.parser.ToscaParser;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -36,6 +37,7 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
         Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
         csar.setWorkspace(workspace);
         csar.setDelegateType(ArchiveDelegateType.CATALOG.toString());
+        csar.setToscaDefinitionsVersion(ToscaParser.LATEST_DSL);
         if (description == null) {
             csar.setDescription("This archive has been created with alien4cloud.");
         } else {

@@ -53,6 +53,7 @@ import alien4cloud.model.common.Usage;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.utils.ArtifactUtil;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
@@ -260,7 +261,7 @@ public class ApplicationVersionService {
         csar.setWorkspace(APP_WORKSPACE_PREFIX + ":" + applicationId);
         csar.setDelegateId(applicationId);
         csar.setDelegateType(delegateType);
-
+        csar.setToscaDefinitionsVersion(ToscaParser.LATEST_DSL);
         if (oldArchiveName != null && oldArchiveVersion != null) {
             // Change all artifact references to the newly created archive if it's a copy
             ArtifactUtil.changeTopologyArtifactReferences(topology, csar);

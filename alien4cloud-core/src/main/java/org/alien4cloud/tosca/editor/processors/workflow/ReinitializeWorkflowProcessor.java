@@ -21,7 +21,7 @@ public class ReinitializeWorkflowProcessor extends AbstractWorkflowProcessor<Rei
         Topology topology = EditionContextManager.getTopology();
         ensureStandard(workflow, "Non standard workflow <" + workflow.getName() + "> can not be reinitialized");
         log.debug("reinitializing workflow <{}> from topology <{}>", workflow.getName(), topology.getId());
-        workflowBuilderService.reinitWorkflow(workflow.getName(), workflowBuilderService.buildTopologyContext(topology));
+        workflowBuilderService.reinitWorkflow(workflow.getName(), workflowBuilderService.buildTopologyContext(topology, EditionContextManager.getCsar()));
     }
 
 }

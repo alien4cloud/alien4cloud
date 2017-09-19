@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -43,8 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class DuplicateNodeProcessor implements IEditorOperationProcessor<DuplicateNodeOperation> {
     @Inject
-    private IToscaTypeSearchService toscaTypeSearchService;
-    @Inject
     private TopologyService topologyService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
@@ -61,10 +59,10 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
         Map<String, String> duplicatedNodesNameMappings = Maps.newHashMap();
 
         // first duplicate the node templates
-        duplicateNodeTemplate(nodeTemplateToDuplicate, duplicatedNodesNameMappings, nodeTemplates, topology);
+        duplicateNodeTemplate(nodeTemplateToDuplicate, duplicatedNodesNameMappings, nodeTemplates, topology, EditionContextManager.getCsar());
 
         // then clean the relationships, discarding all that targets a node not in hostedNodes
-        processRelationships(duplicatedNodesNameMappings, nodeTemplates, topology);
+        processRelationships(duplicatedNodesNameMappings, nodeTemplates, topology, EditionContextManager.getCsar());
     }
 
     /**
@@ -74,14 +72,13 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
      * @param nodeTemplates
      * @param topology
      */
-    private void processRelationships(Map<String, String> duplicatedNodes, Map<String, NodeTemplate> nodeTemplates, Topology topology) {
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
+    private void processRelationships(Map<String, String> duplicatedNodes, Map<String, NodeTemplate> nodeTemplates, Topology topology, Csar csar) {
+        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         duplicatedNodes.values().forEach(nodeName -> copyAndCleanRelationships(nodeName, duplicatedNodes, nodeTemplates, topologyContext));
-        ;
     }
 
     private void duplicateNodeTemplate(NodeTemplate nodeTemplateToDuplicate, Map<String, String> duplicatedNodesNameMappings,
-            Map<String, NodeTemplate> nodeTemplates, Topology topology) {
+            Map<String, NodeTemplate> nodeTemplates, Topology topology, Csar csar) {
         // Build the new one
         NodeTemplate newNodeTemplate = CloneUtil.clone(nodeTemplateToDuplicate);
         newNodeTemplate.setName(copyName(nodeTemplateToDuplicate.getName(), nodeTemplates.keySet()));
@@ -101,14 +98,14 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
         // copy outputs
         copyOutputs(topology, nodeTemplateToDuplicate.getName(), newNodeTemplate.getName());
 
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
+        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
 
         // add the new node to the workflow
-        workflowBuilderService.addNode(topologyContext, newNodeTemplate.getName(), newNodeTemplate);
+        workflowBuilderService.addNode(topologyContext, newNodeTemplate.getName());
 
         // copy hosted nodes
         safe(getHostedNodes(nodeTemplates, nodeTemplateToDuplicate.getName()))
-                .forEach(nodeTemplate -> duplicateNodeTemplate(nodeTemplate, duplicatedNodesNameMappings, nodeTemplates, topology));
+                .forEach(nodeTemplate -> duplicateNodeTemplate(nodeTemplate, duplicatedNodesNameMappings, nodeTemplates, topology, csar));
 
     }
 

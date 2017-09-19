@@ -8,7 +8,6 @@ import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
-import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -39,8 +38,6 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
     private TopologyCompositionService topologyCompositionService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
-    @Inject
-    private EditorTopologyRecoveryHelperService recoveryHelperService;
 
     @Override
     public void process(AddNodeOperation operation) {
@@ -80,7 +77,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         log.debug("Adding a new Node template <" + operation.getNodeName() + "> bound to the node type <" + operation.getIndexedNodeTypeId()
                 + "> to the topology <" + topology.getId() + "> .");
 
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
-        workflowBuilderService.addNode(topologyContext, operation.getNodeName(), nodeTemplate);
+        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, EditionContextManager.getCsar());
+        workflowBuilderService.addNode(topologyContext, operation.getNodeName());
     }
 }

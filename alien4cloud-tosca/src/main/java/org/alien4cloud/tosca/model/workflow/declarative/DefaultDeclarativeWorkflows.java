@@ -12,6 +12,6 @@ public class DefaultDeclarativeWorkflows {
     private Map<String, NodeDeclarativeWorkflow> nodeWorkflows;
     /* Map of workflow name -> default relationship declarative workflow */
     private Map<String, RelationshipDeclarativeWorkflow> relationshipWorkflows;
-    /* Map of workflow name -> weaving configuration for the workflow */
-    private Map<String, RelationshipWeavingDeclarativeWorkflow> relationshipsWeaving;
+    /* Map of relationship type -> workflow name -> weaving configuration for the workflow */
+    private Map<String, Map<String, RelationshipWeavingDeclarativeWorkflow>> relationshipsWeaving;
 }

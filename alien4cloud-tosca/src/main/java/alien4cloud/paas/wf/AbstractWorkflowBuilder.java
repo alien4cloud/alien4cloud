@@ -1,5 +1,6 @@
 package alien4cloud.paas.wf;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -203,6 +204,10 @@ public abstract class AbstractWorkflowBuilder {
         }
     }
 
+    private boolean isRelationshipStep(WorkflowStep step, String nodeId, String relationshipName) {
+        return step.getTarget().equals(nodeId) && relationshipName.equals(step.getTargetRelationship());
+    }
+
     /**
      * When a relationship is removed, we remove all links between src and target.
      * <p>
@@ -212,13 +217,13 @@ public abstract class AbstractWorkflowBuilder {
      * @param wf the workflow
      * @param relationshipTarget the relationship to remove
      */
-    void removeRelationship(Workflow wf, String nodeId, String relationshipTarget) {
+    void removeRelationship(Workflow wf, String nodeId, String relationshipName, String relationshipTarget) {
         for (WorkflowStep step : wf.getSteps().values()) {
             if (step.getTarget().equals(nodeId)) {
                 if (step.getOnSuccess() != null) {
                     for (String followingId : step.getOnSuccess()) {
                         WorkflowStep followingStep = wf.getSteps().get(followingId);
-                        if (followingStep.getTarget().equals(relationshipTarget)) {
+                        if (followingStep.getTarget().equals(relationshipTarget) || isRelationshipStep(followingStep, followingId, relationshipName)) {
                             unlinkSteps(step, followingStep);
                         }
                     }
@@ -226,11 +231,19 @@ public abstract class AbstractWorkflowBuilder {
                 if (step.getPrecedingSteps() != null) {
                     for (String precedingId : step.getPrecedingSteps()) {
                         WorkflowStep precedingStep = wf.getSteps().get(precedingId);
-                        if (precedingStep.getTarget().equals(relationshipTarget)) {
+                        if (precedingStep.getTarget().equals(relationshipTarget) || isRelationshipStep(precedingStep, precedingId, relationshipName)) {
                             unlinkSteps(precedingStep, step);
                         }
                     }
                 }
+            }
+        }
+        // Remove relationships steps
+        Iterator<Entry<String, WorkflowStep>> stepsIterator = wf.getSteps().entrySet().iterator();
+        while (stepsIterator.hasNext()) {
+            WorkflowStep step = stepsIterator.next().getValue();
+            if (step.getTarget().equals(nodeId) && step.getTargetRelationship().equals(relationshipName)) {
+                stepsIterator.remove();
             }
         }
     }

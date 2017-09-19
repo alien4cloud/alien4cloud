@@ -21,6 +21,6 @@ public class ConnectStepToProcessor extends AbstractWorkflowProcessor<ConnectSte
         Topology topology = EditionContextManager.getTopology();
         log.debug("connecting step <{}> to <{}> in the workflow <{}> from topology <{}>", operation.getFromStepId(),
                 StringUtils.join(operation.getToStepIds(), ","), workflow.getName(), topology.getId());
-        workflowBuilderService.connectStepTo(topology, workflow.getName(), operation.getFromStepId(), operation.getToStepIds());
+        workflowBuilderService.connectStepTo(topology, EditionContextManager.getCsar(), workflow.getName(), operation.getFromStepId(), operation.getToStepIds());
     }
 }

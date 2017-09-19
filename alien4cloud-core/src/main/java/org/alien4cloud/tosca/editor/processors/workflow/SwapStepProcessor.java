@@ -21,6 +21,6 @@ public class SwapStepProcessor extends AbstractWorkflowProcessor<SwapStepOperati
         Topology topology = EditionContextManager.getTopology();
         log.debug("swapping step <{}> with <{}> in workflow <{}> from topology <{}>", operation.getStepId(), operation.getTargetStepId(), workflow.getName(),
                 topology.getId());
-        workflowBuilderService.swapSteps(topology, workflow.getName(), operation.getStepId(), operation.getTargetStepId());
+        workflowBuilderService.swapSteps(topology, EditionContextManager.getCsar(), workflow.getName(), operation.getStepId(), operation.getTargetStepId());
     }
 }

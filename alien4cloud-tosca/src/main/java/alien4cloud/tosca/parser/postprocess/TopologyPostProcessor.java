@@ -100,6 +100,11 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
                 .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
                     @Override
+                    public String getDSLVersion() {
+                        return ParsingContextExecution.getDefinitionVersion();
+                    }
+
+                    @Override
                     public Topology getTopology() {
                         return instance;
                     }

@@ -33,6 +33,7 @@ import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -117,7 +118,7 @@ public class ArchiveIndexer {
 
         // Ensure that the archive does not already exists
         ensureUniqueness(csar.getName(), csar.getVersion());
-        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology, csar));
 
         // generate the initial yaml in a temporary directory
         if (csar.getYamlFilePath() == null) {
@@ -259,6 +260,11 @@ public class ArchiveIndexer {
         // init the workflows
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
                 .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
+                    @Override
+                    public String getDSLVersion() {
+                        return ParsingContextExecution.getDefinitionVersion();
+                    }
+
                     @Override
                     public Topology getTopology() {
                         return topology;

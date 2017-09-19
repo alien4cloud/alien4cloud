@@ -21,6 +21,6 @@ public class RenameStepProcessor extends AbstractWorkflowProcessor<RenameStepOpe
         Topology topology = EditionContextManager.getTopology();
         log.debug("renaming step <{}> to <{}> in workflow <{}> from topology <{}>", operation.getStepId(), operation.getNewName(), workflow.getName(),
                 topology.getId());
-        workflowBuilderService.renameStep(topology, workflow.getName(), operation.getStepId(), operation.getNewName());
+        workflowBuilderService.renameStep(topology, EditionContextManager.getCsar(), workflow.getName(), operation.getStepId(), operation.getNewName());
     }
 }

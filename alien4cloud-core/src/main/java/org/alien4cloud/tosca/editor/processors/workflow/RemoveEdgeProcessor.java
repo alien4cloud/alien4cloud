@@ -20,6 +20,6 @@ public class RemoveEdgeProcessor extends AbstractWorkflowProcessor<RemoveEdgeOpe
         Topology topology = EditionContextManager.getTopology();
         log.debug("removing edge from <{}> to <{}> from the workflow <{}> from topology <{}>", operation.getFromStepId(), operation.getToStepId(),
                 workflow.getName(), topology.getId());
-        workflowBuilderService.removeEdge(topology, workflow.getName(), operation.getFromStepId(), operation.getToStepId());
+        workflowBuilderService.removeEdge(topology, EditionContextManager.getCsar(), workflow.getName(), operation.getFromStepId(), operation.getToStepId());
     }
 }

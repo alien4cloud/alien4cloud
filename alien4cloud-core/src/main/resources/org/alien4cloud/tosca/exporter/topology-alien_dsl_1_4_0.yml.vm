@@ -6,7 +6,7 @@
 ## - topology
 ## --------------------------------------------
 ## BEGINNING OF DOCUMENT
-tosca_definitions_version: alien_dsl_1_4_0
+tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: ${template_name}
@@ -100,7 +100,10 @@ ${utils.formatArtifact($artifactEntry.value, 4)}
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.relationships))
       requirements:
 #foreach($relationship in ${nodeTemplateEntry.value.relationships.values()})
-        - ${relationship.requirementName}:
+        - ${relationship.name}:
+#if(${relationship.name} != ${relationship.requirementName})
+            type_requirement: ${relationship.requirementName}
+#end## if
             node: ${relationship.target}
             capability: $topology.nodeTemplates[$relationship.target].capabilities[$relationship.targetedCapabilityName].type
             relationship: ${relationship.type}
@@ -229,23 +232,19 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
       steps:
 #foreach($taskEntry in ${wfEntry.value.steps.entrySet()})
         ${taskEntry.key}:
-#if($taskEntry.value.nodeId)
-          node: ${taskEntry.value.nodeId}
+#if($taskEntry.value.target)
+          target: ${taskEntry.value.target}
+#if($taskEntry.value.targetRelationship)
+          target_relationship: ${taskEntry.value.targetRelationship}
+#end
 #if($taskEntry.value.activity)
-          activity:
-#if($utils.canRenderInlineActivityArgs(${taskEntry.value.activity}))
-            ${utils.getActivityLabel(${taskEntry.value.activity})}: ${utils.getInlineActivityArg(${taskEntry.value.activity})}
-#else
-            ${utils.getActivityLabel(${taskEntry.value.activity})}:
-#foreach($argEntry in ${utils.getActivityArgsMap(${taskEntry.value.activity})})
-              ${argEntry.key}: ${argEntry.value}
-#end## foreach getActivityArgsMap
-#end## if canRenderInlineActivityArgs
+          activities:
+            - ${utils.getActivityLabel(${taskEntry.value.activity})}: ${utils.getInlineActivityArg(${taskEntry.value.activity})}
 #end## if taskEntry.value.activity
-#end## if taskEntry.value.nodeId
-#if($utils.collectionIsNotEmpty(${taskEntry.value.followingSteps}))
+#end## if taskEntry.value.target
+#if($utils.collectionIsNotEmpty(${taskEntry.value.onSuccess}))
           on-success:
-#foreach($following in ${taskEntry.value.followingSteps})
+#foreach($following in ${taskEntry.value.onSuccess})
             - ${following}
 #end## foreach taskEntry.value.followingSteps
 #end## if taskEntry.value.followingSteps not empty

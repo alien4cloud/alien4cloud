@@ -29,7 +29,7 @@ public class ResetTopologyProcessor implements IEditorOperationProcessor<ResetTo
         newTopology.setArchiveName(topology.getArchiveName());
         newTopology.setArchiveVersion(topology.getArchiveVersion());
         newTopology.setWorkspace(topology.getWorkspace());
-        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(newTopology));
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(newTopology, EditionContextManager.getCsar()));
         try {
             EditionContextManager.get().reset(newTopology);
         } catch (IOException e) {

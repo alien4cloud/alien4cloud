@@ -71,8 +71,8 @@ node_workflows:
 relationship_workflows:
   install:
     # If we join all source and operation dependencies, we have a disjoint relationship workflow
-    # source.created -> pre_configure_source -> source.configure -> post_configure_source -> source.start -> source.started -> add_target
-    # target.created -> pre_configure_target -> target.configure -> target.configured -> post_configure_target -> target.start -> add_source
+    # source.created -> pre_configure_source -> source.configure -> source.configured -> post_configure_source -> source.start -> source.started -> add_target
+    # target.created -> pre_configure_target -> target.configure -> target.configured -> post_configure_target -> target.start -> target.started -> add_source
 
     # all call-operation steps that should be created for the install workflow
     operations:
@@ -128,25 +128,38 @@ relationship_workflows:
         operation_host: SOURCE
 
 relationships_weaving:
-  # Default relationship weaving which is good enough because it corresponds to Tosca spec
-  # Every relationship will have the same default weaving
   # This section declares dependencies between the source and the target of a relationship
-  install:
-    source:
-      states:
-        creating:
-          # dependencies here are declared for the partner of the source which is the target
-          # the mirror model does not explicit something like wait_target_state as in a real DSL
-          # target.started -> source.creating
-          preceding_state: started
-  uninstall:
-    target:
-      states:
-        stopping:
-          # dependencies here are declared for the partner of the target which is the source
-          # the mirror model does not explicit something like wait_source_state as in a real DSL
-          # source.deleted -> target.stopping
-          preceding_state: deleted
-
-
+  tosca.relationships.Root:
+    install:
+      source:
+        states:
+          started:
+            # dependencies here are declared for the partner of the source which is the target
+            # the mirror model does not explicit something like wait_target_state as in a real DSL
+            # target.started -> source.configuring
+            preceding_state: configuring
+      target:
+        states:
+          configuring:
+            # source.created -> target.configuring
+            preceding_state: created
+    uninstall:
+      target:
+        states:
+          stopping:
+            # source.stopped -> target.stopping
+            preceding_state: stopped
+  tosca.relationships.HostedOn:
+    install:
+      source:
+        states:
+          creating:
+            # target.started -> source.creating
+            preceding_state: started
+    uninstall:
+      target:
+        states:
+          stopping:
+            # source.deleted -> target.stopping
+            preceding_state: deleted
 

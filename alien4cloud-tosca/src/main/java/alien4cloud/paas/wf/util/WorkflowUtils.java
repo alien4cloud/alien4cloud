@@ -39,7 +39,7 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return null;
         }
-        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTemplate.getType());
         if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, DOCKER_TYPE)) {
             return nodeId;
         } else {
@@ -133,11 +133,16 @@ public class WorkflowUtils {
         return null;
     }
 
+    /**
+     * Check whether the node type is equals or derived from the given type name
+     * 
+     * @param indexedNodeType the node type
+     * @param type the type name
+     * @return true if the node type is equals or derived from the given type name
+     */
     public static boolean isOfType(AbstractInheritableToscaType indexedNodeType, String type) {
-        if (indexedNodeType == null) {
-            return false;
-        }
-        return indexedNodeType.getElementId().equals(type) || indexedNodeType.getDerivedFrom() != null && indexedNodeType.getDerivedFrom().contains(type);
+        return indexedNodeType != null
+                && (indexedNodeType.getElementId().equals(type) || indexedNodeType.getDerivedFrom() != null && indexedNodeType.getDerivedFrom().contains(type));
     }
 
     public static Interface getInterface(String interfaceName, Map<String, Interface> interfaces) {
@@ -158,12 +163,8 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return false;
         }
-        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
-        if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE)) {
-            return true;
-        } else {
-            return isOfType(nodeType, NETWORK_TYPE);
-        }
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTemplate.getType());
+        return isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, NETWORK_TYPE);
     }
 
     public static boolean isComputeOrVolume(String nodeId, TopologyContext topologyContext) {
@@ -171,12 +172,8 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return false;
         }
-        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
-        if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE)) {
-            return true;
-        } else {
-            return isOfType(nodeType, "tosca.nodes.BlockStorage");
-        }
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTemplate.getType());
+        return isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, "tosca.nodes.BlockStorage");
     }
 
     public static boolean isNativeOrSubstitutionNode(String nodeId, TopologyContext topologyContext) {
@@ -190,11 +187,7 @@ public class WorkflowUtils {
         }
         // TODO: the following should be removed after merge with orchestrator refactoring branch
         // (since these types will be abstract)
-        if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, NETWORK_TYPE)) {
-            return true;
-        } else {
-            return isOfType(nodeType, "tosca.nodes.BlockStorage");
-        }
+        return isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, NETWORK_TYPE) || isOfType(nodeType, "tosca.nodes.BlockStorage");
     }
 
     public static void linkSteps(WorkflowStep from, WorkflowStep to) {
@@ -330,10 +323,7 @@ public class WorkflowUtils {
     }
 
     public static boolean isStateStep(WorkflowStep step, String stateName) {
-        if (step.getActivity() instanceof SetStateWorkflowActivity && ((SetStateWorkflowActivity) step.getActivity()).getStateName().equals(stateName)) {
-            return true;
-        }
-        return false;
+        return step.getActivity() instanceof SetStateWorkflowActivity && ((SetStateWorkflowActivity) step.getActivity()).getStateName().equals(stateName);
     }
 
     public static void validateName(String name) {

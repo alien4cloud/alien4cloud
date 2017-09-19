@@ -31,6 +31,6 @@ public class DeleteRelationshipProcessor extends AbstractRelationshipProcessor<D
                 + ">, Topology <" + topology.getId() + "> .");
         topologyService.unloadType(topology, relationshipTemplate.getType());
         nodeTemplate.getRelationships().remove(operation.getRelationshipName());
-        workflowBuilderService.removeRelationship(topology, operation.getNodeName(), operation.getRelationshipName(), relationshipTemplate);
+        workflowBuilderService.removeRelationship(topology, EditionContextManager.getCsar(), operation.getNodeName(), operation.getRelationshipName(), relationshipTemplate);
     }
 }
