@@ -3,15 +3,32 @@ package alien4cloud.variable;
 import java.util.Map;
 import java.util.Properties;
 
+import org.springframework.beans.factory.config.YamlMapFactoryBean;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.Resource;
 
-public class YamlToProperties {
+public class YamlParser {
 
-    public static Properties from(Resource resource){
-        YamlFullPropertiesFactoryBean factoryBean = new YamlFullPropertiesFactoryBean();
-        factoryBean.setResources(resource);
-        return factoryBean.getObject();
+    public static class ToProperties {
+        private ToProperties() {
+        }
+
+        public static Properties from(Resource resource) {
+            YamlFullPropertiesFactoryBean factoryBean = new YamlFullPropertiesFactoryBean();
+            factoryBean.setResources(resource);
+            return factoryBean.getObject();
+        }
+    }
+
+    public static class ToMap {
+        private ToMap() {
+        }
+
+        public static Map<String, Object> from(Resource resource) {
+            YamlMapFactoryBean factoryBean = new YamlMapFactoryBean();
+            factoryBean.setResources(resource);
+            return factoryBean.getObject();
+        }
     }
 
     public static class YamlFullPropertiesFactoryBean extends YamlPropertiesFactoryBean {

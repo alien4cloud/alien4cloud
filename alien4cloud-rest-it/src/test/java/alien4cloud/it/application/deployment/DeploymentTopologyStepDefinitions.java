@@ -212,7 +212,7 @@ public class DeploymentTopologyStepDefinitions {
         for (Entry<String, String> inputEntry : expectedStringInputProperties.entrySet()) {
             expectedInputProperties.put(inputEntry.getKey(), new ScalarPropertyValue(inputEntry.getValue()));
         }
-        assertPropMapContains(dto.getTopology().getInputProperties(), expectedInputProperties);
+        assertPropMapContains(dto.getTopology().getAllInputProperties(), expectedInputProperties);
     }
 
     @Then("^the deployment topology should have the following orchestrator properties$")
@@ -300,7 +300,7 @@ public class DeploymentTopologyStepDefinitions {
     @Then("^the deployment topology should not have any input properties$")
     public void theDeploymentTopologyShouldNotHaveAnyInputProperties() throws Throwable {
         DeploymentTopologyDTO dto = getDeploymentTopologyDTO();
-        Assert.assertTrue(MapUtils.isEmpty(dto.getTopology().getInputProperties()));
+        Assert.assertTrue(MapUtils.isEmpty(dto.getTopology().getAllInputProperties()));
     }
 
     @Then("^the deployment topology should not have any input artifacts$")
@@ -320,7 +320,7 @@ public class DeploymentTopologyStepDefinitions {
     @Then("^the deployment topology should not have the following input properties$")
     public void theDeploymentTopologyShouldNotHaveTheFollowingInputProperties(List<String> expectedMissings) throws Throwable {
         DeploymentTopologyDTO dto = getDeploymentTopologyDTO();
-        Set<String> actualInputs = safe(dto.getTopology().getInputProperties()).keySet();
+        Set<String> actualInputs = safe(dto.getTopology().getAllInputProperties()).keySet();
         for (String expectedMissing : expectedMissings) {
             Assert.assertFalse("\"" + expectedMissing + "\" should not appear in inputs", actualInputs.contains(expectedMissing));
         }

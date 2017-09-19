@@ -1,0 +1,27 @@
+uber_input:
+  simple_var:
+    int_field: ${int_variable}
+    float_field: ${float_variable}
+    string_field: ${string_variable}
+    concat_field: ${int_variable}${float_variable}
+  simple_static:
+    int_field: 51
+    float_field: 16.64
+    string_field: "leffe"
+  complex:
+    complex_with_list: ${complex_with_list}
+    int_list:
+      - ${int_variable}
+      - ${int_variable}
+    float_list:
+      - ${float_variable}
+      - ${float_variable}
+    mix_list:
+      - ${int_variable}
+      - ${float_variable}
+      - ${string_variable}
+    static_mix_list:
+      - "jenlain"
+      - 16.64
+      - "kwak"
+  complex_with_var_in_leaf: ${complex_with_var_in_leaf}

@@ -14,16 +14,21 @@ public class VariableResolver {
 
     private PropertySourcesPropertyResolver resolver;
     private VariableSpelExpressionProcessor spelExpressionParser;
+    private MutablePropertySources propertySources;
 
     public VariableResolver(PropertySource appVariables, PropertySource envVariables, PredefinedVariables predefinedVariables) {
-        MutablePropertySources propertySources = new MutablePropertySources();
+        propertySources = new MutablePropertySources();
         // order matter
         propertySources.addLast(predefinedVariables);
         propertySources.addLast(envVariables);
         propertySources.addLast(appVariables);
 
-        this.resolver = new PropertySourcesMapResolver(propertySources);
+        this.resolver = new ObjectSourcesPropertyResolver(propertySources);
         this.spelExpressionParser = new VariableSpelExpressionProcessor(this);
+    }
+
+    protected MutablePropertySources getPropertySources() {
+        return propertySources;
     }
 
     public VariableResolver(Properties appVariables, Properties envVariables, PredefinedVariables predefinedVariables) {
@@ -36,7 +41,7 @@ public class VariableResolver {
         }
 
         T resolved = resolver.getProperty(variableName, clazz);
-        if (clazz == String.class) {
+        if (resolved != null && String.class.isAssignableFrom(resolved.getClass())) {
             // execute spel expression if any
             return spelExpressionParser.process((String) resolved, clazz);
         } else {
@@ -47,6 +52,5 @@ public class VariableResolver {
     public String resolve(String variableName) {
         return resolve(variableName, String.class);
     }
-
 
 }

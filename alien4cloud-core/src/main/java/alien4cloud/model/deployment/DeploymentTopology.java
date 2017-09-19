@@ -1,9 +1,11 @@
 package alien4cloud.model.deployment;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
@@ -90,10 +92,30 @@ public class DeploymentTopology extends Topology {
     /** Configuration of the deployment properties specific to the orchestrator if any. */
     @ObjectField(enabled = false)
     private Map<String, String> providerDeploymentProperties;
-    /** Values of the input properties as configured by the user. */
+    /** Values of the input properties as configured by the deployer. */
+    /** Migration Note: all data previously stored into 'inputProperties' should be moved into 'deployerInputProperties' */
     @ObjectField(enabled = false)
     @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
-    private Map<String, PropertyValue> inputProperties;
+    private Map<String, PropertyValue> deployerInputProperties;
+
+    @JsonIgnore
+    public Map<String, PropertyValue> getAllInputProperties() {
+        HashMap<String, PropertyValue> map = Maps.newHashMap();
+        if (deployerInputProperties != null) {
+            map.putAll(deployerInputProperties);
+        }
+
+        if (preconfiguredInputProperties != null) {
+            map.putAll(preconfiguredInputProperties);
+        }
+
+        return map;
+    }
+
+    /** Values of the input properties configured with the input file */
+    @ObjectField(enabled = false)
+    @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
+    private Map<String, PropertyValue> preconfiguredInputProperties;
 
     @ObjectField(enabled = false)
     private Map<String, DeploymentArtifact> uploadedInputArtifacts;

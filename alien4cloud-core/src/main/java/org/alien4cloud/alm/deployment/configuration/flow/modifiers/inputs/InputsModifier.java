@@ -7,9 +7,12 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
+import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
+import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsConfiguration;
 import org.alien4cloud.alm.deployment.configuration.services.InputService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
@@ -42,8 +45,9 @@ public class InputsModifier implements ITopologyModifier {
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
-        ApplicationEnvironment environment = context.getEnvironmentContext()
-                .orElseThrow(() -> new IllegalArgumentException("Input modifier requires an environment context.")).getEnvironment();
+        EnvironmentContext environmentContext = context.getEnvironmentContext()
+                .orElseThrow(() -> new IllegalArgumentException("Input modifier requires an environment context."));
+        ApplicationEnvironment environment = environmentContext.getEnvironment();
         DeploymentInputs deploymentInputs = context.getConfiguration(DeploymentInputs.class, InputsModifier.class.getSimpleName())
                 .orElse(new DeploymentInputs(environment.getTopologyVersion(), environment.getId()));
 
@@ -62,9 +66,17 @@ public class InputsModifier implements ITopologyModifier {
             }
         }
 
-        Map<String, PropertyValue> inputValues = deploymentInputs.getInputs();
+        // ** //
+
+        PreconfiguredInputsConfiguration preconfiguredInputsConfiguration = context.getConfiguration(PreconfiguredInputsConfiguration.class, InputsModifier.class.getSimpleName())
+                .orElseThrow(() -> new IllegalStateException("PreconfiguredInputsConfiguration must be in the context"));
+
+        // ** //
+
+        Map<String, PropertyValue> inputValues = Maps.newHashMap(deploymentInputs.getInputs());
         inputValues.putAll(applicationInputs);
         inputValues.putAll(locationInputs);
+        inputValues.putAll(preconfiguredInputsConfiguration.getInputs());
 
         // Now that we have inputs ready let's process get_input functions in the topology to actually replace values.
         if (topology.getNodeTemplates() != null) {

@@ -14,6 +14,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutor;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
 import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
@@ -115,13 +116,21 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
         validationResult.setValid(validationResult.getTaskList() == null || validationResult.getTaskList().isEmpty());
         deploymentTopologyDTO.setValidation(validationResult);
 
+        Optional<PreconfiguredInputsConfiguration> preconfiguredInputsConfiguration = executionContext.getConfiguration(PreconfiguredInputsConfiguration.class,
+                DeploymentTopologyDTOBuilder.class.getSimpleName());
+        if (!preconfiguredInputsConfiguration.isPresent()) {
+            deploymentTopology.setPreconfiguredInputProperties(Maps.newHashMap());
+        } else {
+            deploymentTopology.setPreconfiguredInputProperties(preconfiguredInputsConfiguration.get().getInputs());
+        }
+
         Optional<DeploymentInputs> inputsOptional = executionContext.getConfiguration(DeploymentInputs.class,
                 DeploymentTopologyDTOBuilder.class.getSimpleName());
         if (!inputsOptional.isPresent()) {
-            deploymentTopology.setInputProperties(Maps.newHashMap());
+            deploymentTopology.setDeployerInputProperties(Maps.newHashMap());
             deploymentTopology.setUploadedInputArtifacts(Maps.newHashMap());
         } else {
-            deploymentTopology.setInputProperties(inputsOptional.get().getInputs());
+            deploymentTopology.setDeployerInputProperties(inputsOptional.get().getInputs());
             deploymentTopology.setUploadedInputArtifacts(inputsOptional.get().getInputArtifacts());
         }
 

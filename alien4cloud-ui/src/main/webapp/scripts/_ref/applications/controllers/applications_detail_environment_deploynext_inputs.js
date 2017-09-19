@@ -4,6 +4,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   require('scripts/common/filters/inputs');
 
@@ -37,9 +38,17 @@ define(function (require) {
         } 
       });
 
-
       // Filter inputs to remove the internal inputs
-      $scope.userInputs = $filter('internalInputs')($scope.deploymentTopologyDTO.topology.inputs);
+      var allInputs = $filter('internalInputs')($scope.deploymentTopologyDTO.topology.inputs);
+      $scope.deployerInputs = {};
+      $scope.predefiniedInputs = {};
+      _.each(allInputs, function (inputValue, inputId) {
+        if (_.isUndefined($scope.deploymentTopologyDTO.topology.preconfiguredInputProperties[inputId])) {
+          $scope.deployerInputs[inputId] = inputValue;
+        } else {
+          $scope.predefiniedInputs[inputId] = inputValue;
+        }
+      });
 
       /* ******************************************************
        *      Handle properties inputs
