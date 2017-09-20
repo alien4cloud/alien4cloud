@@ -115,3 +115,20 @@ Feature: Manage location resources authorizations
     When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium"
     Then I should not have any authorized applications
     Then I should not have any authorized environments
+
+  @reset
+  Scenario: Add / Remove rights to a application/environment_type on a location
+    And I create an application with name "ALIEN", archive name "ALIEN", description "" and topology template id "null"
+    When I create an application environment of type "DEVELOPMENT" with name "DEV-ALIEN" and description "" for the newly created application
+    And I create an application environment of type "INTEGRATION_TESTS" with name "TST-ALIEN" and description "" for the newly created application
+    And I create an application environment of type "PRODUCTION" with name "PRD-ALIEN" and description "" for the newly created application
+    Given I grant access to the resource type "LOCATION_RESOURCE" named "Medium" to the environment type "INTEGRATION_TESTS" of the application "ALIEN"
+    When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium"
+    Then I should have following list of environment types:
+      | INTEGRATION_TESTS |
+    Then I should have following list of applications:
+      | ALIEN |
+    Given I revoke access to the resource type "LOCATION_RESOURCE" named "Medium" from the environment type "INTEGRATION_TESTS" of the application "ALIEN"
+    When I get the authorised applications for the resource type "LOCATION_RESOURCE" named "Medium"
+    Then I should not have any authorized environment types
+    Then I should not have any authorized applications
