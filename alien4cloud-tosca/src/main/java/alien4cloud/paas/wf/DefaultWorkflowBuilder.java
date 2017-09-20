@@ -14,6 +14,7 @@ import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
 import org.alien4cloud.tosca.model.workflow.declarative.NodeDeclarativeWorkflow;
@@ -29,14 +30,67 @@ import alien4cloud.paas.wf.util.WorkflowUtils;
 
 public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
 
+    private static class Steps {
+        private Map<String, WorkflowStep> operationSteps;
+        private Map<String, WorkflowStep> stateSteps;
+        private WorkflowStep delegateStep;
+
+        private static Map<String, WorkflowStep> getNodeStateSteps(Workflow workflow, String nodeId) {
+            // Get all state steps of the given node, then return a map of state name to workflow step
+            return workflow.getSteps().values().stream().filter(step -> isNodeStep(step, nodeId) && step.getActivity() instanceof SetStateWorkflowActivity)
+                    .collect(Collectors.toMap(step -> ((SetStateWorkflowActivity) step.getActivity()).getStateName(), step -> step));
+        }
+
+        private static Map<String, WorkflowStep> getNodeOperationSteps(Workflow workflow, String nodeId) {
+            // Get all operation steps of the given node, then return a map of operation name to workflow step
+            return workflow.getSteps().values().stream()
+                    .filter(step -> isNodeStep(step, nodeId) && (step.getActivity() instanceof CallOperationWorkflowActivity))
+                    .collect(Collectors.toMap(step -> ((CallOperationWorkflowActivity) step.getActivity()).getOperationName(), step -> step));
+        }
+
+        private static WorkflowStep getDelegateStep(Workflow workflow, String nodeId) {
+            return workflow.getSteps().values().stream().filter(step -> isNodeStep(step, nodeId) && step.getActivity() instanceof DelegateWorkflowActivity)
+                    .findFirst().orElse(null);
+        }
+
+        Steps(Workflow workflow, String nodeId) {
+            this.operationSteps = getNodeOperationSteps(workflow, nodeId);
+            this.stateSteps = getNodeStateSteps(workflow, nodeId);
+            this.delegateStep = getDelegateStep(workflow, nodeId);
+        }
+
+        Steps(Map<String, WorkflowStep> operationSteps, Map<String, WorkflowStep> stateSteps, WorkflowStep delegateStep) {
+            this.operationSteps = operationSteps;
+            this.stateSteps = stateSteps;
+            this.delegateStep = delegateStep;
+        }
+
+        WorkflowStep getStateStep(String stateName) {
+            WorkflowStep stateStep = stateSteps.get(stateName);
+            if (stateStep == null) {
+                return delegateStep;
+            } else {
+                return stateStep;
+            }
+        }
+
+        WorkflowStep getOperationStep(String operationName) {
+            WorkflowStep operationStep = operationSteps.get(operationName);
+            if (operationStep == null) {
+                return delegateStep;
+            } else {
+                return operationStep;
+            }
+        }
+    }
+
     private DefaultDeclarativeWorkflows defaultDeclarativeWorkflows;
 
-    public DefaultWorkflowBuilder(DefaultDeclarativeWorkflows defaultDeclarativeWorkflows) {
+    DefaultWorkflowBuilder(DefaultDeclarativeWorkflows defaultDeclarativeWorkflows) {
         this.defaultDeclarativeWorkflows = defaultDeclarativeWorkflows;
     }
 
-    private void declareStepDependencies(OperationDeclarativeWorkflow stepDependencies, WorkflowStep currentStep, Map<String, WorkflowStep> statesSteps,
-            Map<String, WorkflowStep> operationSteps) {
+    private void declareStepDependencies(OperationDeclarativeWorkflow stepDependencies, WorkflowStep currentStep, Steps nodeSteps) {
         if (stepDependencies == null) {
             // The step has no dependencies
             return;
@@ -44,47 +98,30 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
         // Based on the dependencies configuration, link steps
         safe(stepDependencies.getFollowingOperations()).forEach(followingOperation -> {
             // We suppose that the configuration is correct and all reference must exist
-            WorkflowUtils.linkSteps(currentStep, operationSteps.get(followingOperation));
+            WorkflowUtils.linkSteps(currentStep, nodeSteps.getOperationStep(followingOperation));
         });
         safe(stepDependencies.getPrecedingOperations()).forEach(precedingOperation -> {
             // We suppose that the configuration is correct and all reference must exist
-            WorkflowUtils.linkSteps(operationSteps.get(precedingOperation), currentStep);
+            WorkflowUtils.linkSteps(nodeSteps.getOperationStep(precedingOperation), currentStep);
         });
         String followingState = stepDependencies.getFollowingState();
         if (StringUtils.isNotBlank(followingState)) {
-            WorkflowUtils.linkSteps(currentStep, statesSteps.get(followingState));
+            WorkflowUtils.linkSteps(currentStep, nodeSteps.getStateStep(followingState));
         }
         String precedingState = stepDependencies.getPrecedingState();
         if (StringUtils.isNotBlank(precedingState)) {
-            WorkflowUtils.linkSteps(statesSteps.get(precedingState), currentStep);
+            WorkflowUtils.linkSteps(nodeSteps.getStateStep(precedingState), currentStep);
         }
     }
 
-    private Map<String, WorkflowStep> getNodeStateSteps(Workflow workflow, String nodeId) {
-        // Get all state steps of the given node, then return a map of state name to workflow step
-        return workflow.getSteps().values().stream()
-                .filter(step -> step.getTarget().equals(nodeId) && StringUtils.isEmpty(step.getTargetRelationship())
-                        && step.getActivity() instanceof SetStateWorkflowActivity)
-                .collect(Collectors.toMap(step -> ((SetStateWorkflowActivity) step.getActivity()).getStateName(), step -> step));
-    }
-
-    private Map<String, WorkflowStep> getNodeOperationSteps(Workflow workflow, String nodeId) {
-        // Get all operation steps of the given node, then return a map of operation name to workflow step
-        return workflow.getSteps().values().stream()
-                .filter(step -> step.getTarget().equals(nodeId) && StringUtils.isEmpty(step.getTargetRelationship())
-                        && step.getActivity() instanceof CallOperationWorkflowActivity)
-                .collect(Collectors.toMap(step -> ((CallOperationWorkflowActivity) step.getActivity()).getOperationName(), step -> step));
-    }
-
-    private void declareWeaving(RelationshipWeaving weaving, Map<String, WorkflowStep> fromStateSteps, Map<String, WorkflowStep> fromOperationSteps,
-            Map<String, WorkflowStep> toStateSteps, Map<String, WorkflowStep> toOperationSteps) {
+    private void declareWeaving(RelationshipWeaving weaving, Steps fromSteps, Steps toSteps) {
         if (weaving == null) {
             return;
         }
-        safe(weaving.getStates()).forEach(
-                (stateName, stateDependencies) -> declareStepDependencies(stateDependencies, fromStateSteps.get(stateName), toStateSteps, toOperationSteps));
-        safe(weaving.getOperations()).forEach((operationName, operationDependencies) -> declareStepDependencies(operationDependencies,
-                fromOperationSteps.get(operationName), toStateSteps, toOperationSteps));
+        safe(weaving.getStates())
+                .forEach((stateName, stateDependencies) -> declareStepDependencies(stateDependencies, fromSteps.getStateStep(stateName), toSteps));
+        safe(weaving.getOperations()).forEach(
+                (operationName, operationDependencies) -> declareStepDependencies(operationDependencies, fromSteps.getOperationStep(operationName), toSteps));
     }
 
     @Override
@@ -105,14 +142,14 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
                 Map<String, WorkflowStep> operationSteps = safe(nodeDeclarativeWorkflow.getOperations()).entrySet().stream().collect(Collectors.toMap(
                         Map.Entry::getKey,
                         operationEntry -> WorkflowUtils.addOperationStep(wf, nodeId, ToscaNodeLifecycleConstants.STANDARD_SHORT, operationEntry.getKey())));
-
+                Steps steps = new Steps(operationSteps, statesSteps, null);
                 // Declare dependencies on the states steps
-                safe(nodeDeclarativeWorkflow.getStates()).forEach(
-                        (stateName, stateDependencies) -> declareStepDependencies(stateDependencies, statesSteps.get(stateName), statesSteps, operationSteps));
+                safe(nodeDeclarativeWorkflow.getStates())
+                        .forEach((stateName, stateDependencies) -> declareStepDependencies(stateDependencies, steps.getStateStep(stateName), steps));
 
                 // Declare dependencies on the operation steps
-                safe(nodeDeclarativeWorkflow.getOperations()).forEach((operationName, operationDependencies) -> declareStepDependencies(operationDependencies,
-                        operationSteps.get(operationName), statesSteps, operationSteps));
+                safe(nodeDeclarativeWorkflow.getOperations()).forEach(
+                        (operationName, operationDependencies) -> declareStepDependencies(operationDependencies, steps.getOperationStep(operationName), steps));
             }
         }
     }
@@ -147,24 +184,20 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
                 Map<String, WorkflowStep> relationshipOperationSteps = safe(relationshipDeclarativeWorkflow.getOperations()).entrySet().stream()
                         .collect(Collectors.toMap(Map.Entry::getKey, operationEntry -> WorkflowUtils.addRelationshipOperationStep(wf, nodeId,
                                 relationshipTemplate.getName(), ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT, operationEntry.getKey())));
-                Map<String, WorkflowStep> sourceStateSteps = getNodeStateSteps(wf, nodeId);
-                Map<String, WorkflowStep> targetStateSteps = getNodeStateSteps(wf, relationshipTemplate.getTarget());
-
-                Map<String, WorkflowStep> sourceOperationsSteps = getNodeOperationSteps(wf, nodeId);
-                Map<String, WorkflowStep> targetOperationSteps = getNodeOperationSteps(wf, relationshipTemplate.getTarget());
+                Steps sourceSteps = new Steps(wf, nodeId);
+                Steps targetSteps = new Steps(wf, relationshipTemplate.getTarget());
 
                 safe(relationshipDeclarativeWorkflow.getOperations()).forEach((relationshipOperationName, relationshipOperationDependencies) -> {
                     WorkflowStep currentStep = relationshipOperationSteps.get(relationshipOperationName);
-                    declareStepDependencies(relationshipOperationDependencies.getSource(), currentStep, sourceStateSteps, sourceOperationsSteps);
-                    declareStepDependencies(relationshipOperationDependencies.getTarget(), currentStep, targetStateSteps, targetOperationSteps);
-                    declareStepDependencies(relationshipOperationDependencies, currentStep, Collections.emptyMap(), relationshipOperationSteps);
+                    declareStepDependencies(relationshipOperationDependencies.getSource(), currentStep, sourceSteps);
+                    declareStepDependencies(relationshipOperationDependencies.getTarget(), currentStep, targetSteps);
+                    declareStepDependencies(relationshipOperationDependencies, currentStep,
+                            new Steps(relationshipOperationSteps, Collections.emptyMap(), null));
                 });
                 RelationshipWeavingDeclarativeWorkflow relationshipWeavingDeclarativeWorkflow = getRelationshipWeavingDeclarativeWorkflow(
                         relationshipTemplate.getType(), toscaTypeFinder, wf.getName());
-                declareWeaving(relationshipWeavingDeclarativeWorkflow.getSource(), sourceStateSteps, sourceOperationsSteps, targetStateSteps,
-                        targetOperationSteps);
-                declareWeaving(relationshipWeavingDeclarativeWorkflow.getTarget(), targetStateSteps, targetOperationSteps, sourceStateSteps,
-                        sourceOperationsSteps);
+                declareWeaving(relationshipWeavingDeclarativeWorkflow.getSource(), sourceSteps, targetSteps);
+                declareWeaving(relationshipWeavingDeclarativeWorkflow.getTarget(), targetSteps, sourceSteps);
             }
         }
     }

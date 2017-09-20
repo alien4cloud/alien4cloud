@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import alien4cloud.tosca.parser.ToscaParser;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -42,7 +41,7 @@ public class ArchiveExportService {
      * @return The TOSCA yaml file that describe the topology.
      */
     public String getYaml(Csar csar, Topology topology, boolean generateWorkflow) {
-        return getYaml(csar, topology, generateWorkflow, ToscaParser.ALIEN_DSL_140);
+        return getYaml(csar, topology, generateWorkflow, csar.getToscaDefinitionsVersion());
     }
 
     /**

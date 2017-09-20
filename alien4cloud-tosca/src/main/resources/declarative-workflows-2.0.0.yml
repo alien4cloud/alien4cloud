@@ -101,13 +101,17 @@ relationship_workflows:
           following_operations: [ start ]
         operation_host: TARGET
       add_source:
-        # target.started -> add_source
+        # [ source.started, target.started] -> add_source
+        source:
+          preceding_state: started
         target:
           preceding_state: started
         operation_host: TARGET
       add_target:
-        # source.started -> add_target
+        # [ source.started, target.started] -> add_target
         source:
+          preceding_state: started
+        target:
           preceding_state: started
         operation_host: SOURCE
   uninstall:
@@ -117,13 +121,17 @@ relationship_workflows:
 
     operations:
       remove_source:
-        # remove_source -> target.stop
+        # remove_source -> [ source.stop, target.stop ]
+        source:
+          following_operations: [ stop ]
         target:
           following_operations: [ stop ]
         operation_host: TARGET
       remove_target:
-        # remove_target -> source.stop
+        # remove_target -> [ source.stop, target.stop ]
         source:
+          following_operations: [ stop ]
+        target:
           following_operations: [ stop ]
         operation_host: SOURCE
 

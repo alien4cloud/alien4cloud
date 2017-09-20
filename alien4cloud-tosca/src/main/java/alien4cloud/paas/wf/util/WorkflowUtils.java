@@ -5,7 +5,6 @@ import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameCon
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.alien4cloud.tosca.model.definitions.Interface;
@@ -79,22 +78,6 @@ public class WorkflowUtils {
     }
 
     /**
-     * @return the parentId of the node : the id of the node it's hostedOn (if exists).
-     */
-    public static String getParentId(Workflow wf, String nodeId, TopologyContext topologyContext) {
-        NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
-        if (nodeTemplate != null && nodeTemplate.getRelationships() != null) {
-            for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                RelationshipType relationshipType = topologyContext.findElement(RelationshipType.class, relationshipTemplate.getType());
-                if (isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
-                    return relationshipTemplate.getTarget();
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
      * @return the operation browsing the type hierarchy
      *         FIXME: should we browse hierarchy ? what about order ?
      */
@@ -143,19 +126,6 @@ public class WorkflowUtils {
     public static boolean isOfType(AbstractInheritableToscaType indexedNodeType, String type) {
         return indexedNodeType != null
                 && (indexedNodeType.getElementId().equals(type) || indexedNodeType.getDerivedFrom() != null && indexedNodeType.getDerivedFrom().contains(type));
-    }
-
-    public static Interface getInterface(String interfaceName, Map<String, Interface> interfaces) {
-        return interfaces == null ? null : interfaces.get(interfaceName);
-    }
-
-    public static boolean isCompute(String nodeId, TopologyContext topologyContext) {
-        NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
-        if (nodeTemplate == null) {
-            return false;
-        }
-        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
-        return isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE);
     }
 
     public static boolean isComputeOrNetwork(String nodeId, TopologyContext topologyContext) {
@@ -208,10 +178,6 @@ public class WorkflowUtils {
         } else {
             return name;
         }
-    }
-
-    public static boolean isStateStep(WorkflowStep step) {
-        return step.getActivity() instanceof SetStateWorkflowActivity;
     }
 
     public static String debugWorkflow(Workflow wf) {
@@ -298,32 +264,6 @@ public class WorkflowUtils {
         step.setName(buildStepName(wf, step, 0));
         wf.addStep(step);
         return step;
-    }
-
-    public static WorkflowStep getDelegateWorkflowStepByNode(Workflow wf, String nodeName) {
-        for (WorkflowStep step : wf.getSteps().values()) {
-            if (StringUtils.isEmpty(step.getTargetRelationship())) {
-                if (step.getTarget().equals(nodeName) && (step.getActivity() instanceof DelegateWorkflowActivity)) {
-                    return step;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static WorkflowStep getStateStepByNode(Workflow wf, String nodeName, String stateName) {
-        for (WorkflowStep step : wf.getSteps().values()) {
-            if (StringUtils.isEmpty(step.getTargetRelationship())) {
-                if (step.getTarget().equals(nodeName) && isStateStep(step, stateName)) {
-                    return step;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static boolean isStateStep(WorkflowStep step, String stateName) {
-        return step.getActivity() instanceof SetStateWorkflowActivity && ((SetStateWorkflowActivity) step.getActivity()).getStateName().equals(stateName);
     }
 
     public static void validateName(String name) {

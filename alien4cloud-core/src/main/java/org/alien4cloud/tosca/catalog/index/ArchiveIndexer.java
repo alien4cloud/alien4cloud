@@ -33,7 +33,6 @@ import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -262,7 +261,7 @@ public class ArchiveIndexer {
                 .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
                     @Override
                     public String getDSLVersion() {
-                        return ParsingContextExecution.getDefinitionVersion();
+                        return archiveRoot.getArchive().getToscaDefinitionsVersion();
                     }
 
                     @Override

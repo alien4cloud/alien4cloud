@@ -70,7 +70,7 @@ node_workflows:
 
 relationship_workflows:
   install:
-    # If we join all source and operation dependencies, we have a disjoint relationship workflow
+    # If we join all source and operation dependencies, we have a relationship workflow
     # source.created -> pre_configure_source -> source.configure -> source.configured -> post_configure_source -> source.start -> source.started -> add_target
     # target.created -> pre_configure_target -> target.configure -> target.configured -> post_configure_target -> target.start -> target.started -> add_source
 
@@ -101,29 +101,37 @@ relationship_workflows:
           following_operations: [ start ]
         operation_host: TARGET
       add_source:
-        # target.started -> add_source
+        # [ source.started, target.started] -> add_source
+        source:
+          preceding_state: started
         target:
           preceding_state: started
         operation_host: TARGET
       add_target:
-        # source.started -> add_target
+        # [ source.started, target.started] -> add_target
         source:
+          preceding_state: started
+        target:
           preceding_state: started
         operation_host: SOURCE
   uninstall:
-    # If we join all source and operation dependencies, we have a disjoint relationship workflow
+    # If we join all source and operation dependencies, we have a relationship workflow
     # remove_source -> target.stop
     # remove_target -> source.stop
 
     operations:
       remove_source:
-        # remove_source -> target.stop
+        # remove_source -> [ source.stop, target.stop ]
+        source:
+          following_operations: [ stop ]
         target:
           following_operations: [ stop ]
         operation_host: TARGET
       remove_target:
-        # remove_target -> source.stop
+        # remove_target -> [ source.stop, target.stop ]
         source:
+          following_operations: [ stop ]
+        target:
           following_operations: [ stop ]
         operation_host: SOURCE
 
@@ -133,11 +141,11 @@ relationships_weaving:
     install:
       source:
         states:
-          started:
+          configuring:
             # dependencies here are declared for the partner of the source which is the target
             # the mirror model does not explicit something like wait_target_state as in a real DSL
             # target.started -> source.configuring
-            preceding_state: configuring
+            preceding_state: started
       target:
         states:
           configuring:
