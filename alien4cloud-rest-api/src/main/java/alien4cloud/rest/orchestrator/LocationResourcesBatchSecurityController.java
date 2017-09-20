@@ -109,9 +109,9 @@ public class LocationResourcesBatchSecurityController {
      *******************************************************************************************************************************/
 
     /**
-     * Update applications/environments authorized to access the location resource.
+     * Update applications, environments and environment types authorized to access the location resource.
      */
-    @ApiOperation(value = "Update applications/environments authorized to access the location resource", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
+    @ApiOperation(value = "Update applications, environments and environment type authorized to access the location resource", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,

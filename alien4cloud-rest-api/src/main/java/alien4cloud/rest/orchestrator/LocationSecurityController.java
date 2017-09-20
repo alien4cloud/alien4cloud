@@ -266,16 +266,16 @@ public class LocationSecurityController {
     }
 
     /**
-     * Update applications/environments authorized to access the location.
+     * Update applications,environments and environment types authorized to access the location.
      */
-    @ApiOperation(value = "Update applications/environments authorized to access the location", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
+    @ApiOperation(value = "Update applications,environments and environment types authorized to access the location", notes = "Only user with ADMIN role can update authorized applications,environments and environment types for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
-            @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
+    public synchronized RestResponse<Void> updateAuthorizedEnvironmentsAndEnvTypesPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
+                                                                                                 @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         resourcePermissionService.revokeAuthorizedEnvironmentsPerApplication(location, request.getApplicationsToDelete(), request.getEnvironmentsToDelete(), request.getEnvironmentTypesToDelete());
-        resourcePermissionService.grantAuthorizedEnvironmentsPerApplication(location, request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd());
+        resourcePermissionService.grantAuthorizedEnvironmentsAndEnvTypesPerApplication(location, request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd());
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -284,11 +284,11 @@ public class LocationSecurityController {
      *
      * @return list of all environments per application.
      */
-    @ApiOperation(value = "List all applications/environments authorized to access the location", notes = "Only user with ADMIN role can list authorized applications/environments for the location.")
+    @ApiOperation(value = "List all applications,environments and environment types authorized to access the location", notes = "Only user with ADMIN role can list authorized applications,environments and environment types for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId,
-            @PathVariable String locationId) {
+    public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsAndEnvTypePerApplication(@PathVariable String orchestratorId,
+                                                                                                                        @PathVariable String locationId) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         List<Application> applicationsRelatedToEnvironment = Lists.newArrayList();
         List<Application> applicationsRelatedToEnvironmentType = Lists.newArrayList();
@@ -318,17 +318,17 @@ public class LocationSecurityController {
     }
 
     /**
-     * search applications/environments authorised to access the location.
+     * search applications,environments and environment types authorised to access the location.
      *
      * @return {@link RestResponse} that contains a {@link GetMultipleDataResult} of {@link GroupDTO}..
      */
-    @ApiOperation(value = "List all groups authorized to access the location", notes = "Only user with ADMIN role can list authorized applications/environments to the location.")
+    @ApiOperation(value = "List all applications,environments and environment types authorized to access the location", notes = "Only user with ADMIN role can list authorized applications,environments and environment types to the location.")
     @RequestMapping(value = "/applications/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplicationPaginated(@PathVariable String orchestratorId, @PathVariable String locationId,
-                                                                                      @ApiParam(value = "Text Query to search.") @RequestParam(required = false) String query,
-                                                                                      @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
-                                                                                      @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
+    public RestResponse<GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsAndEnvTypesPerApplicationPaginated(@PathVariable String orchestratorId, @PathVariable String locationId,
+                                                                                                                                                   @ApiParam(value = "Text Query to search.") @RequestParam(required = false) String query,
+                                                                                                                                                   @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
+                                                                                                                                                   @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         List<Application> applicationsRelatedToEnvironment = Lists.newArrayList();
         List<Application> applicationsRelatedToEnvironmentType = Lists.newArrayList();

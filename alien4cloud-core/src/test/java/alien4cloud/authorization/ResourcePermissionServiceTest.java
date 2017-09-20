@@ -133,7 +133,7 @@ public class ResourcePermissionServiceTest {
         resourceSecured.addPermissions(Subject.APPLICATION, "subject1", new HashSet<>(permissions));
         resourceSecured.addPermissions(Subject.ENVIRONMENT, "subject1_1", new HashSet<>(permissions));
         resourceSecured.addPermissions(Subject.ENVIRONMENT, "subject1_2", new HashSet<>(permissions));
-        resourceSecured.addPermissions(Subject.ENVIRONMENT_TYPE, "subject_env_1_1", new HashSet<>(permissions));
+        resourceSecured.addPermissions(Subject.ENVIRONMENT_TYPE, "subject1:INTEGRATION_TESTS", new HashSet<>(permissions));
 
         ApplicationEnvironment ae1 = new ApplicationEnvironment();
         ae1.setId("subject1_1");
@@ -146,7 +146,7 @@ public class ResourcePermissionServiceTest {
         Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[] { ae1, ae2 });
 
         // When
-        service.grantAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
+        service.grantAuthorizedEnvironmentsAndEnvTypesPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
                 "subject1_1", "subject1_2" }, new String[] {"subject_env_1_1" });
 
         // Then
@@ -155,11 +155,11 @@ public class ResourcePermissionServiceTest {
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.APPLICATION, "subject1")).containsExactly(Permission.ADMIN);
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT, "subject1_1")).isEmpty();
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT, "subject1_2")).isEmpty();
-        assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT_TYPE, "subject_env_1_1")).isEmpty();
+        assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT_TYPE, "subject1:INTEGRATION_TESTS")).isEmpty();
     }
 
     @Test
-    public void when_permission_added_at_application_level_unrelated_environment_are_unmodified() {
+    public void when_permission_added_at_application_level_unrelated_environment_and_env_type_are_unmodified() {
         // Given
         resourceSecured = new AbstractSecurityEnabledResource() {
             @Override
@@ -173,7 +173,7 @@ public class ResourcePermissionServiceTest {
         resourceSecured.addPermissions(Subject.APPLICATION, "subject1", new HashSet<>(permissions));
         resourceSecured.addPermissions(Subject.ENVIRONMENT, "subject1_1", new HashSet<>(permissions));
         resourceSecured.addPermissions(Subject.ENVIRONMENT, "subject2_1", new HashSet<>(permissions));
-        resourceSecured.addPermissions(Subject.ENVIRONMENT_TYPE, "subject_env_1_1", new HashSet<>(permissions));
+        resourceSecured.addPermissions(Subject.ENVIRONMENT_TYPE, "subject1:INTEGRATION_TESTS", new HashSet<>(permissions));
 
         ApplicationEnvironment ae1 = new ApplicationEnvironment();
         ae1.setId("subject1_1");
@@ -186,7 +186,7 @@ public class ResourcePermissionServiceTest {
         Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[] { ae1 });
 
         // When
-        service.grantAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
+        service.grantAuthorizedEnvironmentsAndEnvTypesPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
                 "subject1_1", "subject2_1" }, new String[] { EnvironmentType.INTEGRATION_TESTS.toString() });
 
         // Then
@@ -195,7 +195,7 @@ public class ResourcePermissionServiceTest {
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.APPLICATION, "subject1")).containsExactly(Permission.ADMIN);
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT, "subject1_1")).isEmpty();
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT, "subject2_1")).containsExactly(Permission.ADMIN);
-        // assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT_TYPE, EnvironmentType.INTEGRATION_TESTS.toString())).containsExactly(Permission.ADMIN);
+        assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT_TYPE, EnvironmentType.INTEGRATION_TESTS.toString())).containsExactly(Permission.ADMIN);
     }
 
 }

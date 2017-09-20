@@ -3,6 +3,7 @@ package alien4cloud.authorization;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.security.AbstractSecurityEnabledResource;
 import alien4cloud.security.ISecurityEnabledResource;
 import alien4cloud.security.Permission;
@@ -200,8 +201,8 @@ public class ResourcePermissionService {
         alienDAO.save(resource);
     }
 
-    public void grantAuthorizedEnvironmentsPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToAdd, String[] environmentsToAdd,
-            String[] environmentTypesToAdd) {
+    public void grantAuthorizedEnvironmentsAndEnvTypesPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToAdd, String[] environmentsToAdd,
+                                                                     String[] environmentTypesToAdd) {
         List<String> envIds = Lists.newArrayList();
         IResourceSaver noSave = null;
 
@@ -216,6 +217,16 @@ public class ResourcePermissionService {
             }
             if (!envIds.isEmpty()) {
                 revokePermission(resource, noSave, Subject.ENVIRONMENT, envIds.toArray(new String[envIds.size()]));
+            }
+            // remove all all eventual existing env type authorizations
+            Set<String> envTypes = Sets.newHashSet();
+            for (String applicationToAddId : applicationsToAdd) {
+                for (EnvironmentType envType : EnvironmentType.values()) {
+                    envTypes.add(applicationToAddId + ":" + envType.toString());
+                }
+            }
+            if (!envTypes.isEmpty()) {
+                revokePermission(resource, noSave, Subject.ENVIRONMENT_TYPE, envTypes.toArray(new String[envTypes.size()]));
             }
         }
         if (ArrayUtils.isNotEmpty(environmentsToAdd)) {

@@ -197,7 +197,7 @@ public class ServiceSecurityController {
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String serviceId, @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         ServiceResource service = serviceResourceService.getOrFail(serviceId);
         resourcePermissionService.revokeAuthorizedEnvironmentsPerApplication(service, request.getApplicationsToDelete(), request.getEnvironmentsToDelete(), request.getEnvironmentTypesToDelete());
-        resourcePermissionService.grantAuthorizedEnvironmentsPerApplication(service, request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd());
+        resourcePermissionService.grantAuthorizedEnvironmentsAndEnvTypesPerApplication(service, request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd());
         return RestResponseBuilder.<Void> builder().build();
     }
 

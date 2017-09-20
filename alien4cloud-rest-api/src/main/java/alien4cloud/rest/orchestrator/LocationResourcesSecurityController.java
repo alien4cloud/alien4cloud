@@ -232,12 +232,12 @@ public class LocationResourcesSecurityController {
     }
 
     /**
-     * Update applications/environments authorized to access the location resource.
+     * Update applications,environments and environment types authorized to access the location resource.
      */
-    @ApiOperation(value = "Update applications/environments authorized to access the location resource", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
+    @ApiOperation(value = "Update applications,environments and environment types authorized to access the location resource", notes = "Only user with ADMIN role can update authorized applications,environments and environment types for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId,
+    public synchronized RestResponse<Void> updateAuthorizedEnvironmentsAndEnvTypePerApplication(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId,
                                                                                       @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd(), location);
@@ -294,10 +294,10 @@ public class LocationResourcesSecurityController {
      *
      * @return list of all environments per application.
      */
-    @ApiOperation(value = "List all applications/environments authorized to access the location resource", notes = "Only user with ADMIN role can list authorized applications/environments for the location.")
+    @ApiOperation(value = "List all applications,environments and environment types authorized to access the location resource", notes = "Only user with ADMIN role can list authorized applications,environments and environment types for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId,
+    public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsAndEnvTypePerApplication(@PathVariable String orchestratorId,
                                                                                                               @PathVariable String locationId, @PathVariable String resourceId) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         List<Application> applicationsRelatedToEnvironment = Lists.newArrayList();
