@@ -1,23 +1,23 @@
 package alien4cloud.variable;
 
-import java.util.*;
-
-import alien4cloud.utils.services.PropertyService;
+import alien4cloud.tosca.context.ToscaContext;
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.normative.types.IPropertyType;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
 
-import com.google.common.collect.Maps;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
+import java.util.Properties;
 
 @Slf4j
 public class InputsMappingFileVariableResolver extends VariableResolver {
 
-    private ToscaTypeConverter converter = new ToscaTypeConverter();
+    private ToscaTypeConverter converter = new ToscaTypeConverter(ToscaContext::get);
 
     public InputsMappingFileVariableResolver(PropertySource appVariables, PropertySource envVariables, PredefinedVariables predefinedVariables) {
         super(appVariables, envVariables, predefinedVariables);
@@ -34,21 +34,16 @@ public class InputsMappingFileVariableResolver extends VariableResolver {
         for (String propertyName : inputMappingMapPropertySource.getPropertyNames()) {
             // resolved without converting to a specific type
             Object resolvedPropertyValue = resolve(propertyName, Object.class);
-            //resolved.put(propertyName, resolvedPropertyValue);
-
-            // convert result to the expected type according to inputsDefinition
-            // convertToExpectedType(inputsDefinition, resolved, propertyName, resolvedPropertyValue);
 
             // convert result to the expected type according to inputsDefinition
             PropertyDefinition propertyDefinition = inputsDefinition.get(propertyName);
-            PropertyValue convertedPropertyValue;
+            Object value;
             if (resolvedPropertyValue != null && propertyDefinition != null) {
-                convertedPropertyValue = converter.convert(resolvedPropertyValue, propertyDefinition);
-                if (convertedPropertyValue != null) {
-                    resolved.put(propertyName, convertedPropertyValue);
+                value = converter.toValue(resolvedPropertyValue, propertyDefinition);
+                if (value != null) {
+                    resolved.put(propertyName, value);
                 }
             }
-
         }
         getPropertySources().remove(inputMappingMapPropertySource.getName());
 
@@ -61,27 +56,14 @@ public class InputsMappingFileVariableResolver extends VariableResolver {
         MapPropertySource inputMappingMapPropertySource = new MapPropertySource("inputsMapping", inputMappingMap);
         getPropertySources().addFirst(inputMappingMapPropertySource);
         for (String propertyName : inputMappingMapPropertySource.getPropertyNames()) {
-            String resolvedPropertyValue = resolve(propertyName, String.class);
+            // resolved without converting to a specific type
+            Object resolvedPropertyValue = resolve(propertyName, Object.class);
 
-            // convert result to the expected type according to inputsDefinition
+            // toPropertyValue result to the expected type according to inputsDefinition
             PropertyDefinition propertyDefinition = inputsDefinition.get(propertyName);
             PropertyValue convertedPropertyValue;
             if (resolvedPropertyValue != null && propertyDefinition != null) {
-                switch (propertyDefinition.getType()) {
-                case "string":
-                case "integer":
-                case "float":
-                case "boolean":
-                    convertedPropertyValue = new ScalarPropertyValue(resolvedPropertyValue);
-                    break;
-
-                case "version":
-                    convertedPropertyValue = new ScalarPropertyValue(resolvedPropertyValue);
-                    break;
-
-                default:
-                    throw new IllegalStateException("Property with type <" + propertyDefinition.getType() + "> is not supported");
-                }
+                convertedPropertyValue = converter.toPropertyValue(resolvedPropertyValue, propertyDefinition);
                 if (convertedPropertyValue != null) {
                     resolved.put(propertyName, convertedPropertyValue);
                 }

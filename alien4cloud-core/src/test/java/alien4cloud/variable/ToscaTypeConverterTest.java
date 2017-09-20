@@ -1,32 +1,122 @@
 package alien4cloud.variable;
 
+import alien4cloud.utils.version.Version;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import lombok.SneakyThrows;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.normative.types.TimeType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.normative.primitives.Time;
+import org.alien4cloud.tosca.normative.primitives.TimeUnit;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.*;
+import java.util.Arrays;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ToscaTypeConverterTest {
 
-    ToscaTypeConverter converter;
+    private ToscaTypeConverter converter;
+
+    private static PropertyDefinition buildPropDef(String type, boolean required) {
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setType(type);
+        propertyDefinition.setRequired(required);
+        propertyDefinition.setPassword(false);
+        propertyDefinition.setEntrySchema(null);
+        return propertyDefinition;
+    }
+
+    private static PropertyDefinition buildPropDef(String type, String entrySchema, boolean required) {
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setType(type);
+        propertyDefinition.setRequired(required);
+        propertyDefinition.setPassword(false);
+        propertyDefinition.setEntrySchema(buildPropDef(entrySchema, true));
+        return propertyDefinition;
+    }
+
+    @SneakyThrows
+    private static DataType findDataType(Class<? extends DataType> concreteType, String id) {
+        switch (id) {
+            case "alien.nodes.test.ComplexDataType":
+                DataType dataType = new DataType();
+                Map<String, PropertyDefinition> propertyDefinitionMap = Maps.newHashMap();
+                new PropertyDefinition();
+                propertyDefinitionMap.put("nested", buildPropDef("string", true));
+                propertyDefinitionMap.put("nested_array", buildPropDef("list", "string", true));
+                propertyDefinitionMap.put("nested_map", buildPropDef("map", "string", true));
+                dataType.setProperties(propertyDefinitionMap);
+                dataType.setElementId("alien.nodes.test.ComplexDataType");
+                return dataType;
+
+            default:
+                return null;
+        }
+    }
 
     @Before
     public void setUp() throws Exception {
-    converter = new ToscaTypeConverter();
+        converter = new ToscaTypeConverter(ToscaTypeConverterTest::findDataType);
     }
 
     @Test
-    public void convert() throws Exception {
+    public void convert_time_to_property_value() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.TIME);
-        PropertyValue propertyValue = converter.convert("2 d", propertyDefinition);
-        //System.out.println(new TimeType().parse(propertyValue.getValue().toString()));
-        //assertThat(propertyValue).isEqualTo(null);
+
+        PropertyValue propertyValue = converter.toPropertyValue("2 d", propertyDefinition);
+
+        Object time = ToscaTypes.fromYamlTypeName(propertyDefinition.getType()).parse(propertyValue.getValue().toString());
+        assertThat(time).isInstanceOf(Time.class);
+        assertThat(time).isEqualTo(new Time(2, TimeUnit.D));
     }
 
+    @Test
+    public void convert_version_to_property_value() throws Exception {
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setType(ToscaTypes.VERSION);
+
+        PropertyValue propertyValue = converter.toPropertyValue("3.4-SNAPSHOT", propertyDefinition);
+
+        Object version = ToscaTypes.fromYamlTypeName(propertyDefinition.getType()).parse(propertyValue.getValue().toString());
+        assertThat(version).isInstanceOf(Version.class);
+        assertThat(version).isEqualTo(new Version("3.4-SNAPSHOT"));
+    }
+
+    @Test
+    public void convert_complex_data_type_to_property_value() throws Exception {
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setType("alien.nodes.test.ComplexDataType");
+
+        PropertyValue propertyValue = converter.toPropertyValue(
+                ImmutableMap.of(
+                        "nested", "nested value",
+                        "nested_array", Arrays.asList("item1", "item2", "item3"),
+                        "nested_map", ImmutableMap.of("key1", "value1", "key2", "value2")
+                ), propertyDefinition);
+
+        assertThat(propertyValue).isInstanceOf(ComplexPropertyValue.class);
+        ComplexPropertyValue complexPropertyValue = (ComplexPropertyValue) propertyValue;
+        assertThat(complexPropertyValue.getValue().get("nested_map")).isEqualTo(ImmutableMap.of("key1", "value1", "key2", "value2"));
+        assertThat(complexPropertyValue.getValue().get("nested_array")).isEqualTo(Arrays.asList("item1", "item2", "item3"));
+        assertThat(complexPropertyValue.getValue().get("nested")).isEqualTo("nested value");
+    }
+
+
+    @Test
+    public void convert_version_to_value() throws Exception {
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setType(ToscaTypes.VERSION);
+
+        Object value = converter.toValue("3.4-SNAPSHOT", propertyDefinition);
+
+        assertThat(value).isInstanceOf(Version.class);
+        assertThat(value).isEqualTo(new Version("3.4-SNAPSHOT"));
+    }
 }

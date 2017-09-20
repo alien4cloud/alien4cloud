@@ -33,12 +33,11 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
                 return JSON_MARKER + JsonUtil.toString(source) + JSON_MARKER;
             }
         });
-
     }
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    private void resolvePlaceholders(Map<Object, Object> map) {
+    private void resolvePlaceholdersInMap(Map<Object, Object> map) {
         for (Map.Entry<Object, Object> entry : map.entrySet()) {
             if (entry.getValue() == null) {
                 continue;
@@ -50,10 +49,12 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
                 if (resolved.contains(JSON_MARKER)) {
                     String json = StringUtils.substringBetween(resolved, JSON_MARKER);
                     newValue = JsonUtil.toMap(json);
+                    // needed?
+                    // resolvePlaceholdersInMap((Map)newValue);
                 }
                 entry.setValue(newValue);
             } else if (entry.getValue() instanceof Map) {
-                resolvePlaceholders((Map) entry.getValue());
+                resolvePlaceholdersInMap((Map) entry.getValue());
             } else if (entry.getValue() instanceof Collection) {
                 entry.setValue(resolvePlaceholdersInCollection((Collection) entry.getValue()));
             }
@@ -84,7 +85,7 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
                 updatedCollection.add(newValue);
             } else if (obj instanceof Map) {
                 updatedCollection.add(obj);
-                resolvePlaceholders((Map) obj);
+                resolvePlaceholdersInMap((Map) obj);
             } else if (obj instanceof Collection) {
                 updatedCollection.add(resolvePlaceholdersInCollection((Collection) obj));
             } else {
@@ -109,7 +110,7 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
                         if (value instanceof String) {
                             value = resolveNestedPlaceholders((String) value);
                         } else if (value instanceof Map) {
-                            resolvePlaceholders((Map) value);
+                            resolvePlaceholdersInMap((Map) value);
                         } else if (value instanceof Collection) {
                             value = resolvePlaceholdersInCollection((Collection) value);
                         }
