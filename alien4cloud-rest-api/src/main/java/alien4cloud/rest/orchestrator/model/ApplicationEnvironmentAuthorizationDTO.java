@@ -47,10 +47,10 @@ public class ApplicationEnvironmentAuthorizationDTO {
         return converted;
     }
 
-    private static List<String> filterEnvType(String appName, List<String> environmentTypes) {
+    private static List<String> filterEnvType(String appId, List<String> environmentTypes) {
         List<String> envTypes = Lists.newArrayList();
         for (String envType : environmentTypes) {
-            if (envType.split(":")[0].equals(appName)) {
+            if (envType.split(":")[0].equals(appId)) {
                 envTypes.add(envType.split(":")[1]);
             }
         }
@@ -70,9 +70,9 @@ public class ApplicationEnvironmentAuthorizationDTO {
         if (!environmentTypes.isEmpty()) {
             for (Application application : applicationsRelatedToEnvironmentType) {
                 if (aeaDTOsMap.get(application.getId()) != null) {
-                    aeaDTOsMap.get(application.getId()).getEnvironmentTypes().addAll(filterEnvType(application.getName(), environmentTypes));
+                    aeaDTOsMap.get(application.getId()).getEnvironmentTypes().addAll(filterEnvType(application.getId(), environmentTypes));
                 } else {
-                    aeaDTOsMap.put(application.getId(), new ApplicationEnvironmentAuthorizationDTO(application, Lists.newArrayList(), filterEnvType(application.getName(), environmentTypes)));
+                    aeaDTOsMap.put(application.getId(), new ApplicationEnvironmentAuthorizationDTO(application, Lists.newArrayList(), filterEnvType(application.getId(), environmentTypes)));
                 }
             }
         }
