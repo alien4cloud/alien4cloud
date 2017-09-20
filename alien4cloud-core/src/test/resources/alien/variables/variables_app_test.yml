@@ -46,3 +46,7 @@ list_of_complex:
       item11: value${int_variable}${int_variable} #value11
     - item20: value20
       item21: value2${int_variable} #value21
+
+complex_with_list_var_in_body:
+  string_list: ${list_variable}
+  complex_list: ${list_of_complex}

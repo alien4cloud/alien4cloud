@@ -3,17 +3,18 @@ package alien4cloud.variable;
 import alien4cloud.tosca.context.ToscaContext;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.normative.types.IPropertyType;
-import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
 
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * {@link InputsMappingFileVariableResolver} is a specialized version of {@link VariableResolver}
+ * that converts input value types based on {@link PropertyDefinition} attached to the inputs.
+ */
 @Slf4j
 public class InputsMappingFileVariableResolver extends VariableResolver {
 
@@ -27,10 +28,11 @@ public class InputsMappingFileVariableResolver extends VariableResolver {
         super(appVariables, envVariables, predefinedVariables);
     }
 
-    public synchronized Map<String, Object> resolveInputsMappingFile(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) {
+    public synchronized Map<String, Object> resolveAsValue(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) {
         Map<String, Object> resolved = Maps.newHashMap();
         MapPropertySource inputMappingMapPropertySource = new MapPropertySource("inputsMapping", inputMappingMap);
         getPropertySources().addFirst(inputMappingMapPropertySource);
+
         for (String propertyName : inputMappingMapPropertySource.getPropertyNames()) {
             // resolved without converting to a specific type
             Object resolvedPropertyValue = resolve(propertyName, Object.class);
@@ -50,11 +52,12 @@ public class InputsMappingFileVariableResolver extends VariableResolver {
         return resolved;
     }
 
-    public synchronized Map<String, PropertyValue> resolveInputsMappingFilePropertyValue(Map<String, Object> inputMappingMap,
-            Map<String, PropertyDefinition> inputsDefinition) {
+    public synchronized Map<String, PropertyValue> resolveAsPropertyValue(Map<String, Object> inputMappingMap,
+                                                                          Map<String, PropertyDefinition> inputsDefinition) {
         Map<String, PropertyValue> resolved = Maps.newHashMap();
         MapPropertySource inputMappingMapPropertySource = new MapPropertySource("inputsMapping", inputMappingMap);
         getPropertySources().addFirst(inputMappingMapPropertySource);
+
         for (String propertyName : inputMappingMapPropertySource.getPropertyNames()) {
             // resolved without converting to a specific type
             Object resolvedPropertyValue = resolve(propertyName, Object.class);
@@ -69,23 +72,9 @@ public class InputsMappingFileVariableResolver extends VariableResolver {
                 }
             }
         }
+
         getPropertySources().remove(inputMappingMapPropertySource.getName());
 
         return resolved;
-    }
-
-    private void convertToExpectedType(Map<String, PropertyDefinition> inputsDefinition, Map<String, Object> resolved, String propertyName,
-            Object resolvedPropertyValue) {
-        PropertyDefinition propertyDefinition = inputsDefinition.get(propertyName);
-        if (resolvedPropertyValue != null && propertyDefinition != null) {
-            IPropertyType<?> toscaType = ToscaTypes.fromYamlTypeName(propertyDefinition.getType());
-            try {
-                resolvedPropertyValue = toscaType.parse(resolvedPropertyValue.toString());
-                resolved.put(propertyName, resolvedPropertyValue);
-            } catch (InvalidPropertyValueException e) {
-                log.warn("Failed to parse input named <" + propertyName + "> with value <" + resolvedPropertyValue.toString() + "> as <"
-                        + propertyDefinition.getType() + ">");
-            }
-        }
     }
 }

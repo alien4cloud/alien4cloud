@@ -1,18 +1,19 @@
 package alien4cloud.variable;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-
-import java.util.*;
-
+import alien4cloud.model.application.Application;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
-import alien4cloud.model.application.Application;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class VariableResolverTest {
     private VariableResolver resolver;
@@ -61,8 +62,21 @@ public class VariableResolverTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    public void resolve_complex_with_list_var_in_body() throws Exception {
+        Object complex = resolver.resolve("complex_with_list_var_in_body", Object.class);
+        assertThat(complex).isInstanceOf(Map.class);
+        assertThat(((Map) complex).get("string_list")).isEqualTo(Arrays.asList("item 1", "item 2", "item 3"));
+        assertThat(((Map) complex).get("complex_list")).isEqualTo(Arrays.asList(
+                ImmutableMap.of("item10", "value10", "item11", "value11"),
+                ImmutableMap.of("item20", "value20", "item21", "value21"))
+        );
+    }
+
+
+    @Test
+    @SuppressWarnings("unchecked")
     public void resolve_app_var_complex_with_var_in_body() throws Exception {
-        Map<String, Object> complex = (Map<String, Object>)resolver.resolve("complex_with_var_in_body", Object.class);
+        Map<String, Object> complex = (Map<String, Object>) resolver.resolve("complex_with_var_in_body", Object.class);
         assertThat(complex.get("complex_from_var")).isEqualTo(ImmutableMap.of("complex", ImmutableMap.builder().put("subfield", "text").build()));
     }
 
@@ -144,11 +158,11 @@ public class VariableResolverTest {
     public void resolve_list_of_complex() throws Exception {
         Object list = resolver.resolve("list_of_complex", Object.class);
         assertThat(list).isInstanceOf(Collection.class);
-        assertThat(((Collection<Object>)list)).hasSize(2);
-        assertThat(((Collection<Object>)list)).containsExactly(
+        assertThat(((Collection<Object>) list)).hasSize(2);
+        assertThat(((Collection<Object>) list)).containsExactly(
                 ImmutableMap.of("item10", "value10", "item11", "value11"),
                 ImmutableMap.of("item20", "value20", "item21", "value21")
-                );
+        );
     }
 
     @Test

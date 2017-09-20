@@ -9,17 +9,19 @@ import org.springframework.core.env.PropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
- * PropertyResolver supports only String type.
+ * PropertyResolver can resolve only String.
  * <p>
- * This class workaround this limitation by serializing {@link Map} object into JSON during property resolution then
+ * This class workaround this limitation by serializing {@link Map} and {@link Collection} objects into JSON during property resolution then
  * de-serialized before returning the value.
  */
 class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
 
-    private static final String JSON_MARKER = "__JSON-MAP__";
+    private static final String JSON_MAP_MARKER = "__JSONMAP__";
+    private static final String JSON_COLLECTION_MARKER = "__JSONCOLLECTION__";
     private PropertySources propertySources;
 
     public ObjectSourcesPropertyResolver(PropertySources propertySources) {
@@ -30,7 +32,15 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
             @Override
             @SneakyThrows
             public String convert(Map source) {
-                return JSON_MARKER + JsonUtil.toString(source) + JSON_MARKER;
+                return JSON_MAP_MARKER + JsonUtil.toString(source) + JSON_MAP_MARKER;
+            }
+        });
+
+        getConversionService().addConverter(new Converter<Collection, String>() {
+            @Override
+            @SneakyThrows
+            public String convert(Collection source) {
+                return JSON_COLLECTION_MARKER + JsonUtil.toString(source) + JSON_COLLECTION_MARKER;
             }
         });
     }
@@ -46,11 +56,13 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
             if (entry.getValue() instanceof String) {
                 String resolved = resolveNestedPlaceholders((String) entry.getValue());
                 Object newValue = resolved;
-                if (resolved.contains(JSON_MARKER)) {
-                    String json = StringUtils.substringBetween(resolved, JSON_MARKER);
+                if (resolved.contains(JSON_MAP_MARKER)) {
+                    String json = StringUtils.substringBetween(resolved, JSON_MAP_MARKER);
                     newValue = JsonUtil.toMap(json);
-                    // needed?
-                    // resolvePlaceholdersInMap((Map)newValue);
+                }
+                if (resolved.contains(JSON_COLLECTION_MARKER)) {
+                    String json = StringUtils.substringBetween(resolved, JSON_COLLECTION_MARKER);
+                    newValue = JsonUtil.readObject(json, List.class);
                 }
                 entry.setValue(newValue);
             } else if (entry.getValue() instanceof Map) {
@@ -78,8 +90,8 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
             if (obj instanceof String) {
                 String resolved = resolveNestedPlaceholders((String) obj);
                 Object newValue = resolved;
-                if (resolved.contains(JSON_MARKER)) {
-                    String json = StringUtils.substringBetween(resolved, JSON_MARKER);
+                if (resolved.contains(JSON_MAP_MARKER)) {
+                    String json = StringUtils.substringBetween(resolved, JSON_MAP_MARKER);
                     newValue = JsonUtil.toMap(json);
                 }
                 updatedCollection.add(newValue);
@@ -106,7 +118,7 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
                 }
                 Object value = propertySource.getProperty(key);
                 if (value != null) {
-                    if(resolveNestedPlaceholders) {
+                    if (resolveNestedPlaceholders) {
                         if (value instanceof String) {
                             value = resolveNestedPlaceholders((String) value);
                         } else if (value instanceof Map) {

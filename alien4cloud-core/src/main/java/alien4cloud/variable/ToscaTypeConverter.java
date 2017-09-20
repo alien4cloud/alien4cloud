@@ -23,17 +23,14 @@ public class ToscaTypeConverter {
         this.dataTypeFinder = dataTypeFinder;
     }
 
+    @SuppressWarnings("unchecked")
     public Object toValue(Object resolvedPropertyValue, PropertyDefinition propertyDefinition) {
         if (resolvedPropertyValue == null) {
             return null;
         }
 
         if (ToscaTypes.isSimple(propertyDefinition.getType())) {
-            try {
-                return ToscaTypes.fromYamlTypeName(propertyDefinition.getType()).parse(resolvedPropertyValue.toString());
-            } catch (InvalidPropertyValueException e) {
-                throw new RuntimeException("failed to parse <" + resolvedPropertyValue + "> as type <" + propertyDefinition.getType() + ">", e);
-            }
+            return getValueFromSimpleType(resolvedPropertyValue, propertyDefinition);
         }
 
         switch (propertyDefinition.getType()) {
@@ -58,14 +55,14 @@ public class ToscaTypeConverter {
                 }
 
                 if (dataType.isDeriveFromSimpleType()) {
-                    return new ScalarPropertyValue((String) resolvedPropertyValue);
+                    return getValueFromSimpleType(resolvedPropertyValue, propertyDefinition);
                 } else if (resolvedPropertyValue instanceof Map) {
                     Map<String, Object> complexPropertyValue = (Map<String, Object>) resolvedPropertyValue;
                     Map<String, Object> finalComplex = Maps.newHashMap();
                     for (Map.Entry<String, Object> complexPropertyValueEntry : complexPropertyValue.entrySet()) {
                         Object nestedPropertyValue = complexPropertyValueEntry.getValue();
                         PropertyDefinition nestedPropertyDefinition = dataType.getProperties().get(complexPropertyValueEntry.getKey());
-                        finalComplex.put(complexPropertyValueEntry.getKey(), toPropertyValue(nestedPropertyValue, nestedPropertyDefinition));
+                        finalComplex.put(complexPropertyValueEntry.getKey(), toValue(nestedPropertyValue, nestedPropertyDefinition));
                     }
                     return new ComplexPropertyValue(finalComplex);
                 } else {
@@ -76,9 +73,14 @@ public class ToscaTypeConverter {
 
     }
 
-    // example of datatype complex:
-    // https://github.com/alien4cloud/samples/blob/master/aws-ansible-custom-resources/types.yml
-    // https://github.com/alien4cloud/samples/blob/master/demo-lifecycle/demo-lifecycle.yml
+    private Object getValueFromSimpleType(Object resolvedPropertyValue, PropertyDefinition propertyDefinition) {
+        try {
+            return ToscaTypes.fromYamlTypeName(propertyDefinition.getType()).parse(resolvedPropertyValue.toString());
+        } catch (InvalidPropertyValueException e) {
+            throw new RuntimeException("failed to parse <" + resolvedPropertyValue + "> as type <" + propertyDefinition.getType() + ">", e);
+        }
+    }
+
     public PropertyValue toPropertyValue(Object resolvedPropertyValue, PropertyDefinition propertyDefinition) {
         if (resolvedPropertyValue == null) {
             return null;

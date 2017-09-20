@@ -54,7 +54,7 @@ public class InputsMappingFileVariableResolverTest {
     public void check_inputs_mapping_can_be_parsed_when_no_variable() throws Exception {
         Resource inputsMapping = new FileSystemResource("src/test/resources/alien/variables/inputs_mapping_without_variable.yml");
         Map<String, Object> inputsMappingAsProperties = YamlParser.ToMap.from(inputsMapping);
-        Map<String, Object> inputsMappingFileResolved = inputsMappingFileVariableResolver.resolveInputsMappingFile(inputsMappingAsProperties, inputsPropertyDefinitions);
+        Map<String, Object> inputsMappingFileResolved = inputsMappingFileVariableResolver.resolveAsValue(inputsMappingAsProperties, inputsPropertyDefinitions);
 
         assertThat(inputsMappingFileResolved).containsOnlyKeys(Iterables.toArray(inputsMappingAsProperties.keySet(), String.class));
         assertThat(inputsMappingFileResolved.get("int_input")).isEqualTo(10L);
@@ -72,7 +72,7 @@ public class InputsMappingFileVariableResolverTest {
     public void check_inputs_mapping_can_be_parsed_when_variable() throws Exception {
         Resource inputsMapping = new FileSystemResource("src/test/resources/alien/variables/inputs_mapping_with_variables.yml");
         Map<String, Object> inputsMappingAsProperties = YamlParser.ToMap.from(inputsMapping);
-        Map<String, Object> inputsMappingFileResolved = inputsMappingFileVariableResolver.resolveInputsMappingFile(inputsMappingAsProperties, inputsPropertyDefinitions);
+        Map<String, Object> inputsMappingFileResolved = inputsMappingFileVariableResolver.resolveAsValue(inputsMappingAsProperties, inputsPropertyDefinitions);
 
         assertThat(inputsMappingFileResolved).containsOnlyKeys(Iterables.toArray(inputsMappingAsProperties.keySet(), String.class));
         assertThat(inputsMappingFileResolved.get("int_input")).isEqualTo(1L); // yeah int returns a long
@@ -90,7 +90,7 @@ public class InputsMappingFileVariableResolverTest {
     public void check_uber_input_can_be_parsed() throws Exception {
         Resource inputsMapping = new FileSystemResource("src/test/resources/alien/variables/inputs_mapping_uber.yml");
         Map<String, Object> inputsMappingAsProperties = YamlParser.ToMap.from(inputsMapping);
-        Map<String, Object> inputsMappingFileResolved = inputsMappingFileVariableResolver.resolveInputsMappingFile(inputsMappingAsProperties, inputsPropertyDefinitions);
+        Map<String, Object> inputsMappingFileResolved = inputsMappingFileVariableResolver.resolveAsValue(inputsMappingAsProperties, inputsPropertyDefinitions);
 
         assertThat(inputsMappingFileResolved).containsOnlyKeys("uber_input");
         assertThat(inputsMappingFileResolved.get("uber_input")).isInstanceOf(Map.class);
@@ -102,8 +102,8 @@ public class InputsMappingFileVariableResolverTest {
         assertThat(MapUtil.get(inputsMappingFileResolved, "uber_input.complex.complex_with_list.subfield2.sublist[0]")).isEqualTo("item 1");
 
         assertThat(MapUtil.get(inputsMappingFileResolved, "uber_input.simple_var")).isInstanceOf(Map.class);
-//        assertThat(MapUtil.get(inputsMappingFileResolved, "uber_input.simple_var.int_field")).isEqualTo(1);
-//        assertThat(MapUtil.get(inputsMappingFileResolved, "uber_input.simple_var.float_field")).isEqualTo(3.14d);
+        assertThat(MapUtil.get(inputsMappingFileResolved, "uber_input.simple_var.int_field")).isEqualTo(1);
+        assertThat(MapUtil.get(inputsMappingFileResolved, "uber_input.simple_var.float_field")).isEqualTo(3.14d);
         assertThat(MapUtil.get(inputsMappingFileResolved, "uber_input.simple_var.string_field")).isEqualTo("text");
         assertThat(MapUtil.get(inputsMappingFileResolved, "uber_input.simple_var.concat_field")).isEqualTo("13.14");
 
