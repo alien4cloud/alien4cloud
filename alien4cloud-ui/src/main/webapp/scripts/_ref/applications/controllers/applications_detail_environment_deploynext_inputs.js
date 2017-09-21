@@ -19,7 +19,7 @@ define(function (require) {
       icon: '',
       priority: 300,
       step: {
-        taskCodes: ['INPUT_PROPERTY', 'INPUT_ARTIFACT_INVALID']
+        taskCodes: ['INPUT_PROPERTY', 'INPUT_ARTIFACT_INVALID', 'UNRESOLVABLE_PREDEFINED_INPUTS', 'MISSING_VARIABLES']
       }
     }
   });
@@ -43,7 +43,7 @@ define(function (require) {
       $scope.deployerInputs = {};
       $scope.predefiniedInputs = {};
       _.each(allInputs, function (inputValue, inputId) {
-        if (_.isUndefined($scope.deploymentTopologyDTO.topology.preconfiguredInputProperties[inputId])) {
+        if (_.isUndefined(_.get($scope,'deploymentTopologyDTO.topology.preconfiguredInputProperties[inputId]'))) {
           $scope.deployerInputs[inputId] = inputValue;
         } else {
           $scope.predefiniedInputs[inputId] = inputValue;

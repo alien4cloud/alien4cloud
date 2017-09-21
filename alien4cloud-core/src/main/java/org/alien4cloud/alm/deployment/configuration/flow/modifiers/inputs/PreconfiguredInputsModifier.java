@@ -2,6 +2,8 @@ package org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs;
 
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.topology.task.MissingVariablesTask;
+import alien4cloud.topology.task.UnresolvablePredefinedInputsTask;
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
@@ -9,6 +11,7 @@ import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsCon
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.variable.InputsMappingFileVariableResolver;
+import org.alien4cloud.tosca.variable.MissingVariablesException;
 import org.alien4cloud.tosca.variable.PredefinedVariables;
 import org.alien4cloud.tosca.variable.QuickFileStorageService;
 import org.springframework.stereotype.Component;
@@ -49,8 +52,15 @@ public class PreconfiguredInputsModifier implements ITopologyModifier {
 
         InputsMappingFileVariableResolver inputsMappingFileVariableResolver = new InputsMappingFileVariableResolver(appVarProps, envVarProps,
                 predefinedVariables);
-        Map<String, PropertyValue> resolvedInputsMappingFile = inputsMappingFileVariableResolver.resolveAsPropertyValue(inputsMappingsMap,
-                topology.getInputs());
+        Map<String, PropertyValue> resolvedInputsMappingFile = null;
+        try {
+            resolvedInputsMappingFile = inputsMappingFileVariableResolver.resolveAsPropertyValue(inputsMappingsMap,
+                    topology.getInputs());
+        } catch (MissingVariablesException e) {
+            context.log().error(new MissingVariablesTask(e.getMissingVariables()));
+            context.log().error(new UnresolvablePredefinedInputsTask(e.getUnresolvableInputs()));
+        }
+
         PreconfiguredInputsConfiguration preconfiguredInputsConfiguration = new PreconfiguredInputsConfiguration(environment.getTopologyVersion(), environment.getId());
         preconfiguredInputsConfiguration.setInputs(resolvedInputsMappingFile);
         // TODO: improve me

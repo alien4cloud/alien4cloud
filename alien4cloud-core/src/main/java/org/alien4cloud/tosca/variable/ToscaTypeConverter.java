@@ -90,7 +90,7 @@ public class ToscaTypeConverter {
         }
 
         if (ToscaTypes.isSimple(propertyDefinition.getType())) {
-            return new ScalarPropertyValue((String) resolvedPropertyValue);
+            return new ScalarPropertyValue(resolvedPropertyValue.toString());
         }
 
         switch (propertyDefinition.getType()) {
@@ -124,7 +124,7 @@ public class ToscaTypeConverter {
                 }
 
                 if (dataType.isDeriveFromSimpleType()) {
-                    return new ScalarPropertyValue((String) resolvedPropertyValue);
+                    return new ScalarPropertyValue(resolvedPropertyValue.toString());
                 } else if (resolvedPropertyValue instanceof Map) {
                     return new ComplexPropertyValue((Map<String, Object>) resolvedPropertyValue);
                 } else {

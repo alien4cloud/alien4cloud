@@ -16,7 +16,9 @@ import org.springframework.core.io.Resource;
 import java.util.Collection;
 import java.util.Map;
 
+import static org.alien4cloud.tosca.variable.PropertyDefinitionUtils.buildPropDef;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class InputsMappingFileVariableResolverTest {
 
@@ -27,11 +29,11 @@ public class InputsMappingFileVariableResolverTest {
     @Before
     public void setUp() throws Exception {
         inputsPropertyDefinitions = Maps.newHashMap();
-        inputsPropertyDefinitions.put("int_input", propertyDefinitionWithType(ToscaTypes.INTEGER));
-        inputsPropertyDefinitions.put("float_input", propertyDefinitionWithType(ToscaTypes.FLOAT));
-        inputsPropertyDefinitions.put("string_input", propertyDefinitionWithType(ToscaTypes.STRING));
-        inputsPropertyDefinitions.put("complex_input", propertyDefinitionWithType(ToscaTypes.MAP));
-        inputsPropertyDefinitions.put("uber_input", propertyDefinitionWithType(ToscaTypes.MAP));
+        inputsPropertyDefinitions.put("int_input", buildPropDef(ToscaTypes.INTEGER));
+        inputsPropertyDefinitions.put("float_input", buildPropDef(ToscaTypes.FLOAT));
+        inputsPropertyDefinitions.put("string_input", buildPropDef(ToscaTypes.STRING));
+        inputsPropertyDefinitions.put("complex_input", buildPropDef(ToscaTypes.MAP, ToscaTypes.STRING));
+        inputsPropertyDefinitions.put("uber_input", buildPropDef(ToscaTypes.MAP, ToscaTypes.STRING));
 
         Resource yamlApp = new FileSystemResource("src/test/resources/alien/variables/variables_app_test.yml");
         Resource yamlEnv = new FileSystemResource("src/test/resources/alien/variables/variables_env_test.yml");
@@ -45,10 +47,25 @@ public class InputsMappingFileVariableResolverTest {
                 predefinedVariables);
     }
 
-    private PropertyDefinition propertyDefinitionWithType(String type) {
-        PropertyDefinition propertyDefinition = new PropertyDefinition();
-        propertyDefinition.setType(type);
-        return propertyDefinition;
+    @Test
+    public void should_list_all_missing_variables() throws Exception {
+        Resource yamlApp = new FileSystemResource("src/test/resources/alien/variables/variables_app_missing_var.yml");
+        inputsMappingFileVariableResolver = new InputsMappingFileVariableResolver(YamlParser.ToProperties.from(yamlApp), YamlParser.ToProperties.from(yamlApp),
+                new PredefinedVariables());
+
+        Resource inputsMapping = new FileSystemResource("src/test/resources/alien/variables/inputs_mapping_with_missing_variable.yml");
+
+        try {
+            inputsMappingFileVariableResolver.resolveAsPropertyValue(YamlParser.ToMap.from(inputsMapping), inputsPropertyDefinitions);
+            fail("should throw an exception when missing variables");
+        } catch (MissingVariablesException e) {
+            assertThat(e.getMissingVariables()).hasSize(4);
+            assertThat(e.getMissingVariables()).contains(
+                    "missing_inner_variable",
+                    "missing_float_variable",
+                    "missing_string_variable",
+                    "missing_int_variable");
+        }
     }
 
     @Test

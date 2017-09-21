@@ -17,29 +17,12 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Map;
 
+import static org.alien4cloud.tosca.variable.PropertyDefinitionUtils.buildPropDef;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ToscaTypeConverterTest {
 
     private ToscaTypeConverter converter;
-
-    private static PropertyDefinition buildPropDef(String type, boolean required) {
-        PropertyDefinition propertyDefinition = new PropertyDefinition();
-        propertyDefinition.setType(type);
-        propertyDefinition.setRequired(required);
-        propertyDefinition.setPassword(false);
-        propertyDefinition.setEntrySchema(null);
-        return propertyDefinition;
-    }
-
-    private static PropertyDefinition buildPropDef(String type, String entrySchema, boolean required) {
-        PropertyDefinition propertyDefinition = new PropertyDefinition();
-        propertyDefinition.setType(type);
-        propertyDefinition.setRequired(required);
-        propertyDefinition.setPassword(false);
-        propertyDefinition.setEntrySchema(buildPropDef(entrySchema, true));
-        return propertyDefinition;
-    }
 
     @SneakyThrows
     private static DataType findDataType(Class<? extends DataType> concreteType, String id) {
@@ -48,9 +31,9 @@ public class ToscaTypeConverterTest {
                 DataType dataType = new DataType();
                 Map<String, PropertyDefinition> propertyDefinitionMap = Maps.newHashMap();
                 new PropertyDefinition();
-                propertyDefinitionMap.put("nested", buildPropDef("string", true));
-                propertyDefinitionMap.put("nested_array", buildPropDef("list", "string", true));
-                propertyDefinitionMap.put("nested_map", buildPropDef("map", "string", true));
+                propertyDefinitionMap.put("nested", buildPropDef("string"));
+                propertyDefinitionMap.put("nested_array", buildPropDef("list", "string"));
+                propertyDefinitionMap.put("nested_map", buildPropDef("map", "string"));
                 dataType.setProperties(propertyDefinitionMap);
                 dataType.setElementId("alien.nodes.test.ComplexDataType");
                 return dataType;
