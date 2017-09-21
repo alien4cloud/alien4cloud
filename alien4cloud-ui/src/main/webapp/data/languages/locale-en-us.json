@@ -770,6 +770,7 @@
     "PRODUCTION": "production",
     "USER_ACCEPTANCE_TESTS": "UAT"
   },
+  "ENVIRONMENT_TYPE_ALL": "All environment types",
   "ERRORS": {
     "100": "Authentication required",
     "101": "Authentication error, please check your login and password",
@@ -965,6 +966,7 @@
           "ADD": "Authorize applications",
           "ADD_POPUP": {
             "EMPTY_PLACEHOLDER": "authorized applications / environments for this location",
+            "MESSAGE": "You can add authorizations by application, by environments. You can also add authorizations by environment types.",
             "LOC_AUTH_FILTER": "Location authorized",
             "TITLE": "Select applications / environments"
           },

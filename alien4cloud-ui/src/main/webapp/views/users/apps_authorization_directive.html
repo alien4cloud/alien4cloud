@@ -30,6 +30,7 @@
           <tr>
             <th>{{ 'APPLICATIONS.APPLICATION' | translate}}</th>
             <th>{{ 'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</th>
+            <th>Environment types</th>
             <th></th>
             <th></th>
           </tr>
@@ -41,8 +42,16 @@
               <div ng-if="application.environments && application.environments.length > 0">
                 <span class="badge" ng-repeat="environment in application.environments">{{environment.name}}</span>
               </div>
-              <div ng-if="!application.environments || application.environments.length == 0">
+              <div ng-if="!application.environments">
                 <span class="label label-success">{{ 'APPLICATIONS.ENVIRONMENT.ALL' | translate }}</span>
+              </div>
+            </td>
+            <td>
+              <div ng-if="application.environmentTypes && application.environmentTypes.length > 0">
+                <span class="badge" ng-repeat="environmentType in application.environmentTypes">{{ 'ENVIRONMENT_TYPE.' + environmentType | translate  }}</span>
+              </div>
+              <div ng-if="!application.environmentTypes">
+                <span class="label label-success">{{ 'ENVIRONMENT_TYPE_ALL' | translate }}</span>
               </div>
             </td>
             <td>

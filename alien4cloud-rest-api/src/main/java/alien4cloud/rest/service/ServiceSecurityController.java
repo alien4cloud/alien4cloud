@@ -1,19 +1,8 @@
 package alien4cloud.rest.service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
+import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -24,11 +13,25 @@ import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationDT
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
 import alien4cloud.rest.orchestrator.model.GroupDTO;
 import alien4cloud.rest.orchestrator.model.UserDTO;
-import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.security.Subject;
-import org.alien4cloud.alm.service.ServiceResourceService;
+import com.google.common.collect.Sets;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.alien4cloud.alm.service.ServiceResourceService;
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping({ "/rest/v1/services/{serviceId}/security/", "/rest/latest/services/{serviceId}/security/" })
@@ -193,8 +196,8 @@ public class ServiceSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String serviceId, @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         ServiceResource service = serviceResourceService.getOrFail(serviceId);
-        resourcePermissionService.revokeAuthorizedEnvironmentsPerApplication(service, request.getApplicationsToDelete(), request.getEnvironmentsToDelete());
-        resourcePermissionService.grantAuthorizedEnvironmentsPerApplication(service, request.getApplicationsToAdd(), request.getEnvironmentsToAdd());
+        resourcePermissionService.revokeAuthorizedEnvironmentsPerApplication(service, request.getApplicationsToDelete(), request.getEnvironmentsToDelete(), request.getEnvironmentTypesToDelete());
+        resourcePermissionService.grantAuthorizedEnvironmentsAndEnvTypesPerApplication(service, request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd());
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -209,6 +212,7 @@ public class ServiceSecurityController {
     public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplication(@PathVariable String serviceId) {
         ServiceResource service = serviceResourceService.getOrFail(serviceId);
         List<Application> applicationsRelatedToEnvironment = Lists.newArrayList();
+        List<Application> applicationsRelatedToEnvironmentType = Lists.newArrayList();
         List<ApplicationEnvironment> environments = Lists.newArrayList();
         List<Application> applications = Lists.newArrayList();
 
@@ -217,11 +221,20 @@ public class ServiceSecurityController {
             Set<String> environmentApplicationIds = environments.stream().map(ae -> ae.getApplicationId()).collect(Collectors.toSet());
             applicationsRelatedToEnvironment = alienDAO.findByIds(Application.class, environmentApplicationIds.toArray(new String[environmentApplicationIds.size()]));
         }
+
+        if (service.getEnvironmentTypePermissions() != null && service.getEnvironmentTypePermissions().size() > 0) {
+            Set<String> environmentTypeApplicationIds = Sets.newHashSet();
+            for (String envType : service.getEnvironmentTypePermissions().keySet()) {
+                environmentTypeApplicationIds.add(envType.split(":")[0]);
+            }
+            applicationsRelatedToEnvironmentType = alienDAO.findByIds(Application.class, environmentTypeApplicationIds.toArray(new String[environmentTypeApplicationIds.size()]));
+        }
+
         if (service.getApplicationPermissions() != null && service.getApplicationPermissions().size() > 0) {
             applications = alienDAO.findByIds(Application.class, service.getApplicationPermissions().keySet().toArray(new String[service.getApplicationPermissions().size()]));
         }
 
-        List<ApplicationEnvironmentAuthorizationDTO> result = ApplicationEnvironmentAuthorizationDTO.buildDTOs(applicationsRelatedToEnvironment, environments, applications);
+        List<ApplicationEnvironmentAuthorizationDTO> result = ApplicationEnvironmentAuthorizationDTO.buildDTOs(applicationsRelatedToEnvironment, applicationsRelatedToEnvironmentType, environments, applications, Lists.newArrayList());
         return RestResponseBuilder.<List<ApplicationEnvironmentAuthorizationDTO>> builder().data(result).build();
     }
 

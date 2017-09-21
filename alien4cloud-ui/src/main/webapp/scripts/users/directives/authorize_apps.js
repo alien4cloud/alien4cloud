@@ -46,7 +46,8 @@ define(function (require) {
           var modalInstance = $uibModal.open({
             templateUrl: 'views/users/apps_authorization_popup.html',
             controller: 'AppsAuthorizationModalCtrl',
-            scope: scope
+            scope: scope,
+            windowClass: 'authorization-modal'
           });
 
           modalInstance.result.then(function (result) {

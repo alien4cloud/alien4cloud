@@ -1,17 +1,5 @@
 package alien4cloud.it.common;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-
-import com.google.common.collect.Sets;
-
 import alien4cloud.it.Context;
 import alien4cloud.it.application.ApplicationStepDefinitions;
 import alien4cloud.it.orchestrators.LocationsDefinitionsSteps;
@@ -25,10 +13,20 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.Group;
 import alien4cloud.security.model.User;
 import alien4cloud.utils.AlienUtils;
+import com.google.common.collect.Sets;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SecuredResourceStepDefinition {
 
@@ -183,6 +181,17 @@ public class SecuredResourceStepDefinition {
                 .flatMap(appDTO -> appDTO.getEnvironments().stream().map(ApplicationEnvironment::getName)).collect(Collectors.toSet());
     }
 
+    private Set<String> getAuthorisedEnvironmentTypes() throws IOException {
+        ApplicationEnvironmentAuthorizationDTO[] dtos  = getApplicationEnvironmentAuthorizationDTOS();
+        Set<String> envTypes = Sets.newHashSet();
+        for (ApplicationEnvironmentAuthorizationDTO dto : dtos) {
+            if (dto.getEnvironmentTypes() != null && !dto.getEnvironmentTypes().isEmpty()) {
+                envTypes.addAll(dto.getEnvironmentTypes());
+            }
+        }
+        return envTypes;
+    }
+
     private Set<String> getAuthorisedApplications() throws IOException {
         return Arrays.stream(getApplicationEnvironmentAuthorizationDTOS()).filter(appDTO -> appDTO.getApplication() != null)
                 .map(appDTO -> appDTO.getApplication().getName()).collect(Collectors.toSet());
@@ -217,10 +226,28 @@ public class SecuredResourceStepDefinition {
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
     }
 
+    @Given("^I (successfully\\s)?grant access to the resource type \"([^\"]*)\" named \"([^\"]*)\" to the environment type \"([^\"]*)\" of the application \"([^\"]*)\"$")
+    public void iGrantAccessToTheResourceTypeNamedToTheEnvironmentTypeOfTheApplication(String successfully, String resourceType, String resourceName,
+                                                                                   String environmentType,
+                                                                                   String applicationName) throws Throwable {
+        ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
+        request.setEnvironmentTypesToAdd(new String[] { Context.getInstance().getApplicationId(applicationName) + ":" + environmentType });
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance()
+                .postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/environmentsPerApplication/", JsonUtil.toString(request)));
+
+        CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
+    }
+
     @Then("^I should have following list of environments:$")
     public void iShouldHaveFollowingListOfEnvironments(DataTable rawExpectedEnvironments) throws Throwable {
         Assert.assertEquals(getExpectedNames(rawExpectedEnvironments), getAuthorisedEnvironments());
     }
+
+    @Then("^I should have following list of environment types:$")
+    public void iShouldHaveFollowingListOfEnvironmentTypes(DataTable rawExpectedEnvironmentTypes) throws Throwable {
+        Assert.assertEquals(getExpectedNames(rawExpectedEnvironmentTypes), getAuthorisedEnvironmentTypes());
+    }
+
 
     @Given("^I revoke access to the resource type \"([^\"]*)\" named \"([^\"]*)\" from the environment \"([^\"]*)\" of the application \"([^\"]*)\"$")
     public void iRevokeAccessToTheResourceTypeNamedFromTheEnvironmentOfTheApplication(String resourceType, String resourceName, String environmentName,
@@ -231,9 +258,23 @@ public class SecuredResourceStepDefinition {
                 .postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/environmentsPerApplication/", JsonUtil.toString(request)));
     }
 
+    @Given("^I revoke access to the resource type \"([^\"]*)\" named \"([^\"]*)\" from the environment type \"([^\"]*)\" of the application \"([^\"]*)\"$")
+    public void iRevokeAccessToTheResourceTypeNamedFromTheEnvironmentTypeOfTheApplication(String resourceType, String resourceName, String environmentType,
+                                                                                      String applicationName) throws Throwable {
+        ApplicationEnvironmentAuthorizationUpdateRequest request = new ApplicationEnvironmentAuthorizationUpdateRequest();
+        request.setEnvironmentTypesToDelete(new String[] { Context.getInstance().getApplicationId(applicationName) + ":" + environmentType });
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance()
+                .postJSon(getSecuredResourceBaseURL(resourceType, resourceName) + "/environmentsPerApplication/", JsonUtil.toString(request)));
+    }
+
     @Then("^I should not have any authorized environments$")
     public void iShouldNotHaveAnyAuthorizedEnvironments() throws Throwable {
         Assert.assertTrue(getAuthorisedEnvironments().isEmpty());
+    }
+
+    @Then("^I should not have any authorized environment types$")
+    public void iShouldNotHaveAnyAuthorizedEnvironmentTypes() throws Throwable {
+        Assert.assertTrue(getAuthorisedEnvironmentTypes().isEmpty());
     }
 
     @Then("^I should not have any authorized applications$")
