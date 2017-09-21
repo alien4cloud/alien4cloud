@@ -1,4 +1,4 @@
-package alien4cloud.variable;
+package org.alien4cloud.tosca.variable;
 
 import alien4cloud.utils.version.Version;
 import com.google.common.collect.ImmutableMap;

@@ -1,11 +1,11 @@
-package alien4cloud.variable;
-
-import java.util.Map;
-import java.util.Properties;
+package org.alien4cloud.tosca.utils;
 
 import org.springframework.beans.factory.config.YamlMapFactoryBean;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.Resource;
+
+import java.util.Map;
+import java.util.Properties;
 
 public class YamlParser {
 

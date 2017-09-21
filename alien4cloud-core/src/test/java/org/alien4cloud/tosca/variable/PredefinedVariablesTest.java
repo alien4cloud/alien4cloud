@@ -1,16 +1,14 @@
-package alien4cloud.variable;
-
-import java.util.Arrays;
-
-import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.collect.ImmutableMap;
+package org.alien4cloud.tosca.variable;
 
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.orchestrators.locations.Location;
+import com.google.common.collect.ImmutableMap;
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Arrays;
 
 public class PredefinedVariablesTest {
 

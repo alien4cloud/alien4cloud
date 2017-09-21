@@ -31,6 +31,10 @@ list_variable:
   - item 2
   - item 3
 
+list_spel_variable:
+  - "item #{ 'toto' == 'toto' }"
+  - "item #{ 'titi' == 'toto' }"
+  - "item #{ 3 }"
 
 complex_with_list:
   subfield1: ${string_variable}

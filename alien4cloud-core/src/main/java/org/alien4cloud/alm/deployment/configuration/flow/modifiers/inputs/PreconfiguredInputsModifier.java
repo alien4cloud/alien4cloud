@@ -2,15 +2,15 @@ package org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs;
 
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.variable.InputsMappingFileVariableResolver;
-import alien4cloud.variable.PredefinedVariables;
-import alien4cloud.variable.QuickFileStorageService;
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsConfiguration;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.variable.InputsMappingFileVariableResolver;
+import org.alien4cloud.tosca.variable.PredefinedVariables;
+import org.alien4cloud.tosca.variable.QuickFileStorageService;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;

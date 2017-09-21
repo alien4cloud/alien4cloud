@@ -1,4 +1,4 @@
-package alien4cloud.variable;
+package org.alien4cloud.tosca.variable;
 
 import lombok.Getter;
 

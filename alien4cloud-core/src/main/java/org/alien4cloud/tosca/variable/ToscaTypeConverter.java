@@ -1,4 +1,4 @@
-package alien4cloud.variable;
+package org.alien4cloud.tosca.variable;
 
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +14,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class can convert {@link Object} type into {@link PropertyValue} in respect to a {@link PropertyDefinition}.
+ */
 @Slf4j
 public class ToscaTypeConverter {
 

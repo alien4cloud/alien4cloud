@@ -1,4 +1,4 @@
-package alien4cloud.variable;
+package org.alien4cloud.tosca.variable;
 
 import alien4cloud.tosca.context.ToscaContext;
 import com.google.common.collect.Maps;
@@ -13,7 +13,7 @@ import java.util.Properties;
 
 /**
  * {@link InputsMappingFileVariableResolver} is a specialized version of {@link VariableResolver}
- * that converts input value types based on {@link PropertyDefinition} attached to the inputs.
+ * that resolved inputs value and convert them into types matching {@link PropertyDefinition} attached to the inputs.
  */
 @Slf4j
 public class InputsMappingFileVariableResolver extends VariableResolver {

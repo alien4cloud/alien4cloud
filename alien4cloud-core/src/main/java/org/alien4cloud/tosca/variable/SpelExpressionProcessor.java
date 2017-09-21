@@ -1,5 +1,6 @@
-package alien4cloud.variable;
+package org.alien4cloud.tosca.variable;
 
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParserContext;
@@ -8,28 +9,36 @@ import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-public class VariableSpelExpressionProcessor {
+/**
+ * This class is responsible to configure and wrap the access to {@link SpelExpressionParser}
+ * Variables are accessible within a SpEL expression thanks to {@link VariableEvaluationContext}
+ */
+public class SpelExpressionProcessor {
 
     private SpelExpressionParser parser;
     private ParserContext templateContext;
     private EvaluationContext context;
 
-    public VariableSpelExpressionProcessor(VariableResolver resolver) {
+    public SpelExpressionProcessor(PropertyResolver resolver) {
         SpelParserConfiguration configuration = new SpelParserConfiguration(true, true);
         parser = new SpelExpressionParser(configuration);
         templateContext = new TemplateParserContext();
-        context = new AlienVariableEvaluationContext(resolver);
+        context = new VariableEvaluationContext(resolver);
     }
 
     public <T> T process(String expressionString, Class<T> clazz) {
+        if (expressionString == null) {
+            return null;
+        }
+
         Expression expression = parser.parseExpression(expressionString, templateContext);
         return expression.getValue(context, clazz);
     }
 
-    private static class AlienVariableEvaluationContext extends StandardEvaluationContext {
-        private VariableResolver resolver;
+    private static class VariableEvaluationContext extends StandardEvaluationContext {
+        private PropertyResolver resolver;
 
-        public AlienVariableEvaluationContext(VariableResolver resolver) {
+        private VariableEvaluationContext(PropertyResolver resolver) {
             this.resolver = resolver;
         }
 
@@ -39,7 +48,7 @@ public class VariableSpelExpressionProcessor {
             if (variable != null) {
                 return variable;
             } else {
-                return resolver.resolve(name, Object.class);
+                return resolver.getProperty(name, Object.class);
             }
         }
     }

@@ -1,4 +1,4 @@
-package alien4cloud.variable;
+package org.alien4cloud.tosca.variable;
 
 import alien4cloud.rest.utils.JsonUtil;
 import lombok.SneakyThrows;
@@ -8,25 +8,31 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
- * PropertyResolver can resolve only String.
+ * PropertyResolver can resolve only String variables and does not process SpEL expression.
  * <p>
- * This class workaround this limitation by serializing {@link Map} and {@link Collection} objects into JSON during property resolution then
+ * This class workaround the String only limitation by serializing {@link Map} and {@link Collection} objects into JSON during property resolution then
  * de-serialized before returning the value.
+ * This class also process SpEL expression on all properties resolved as a {@link String}
  */
 class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
 
     private static final String JSON_MAP_MARKER = "__JSONMAP__";
     private static final String JSON_COLLECTION_MARKER = "__JSONCOLLECTION__";
+
     private PropertySources propertySources;
+    private SpelExpressionProcessor spelExpressionParser;
 
     public ObjectSourcesPropertyResolver(PropertySources propertySources) {
         super(propertySources);
         this.propertySources = propertySources;
+        this.setIgnoreUnresolvableNestedPlaceholders(false);
+        this.spelExpressionParser = new SpelExpressionProcessor(this);
 
         getConversionService().addConverter(new Converter<Map, String>() {
             @Override
@@ -54,23 +60,30 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
             }
 
             if (entry.getValue() instanceof String) {
-                String resolved = resolveNestedPlaceholders((String) entry.getValue());
-                Object newValue = resolved;
-                if (resolved.contains(JSON_MAP_MARKER)) {
-                    String json = StringUtils.substringBetween(resolved, JSON_MAP_MARKER);
-                    newValue = JsonUtil.toMap(json);
-                }
-                if (resolved.contains(JSON_COLLECTION_MARKER)) {
-                    String json = StringUtils.substringBetween(resolved, JSON_COLLECTION_MARKER);
-                    newValue = JsonUtil.readObject(json, List.class);
-                }
-                entry.setValue(newValue);
+                entry.setValue(resolveString((String) entry.getValue()));
             } else if (entry.getValue() instanceof Map) {
                 resolvePlaceholdersInMap((Map) entry.getValue());
             } else if (entry.getValue() instanceof Collection) {
                 entry.setValue(resolvePlaceholdersInCollection((Collection) entry.getValue()));
             }
         }
+    }
+
+    private Object deserializeJsonObject(String resolved) throws IOException {
+        if (resolved == null) {
+            return null;
+        }
+
+        Object newValue = resolved;
+        if (resolved.contains(JSON_MAP_MARKER)) {
+            String json = StringUtils.substringBetween(resolved, JSON_MAP_MARKER);
+            newValue = JsonUtil.toMap(json);
+        }
+        if (resolved.contains(JSON_COLLECTION_MARKER)) {
+            String json = StringUtils.substringBetween(resolved, JSON_COLLECTION_MARKER);
+            newValue = JsonUtil.readObject(json, List.class);
+        }
+        return newValue;
     }
 
     @SneakyThrows
@@ -88,13 +101,7 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
             }
 
             if (obj instanceof String) {
-                String resolved = resolveNestedPlaceholders((String) obj);
-                Object newValue = resolved;
-                if (resolved.contains(JSON_MAP_MARKER)) {
-                    String json = StringUtils.substringBetween(resolved, JSON_MAP_MARKER);
-                    newValue = JsonUtil.toMap(json);
-                }
-                updatedCollection.add(newValue);
+                updatedCollection.add(resolveString((String) obj));
             } else if (obj instanceof Map) {
                 updatedCollection.add(obj);
                 resolvePlaceholdersInMap((Map) obj);
@@ -106,6 +113,12 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
         }
 
         return updatedCollection;
+    }
+
+    private Object resolveString(String obj) throws IOException {
+        String resolved = resolveNestedPlaceholders(obj);
+        resolved = spelExpressionParser.process(resolved, String.class);
+        return deserializeJsonObject(resolved);
     }
 
     @Override
@@ -121,6 +134,7 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
                     if (resolveNestedPlaceholders) {
                         if (value instanceof String) {
                             value = resolveNestedPlaceholders((String) value);
+                            value = spelExpressionParser.process((String) value, targetValueType);
                         } else if (value instanceof Map) {
                             resolvePlaceholdersInMap((Map) value);
                         } else if (value instanceof Collection) {

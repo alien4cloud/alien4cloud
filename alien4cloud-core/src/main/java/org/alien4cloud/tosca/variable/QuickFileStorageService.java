@@ -1,8 +1,9 @@
-package alien4cloud.variable;
+package org.alien4cloud.tosca.variable;
 
 import alien4cloud.utils.FileUtil;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
+import org.alien4cloud.tosca.utils.YamlParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Required;

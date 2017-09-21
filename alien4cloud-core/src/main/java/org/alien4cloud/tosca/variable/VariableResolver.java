@@ -1,4 +1,4 @@
-package alien4cloud.variable;
+package org.alien4cloud.tosca.variable;
 
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -24,12 +24,13 @@ import java.util.Properties;
  * Resolving a Variable means building the effective value of the Variable (after replacing inner Variables with there
  * effective values, executing SpEL expression).
  * <p>
- * It's possible to cast a Variable to a specific type here by using {@link #resolve(String, Class)}} and specifying the target class in that
- * case the conversion is done by Spring {@link org.springframework.core.convert.support.ConfigurableConversionService}
- * If the target class is Object.class no conversion will be made (that probably what you want).
+ * It's possible to cast a Variable to a specific type here by using {@link #resolve(String, Class)}} and specifying
+ * the target class in that case the conversion is done by Spring {@link org.springframework.core.convert.support.ConfigurableConversionService}.
+ * If the target class is Object.class no conversion will be made (that probably what you want an do the conversion later
+ * to match a {@link org.alien4cloud.tosca.model.definitions.PropertyDefinition}).
  *
  * @see ObjectSourcesPropertyResolver
- * @see VariableSpelExpressionProcessor
+ * @see SpelExpressionProcessor
  */
 public class VariableResolver {
 
@@ -37,7 +38,6 @@ public class VariableResolver {
     private static final String ENV_VARIABLES = "envVariables";
 
     private PropertySourcesPropertyResolver resolver;
-    private VariableSpelExpressionProcessor spelExpressionParser;
     private MutablePropertySources propertySources;
 
     public VariableResolver(PropertySource appVariables, PropertySource envVariables, PredefinedVariables predefinedVariables) {
@@ -48,7 +48,6 @@ public class VariableResolver {
         propertySources.addLast(appVariables);
 
         this.resolver = new ObjectSourcesPropertyResolver(propertySources);
-        this.spelExpressionParser = new VariableSpelExpressionProcessor(this);
     }
 
     protected MutablePropertySources getPropertySources() {
@@ -64,13 +63,7 @@ public class VariableResolver {
             throw new UnknownVariableException(variableName);
         }
 
-        T resolved = resolver.getProperty(variableName, clazz);
-        if (resolved != null && String.class.isAssignableFrom(resolved.getClass())) {
-            // execute spel expression if any
-            return spelExpressionParser.process((String) resolved, clazz);
-        } else {
-            return resolved;
-        }
+        return resolver.getProperty(variableName, clazz);
     }
 
     public String resolve(String variableName) {

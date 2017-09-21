@@ -1,7 +1,8 @@
-package alien4cloud.variable;
+package org.alien4cloud.tosca.variable;
 
 import alien4cloud.model.application.Application;
 import com.google.common.collect.ImmutableMap;
+import org.alien4cloud.tosca.utils.YamlParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.FileSystemResource;
@@ -141,6 +142,14 @@ public class VariableResolverTest {
         Object listVariable = resolver.resolve("list_variable", Object.class);
         assertThat(listVariable).isInstanceOf(List.class);
         assertThat((List<String>) listVariable).containsExactly("item 1", "item 2", "item 3");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void resolve_list_spel_variable() throws Exception {
+        Object listVariable = resolver.resolve("list_spel_variable", Object.class);
+        assertThat(listVariable).isInstanceOf(List.class);
+        assertThat((List<String>) listVariable).containsExactly("item true", "item false", "item 3");
     }
 
     @Test
