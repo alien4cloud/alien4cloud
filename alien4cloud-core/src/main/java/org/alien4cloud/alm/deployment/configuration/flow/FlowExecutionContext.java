@@ -83,12 +83,10 @@ public class FlowExecutionContext {
         String cfgId = AbstractDeploymentConfig.generateId(env.getTopologyVersion(), env.getId());
         String configCacheId = cfgClass.getSimpleName() + "/" + cfgId;
         T config = (T) executionCache.get(configCacheId);
-        if (config == null) {
-            // search in ES only if the configuration is annotated with ESObject
-            if (cfgClass.isAnnotationPresent(ESObject.class)) {
-                config = alienDAO.findById(cfgClass, cfgId);
-                executionCache.put(configCacheId, config);
-            }
+        // If the config object is annotated with ESObject then it may be cached in ElasticSearch
+        if (config == null && cfgClass.isAnnotationPresent(ESObject.class)) {
+            config = alienDAO.findById(cfgClass, cfgId);
+            executionCache.put(configCacheId, config);
         }
         if (config == null) {
             return Optional.empty();
