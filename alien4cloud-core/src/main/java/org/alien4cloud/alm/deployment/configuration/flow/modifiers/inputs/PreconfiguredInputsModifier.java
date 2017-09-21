@@ -8,6 +8,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsConfiguration;
+import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.variable.InputsMappingFileVariableResolver;
@@ -47,21 +48,21 @@ public class PreconfiguredInputsModifier implements ITopologyModifier {
 
         // TODO: avoid reloading every time - find a way to know the last update on files (git hash ?)
         Properties appVarProps = quickFileStorageService.loadApplicationVariables(environmentContext.getApplication().getId());
-        Properties envVarProps = quickFileStorageService.loadEnvironmentVariables(environment.getId());
-        Map<String, Object> inputsMappingsMap = quickFileStorageService.loadInputsMappingFile(environment.getId(), topology.getId());
+        Properties envVarProps = quickFileStorageService.loadEnvironmentVariables(topology.getId(), environment.getId());
+        Map<String, Object> inputsMappingsMap = quickFileStorageService.loadInputsMappingFile(topology.getId());
 
         InputsMappingFileVariableResolver inputsMappingFileVariableResolver = new InputsMappingFileVariableResolver(appVarProps, envVarProps,
                 predefinedVariables);
         Map<String, PropertyValue> resolvedInputsMappingFile = null;
         try {
-            resolvedInputsMappingFile = inputsMappingFileVariableResolver.resolveAsPropertyValue(inputsMappingsMap,
-                    topology.getInputs());
+            resolvedInputsMappingFile = inputsMappingFileVariableResolver.resolveAsPropertyValue(inputsMappingsMap, topology.getInputs());
         } catch (MissingVariablesException e) {
             context.log().error(new MissingVariablesTask(e.getMissingVariables()));
             context.log().error(new UnresolvablePredefinedInputsTask(e.getUnresolvableInputs()));
         }
 
-        PreconfiguredInputsConfiguration preconfiguredInputsConfiguration = new PreconfiguredInputsConfiguration(environment.getTopologyVersion(), environment.getId());
+        PreconfiguredInputsConfiguration preconfiguredInputsConfiguration = new PreconfiguredInputsConfiguration(environment.getTopologyVersion(),
+                environment.getId());
         preconfiguredInputsConfiguration.setInputs(resolvedInputsMappingFile);
         // TODO: improve me
         preconfiguredInputsConfiguration.setLastUpdateDate(new Date());
