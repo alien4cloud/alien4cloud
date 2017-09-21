@@ -251,6 +251,9 @@ public class ArchiveIndexer {
         if (topology == null || topology.isEmpty()) {
             return;
         }
+
+        topology.setTags(archiveRoot.getArchive().getTags());
+
         if (archiveRoot.hasToscaTypes()) {
             // The archive contains types, we assume those types are used in the embedded topology so we add the dependency to this CSAR
             CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion(),
@@ -319,6 +322,7 @@ public class ArchiveIndexer {
         updateCreationDates(root.getNodeTypes(), previousElements);
         updateCreationDates(root.getRelationshipTypes(), previousElements);
         updateCreationDates(root.getDataTypes(), previousElements);
+        updateCreationDates(root.getPolicyTypes(), previousElements);
 
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {
@@ -345,6 +349,7 @@ public class ArchiveIndexer {
         indexerService.indexInheritableElements(root.getNodeTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getRelationshipTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getDataTypes(), root.getArchive().getDependencies());
+        indexerService.indexInheritableElements(root.getPolicyTypes(), root.getArchive().getDependencies());
 
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {

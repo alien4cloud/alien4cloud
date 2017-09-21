@@ -3,9 +3,11 @@ package org.alien4cloud.tosca.model.templates;
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.model.common.Tag;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
@@ -145,6 +147,10 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     @ObjectField(enabled = false)
     @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, Workflow> workflows;
+
+    /* Archive meta-data are also set as topology tags. */
+    @NestedObject(nestedClass = Tag.class)
+    private List<Tag> tags;
 
     @Id
     public String getId() {

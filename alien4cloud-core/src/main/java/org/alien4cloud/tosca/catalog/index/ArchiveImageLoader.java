@@ -21,6 +21,8 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 /**
  * Import images from CloudServiceArchive to ElasticSearch
  */
@@ -40,18 +42,18 @@ public class ArchiveImageLoader {
      * @param parsingErrors The list of parsing error in which to add errors in case there are (format error, file not found etc.)
      */
     public void importImages(Path archiveFile, ArchiveRoot archiveRoot, List<ParsingError> parsingErrors) {
+        // Import archive icons
         importImages(archiveFile, archiveRoot.getNodeTypes(), parsingErrors);
         importImages(archiveFile, archiveRoot.getRelationshipTypes(), parsingErrors);
         importImages(archiveFile, archiveRoot.getCapabilityTypes(), parsingErrors);
         importImages(archiveFile, archiveRoot.getArtifactTypes(), parsingErrors);
+        importImages(archiveFile, archiveRoot.getPolicyTypes(), parsingErrors);
+        // Import topology icon
+        importImages(archiveFile, archiveRoot.getArchive().getTags(), parsingErrors);
     }
 
-    private void importImages(Path archiveFile, Map<String, ? extends AbstractInheritableToscaType> toscaInheritableElement,
-            List<ParsingError> parsingErrors) {
-        if (toscaInheritableElement == null) {
-            return;
-        }
-        for (Map.Entry<String, ? extends AbstractInheritableToscaType> element : toscaInheritableElement.entrySet()) {
+    private void importImages(Path archiveFile, Map<String, ? extends AbstractInheritableToscaType> toscaInheritableElement, List<ParsingError> parsingErrors) {
+        for (Map.Entry<String, ? extends AbstractInheritableToscaType> element : safe(toscaInheritableElement).entrySet()) {
             if (element.getValue().getTags() != null) {
                 List<Tag> tags = element.getValue().getTags();
                 Tag iconTag = ArchiveImageLoader.getIconTag(tags);
@@ -59,6 +61,13 @@ public class ArchiveImageLoader {
                     importImage(archiveFile, parsingErrors, iconTag);
                 }
             }
+        }
+    }
+
+    private void importImages(Path archiveFile, List<Tag> tags, List<ParsingError> parsingErrors) {
+        Tag iconTag = ArchiveImageLoader.getIconTag(tags);
+        if (iconTag != null && !UUID_PATTERN.matcher(iconTag.getValue()).matches()) {
+            importImage(archiveFile, parsingErrors, iconTag);
         }
     }
 
