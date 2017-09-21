@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.normative.primitives.Time;
 import org.alien4cloud.tosca.normative.primitives.TimeUnit;
@@ -93,13 +94,13 @@ public class ToscaTypeConverterTest {
 
 
     @Test
-    public void convert_version_to_value() throws Exception {
+    public void convert_version() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(ToscaTypes.VERSION);
 
-        Object value = converter.toValue("3.4-SNAPSHOT", propertyDefinition);
+        Object value = converter.toPropertyValue("3.4-SNAPSHOT", propertyDefinition);
 
-        assertThat(value).isInstanceOf(Version.class);
-        assertThat(value).isEqualTo(new Version("3.4-SNAPSHOT"));
+        assertThat(value).isInstanceOf(ScalarPropertyValue.class);
+        assertThat(value).isEqualTo(new ScalarPropertyValue("3.4-SNAPSHOT"));
     }
 }

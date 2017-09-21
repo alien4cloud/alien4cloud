@@ -1,12 +1,8 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.inject.Inject;
-
+import alien4cloud.deployment.DeploymentInputService;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.orchestrators.locations.Location;
 import com.google.common.collect.Maps;
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
@@ -16,19 +12,16 @@ import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsCon
 import org.alien4cloud.alm.deployment.configuration.services.InputService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.templates.Requirement;
-import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.templates.*;
 import org.alien4cloud.tosca.utils.FunctionEvaluator;
 import org.alien4cloud.tosca.utils.FunctionEvaluatorContext;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.deployment.DeploymentInputService;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.orchestrators.locations.Location;
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Inputs processor modifier performs update of the topology based on inputs provided by the deployer user or from application meta properties and tags values.
@@ -66,12 +59,8 @@ public class InputsModifier implements ITopologyModifier {
             }
         }
 
-        // ** //
-
         PreconfiguredInputsConfiguration preconfiguredInputsConfiguration = context.getConfiguration(PreconfiguredInputsConfiguration.class, InputsModifier.class.getSimpleName())
                 .orElseThrow(() -> new IllegalStateException("PreconfiguredInputsConfiguration must be in the context"));
-
-        // ** //
 
         Map<String, PropertyValue> inputValues = Maps.newHashMap(deploymentInputs.getInputs());
         inputValues.putAll(applicationInputs);

@@ -1,16 +1,15 @@
 package alien4cloud.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-
-public class YamlParserUtilTest {
+public class PropertiesYamlParserUtilTest {
 
     @Test
     public void testParsingValidFile() throws IOException {

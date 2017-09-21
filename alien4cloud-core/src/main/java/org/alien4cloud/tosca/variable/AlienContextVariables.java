@@ -16,13 +16,13 @@ import java.util.function.Function;
  * Hold all the predefined variables that are automatically available and not overridable.
  */
 @Setter
-public class PredefinedVariables extends PropertySource {
+public class AlienContextVariables extends PropertySource {
 
     private Application application;
     private ApplicationEnvironment applicationEnvironment;
     private Location location;
 
-    public PredefinedVariables() {
+    public AlienContextVariables() {
         super("predefinedVariables");
     }
 

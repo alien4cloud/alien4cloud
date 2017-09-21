@@ -40,10 +40,10 @@ public class VariableResolver {
     private PropertySourcesPropertyResolver resolver;
     private MutablePropertySources propertySources;
 
-    public VariableResolver(PropertySource appVariables, PropertySource envVariables, PredefinedVariables predefinedVariables) {
+    public VariableResolver(PropertySource appVariables, PropertySource envVariables, AlienContextVariables alienContextVariables) {
         propertySources = new MutablePropertySources();
         // order matter
-        propertySources.addLast(predefinedVariables);
+        propertySources.addLast(alienContextVariables);
         propertySources.addLast(envVariables);
         propertySources.addLast(appVariables);
 
@@ -54,8 +54,8 @@ public class VariableResolver {
         return propertySources;
     }
 
-    public VariableResolver(Properties appVariables, Properties envVariables, PredefinedVariables predefinedVariables) {
-        this(new PropertiesPropertySource(APP_VARIABLES, appVariables), new PropertiesPropertySource(ENV_VARIABLES, envVariables), predefinedVariables);
+    public VariableResolver(Properties appVariables, Properties envVariables, AlienContextVariables alienContextVariables) {
+        this(new PropertiesPropertySource(APP_VARIABLES, appVariables), new PropertiesPropertySource(ENV_VARIABLES, envVariables), alienContextVariables);
     }
 
     public <T> T resolve(String variableName, Class<T> clazz) {

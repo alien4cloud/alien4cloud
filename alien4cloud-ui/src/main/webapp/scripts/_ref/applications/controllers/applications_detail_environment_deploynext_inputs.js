@@ -43,7 +43,7 @@ define(function (require) {
       $scope.deployerInputs = {};
       $scope.predefiniedInputs = {};
       _.each(allInputs, function (inputValue, inputId) {
-        if (_.isUndefined(_.get($scope,'deploymentTopologyDTO.topology.preconfiguredInputProperties[inputId]'))) {
+        if (_.isUndefined(_.get($scope, 'deploymentTopologyDTO.topology.preconfiguredInputProperties[' + inputId + ']'))) {
           $scope.deployerInputs[inputId] = inputValue;
         } else {
           $scope.predefiniedInputs[inputId] = inputValue;

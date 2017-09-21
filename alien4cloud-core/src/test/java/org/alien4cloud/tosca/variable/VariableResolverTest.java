@@ -2,7 +2,7 @@ package org.alien4cloud.tosca.variable;
 
 import alien4cloud.model.application.Application;
 import com.google.common.collect.ImmutableMap;
-import org.alien4cloud.tosca.utils.YamlParser;
+import org.alien4cloud.tosca.utils.PropertiesYamlParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.FileSystemResource;
@@ -24,12 +24,12 @@ public class VariableResolverTest {
         Resource yamlApp = new FileSystemResource("src/test/resources/alien/variables/variables_app_test.yml");
         Resource yamlEnv = new FileSystemResource("src/test/resources/alien/variables/variables_env_test.yml");
 
-        PredefinedVariables predefinedVariables = new PredefinedVariables();
+        AlienContextVariables alienContextVariables = new AlienContextVariables();
         Application application = new Application();
         application.setName("originalAppName");
-        predefinedVariables.setApplication(application);
+        alienContextVariables.setApplication(application);
 
-        resolver = new VariableResolver(YamlParser.ToProperties.from(yamlApp), YamlParser.ToProperties.from(yamlEnv), predefinedVariables);
+        resolver = new VariableResolver(PropertiesYamlParser.ToProperties.from(yamlApp), PropertiesYamlParser.ToProperties.from(yamlEnv), alienContextVariables);
     }
 
     @Test

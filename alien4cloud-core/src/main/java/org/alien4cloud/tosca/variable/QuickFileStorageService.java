@@ -3,7 +3,7 @@ package org.alien4cloud.tosca.variable;
 import alien4cloud.utils.FileUtil;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
-import org.alien4cloud.tosca.utils.YamlParser;
+import org.alien4cloud.tosca.utils.PropertiesYamlParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Required;
@@ -47,7 +47,7 @@ public class QuickFileStorageService {
         Properties props;
         if (Files.exists(ymlPath)) {
             Resource appVar = new PathResource(ymlPath);
-            props = YamlParser.ToProperties.from(appVar);
+            props = PropertiesYamlParser.ToProperties.from(appVar);
         } else {
             Files.createFile(ymlPath);
             props = new Properties();
@@ -61,7 +61,7 @@ public class QuickFileStorageService {
         Map<String, Object> map;
         if (Files.exists(ymlPath)) {
             Resource appVar = new PathResource(ymlPath);
-            map = YamlParser.ToMap.from(appVar);
+            map = PropertiesYamlParser.ToMap.from(appVar);
         } else {
             Files.createFile(ymlPath);
             map = Maps.newHashMap();

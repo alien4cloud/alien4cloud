@@ -2,7 +2,6 @@ package org.alien4cloud.tosca.variable;
 
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
 import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.PrimitiveDataType;
@@ -15,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class can convert {@link Object} type into {@link PropertyValue} in respect to a {@link PropertyDefinition}.
+ * This class can convert {@link Object} into {@link PropertyValue} with respect to a {@link PropertyDefinition}.
  */
 @Slf4j
 public class ToscaTypeConverter {
@@ -27,63 +26,6 @@ public class ToscaTypeConverter {
     }
 
     @SuppressWarnings("unchecked")
-    public Object toValue(Object resolvedPropertyValue, PropertyDefinition propertyDefinition) {
-        if (resolvedPropertyValue == null) {
-            return null;
-        }
-
-        if (ToscaTypes.isSimple(propertyDefinition.getType())) {
-            return getValueFromSimpleType(resolvedPropertyValue, propertyDefinition);
-        }
-
-        switch (propertyDefinition.getType()) {
-            case ToscaTypes.MAP:
-                if (resolvedPropertyValue instanceof Map) {
-                    return resolvedPropertyValue;
-                } else {
-                    throw new IllegalStateException("Property is not the expected type <" + Map.class.getSimpleName() + "> but was <" + resolvedPropertyValue.getClass().getName() + ">");
-                }
-
-            case ToscaTypes.LIST:
-                if (resolvedPropertyValue instanceof Collection) {
-                    return resolvedPropertyValue;
-                } else {
-                    throw new IllegalStateException("Property is not the expected type <" + Collection.class.getSimpleName() + "> but was <" + resolvedPropertyValue.getClass().getName() + ">");
-                }
-
-            default:
-                DataType dataType = findDataType(propertyDefinition.getType());
-                if (dataType == null) {
-                    throw new IllegalStateException("Property with type <" + propertyDefinition.getType() + "> is not supported");
-                }
-
-                if (dataType.isDeriveFromSimpleType()) {
-                    return getValueFromSimpleType(resolvedPropertyValue, propertyDefinition);
-                } else if (resolvedPropertyValue instanceof Map) {
-                    Map<String, Object> complexPropertyValue = (Map<String, Object>) resolvedPropertyValue;
-                    Map<String, Object> finalComplex = Maps.newHashMap();
-                    for (Map.Entry<String, Object> complexPropertyValueEntry : complexPropertyValue.entrySet()) {
-                        Object nestedPropertyValue = complexPropertyValueEntry.getValue();
-                        PropertyDefinition nestedPropertyDefinition = dataType.getProperties().get(complexPropertyValueEntry.getKey());
-                        finalComplex.put(complexPropertyValueEntry.getKey(), toValue(nestedPropertyValue, nestedPropertyDefinition));
-                    }
-                    return new ComplexPropertyValue(finalComplex);
-                } else {
-                    throw new IllegalStateException("Property with type <" + propertyDefinition.getType() + "> is not supported.");
-                }
-
-        }
-
-    }
-
-    private Object getValueFromSimpleType(Object resolvedPropertyValue, PropertyDefinition propertyDefinition) {
-        try {
-            return ToscaTypes.fromYamlTypeName(propertyDefinition.getType()).parse(resolvedPropertyValue.toString());
-        } catch (InvalidPropertyValueException e) {
-            throw new RuntimeException("failed to parse <" + resolvedPropertyValue + "> as type <" + propertyDefinition.getType() + ">", e);
-        }
-    }
-
     public PropertyValue toPropertyValue(Object resolvedPropertyValue, PropertyDefinition propertyDefinition) {
         if (resolvedPropertyValue == null) {
             return null;

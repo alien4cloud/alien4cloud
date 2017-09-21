@@ -3,11 +3,12 @@ package org.alien4cloud.tosca.variable;
 import alien4cloud.tosca.context.ToscaContext;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.PropertySource;
 
 import java.util.Map;
 import java.util.Properties;
@@ -16,89 +17,101 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * {@link InputsMappingFileVariableResolver} is a specialized version of {@link VariableResolver}
- * that resolved inputs value and convert them into types matching {@link PropertyDefinition} attached to the inputs.
+ * {@link InputsMappingFileVariableResolverInternal} is a specialized version of {@link VariableResolver}
+ * that resolved inputs value and convert them into types respecting {@link PropertyDefinition} attached to the inputs.
  * <p>
- * This class is thread safe because {@link #resolveAs(Map, Map, Converter)} is synchronized, anyway it better from
- * a performance perceptive to use multiple instances. Otherwise only 1 resolution can be done at the same time.
+ * Because {@link InputsMappingFileVariableResolverInternal} is not thread safe we want to enforce a new instance to be created each time we call a method.
+ * This security net is enforced by the wrapping class {@link InputsMappingFileVariableResolver}
  */
 @Slf4j
-public class InputsMappingFileVariableResolver extends VariableResolver {
+public class InputsMappingFileVariableResolver {
 
     private final static Pattern VARIABLE_NAME_IN_EXCEPTION_PATTERN = Pattern.compile("Could not resolve placeholder '(.*)' .*", Pattern.DOTALL);
 
-    private ToscaTypeConverter converter = new ToscaTypeConverter(ToscaContext::get);
+    private final static ToscaTypeConverter DEFAULT_CONVERTER = new ToscaTypeConverter(ToscaContext::get);
 
-    public InputsMappingFileVariableResolver(PropertySource appVariables, PropertySource envVariables, PredefinedVariables predefinedVariables) {
-        super(appVariables, envVariables, predefinedVariables);
+    private InputsMappingFileVariableResolver() {
     }
 
-    public InputsMappingFileVariableResolver(Properties appVariables, Properties envVariables, PredefinedVariables predefinedVariables) {
-        super(appVariables, envVariables, predefinedVariables);
+    public static InputsMappingFileVariableResolverConfigured configure(Properties appVariables, Properties envVariables, AlienContextVariables alienContextVariables) {
+        return new InputsMappingFileVariableResolverConfigured(appVariables, envVariables, alienContextVariables);
     }
 
-    public Map<String, Object> resolveAsValue(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) throws MissingVariablesException {
-        return resolveAs(inputMappingMap, inputsDefinition, (resolvedPropertyValue, propertyDefinition) -> converter.toValue(resolvedPropertyValue, propertyDefinition));
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class InputsMappingFileVariableResolverConfigured {
+        private final Properties appVariables;
+        private final Properties envVariables;
+        private final AlienContextVariables alienContextVariables;
+        private ToscaTypeConverter customConverter;
+
+        public InputsMappingFileVariableResolverConfigured customConverter(ToscaTypeConverter converter) {
+            this.customConverter = converter;
+            return this;
+        }
+
+        public Map<String, PropertyValue> resolve(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) throws MissingVariablesException {
+            ToscaTypeConverter converter = customConverter != null ? customConverter : InputsMappingFileVariableResolver.DEFAULT_CONVERTER;
+            return new InputsMappingFileVariableResolverInternal(converter, appVariables, envVariables, alienContextVariables).resolve(inputMappingMap, inputsDefinition);
+        }
     }
 
-    public Map<String, PropertyValue> resolveAsPropertyValue(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) throws MissingVariablesException {
-        return resolveAs(inputMappingMap, inputsDefinition, (resolvedPropertyValue, propertyDefinition) -> converter.toPropertyValue(resolvedPropertyValue, propertyDefinition));
-    }
+    private static class InputsMappingFileVariableResolverInternal extends VariableResolver {
 
-    // "synchronized" because we are altering the state of the parent VariableResolver that will alter the result of the whole class
-    // "try/finally" has been added to ensure we go back to a proper state at this end
-    private synchronized <T> Map<String, T> resolveAs(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition, Converter<T> converter) throws MissingVariablesException {
-        Map<String, T> resolved = Maps.newHashMap();
-        MapPropertySource inputMappingMapPropertySource = new MapPropertySource("inputsMapping", inputMappingMap);
-        getPropertySources().addFirst(inputMappingMapPropertySource);
-        Set<String> missingVariables = Sets.newHashSet();
-        Set<String> unresolvableInputs = Sets.newHashSet();
+        private ToscaTypeConverter converter;
 
-        try {
-            for (String propertyName : inputMappingMapPropertySource.getPropertyNames()) {
-                Object resolvedPropertyValue = null;
-                try {
-                    // resolved without converting to a specific type
-                    resolvedPropertyValue = resolve(propertyName, Object.class);
-                } catch (UnknownVariableException e) {
-                    missingVariables.add(e.getVariableName());
-                    unresolvableInputs.add(propertyName);
-                    continue;
-                } catch (IllegalArgumentException e) {
-                    Matcher matcher = VARIABLE_NAME_IN_EXCEPTION_PATTERN.matcher(e.getMessage());
-                    if (matcher.matches()) {
-                        missingVariables.add(matcher.group(1));
+        private InputsMappingFileVariableResolverInternal(ToscaTypeConverter converter, Properties appVariables, Properties envVariables, AlienContextVariables alienContextVariables) {
+            super(appVariables, envVariables, alienContextVariables);
+            this.converter = converter;
+        }
+
+        public Map<String, PropertyValue> resolve(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) throws MissingVariablesException {
+            Map<String, PropertyValue> resolved = Maps.newHashMap();
+            MapPropertySource inputMappingMapPropertySource = new MapPropertySource("inputsMapping", inputMappingMap);
+            getPropertySources().addFirst(inputMappingMapPropertySource);
+            Set<String> missingVariables = Sets.newHashSet();
+            Set<String> unresolvableInputs = Sets.newHashSet();
+
+            try {
+                for (String propertyName : inputMappingMapPropertySource.getPropertyNames()) {
+                    Object resolvedPropertyValue = null;
+                    try {
+                        // resolved without converting to a specific type
+                        resolvedPropertyValue = resolve(propertyName, Object.class);
+                    } catch (UnknownVariableException e) {
+                        missingVariables.add(e.getVariableName());
                         unresolvableInputs.add(propertyName);
-                    } else {
-                        // unknown exception should be rethrow
-                        throw new RuntimeException(e);
+                        continue;
+                    } catch (IllegalArgumentException e) {
+                        Matcher matcher = VARIABLE_NAME_IN_EXCEPTION_PATTERN.matcher(e.getMessage());
+                        if (matcher.matches()) {
+                            missingVariables.add(matcher.group(1));
+                            unresolvableInputs.add(propertyName);
+                        } else {
+                            // unknown exception should be rethrow
+                            throw new RuntimeException(e);
+                        }
+                        continue;
                     }
-                    continue;
-                }
 
-                // convert result to the expected type according to inputsDefinition
-                PropertyDefinition propertyDefinition = inputsDefinition.get(propertyName);
-                T convertedPropertyValue;
-                if (resolvedPropertyValue != null && propertyDefinition != null) {
-                    convertedPropertyValue = converter.convert(resolvedPropertyValue, propertyDefinition);
-                    if (convertedPropertyValue != null) {
-                        resolved.put(propertyName, convertedPropertyValue);
+                    // convert result to the expected type according to inputsDefinition
+                    PropertyDefinition propertyDefinition = inputsDefinition.get(propertyName);
+                    PropertyValue convertedPropertyValue;
+                    if (resolvedPropertyValue != null && propertyDefinition != null) {
+                        convertedPropertyValue = converter.toPropertyValue(resolvedPropertyValue, propertyDefinition);
+                        if (convertedPropertyValue != null) {
+                            resolved.put(propertyName, convertedPropertyValue);
+                        }
                     }
                 }
+            } finally {
+                getPropertySources().remove(inputMappingMapPropertySource.getName());
             }
-        } finally {
-            getPropertySources().remove(inputMappingMapPropertySource.getName());
+
+            if (missingVariables.size() > 0) {
+                throw new MissingVariablesException(missingVariables, unresolvableInputs);
+            }
+            return resolved;
         }
-
-        if (missingVariables.size() > 0) {
-            throw new MissingVariablesException(missingVariables, unresolvableInputs);
-        }
-        return resolved;
     }
-
-    private interface Converter<T> {
-        T convert(Object resolvedPropertyValue, PropertyDefinition propertyDefinition);
-    }
-
 
 }
