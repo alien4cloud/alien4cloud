@@ -1,31 +1,28 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Sets;
-
 import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.security.AbstractSecurityEnabledResource;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Permission;
-import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.security.Subject;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
+import com.google.common.collect.Sets;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class LocationSecurityService {
@@ -51,6 +48,7 @@ public class LocationSecurityService {
         }
         if (environment != null) {
             subjectsMap.put(Subject.ENVIRONMENT, Sets.newHashSet(environment.getId()));
+            subjectsMap.put(Subject.ENVIRONMENT_TYPE, Sets.newHashSet(environment.getApplicationId() + ":" + environment.getEnvironmentType().toString()));
             subjectsMap.put(Subject.APPLICATION, Sets.newHashSet(environment.getApplicationId()));
         }
         return subjectsMap;
@@ -109,12 +107,15 @@ public class LocationSecurityService {
         }
     }
 
-    public void grantAuthorizationOnLocationIfNecessary(String[] applications, String[] environments, Location location) {
+    public void grantAuthorizationOnLocationIfNecessary(String[] applications, String[] environments, String[] environmentTypes, Location location) {
         if (ArrayUtils.isNotEmpty(applications)) {
             grantAuthorizationOnLocationIfNecessary(location, Subject.APPLICATION, applications);
         }
         if (ArrayUtils.isNotEmpty(environments)) {
             grantAuthorizationOnLocationIfNecessary(location, Subject.ENVIRONMENT, environments);
+        }
+        if (ArrayUtils.isNotEmpty(environmentTypes)) {
+            grantAuthorizationOnLocationIfNecessary(location, Subject.ENVIRONMENT_TYPE, environmentTypes);
         }
     }
 

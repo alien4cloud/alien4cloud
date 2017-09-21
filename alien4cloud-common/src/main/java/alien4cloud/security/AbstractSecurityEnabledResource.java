@@ -1,26 +1,24 @@
 package alien4cloud.security;
 
-import static alien4cloud.dao.model.FetchContext.SUMMARY;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Getter;
+import lombok.Setter;
+import org.elasticsearch.annotation.NestedObject;
+import org.elasticsearch.annotation.query.FetchContext;
+import org.elasticsearch.annotation.query.TermFilter;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.elasticsearch.annotation.NestedObject;
-import org.elasticsearch.annotation.query.FetchContext;
-import org.elasticsearch.annotation.query.TermFilter;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import alien4cloud.utils.jackson.ConditionalAttributes;
-import alien4cloud.utils.jackson.ConditionalOnAttribute;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
-import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
-import lombok.Getter;
-import lombok.Setter;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 @Getter
 @Setter
@@ -58,6 +56,15 @@ public abstract class AbstractSecurityEnabledResource implements ISecurityEnable
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private Map<String, Set<Permission>> environmentPermissions;
 
+    @TermFilter(paths = { "key", "value" })
+    @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
+    @ConditionalOnAttribute(ConditionalAttributes.ES)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
+    @FetchContext(contexts = { SUMMARY }, include = { true })
+    /** The key for environment type is : 'application_id:environment_type' **/
+    private Map<String, Set<Permission>> environmentTypePermissions;
+
     private Map<String, Set<Permission>> getPermissions(Subject subjectType) {
         switch (subjectType) {
         case USER:
@@ -68,6 +75,8 @@ public abstract class AbstractSecurityEnabledResource implements ISecurityEnable
             return applicationPermissions == null ? new HashMap<>() : getApplicationPermissions();
         case ENVIRONMENT:
             return environmentPermissions == null ? new HashMap<>() : getEnvironmentPermissions();
+        case ENVIRONMENT_TYPE:
+            return environmentTypePermissions == null ? new HashMap<>() : getEnvironmentTypePermissions();
         default:
             return new HashMap<>();
         }
@@ -86,6 +95,9 @@ public abstract class AbstractSecurityEnabledResource implements ISecurityEnable
             break;
         case ENVIRONMENT:
             setEnvironmentPermissions(permissions);
+            break;
+        case ENVIRONMENT_TYPE:
+            setEnvironmentTypePermissions(permissions);
             break;
         }
     }
