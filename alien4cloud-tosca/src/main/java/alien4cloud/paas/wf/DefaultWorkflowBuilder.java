@@ -20,6 +20,7 @@ import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkfl
 import org.alien4cloud.tosca.model.workflow.declarative.NodeDeclarativeWorkflow;
 import org.alien4cloud.tosca.model.workflow.declarative.OperationDeclarativeWorkflow;
 import org.alien4cloud.tosca.model.workflow.declarative.RelationshipDeclarativeWorkflow;
+import org.alien4cloud.tosca.model.workflow.declarative.RelationshipOperationHost;
 import org.alien4cloud.tosca.model.workflow.declarative.RelationshipWeaving;
 import org.alien4cloud.tosca.model.workflow.declarative.RelationshipWeavingDeclarativeWorkflow;
 import org.apache.commons.lang3.StringUtils;
@@ -176,12 +177,16 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
     @Override
     public void addRelationship(Workflow wf, String nodeId, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate,
             WorkflowsBuilderService.TopologyContext toscaTypeFinder) {
-        if (!WorkflowUtils.isNativeOrSubstitutionNode(nodeId, toscaTypeFinder)) {
+        boolean sourceIsNative = WorkflowUtils.isNativeOrSubstitutionNode(nodeId, toscaTypeFinder);
+        boolean targetIsNative = WorkflowUtils.isNativeOrSubstitutionNode(relationshipTemplate.getTarget(), toscaTypeFinder);
+        if (!sourceIsNative || !targetIsNative) {
             // for native types we don't care about relation ships in workflows
             RelationshipDeclarativeWorkflow relationshipDeclarativeWorkflow = defaultDeclarativeWorkflows.getRelationshipWorkflows().get(wf.getName());
             // only trigger this method if it's a default workflow
             if (relationshipDeclarativeWorkflow != null) {
                 Map<String, WorkflowStep> relationshipOperationSteps = safe(relationshipDeclarativeWorkflow.getOperations()).entrySet().stream()
+                        .filter(operationEntry -> !targetIsNative || operationEntry.getValue().getOperationHost() == RelationshipOperationHost.SOURCE)
+                        .filter(operationEntry -> !sourceIsNative || operationEntry.getValue().getOperationHost() == RelationshipOperationHost.TARGET)
                         .collect(Collectors.toMap(Map.Entry::getKey, operationEntry -> WorkflowUtils.addRelationshipOperationStep(wf, nodeId,
                                 relationshipTemplate.getName(), ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT, operationEntry.getKey())));
                 Steps sourceSteps = new Steps(wf, nodeId);
@@ -189,10 +194,13 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
 
                 safe(relationshipDeclarativeWorkflow.getOperations()).forEach((relationshipOperationName, relationshipOperationDependencies) -> {
                     WorkflowStep currentStep = relationshipOperationSteps.get(relationshipOperationName);
-                    declareStepDependencies(relationshipOperationDependencies.getSource(), currentStep, sourceSteps);
-                    declareStepDependencies(relationshipOperationDependencies.getTarget(), currentStep, targetSteps);
-                    declareStepDependencies(relationshipOperationDependencies, currentStep,
-                            new Steps(relationshipOperationSteps, Collections.emptyMap(), null));
+                    if (currentStep != null) {
+                        // It might be filtered if source or target is native
+                        declareStepDependencies(relationshipOperationDependencies.getSource(), currentStep, sourceSteps);
+                        declareStepDependencies(relationshipOperationDependencies.getTarget(), currentStep, targetSteps);
+                        declareStepDependencies(relationshipOperationDependencies, currentStep,
+                                new Steps(relationshipOperationSteps, Collections.emptyMap(), null));
+                    }
                 });
                 RelationshipWeavingDeclarativeWorkflow relationshipWeavingDeclarativeWorkflow = getRelationshipWeavingDeclarativeWorkflow(
                         relationshipTemplate.getType(), toscaTypeFinder, wf.getName());
