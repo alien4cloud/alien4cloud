@@ -116,6 +116,14 @@ public class WorkflowUtils {
         return null;
     }
 
+    public static boolean isRelationshipStep(WorkflowStep step, String nodeId, String relationshipName) {
+        return step.getTarget().equals(nodeId) && relationshipName.equals(step.getTargetRelationship());
+    }
+
+    public static boolean isNodeStep(WorkflowStep step, String nodeId) {
+        return step.getTarget().equals(nodeId) && StringUtils.isEmpty(step.getTargetRelationship());
+    }
+
     /**
      * Check whether the node type is equals or derived from the given type name
      * 

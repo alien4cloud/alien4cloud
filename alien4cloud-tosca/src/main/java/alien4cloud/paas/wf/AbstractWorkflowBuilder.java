@@ -11,7 +11,6 @@ import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 
@@ -205,14 +204,6 @@ public abstract class AbstractWorkflowBuilder {
         }
     }
 
-    private static boolean isRelationshipStep(WorkflowStep step, String nodeId, String relationshipName) {
-        return step.getTarget().equals(nodeId) && relationshipName.equals(step.getTargetRelationship());
-    }
-
-    static boolean isNodeStep(WorkflowStep step, String nodeId) {
-        return step.getTarget().equals(nodeId) && StringUtils.isEmpty(step.getTargetRelationship());
-    }
-
     /**
      * When a relationship is removed, we remove all links between src and target.
      * <p>
@@ -230,7 +221,8 @@ public abstract class AbstractWorkflowBuilder {
                         WorkflowStep followingStep = wf.getSteps().get(followingId);
                         // If the following step is a step of the target of the relationship
                         // or a step of the relationship it-self then remove the link
-                        if (isNodeStep(followingStep, relationshipTarget) || isRelationshipStep(followingStep, nodeId, relationshipName)) {
+                        if (WorkflowUtils.isNodeStep(followingStep, relationshipTarget)
+                                || WorkflowUtils.isRelationshipStep(followingStep, nodeId, relationshipName)) {
                             unlinkSteps(step, followingStep);
                         }
                     }
@@ -240,7 +232,8 @@ public abstract class AbstractWorkflowBuilder {
                         // If the preceding step is a step of the target of the relationship
                         // or a step of the relationship it-self then remove the link
                         WorkflowStep precedingStep = wf.getSteps().get(precedingId);
-                        if (isNodeStep(precedingStep, relationshipTarget) || isRelationshipStep(precedingStep, nodeId, relationshipName)) {
+                        if (WorkflowUtils.isNodeStep(precedingStep, relationshipTarget)
+                                || WorkflowUtils.isRelationshipStep(precedingStep, nodeId, relationshipName)) {
                             unlinkSteps(precedingStep, step);
                         }
                     }
@@ -251,7 +244,7 @@ public abstract class AbstractWorkflowBuilder {
         Iterator<Entry<String, WorkflowStep>> stepsIterator = wf.getSteps().entrySet().iterator();
         while (stepsIterator.hasNext()) {
             WorkflowStep step = stepsIterator.next().getValue();
-            if (isRelationshipStep(step, nodeId, relationshipName)) {
+            if (WorkflowUtils.isRelationshipStep(step, nodeId, relationshipName)) {
                 stepsIterator.remove();
             }
         }

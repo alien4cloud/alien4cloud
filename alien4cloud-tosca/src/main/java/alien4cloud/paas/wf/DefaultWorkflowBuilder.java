@@ -38,20 +38,21 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
 
         private static Map<String, WorkflowStep> getNodeStateSteps(Workflow workflow, String nodeId) {
             // Get all state steps of the given node, then return a map of state name to workflow step
-            return workflow.getSteps().values().stream().filter(step -> isNodeStep(step, nodeId) && step.getActivity() instanceof SetStateWorkflowActivity)
+            return workflow.getSteps().values().stream()
+                    .filter(step -> WorkflowUtils.isNodeStep(step, nodeId) && step.getActivity() instanceof SetStateWorkflowActivity)
                     .collect(Collectors.toMap(step -> ((SetStateWorkflowActivity) step.getActivity()).getStateName(), step -> step));
         }
 
         private static Map<String, WorkflowStep> getNodeOperationSteps(Workflow workflow, String nodeId) {
             // Get all operation steps of the given node, then return a map of operation name to workflow step
             return workflow.getSteps().values().stream()
-                    .filter(step -> isNodeStep(step, nodeId) && (step.getActivity() instanceof CallOperationWorkflowActivity))
+                    .filter(step -> WorkflowUtils.isNodeStep(step, nodeId) && (step.getActivity() instanceof CallOperationWorkflowActivity))
                     .collect(Collectors.toMap(step -> ((CallOperationWorkflowActivity) step.getActivity()).getOperationName(), step -> step));
         }
 
         private static WorkflowStep getDelegateStep(Workflow workflow, String nodeId) {
-            return workflow.getSteps().values().stream().filter(step -> isNodeStep(step, nodeId) && step.getActivity() instanceof DelegateWorkflowActivity)
-                    .findFirst().orElse(null);
+            return workflow.getSteps().values().stream()
+                    .filter(step -> WorkflowUtils.isNodeStep(step, nodeId) && step.getActivity() instanceof DelegateWorkflowActivity).findFirst().orElse(null);
         }
 
         Steps(Workflow workflow, String nodeId) {

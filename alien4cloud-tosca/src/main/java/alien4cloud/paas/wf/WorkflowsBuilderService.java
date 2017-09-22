@@ -318,11 +318,17 @@ public class WorkflowsBuilderService {
     }
 
     public TopologyContext buildTopologyContext(Topology topology) {
-        return buildCachedTopologyContext(new DefaultTopologyContext(topology));
+        return buildTopologyContext(topology, null);
     }
 
     public TopologyContext buildTopologyContext(Topology topology, Csar csar) {
-        return buildCachedTopologyContext(new DefaultTopologyContext(topology, csar));
+        DefaultTopologyContext topologyContext;
+        if (csar == null) {
+            topologyContext = new DefaultTopologyContext(topology);
+        } else {
+            topologyContext = new DefaultTopologyContext(topology, csar);
+        }
+        return buildCachedTopologyContext(topologyContext);
     }
 
     public TopologyContext buildCachedTopologyContext(TopologyContext topologyContext) {

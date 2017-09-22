@@ -1,6 +1,8 @@
 package org.alien4cloud.tosca.model.workflow.activities;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -8,6 +10,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CallOperationWorkflowActivity extends AbstractWorkflowActivity {
     private String interfaceName;
     private String operationName;

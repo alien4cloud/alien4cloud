@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import alien4cloud.paas.exception.NotSupportedException;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -19,6 +20,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public class WorkflowStep {
     /** The target of the step (this can be a node template name, a group name). */
     private String target;
@@ -43,6 +45,12 @@ public class WorkflowStep {
      * Everything underneath is non tosca, it does exist to facilitate implementation in Alien4Cloud
      * ________________________________________________________________________________________________
      */
+
+    public WorkflowStep(String target, String hostId, AbstractWorkflowActivity activity) {
+        this.target = target;
+        this.hostId = hostId;
+        setActivity(activity);
+    }
 
     /** The id / name of the step in the workflow **/
     private String name;
