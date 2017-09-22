@@ -324,8 +324,8 @@
     },
     "WF" : {
       "DelegateWorkflowActivity" : "Workflow sous-traité",
-      "OperationCallActivity" : "Appel d'opération",
-      "SetStateActivity" : "Changement d'état",
+      "CallOperationWorkflowActivity" : "Appel d'opération",
+      "SetStateWorkflowActivity" : "Changement d'état",
       "activity" : "Activité",
       "addOperationActivity" : "Ajouter un appel d'opération",
       "addStateActivity" : "Ajouter un changement d'état",

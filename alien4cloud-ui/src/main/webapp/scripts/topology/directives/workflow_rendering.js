@@ -65,10 +65,10 @@ define(function(require) {
           function appendStepNode(g, stepName, step, hostId) {
             var shortActivityType = scope.workflows.getStepActivityType(step);
             var width, height;
-            if (shortActivityType === 'OperationCallActivity' || shortActivityType === 'DelegateWorkflowActivity') {
+            if (shortActivityType === 'CallOperationWorkflowActivity' || shortActivityType === 'DelegateWorkflowActivity') {
               width = 80;
               height = 60;
-            } else if (shortActivityType === 'SetStateActivity') {
+            } else if (shortActivityType === 'SetStateWorkflowActivity') {
               if (scope.wfViewMode === 'simple') {
                 width = 32;
                 height = 24;
@@ -162,11 +162,11 @@ define(function(require) {
                 if (!step.precedingSteps || step.precedingSteps.length === 0) {
                   appendEdge(g, 'start', stepName);
                 }
-                if (!step.followingSteps || step.followingSteps.length === 0) {
+                if (!step.onSuccess || step.onSuccess.length === 0) {
                   appendEdge(g, stepName, 'end');
                 } else {
-                  for (var j = 0; j < step.followingSteps.length; j++) {
-                    appendEdge(g, stepName, step.followingSteps[j]);
+                  for (var j = 0; j < step.onSuccess.length; j++) {
+                    appendEdge(g, stepName, step.onSuccess[j]);
                   }
                 }
               }
@@ -194,8 +194,8 @@ define(function(require) {
             html += '<h5 class="pull-left">' + step.name + '</h5>';
             html += '<i class="fa pull-right">' + scope.workflows.getStepActivityTypeIcon(step) + '</i>';
             html += '<span class="clearfix"></span>';
-            html += '<div class="row"><div class="col-md-3">Node' + ': </div><div class="col-md-9"><b>' + step.nodeId + '</b></div></div>';
-            html += '<div class="row"><div class="col-md-3">Host' + ': </div><div class="col-md-9"><b>' + step.hostId + '</b></div></div>';
+            html += '<div class="row"><div class="col-md-3">Node' + ': </div><div class="col-md-9"><b>' + step.target + '</b></div></div>';
+            html += '<div class="row"><div class="col-md-3">Host' + ': </div><div class="col-md-9"><b>' + step.target + '</b></div></div>';
             html += '<div class="row"><div class="col-md-3">' + $translate.instant('APPLICATIONS.WF.activity') + ': </div>';
             html += '<div class="col-md-9"><b>' + $translate.instant('APPLICATIONS.WF.' + scope.workflows.getStepActivityType(step)) + '</b></div></div>';
             var activityDetails = scope.workflows.getStepActivityDetails(step);
