@@ -939,6 +939,7 @@
 
     "MENU_ENVIRONMENT" : "環境",
     "MENU_USERS" : "ユーザとグループ",
+    "MENU_VARIABLES": "Variables",
     "MENU_VERSIONS" : "バージョン"
   },
   "NAVBAR" : {

@@ -180,7 +180,7 @@
       "PARSING_ERROR" : "La topologie n'est pas valide",
       "PLAN" : "Workflow",
       "PROPERTIES_INPUTS" : "Propriétés d'entrée",
-      "PRECONFIGURED_PROPERTIES_INPUTS": "Propriétés d'entrée préconfigurées",      
+      "PRECONFIGURED_PROPERTIES_INPUTS": "Propriétés d'entrée préconfigurées",
       "PROPERTIES_OUTPUTS" : "Propriétés de sortie",
       "RECOVERY" : {
         "CHOICE_ASK" : "Que souhaitez vous faire de la topologie ?",
@@ -956,6 +956,7 @@
 
     "MENU_ENVIRONMENT": "Environnements",
     "MENU_USERS": "Utilisateurs et Groupes",
+    "MENU_VARIABLES": "Variables",
     "MENU_VERSIONS": "Versions"
   },
   "NAVCATALOG": {

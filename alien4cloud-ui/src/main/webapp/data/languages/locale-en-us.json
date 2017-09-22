@@ -957,6 +957,7 @@
 
     "MENU_ENVIRONMENT": "Environments",
     "MENU_USERS": "Users and Groups",
+    "MENU_VARIABLES": "Variables",
     "MENU_VERSIONS": "Versions"
   },
   "NAVCATALOG": {

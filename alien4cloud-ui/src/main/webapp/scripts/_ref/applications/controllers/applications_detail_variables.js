@@ -17,9 +17,9 @@ define(function (require) {
       id: 'am.applications.detail.variables',
       state: 'applications.detail.variables',
       key: 'NAVAPPLICATIONS.MENU_VARIABLES',
-      icon: 'fa fa-tasks',
+      icon: 'fa fa-usd',
       roles: ['APPLICATION_MANAGER'],
-      priority: 500
+      priority: 400
     }
   });
 
