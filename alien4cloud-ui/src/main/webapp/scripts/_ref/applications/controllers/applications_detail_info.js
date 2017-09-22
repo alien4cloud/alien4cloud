@@ -12,6 +12,7 @@ define(function (require) {
   require('scripts/_ref/applications/controllers/applications_detail_users');
   require('scripts/_ref/applications/controllers/applications_detail_versions');
   require('scripts/_ref/applications/controllers/applications_detail_environments');
+  require('scripts/_ref/applications/controllers/applications_detail_variables');
 
   require('scripts/_ref/applications/controllers/applications_detail_environment');
   require('scripts/_ref/applications/controllers/applications_detail_version');

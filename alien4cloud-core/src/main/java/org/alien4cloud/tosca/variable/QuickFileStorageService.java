@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.Properties;
 
@@ -11,8 +12,6 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.alien4cloud.tosca.utils.PropertiesYamlParser;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.PathResource;
@@ -30,17 +29,15 @@ public class QuickFileStorageService {
     private EditorRepositoryService editorRepositoryService;
 
     private Path variablesStoreRootPath;
-    private Path inputsStoreRootPath;
 
     @Required
     @Value("${directories.alien}")
     public void setStorageRootPath(String variableRootDir) throws IOException {
         this.variablesStoreRootPath = FileUtil.createDirectoryIfNotExists(variableRootDir + "/variables/");
-        this.inputsStoreRootPath = FileUtil.createDirectoryIfNotExists(variableRootDir + "/inputs/");
     }
 
     public Properties loadApplicationVariables(String applicationId) {
-        Path ymlPath = this.variablesStoreRootPath.resolve(sanitizeFilename("app_" + applicationId + ".yml"));
+        Path ymlPath = getApplicationVariablesPath(applicationId);
         return loadYamlToPropertiesIfExists(ymlPath);
     }
 
@@ -82,21 +79,29 @@ public class QuickFileStorageService {
         return map;
     }
 
-    public void saveApplicationVariables(String applicationId, InputStream content) {
-        Path ymlPath = this.variablesStoreRootPath.resolve(sanitizeFilename("app_" + applicationId + ".yml"));
-        save(ymlPath, content);
+    /**
+     * Save application variables from a string content.
+     *
+     * @param applicationId The id of the application.
+     * @param data The content of the variable file.
+     */
+    @SneakyThrows
+    public void saveApplicationVariables(String applicationId, InputStream data) {
+        Path ymlPath = getApplicationVariablesPath(applicationId);
+        Files.copy(data, ymlPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     @SneakyThrows
-    private void save(Path path, String content) {
-        if (Files.exists(path)) {
-            FileUtils.writeStringToFile(path.toFile(), content, "UTF-8");
+    public String getApplicationVariables(String applicationId) {
+        Path ymlPath = getApplicationVariablesPath(applicationId);
+        if (Files.exists(ymlPath)) {
+            return FileUtil.readTextFile(ymlPath);
         }
+        return "";
     }
 
-    @SneakyThrows
-    private void save(Path path, InputStream content) {
-        save(path, IOUtils.toString(content, "UTF-8"));
+    private Path getApplicationVariablesPath(String applicationId) {
+        return this.variablesStoreRootPath.resolve(sanitizeFilename("app_" + applicationId + ".yml"));
     }
 
     private String sanitizeFilename(String inputName) {
