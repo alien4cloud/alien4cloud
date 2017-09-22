@@ -39,9 +39,9 @@ public class ToscaTypeConverter {
             case ToscaTypes.MAP:
                 if (resolvedPropertyValue instanceof Map) {
                     Map<String, Object> map = (Map<String, Object>) resolvedPropertyValue;
-                    Map<String, Object> finalMap = Maps.newHashMap();
-                    map.forEach((key, value) -> finalMap.put(key, toPropertyValue(value, propertyDefinition.getEntrySchema())));
-                    return new ComplexPropertyValue(finalMap);
+                    Map<String, Object> resultMap = Maps.newHashMap();
+                    map.forEach((key, value) -> resultMap.put(key, toPropertyValue(value, propertyDefinition.getEntrySchema())));
+                    return new ComplexPropertyValue(resultMap);
                 } else {
                     throw new IllegalStateException("Property is not the expected type <" + Map.class.getSimpleName() + "> but was <" + resolvedPropertyValue.getClass().getName() + ">");
                 }
@@ -49,11 +49,11 @@ public class ToscaTypeConverter {
             case ToscaTypes.LIST:
                 if (resolvedPropertyValue instanceof Collection) {
                     List list = (List) resolvedPropertyValue;
-                    List finalList = new LinkedList();
+                    List resultList = new LinkedList();
                     for (Object item : list) {
-                        finalList.add(toPropertyValue(item, propertyDefinition.getEntrySchema()));
+                        resultList.add(toPropertyValue(item, propertyDefinition.getEntrySchema()));
                     }
-                    return new ListPropertyValue(finalList);
+                    return new ListPropertyValue(resultList);
                 } else {
                     throw new IllegalStateException("Property is in the expected type <" + Collection.class.getSimpleName() + "> but was <" + resolvedPropertyValue.getClass().getName() + ">");
                 }
@@ -68,7 +68,18 @@ public class ToscaTypeConverter {
                 if (dataType.isDeriveFromSimpleType()) {
                     return new ScalarPropertyValue(resolvedPropertyValue.toString());
                 } else if (resolvedPropertyValue instanceof Map) {
-                    return new ComplexPropertyValue((Map<String, Object>) resolvedPropertyValue);
+                    Map<String, Object> map = (Map<String, Object>) resolvedPropertyValue;
+                    Map<String, Object> resultMap = Maps.newHashMap();
+
+                    map.forEach((key, value) -> {
+                        PropertyDefinition entryDefinition = dataType.getProperties().get(key);
+                        if(entryDefinition == null){
+                            throw new IllegalStateException("DataType <" + propertyDefinition.getType() + "> does not contains any definition for entry <" + key + ">");
+                        }
+                        resultMap.put(key, toPropertyValue(value, entryDefinition));
+                    });
+
+                    return new ComplexPropertyValue(resultMap);
                 } else {
                     throw new IllegalStateException("Property with type <" + propertyDefinition.getType() + "> is not supported.");
                 }

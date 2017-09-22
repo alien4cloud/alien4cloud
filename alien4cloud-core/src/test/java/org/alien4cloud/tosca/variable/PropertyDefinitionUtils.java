@@ -24,12 +24,20 @@ public class PropertyDefinitionUtils {
         return buildPropDef(type, entrySchema, true);
     }
 
-    public static PropertyDefinition buildPropDef(String type, String entrySchema, boolean required) {
+    public static PropertyDefinition buildPropDef(String type, PropertyDefinition entrySchema) {
+        return buildPropDef(type, entrySchema, true);
+    }
+
+    public static PropertyDefinition buildPropDef(String type, PropertyDefinition entrySchema, boolean required) {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(type);
         propertyDefinition.setRequired(required);
         propertyDefinition.setPassword(false);
-        propertyDefinition.setEntrySchema(buildPropDef(entrySchema, true));
+        propertyDefinition.setEntrySchema(entrySchema);
         return propertyDefinition;
+    }
+
+    public static PropertyDefinition buildPropDef(String type, String entrySchema, boolean required) {
+        return buildPropDef(type, buildPropDef(entrySchema), required);
     }
 }
