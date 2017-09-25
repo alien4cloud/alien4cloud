@@ -42,7 +42,7 @@ public class QuickFileStorageService {
     }
 
     public Properties loadEnvironmentVariables(String archiveId, String environmentId) {
-        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, "inputs" + sanitizeFilename("env_" + environmentId + ".yml"));
+        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, "inputs/" + sanitizeFilename("var_env_" + environmentId + ".yml"));
         return loadYamlToPropertiesIfExists(ymlPath);
     }
 
@@ -58,6 +58,7 @@ public class QuickFileStorageService {
             Resource appVar = new PathResource(ymlPath);
             props = PropertiesYamlParser.ToProperties.from(appVar);
         } else {
+            Files.createDirectories(ymlPath.getParent());
             Files.createFile(ymlPath);
             props = new Properties();
         }
@@ -72,6 +73,7 @@ public class QuickFileStorageService {
             Resource appVar = new PathResource(ymlPath);
             map = PropertiesYamlParser.ToMap.from(appVar);
         } else {
+            Files.createDirectories(ymlPath.getParent());
             Files.createFile(ymlPath);
             map = Maps.newHashMap();
         }
@@ -104,7 +106,7 @@ public class QuickFileStorageService {
         return this.variablesStoreRootPath.resolve(sanitizeFilename("app_" + applicationId + ".yml"));
     }
 
-    private String sanitizeFilename(String inputName) {
-        return inputName.replaceAll("[^a-zA-Z0-9-_\\.]", "_");
+    private String sanitizeFilename(String fileName) {
+        return fileName.replaceAll("[^a-zA-Z0-9-_\\.]", "_");
     }
 }

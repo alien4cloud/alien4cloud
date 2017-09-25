@@ -1,17 +1,19 @@
 package org.alien4cloud.tosca.variable;
 
-import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.alien4cloud.tosca.utils.DataTypesFetcher;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Maps;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class can convert {@link Object} into {@link PropertyValue} with respect to a {@link PropertyDefinition}.
@@ -69,6 +71,7 @@ public class ToscaTypeConverter {
                     return new ScalarPropertyValue(resolvedPropertyValue.toString());
                 } else if (resolvedPropertyValue instanceof Map) {
                     Map<String, Object> map = (Map<String, Object>) resolvedPropertyValue;
+                    /*
                     Map<String, Object> resultMap = Maps.newHashMap();
 
                     map.forEach((key, value) -> {
@@ -78,8 +81,9 @@ public class ToscaTypeConverter {
                         }
                         resultMap.put(key, toPropertyValue(value, entryDefinition));
                     });
-
                     return new ComplexPropertyValue(resultMap);
+                    */
+                    return new ComplexPropertyValue(map);
                 } else {
                     throw new IllegalStateException("Property with type <" + propertyDefinition.getType() + "> is not supported.");
                 }
