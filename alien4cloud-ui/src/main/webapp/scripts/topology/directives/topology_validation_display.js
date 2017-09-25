@@ -13,15 +13,14 @@ define(function (require) {
       return {
         restrict: 'E',
         templateUrl: 'views/topology/topology_validation_display.html',
-        controller: 'ValidationDisplayCtrl',
         scope: {
           validationDto: '=',
+          validMessage: '@?'
+        },
+        link(scope){
+          scope._ = _;
         }
       };
     }
   ]); // directive
-
-  modules.get('a4c-topology-editor', []).controller('ValidationDisplayCtrl', ['$scope', function ($scope) {
-    $scope._ = _;
-  }]);
 }); // define

@@ -4,24 +4,24 @@
       <uib-tabset>
         <uib-tab id="current-topology-tab">
           <uib-tab-heading>
-            <i class="fa" ng-class="{'fa-check': validCurrentTopologyDTO.valid, 'fa-exclamation-triangle text-danger': !validCurrentTopologyDTO.valid}"></i>
+            <i class="fa" ng-class="{'fa-check': editedTopologyValidationDTO.valid, 'fa-exclamation-triangle text-danger': !editedTopologyValidationDTO.valid}"></i>
             <span> {{'EDITOR.VALIDATION.CURRENT_TOPOLOGY' | translate}}</span>
           </uib-tab-heading>
-          <div class="col-md-12" ng-if="validCurrentTopologyDTO.valid">
-            <h3 class="text-success"><i class="fa fa-check"></i> {{'APPLICATIONS.TOPOLOGY.TASK.VALIDATION_SUCCESS_CURRENT_TOPOLOGY' | translate}}</h3>
-          </div>
 
-          <topology-validation-display validation-dto="validCurrentTopologyDTO"></topology-validation-display>
+          <topology-validation-display
+            validation-dto="editedTopologyValidationDTO"
+            valid-message="APPLICATIONS.TOPOLOGY.TASK.VALIDATION_SUCCESS_CURRENT_TOPOLOGY"></topology-validation-display>
         </uib-tab>
 
         <uib-tab id="last-topology-tab">
           <uib-tab-heading>
-            <i class="fa fa-exclamation-triangle text-danger" ng-if="!validTopologyDTO.valid"></i>
-            <i class="fa fa-check" ng-if="validTopologyDTO.valid"></i>
+            <i class="fa" ng-class= "{'fa-exclamation-triangle text-danger': !lastSavedTopologyValidationDto.valid , 'fa fa-check': lastSavedTopologyValidationDto.valid}"></i>
             <span> {{'EDITOR.VALIDATION.LAST_SAVED_TOPOLOGY' | translate}}</span>
           </uib-tab-heading>
 
-          <topology-validation-display validation-dto="validTopologyDTO"></topology-validation-display>
+          <topology-validation-display
+            validation-dto="lastSavedTopologyValidationDto"
+            valid-message="APPLICATIONS.TOPOLOGY.TASK.VALIDATION_SUCCESS"></topology-validation-display>
         </uib-tab>
       </uib-tabset>
     </div>

@@ -266,7 +266,7 @@
         "TOADD_RELATIONSHIP_LABEL" : "Prérequis non statisfaits (ajoutez un lien)",
         "VALIDATION_FAILED" : "La dernière topologie enregistrée n'est pas valide, aller dans l'éditeur de topology pour plus d'informations.",
         "VALIDATION_SUCCESS" : "La dernière topologie enregistrée est valide.",
-        "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "La topologie courante est valide.",
+        "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "La topologie en cours d'édition est valide.",
         "WORKFLOWS" : {
           "HAS_ERROR" : "Le workflow '{{workflowName}}' n'est pas valide : {{errorCount}} erreur(s)",
           "TITLE" : "Workflows"
@@ -761,7 +761,7 @@
     "UNDO" : "Annuler",
     "DOWNLOAD": "Télécharger",
     "VALIDATION" : {
-      "CURRENT_TOPOLOGY" : "Topologie courante",
+      "CURRENT_TOPOLOGY" : "Topologie En cours d'édition",
       "CURRENT_TOPOLOGY_NO_OPERATIONS" : "La topologie actuelle n'a pas changé.",
       "LAST_SAVED_TOPOLOGY" : "Dernière topologie enregistrée"
     }
