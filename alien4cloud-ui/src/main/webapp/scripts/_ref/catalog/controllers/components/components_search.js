@@ -205,7 +205,7 @@ define(function (require) {
 
 
       var componentResource = $alresource('rest/latest/components/:id');
-      $scope.selectOtherComponentVersion = function (component, newVersion, index, event) {
+      $scope.selectVersion = function (component, newVersion, index, event) {
         if (event) {
           event.stopPropagation();
         }

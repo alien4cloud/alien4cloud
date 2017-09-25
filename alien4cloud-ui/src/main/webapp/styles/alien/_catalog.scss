@@ -10,6 +10,11 @@
   text-align: left;
 }
 
+.catalog-cell-selected{
+  background-color: $alert-info-bg;
+  color: $alert-info-text;
+}
+
 .catalog-cell:hover {
   background-color: rgb(224, 224, 224);
   cursor: pointer;

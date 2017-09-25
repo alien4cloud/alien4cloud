@@ -6,7 +6,9 @@
 
 <!--   search results -->
 <div class="grp-margin" ng-class="{'small': !globalContext}" style= "text-align: center;">
-  <div class="catalog-cell"
+  <div
+    class="catalog-cell"
+    ng-class="{'catalog-cell-selected': isSelected({topology: topology})}"
     ng-repeat="topology in queryManager.searchResult.data"
     id="li_{{topology.id}}"
     ng-click="handleItemSelection(topology)">

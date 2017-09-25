@@ -75,15 +75,16 @@ define(function (require) {
       };
 
       var topologyResource = $alresource('rest/latest/catalog/topologies/:id');
-      $scope.selectVersion = function(topology, version, index, event) {
+      $scope.selectVersion = function(topology, newVersion, index, event) {
         if (_.defined(event)) {
           event.stopPropagation();
         }
-        if(topology.archiveVersion !== version.version) {
-          topologyResource.get({id: version.id},
+        if(topology.archiveVersion !== newVersion.version) {
+          topologyResource.get({id: newVersion.id},
             function(response) {
-            response.data.allVersions = topology.allVersions;
-            $scope.searchConfig.result.data[index] = response.data;
+            response.data.olderVersions = topology.olderVersions;
+            response.data.selectedVersion = newVersion.version;
+            $scope.queryManager.searchResult.data[index] = response.data;
           });
         }
       };
