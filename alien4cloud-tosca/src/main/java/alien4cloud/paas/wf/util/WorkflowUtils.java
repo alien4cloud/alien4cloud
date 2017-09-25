@@ -236,7 +236,8 @@ public class WorkflowUtils {
         return step;
     }
 
-    public static WorkflowStep addRelationshipOperationStep(Workflow wf, String nodeId, String relationshipId, String interfaceName, String operationName) {
+    public static WorkflowStep addRelationshipOperationStep(Workflow wf, String nodeId, String relationshipId, String interfaceName, String operationName,
+            String operationHost) {
         CallOperationWorkflowActivity task = new CallOperationWorkflowActivity();
         task.setInterfaceName(interfaceName);
         task.setOperationName(operationName);
@@ -246,6 +247,7 @@ public class WorkflowUtils {
         step.setTargetRelationship(relationshipId);
         step.setActivity(task);
         step.setName(buildStepName(wf, step, 0));
+        step.setOperationHost(operationHost);
         wf.addStep(step);
         return step;
     }
