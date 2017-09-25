@@ -452,6 +452,7 @@
     "DATE" : "Date",
     "DESCRIPTION" : "Description",
     "DOWNLOAD": "Télécharger",
+    "EDIT": "Editer",
     "EMAIL" : "Email",
     "EMAIL_INVALID" : "Email non valide.",
     "ENABLED_false" : "Désactivé",

@@ -1,15 +1,17 @@
-<div class="row">
-  <div class="col-md-2 grp-margin" ng-if="canEditTopology">
-    <div class="text-muted">
-      Note: The following topology is or may be associated with multiple environments.
-      When editing you will impact the version of the topology and eventually other environments.
+<div class="row grp-margin">
+  <div class="col-md-2">
+    <div ng-if="canEditTopology">
+      <div class="text-muted">
+        Note: The following topology is or may be associated with multiple environments.
+        When editing you will impact the version of the topology and eventually other environments.
+      </div>
+      <button class="btn btn-default grp-margin" id="edit-topo-btn" ng-click="editTopology()">
+        <i class="fa fa-edit"></i> {{'COMMON.EDIT' | translate}}
+      </button>
     </div>
-    <button class="btn btn-default" id="edit-topo-btn" ng-click="editTopology()">
-      <i class="fa fa-edit"></i> {{'COMMON.EDIT' | translate}}
-    </button>
-  </div>
-  <div class="col-md-2 grp-margin" ng-if="!canEditTopology">
-    You do not have sufficient rights to edit the topology.
+    <div ng-if="!canEditTopology">
+      You do not have sufficient rights to edit the topology.
+    </div>
   </div>
   <div class="col-md-10">
     <!-- error display -->

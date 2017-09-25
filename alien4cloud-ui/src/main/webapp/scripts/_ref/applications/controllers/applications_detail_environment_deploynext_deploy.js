@@ -26,9 +26,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextDeployCtrl',
-    ['$scope', '$alresource', '$translate', 'toaster', '$uibModal', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state', 'locationsMatchingServices', 'deploymentTopologyDTO',
-    function ($scope, $alresource, $translate, toaster, $uibModal, deploymentTopologyServices, applicationServices, breadcrumbsService, $state, locationsMatchingServices,  deploymentTopologyDTO) {
-      $scope.deploymentTopologyDTO = deploymentTopologyDTO;
+    ['$scope', '$alresource', '$translate', 'toaster', '$uibModal', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state', 'locationsMatchingServices',
+    function ($scope, $alresource, $translate, toaster, $uibModal, deploymentTopologyServices, applicationServices, breadcrumbsService, $state, locationsMatchingServices) {
       breadcrumbsService.putConfig({
         state : 'applications.detail.environment.deploynext.deploy',
         text: function(){
@@ -88,31 +87,6 @@ define(function (require) {
         }, function() {
           $scope.reloadEnvironment();
         });
-      }
-
-      var openModal = function(templateUrl, modalType, proceedFunction) {
-        var modalInstance = $uibModal.open({
-          templateUrl: templateUrl,
-          controller: ConfirmationModalCtrl,
-          resolve: {
-            applicationName: function() {
-              return $scope.application.name;
-            }
-          },
-          size: 'lg'
-        });
-
-        modalInstance.result.then(function() {
-          proceedFunction();
-        });
-      };
-
-      $scope.deploy = function(){
-        openModal('views/applications/deploy_confirm_modal.html', 'DEPLOY_MODAL', doDeploy);
-      };
-
-      $scope.update = function(){
-        openModal('views/applications/update_confirm_modal.html', 'UPDATE_MODAL', doUpdate);
       };
 
       /**
