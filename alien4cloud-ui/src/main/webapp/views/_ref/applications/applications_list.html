@@ -26,20 +26,20 @@
           <span id="pieChart-{{application.id}}" class="pull-right" style="margin-top: -18px; margin-bottom: -18px;"></span>
         </div>
       </div>
-      <div class="row" ng-class="{'clickable-media': environment.canDeploy}" uib-collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationEnvironmentMap[application.id]"  >
+      <div class="row" ng-class="{'clickable-media': environment.canDeploy}" uib-collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationEnvironmentMap[application.id]" style="padding-left: 50px" >
         <div class="col-span-12 alien-table-child-row"
              ng-click="environment.canDeploy && openDeploymentPage(application, environment.id)" >
           <div class="row">
             <div>
               <div class="col-md-1"> </div>
-              <div class="col-md-5">
+              <div class="col-md-3">
                 <i class="fa fa-2x vertical-center {{fromStatusToCssClasses(environment)}}" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true"></i>
                 <span>{{environment.name}}</span>
               </div>
               <div class="col-md-3">
                 {{environment.currentVersionName}}
               </div>
-              <div class="col-md-3" ng-class="{
+              <div class="col-md-2" ng-class="{
                 'text-success' : environment.status == 'DEPLOYED' || environment.status == 'UPDATED',
                 'text-muted' : environment.status == 'UNDEPLOYED',
                 'text-warning' : environment.status == 'WARNING',
