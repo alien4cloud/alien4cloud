@@ -1,13 +1,16 @@
 package org.alien4cloud.tosca.variable;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ParserContext;
+import org.springframework.expression.*;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.expression.spel.support.StandardTypeLocator;
 
 /**
  * This class is responsible to configure and wrap the access to {@link SpelExpressionParser}
@@ -40,6 +43,32 @@ public class SpelExpressionProcessor {
 
         private VariableEvaluationContext(PropertyResolver resolver) {
             this.resolver = resolver;
+
+            // forbidden to load any classes except default java classes
+            // #{ T(org.springframework.security.core.context.SecurityContextHolder).getContext() }
+            // won't be possible
+            StandardTypeLocator standardTypeLocator = new StandardTypeLocator(getRootClassloader());
+            setTypeLocator(standardTypeLocator);
+
+            // disable any method calls
+            // i.e.
+            // #{ T(java.lang.Math).random() }
+            // random() won't be resolve
+            setMethodResolvers(Arrays.asList(new MethodResolver() {
+                @Override
+                public MethodExecutor resolve(EvaluationContext context, Object targetObject, String name, List<TypeDescriptor> argumentTypes) throws AccessException {
+                    return null;
+                }
+            }));
+
+            setBeanResolver((context, beanName) -> null);
+
+            setConstructorResolvers(Arrays.asList(new ConstructorResolver() {
+                @Override
+                public ConstructorExecutor resolve(EvaluationContext context, String typeName, List<TypeDescriptor> argumentTypes) throws AccessException {
+                    return null;
+                }
+            }));
         }
 
         @Override
@@ -50,6 +79,14 @@ public class SpelExpressionProcessor {
             } else {
                 return resolver.getProperty(name, Object.class);
             }
+        }
+
+        private ClassLoader getRootClassloader(){
+            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+            while(classLoader.getParent() != null){
+                classLoader = classLoader.getParent();
+            }
+            return classLoader;
         }
     }
 }
