@@ -1,18 +1,20 @@
-package alien4cloud.variable;
+package org.alien4cloud.tosca.variable;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Map;
-
+import alien4cloud.model.application.Application;
+import com.google.common.collect.ImmutableMap;
+import org.alien4cloud.tosca.utils.PropertiesYamlParser;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.config.YamlMapFactoryBean;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
-import alien4cloud.model.application.Application;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class VariableResolverTest {
     private VariableResolver resolver;
@@ -22,18 +24,12 @@ public class VariableResolverTest {
         Resource yamlApp = new FileSystemResource("src/test/resources/alien/variables/variables_app_test.yml");
         Resource yamlEnv = new FileSystemResource("src/test/resources/alien/variables/variables_env_test.yml");
 
-        YamlMapFactoryBean yamlAppFactoryBean = new YamlMapFactoryBean();
-        yamlAppFactoryBean.setResources(yamlApp);
-
-        YamlMapFactoryBean yamlEnvFactoryBean = new YamlMapFactoryBean();
-        yamlEnvFactoryBean.setResources(yamlEnv);
-
-        PredefinedVariables predefinedVariables = new PredefinedVariables();
+        AlienContextVariables alienContextVariables = new AlienContextVariables();
         Application application = new Application();
         application.setName("originalAppName");
-        predefinedVariables.setApplication(application);
+        alienContextVariables.setApplication(application);
 
-        resolver = new VariableResolver(YamlToProperties.from(yamlApp), YamlToProperties.from(yamlEnv), predefinedVariables);
+        resolver = new VariableResolver(PropertiesYamlParser.ToProperties.from(yamlApp), PropertiesYamlParser.ToProperties.from(yamlEnv), alienContextVariables);
     }
 
     @Test
@@ -67,8 +63,21 @@ public class VariableResolverTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    public void resolve_complex_with_list_var_in_body() throws Exception {
+        Object complex = resolver.resolve("complex_with_list_var_in_body", Object.class);
+        assertThat(complex).isInstanceOf(Map.class);
+        assertThat(((Map) complex).get("string_list")).isEqualTo(Arrays.asList("item 1", "item 2", "item 3"));
+        assertThat(((Map) complex).get("complex_list")).isEqualTo(Arrays.asList(
+                ImmutableMap.of("item10", "value10", "item11", "value11"),
+                ImmutableMap.of("item20", "value20", "item21", "value21"))
+        );
+    }
+
+
+    @Test
+    @SuppressWarnings("unchecked")
     public void resolve_app_var_complex_with_var_in_body() throws Exception {
-        Map<String, Object> complex = resolver.resolve("complex_with_var_in_body", Map.class);
+        Map<String, Object> complex = (Map<String, Object>) resolver.resolve("complex_with_var_in_body", Object.class);
         assertThat(complex.get("complex_from_var")).isEqualTo(ImmutableMap.of("complex", ImmutableMap.builder().put("subfield", "text").build()));
     }
 
@@ -125,6 +134,44 @@ public class VariableResolverTest {
     @Test
     public void check_new_variable_can_be_added_in_env() throws Exception {
         assertThat(resolver.resolve("env_variable")).isEqualTo("new env var");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void resolve_list_variable() throws Exception {
+        Object listVariable = resolver.resolve("list_variable", Object.class);
+        assertThat(listVariable).isInstanceOf(List.class);
+        assertThat((List<String>) listVariable).containsExactly("item 1", "item 2", "item 3");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void resolve_list_spel_variable() throws Exception {
+        Object listVariable = resolver.resolve("list_spel_variable", Object.class);
+        assertThat(listVariable).isInstanceOf(List.class);
+        assertThat((List<String>) listVariable).containsExactly("item true", "item false", "item 3");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void resolve_complex_with_list() throws Exception {
+        Object complex = resolver.resolve("complex_with_list", Object.class);
+        assertThat(complex).isInstanceOf(Map.class);
+        assertThat(((Map<String, Object>) complex)).containsExactly(
+                entry("subfield1", "text"),
+                entry("subfield2", ImmutableMap.of("sublist", Arrays.asList("item 1", "item 2", "item 3.14"))));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void resolve_list_of_complex() throws Exception {
+        Object list = resolver.resolve("list_of_complex", Object.class);
+        assertThat(list).isInstanceOf(Collection.class);
+        assertThat(((Collection<Object>) list)).hasSize(2);
+        assertThat(((Collection<Object>) list)).containsExactly(
+                ImmutableMap.of("item10", "value10", "item11", "value11"),
+                ImmutableMap.of("item20", "value20", "item21", "value21")
+        );
     }
 
     @Test

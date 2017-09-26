@@ -9,6 +9,7 @@ import java.util.Set;
 
 import alien4cloud.model.common.Tag;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.elasticsearch.annotation.ESObject;
@@ -154,13 +155,7 @@ public class Topology implements IDatableResource, IWorkspaceResource {
 
     @Id
     public String getId() {
-        if (archiveName == null) {
-            throw new IndexingServiceException("Archive name is mandatory");
-        }
-        if (archiveVersion == null) {
-            throw new IndexingServiceException("Archive version is mandatory");
-        }
-        return archiveName + ":" + archiveVersion;
+        return Csar.createId(archiveName, archiveVersion);
     }
 
     public void setId(String id) {

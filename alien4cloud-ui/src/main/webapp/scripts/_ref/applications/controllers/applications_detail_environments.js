@@ -18,7 +18,7 @@ define(function (require) {
       key: 'NAVAPPLICATIONS.MENU_ENVIRONMENT',
       icon: 'fa fa-share-alt',
       roles: ['APPLICATION_MANAGER'],
-      priority: 600
+      priority: 300
     }
   });
 

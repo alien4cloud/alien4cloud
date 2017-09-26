@@ -179,6 +179,7 @@
       "PARSING_ERROR": "Topology is not valid",
       "PLAN": "Workflow",
       "PROPERTIES_INPUTS": "Input properties",
+      "PRECONFIGURED_PROPERTIES_INPUTS": "Preconfigured input properties",
       "PROPERTIES_OUTPUTS": "Output properties",
       "RECOVERY": {
         "CHOICE_ASK": "What would you like to do with the topology ?",
@@ -865,7 +866,11 @@
     "860": "The topology that you select needs recovery",
     "870": "The topology that you select cannot be used as it won't be visible in the context of the application",
     "INTERNAL": "Internal error",
-    "UNKNOWN": "Unknown error"
+    "UNKNOWN": "Unknown error",
+    "SERVER_LOG": {
+      "MISSING_VARIABLES": "Missing variables: {{variables}}",
+      "UNRESOLVABLE_PREDEFINED_INPUTS": "Unresolvable predefined inputs: {{unresolvableInputs}}"
+    }
   },
   "EXECUTE": "Execute",
   "FALSE": "False",
@@ -954,6 +959,7 @@
 
     "MENU_ENVIRONMENT": "Environments",
     "MENU_USERS": "Users and Groups",
+    "MENU_VARIABLES": "Variables",
     "MENU_VERSIONS": "Versions"
   },
   "NAVCATALOG": {

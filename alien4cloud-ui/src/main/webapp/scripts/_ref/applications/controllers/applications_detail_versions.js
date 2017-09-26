@@ -24,7 +24,7 @@ define(function (require) {
       key: 'NAVAPPLICATIONS.MENU_VERSIONS',
       icon: 'fa fa-tasks',
       roles: ['APPLICATION_MANAGER'],
-      priority: 500
+      priority: 200
     }
   });
 

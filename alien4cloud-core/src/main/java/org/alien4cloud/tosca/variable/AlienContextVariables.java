@@ -1,10 +1,4 @@
-package alien4cloud.variable;
-
-import java.util.Map;
-import java.util.function.Function;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.env.PropertySource;
+package org.alien4cloud.tosca.variable;
 
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -12,15 +6,23 @@ import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.orchestrators.locations.Location;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.env.PropertySource;
 
+import java.util.Map;
+import java.util.function.Function;
+
+/**
+ * Hold all the predefined variables that are automatically available and not overridable.
+ */
 @Setter
-public class PredefinedVariables extends PropertySource {
+public class AlienContextVariables extends PropertySource {
 
     private Application application;
     private ApplicationEnvironment applicationEnvironment;
     private Location location;
 
-    public PredefinedVariables() {
+    public AlienContextVariables() {
         super("predefinedVariables");
     }
 
@@ -31,20 +33,20 @@ public class PredefinedVariables extends PropertySource {
         }
 
         switch (name) {
-        case "a4c.application":
-            return application;
+            case "a4c.application":
+                return application;
 
-        case "a4c.application.id":
-            return ifNotNull(application, Application::getId);
+            case "a4c.application.id":
+                return ifNotNull(application, Application::getId);
 
-        case "a4c.application.name":
-            return ifNotNull(application, Application::getName);
+            case "a4c.application.name":
+                return ifNotNull(application, Application::getName);
 
-        case "a4c.environment.type":
-            return ifNotNull(applicationEnvironment, ApplicationEnvironment::getEnvironmentType);
+            case "a4c.environment.type":
+                return ifNotNull(applicationEnvironment, ApplicationEnvironment::getEnvironmentType);
 
-        case "a4c.environment.name":
-            return ifNotNull(applicationEnvironment, ApplicationEnvironment::getName);
+            case "a4c.environment.name":
+                return ifNotNull(applicationEnvironment, ApplicationEnvironment::getName);
         }
 
         // lookup for a tag
