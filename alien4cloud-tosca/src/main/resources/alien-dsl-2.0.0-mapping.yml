@@ -83,41 +83,41 @@
     map: groups
     key: name
     type: node_group
-#  workflows:
-#    map: workflows
-#    key: name
-#    type: workflow
-#
-#- workflow: alien4cloud.paas.wf.Workflow
-#  description: description
-#  steps:
-#    map: steps
-#    key: name
-#    type: workflow_step
-#
-#- workflow_step : alien4cloud.paas.wf.NodeActivityStep
-#  node: nodeId
-#  activity:
-#    reference: activity
-#    type: workflow_activity
-#  on-success:
-#    set: followingSteps
-#    type: scalar
-#
-#- workflow_activity: __discriminator
-#  keys:
-#    set_state: set_state_activity
-#    call_operation: call_operation_activity
-#    delegate: delegate_activity
-#
-#- set_state_activity: alien4cloud.paas.wf.SetStateActivity
-#  set_state: stateName
-#
-#- call_operation_activity: alien4cloud.paas.wf.OperationCallActivity
-#  call_operation: operationFqn
-#
-#- delegate_activity: alien4cloud.paas.wf.DelegateWorkflowActivity
-#  delegate: workflowName
+  workflows:
+    map: workflows
+    key: name
+    type: workflow
+
+- workflow: org.alien4cloud.tosca.model.workflow.Workflow
+  description: description
+  steps:
+    map: steps
+    key: name
+    type: workflow_step
+
+- workflow_step : org.alien4cloud.tosca.model.workflow.WorkflowStep
+  target: target
+  activities:
+    list: activities
+    type: workflow_activity
+  on-success:
+    set: onSuccess
+    type: scalar
+
+- workflow_activity: __discriminator
+  keys:
+    set_state: set_state_activity
+    call_operation: call_operation_activity
+    delegate: delegate_activity
+
+- set_state_activity: org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity
+  set_state: stateName
+
+- call_operation_activity: org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity
+  call_operation: operationFqn
+
+- delegate_activity: org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity
+  delegate: delegate
 
 - node_group: org.alien4cloud.tosca.model.templates.NodeGroup
   members:

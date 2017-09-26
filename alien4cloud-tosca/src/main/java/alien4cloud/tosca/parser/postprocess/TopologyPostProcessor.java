@@ -2,8 +2,10 @@ package alien4cloud.tosca.parser.postprocess;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -19,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
@@ -29,6 +32,7 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.NameValidationUtils;
 
@@ -114,6 +118,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                         return ToscaContext.get(clazz, id);
                     }
                 });
+        ensureThatActivitiesContainsOnlyOnActivityOrSplit(topologyContext);
         finalizeParsedWorkflows(topologyContext, node);
     }
 
@@ -122,6 +127,78 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
             return;
         }
         instance.setDependencies(Sets.newHashSet(archiveRoot.getArchive().getDependencies()));
+    }
+
+    /**
+     * Called after yaml parsing.
+     *
+     * Add support of activities on alien-dsl-2.0.0 and higher.
+     * For activity, other than the first, we create 1 step per activity.
+     */
+    private void ensureThatActivitiesContainsOnlyOnActivityOrSplit(WorkflowsBuilderService.TopologyContext topologyContext) {
+        if (!ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion()) || MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
+            return;
+        }
+
+        Map<String, Map<String, WorkflowStep>> stepsToAddByWf = new HashMap<>();
+        Map<String, Set<String>> newStepNames = Maps.newHashMap();
+        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
+            if (wf.getSteps() != null) {
+                for (WorkflowStep step : wf.getSteps().values()) {
+                    if (step.getActivities().size() < 2) {
+                        break;
+                    }
+                    if (newStepNames.get(step.getName()) == null) {
+                        newStepNames.put(step.getName(), Sets.newHashSet());
+                    }
+                    if (stepsToAddByWf.get(wf.getName()) == null) {
+                        stepsToAddByWf.put(wf.getName(), Maps.newHashMap());
+                    }
+                    for (int i=1; i<step.getActivities().size(); i++) {
+                        // here we iterate on activities to create new step
+                        WorkflowStep wfStep = new WorkflowStep(step.getTarget(), step.getHostId(), step.getActivities().get(i));
+                        String wfStepName = generateNewWfStepName(wf.getSteps().keySet(), stepsToAddByWf.get(wf.getName()).keySet() , step.getName());
+                        wfStep.setName(wfStepName);
+                        wfStep.setOnSuccess(step.getOnSuccess());
+                        stepsToAddByWf.get(wf.getName()).put(wfStepName, wfStep);
+                        newStepNames.get(step.getName()).add(wfStepName);
+                    }
+                    // new steps are created, we can clean activities
+                    step.getActivities().subList(1, step.getActivities().size()).clear();
+                }
+            }
+        }
+
+        // add new steps to the workflow
+        for (String wf : stepsToAddByWf.keySet()) {
+            for (String stepName : stepsToAddByWf.get(wf).keySet()) {
+                topologyContext.getTopology().getWorkflows().get(wf).getSteps().put(stepName, stepsToAddByWf.get(wf).get(stepName));
+            }
+        }
+
+        // update on_success map to call the new steps when necessary
+        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
+            if (wf.getSteps() != null) {
+                for (WorkflowStep step : wf.getSteps().values()) {
+                    if (step.getOnSuccess() == null || step.getOnSuccess().isEmpty()) {
+                        break;
+                    }
+                    for (String onSuccessId : step.getOnSuccess()) {
+                        if (newStepNames.containsKey(onSuccessId)) {
+                            step.getOnSuccess().addAll(newStepNames.get(onSuccessId));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private String generateNewWfStepName(Set<String> existingStepNames, Set<String> newStepNames, String stepName) {
+        int i = 0;
+        while (existingStepNames.contains(stepName + "_" + i) || newStepNames.contains(stepName + "_" + i)) {
+            i++;
+        }
+        return stepName + "_" + i;
     }
 
     /**
