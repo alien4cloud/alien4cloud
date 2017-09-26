@@ -237,6 +237,9 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #if($taskEntry.value.targetRelationship)
           target_relationship: ${taskEntry.value.targetRelationship}
 #end
+#if($taskEntry.value.operationHost)
+          operation_host: ${taskEntry.value.operationHost}
+#end
 #if($taskEntry.value.activity)
           activities:
             - ${utils.getActivityLabel(${taskEntry.value.activity})}: ${utils.getInlineActivityArg(${taskEntry.value.activity})}
