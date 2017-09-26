@@ -1,11 +1,11 @@
 package org.alien4cloud.tosca.utils;
 
+import java.util.Map;
+import java.util.Properties;
+
 import org.springframework.beans.factory.config.YamlMapFactoryBean;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.Resource;
-
-import java.util.Map;
-import java.util.Properties;
 
 public class PropertiesYamlParser {
 
@@ -69,10 +69,12 @@ public class PropertiesYamlParser {
 
         private void processMap(String parentKey, Properties result, Map<String, Object> map) {
             map.forEach((k, v) -> {
-                result.put(parentKey + k, v);
+                if(v != null) {
+                    result.put(parentKey + k, v);
 
-                if (Map.class.isAssignableFrom(v.getClass())) {
-                    processMap(parentKey + k + ".", result, (Map<String, Object>) v);
+                    if (Map.class.isAssignableFrom(v.getClass())) {
+                        processMap(parentKey + k + ".", result, (Map<String, Object>) v);
+                    }
                 }
             });
         }
