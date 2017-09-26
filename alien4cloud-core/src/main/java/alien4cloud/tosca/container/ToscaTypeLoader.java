@@ -84,37 +84,48 @@ public class ToscaTypeLoader {
         return null;
     }
 
-    private void addNewDependency(CSARDependency dependency, String type) {
+    /**
+     * Add a dependency
+     * 
+     * @param dependency
+     * @param type
+     * @return True if the dependecy has been upgraded into the topology. False if not.
+     */
+    private boolean addNewDependency(CSARDependency dependency, String type) {
         CSARDependency currentDependency = getDependencyWithName(dependency.getName());
         // New dependency that never exists before
         if (currentDependency == null) {
             dependenciesMap.put(dependency, Sets.newHashSet(type));
-            return;
+            return false;
         }
-        // Dependency that already existed
+        // Dependency that already existed,
+        // The new version is more recent, we will override with new version with warning
         if (VersionUtil.compare(dependency.getVersion(), currentDependency.getVersion()) > 0) {
-            // The new version is more recent, we will override with new version with warning
             Set<String> typesLoadedByConflictingArchive = dependenciesMap.remove(currentDependency);
             typesLoadedByConflictingArchive.add(type);
             dependenciesMap.put(dependency, typesLoadedByConflictingArchive);
             log.warn("Version conflicting for archive [" + dependency.getName() + "] override current version [" + currentDependency.getVersion() + "] with ["
                     + dependency.getVersion() + "]");
-        } else {
-            log.warn("Version conflicting for archive [" + dependency.getName() + "] do not override and use current version [" + currentDependency.getVersion()
-                    + "] ignore old version [" + dependency.getVersion() + "]");
-            dependenciesMap.get(currentDependency).add(type);
+            return true;
         }
+
+        log.warn("Version conflicting for archive [" + dependency.getName() + "] do not override and use current version [" + currentDependency.getVersion()
+                + "] ignore old version [" + dependency.getVersion() + "]");
+        dependenciesMap.get(currentDependency).add(type);
+        return false;
     }
 
     /**
      * Add directDependency for the given type from the given archive.
      * If the directDependency is of an deprecated version ( < than found in the existing dependencies), ignore it.
      * If the directDependency is of a more recent version, force the dependency of the topology to the more recent one
-     * 
-     * @param directDependency the direct directDependency to load the type
+     *
      * @param type name of the type
+     * @param directDependency the direct directDependency to load the type
+     * @return True if the dependency has been upgraded into the topology. False if not.
      */
-    public void loadType(String type, CSARDependency directDependency) {
+    public boolean loadType(String type, CSARDependency directDependency) {
+        boolean upgraded = false;
         if (log.isDebugEnabled()) {
             log.debug("Load type [" + type + "] from dependency [" + directDependency + "]");
         }
@@ -131,7 +142,7 @@ public class ToscaTypeLoader {
             dependenciesMap.remove(directDependency);
             dependenciesMap.put(directDependency, typesLoadedByDependency);
         } else {
-            addNewDependency(directDependency, type);
+            upgraded = addNewDependency(directDependency, type);
         }
         Set<CSARDependency> transitiveDependencies = csarDependencyLoader.getDependencies(directDependency.getName(), directDependency.getVersion());
         for (CSARDependency transitiveDependency : transitiveDependencies) {
@@ -146,5 +157,6 @@ public class ToscaTypeLoader {
             log.debug("Type usage [" + typeUsagesMap + "]");
             log.debug("Dependencies usage [" + dependenciesMap + "]");
         }
+        return upgraded;
     }
 }

@@ -1,31 +1,29 @@
 package alien4cloud.authorization;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.security.AbstractSecurityEnabledResource;
 import alien4cloud.security.Subject;
+import alien4cloud.security.event.GroupDeletedEvent;
+import alien4cloud.security.event.UserDeletedEvent;
+import alien4cloud.utils.TypeScanner;
+import com.google.common.collect.Sets;
 import org.alien4cloud.alm.events.AfterPermissionRevokedEvent;
 import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
+import org.alien4cloud.alm.events.BeforeApplicationEnvironmentTypeDeleted;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.security.event.GroupDeletedEvent;
-import alien4cloud.security.event.UserDeletedEvent;
-import alien4cloud.utils.TypeScanner;
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Listeners on events that might affects resources permissions
@@ -59,6 +57,11 @@ public class ResourcePermissionEventsListener {
         deleteEnvironmentPermissionOn(event.getApplicationEnvironmentId());
     }
 
+    @EventListener
+    public void environmentTypeDeletedEventListener(BeforeApplicationEnvironmentTypeDeleted event) throws IOException, ClassNotFoundException {
+        deleteEnvironmentTypePermissionOn(event.getApplicationEnvironmentType());
+    }
+
     @EventListener(condition = "#event.subjectType.toString() == 'USER' && #event.on.clazz.simpleName == 'Location'")
     public void userPermissionRevokedOnLocationEventListener(AfterPermissionRevokedEvent event) throws IOException, ClassNotFoundException {
         for (String username : event.getSubjects()) {
@@ -87,6 +90,13 @@ public class ResourcePermissionEventsListener {
         }
     }
 
+    @EventListener(condition = "#event.subjectType.toString() == 'ENVIRONMENT_TYPE' && #event.on.clazz.simpleName == 'Location'")
+    public void environmentTypePermissionRevokedOnLocationEventListener(AfterPermissionRevokedEvent event) throws IOException, ClassNotFoundException {
+        for (String subject : event.getSubjects()) {
+            deleteEnvironmentTypePermissionOn(subject, LocationResourceTemplate.class);
+        }
+    }
+
     private void deleteUserPermissionOn(String username, Class<?>... resourceClasses) throws IOException, ClassNotFoundException {
         FilterBuilder resourceFilter = FilterBuilders.nestedFilter("userPermissions", FilterBuilders.termFilter("userPermissions.key", username));
         deletePermissions(resourceFilter, username, ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.USER, subjectId)),
@@ -111,6 +121,13 @@ public class ResourcePermissionEventsListener {
                 FilterBuilders.termFilter("environmentPermissions.key", environmentId));
         deletePermissions(resourceFilter, environmentId,
                 ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.ENVIRONMENT, subjectId)), resourceClasses);
+    }
+
+    private void deleteEnvironmentTypePermissionOn(String environmentId, Class<?>... resourceClasses) throws IOException, ClassNotFoundException {
+        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("environmentTypePermissions",
+                FilterBuilders.termFilter("environmentTypePermissions.key", environmentId));
+        deletePermissions(resourceFilter, environmentId,
+                ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.ENVIRONMENT_TYPE, subjectId)), resourceClasses);
     }
 
     private interface ResourcePermissionCleaner {

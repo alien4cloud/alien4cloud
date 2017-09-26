@@ -46,6 +46,12 @@ public class NodeMatchingCandidateModifier implements ITopologyModifier {
         }
 
         DeploymentMatchingConfiguration matchingConfiguration = configurationOptional.get();
+        if (matchingConfiguration.getMatchedNodesConfiguration() == null) {
+            matchingConfiguration.setMatchedNodesConfiguration(Maps.newHashMap());
+        }
+        if (matchingConfiguration.getMatchedLocationResources() == null) {
+            matchingConfiguration.setMatchedLocationResources(Maps.newHashMap());
+        }
 
         Map<String, Location> locationMap = (Map<String, Location>) context.getExecutionCache().get(FlowExecutionContext.DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY);
         // TODO can we avoid update if the matching configuration is strickly younger than the context last conf update ?

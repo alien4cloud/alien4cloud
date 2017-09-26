@@ -233,8 +233,8 @@ public class PluginManager {
             if (oldPlugin == null || oldPlugin.isEnabled()) {
                 loadPlugin(plugin);
                 plugin.setEnabled(true);
+                plugin.setConfigurable(isPluginConfigurable(plugin.getId()));
             }
-            plugin.setConfigurable(isPluginConfigurable(plugin));
             alienDAO.save(plugin);
             log.info("Plugin <" + plugin.getId() + "> has been enabled.");
             return plugin;
@@ -340,6 +340,7 @@ public class PluginManager {
         }
         loadPlugin(plugin);
         plugin.setEnabled(true);
+        plugin.setConfigurable(isPluginConfigurable(plugin.getId()));
         alienDAO.save(plugin);
         log.info("Plugin <" + pluginId + "> has been enabled.");
     }
@@ -394,7 +395,7 @@ public class PluginManager {
      * @throws ClassNotFoundException If we cannot load the class
      */
     private void loadPlugin(Plugin plugin, Path pluginPath, Path pluginUiPath) throws IOException, ClassNotFoundException {
-        // get the plugin spring context
+        // get the plugin spring context, start it
         AnnotationConfigApplicationContext pluginContext = getPluginContext(plugin, pluginPath, pluginUiPath);
 
         ManagedPlugin managedPlugin = (ManagedPlugin) pluginContext.getBean("alien-plugin-context");
@@ -453,6 +454,7 @@ public class PluginManager {
         constructorArgumentValues.addIndexedArgumentValue(3, pluginUiPath);
         beanDefinition.setConstructorArgumentValues(constructorArgumentValues);
         pluginContext.registerBeanDefinition("alien-plugin-context", beanDefinition);
+        // pluginContext.getBeanDefinition()
         // Use plugin classloader as context classloader as some codes still use this
         ClassLoaderUtil.runWithContextClassLoader(pluginClassLoader, () -> {
             pluginContext.refresh();
@@ -562,35 +564,13 @@ public class PluginManager {
      * @param pluginId Id of the plugin for which to know if configurable.
      * @return True if the plugin can be configured, false if not.
      */
-    public boolean isPluginConfigurable(String pluginId) {
-        AnnotationConfigApplicationContext pluginContext = pluginContexts.get(pluginId).getPluginContext();
-        return hasAnyPluginConfiguratorBean(pluginContext);
-    }
-
-    private boolean hasAnyPluginConfiguratorBean(AnnotationConfigApplicationContext pluginContext) {
-        Map<String, IPluginConfigurator> configurators = pluginContext.getBeansOfType(IPluginConfigurator.class);
-        return MapUtils.isNotEmpty(configurators);
-    }
-
-    /**
-     * Return true if the plugin can be configured using a configuration object (basically if the plugin spring context contains an instance of
-     * {@link IPluginConfigurator}.
-     *
-     * @param plugin the plugin for which to know if configurable.
-     * @return True if the plugin can be configured, false if not.
-     */
-    public boolean isPluginConfigurable(Plugin plugin) throws PluginLoadingException {
-        if (pluginContexts.containsKey(plugin.getId())) {
-            return isPluginConfigurable(plugin.getId());
+    public boolean isPluginConfigurable(String pluginId) throws PluginLoadingException {
+        if (pluginContexts.containsKey(pluginId)) {
+            AnnotationConfigApplicationContext pluginContext = pluginContexts.get(pluginId).getPluginContext();
+            Map<String, IPluginConfigurator> configurators = pluginContext.getBeansOfType(IPluginConfigurator.class);
+            return MapUtils.isNotEmpty(configurators);
         }
-        try {
-            AnnotationConfigApplicationContext pluginContext = getPluginContext(plugin, getPluginPath(plugin.getPluginPathId()),
-                    getPluginUiPath(plugin.getPluginPathId()));
-            return hasAnyPluginConfiguratorBean(pluginContext);
-        } catch (Exception e) {
-            log.error("Failed to load plugin context <" + plugin.getId() + ">. alien will ignore this plugin.", e);
-            throw new PluginLoadingException("Failed to load plugin <" + plugin.getId() + ">", e);
-        }
+        throw new PluginLoadingException("Failed to get plugin configuration for <" + pluginId + "> since it is not yet loaded.");
     }
 
     /**

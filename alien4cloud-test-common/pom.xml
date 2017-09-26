@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.4.3-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-test-common</artifactId>
   <name>Alien 4 Cloud Test Common</name>

@@ -120,7 +120,7 @@ public class MatchingSubstitutionService {
                     .get(FlowExecutionContext.MATCHED_LOCATION_RESOURCE_TEMPLATE_IDS_PER_NODE);
 
             // Update the substitution on the target if available substitution is always compatible
-            Map<String, String> validOnNewEnvSubstitutedNodes = sourceConfiguration.getMatchedLocationResources().entrySet().stream()
+            Map<String, String> validOnNewEnvSubstitutedNodes = safe(sourceConfiguration.getMatchedLocationResources()).entrySet().stream()
                     .filter(entry -> locResTemplateIdsPerNodeIds.containsKey(entry.getKey())
                             && locResTemplateIdsPerNodeIds.get(entry.getKey()).contains(entry.getValue()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

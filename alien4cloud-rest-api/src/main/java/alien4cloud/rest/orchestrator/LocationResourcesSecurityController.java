@@ -1,27 +1,8 @@
 package alien4cloud.rest.orchestrator;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.google.common.collect.Sets;
-
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
+import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -36,10 +17,26 @@ import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationDT
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
 import alien4cloud.rest.orchestrator.model.GroupDTO;
 import alien4cloud.rest.orchestrator.model.UserDTO;
-import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.security.Subject;
+import com.google.common.collect.Sets;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources/{resourceId}/security/",
@@ -213,24 +210,37 @@ public class LocationResourcesSecurityController {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         resourcePermissionService.revokePermission(resourceTemplate, (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)),
                 Subject.APPLICATION, applicationId);
+
         // remove all environments related to this application
         ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationId);
         String[] envIds = Arrays.stream(aes).map(ae -> ae.getId()).toArray(String[]::new);
         resourcePermissionService.revokePermission(resourceTemplate, (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)),
                 Subject.ENVIRONMENT, envIds);
+
+        // remove all environment types
+        Set<String> envTypeIds = Sets.newHashSet();
+        for (String envType : resourceTemplate.getEnvironmentTypePermissions().keySet()) {
+            if (envType.split(":")[0].equals(applicationId)) {
+                envTypeIds.add(envType);
+            }
+        }
+        resourcePermissionService.revokePermission(resourceTemplate, (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)),
+                Subject.ENVIRONMENT_TYPE, envTypeIds.toArray(new String[envTypeIds.size()]));
+
+
         return RestResponseBuilder.<Void>builder().build();
     }
 
     /**
-     * Update applications/environments authorized to access the location resource.
+     * Update applications,environments and environment types authorized to access the location resource.
      */
-    @ApiOperation(value = "Update applications/environments authorized to access the location resource", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
+    @ApiOperation(value = "Update applications,environments and environment types authorized to access the location resource", notes = "Only user with ADMIN role can update authorized applications,environments and environment types for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId,
+    public synchronized RestResponse<Void> updateAuthorizedEnvironmentsAndEnvTypePerApplication(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId,
                                                                                       @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), location);
+        locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd(), location);
 
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
@@ -242,6 +252,11 @@ public class LocationResourcesSecurityController {
             resourcePermissionService.revokePermission(resourceTemplate,
                     (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT,
                     request.getEnvironmentsToDelete());
+        }
+        if (ArrayUtils.isNotEmpty(request.getEnvironmentTypesToDelete())) {
+            resourcePermissionService.revokePermission(resourceTemplate,
+                    (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT_TYPE,
+                    request.getEnvironmentTypesToDelete());
         }
         Set<String> envIds = Sets.newHashSet();
         if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
@@ -267,6 +282,10 @@ public class LocationResourcesSecurityController {
                     (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT,
                     envToAddSet.toArray(new String[envToAddSet.size()]));
         }
+        if (ArrayUtils.isNotEmpty(request.getEnvironmentTypesToAdd())) {
+            resourcePermissionService.grantPermission(resourceTemplate,
+                    (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT_TYPE, request.getEnvironmentTypesToAdd());
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -275,14 +294,16 @@ public class LocationResourcesSecurityController {
      *
      * @return list of all environments per application.
      */
-    @ApiOperation(value = "List all applications/environments authorized to access the location resource", notes = "Only user with ADMIN role can list authorized applications/environments for the location.")
+    @ApiOperation(value = "List all applications,environments and environment types authorized to access the location resource", notes = "Only user with ADMIN role can list authorized applications,environments and environment types for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId,
+    public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsAndEnvTypePerApplication(@PathVariable String orchestratorId,
                                                                                                               @PathVariable String locationId, @PathVariable String resourceId) {
         LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
         List<Application> applicationsRelatedToEnvironment = Lists.newArrayList();
+        List<Application> applicationsRelatedToEnvironmentType = Lists.newArrayList();
         List<ApplicationEnvironment> environments = Lists.newArrayList();
+        List<String> environmentTypes = Lists.newArrayList();
         List<Application> applications = Lists.newArrayList();
 
         if (MapUtils.isNotEmpty(resourceTemplate.getEnvironmentPermissions())) {
@@ -290,11 +311,21 @@ public class LocationResourcesSecurityController {
             Set<String> environmentApplicationIds = environments.stream().map(ApplicationEnvironment::getApplicationId).collect(Collectors.toSet());
             applicationsRelatedToEnvironment = alienDAO.findByIds(Application.class, environmentApplicationIds.toArray(new String[environmentApplicationIds.size()]));
         }
+
+        if (MapUtils.isNotEmpty(resourceTemplate.getEnvironmentTypePermissions())) {
+            environmentTypes.addAll(resourceTemplate.getEnvironmentTypePermissions().keySet());
+            Set<String> environmentTypeApplicationIds = Sets.newHashSet();
+            for (String envType : resourceTemplate.getEnvironmentTypePermissions().keySet()) {
+                environmentTypeApplicationIds.add(envType.split(":")[0]);
+            }
+            applicationsRelatedToEnvironmentType = alienDAO.findByIds(Application.class, environmentTypeApplicationIds.toArray(new String[environmentTypeApplicationIds.size()]));
+        }
+
         if (resourceTemplate.getApplicationPermissions() != null && resourceTemplate.getApplicationPermissions().size() > 0) {
             applications = alienDAO.findByIds(Application.class, resourceTemplate.getApplicationPermissions().keySet().toArray(new String[resourceTemplate.getApplicationPermissions().size()]));
         }
 
-        List<ApplicationEnvironmentAuthorizationDTO> result = ApplicationEnvironmentAuthorizationDTO.buildDTOs(applicationsRelatedToEnvironment, environments, applications);
+        List<ApplicationEnvironmentAuthorizationDTO> result = ApplicationEnvironmentAuthorizationDTO.buildDTOs(applicationsRelatedToEnvironment, applicationsRelatedToEnvironmentType, environments, applications, environmentTypes);
         return RestResponseBuilder.<List<ApplicationEnvironmentAuthorizationDTO>> builder().data(result).build();
     }
 

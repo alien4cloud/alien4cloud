@@ -1,26 +1,17 @@
 package alien4cloud.rest.orchestrator.model;
 
-import java.util.List;
-import java.util.Map;
-
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.utils.ReflectionUtil;
-import org.elasticsearch.common.collect.Lists;
-
-import com.google.common.collect.Maps;
-
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.utils.ReflectionUtil;
+import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.elasticsearch.common.collect.Lists;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * This DTO represents an authorization given to a given application / environment.
@@ -34,6 +25,8 @@ public class ApplicationEnvironmentAuthorizationDTO {
     private Application application;
 
     private List<ApplicationEnvironment> environments;
+
+    private List<String> environmentTypes;
 
     public static GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO> convert(GetMultipleDataResult<Application> toConvert, List<ApplicationEnvironmentAuthorizationDTO> allDTOs) {
         if (toConvert == null) {
@@ -54,20 +47,41 @@ public class ApplicationEnvironmentAuthorizationDTO {
         return converted;
     }
 
-    public static List<ApplicationEnvironmentAuthorizationDTO> buildDTOs(List<Application> applicationsRelatedToEnvironment, List<ApplicationEnvironment> environments, List<Application> applications) {
+    private static List<String> filterEnvType(String appId, List<String> environmentTypes) {
+        List<String> envTypes = Lists.newArrayList();
+        for (String envType : environmentTypes) {
+            if (envType.split(":")[0].equals(appId)) {
+                envTypes.add(envType.split(":")[1]);
+            }
+        }
+        return envTypes;
+    }
+
+    public static List<ApplicationEnvironmentAuthorizationDTO> buildDTOs(List<Application> applicationsRelatedToEnvironment, List<Application> applicationsRelatedToEnvironmentType, List<ApplicationEnvironment> environments, List<Application> applications, List<String> environmentTypes) {
         Map<String, ApplicationEnvironmentAuthorizationDTO> aeaDTOsMap = Maps.newHashMap();
         if (!environments.isEmpty()) {
-            applicationsRelatedToEnvironment.stream().forEach(application -> aeaDTOsMap.put(application.getId(), new ApplicationEnvironmentAuthorizationDTO(application, Lists.newArrayList())));
+            applicationsRelatedToEnvironment.stream().forEach(application -> aeaDTOsMap.put(application.getId(), new ApplicationEnvironmentAuthorizationDTO(application, Lists.newArrayList(), Lists.newArrayList())));
             for (ApplicationEnvironment ae : environments) {
                 ApplicationEnvironmentAuthorizationDTO dto = aeaDTOsMap.get(ae.getApplicationId());
                 dto.getEnvironments().add(ae);
             }
         }
+
+        if (!environmentTypes.isEmpty()) {
+            for (Application application : applicationsRelatedToEnvironmentType) {
+                if (aeaDTOsMap.get(application.getId()) != null) {
+                    aeaDTOsMap.get(application.getId()).getEnvironmentTypes().addAll(filterEnvType(application.getId(), environmentTypes));
+                } else {
+                    aeaDTOsMap.put(application.getId(), new ApplicationEnvironmentAuthorizationDTO(application, Lists.newArrayList(), filterEnvType(application.getId(), environmentTypes)));
+                }
+            }
+        }
+
         if (!applications.isEmpty()) {
             for (Application application : applications) {
                 ApplicationEnvironmentAuthorizationDTO dto = aeaDTOsMap.get(application.getId());
                 if (dto == null) {
-                    aeaDTOsMap.put(application.getId(), new ApplicationEnvironmentAuthorizationDTO(application, null));
+                    aeaDTOsMap.put(application.getId(), new ApplicationEnvironmentAuthorizationDTO(application, null, null));
                 } else {
                     // the application has detailed environment authorizations but the whole application authorization has precedence.
                     dto.setEnvironments(null);

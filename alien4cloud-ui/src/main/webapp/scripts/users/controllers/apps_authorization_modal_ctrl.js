@@ -11,23 +11,31 @@ define(function (require) {
   modules.get('a4c-security', ['a4c-search']).controller('AppsAuthorizationModalCtrl', ['$scope', '$uibModalInstance', 'searchServiceFactory', 'applicationEnvironmentServices',
     function ($scope, $uibModalInstance, searchServiceFactory, applicationEnvironmentServices) {
 
+      var generateEnvTypeId = function(app, envType) {
+        return app.id + ':' + envType;
+      };
+
       var buildPreselections = function buildPreselections (){
         $scope.preSelection =  {};
         $scope.preSelectedApps = {};
-        $scope.preSelectedEnvs= {};
+        $scope.preSelectedByType = {'envs': {}, 'envTypes': {}};
+        $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function() {});
 
         _.forEach($scope.authorizedSubjects, function(authorizedApp) {
           if (_.isEmpty(authorizedApp.environments)) {
             $scope.preSelectedApps[authorizedApp.application.id] = 1;
           }
-          $scope.preSelection[authorizedApp.application.id] = [];
+          $scope.preSelection[authorizedApp.application.id] = {'envs': [], 'envTypes': []};
           _.forEach(authorizedApp.environments, function(environment) {
-            $scope.preSelectedEnvs[environment.id] = 1;
-            $scope.preSelection[authorizedApp.application.id].push(environment.id);
+            $scope.preSelectedByType.envs[environment.id] = 1;
+            $scope.preSelection[authorizedApp.application.id].envs.push(environment.id);
           });
-
+          _.forEach(authorizedApp.environmentTypes, function(envType) {
+            var envTypeFormated = generateEnvTypeId(authorizedApp.application, envType);
+            $scope.preSelectedByType.envTypes[envTypeFormated] = 1;
+            $scope.preSelection[authorizedApp.application.id].envTypes.push(envTypeFormated);
+          });
         });
-
       };
 
       $scope._ = _;
@@ -87,32 +95,44 @@ define(function (require) {
       }
 
       $scope.ok = function () {
-        var result = { 'applicationsToDelete': [], 'environmentsToDelete': [], 'applicationsToAdd': [], 'environmentsToAdd': [] };
-        _.forEach($scope.selectedApps, function(envs, appId) {
-          if (envs.length > 0) {
-            _.forEach(envs, function(env) {
-              if (!(env in $scope.preSelectedEnvs)) {
+        var result = { 'applicationsToDelete': [], 'environmentsToDelete': [], 'environmentTypesToDelete': [], 'applicationsToAdd': [], 'environmentsToAdd': [], 'environmentTypesToAdd': [] };
+        _.forEach($scope.selectedApps, function(preSelectedByType, appId) {
+          if (preSelectedByType.envs && preSelectedByType.envs.length > 0) {
+            _.forEach(preSelectedByType.envs, function(env) {
+              if (!(env in $scope.preSelectedByType.envs)) {
                 result.environmentsToAdd.push(env);
               }
             });
-          } else {
-            if (!(appId in $scope.preSelectedApps)) {
-              result.applicationsToAdd.push(appId);
-            }
+          }
+          if (preSelectedByType.envTypes && preSelectedByType.envTypes.length > 0) {
+            _.forEach(preSelectedByType.envTypes, function(envType) {
+              if (!(envType in $scope.preSelectedByType.envTypes)) {
+                result.environmentTypesToAdd.push(envType);
+              }
+            });
+          }
+          if (!preSelectedByType.envs || !preSelectedByType.envTypes || (preSelectedByType.envs.length <= 0 && preSelectedByType.envTypes.length <= 0)) {
+            result.applicationsToAdd.push(appId);
           }
         });
+
         _.forEach($scope.preSelectedApps, function(status, appId) {
           if (status === 0) {
             result.applicationsToDelete.push(appId);
           }
         });
-        _.forEach($scope.preSelectedEnvs, function(status, envId) {
+        _.forEach($scope.preSelectedByType.envs, function(status, envId) {
           if (status === 0) {
             result.environmentsToDelete.push(envId);
           }
         });
+        _.forEach($scope.preSelectedByType.envTypes, function(status, envType) {
+          if (status === 0) {
+            result.environmentTypesToDelete.push(envType);
+          }
+        });
 
-        if (result.applicationsToDelete.length + result.environmentsToDelete.length + result.applicationsToAdd.length + result.environmentsToAdd.length > 0) {
+        if (result.applicationsToDelete.length + result.environmentsToDelete.length + result.environmentTypesToDelete.length + result.applicationsToAdd.length + result.environmentsToAdd.length + result.environmentTypesToAdd.length > 0) {
           $uibModalInstance.close({subjects: result});
         }
       };
@@ -128,8 +148,8 @@ define(function (require) {
 
       $scope.toggleApplicationSelection = function (app) {
         if (app.id in $scope.selectedApps) {
-          if ($scope.selectedApps[app.id].length === 0) {
-            // no env for this app, toggle = no selection
+          if ($scope.selectedApps[app.id].envs.length === 0 && $scope.selectedApps[app.id].envTypes.length === 0) {
+            // no env or type for this app, toggle = no selection
             delete $scope.selectedApps[app.id];
             // app was previoulsy selected (or partially selected)
             if (app.id in $scope.preSelectedApps) {
@@ -143,7 +163,7 @@ define(function (require) {
             }
           }
         } else {
-          $scope.selectedApps[app.id] = [];
+          $scope.selectedApps[app.id] = {'envs': [], 'envTypes': []};
           if (app.id in $scope.preSelectedApps) {
             $scope.preSelectedApps[app.id] = 1;
           }
@@ -152,12 +172,12 @@ define(function (require) {
 
       /*
          0 : app not selected at all
-         1 : partial selection (some env are selected)
+         1 : partial selection (some env or type are selected)
          2 : the app itself is selected (means all environments)
       */
       $scope.getApplicationSelectionStatus = function (app) {
         if (app.id in $scope.selectedApps) {
-          if ($scope.selectedApps[app.id].length === 0) {
+          if ($scope.selectedApps[app.id].envs.length === 0 && $scope.selectedApps[app.id].envTypes.length === 0) {
             // no env for this app, full selection
             return 2;
           } else {
@@ -169,37 +189,50 @@ define(function (require) {
         }
       };
 
-      $scope.toggleEnvironmentSelection = function (app, env) {
-        if (app.id in $scope.preSelectedApps) {
-          $scope.preSelectedApps[app.id] = 0;
+      var toggleSelection = function (appId, value, type) {
+        if (appId in $scope.preSelectedApps) {
+          $scope.preSelectedApps[appId] = 0;
         }
-        if (app.id in $scope.selectedApps) {
-          var indexOfEnv = $scope.selectedApps[app.id].indexOf(env.id);
+        if (appId in $scope.selectedApps) {
+          var indexOfEnv = $scope.selectedApps[appId][type].indexOf(value);
           if (indexOfEnv < 0) {
-            $scope.selectedApps[app.id].push(env.id);
-            if (env.id in $scope.preSelectedEnvs) {
-              $scope.preSelectedEnvs[env.id] = 1;
+            $scope.selectedApps[appId][type].push(value);
+            if (value in $scope.preSelectedByType[type]) {
+              $scope.preSelectedByType[type][value] = 1;
             }
           } else {
-            $scope.selectedApps[app.id].splice(indexOfEnv, 1);
-            if ($scope.selectedApps[app.id].length === 0) {
-              delete $scope.selectedApps[app.id];
+            $scope.selectedApps[appId][type].splice(indexOfEnv, 1);
+            if ($scope.selectedApps[appId].envs.length === 0 && $scope.selectedApps[appId].envTypes.length === 0) {
+              delete $scope.selectedApps[appId];
             }
-            if (env.id in $scope.preSelectedEnvs) {
-              $scope.preSelectedEnvs[env.id] = 0;
+            if (value in $scope.preSelectedByType[type]) {
+              $scope.preSelectedByType[type][value] = 0;
             }
           }
         } else {
-          $scope.selectedApps[app.id] = [ env.id ];
+          $scope.selectedApps[appId] = {'envs': [], 'envTypes': []};
+          $scope.selectedApps[appId][type] = [ value ];
         }
       };
+      $scope.toggleEnvironmentSelection = function (app, env) {
+        toggleSelection(app.id, env.id, 'envs');
+      };
+      $scope.toggleEnvTypeSelection = function (app, envType) {
+        toggleSelection(app.id, generateEnvTypeId(app, envType), 'envTypes');
+      };
 
-      $scope.isEnvironmentSelected = function (app, env) {
-        if (app.id in $scope.selectedApps && $scope.selectedApps[app.id].indexOf(env.id) > -1) {
+      var isSelected = function(appId, value, type) {
+        if (appId in $scope.selectedApps && $scope.selectedApps[appId][type] && $scope.selectedApps[appId][type].indexOf(value) > -1) {
           return true;
         } else {
           return false;
         }
+      };
+      $scope.isEnvironmentSelected = function (app, env) {
+        return isSelected(app.id, env.id, 'envs');
+      };
+      $scope.isEnvTypeSelected = function (app, envType) {
+        return isSelected(app.id, generateEnvTypeId(app, envType), 'envTypes');
       };
 
       $scope.toggleSelectAll = function () {

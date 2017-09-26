@@ -1,10 +1,13 @@
 package alien4cloud.authorization;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-
-import java.util.HashSet;
-
+import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.EnvironmentType;
+import alien4cloud.security.AbstractSecurityEnabledResource;
+import alien4cloud.security.ISecurityEnabledResource;
+import alien4cloud.security.Permission;
+import alien4cloud.security.Subject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,13 +18,10 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationEventPublisher;
 
-import alien4cloud.application.ApplicationEnvironmentService;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.security.AbstractSecurityEnabledResource;
-import alien4cloud.security.ISecurityEnabledResource;
-import alien4cloud.security.Permission;
-import alien4cloud.security.Subject;
+import java.util.HashSet;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResourcePermissionServiceTest {
@@ -72,6 +72,7 @@ public class ResourcePermissionServiceTest {
         resourceSecured.addPermissions(Subject.APPLICATION, "subject1", new HashSet<>(permissions));
         resourceSecured.addPermissions(Subject.ENVIRONMENT, "subject1_1", new HashSet<>(permissions));
         resourceSecured.addPermissions(Subject.ENVIRONMENT, "subject1_2", new HashSet<>(permissions));
+        resourceSecured.addPermissions(Subject.ENVIRONMENT_TYPE, "subject_env_1_1", new HashSet<>(permissions));
 
         ApplicationEnvironment ae1 = new ApplicationEnvironment();
         ae1.setId("subject1_1");
@@ -83,7 +84,7 @@ public class ResourcePermissionServiceTest {
 
         // When
         service.revokeAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
-                "subject1_1", "subject1_2" });
+                "subject1_1", "subject1_2" }, new String[] {"subject_env_1_1" });
 
         // Then
         verify(alienDAO).save(resourceSecuredCaptor.capture());
@@ -132,18 +133,21 @@ public class ResourcePermissionServiceTest {
         resourceSecured.addPermissions(Subject.APPLICATION, "subject1", new HashSet<>(permissions));
         resourceSecured.addPermissions(Subject.ENVIRONMENT, "subject1_1", new HashSet<>(permissions));
         resourceSecured.addPermissions(Subject.ENVIRONMENT, "subject1_2", new HashSet<>(permissions));
+        resourceSecured.addPermissions(Subject.ENVIRONMENT_TYPE, "subject1:INTEGRATION_TESTS", new HashSet<>(permissions));
 
         ApplicationEnvironment ae1 = new ApplicationEnvironment();
         ae1.setId("subject1_1");
+        ae1.setEnvironmentType(EnvironmentType.INTEGRATION_TESTS);
 
         ApplicationEnvironment ae2 = new ApplicationEnvironment();
         ae2.setId("subject1_2");
+        ae2.setEnvironmentType(EnvironmentType.INTEGRATION_TESTS);
 
         Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[] { ae1, ae2 });
 
         // When
-        service.grantAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
-                "subject1_1", "subject1_2" });
+        service.grantAuthorizedEnvironmentsAndEnvTypesPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
+                "subject1_1", "subject1_2" }, new String[] {"subject_env_1_1" });
 
         // Then
         verify(alienDAO).save(resourceSecuredCaptor.capture());
@@ -151,10 +155,11 @@ public class ResourcePermissionServiceTest {
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.APPLICATION, "subject1")).containsExactly(Permission.ADMIN);
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT, "subject1_1")).isEmpty();
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT, "subject1_2")).isEmpty();
+        assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT_TYPE, "subject1:INTEGRATION_TESTS")).isEmpty();
     }
 
     @Test
-    public void when_permission_added_at_application_level_unrelated_environment_are_unmodified() {
+    public void when_permission_added_at_application_level_unrelated_environment_and_env_type_are_unmodified() {
         // Given
         resourceSecured = new AbstractSecurityEnabledResource() {
             @Override
@@ -168,18 +173,21 @@ public class ResourcePermissionServiceTest {
         resourceSecured.addPermissions(Subject.APPLICATION, "subject1", new HashSet<>(permissions));
         resourceSecured.addPermissions(Subject.ENVIRONMENT, "subject1_1", new HashSet<>(permissions));
         resourceSecured.addPermissions(Subject.ENVIRONMENT, "subject2_1", new HashSet<>(permissions));
+        resourceSecured.addPermissions(Subject.ENVIRONMENT_TYPE, "subject1:INTEGRATION_TESTS", new HashSet<>(permissions));
 
         ApplicationEnvironment ae1 = new ApplicationEnvironment();
         ae1.setId("subject1_1");
+        ae1.setEnvironmentType(EnvironmentType.INTEGRATION_TESTS);
 
         ApplicationEnvironment ae2 = new ApplicationEnvironment();
         ae2.setId("subject2_1");
+        ae2.setEnvironmentType(EnvironmentType.INTEGRATION_TESTS);
 
         Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[] { ae1 });
 
         // When
-        service.grantAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
-                "subject1_1", "subject2_1" });
+        service.grantAuthorizedEnvironmentsAndEnvTypesPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
+                "subject1_1", "subject2_1" }, new String[] { EnvironmentType.INTEGRATION_TESTS.toString() });
 
         // Then
         verify(alienDAO).save(resourceSecuredCaptor.capture());
@@ -187,6 +195,7 @@ public class ResourcePermissionServiceTest {
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.APPLICATION, "subject1")).containsExactly(Permission.ADMIN);
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT, "subject1_1")).isEmpty();
         assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT, "subject2_1")).containsExactly(Permission.ADMIN);
+        assertThat(resourceSecuredCaptor.getValue().getPermissions(Subject.ENVIRONMENT_TYPE, EnvironmentType.INTEGRATION_TESTS.toString())).containsExactly(Permission.ADMIN);
     }
 
 }

@@ -49,6 +49,7 @@ define(function () {
           var modalInstance = $uibModal.open({
             templateUrl: templateUrl,
             controller: 'SubjectAuthorizationModalCtrl',
+            windowClass: 'authorization-modal',
             scope: scope
           });
 

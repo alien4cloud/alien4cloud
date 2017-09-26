@@ -20,7 +20,7 @@ Feature: Topology editor: upload file
 
   Scenario: Uploading a file to override an archive file should succeed
     When I upload a file located at "src/test/resources/org/alien4cloud/tosca/editor/features/upload_file.feature" to the archive path "new_folder/upload_file.feature"
-    And I upload a file located at "src/test/resources/org/alien4cloud/tosca/editor/features/add_node.feature" to the archive path "new_folder/upload_file.feature"
+    And I upload a file located at "src/test/resources/org/alien4cloud/tosca/editor/features/node/add_node.feature" to the archive path "new_folder/upload_file.feature"
     Then No exception should be thrown
     And The dto SPEL expression "archiveContentTree.children[0].children[1].name" should return "new_folder"
     And The dto SPEL expression "archiveContentTree.children[0].children[1].leaf" should return false

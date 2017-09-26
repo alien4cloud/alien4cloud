@@ -107,7 +107,7 @@ module.exports = {
               // set the hash in a4c-bootstrap to configure angular-translate
               var alienBoostrapFilePath = path.join(dir, bootstrapFile);
               fs.readFile(alienBoostrapFilePath, 'utf8', function (err, dataAlienBoostrapFile) {
-                var resultAlienBoostrapFile = dataAlienBoostrapFile.replace('hashPrefixForTraductionFile', hash);
+                var resultAlienBoostrapFile = dataAlienBoostrapFile.replace('hashPrefix:""', 'hashPrefix:"'+hash+'."');
                 fs.writeFileSync(requireFilePath, resultRequireFile, 'utf8');
                 fs.writeFileSync(alienBoostrapFilePath, resultAlienBoostrapFile, 'utf8');
                 done();

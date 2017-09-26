@@ -1,28 +1,9 @@
 package alien4cloud.authorization;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import org.alien4cloud.alm.events.AfterPermissionRevokedEvent;
-import org.alien4cloud.alm.events.BeforePermissionRevokedEvent;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Sets;
-
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.security.AbstractSecurityEnabledResource;
 import alien4cloud.security.ISecurityEnabledResource;
 import alien4cloud.security.Permission;
@@ -31,8 +12,25 @@ import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.model.Group;
 import alien4cloud.security.model.User;
 import alien4cloud.security.users.IAlienUserDao;
+import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.alien4cloud.alm.events.AfterPermissionRevokedEvent;
+import org.alien4cloud.alm.events.BeforePermissionRevokedEvent;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service managing permissions to resources
@@ -187,7 +185,7 @@ public class ResourcePermissionService {
     }
 
     public void revokeAuthorizedEnvironmentsPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToDelete,
-            String[] environmentsToDelete) {
+            String[] environmentsToDelete, String[] environmentTypesToDelete) {
         IResourceSaver noSave = null;
 
         if (ArrayUtils.isNotEmpty(applicationsToDelete)) {
@@ -196,11 +194,15 @@ public class ResourcePermissionService {
         if (ArrayUtils.isNotEmpty(environmentsToDelete)) {
             revokePermission(resource, noSave, Subject.ENVIRONMENT, environmentsToDelete);
         }
+        if (ArrayUtils.isNotEmpty(environmentTypesToDelete)) {
+            revokePermission(resource, noSave, Subject.ENVIRONMENT_TYPE, environmentTypesToDelete);
+        }
 
         alienDAO.save(resource);
     }
 
-    public void grantAuthorizedEnvironmentsPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToAdd, String[] environmentsToAdd) {
+    public void grantAuthorizedEnvironmentsAndEnvTypesPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToAdd, String[] environmentsToAdd,
+                                                                     String[] environmentTypesToAdd) {
         List<String> envIds = Lists.newArrayList();
         IResourceSaver noSave = null;
 
@@ -216,12 +218,24 @@ public class ResourcePermissionService {
             if (!envIds.isEmpty()) {
                 revokePermission(resource, noSave, Subject.ENVIRONMENT, envIds.toArray(new String[envIds.size()]));
             }
+            // remove all all eventual existing env type authorizations
+            Set<String> envTypes = Sets.newHashSet();
+            for (String applicationToAddId : applicationsToAdd) {
+                for (EnvironmentType envType : EnvironmentType.values()) {
+                    envTypes.add(applicationToAddId + ":" + envType.toString());
+                }
+            }
+            if (!envTypes.isEmpty()) {
+                revokePermission(resource, noSave, Subject.ENVIRONMENT_TYPE, envTypes.toArray(new String[envTypes.size()]));
+            }
         }
         if (ArrayUtils.isNotEmpty(environmentsToAdd)) {
             List<String> envToAddSet = Arrays.stream(environmentsToAdd).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
             grantPermission(resource, noSave, Subject.ENVIRONMENT, envToAddSet.toArray(new String[envToAddSet.size()]));
         }
-
+        if (ArrayUtils.isNotEmpty(environmentTypesToAdd)) {
+            grantPermission(resource, noSave, Subject.ENVIRONMENT_TYPE, environmentTypesToAdd);
+        }
         alienDAO.save(resource);
     }
 }

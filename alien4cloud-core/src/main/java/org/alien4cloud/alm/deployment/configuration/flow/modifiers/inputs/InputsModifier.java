@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
@@ -46,6 +47,9 @@ public class InputsModifier implements ITopologyModifier {
                 .orElseThrow(() -> new IllegalArgumentException("Input modifier requires an environment context.")).getEnvironment();
         DeploymentInputs deploymentInputs = context.getConfiguration(DeploymentInputs.class, InputsModifier.class.getSimpleName())
                 .orElse(new DeploymentInputs(environment.getTopologyVersion(), environment.getId()));
+        if(deploymentInputs.getInputs() == null) {
+            deploymentInputs.setInputs(Maps.newHashMap());
+        }
 
         Map<String, Location> locations = (Map<String, Location>) context.getExecutionCache().get(FlowExecutionContext.DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY);
         Map<String, PropertyValue> applicationInputs = inputService.getAppContextualInputs(context.getEnvironmentContext().get().getApplication(),

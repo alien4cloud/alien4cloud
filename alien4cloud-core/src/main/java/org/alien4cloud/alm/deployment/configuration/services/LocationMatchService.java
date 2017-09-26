@@ -60,6 +60,8 @@ public class LocationMatchService {
 
         if (configuration == null) {
             configuration = new DeploymentMatchingConfiguration(environment.getTopologyVersion(), environment.getId());
+        } else if(configuration.getLocationGroups() == null) {
+            configuration.setLocationGroups(Maps.newHashMap());
         }
 
         Map<String, String> currentConfiguration = configuration.getLocationIds();
