@@ -3,7 +3,7 @@
     <parent>
         <groupId>alien4cloud</groupId>
         <artifactId>alien4cloud-parent</artifactId>
-        <version>1.4.2</version>
+        <version>1.4.3</version>
     </parent>
     <artifactId>alien4cloud-rest-it</artifactId>
     <packaging>war</packaging>
