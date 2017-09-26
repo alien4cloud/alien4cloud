@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.4.3</version>
+  <version>1.4.4-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle
