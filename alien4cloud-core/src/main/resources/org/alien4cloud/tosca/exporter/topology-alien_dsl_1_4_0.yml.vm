@@ -122,12 +122,16 @@ ${utils.formatArtifact($artifactEntry.value, 8)}
               ${interfaceEntry.key}:
 #foreach($operationEntry in ${interfaceEntry.value.operations.entrySet()})
 #if($utils.isOperationImplemented($operationEntry.value))
-#if($utils.mapIsNotEmptyAndContainsNotnullValues($operationEntry.value.inputParameters))
-                ${operationEntry.key}:
-                  inputs:$propertyUtils.formatProperties(10, $operationEntry.value.inputParameters)
-                  implementation: $operationEntry.value.implementationArtifact.artifactRef
-#else
+#set($enableImplementationArtifactShortNotation = $utils.canUseShortNotationForImplementationArtifact($operationEntry.value))
+#if($enableImplementationArtifactShortNotation)
                 ${operationEntry.key}: $operationEntry.value.implementationArtifact.artifactRef
+#else
+                ${operationEntry.key}:
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($operationEntry.value.inputParameters))
+                  inputs:$propertyUtils.formatProperties(10, $operationEntry.value.inputParameters)
+#end
+                  implementation:
+${utils.formatArtifact($operationEntry.value.implementationArtifact, 10)}
 #end## if inputParameters not empty
 #end## if isOperationImplemented
 #end## of operations iteration
@@ -152,12 +156,16 @@ ${utils.formatArtifact($artifactEntry.value, 8)}
         ${interfaceEntry.key}:
 #foreach($operationEntry in ${interfaceEntry.value.operations.entrySet()})
 #if($utils.isOperationImplemented($operationEntry.value))
-#if($utils.mapIsNotEmptyAndContainsNotnullValues($operationEntry.value.inputParameters))
-          ${operationEntry.key}:
-            input:$propertyUtils.formatProperties(7, $operationEntry.value.inputParameters)
-            implementation: $operationEntry.value.implementationArtifact.artifactRef
-#else
+#set($enableImplementationArtifactShortNotation = $utils.canUseShortNotationForImplementationArtifact($operationEntry.value))
+#if($enableImplementationArtifactShortNotation)
           ${operationEntry.key}: $operationEntry.value.implementationArtifact.artifactRef
+#else
+          ${operationEntry.key}:
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($operationEntry.value.inputParameters))
+            input:$propertyUtils.formatProperties(7, $operationEntry.value.inputParameters)
+#end
+            implementation:
+${utils.formatArtifact($operationEntry.value.implementationArtifact, 7)}
 #end## if inputParameters not empty
 #end## if isOperationImplemented
 #end## of operations iteration

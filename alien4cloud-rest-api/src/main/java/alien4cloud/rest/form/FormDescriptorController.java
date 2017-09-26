@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.model.common.MetaPropConfiguration;
-import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.orchestrators.services.OrchestratorConfigurationService;
 import alien4cloud.plugin.PluginManager;
+import alien4cloud.plugin.exception.PluginLoadingException;
 import alien4cloud.repository.services.RepositoryService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -64,7 +65,8 @@ public class FormDescriptorController {
 
     @RequestMapping(value = "/pluginConfig/{pluginId:.+}", method = RequestMethod.GET, produces = "application/json")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<Map<String, Object>> getPluginConfigurationFormDescriptor(@PathVariable String pluginId) throws IntrospectionException {
+    public RestResponse<Map<String, Object>> getPluginConfigurationFormDescriptor(@PathVariable String pluginId)
+            throws IntrospectionException, PluginLoadingException {
         if (pluginManager.isPluginConfigurable(pluginId)) {
             Class<?> configType = pluginManager.getConfigurationType(pluginId);
             return RestResponseBuilder.<Map<String, Object>> builder().data(pojoFormDescriptorGenerator.generateDescriptor(configType)).build();

@@ -48,7 +48,8 @@
     "protractor": "~3.1.1",
     "requirejs": "~2.1.19",
     "rjs-build-analysis": "~0.0.3",
-    "time-grunt": "~0.2.1"
+    "time-grunt": "~0.2.1",
+    "uglify-es": "3.0.27"
   },
   "engines": {
     "node": ">=0.8.0"

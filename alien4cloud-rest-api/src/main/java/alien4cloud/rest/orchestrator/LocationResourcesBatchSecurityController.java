@@ -1,25 +1,8 @@
 package alien4cloud.rest.orchestrator;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.google.common.collect.Sets;
-
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
+import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -30,10 +13,24 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
 import alien4cloud.rest.orchestrator.model.SubjectsAuthorizationRequest;
-import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.security.Subject;
+import com.google.common.collect.Sets;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources/security/",
@@ -112,9 +109,9 @@ public class LocationResourcesBatchSecurityController {
      *******************************************************************************************************************************/
 
     /**
-     * Update applications/environments authorized to access the location resource.
+     * Update applications, environments and environment types authorized to access the location resource.
      */
-    @ApiOperation(value = "Update applications/environments authorized to access the location resource", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
+    @ApiOperation(value = "Update applications, environments and environment type authorized to access the location resource", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
@@ -125,7 +122,7 @@ public class LocationResourcesBatchSecurityController {
         }
 
         Location location = locationService.getLocation(orchestratorId, locationId);
-        locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), location);
+        locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd(), location);
 
         Arrays.stream(request.getResources()).forEach(resourceId -> {
             LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
@@ -138,6 +135,11 @@ public class LocationResourcesBatchSecurityController {
                 resourcePermissionService.revokePermission(resourceTemplate,
                         (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT,
                         request.getEnvironmentsToDelete());
+            }
+            if (ArrayUtils.isNotEmpty(request.getEnvironmentTypesToDelete())) {
+                resourcePermissionService.revokePermission(resourceTemplate,
+                        (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT_TYPE,
+                        request.getEnvironmentTypesToDelete());
             }
             Set<String> envIds = Sets.newHashSet();
             if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
@@ -161,6 +163,12 @@ public class LocationResourcesBatchSecurityController {
                 List<String> envToAddSet = Arrays.stream(request.getEnvironmentsToAdd()).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
                 resourcePermissionService.grantPermission(resourceTemplate,
                         (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT,
+                        envToAddSet.toArray(new String[envToAddSet.size()]));
+            }
+            if (ArrayUtils.isNotEmpty(request.getEnvironmentTypesToAdd())) {
+                List<String> envToAddSet = Arrays.stream(request.getEnvironmentTypesToAdd()).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
+                resourcePermissionService.grantPermission(resourceTemplate,
+                        (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT_TYPE,
                         envToAddSet.toArray(new String[envToAddSet.size()]));
             }
         });

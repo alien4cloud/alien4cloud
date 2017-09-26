@@ -1,19 +1,13 @@
 package org.alien4cloud.tosca.editor.processors;
 
-import java.util.List;
-import java.util.Set;
-
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.ChangeDependencyVersionOperation;
 import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Sets;
 
 import alien4cloud.topology.TopologyService;
 
@@ -38,11 +32,7 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
         // Check for missing type and update the topology's dependencies
         topologyService.updateDependencies(EditionContextManager.get(), newDependency);
 
-        Set<CSARDependency> dependencies = Sets.newHashSet(newDependency);
-        List<AbstractEditorOperation> recoveringOperations = recoveryHelperService.buildRecoveryOperations(topology, dependencies);
-
-        // process every recovery operation
-        recoveryHelperService.processRecoveryOperations(topology, recoveringOperations);
+        topologyService.recover(topology, newDependency);
     }
 
 }

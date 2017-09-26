@@ -142,6 +142,16 @@ define(function (require) {
             scope.selectedNodeTemplate.name,
             true
           );
+        },
+        /*duplicate a node in the topology. Also duplicate the hosted nodes hierarchy. Discard any relationship targeting a node out of the hosted hierarchy*/
+        duplicate: function(nodeName) {
+          var scope = this.scope;
+          scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation',
+              nodeName: nodeName
+            },
+            null, null, nodeName
+          );
         }
       };
 

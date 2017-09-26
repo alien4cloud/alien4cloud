@@ -75,7 +75,7 @@ public class DeploymentService {
         if (filterBuilder != null) {
             queryBuilderHelper.setFilters(filterBuilder);
         }
-        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", false).search(from, size).getData();
+        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", true).search(from, size).getData();
     }
 
     /**

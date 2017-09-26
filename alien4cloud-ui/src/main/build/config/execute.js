@@ -93,7 +93,6 @@ module.exports = {
               }
 
               // prefix all translation file with the concat of all hash files
-              var enTranslation, frTranslation, jaTranslation, splitArray;
               var source, target;
               var hash = '';
               files.forEach( function(file) {
@@ -108,7 +107,7 @@ module.exports = {
               // set the hash in a4c-bootstrap to configure angular-translate
               var alienBoostrapFilePath = path.join(dir, bootstrapFile);
               fs.readFile(alienBoostrapFilePath, 'utf8', function (err, dataAlienBoostrapFile) {
-                var resultAlienBoostrapFile = dataAlienBoostrapFile.replace('hashPrefixForTraductionFile', hash);
+                var resultAlienBoostrapFile = dataAlienBoostrapFile.replace('hashPrefix:""', 'hashPrefix:"'+hash+'."');
                 fs.writeFileSync(requireFilePath, resultRequireFile, 'utf8');
                 fs.writeFileSync(alienBoostrapFilePath, resultAlienBoostrapFile, 'utf8');
                 done();
@@ -119,5 +118,25 @@ module.exports = {
         });
       });
     }
-  }
+  },
+
+
+  minify: {
+		// simple inline function call
+		call: function(grunt, options, async) {
+      'use strict';
+      var done = async();
+
+      var fs = require('fs');
+      var UglifyJS = require('uglify-es');
+      grunt.log.ok('Running minify');
+      var filePath = 'target/webapp/scripts/alien4cloud-bootstrap.js';
+      fs.readFile(filePath, 'utf8', function (err, data) {
+        var result = UglifyJS.minify(data);
+        grunt.log.ok('Minify executed write file to ' + filePath);
+        fs.writeFileSync(filePath, result.code, 'utf8');
+        done();
+      });
+		}
+  },
 };

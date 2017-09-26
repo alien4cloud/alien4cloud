@@ -17,6 +17,8 @@ import org.alien4cloud.tosca.model.templates.ScalingPolicy;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.error.Mark;
@@ -25,8 +27,6 @@ import org.yaml.snakeyaml.nodes.Node;
 import com.google.common.collect.Maps;
 
 import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
-import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -302,14 +302,9 @@ public class TopologyUtils {
                 String formatedOldNodeName = getRelationShipName(relationshipTemplate.getType(), oldNodeTemplateName);
                 // if the id/name of the relationship is auto-generated we should update it also as auto-generation is <typeName+targetId>
                 if (relationshipTemplateId.equals(formatedOldNodeName)) {
-                    String newRelationshipTemplateId = getRelationShipName(relationshipTemplate.getType(), newNodeTemplateName);
                     // check that the new name is not already used (so we won't override another relationship)...
-                    String validNewRelationshipTemplateId = newRelationshipTemplateId;
-                    int counter = 0;
-                    while (relationshipTemplates.containsKey(validNewRelationshipTemplateId)) {
-                        validNewRelationshipTemplateId = newRelationshipTemplateId + counter;
-                        counter++;
-                    }
+                    String validNewRelationshipTemplateId = getNexAvailableName(getRelationShipName(relationshipTemplate.getType(), newNodeTemplateName), "",
+                            relationshipTemplates.keySet());
                     updatedKeys.put(relationshipTemplateId, validNewRelationshipTemplateId);
                 }
             }
@@ -360,7 +355,6 @@ public class TopologyUtils {
         updateOnNodeTemplateNameChange(nodeTemplateName, newNodeTemplateName, topology);
         updateGroupMembers(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
     }
-
 
     /**
      * In alien 4 Cloud we try
@@ -442,5 +436,15 @@ public class TopologyUtils {
     public static NodeTemplate getNodeTemplate(Topology topology, String nodeTemplateId) {
         Map<String, NodeTemplate> nodeTemplates = getNodeTemplates(topology);
         return getNodeTemplate(topology.getId(), nodeTemplateId, nodeTemplates);
+    }
+
+    public static String getNexAvailableName(String baseName, String separator, Collection<String> existingNames) {
+        String name = baseName;
+        int i = 1;
+        while (existingNames.contains(name)) {
+            name = baseName + separator + i;
+            i++;
+        }
+        return name;
     }
 }

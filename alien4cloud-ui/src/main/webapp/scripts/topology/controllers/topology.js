@@ -32,8 +32,10 @@ define(function (require) {
 
   require('scripts/topology/services/topology_editor_events_services');
 
+  require('scripts/common/controllers/confirm_modal');
+
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
-    ['$scope', '$uibModal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService',
+    ['$scope', '$uibModal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService','hotkeys', '$translate',
     'defaultFilters',
     'topoEditArtifacts',
     'topoEditDisplay',
@@ -46,7 +48,7 @@ define(function (require) {
     'topoEditRelationships',
     'topoEditSubstitution',
     'topoEditDependencies',
-    function($scope, $uibModal, $timeout, componentService, nodeTemplateService, toscaService,
+    function($scope, $uibModal, $timeout, componentService, nodeTemplateService, toscaService, hotkeys, $translate,
     defaultFilters,
     topoEditArtifacts,
     topoEditDisplay,
@@ -234,6 +236,57 @@ define(function (require) {
           $scope.$digest();
         }
       };
+
+      // key binding
+      function duplicateNode(node){
+        if(_.defined(node)){
+          $scope.nodes.duplicate(node.name);
+        }
+      }
+      function deleteNode(node) {
+        if(_.defined(node)){
+          var modalInstance = $uibModal.open({
+            templateUrl: 'views/common/confirm_modal.html',
+            controller: 'ConfirmModalCtrl',
+            resolve: {
+              title: function() {
+                return 'DELETE';
+              },
+              content: function() {
+                return $translate('DELETE_CONFIRM');
+              }
+            }
+          });
+          modalInstance.result.then(function () {
+            $scope.nodes.delete(node.name);
+          });
+        }
+      }
+      hotkeys.bindTo($scope)
+        .add ({
+          combo: 'mod+d',
+          description: 'Duplicate the selected node template with his hostedOn hierarchy.',
+          callback: function(e) {
+            duplicateNode($scope.selectedNodeTemplate);
+            if(e.preventDefault) {
+              e.preventDefault();
+            } else {
+              e.returnValue = false;
+            }
+          }
+        })
+        .add ({
+          combo: 'del',
+          description: 'Delete the selected node template.',
+          callback: function(e) {
+            deleteNode($scope.selectedNodeTemplate);
+            if(e.preventDefault) {
+              e.preventDefault();
+            } else {
+              e.returnValue = false;
+            }
+          }
+        });
     }
   ]);
 }); // define

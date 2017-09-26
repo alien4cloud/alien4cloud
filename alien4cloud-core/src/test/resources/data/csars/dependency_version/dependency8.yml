@@ -1,0 +1,14 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: test-topo-dependencies-types
+template_author: alien
+template_version: 0.8-SNAPSHOT
+description: |
+  Modified node type from 0.7-SNAPSHOT
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+node_types:
+  alien.test.nodes.TestComponent:
+    derived_from: tosca.nodes.SoftwareComponent

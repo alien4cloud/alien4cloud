@@ -22,6 +22,9 @@
             {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD_POPUP.LOC_AUTH_FILTER' | translate}}
         </a>
       </div>
+      <div>
+        <p>{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD_POPUP.MESSAGE' | translate}}</p>
+      </div>
     </div>
     <div class="row" style="margin-top: 10px;">
       <div class="col-md-12">
@@ -51,11 +54,12 @@
               <th>{{ 'APPLICATIONS.APPLICATION' | translate}}</th>
               <th></th>
               <th>{{ 'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</th>
+              <th>Environment types</th>
             </tr>
             </thead>
             <tbody>
               <!-- Display all Applications -->
-              <tr ng-repeat="app in appsData.data" ng-init="isEnvironmentsCollapsed = !editionMode" ng-if="!appsData.data[0].application">
+              <tr ng-repeat="app in appsData.data" ng-init="isEnvironmentsCollapsed = !editionMode; isEnvTypesCollapsed = !editionMode;" ng-if="!appsData.data[0].application">
                 <td class="text-center">
                   <a ng-click="toggleApplicationSelection(app)" href="" ng-if="getApplicationSelectionStatus(app) != 1">
                     <i class="fa"
@@ -66,7 +70,7 @@
                 </td>
                 <td>{{ app.name }}</td>
                 <td ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; expandEnvironments(app, isEnvironmentsCollapsed);" class="clickable">
-                    <i class="pull-left fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
+                  <i class="pull-left fa" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
                 </td>
                 <td>
                   <div ng-if="!isEnvironmentsCollapsed">
@@ -82,7 +86,23 @@
                     </div>
                   </div>
                 </td>
+
+                <td>
+                  <div ng-if="!isEnvironmentsCollapsed">
+                    <div class="row" ng-repeat="envType in envTypeList.data">
+                      <div class="col-md-12">
+                        <a ng-click="toggleEnvTypeSelection(app, envType)" href="" ng-if="getApplicationSelectionStatus(app) < 2">
+                          <i class="fa"
+                             ng-class="{'fa-check-square-o' : isEnvTypeSelected(app, envType),  'fa-square-o': !isEnvTypeSelected(app, envType)}"></i>
+                        </a>
+                        <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(app) == 2"></i>
+                          {{ 'ENVIRONMENT_TYPE.' + envType | translate  }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
               </tr>
+
               <!-- Display all applicationEnvironmentDTOs -->
               <tr ng-repeat="appEnvDTO in appsData.data" ng-init="isEnvironmentsCollapsed = !editionMode" ng-if="appsData.data[0].application">
                 <td class="text-center">
@@ -120,6 +140,20 @@
                         </a>
                         <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(appEnvDTO.application) == 2"></i>
                         {{ env.name }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div ng-if="!isEnvironmentsCollapsed">
+                    <div class="row" ng-repeat="envType in envTypeList.data">
+                      <div class="col-md-12">
+                        <a ng-click="toggleEnvTypeSelection(app, envType)" href="" ng-if="getApplicationSelectionStatus(app) < 2">
+                          <i class="fa"
+                             ng-class="{'fa-check-square-o' : isEnvTypeSelected(app, envType),  'fa-square-o': !isEnvTypeSelected(app, envType)}"></i>
+                        </a>
+                        <i class="fa fa-check-square-o text-muted" ng-if="getApplicationSelectionStatus(app) == 2"></i>
+                          {{ 'ENVIRONMENT_TYPE.' + envType | translate  }}
                       </div>
                     </div>
                   </div>

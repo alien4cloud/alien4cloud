@@ -770,6 +770,7 @@
     "PRODUCTION" : "production",
     "USER_ACCEPTANCE_TESTS" : "Tests utilisateurs"
   },
+  "ENVIRONMENT_TYPE_ALL": "Tous les types d'environment",
   "ERRORS" : {
     "100" : "Authentification requise",
     "101" : "Erreur d'authentification, vérifiez vos login et mot de passe",
@@ -917,7 +918,7 @@
   "N/A" : "N/A",
   "NAVADMIN" : {
     "MENU_AUDIT" : "Audit",
-    "MENU_METRICS" : "Status du serveur",
+    "MENU_SERVER" : "Status du serveur",
     "MENU_ORCHESTRATORS" : "Orchestrateurs",
     "MENU_PLUGINS" : "Plugins",
     "MENU_TAGS" : "Méta-propriétés",
@@ -965,6 +966,7 @@
           "ADD" : "Autoriser certaines applications",
           "ADD_POPUP" : {
             "EMPTY_PLACEHOLDER" : "d'applications ou d'environments autorisé pour cette location",
+            "MESSAGE": "Vous pouvez ajouter des autorisations par application, par environnements. Vous pouvez également ajouter des autorisations par types d'environnement.",
             "LOC_AUTH_FILTER" : "Autorisés sur la location",
             "TITLE" : "Selectionner applications / environnements"
           },

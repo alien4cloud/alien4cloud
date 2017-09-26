@@ -198,7 +198,7 @@ public class PluginController {
             return response;
         }
 
-        if (pluginManager.isPluginConfigurable(pluginManager.getPluginOrFail(pluginId))) {
+        if (pluginManager.isPluginConfigurable(pluginId)) {
             Object configObject = pluginManager.getConfiguratorFor(pluginId).getDefaultConfiguration();
             response.setData(configObject);
         }
@@ -210,7 +210,7 @@ public class PluginController {
     @RequestMapping(value = "/{pluginId:.+}/config", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Object> savePluginConfiguration(@PathVariable String pluginId, @RequestBody Object configObjectRequest) {
+    public RestResponse<Object> savePluginConfiguration(@PathVariable String pluginId, @RequestBody Object configObjectRequest) throws PluginLoadingException {
         RestResponse<Object> response = RestResponseBuilder.<Object> builder().build();
 
         if (pluginManager.isPluginConfigurable(pluginId)) {

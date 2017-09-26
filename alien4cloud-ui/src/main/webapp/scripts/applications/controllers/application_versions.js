@@ -171,16 +171,8 @@ define(function (require) {
             }
             $scope.searchService.search();
             refreshAllAppVersions();
-          }, function(errorResponse) {
-            // the translation could be of form ERRORS.code or ERRORS.code.TITLE
-            var keyToTranslate = 'ERRORS.' + errorResponse.data.error.code;
-            var translated = $translate.instant(keyToTranslate);
-            if(translated === keyToTranslate) {
-              keyToTranslate = keyToTranslate + '.TITLE';
-              translated = $translate.instant(keyToTranslate);
-            }
-
-            return translated === keyToTranslate ? '' : translated;
+          }, function() {
+            return false;
           }
         );
       };

@@ -25,7 +25,7 @@ define(function (require) {
         trigger: '@?',
         placement: '@?'
       },
-      link(scope){
+      link: function(scope) {
         scope.size = scope.size || 'xs';
         scope.trigger = scope.trigger || 'mouseenter';
         scope.placement = scope.placement || 'left';

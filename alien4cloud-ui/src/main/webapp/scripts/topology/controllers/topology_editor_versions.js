@@ -11,7 +11,10 @@ define(function (require) {
         this.scope.userSelection = {};
 
         // initialize the version to be used.
-        var previousVersionFromCache = userContextServices.getTopologyContext(scope.versionContext.versions[0].applicationId);
+        var previousVersionFromCache;
+        if(_.defined(scope.versionContext.versions[0].applicationId)) {
+          previousVersionFromCache = userContextServices.getTopologyContext(scope.versionContext.versions[0].applicationId);
+        }
         if(_.defined(previousVersionFromCache)){
           var previousVersionFromContext = _.find(scope.versionContext.versions, { 'id': previousVersionFromCache.version });
           this.setSelectedVersionVariant(previousVersionFromContext, previousVersionFromCache.variant);
@@ -20,7 +23,7 @@ define(function (require) {
           this.setSelectedDefaultVersion(scope.versionContext.versions[0]);
         }
       };
-      
+
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
 
@@ -35,7 +38,9 @@ define(function (require) {
             this.scope.topologyId = this.scope.userSelection.version.id;
           }
 
-          userContextServices.updateTopologyContext(version.applicationId, version, this.scope.userSelection.topologyVersion);
+          if(_.defined(version.applicationId)) {
+            userContextServices.updateTopologyContext(version.applicationId, version, this.scope.userSelection.topologyVersion);
+          }
         },
 
         setSelectedVersionVariant: function(version, variant) {
@@ -43,7 +48,9 @@ define(function (require) {
           this.scope.userSelection.topologyVersion = variant;
           this.scope.topologyId = version.topologyVersions[variant].archiveId;
 
-          userContextServices.updateTopologyContext(version.applicationId, version, variant);
+          if(_.defined(version.applicationId)) {
+            userContextServices.updateTopologyContext(version.applicationId, version, variant);
+          }
         },
 
         change: function(version) {

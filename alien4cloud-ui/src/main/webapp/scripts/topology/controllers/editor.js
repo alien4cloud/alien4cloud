@@ -205,7 +205,6 @@ define(function (require) {
         undoRedo(at);
       };
 
-
       // -- Begin GIT SECTIONS --
       var gitRemoteResource = $alresource('rest/latest/editor/:topologyId/git/remote');
 
@@ -320,18 +319,18 @@ define(function (require) {
 
       // key binding
       hotkeys.bindTo($scope)
-      .add({
-        combo: 'mod+s',
-        description: 'save and commit the operations.',
-        callback: function(e) {
-          $scope.save();
-          if(e.preventDefault) {
-            e.preventDefault();
-          } else {
-            e.returnValue = false;
+        .add({
+          combo: 'mod+s',
+          description: 'save and commit the operations.',
+          callback: function(e) {
+            $scope.save();
+            if(e.preventDefault) {
+              e.preventDefault();
+            } else {
+              e.returnValue = false;
+            }
           }
-        }
-      })
+        })
         .add({
           combo: 'mod+z',
           description: 'undo the last operation.',
