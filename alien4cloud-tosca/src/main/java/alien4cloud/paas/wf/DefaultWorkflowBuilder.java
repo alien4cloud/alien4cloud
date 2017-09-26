@@ -188,8 +188,10 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
                 Map<String, WorkflowStep> relationshipOperationSteps = safe(relationshipDeclarativeWorkflow.getOperations()).entrySet().stream()
                         .filter(operationEntry -> !targetIsNative || operationEntry.getValue().getOperationHost() == RelationshipOperationHost.SOURCE)
                         .filter(operationEntry -> !sourceIsNative || operationEntry.getValue().getOperationHost() == RelationshipOperationHost.TARGET)
-                        .collect(Collectors.toMap(Map.Entry::getKey, operationEntry -> WorkflowUtils.addRelationshipOperationStep(wf, nodeId,
-                                relationshipTemplate.getName(), ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT, operationEntry.getKey())));
+                        .collect(Collectors.toMap(Map.Entry::getKey,
+                                operationEntry -> WorkflowUtils.addRelationshipOperationStep(wf, nodeId, relationshipTemplate.getName(),
+                                        ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT, operationEntry.getKey(),
+                                        operationEntry.getValue().getOperationHost().toString())));
                 Steps sourceSteps = new Steps(wf, nodeId);
                 Steps targetSteps = new Steps(wf, relationshipTemplate.getTarget());
 
