@@ -204,6 +204,7 @@
                 <excludedClasse>alien4cloud.model.deployment.DeploymentSourceType</excludedClasse>
                 <excludedClasse>alien4cloud.utils.version.ComparableVersion</excludedClasse>
                 <excludedClasse>org.alien4cloud.tosca.model.templates.AbstractTemplate</excludedClasse>
+                <excludedClasse>org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate</excludedClasse>
                 <excludedClasse>org.alien4cloud.tosca.model.definitions.AbstractPropertyValue</excludedClasse>
                 <excludedClasse>org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType</excludedClasse>
                 <excludedClasse>org.alien4cloud.tosca.model.definitions.PropertyDefinition</excludedClasse>

@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 
@@ -27,7 +27,7 @@ public interface IPaaSTemplate<V extends AbstractToscaType> {
      *
      * @return The AbstractTemplate bind to this PaasTemplate.
      */
-    AbstractTemplate getTemplate();
+    AbstractInstantiableTemplate getTemplate();
 
     /**
      * Set the indexed tosca element (type) for the PaaSTemplate {@link PaaSNodeTemplate} or {@link PaaSRelationshipTemplate}.

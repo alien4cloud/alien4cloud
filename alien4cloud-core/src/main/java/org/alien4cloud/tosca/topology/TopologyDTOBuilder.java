@@ -13,7 +13,7 @@ import org.alien4cloud.tosca.editor.EditionContext;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
@@ -151,8 +151,8 @@ public class TopologyDTOBuilder {
         return types;
     }
 
-    private <T extends AbstractInheritableToscaType, V extends AbstractTemplate> void fillTypeMap(Class<T> elementClass, Map<String, T> types,
-            Map<String, V> templateMap, boolean useTemplateNameAsKey, boolean abstractOnly) {
+    private <T extends AbstractInheritableToscaType, V extends AbstractInstantiableTemplate> void fillTypeMap(Class<T> elementClass, Map<String, T> types,
+                                                                                                              Map<String, V> templateMap, boolean useTemplateNameAsKey, boolean abstractOnly) {
         if (templateMap == null) {
             return;
         }

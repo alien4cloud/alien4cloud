@@ -12,7 +12,7 @@ import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -37,7 +37,7 @@ public class FunctionEvaluator {
      * @param evaluatedProperty The property to resolve (should be one of the properties element but this won't be checked here).
      * @return The evaluated value for the property.
      */
-    public static PropertyValue resolveValue(FunctionEvaluatorContext evaluatorContext, AbstractTemplate template,
+    public static PropertyValue resolveValue(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
             Map<String, AbstractPropertyValue> properties, AbstractPropertyValue evaluatedProperty) {
         if (evaluatedProperty == null) {
             // There is nothing to be evaluated.
@@ -77,7 +77,7 @@ public class FunctionEvaluator {
      * @param function The function (must be a get property).
      * @return The abstract property value associated with the get_property function.
      */
-    private static PropertyValue getProperty(FunctionEvaluatorContext evaluatorContext, AbstractTemplate template,
+    private static PropertyValue getProperty(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
             Map<String, AbstractPropertyValue> properties, FunctionPropertyValue function) {
         switch (function.getTemplateName()) {
         case ToscaFunctionConstants.SELF:
@@ -106,7 +106,7 @@ public class FunctionEvaluator {
         }
     }
 
-    private static PropertyValue doGetProperty(FunctionEvaluatorContext evaluatorContext, AbstractTemplate targetTemplate, FunctionPropertyValue function) {
+    private static PropertyValue doGetProperty(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate targetTemplate, FunctionPropertyValue function) {
         if (targetTemplate == null) {
             return null;
         }
@@ -149,7 +149,7 @@ public class FunctionEvaluator {
         return resolveValue(evaluatorContext, targetTemplate, targetTemplate.getProperties(), propertyValue);
     }
 
-    private static AbstractPropertyValue getFromPath(FunctionEvaluatorContext evaluatorContext, AbstractTemplate targetTemplate,
+    private static AbstractPropertyValue getFromPath(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate targetTemplate,
             Map<String, AbstractPropertyValue> properties, String propertyPath) {
         if (propertyPath.contains(".")) {
             String propertyName = propertyPath.split("\\.")[0];
@@ -178,7 +178,7 @@ public class FunctionEvaluator {
         return safe(properties).get(propertyPath);
     }
 
-    private static ScalarPropertyValue concat(FunctionEvaluatorContext evaluatorContext, AbstractTemplate template,
+    private static ScalarPropertyValue concat(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
             Map<String, AbstractPropertyValue> properties, ConcatPropertyValue concatPropertyValue) {
         StringBuilder sb = new StringBuilder();
 

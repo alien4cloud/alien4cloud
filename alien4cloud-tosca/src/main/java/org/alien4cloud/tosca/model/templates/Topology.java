@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Sets;
 
-import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.json.deserializer.NodeTemplateDeserializer;
 import alien4cloud.model.common.IDatableResource;
 import alien4cloud.model.common.IWorkspaceResource;
@@ -85,6 +84,13 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, NodeTemplate> nodeTemplates;
+
+    @MapKeyValue
+    @ConditionalOnAttribute(ConditionalAttributes.ES)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = NodeTemplateDeserializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
+    private Map<String, PolicyTemplate> policies;
 
     @ObjectField(enabled = false)
     @FetchContext(contexts = { SUMMARY }, include = { false })

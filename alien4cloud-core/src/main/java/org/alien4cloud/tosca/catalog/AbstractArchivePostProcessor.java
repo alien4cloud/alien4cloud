@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -191,7 +191,7 @@ public abstract class AbstractArchivePostProcessor {
         }
     }
 
-    private <T extends AbstractTemplate> void processTemplate(ArchivePathChecker archivePathResolver, T template, ParsingResult<ArchiveRoot> parsedArchive) {
+    private <T extends AbstractInstantiableTemplate> void processTemplate(ArchivePathChecker archivePathResolver, T template, ParsingResult<ArchiveRoot> parsedArchive) {
         if (template.getArtifacts() != null) {
             template.getArtifacts().values().stream().filter(artifact -> artifact != null)
                     .forEach(artifact -> processArtifact(archivePathResolver, artifact, parsedArchive));

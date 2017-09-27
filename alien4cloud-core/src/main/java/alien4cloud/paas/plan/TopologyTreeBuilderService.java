@@ -18,7 +18,7 @@ import org.alien4cloud.tosca.model.definitions.IValue;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.definitions.OperationOutput;
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -155,7 +155,7 @@ public class TopologyTreeBuilderService {
     }
 
     @SneakyThrows
-    private void mergeInterfaces(AbstractPaaSTemplate pasSTemplate, AbstractTemplate abstractTemplate) {
+    private void mergeInterfaces(AbstractPaaSTemplate pasSTemplate, AbstractInstantiableTemplate abstractTemplate) {
         AbstractToscaType type = pasSTemplate.getIndexedToscaElement();
         Map<String, Interface> typeInterfaces = null;
         if (type instanceof AbstractInstantiableToscaType) {
@@ -319,8 +319,8 @@ public class TopologyTreeBuilderService {
     }
 
     @SuppressWarnings("unchecked")
-    private <V extends AbstractInheritableToscaType> void fillType(Topology topology, AbstractTemplate template, IPaaSTemplate<V> paaSTemplate,
-            Class<V> clazz) {
+    private <V extends AbstractInheritableToscaType> void fillType(Topology topology, AbstractInstantiableTemplate template, IPaaSTemplate<V> paaSTemplate,
+                                                                   Class<V> clazz) {
         V indexedToscaElement = ToscaContext.getOrFail(clazz, template.getType());
         paaSTemplate.setIndexedToscaElement(indexedToscaElement);
         List<String> derivedFroms = indexedToscaElement.getDerivedFrom();

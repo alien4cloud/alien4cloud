@@ -1,11 +1,11 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: policy-parsing-test
+  template_name: org.alien4cloud.test.policies.PolicyTypes
   template_author: alien4cloud
   template_version: 2.0.0-SNAPSHOT
 
-description: This is an example of a single line description (no folding).
+description: This template contains tests of policy types parsing.
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
@@ -47,8 +47,8 @@ policy_types:
     triggers:
       default:
         description: This is the trigger of the sample policy
-        # Actually cpu_usage should be a metric of the compute somehow.
-        event_type: "cpu_usage"
+        # Event type is not required anymore since 1.2 and not defined for now.
+        event_type: "my_event_type"
         schedule:
           start_time: 2016-04-04-15T00:00:00Z
           end_time: 2020-04-04-15T00:00:00Z
