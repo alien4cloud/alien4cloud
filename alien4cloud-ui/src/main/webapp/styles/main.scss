@@ -1,39 +1,63 @@
 @charset 'utf-8';
+
 $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
-@import "bootstrap_variables";
-@import "alien-variables";
+@import "variables/bootstrap_variables";
+@import "variables/alien-variables";
 
 $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "font-awesome/scss/font-awesome";
 
-@import 'bootstrap-sass-official/assets/stylesheets/bootstrap';
+@import 'bootstrap/bootstrap';
 
 // fonts
-@import "helveticaneue-thin";
-@import "roboto-thin";
+@import "font_styles/helveticaneue-thin";
+@import "font_styles/roboto-thin";
+@import "font_styles/bold-override";
 
-@import "a4c_forms";
-@import "a4c_power_toggle";
-@import "ace-editor";
-@import "catalog";
-@import "application";
-@import "bold-override";
-@import "dragdrop";
-@import "editable";
-@import "fileupload";
-@import "form-generator";
-@import "hopscotch";
-@import "horizontal-menu";
-@import "lang";
-@import "location-resources-directive";
-@import "plans";
-@import "search-directive";
-@import "topology-plan";
-@import "topology-svg";
-@import "topology";
-@import "tree-control";
-@import "users";
-@import "vertical-menu";
+@import "alien/a4c_forms";
+@import "alien/a4c_power_toggle";
+@import "alien/ace-editor";
+@import "alien/catalog";
+@import "alien/application";
+@import "alien/breadcrumb";
+@import "alien/dragdrop";
+@import "alien/editable";
+@import "alien/facet";
+@import "alien/fileupload";
+@import "alien/form-generator";
+@import "alien/hopscotch";
+@import "alien/horizontal-menu";
+@import "alien/lang";
+@import "alien/location-resources-directive";
+@import "alien/navleft";
+@import "alien/plans";
+@import "alien/search-directive";
+@import "alien/topology-plan";
+@import "alien/topology-svg";
+@import "alien/topology";
+@import "alien/tree-control";
+@import "alien/users";
+@import "alien/vertical-menu";
+
+
+.text-default {
+  color: $text-color;
+}
+
+.grp-margin {
+  margin-top: 10px;
+}
+
+.block-margin {
+  margin-top: 60px;
+}
+
+.btn-rnd-menu {
+  padding: 15px 16px;
+  font-size: 28px;
+  line-height: 1.33;
+  border-radius: 50%;
+}
 
 // Navbar and global layout
 .navbar-logout-dropdown {
@@ -54,7 +78,7 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 }
 
 @media all and (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
-  #alien-navbar-collapse i + span {
+  #alien-navbar-collapse i span {
     display: inline-block;
     white-space: nowrap;
     overflow: hidden;
@@ -146,61 +170,6 @@ a.accordion-toggle[ng-click] {
   text-decoration: none;
 }
 
-.facet-category {
-  border-top: 1px solid #ddd;
-  font-weight: 500;
-  font-style: italic;
-  color: gray;
-  margin-top: 10px;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-top: 10px;
-}
-
-.facet-category-active {
-  color: inherit;
-  font-style: normal;
-  cursor: pointer;
-}
-
-.facet-category-active:hover{
-  background-color: whitesmoke;
-}
-
-.facet-choice .nav > li > a {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 4px 5px;
-}
-
-.facet-choice .nav > li > a:hover {
-  background-color: transparent;
-  border-left: 1px solid #d9534f;
-  color: #d9534f;
-  padding-left: 4px;
-  text-decoration: none;
-}
-
-.facet-option .nav > li > a {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 4px 5px;
-}
-
-.facet-option .nav > li > a:hover {
-  background-color: transparent;
-  border-left: 1px solid $brand-primary;
-  padding-left: 4px;
-  text-decoration: none;
-}
-
-.filter-category {
-  border-top: 1px solid #ddd;
-  margin-top: 10px;
-  padding-top: 10px;
-}
 
 .clickable-media:hover {
   background-color: whitesmoke;
@@ -341,7 +310,7 @@ img.icon_32 {
 /* Vertical aligne for delete button in details pages (with xeditable spans) */
 .confirm-button-delete {
   display: inline-block;
-  margin-top: $line-height-computed + 3;
+  margin-top: $line-height-computed 3;
   vertical-align: top;
 }
 
@@ -398,11 +367,10 @@ img.icon_32 {
 }
 
 .splitter-icon {
-  height: 20px;
+  width: 10px;
   position: absolute;
-  top: 50%;
-  // left: 0%;
-  right: 0%;
+  bottom: 50%;
+  right: 0px;
 }
 
 .btn-transparent {
@@ -482,6 +450,11 @@ img.icon_32 {
   padding-bottom: 5px;
 }
 
+.content-head-error {
+  @extend .content-head;
+  border-bottom: 1px solid $brand-danger;
+}
+
 .content-body {
   padding-left: 0.5em;
 }
@@ -502,7 +475,7 @@ img.icon_32 {
   width: 50%;
 }
 
-.detail-description {
+.inline-block {
   display: inline-block;
 }
 
@@ -531,4 +504,13 @@ img.icon_32 {
 
 .btn-square {
   border-radius: 0 !important;
+}
+
+.table-display {
+  display: table;
+}
+
+.table-display > div {
+  display: table-cell;
+  vertical-align: middle;
 }

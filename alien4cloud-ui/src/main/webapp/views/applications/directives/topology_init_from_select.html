@@ -51,12 +51,11 @@
         </div>
       </div>
       <div style="margin-left: 30px; margin-right: 30px; padding-bottom: 10px;">
-        <topology-template-search
-          archive-link="false"
-          on-select="selectTemplate(topology)"
-          is-selected="isSelected(topology)"
-          >
-        </topology-template-search>
+        <a4c-topologies-catalog
+          on-select-item="selectTemplate(topology)"
+          global-context="true"
+          is-selected="isSelected(topology)">
+        </a4c-topologies-catalog>
       </div>
     </div>
   </uib-tab>

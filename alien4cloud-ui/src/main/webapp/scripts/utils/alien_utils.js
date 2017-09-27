@@ -2,35 +2,77 @@
 define(function () {
   'use strict';
   var _ = require('lodash');
-  var utils = {};
 
-  utils.fromDeploymentStatusToCssClasses = function(environment) {
-    switch (_.get(environment, 'status')) {
-      case 'DEPLOYED':
-      case 'UPDATED':
-        return 'fa-circle text-success';
+  var colors = {
+    'DEPLOYED': '#398439',
+    'UPDATED': '#398439',
+    'UNDEPLOYED': '#D8D8D8',
+    'UNKNOWN': '#505050',
+    'WARNING': '#DE9600',
+    'FAILURE': '#C51919',
+    'DEPLOYMENT_IN_PROGRESS': '#2C80D3',
+    'UNDEPLOYMENT_IN_PROGRESS': '#D0ADAD'
+  };
 
-      case 'UNDEPLOYED':
-        return 'fa-circle text-muted';
+  return {
+    getStatusIconCss: function(environmentDTO) {
+      switch (_.get(environmentDTO, 'status')) {
+        case 'DEPLOYED':
+        case 'UPDATED':
+          return 'fa-circle text-success';
 
-      case 'WARNING':
-      case 'UPDATE_FAILURE':
-        return 'fa-warning text-warning';
+        case 'UNDEPLOYED':
+          return 'fa-circle text-muted';
 
-      case 'FAILURE':
-      return 'fa-circle text-danger';
-      
-      case 'UNKNOWN':
-        return 'fa-question-circle text-muted';
+        case 'WARNING':
+        case 'UPDATE_FAILURE':
+          return 'fa-warning text-warning';
 
-      case 'INIT_DEPLOYMENT':
-      case 'DEPLOYMENT_IN_PROGRESS':
-      case 'UPDATE_IN_PROGRESS':
-      case 'UNDEPLOYMENT_IN_PROGRESS':
-          return 'fa-spinner fa-spin';
-      default:
-       return '';
+        case 'FAILURE':
+        return 'fa-circle text-danger';
+
+        case 'UNKNOWN':
+          return 'fa-question-circle text-muted';
+
+        case 'INIT_DEPLOYMENT':
+        case 'DEPLOYMENT_IN_PROGRESS':
+        case 'UPDATE_IN_PROGRESS':
+        case 'UNDEPLOYMENT_IN_PROGRESS':
+            return 'fa-spinner fa-spin text-primary';
+        default:
+         return '';
+      }
+    },
+    getStatusTextCss: function(environmentDTO) {
+      switch (_.get(environmentDTO, 'status')) {
+        case 'DEPLOYED':
+        case 'UPDATED':
+          return 'text-success';
+
+        case 'UNDEPLOYED':
+          return 'text-muted';
+
+        case 'WARNING':
+        case 'UPDATE_FAILURE':
+          return 'text-warning';
+
+        case 'FAILURE':
+        return 'text-danger';
+
+        case 'UNKNOWN':
+          return 'fa-question-circle text-muted';
+
+        case 'INIT_DEPLOYMENT':
+        case 'DEPLOYMENT_IN_PROGRESS':
+        case 'UPDATE_IN_PROGRESS':
+        case 'UNDEPLOYMENT_IN_PROGRESS':
+            return 'text-primary';
+        default:
+         return '';
+      }
+    },
+    getStatusColor: function(environmentDTO) {
+      return colors[_.get(environmentDTO, 'status')];
     }
   };
-  return utils;
 });

@@ -1,0 +1,96 @@
+.form-item-selected {
+  background-color: #fcf8e3;
+}
+
+.form-tree-element {
+  margin-bottom: 15px;
+}
+
+.form-tree-level {
+  padding-left: 30px;
+  padding-right: 15px;
+}
+
+.form-tree-label-active {
+  font-weight: 500;
+}
+
+.form-tree-label:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.form-tree-expand:hover {
+  cursor: pointer;
+  background-color: green;
+}
+
+.form-editable {
+  margin-top: 7px;
+  min-height: 30px;
+}
+
+.form-input-editable:hover {
+  cursor: pointer;
+}
+
+.form-container-horizontal-scroll {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+.form-container-vertical-scroll {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  white-space: nowrap;
+}
+
+.form-container-scroll {
+  overflow: auto;
+  white-space: nowrap;
+}
+
+.form-container-no-tree {
+  margin: auto;
+  position: relative;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin-bottom: 20px !important;
+}
+
+.form-container-no-tree.form-with-title {
+  border: solid 1px #dddddd;
+}
+
+.form-container-with-tree {
+  height: 420px;
+}
+
+.form-container-no-tree div.form-container-no-tree-window {
+  margin-left: 2px;
+  margin-right: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  padding-top: 30px;
+  width: 500px;
+  height: 420px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.has-error .editable i, .has-error .editable em.text-muted, .has-error > span {
+  color: $state-danger-text;
+}
+
+.has-error .btn {
+  border-color: #a94442;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.form-panel.panel {
+  margin-bottom: 0px;
+}

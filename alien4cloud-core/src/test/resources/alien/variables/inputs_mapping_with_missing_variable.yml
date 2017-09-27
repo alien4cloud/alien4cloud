@@ -1,0 +1,10 @@
+int_input: ${missing_int_variable}
+float_input: ${missing_float_variable}
+string_input: ${missing_string_variable}_${missing_float_variable}
+complex_input:
+  sub1: ${complex_with_var_in_leaf_with_missing_variables}
+  sub2:
+    subfield21: ${missing_subfield21} # will be ignored until the missing inner variable in complex_with_var_in_leaf_with_missing_variables will be added
+  field01: ${missing_field01} # will be ignored until the missing inner variable in complex_with_var_in_leaf_with_missing_variables will be added
+
+

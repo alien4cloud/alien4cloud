@@ -92,6 +92,11 @@ public class Csar implements IManagedSecuredResource, IWorkspaceResource {
     /** Date on which the archive has been imported or updated in alien4cloud. */
     private Date importDate;
 
+    /* Whether or not this archive contains a topology */
+    private boolean hasTopology;
+    /* Node types count in this archive */
+    private long nodeTypesCount;
+
     /** Default constructor */
     public Csar() {
     }

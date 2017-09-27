@@ -3,16 +3,20 @@ package alien4cloud.topology.task;
 public enum TaskCode {
     /* This code is to be used when a task is actually just there to dispatch a log message. */
     LOG,
-    IMPLEMENT,
+
+    /** Topology validation codes */
+    EMPTY,
     IMPLEMENT_RELATIONSHIP,
-    REPLACE,
     SATISFY_LOWER_BOUND,
     PROPERTIES,
-    HA_INVALID,
     SCALABLE_CAPABILITY_INVALID,
     NODE_FILTER_INVALID,
     WORKFLOW_INVALID,
 
+    /** Inputs codes */
+    MISSING_VARIABLES,
+    UNRESOLVABLE_PREDEFINED_INPUTS,
+    INPUT_PROPERTY,
     INPUT_ARTIFACT_INVALID,
     ARTIFACT_INVALID,
 
@@ -22,12 +26,13 @@ public enum TaskCode {
     LOCATION_DISABLED,
     /* No matching node found on location for criterias */
     NO_NODE_MATCHES,
+    NODE_NOT_SUBSTITUTED,
+    FORBIDDEN_OPERATION,
+    /** Post matching errors. */
+    IMPLEMENT,
+    REPLACE,
 
     ORCHESTRATOR_PROPERTY,
-    INPUT_PROPERTY,
-    NODE_NOT_SUBSTITUTED,
-
-    FORBIDDEN_OPERATION,
 
     /** Specific code for cloudify */
     CFY_MULTI_RELATIONS

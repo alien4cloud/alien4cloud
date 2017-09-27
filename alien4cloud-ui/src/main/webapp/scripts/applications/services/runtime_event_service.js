@@ -47,7 +47,7 @@ define(function (require) {
           if (this.applicationEventServices !== null) {
             this.applicationEventServices.stop();
           }
-          this.applicationEventServices = applicationEventServicesFactory(this.applicationId, this.scope.selectedEnvironment.id);
+          this.applicationEventServices = applicationEventServicesFactory(this.applicationId, this.scope.environment.id);
           this.applicationEventServices.start();
           this.applicationEventServices.subscribe(this.pageStateId, function(type, event) {
             _this.onPAASEvent(type, event);
@@ -107,7 +107,7 @@ define(function (require) {
         refreshPAASEvents: function() {
           var _this = this;
           deploymentServices.getEvents({
-            applicationEnvironmentId: this.scope.selectedEnvironment.id
+            applicationEnvironmentId: this.scope.environment.id
           }, function(result) {
             // display events
             if (_.undefined(result.data) || _.undefined(result.data.data)) {

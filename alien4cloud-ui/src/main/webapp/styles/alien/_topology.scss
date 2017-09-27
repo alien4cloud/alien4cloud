@@ -1,0 +1,256 @@
+.editor-container {
+  overflow: hidden !important;
+  position: relative;
+  margin-top: -10px;
+}
+
+@media(min-width: $screen-sm-min) {
+  .editor-container {
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+}
+
+@media(min-width: $screen-md-min) {
+  .editor-container {
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+}
+
+.editor-left-menu {
+  position: absolute;
+  top: 30px;
+  left: 20px;
+  z-index: 999;
+}
+
+#editor-head-menu {
+  padding: 5px 20px 5px 20px;
+  background-color: #666666;// $gray;
+  color: white;
+}
+
+.topology-row {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.topology-padding-top {
+  padding-top: 20px;
+}
+
+.topology-column {
+  display: table-cell;
+  height: inherit;
+  vertical-align: top;
+}
+
+.topology-column-box {
+  height: inherit;
+  background-color: white;
+  position: relative;
+}
+
+.topology-column-menu {
+  position: absolute;
+  top: 0px;
+  width: 10px;
+  height: inherit;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: $gray-lighter;
+  text-align: center;
+}
+
+.topology-column-menu-left {
+  left: 0px;
+  border-left: solid 1px $gray;
+}
+
+.topology-column-menu-right {
+  right: 0px;
+  border-right: solid 1px $gray;
+}
+
+.topology-column-content {
+  padding-left: 10px;
+  height: inherit;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.topology-column-content-left {
+  padding-right: 10px;
+  height: inherit;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.topology-column-content-head {
+  font-weight: 500;
+  margin-bottom: 5px;
+  border-bottom: 1px solid $brand-primary;
+  padding-bottom: 5px;
+  padding-left: 10px;
+}
+
+.topology-column-padding {
+  padding-left: 55px;
+}
+
+.topology {
+  background-color: white;
+  padding: 0px;
+  margin: 0px;
+  cursor: move;
+}
+
+.application-deployment-flavor-selected {
+  background-color: #F5F5F5;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  background-color: whitesmoke;
+}
+
+.cardinalities_show {
+  cursor: text;
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  box-shadow: none;
+}
+
+.cardinalities_show:hover, .cardinalities_show:focus, .cardinalities_show:active {
+  background-color: white;
+  border-color: #cccccc;
+}
+
+.input-xs {
+  height: 20px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+.fa.pull-left {
+  margin-top: .2em;
+}
+
+h4 .editable-error {
+  font-size: 14px;
+}
+
+#relationshipProperties .form-editable {
+  margin-top: 0px;
+}
+
+/*
+  Vertical menu
+*/
+.close-btn-panel {
+  border-color: white;
+}
+
+.close-panel {
+  float: right;
+  cursor: pointer;
+}
+
+#topology-vertical-menu {
+  width: 20px;
+}
+
+#topology-vertical-menu ul, #topology-vertical-menu li{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#topology-vertical-menu li {
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-block;
+  line-height: 20px;
+  overflow: hidden;
+  width: 20px;
+}
+
+#topology-vertical-menu span {
+  display: inline-block;
+  -moz-transform: translate(20px, 0) rotate(90deg);
+  -ms-transform: translate(20px, 0) rotate(90deg);
+  -o-transform: translate(20px, 0) rotate(90deg);
+  -webkit-transform: translate(20px, 0) rotate(90deg);
+  transform: translate(20px, 0) rotate(90deg);
+  -moz-transform-origin: 0 0;
+  -ms-transform-origin: 0 0;
+  -o-transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
+  transform-origin: 0 0;
+  white-space: nowrap;
+  margin: 10px 0;
+}
+
+#topology-vertical-menu span::after {
+  content: "";
+  float: left;
+  margin-top: 100%;
+}
+
+#topology-vertical-menu li:hover {
+  background-color: darken($btn-default-bg, 10%);;
+}
+
+.topology-props-section {
+  background-color: $gray-lighter;
+  overflow: auto;
+  // color: white;
+  border-top: solid 1px #cccccc;
+}
+
+// inputs/outputs buttons column
+.topology-props-td-inp {
+  width: 60px;
+}
+// info button column
+.topology-props-td-inf {
+  width: 35px;
+}
+
+#runtime-events-box .runtime-events-table tbody tr td:last-child {
+  white-space: pre-wrap;
+}
+
+/* ui-select */
+#editor-app-version-select .ui-select-search,
+#editor-topo-version-select .ui-select-search {
+      outline: 0px none;
+      //width: auto;
+      height: 22px;
+      padding-top: 0px;
+      padding-bottom: 1px;
+      padding-right: 4px;
+      padding-left: 4px;
+      font-size: 12px;
+  }
+
+#editor-app-version-select .ui-select-choices-row-inner,
+#editor-topo-version-select .ui-select-choices-row-inner{
+      width: auto;
+      height: 22px;
+      font-size: 12px;
+  }
+
+#editor-app-version-select .ui-select-dropdown,
+#editor-topo-version-select .ui-select-dropdown{
+  width:auto;
+}

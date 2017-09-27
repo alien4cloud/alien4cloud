@@ -1,0 +1,103 @@
+<div class="row">
+
+  <!-- main bloc -->
+  <div class="col-md-12">
+    <div class="col-md-12 well">
+      <div class="row">
+        <div class="col-md-12">
+          <h1 id="csar-name">{{csar.csar.name}}</h1>
+          <div class="pull-right">
+            <a class="btn btn-primary btn-sm" href="/rest/latest/csars/{{csar.csar.id}}/download" download="{{csar.csar.id}}.zip">
+              <i class="fa fa-download"></i>
+            </a>
+            <delete-confirm ng-if="!csar.substitutionTopologyId" id="delete-csar_{{csar.csar.id}}" func="remove(csar.csar.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+            </delete-confirm>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <fieldset>
+            <legend>
+              <h4><i class="fa fa-book"></i> {{'COMMON.DESCRIPTION' | translate }} </h4>
+            </legend>
+
+            <div class="row">
+              <div class="col-md-12">{{csar.csar.description}}</div>
+            </div>
+
+            <div class="row" style="margin-top: 10px;">
+              <div class="col-md-3">
+                <strong>{{'COMMON.VERSION' | translate }}</strong>
+              </div>
+              <div class="col-md-3" id="csar-version">{{csar.csar.version}}</div>
+              <div class="col-md-2">
+                <strong>{{'COMMON.AUTHOR' | translate }}</strong>
+              </div>
+              <div class="col-md-4">{{csar.csar.templateAuthor}}</div>
+            </div>
+
+          </fieldset>
+
+          <fieldset>
+            <legend>
+              <h4><i class="fa fa-exchange"></i> {{'CSAR.DETAILS.RESOURCES' | translate }} </h4>
+            </legend>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div ng-if="csar.relatedResources.length==0">
+                  {{'CSAR.DETAILS.NO_RESOURCES' | translate}}
+                </div>
+                <div class="table-responsive" ng-if="csar.relatedResources.length>0" id="linked-resources">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>{{'COMMON.NAME' | translate}}</th>
+                        <th>{{'COMMON.TYPE' | translate}}</th>
+                        <th>{{'COMMON.VERSION' | translate}}</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="resource in csar.relatedResources" id="res_{{resource.resourceId}}">
+                        <td>
+                          {{resource.resourceName}}
+                        </td>
+                        <td>
+                          {{resource.resourceType}}
+                        </td>
+                        <td>
+                          {{resource.resourceId | splitAndGet:':':'last' }}
+                        </td>
+                        <td>
+                          <div ng-switch="resource.resourceType" class="pull-right">
+                            <span ng-switch-when="csar">
+                              <a href="#/catalog/archives/detail/{{resource.resourceId}}" class="btn btn-primary btn-xs" uib-tooltip="{{ 'CSAR.DETAILS.RESOURCE.CSAR_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
+                              </a>
+                            </span>
+                            <span ng-switch-when="application">
+                              <a href="#/applications/detail/{{resource.resourceId}}/infos" class="btn btn-primary btn-xs" uib-tooltip="{{ 'CSAR.DETAILS.RESOURCE.APP_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
+                              </a>
+                            </span>
+                            <span ng-switch-when="topologytemplate">
+                              <a ng-click="goToRuntimeView(resource.resourceId)" class="btn btn-primary btn-xs" uib-tooltip="{{ 'CSAR.DETAILS.RESOURCE.TOPOLOGY_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
+                              </a>
+                            </span>
+                            <span ng-switch-default>---</span>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

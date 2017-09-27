@@ -275,9 +275,9 @@ public class ApplicationEnvironmentController {
     @Audit
     public RestResponse<Void> updateTopologyVersion(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @RequestBody UpdateTopologyVersionForEnvironmentRequest request) throws OrchestratorDisabledException {
-        // Only APPLICATION_MANAGER on the underlying application can update an application environment
+        // Only APPLICATION_MANAGER & DEPLOYMENT_MANAGER on the underlying application can update an application environment
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
-                ApplicationRole.APPLICATION_MANAGER);
+                ApplicationRole.APPLICATION_MANAGER, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
 
         if (applicationEnvironment == null) {
             return RestResponseBuilder.<Void> builder().data(null).error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)

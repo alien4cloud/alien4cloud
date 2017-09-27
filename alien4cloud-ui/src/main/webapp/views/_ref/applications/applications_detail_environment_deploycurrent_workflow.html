@@ -1,0 +1,37 @@
+<div id="editor-workflow" class="topology-editor" style="height: {{dimensions.height}}px; width: {{dimensions.width}}px;">
+    <div class="topology-row" style="height: {{dimensions.height}}px;">
+      <div id="workflow-graph" class="topology-column">
+        <topology-plan ng-if="topology" id="plan-graph-container"></topology-plan>
+      </div>
+      <div id="workflows-box" class="topology-column ui-resizable" style="width: {{displays.workflows.size}}px;">
+        <div class="topology-column-box">
+          <resizable-bar
+            id="workflows-box-handler"
+            classes="topology-column-menu-left">
+          </resizable-bar>
+          <div class="topology-column-content">
+            <div class="topology-column-content-head">
+              <span>
+                <i class="fa fa-power-off"></i> {{'APPLICATIONS.WF.title' | translate}}
+              </span>
+            </div>
+            <div>
+              <div class="col-md-7">
+                <select name="wf-select" id="wf-select" ng-model="currentWorkflowName" ng-change="workflows.setCurrentWorkflowName(currentWorkflowName)">
+                  <option ng-repeat="w in topology.topology.workflows" value="{{w.name}}" ng-selected="w.name === currentWorkflowName">{{w.name}}</option>
+                </select>
+              </div>
+              <div class="col-md-5">
+                <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button"
+                   ng-click="launchWorkflow()"
+                   ng-disabled="isLaunchingWorkflow" >
+                  <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

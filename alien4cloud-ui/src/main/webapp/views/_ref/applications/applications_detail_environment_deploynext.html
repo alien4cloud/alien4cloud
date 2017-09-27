@@ -1,0 +1,90 @@
+<!-- Flow execution Logs -->
+<div style="margin-bottom: 20px" class="grp-margin">
+    <div class="row" ng-if="deploymentTopologyDTO.validation.taskList['LOG'].length > 0">
+        <div class="col-md-12">
+            <div class="text-danger" ng-repeat="task in deploymentTopologyDTO.validation.taskList['LOG']">
+                <i class="fa fa-times-circle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+            </div>
+        </div>
+    </div>
+    <div class="row" ng-if="deploymentTopologyDTO.validation.warningList['LOG'].length > 0">
+        <div class="col-md-12">
+            <div class="text-warning" ng-repeat="task in deploymentTopologyDTO.validation.warningList['LOG']">
+                <i class="fa fa-exclamation-triangle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+            </div>
+        </div>
+    </div>
+    <div class="row" ng-if="deploymentTopologyDTO.validation.infoList['LOG'].length > 0">
+        <div class="col-md-12">
+            <div class="text-info" ng-repeat="task in deploymentTopologyDTO.validation.infoList['LOG']">
+                <i class="fa fa-info fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+            </div>
+        </div>
+    </div>
+
+    <div ng-repeat="(taskCode, tasks) in deploymentTopologyDTO.validation.warningList" ng-switch="taskCode">
+      <div ng-switch-when="PROPERTIES">
+        <div class="content-head-error">
+          <span>{{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.LABEL' | translate}}</span>
+        </div>
+        <div class="content-body">
+            <table class="table table-condensed">
+                <thead>
+                  <th>{{'COMMON.NODE' | translate}}</th>
+                  <th>
+                      <i class="fa fa-exclamation-triangle"
+                         uib-tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i>
+                      {{'COMMON.PROPERTIES' | translate}}
+                  </th>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="task in tasks">
+                      <td>{{task.nodeTemplateName || '---'}}</td>
+                      <td>{{task.properties['WARNING'] | a2s:','}}</td>
+                  </tr>
+                </tbody>
+            </table>
+        </div>
+      </div>
+
+      <div ng-switch-when="FORBIDDEN_OPERATION">
+        <div class="content-head-error">
+          <span>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.LABEL' | translate}}</span>
+        </div>
+        <div class="content-body">
+          <p style="font-style: italic"><i class="fa fa-info-circle" aria-hidden="true">&nbsp;</i>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.LABEL_DETAILS'
+              | translate}}</p>
+          <table class="table table-condensed">
+              <thead>
+              <th>{{'COMMON.NODE' | translate}}</th>
+              <th>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.SERVICE' | translate}}</th>
+              <th>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.OPERATION' | translate}}</th>
+              <th>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.RELATIONSHIP_TYPE' | translate}}</th>
+              </thead>
+              <tbody>
+              <tr ng-repeat="task in tasks">
+                  <td>{{task.nodeTemplateName || '---'}}</td>
+                  <td>{{task.serviceName || '---'}}</td>
+                  <td>{{task.operationName || '---'}}</td>
+                  <td>{{task.relationshipType || '---'}}</td>
+              </tr>
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Steps navigation pills -->
+<ul class="nav nav-pills grp-margin">
+  <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active"
+    ng-class="{'disabled' : menuItem.disabled}">
+    <a id="{{menuItem.id}}"
+       ng-click="onItemClick($event, menuItem)"
+       ui-sref="{{menuItem.state}}"
+       ng-class="{'btn-success': menuItem.step.status === 'SUCCESS', 'btn-warning': menuItem.step.status ==='WARNING', 'btn-danger': menuItem.step.status ==='ERROR'}">
+      <i class="fa" ng-class="{'fa-check': menuItem.step.status === 'SUCCESS', 'fa-exclamation': menuItem.step.status ==='WARNING', 'fa-times': menuItem.step.status ==='ERROR'}"></i> {{menuItem.key | translate}}
+    </a>
+  </li>
+</ul>
+<div ui-view></div>

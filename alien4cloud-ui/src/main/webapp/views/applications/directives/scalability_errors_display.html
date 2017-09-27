@@ -1,27 +1,24 @@
-<div ng-if="tasks.length>0">
-  <h4 class="clickable" ng-init="isScalabilityCollapsed = false" ng-click="isScalabilityCollapsed = !isScalabilityCollapsed">
-    <i class="fa" ng-class="{'fa-caret-down' : !isScalabilityCollapsed , 'fa-caret-right': isScalabilityCollapsed }"></i>
-    <span>{{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.LABEL' | translate}}</span>
-  </h4>
-  <div uib-collapse="isScalabilityCollapsed " >
-    <table class="table table-condensed">
-      <tbody>
-        <tr ng-repeat="task in tasks">
-          <td>
-            <strong>{{task.nodeTemplateName}}</strong>
-          </td>
-          <td>
-            <ul class="td_list liste-no-style">
-              <li ng-repeat="property in task.properties['ERROR']">
-                {{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.ERRORS.' + property | translate }}
-              </li>
-              <li ng-repeat="property in task.properties['REQUIRED']">
-                {{property}} {{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.MISSING' | translate}}
-              </li>
-            </ul>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div> <!-- END SCALABILITY ERRORS -->
+<div class="content-head-error">
+  <span>{{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.LABEL' | translate}}</span>
+</div>
+<div class="content-body">
+  <table class="table table-condensed">
+    <tbody>
+      <tr ng-repeat="task in tasks">
+        <td>
+          <strong>{{task.nodeTemplateName}}</strong>
+        </td>
+        <td>
+          <ul class="td_list liste-no-style">
+            <li ng-repeat="property in task.properties['ERROR']">
+              {{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.ERRORS.' + property | translate }}
+            </li>
+            <li ng-repeat="property in task.properties['REQUIRED']">
+              {{property}} {{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.MISSING' | translate}}
+            </li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

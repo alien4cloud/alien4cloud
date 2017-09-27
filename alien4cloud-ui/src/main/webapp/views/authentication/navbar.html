@@ -4,57 +4,61 @@
       <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
     </button>
     <a class="navbar-brand" href="#">
-      <img ng-src="images/cloudalien-small.png" style="height:50px;" class="pull-left">
+      <img ng-src="images/cloudalien-small.png" style="height:40px;margin-top:5px" class="pull-left">
     </a>
   </div>
   <div class="collapse navbar-collapse" id="alien-navbar-collapse" uib-collapse="isCollapsed">
 
     <div ng-if="status.currentStatus.data.isLogged">
       <ul class="nav navbar-nav">
-        <li ng-repeat="menuItem in menu" ng-if="menuItem.hasRole" ui-sref-active="active"  data-toggle="tooltip" data-placement="bottom" title="{{menuItem.key | translate}}"><a ui-sref="{{menuItem.state}}" id="{{menuItem.id}}"><i class="{{menuItem.icon}}" ng-show="menuItem.icon"></i> <span>{{menuItem.key | translate}}</span></a>
+        <li ng-repeat="menuItem in menu" ng-if="menuItem.hasRole" ui-sref-active="active" data-toggle="tooltip" data-placement="bottom"
+          title="{{menuItem.key | translate}}"><a ui-sref="{{menuItem.state}}" id="{{menuItem.id}}"><i class="{{menuItem.icon}}" ng-show="menuItem.icon"></i> <span>{{menuItem.key | translate}}</span></a>
         </li>
       </ul>
     </div>
-    <button ng-if="status.currentStatus.data.isLogged" type="button" class="btn btn-info btn-xs navbar-btn navbar-right" style="margin-right: 10px;" ng-click="startTour()">
-      <i class="fa fa-question-circle"></i>
-    </button>
-    <ul class="nav navbar-nav navbar-right">
+
+    <ul class="nav navbar-nav navbar-right" style="margin-right:0px">
       <li uib-dropdown>
         <a id="navbar-rightdrop" href="#" uib-dropdown-toggle>
-          <span ng-if="status.currentStatus.data.isLogged">
+          <span ng-if="status.currentStatus.data.isLogged" style="margin-right:4px">
             <i class="fa fa-user"></i> {{ status.currentStatus.data.username }}
           </span>
-          <img alt="" ng-src="images/flags/flags_iso/24/{{ 'CODE' | translate }}.png" />
+          <img alt="" ng-src="images/flags/iso/{{ 'CODE' | translate }}.svg" class="language flag" />
           <b class="caret"></b>
         </a>
         <ul class="dropdown-menu navbar-logout-dropdown" uib-dropdown-menu role="menu">
           <li>
             <a ng-click="changeLanguage('fr-fr')" name="link-language-fr">
-              <img alt="" src="images/flags/flags_iso/24/fr-fr.png" class="language flag-fr" /> Français
+              <img src="images/flags/iso/fr-fr.svg" class="language flag"> Français
             </a>
           </li>
           <li>
             <a ng-click="changeLanguage('en-us')" name="link-language-us">
-              <img alt="" src="images/flags/flags_iso/24/en-us.png" /> English
+                <img src="images/flags/iso/en-us.svg"  class="language flag"> English
             </a>
           </li>
           <li>
             <a ng-click="changeLanguage('ja-jp')" name="link-language-jp">
-              <img alt="" src="images/flags/flags_iso/24/ja-jp.png" /> Japanese
+                <img src="images/flags/iso/ja-jp.svg" class="language flag"> 日本語
             </a>
+          </li>
+          <li>
+            <a ng-click="changeLanguage('zh-cn')" name="link-language-cn">
+                <img src="images/flags/iso/zh-cn.svg" class="language flag"> 中文
+              </a>
           </li>
           <li role="presentation" class="divider"></li>
           <li>
-          <a href="https://github.com/alien4cloud/alien4cloud/releases/tag/{{version.tag}}" target="_blank" ng-if="!version.isSnapshot">
+            <a href="https://github.com/alien4cloud/alien4cloud/releases/tag/{{version.tag}}" target="_blank" ng-if="!version.isSnapshot">
             <i class="fa fa-codepen"></i> <strong>{{version.tag}}</strong>
           </a>
-          <a ng-if="version.isSnapshot">
+            <a ng-if="version.isSnapshot">
             <i class="fa fa-codepen"></i> <i>{{version.tag}}</i>
           </a>
-          <a href="swagger-ui.html" target="_blank">
+            <a href="swagger-ui.html" target="_blank">
             <i class="fa fa-mortar-board"></i> <strong>API Documentation</strong>
           </a>
-        </li>
+          </li>
           <li ng-show="status.currentStatus.data.isLogged" role="presentation" class="divider"></li>
           <li ng-show="status.currentStatus.data.isLogged">
             <a ng-click="logout()" name="btn-logout">
@@ -64,27 +68,34 @@
         </ul>
       </li>
     </ul>
-    <div ng-if="!status.currentStatus.data.isLogged && (!status.currentStatus.data.authSystem || status.currentStatus.data.authSystem==='alien' || internalLogin)" class="nav navbar-nav navbar-right">
+    <div ng-if="!status.currentStatus.data.isLogged && (!status.currentStatus.data.authSystem || status.currentStatus.data.authSystem==='alien' || internalLogin)"
+      class="nav navbar-nav navbar-right">
       <form name="loginForm" class="navbar-form" role="login" ng-submit="signIn()">
         <div class="form-group">
-          <input name="userName" placeholder="{{ 'COMMON.USERNAME' | translate }}" type="text" class="form-control" ng-model="login.username" required />
+          <input name="userName" placeholder="{{ 'COMMON.USERNAME' | translate }}" type="text" class="form-control" ng-model="login.username"
+            required />
         </div>
         <div class="form-group">
-          <input name="userPassword" placeholder="{{ 'USERS.PASSWORD' | translate }}" type="password" class="form-control" ng-model="login.password" required />
+          <input name="userPassword" placeholder="{{ 'USERS.PASSWORD' | translate }}" type="password" class="form-control" ng-model="login.password"
+            required />
         </div>
         <button type="submit" class="btn btn-success" name="btn-login"><i class="fa fa-sign-in"></i> {{ 'NAVBAR.BUTTON_LOGIN' | translate }}</button>
       </form>
     </div>
+    <!-- sneaky delete
     <div ng-if="status.currentStatus.data.isLogged" class="nav navbar-nav navbar-right">
       <div class="collapse navbar-collapse" id="alien-navbar-collapse" uib-collapse="isCollapsed">
         <form class="nav navbar-nav navbar-form" role="search" ng-submit="">
           <div class="form-group">
-            <input type="text" ng-model="itemSelected" class="form-control" placeholder="{{ 'NAVBAR.INPUT_SEARCH_MESSAGE' | translate }}" uib-typeahead="item as item.elementId || item.name for item in quickSearchHandler.doQuickSearch($viewValue)" typeahead-on-select="quickSearchHandler.onItemSelected(itemSelected);"
-            typeahead-min-length="quickSearchHandler.minLength" typeahead-wait-ms="quickSearchHandler.waitBeforeRequest" typeahead-loading="searching" typeahead-template-url="views/authentication/quick_search.html">
+            <input type="text" ng-model="itemSelected" class="form-control" placeholder="{{ 'NAVBAR.INPUT_SEARCH_MESSAGE' | translate }}"
+              uib-typeahead="item as item.elementId || item.name for item in quickSearchHandler.doQuickSearch($viewValue)"
+              typeahead-on-select="quickSearchHandler.onItemSelected(itemSelected);" typeahead-min-length="quickSearchHandler.minLength"
+              typeahead-wait-ms="quickSearchHandler.waitBeforeRequest" typeahead-loading="searching" typeahead-template-url="views/authentication/quick_search.html">
           </div>
         </form>
       </div>
     </div>
+    -->
     <div ng-if="!status.currentStatus.data.isLogged && status.currentStatus.data.authSystem==='saml'" class="nav navbar-nav btn-group navbar-right"
       style="margin-right: 4px;">
       <a class="btn btn-success navbar-btn" href="saml/login">

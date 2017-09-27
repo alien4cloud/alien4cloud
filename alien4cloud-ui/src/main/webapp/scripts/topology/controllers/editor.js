@@ -20,26 +20,21 @@ define(function (require) {
   require('scripts/topology/services/topology_json_processor');
   require('scripts/topology/services/topology_recovery_service');
   require('scripts/topology/services/topology_services');
-  require('scripts/topology/controllers/topology_editor_versions');
 
   // manage websockets for topology editor
-  require('scripts/topology/services/topology_editor_events_services');
+  // require('scripts/topology/services/topology_editor_events_services');
   require('scripts/common/directives/parsing_errors');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
-    ['$scope', 'menu', 'layoutService', 'context', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
-    'hotkeys','topologyRecoveryServices', '$uibModal', '$translate', 'toaster', '$state',
-    function($scope, menu, layoutService, context, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $uibModal, $translate, toaster, $state) {
+    ['$scope', '$state', '$stateParams', '$alresource', '$uibModal', '$translate', 'toaster', 'hotkeys', 'menu', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topologyRecoveryServices',
+    function($scope, $state, $stateParams, $alresource, $uibModal, $translate, toaster, hotkeys, menu,  topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topologyRecoveryServices) {
       // This controller acts as a specific layout for the topology edition.
-      layoutService.process(menu);
       $scope.menu = menu;
+      $scope.topologyId = $stateParams.archiveId;
+
       $scope.getShortName = toscaService.simpleName;
-      // Manage topology version selection (version is provided as parameter from the template or application)
-      $scope.versionContext = context;
-      $scope.versionContext.versions = archiveVersions.data;
       // this allow to avoid file edition in the ui-ace.
       $scope.released = false;
-      topoEditVersions($scope);
 
       // Initial load of the topology
       topologyServices.dao.get({ topologyId: $scope.topologyId },

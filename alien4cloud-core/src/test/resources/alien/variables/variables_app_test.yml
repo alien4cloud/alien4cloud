@@ -1,0 +1,56 @@
+int_variable: 1
+float_variable: 3.14
+string_variable: "text"
+overidden_variable: "error"
+concat_variable: ${int_variable} - ${string_variable}
+
+spel_variable: "#{ 'toto' == 'toto' }"
+
+mix_spel_and_variable: "${int_variable} #{ 'toto' == 'toto' }"
+
+complex_variable:
+  complex:
+    subfield: subValue
+
+complex_with_var_in_leaf:
+  complex:
+    subfield: "${string_variable}"
+
+a4c.application.name: "override forbidden (app)"
+
+complex_with_var_in_body:
+  complex_from_var: ${complex_with_var_in_leaf}
+
+complex_with_dot_field:
+  complex.dot.field:
+    value: ${float_variable}
+
+
+list_variable:
+  - item ${int_variable}
+  - item 2
+  - item 3
+
+list_spel_variable:
+  - "item #{ 'toto' == 'toto' }"
+  - "item #{ 'titi' == 'toto' }"
+  - "item #{ 3 }"
+
+complex_with_list:
+  subfield1: ${string_variable}
+  subfield2:
+    sublist:
+      - item ${int_variable}
+      - item 2
+      - item ${float_variable}
+
+
+list_of_complex:
+    - item10: value${int_variable}0 #value10
+      item11: value${int_variable}${int_variable} #value11
+    - item20: value20
+      item21: value2${int_variable} #value21
+
+complex_with_list_var_in_body:
+  string_list: ${list_variable}
+  complex_list: ${list_of_complex}

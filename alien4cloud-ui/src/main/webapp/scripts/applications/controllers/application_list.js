@@ -71,7 +71,7 @@ define(function (require) {
         $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
         $scope.applicationEnvironmentMap = {};
         d3.selectAll('.d3-tip').remove();
-        $scope.fromStatusToCssClasses = alienUtils.fromDeploymentStatusToCssClasses;
+        $scope.fromStatusToCssClasses = alienUtils.getStatusIconCss;
 
         $scope.openNewApp = function () {
           var modalInstance = $uibModal.open({

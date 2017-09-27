@@ -1,0 +1,77 @@
+<div class="row">
+  <div class="col-md-3" style="margin-top: 25px">
+    <button class="btn btn-success" ng-click="openNewArchiveModal()" id="btn-add-template">
+      <i class="fa fa-plus-circle"></i> {{ 'CSAR.NEW' | translate}}
+    </button>
+    <button class="btn btn-info" ng-click="goToGitImportManagement()" id="btn-add-template">
+      <i class="fa fa-git"></i> {{ 'CSAR.GIT.GIT_IMPORT' | translate}}
+    </button>
+  </div>
+  <div class="col-md-9">
+    <upload-directive
+    target-url="'rest/latest/csars'"
+    get-workspace-specifics="getWorkspaceSpecifics"
+    request-data="getRequestData"
+    drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
+    button-message="'COMPONENTS.UPLOAD'"
+    upload-success-callback="uploadSuccessCallback(data)" />
+  </div>
+</div>
+
+<div>
+  <a4c-search query-manager="queryManager"
+              search-service="searchService"></a4c-search>
+</div>
+
+  <!-- CSAR search result display -->
+<div class="grp-margin" id = "result-container" ng-if = "_.isNotEmpty(queryManager.searchResult.data)">
+  <div class="table-responsive large-data-container" id="csars-table">
+    <table class="table table-hover table-vertical-center">
+      <thead>
+        <tr>
+          <th></th>
+          <th>{{ 'COMMON.NAME' | translate}}</th>
+          <th>{{ 'COMMON.VERSION' | translate}}</th>
+          <th>{{ 'COMMON.SOURCE' | translate}}</th>
+          <th>{{ 'COMMON.DESCRIPTION' | translate}}</th>
+          <th>{{ 'COMMON.CONTENT' | translate}}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="csar in queryManager.searchResult.data" ng-click="openCsar(csar.id)" id="csar_{{csar.id}}" name="csar_{{csar.id}}" class="clickable">
+          <td>
+            <i class="pull-left media-object fa fa-archive fa-2x"></i>
+          </td>
+          <td>{{csar.name}}</td>
+          <td>{{csar.version}}</td>
+          <td>{{csar.importSource || '---' }}</td>
+          <td>{{csar.description || '---' }}</td>
+          <td ng-init="empty=!csar.hasTopology && csar.nodeTypesCount==0">
+            <span ng-if="!empty">
+              <i ng-if="csar.hasTopology" style="margin-right: 5px" class="fa fa-sitemap"></i>
+              <span ng-if="csar.nodeTypesCount>0">
+                <i class="fa fa-cubes"></i><span class="badge">{{csar.nodeTypesCount}}</span>
+              </span>
+            </span>
+            <span ng-if="empty"> --- </span>
+          </td>
+          <td>
+            <!-- Download the archive as .csar file-->
+            <a class="btn btn-default btn-xs" href="/rest/latest/csars/{{csar.id}}/download" ng-click="$event.stopPropagation()" download="{{csar.id}}.zip" ng-attr-title="{{'COMMON.DOWNLOAD' | translate}}">
+              <i class="fa fa-download"></i>
+            </a>
+
+            <ng-include ng-if="archiveWorkspaceTemplateUrl" src="archiveWorkspaceTemplateUrl"></ng-include>
+
+            <delete-confirm
+              ng-if="!csar.substitutionTopologyId && _.findIndex(writeWorkspaces, {id:csar.workspace}) >= 0"
+              id="delete-csar_{{csar.id}}" func="remove(csar.id);" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+            </delete-confirm>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <pagination-directive pagination-info="searchService.pagination"></pagination-directive>
+</div>

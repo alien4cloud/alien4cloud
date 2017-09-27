@@ -1,0 +1,9 @@
+<div style="margin-left: 10px;">
+  <button class="btn btn-default btn-sm" id="save-file"
+    ng-click="saveFile()">
+    <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
+  </button>
+  <span class="text-info">{{aceFilePath}}<span>
+</div>
+<div ng-model="editorContent" ui-ace="{mode: yaml, useWrapMode: true, readonly: released, onLoad : aceLoaded}" style="height: 200px;">
+</div>

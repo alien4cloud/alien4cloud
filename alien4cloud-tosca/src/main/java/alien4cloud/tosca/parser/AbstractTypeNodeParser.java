@@ -51,7 +51,7 @@ public abstract class AbstractTypeNodeParser {
             } catch (NotWritablePropertyException e) {
                 log.warn("Error while setting property for yaml parsing.", e);
                 context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type",
-                        valueNode.getStartMark(), "", valueNode.getEndMark(), toscaType));
+                        valueNode.getStartMark(), e.getPropertyName(), valueNode.getEndMark(), toscaType));
             }
         }
 
@@ -68,7 +68,7 @@ public abstract class AbstractTypeNodeParser {
             } catch (NotWritablePropertyException e) {
                 log.warn("Error while setting key to property for yaml parsing.", e);
                 context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type",
-                        valueNode.getStartMark(), "", valueNode.getEndMark(), toscaType));
+                        valueNode.getStartMark(), e.getPropertyName(), valueNode.getEndMark(), toscaType));
             }
         }
     }

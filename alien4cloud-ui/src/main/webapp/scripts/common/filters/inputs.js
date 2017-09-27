@@ -7,7 +7,7 @@ define(function (require) {
 
   var excludedInputs = ['loc_meta_', 'app_meta_', 'app_tags_', 'env_meta_', 'env_tags_'];
 
-  modules.get('a4c-common').filter('allowedInputs', function() {
+  modules.get('a4c-common').filter('internalInputs', function() {
     return function(items) {
       var filtered = {};
       var foundStart = false;

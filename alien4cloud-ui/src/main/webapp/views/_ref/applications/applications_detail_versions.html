@@ -1,0 +1,79 @@
+<div>
+  <div class="row">
+    <!--  Create button -->
+    <div class="col-md-12">
+      <button class="btn btn-success" id="app-version-new-btn" ng-click="openNewAppVersion()">
+        <i class="fa fa-plus-circle"></i> {{'APPLICATIONS.VERSION.NEW' | translate}}
+      </button>
+    </div>
+  </div>
+
+  <div class="row grp-margin">
+    <!--  App version search -->
+    <div class="col-md-12">
+      <form role="search" ng-submit="searchService.search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query">
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row grp-margin">
+    <div class="col-md-12">
+      <table class="table table-condensed grp-margin">
+        <thead>
+          <tr>
+            <th></th>
+            <th colspan="2">Version</th>
+            <th>Description</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody ng-repeat="version in searchAppVersionResult" id='v_{{version.id}}' ng-click="onVersion(version.id)">
+          <tr class="clickable">
+            <td rowspan="{{1 + _.size(version.topologyVersions)}}"><i class="fa" ng-class="{'fa-truck': version.released, 'fa-code': !version.released}"></i></td>
+            <td colspan="2">
+              <span id="avt-f-version-{{version.version}}" editable-text="version.version"
+                onbeforesave="updateApplicationVersion('version',$data, version)" buttons="no" style="font-style:inherit;" blur="submit">
+                {{version.version}} <i class="fa fa-edit"></i>
+              </span>
+            </td>
+            <td>
+              <span id="avt-f-desc-{{version.version}}" editable-text="version.description"
+                onbeforesave="updateApplicationVersion('description',$data, version)" buttons="no" style="font-style:inherit;" blur="submit">
+                {{version.description}} <i class="fa fa-edit"></i>
+              </span>
+            </td>
+            <td>
+              <div class="pull-right">
+                <button class="btn btn-sm btn-success" id="avt-new-btn-{{version.version}}" ng-click="openNewAppTopoVersion(version)"
+                  uib-tooltip="{{'APPLICATIONS.VERSION.TOPOLOGY.NEW' | translate}}" tooltip-placement="left" tooltip-append-to-body="true">
+                  <i class="fa fa-plus-circle"></i>
+                </button>
+                <delete-confirm  id='delete-version-{{version.version}}' func="delete(version.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
+              </div>
+            </td>
+          </tr>
+          <tr ng-repeat="(variantVersion, variant) in version.topologyVersions" class="clickable">
+            <td></td>
+            <td><span class="text-muted" ng-bind-html="variantVersion | a4cHighlight: variant.qualifier:'text-default'"></span></td>
+            <td>{{variant.description}}</td>
+            <td>
+              <div class="pull-right">
+                <delete-confirm  id='delete-version-{{version.version}}' func="deleteAppTopoVersion(version, topologyVersionKey)" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <pagination-directive pagination-info="searchService.pagination" />
+    </div>
+  </div>
+</div>

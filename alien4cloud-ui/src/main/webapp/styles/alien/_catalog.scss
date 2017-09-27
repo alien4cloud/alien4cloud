@@ -1,0 +1,43 @@
+.catalog-cell {
+  background-color: white;
+  width: 200px;
+  height: 200px;
+  border: 1px solid #ededed;
+  position: relative;
+  display: inline-block;
+  margin: 0 8px 8px 0;
+  vertical-align: top;
+  text-align: left;
+}
+
+.catalog-cell-selected{
+  background-color: $alert-info-bg;
+  color: $alert-info-text;
+}
+
+.catalog-cell:hover {
+  background-color: rgb(224, 224, 224);
+  cursor: pointer;
+}
+
+.small .catalog-cell {
+  height: 120px;
+}
+
+.catalog-element-info {
+  max-height: 150px;
+  overflow: hidden;
+}
+
+.small .catalog-element-info {
+  max-height: 80px;
+}
+
+.catalog-description {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.catalog-archive-info {
+  width: 198px;
+}

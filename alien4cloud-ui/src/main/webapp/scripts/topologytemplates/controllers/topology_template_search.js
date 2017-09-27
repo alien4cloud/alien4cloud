@@ -5,9 +5,12 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
+  require('scripts/common/directives/facet_search_panel');
+
   modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('TopologyTemplateSearchCtrl',
     ['$scope', '$uibModal', '$resource', '$state', 'authService', '$alresource',
     function($scope, $uibModal, $resource, $state, authService, $alresource) {
+
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
         $scope.onSearchConfig({ searchConfig: searchConfig });

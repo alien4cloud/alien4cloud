@@ -15,8 +15,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
 public abstract class AbstractTask {
     // task code
     private TaskCode code;
+    private String source;
+
+    public AbstractTask(TaskCode code) {
+        this.code = code;
+    }
 }

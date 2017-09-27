@@ -1,0 +1,5 @@
+<div class="breadcrumb-panel" ng-if = '_.isNotEmpty(items)'>
+    <ol class="breadcrumb-arrow">
+        <li ng-repeat="item in items"><a ng-click="item.onClick()" ng-if="$index !== (items.length -1)">{{ item.text() }} </a><span ng-if="$index === (items.length -1)">{{ item.text() }} </span></li>
+    </ol>
+</div>

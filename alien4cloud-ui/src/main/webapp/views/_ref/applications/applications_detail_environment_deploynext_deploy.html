@@ -1,0 +1,182 @@
+<!-- DEPLOYMENT TOPO CONFIGURATION ERRORS -->
+<div class="row grp-margin" ng-if = "_.isNotEmpty(deploymentTopologyDTO.validation.taskList)">
+  <!-- NODE FILTERS-->
+  <div class="col-md-6" ng-if="deploymentTopologyDTO.validation.taskList['NODE_FILTER_INVALID']">
+    <div class="task-list-box">
+      <node-filters-errors-display
+        tasks = "deploymentTopologyDTO.validation.taskList['NODE_FILTER_INVALID']"
+        input-column=true>
+      </node-filters-errors-display>
+    </div>
+  </div>
+  <!-- SCALABILITY ERRORS -->
+  <div class="col-md-6" ng-if="deploymentTopologyDTO.validation.taskList['SCALABLE_CAPABILITY_INVALID']">
+    <div class="task-list-box">
+      <scalability-errors-display
+        tasks="deploymentTopologyDTO.validation.taskList['SCALABLE_CAPABILITY_INVALID']">
+      </scalability-errors-display>
+    </div>
+  </div>
+  <!--  Required properties tasks  -->
+  <div class="col-md-6" ng-if="deploymentTopologyDTO.validation.taskList['PROPERTIES']">
+    <div class="task-list-box">
+      <properties-errors-display
+        tasks = "deploymentTopologyDTO.validation.taskList['PROPERTIES']">
+      </properties-errors-display>
+
+    </div>
+  </div>
+  <div class="col-md-6">
+    <!--  Workflow tasks  -->
+    <div ng-if="(wfTasks = deploymentTopologyDTO.validation.taskList['WORKFLOW_INVALID']).length>0">
+      <h4 class="clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
+        <i class="fa" ng-class="{'fa-caret-down' : !isWorkflowsCollapsed, 'fa-caret-right': isWorkflowsCollapsed}"></i>
+        <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
+      </h4>
+
+      <div uib-collapse="isWorkflowsCollapsed" >
+        <ul>
+          <li ng-repeat="wfTask in wfTasks">
+            {{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.HAS_ERROR' | translate:wfTask}}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row grp-margin">
+  <div class="col-md-6">
+    <managed-service
+      application="application"
+      topology="deploymentTopologyDTO.topology"
+      environment="environment">
+    </managed-service>
+  </div>
+  <div class="col-md-6">
+    <!-- DEPLOY BUTTON -->
+    <button id="btn-deploy"
+            type="button"
+            class="btn btn-success application-deploy-button pull-right"
+            ng-disabled="!deploymentTopologyDTO.validation.valid || isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])"
+            ng-click="doDeploy()"
+            ng-if="environment.status === 'UNDEPLOYED' && environment.environmentType !== 'PRODUCTION'">
+      <i class="fa" ng-class="{'fa-play': !isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS']), 'fa-spinner fa-spin': isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
+    </button>
+    <button id="btn-deploy"
+            type="button"
+            class="btn btn-success application-deploy-button pull-right"
+            ng-disabled="!deploymentTopologyDTO.validation.valid || isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])"
+            ng-if="environment.status === 'UNDEPLOYED' && environment.environmentType === 'PRODUCTION'"
+            confirm="{{ 'APPLICATIONS.DEPLOY_CONFIRM' | translate }}"
+            confirm-title="{{ 'COMMON.ATTENTION' | translate }}"
+            confirm-placement="left"
+            confirm-class="popover"
+            confirm-handler="doDeploy()"
+            ng-click="$event.stopPropagation();">
+      <i class="fa" ng-class="{'fa-play': !isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS']), 'fa-spinner fa-spin': isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
+    </button>
+    <!-- UPDATE BUTTON -->
+    <button id="btn-update"
+            type="button"
+            class="btn btn-primary application-deploy-button pull-right"
+            ng-disabled="!deploymentTopologyDTO.validation.valid || isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])"
+            ng-click="doUpdate()"
+            ng-if="isUpdatable() && environment.environmentType !== 'PRODUCTION'">
+      <i class="fa" ng-class="{'fa-play': !isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS']), 'fa-spinner fa-spin': isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])}"></i> {{'APPLICATIONS.UPDATE_DEPLOYMENT' | translate}}
+    </button>
+    <button id="btn-update"
+            type="button"
+            class="btn btn-primary application-deploy-button pull-right"
+            ng-disabled="!deploymentTopologyDTO.validation.valid || isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])"
+            ng-click="doUpdate()"
+            ng-if="isUpdatable() && environment.environmentType === 'PRODUCTION'"
+            confirm="{{ 'APPLICATIONS.UPDATE_CONFIRM' | translate }}"
+            confirm-title="{{ 'COMMON.ATTENTION' | translate }}"
+            confirm-placement="left"
+            confirm-class="popover"
+            confirm-handler="doUpdatedoUpdate()"
+            ng-click="$event.stopPropagation();">
+      <i class="fa" ng-class="{'fa-play': !isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS']), 'fa-spinner fa-spin': isAnyState(['INIT_DEPLOYMENT', 'DEPLOYMENT_IN_PROGRESS'])}"></i> {{'APPLICATIONS.UPDATE_DEPLOYMENT' | translate}}
+    </button>
+  </div>
+</div>
+
+<!-- Deployment informations -->
+<div class="row grp-margin">
+  <div class="col-md-12">
+    <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
+      <i class="fa fa-cog"></i> {{'APPLICATIONS.DEPLOYMENT_INFO' | translate}}
+    </div>
+    <div class = "row" style="margin-top: 10px">
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'APPLICATIONS.APPLICATION' | translate }} : </span> <span class = "detail-description">{{application.name}}</span>
+      </div>
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'COMMON.VERSION' | translate }} : </span> <span class = "detail-description">{{environment.currentVersionName}}</span>
+      </div>
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate }} : </span> <span class = "detail-description">{{environment.name}}</span>
+      </div>
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate }} : </span> <span class = "detail-description">{{environment.environmentType}}</span>
+      </div>
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'ORCHESTRATORS.ORCHESTRATOR' | translate }} : </span> <span class = "detail-description">{{orchestrator.name}}</span>
+      </div>
+      <div class = "col-md-6">
+        <span class = "detail-term"> {{'ORCHESTRATORS.LOCATIONS.LOCATION' | translate }} : </span> <span class = "detail-description">{{selectedLocation.name}}</span>
+      </div>
+
+      <!-- Resources -->
+      <div class="col-md-12" style="margin-top: 20px;">
+        <div class="content-head">
+          <i class="fa fa-cubes"></i> {{'COMMON.RESOURCES' | translate}}
+        </div>
+        <div class="content-body" style="overflow: auto; max-height: 300px;">
+          <table class="table table-condensed" id="locationResources">
+            <tr ng-repeat="(key, value) in deploymentTopologyDTO.topology.substitutedNodes">
+              <td>
+                {{key}} :
+              </td>
+              <td>
+                <span style=" font-weight: 500; padding-right: 0.5em;">{{value.name}}</span> ( <i>{{value.template.type}}</i> )
+                <i ng-if = "value.service"
+                  class="fa fa-globe text-info"
+                  uib-tooltip="{{'SERVICES.SERVICE' | translate}}">
+                </i>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Provider deployment properties -->
+<div class="row grp-margin">
+  <div ng-if="_.isNotEmpty(orchestratorDeploymentPropertyDefinitions)" class="col-md-6">
+    <div class="content-head clickable" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
+      <i class="fa fa-cog"></i> {{'APPLICATIONS.TOPOLOGY.ORCHESTRATOR_PROPERTIES' | translate}}
+      <i class="fa" ng-class="{'fa-caret-down' : !isOrchestratorDeploymentPropertiesCollapsed, 'fa-caret-right': isOrchestratorDeploymentPropertiesCollapsed}"></i>
+    </div>
+    <div uib-collapse="isOrchestratorDeploymentPropertiesCollapsed" class="content-body">
+      <table class="table table-condensed" id="nodeTemplateProperties">
+        <tr ng-repeat="(propertyKey,propertyDefinition) in orchestratorDeploymentPropertyDefinitions">
+          <td id="p_deployment_{{propertyKey}}">
+            <property-display
+              ng-init="condensed = true"
+              definition="propertyDefinition"
+              property-name="propertyKey"
+              property-value="deploymentTopologyDTO.topology.providerDeploymentProperties[propertyKey]"
+              on-save="updateDeploymentProperty(propertyDefinition, propertyKey, propertyValue)"
+              editable="true"
+              condensed="condensed">
+            </property-display>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

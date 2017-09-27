@@ -639,12 +639,14 @@
           </div>
 
           <div id="slide-side-bar" style="overflow: auto;">
-            <alien-search-node-type ng-if="topology"
-              drag-and-drop-enabled="true"
-              default-filters="defaultFilters"
-              height-info="dimensions"
-              static-facets="staticFacets"
-              badges="badges" />
+              <a4c-component-catalog ng-if="topology"
+                component-type='NODE_TYPE'
+                drag-and-drop-enabled="true"
+                default-filters="defaultFilters"
+                height-info="dimensions"
+                static-facets="staticFacets"
+                badges = "badges">
+              </a4c-component-catalog>
           </div>
         </div>
       </div>

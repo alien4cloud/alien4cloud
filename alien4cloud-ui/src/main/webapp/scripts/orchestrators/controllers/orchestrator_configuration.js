@@ -22,8 +22,16 @@ define(function (require) {
   });
 
   modules.get('a4c-orchestrators').controller('OrchestratorConfigurationCtrl',
-    ['$scope', '$http', '$translate', '$q', 'orchestrator', 'orchestratorConfigurationService', 'orchestratorService',
-    function($scope, $http, $translate, $q, orchestrator, orchestratorConfigurationService, orchestratorService) {
+    ['$scope', '$http', '$translate', '$q', 'orchestrator', 'orchestratorConfigurationService', 'orchestratorService', 'breadcrumbsService',
+    function($scope, $http, $translate, $q, orchestrator, orchestratorConfigurationService, orchestratorService, breadcrumbsService) {
+      
+      breadcrumbsService.putConfig({
+        state: 'admin.orchestrators.details.configuration',
+        text: function() {
+          return $translate.instant('ORCHESTRATORS.NAV.CONFIGURATION');
+        }
+      });
+
       $scope.orchestrator = orchestrator;
       $scope.lock = true;
 

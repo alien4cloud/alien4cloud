@@ -156,7 +156,7 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         if (serviceResource.getNodeInstance().getNodeTemplate().getProperties() == null) {
             serviceResource.getNodeInstance().getNodeTemplate().setProperties(Maps.newHashMap());
         }
-        serviceResource.getNodeInstance().getNodeTemplate().getProperties().putAll(safe(topology.getInputProperties()));
+        serviceResource.getNodeInstance().getNodeTemplate().getProperties().putAll(safe(topology.getAllInputProperties()));
 
         // Map attributes from the instances to the actual service resource node.
         for (Entry<String, Set<String>> nodeOutputAttrEntry : safe(topology.getOutputAttributes()).entrySet()) {

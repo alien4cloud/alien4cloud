@@ -1,28 +1,23 @@
-<div ng-if="tasks.length>0">
-    <h4 class="clickable" ng-init="isArtifactsErrorsCollapsed = false"
-        ng-click="isArtifactsErrorsCollapsed = !isArtifactsErrorsCollapsed">
-        <i class="fa"
-           ng-class="{'fa-caret-down' : !isArtifactsErrorsCollapsed , 'fa-caret-right': isArtifactsErrorsCollapsed }"></i>
-        <span>{{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.LABEL' | translate}}</span>
-    </h4>
-    <div uib-collapse="isArtifactsErrorsCollapsed">
-        <table class="table table-condensed">
-            <thead>
-            <th>{{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.NODE' | translate}}</th>
-            <th>{{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.LABEL' | translate}}</th>
-            <th>{{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.ERROR' | translate}}</th>
-            </thead>
-            <tbody>
-            <tr ng-repeat="task in tasks">
-                <td>
-                    <strong>{{task.nodeTemplateName}}</strong>
-                </td>
-                <td>
-                    <strong>{{task.artifactName}}</strong>
-                </td>
-                <td>{{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.ERRORS.' + task.artifactTaskCode | translate}}</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+<div class="content-head-error">
+  <span>{{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.LABEL' | translate}}</span>
+</div>
+<div class="content-body">
+  <table class="table table-condensed">
+      <thead>
+      <th>{{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.NODE' | translate}}</th>
+      <th>{{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.LABEL' | translate}}</th>
+      <th>{{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.ERROR' | translate}}</th>
+      </thead>
+      <tbody>
+      <tr ng-repeat="task in tasks">
+          <td>
+              <strong>{{task.nodeTemplateName}}</strong>
+          </td>
+          <td>
+              <strong>{{task.artifactName}}</strong>
+          </td>
+          <td>{{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.ERRORS.' + task.artifactTaskCode | translate}}</td>
+      </tr>
+      </tbody>
+  </table>
 </div>

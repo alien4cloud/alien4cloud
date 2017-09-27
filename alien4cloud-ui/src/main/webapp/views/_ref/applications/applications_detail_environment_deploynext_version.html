@@ -1,0 +1,26 @@
+<p style="margin-top:12px">Select the version you want attached to this environment (TODO: improve text + translate)</p>
+
+<div ng-repeat="appVersion in archive.versions">
+
+    <div id="button_version_container">
+        <div ng-click="onVersionSelected($event, appVersion)" class="btn-group" role="group" style="position:relative; margin: 4px">
+            <!-- buttons -->
+            <button type="button" class="btn" ng-class="{ 'btn-success' : isSelectedVersion(appVersion), 'btn-default' : !isSelectedVersion(appVersion) }">{{ appVersion.version }}</button>
+            <button ng-if="selectedTopologyVersion && appVersion.id === selectedAppVersion.id" type="button" class="btn btn-warning">{{ selectedTopologyVersion.qualifier || "default" }}</button>
+
+            <!-- dropdown for seleting topology version -->
+            <ul ng-if="!selectedTopologyVersion && appVersion.id === selectedAppVersion.id" id="button_version_qualifier_container" 
+                ng-style="dropdown.style" class="dropdown-menu"
+                style="display: inline-block; 
+                       position: absolute;
+                       z-index:100;
+                       left: 102%;
+                       width: 100px;">
+                <li ng-repeat="(topologyVersionKey, topologyVersionValue) in appVersion.topologyVersions">
+                    <a ng-click="onTopologyVersionSelected($event, topologyVersionValue)"> {{ topologyVersionValue.qualifier || "default" }} </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>

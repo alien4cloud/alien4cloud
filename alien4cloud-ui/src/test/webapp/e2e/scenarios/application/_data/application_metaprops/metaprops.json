@@ -1,4 +1,0 @@
-[
-  {"type":"string","required":true,"description":"My description","constraints":[{"validValues":["Q1","Q2","Q3","Q4"]}],"id":"6876daf3-5933-4e61-a8da-9bb38c77e90b","name":"_ALIEN_RELEASE_VALID_VALUES","target":"application","password":false,"definition":true,"default":"Q3"},
-  {"type":"string","required":false,"description":"Password field with min string lenght of 4","constraints":[{"minLength":4}],"id":"df5217bf-f59c-457b-9dfa-9d0d3ac14284","name":"_ALIEN_PASSWORD_MIN4","target":"application","password":true,"definition":true}
-]

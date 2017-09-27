@@ -3,10 +3,10 @@
     <span>
       <i class="fa fa-sign-out"> </i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}
     </span>
-    <span style="margin-left: 2em">
+    <!-- <span style="margin-left: 2em">
       {{ 'APPLICATIONS.DEPLOYMENT.VERSION' | translate }}:
-      <i class="text-primary">{{(selectedEnvironment.deployedVersion | idToVersion) || 'N/A'}}</i>
-    </span>
+      <i class="text-primary">{{(environment.deployedVersion | idToVersion) || 'N/A'}}</i>
+    </span> -->
     <i ng-if="collapsable" class="fa" ng-class="{'fa-caret-down' : !isoutputsCollapsed, 'fa-caret-right': isoutputsCollapsed}"></i>
   </div>
   <div uib-collapse="isoutputsCollapsed" class="content-body">

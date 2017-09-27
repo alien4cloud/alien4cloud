@@ -63,7 +63,7 @@ public class NodeMatchingConfigAutoSelectModifier implements ITopologyModifier {
                 } else {
                     // Only take the first element as selected if no configuration has been set before
                     // let an info so the user know that we made a default selection for him
-                    context.log().info("Automatic substitution update for node <" + entry.getKey() + ">");
+                    context.log().info("Automatic matching for node <" + entry.getKey() + ">");
                     lastUserSubstitutions.put(entry.getKey(), entry.getValue().iterator().next().getId());
                 }
             }

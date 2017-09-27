@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.*;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.PreconfiguredInputsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputArtifactsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputValidationModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputsModifier;
@@ -47,6 +48,8 @@ public class FlowExecutor {
     private EditorTopologyValidator editorTopologyValidator;
     @Inject
     private SubstitutionCompositionModifier substitutionCompositionModifier;
+    @Inject
+    private PreconfiguredInputsModifier preconfiguredInputsModifier;
     @Inject
     private InputsModifier inputsModifier;
     @Inject
@@ -95,7 +98,9 @@ public class FlowExecutor {
         topologyModifiers.add(locationMatchingModifier);
         // FIXME cfy specific modifier, remove when issue solved or move to cfy plugin when possible
         topologyModifiers.add(cfyMultirelationshipErrorModifier);
-        // Inject inputs in the topology. This is done after location matching as we may have inputs that refers to location meta properties.
+        // Inject preconfigured inputs (reading inputs file mapping) into the configuration context
+        topologyModifiers.add(preconfiguredInputsModifier);
+        // Inject deployer + preconfigured + location inputs in the topology. This is done after location matching as we may have inputs that refers to location meta properties.
         topologyModifiers.add(inputsModifier);
         // Inject input artifacts in the topology.
         topologyModifiers.add(inputArtifactsModifier);

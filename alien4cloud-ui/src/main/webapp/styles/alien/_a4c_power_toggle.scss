@@ -1,0 +1,109 @@
+// switch-slider ==> toggle with only two states: on and off
+// pending-switch-slider ==> toggle with three states: on, off, pending
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 22px;
+}
+
+.switch-slider, .pending-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  border-radius: 20px;
+  border: 1px solid $btn-danger-border;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: $btn-danger-bg;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.switch-slider.enabled, .pending-switch-slider.enabled {
+  border-color: $btn-success-border;
+  background-color: $btn-success-bg;
+}
+
+.switch-slider:before, .pending-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.switch-slider.enabled:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+
+// we manage nimation in another way with three states
+
+@keyframes switch-right {
+  0% {
+    -webkit-transform: translateX(0px);
+    transform: translateX(0px);
+  }
+  100% {
+    -webkit-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+}
+
+@keyframes switch-left {
+  0% {
+    -webkit-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+  100% {
+    -webkit-transform: translateX(0px);
+    transform: translateX(0px);
+  }
+}
+
+@keyframes switch-right-spin {
+  0% {
+    -webkit-transform: translateX(26px) rotate(0deg);
+    transform: translateX(26px) rotate(0deg);
+  }
+  100% {
+    -webkit-transform: translateX(26px) rotate(359deg);
+    transform: translateX(26px) rotate(359deg);
+  }
+}
+
+.pending-switch-slider.enabled.loaded:before {
+  -webkit-animation: switch-right .4s linear forwards;
+  -ms-animation: switch-right .4s linear forwards;
+  animation: switch-right .4s linear forwards;
+}
+
+.pending-switch-slider.enabled.pending:before {
+  -webkit-animation: switch-right-spin 2s infinite linear;
+  -ms-animation: switch-right-spin 2s infinite linear;
+  animation: switch-right-spin 2s infinite linear;
+}
+
+.pending-switch-slider.disabled.loaded:before {
+  -webkit-animation: switch-left .4s linear;
+  animation: switch-left .4s linear;
+}
+
+.pending-switch-slider.disabled.pending:before {
+  -webkit-animation: fa-spin 2s infinite linear;
+  animation: fa-spin 2s infinite linear;
+}
+
+.pending-switch-slider.pending:before {
+  border-style: groove;
+}

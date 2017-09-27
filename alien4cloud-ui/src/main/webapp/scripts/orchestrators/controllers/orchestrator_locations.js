@@ -28,8 +28,16 @@ define(function(require) {
   });
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsCtrl',
-    ['$scope', '$uibModal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor', '$translate', '$state',
-      function($scope, $uibModal, $http, locationService, orchestrator, menu, locationResourcesProcessor, $translate, $state) {
+    ['$scope', '$uibModal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor', '$translate', '$state', 'breadcrumbsService',
+      function($scope, $uibModal, $http, locationService, orchestrator, menu, locationResourcesProcessor, $translate, $state, breadcrumbsService) {
+        
+        breadcrumbsService.putConfig({
+          state: 'admin.orchestrators.details.locations',
+          text: function() {
+            return $translate.instant('ORCHESTRATORS.NAV.LOCATIONS');
+          }
+        });
+
         $scope.envTypes = ['OTHER', 'DEVELOPMENT', 'INTEGRATION_TESTS', 'USER_ACCEPTANCE_TESTS', 'PRE_PRODUCTION', 'PRODUCTION'];
         $scope.orchestrator = orchestrator;
         $scope.menu = menu;
