@@ -62,27 +62,17 @@
         <div class="col-md-12" style="margin-top: 20px;">
             <div class="row" style="margin-top: 10px;">
                 <div class="col-md-4">
-                    <strong>{{'CREATION_DATE' | translate }}</strong>
+                    <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DEPLOYED_AT' | translate }}</strong>
                 </div>
-                <div class="col-md-8">{{application.creationDate | date:'medium'}}</div>
+                <div class="col-md-8">{{ activeDeployment.startDate | date:'medium' || 'loading'}}</div>
             </div>
 
             <div class="row" style="margin-top: 10px;">
                 <div class="col-md-4">
-                    <strong>{{'UPDATE_DATE' | translate }}</strong>
+                    <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DURATION' | translate }}</strong>
                 </div>
-                <div class="col-md-8">{{application.lastUpdateDate | date:'medium'}}</div>
+                <div class="col-md-8">{{ deployedTime | amDurationFormat : 'millisecond' || 'loading' }}</div>
             </div>
         </div>
     </div>
-
-    <!-- Meta Properties and tags -->
-    <div class=col-md-6>
-        <!-- Meta Properties display -->
-        <meta-properties-display ng-if="isManager && application.metaProperties" properties-type="'application'" target="application"
-            resturl="'rest/v1/applications/:applicationId/properties'" params="{applicationId: application.id}">
-        </meta-properties-display>
-        <!-- End Meta Properties display -->
-    </div>
-
 </div>

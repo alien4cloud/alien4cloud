@@ -21,8 +21,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentInfoCtrl',
-  ['$scope', 'authService', 'applicationServices', 'application', '$state','breadcrumbsService', '$translate',
-  function($scope, authService, applicationServices, applicationResult, $state, breadcrumbsService, $translate) {
+  ['$scope', 'applicationServices', 'application', '$state','breadcrumbsService', '$translate',
+  function($scope, applicationServices, applicationResult, $state, breadcrumbsService, $translate) {
 
     breadcrumbsService.putConfig({
       state : 'applications.detail.environment.deploycurrent.info',
@@ -36,18 +36,17 @@ define(function (require) {
 
     $scope.applicationServices = applicationServices;
     $scope.fromStatusToCssClasses = alienUtils.getStatusIconCss;
-
-    /* Tag name with all letters a-Z and - and _ and no space */
-    $scope.tagKeyPattern = /^[\-\w\d_]*$/;
     $scope.application = applicationResult.data;
 
-    $scope.isManager = authService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
-    $scope.isDeployer = authService.hasResourceRole($scope.application, 'APPLICATION_DEPLOYER');
-    $scope.isDevops = authService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
-    $scope.isUser = authService.hasResourceRole($scope.application, 'APPLICATION_USER');
-    $scope.newAppName = $scope.application.name;
-
-    $scope.isAllowedModify = _.defined($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
+    applicationServices.getActiveDeployment.get({
+      applicationId: $scope.application.id,
+      applicationEnvironmentId: $scope.environment.id
+    }, undefined, function(success) {
+      if (_.defined(success.data)) {
+        $scope.activeDeployment = success.data;
+        $scope.deployedTime = new Date() - $scope.activeDeployment.startDate;
+      }
+    });
 
     $scope.$on('a4cRuntimeTopologyLoaded', function() {
       $scope.locationResources = {};
