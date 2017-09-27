@@ -109,6 +109,7 @@
     set_state: set_state_activity
     call_operation: call_operation_activity
     delegate: delegate_activity
+    inline: inline_activity
 
 - set_state_activity: org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity
   set_state: stateName
@@ -118,6 +119,9 @@
 
 - delegate_activity: org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity
   delegate: delegate
+
+- inline_activity: org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity
+  inline: inline
 
 - node_group: org.alien4cloud.tosca.model.templates.NodeGroup
   members:

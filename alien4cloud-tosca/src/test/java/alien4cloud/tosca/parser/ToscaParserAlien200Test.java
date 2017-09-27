@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser;
 
 import alien4cloud.tosca.model.ArchiveRoot;
 import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -45,4 +46,17 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         Assert.assertTrue(wf.getSteps().get("Compute_uninstall_0").getActivities().size() == 1);
     }
 
+    @Test
+    public void parseTopologyTemplateWithInlineWorkflow() throws ParsingException, IOException {
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-inline-workflow.yml"));
+
+        Assert.assertFalse(parsingResult.getResult().getTopology().getWorkflows().isEmpty());
+        Assert.assertTrue(parsingResult.getResult().getTopology().getWorkflows().get("install") != null);
+
+        Workflow wf = parsingResult.getResult().getTopology().getWorkflows().get("install");
+        Assert.assertTrue(wf.getSteps().get("Compute_install_0").getActivities().size() == 1);
+        Assert.assertTrue(wf.getSteps().get("Compute_install_0").getActivities().get(0) instanceof InlineWorkflowActivity);
+        InlineWorkflowActivity activity = (InlineWorkflowActivity) wf.getSteps().get("Compute_install_0").getActivities().get(0);
+        Assert.assertTrue(activity.getInline().equals("my_custom_wf"));
+    }
 }
