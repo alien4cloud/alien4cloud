@@ -25,6 +25,10 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.model.application.Application;
 
+
+/**
+ * This test class is not very good because it also test {@link ToscaTypeConverter}
+ */
 public class InputsMappingFileVariableResolverTest {
 
     private InputsMappingFileVariableResolverConfigured inputsMappingFileVariableResolverConfigured;
@@ -40,6 +44,7 @@ public class InputsMappingFileVariableResolverTest {
         inputsPropertyDefinitions.put("complex_input", buildPropDef("datatype.complex_input_entry"));
 
         Resource yamlApp = new FileSystemResource("src/test/resources/alien/variables/variables_app_test.yml");
+        Resource yamlEnvType = new FileSystemResource("src/test/resources/alien/variables/variables_env_type_test.yml");
         Resource yamlEnv = new FileSystemResource("src/test/resources/alien/variables/variables_env_test.yml");
 
         AlienContextVariables alienContextVariables = new AlienContextVariables();
@@ -47,15 +52,22 @@ public class InputsMappingFileVariableResolverTest {
         application.setName("originalAppName");
         alienContextVariables.setApplication(application);
 
-        inputsMappingFileVariableResolverConfigured = configure(PropertiesYamlParser.ToProperties.from(yamlApp),
-                PropertiesYamlParser.ToProperties.from(yamlEnv), alienContextVariables);
+        inputsMappingFileVariableResolverConfigured = configure(
+                PropertiesYamlParser.ToProperties.from(yamlApp),
+                PropertiesYamlParser.ToProperties.from(yamlEnvType),
+                PropertiesYamlParser.ToProperties.from(yamlEnv),
+                alienContextVariables);
     }
 
     @Test
+    // Good Test
     public void should_list_all_missing_variables() throws Exception {
         Resource yamlApp = new FileSystemResource("src/test/resources/alien/variables/variables_app_missing_var.yml");
-        inputsMappingFileVariableResolverConfigured = configure(PropertiesYamlParser.ToProperties.from(yamlApp),
-                PropertiesYamlParser.ToProperties.from(yamlApp), new AlienContextVariables());
+        inputsMappingFileVariableResolverConfigured = configure(
+                PropertiesYamlParser.ToProperties.from(yamlApp),
+                PropertiesYamlParser.ToProperties.from(yamlApp),
+                PropertiesYamlParser.ToProperties.from(yamlApp),
+                new AlienContextVariables());
 
         Resource inputsMapping = new FileSystemResource("src/test/resources/alien/variables/inputs_mapping_with_missing_variable.yml");
 
@@ -69,6 +81,7 @@ public class InputsMappingFileVariableResolverTest {
     }
 
     @Test
+    // Good Test
     public void should_comply_with_property_definition_even_if_does_not_match_reality() throws Exception {
         // Given: a simplified inputs definition
         inputsPropertyDefinitions.put("complex_input", buildPropDef(ToscaTypes.MAP, ToscaTypes.STRING));
@@ -84,6 +97,7 @@ public class InputsMappingFileVariableResolverTest {
     }
 
     @Test
+    // Bad test
     public void check_inputs_mapping_can_be_parsed_when_no_variable() throws Exception {
         inputsMappingFileVariableResolverConfigured.customConverter(new ToscaTypeConverter((concreteType, id) -> {
             if (id.equals("datatype.complex_input_entry")) {
@@ -130,6 +144,7 @@ public class InputsMappingFileVariableResolverTest {
 
     @Ignore("Update when ToscaTypeConverter behavior is clearly defined")
     @Test
+    // Bad test
     public void check_inputs_mapping_can_be_parsed_when_variable() throws Exception {
         inputsMappingFileVariableResolverConfigured.customConverter(new ToscaTypeConverter((concreteType, id) -> {
             if (id.equals("datatype.complex_input_entry.sub1")) {
@@ -176,6 +191,7 @@ public class InputsMappingFileVariableResolverTest {
 
     @Ignore("Update when ToscaTypeConverter behavior is clearly defined")
     @Test
+    // Bad test
     public void check_uber_input_can_be_parsed() throws Exception {
         inputsPropertyDefinitions.put("uber_input", buildPropDef("datatype.uber"));
 

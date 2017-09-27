@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.utils.FileUtil;
 import lombok.SneakyThrows;
 
@@ -38,6 +39,11 @@ public class QuickFileStorageService {
 
     public Properties loadApplicationVariables(String applicationId) {
         Path ymlPath = getApplicationVariablesPath(applicationId);
+        return loadYamlToPropertiesIfExists(ymlPath);
+    }
+
+    public Properties loadEnvironmentTypeVariables(String archiveId, EnvironmentType environmentType) {
+        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, "inputs/" + sanitizeFilename("var_env_type_" + environmentType + ".yml"));
         return loadYamlToPropertiesIfExists(ymlPath);
     }
 

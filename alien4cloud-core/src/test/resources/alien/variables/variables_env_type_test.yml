@@ -1,0 +1,4 @@
+overidden_variable: "error"
+env_type_variable: "new env type var"
+
+a4c.application.name: "override forbidden (env type)"

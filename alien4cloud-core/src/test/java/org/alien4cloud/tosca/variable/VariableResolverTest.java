@@ -1,20 +1,22 @@
 package org.alien4cloud.tosca.variable;
 
-import alien4cloud.model.application.Application;
-import com.google.common.collect.ImmutableMap;
-import org.alien4cloud.tosca.utils.PropertiesYamlParser;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+import org.alien4cloud.tosca.utils.PropertiesYamlParser;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+
+import com.google.common.collect.ImmutableMap;
+
+import alien4cloud.model.application.Application;
 
 public class VariableResolverTest {
     private VariableResolver resolver;
@@ -22,6 +24,7 @@ public class VariableResolverTest {
     @Before
     public void setUp() throws Exception {
         Resource yamlApp = new FileSystemResource("src/test/resources/alien/variables/variables_app_test.yml");
+        Resource yamlEnvType = new FileSystemResource("src/test/resources/alien/variables/variables_env_type_test.yml");
         Resource yamlEnv = new FileSystemResource("src/test/resources/alien/variables/variables_env_test.yml");
 
         AlienContextVariables alienContextVariables = new AlienContextVariables();
@@ -29,7 +32,11 @@ public class VariableResolverTest {
         application.setName("originalAppName");
         alienContextVariables.setApplication(application);
 
-        resolver = new VariableResolver(PropertiesYamlParser.ToProperties.from(yamlApp), PropertiesYamlParser.ToProperties.from(yamlEnv), alienContextVariables);
+        resolver = new VariableResolver(
+                PropertiesYamlParser.ToProperties.from(yamlApp),
+                PropertiesYamlParser.ToProperties.from(yamlEnvType),
+                PropertiesYamlParser.ToProperties.from(yamlEnv),
+                alienContextVariables);
     }
 
     @Test
@@ -134,6 +141,11 @@ public class VariableResolverTest {
     @Test
     public void check_new_variable_can_be_added_in_env() throws Exception {
         assertThat(resolver.resolve("env_variable")).isEqualTo("new env var");
+    }
+
+    @Test
+    public void check_variable_from_env_type_can_be_resolved() throws Exception {
+        assertThat(resolver.resolve("env_type_variable")).isEqualTo("new env type var");
     }
 
     @Test

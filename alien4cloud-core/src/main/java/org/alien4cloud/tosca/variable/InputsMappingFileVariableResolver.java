@@ -1,20 +1,22 @@
 package org.alien4cloud.tosca.variable;
 
-import alien4cloud.tosca.context.ToscaContext;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.springframework.core.env.MapPropertySource;
-
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.springframework.core.env.MapPropertySource;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import alien4cloud.tosca.context.ToscaContext;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * {@link InputsMappingFileVariableResolverInternal} is a specialized version of {@link VariableResolver}
@@ -33,13 +35,14 @@ public class InputsMappingFileVariableResolver {
     private InputsMappingFileVariableResolver() {
     }
 
-    public static InputsMappingFileVariableResolverConfigured configure(Properties appVariables, Properties envVariables, AlienContextVariables alienContextVariables) {
-        return new InputsMappingFileVariableResolverConfigured(appVariables, envVariables, alienContextVariables);
+    public static InputsMappingFileVariableResolverConfigured configure(Properties appVariables, Properties envTypeVariables, Properties envVariables, AlienContextVariables alienContextVariables) {
+        return new InputsMappingFileVariableResolverConfigured(appVariables, envTypeVariables, envVariables, alienContextVariables);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class InputsMappingFileVariableResolverConfigured {
         private final Properties appVariables;
+        private final Properties envTypeVariables;
         private final Properties envVariables;
         private final AlienContextVariables alienContextVariables;
         private ToscaTypeConverter customConverter;
@@ -51,7 +54,7 @@ public class InputsMappingFileVariableResolver {
 
         public Map<String, PropertyValue> resolve(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) throws MissingVariablesException {
             ToscaTypeConverter converter = customConverter != null ? customConverter : InputsMappingFileVariableResolver.DEFAULT_CONVERTER;
-            return new InputsMappingFileVariableResolverInternal(converter, appVariables, envVariables, alienContextVariables).resolve(inputMappingMap, inputsDefinition);
+            return new InputsMappingFileVariableResolverInternal(converter, appVariables, envTypeVariables, envVariables, alienContextVariables).resolve(inputMappingMap, inputsDefinition);
         }
     }
 
@@ -59,8 +62,8 @@ public class InputsMappingFileVariableResolver {
 
         private ToscaTypeConverter converter;
 
-        private InputsMappingFileVariableResolverInternal(ToscaTypeConverter converter, Properties appVariables, Properties envVariables, AlienContextVariables alienContextVariables) {
-            super(appVariables, envVariables, alienContextVariables);
+        private InputsMappingFileVariableResolverInternal(ToscaTypeConverter converter, Properties appVariables, Properties envTypeVariables, Properties envVariables, AlienContextVariables alienContextVariables) {
+            super(appVariables, envTypeVariables, envVariables, alienContextVariables);
             this.converter = converter;
         }
 

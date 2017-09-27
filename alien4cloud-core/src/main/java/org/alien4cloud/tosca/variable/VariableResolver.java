@@ -1,11 +1,11 @@
 package org.alien4cloud.tosca.variable;
 
+import java.util.Properties;
+
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
-
-import java.util.Properties;
 
 /**
  * A Variable as a 'name' and a 'value".
@@ -36,15 +36,17 @@ public class VariableResolver {
 
     private static final String APP_VARIABLES = "appVariables";
     private static final String ENV_VARIABLES = "envVariables";
+    private static final String ENV_TYPE_VARIABLES = "envTypeVariables";
 
     private PropertySourcesPropertyResolver resolver;
     private MutablePropertySources propertySources;
 
-    public VariableResolver(PropertySource appVariables, PropertySource envVariables, AlienContextVariables alienContextVariables) {
+    public VariableResolver(PropertySource appVariables, PropertySource envTypeVariables, PropertySource envVariables, AlienContextVariables alienContextVariables) {
         propertySources = new MutablePropertySources();
         // order matter
         propertySources.addLast(alienContextVariables);
         propertySources.addLast(envVariables);
+        propertySources.addLast(envTypeVariables);
         propertySources.addLast(appVariables);
 
         this.resolver = new ObjectSourcesPropertyResolver(propertySources);
@@ -54,8 +56,8 @@ public class VariableResolver {
         return propertySources;
     }
 
-    public VariableResolver(Properties appVariables, Properties envVariables, AlienContextVariables alienContextVariables) {
-        this(new PropertiesPropertySource(APP_VARIABLES, appVariables), new PropertiesPropertySource(ENV_VARIABLES, envVariables), alienContextVariables);
+    public VariableResolver(Properties appVariables, Properties envTypeVariables, Properties envVariables, AlienContextVariables alienContextVariables) {
+        this(new PropertiesPropertySource(APP_VARIABLES, appVariables), new PropertiesPropertySource(ENV_TYPE_VARIABLES, envTypeVariables), new PropertiesPropertySource(ENV_VARIABLES, envVariables), alienContextVariables);
     }
 
     public <T> T resolve(String variableName, Class<T> clazz) {

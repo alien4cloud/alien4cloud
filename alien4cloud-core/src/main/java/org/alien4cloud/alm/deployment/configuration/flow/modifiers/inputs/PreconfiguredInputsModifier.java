@@ -1,14 +1,15 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs;
 
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.topology.task.MissingVariablesTask;
-import alien4cloud.topology.task.UnresolvablePredefinedInputsTask;
+import java.util.Date;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.inject.Inject;
+
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsConfiguration;
-import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.variable.AlienContextVariables;
@@ -17,10 +18,10 @@ import org.alien4cloud.tosca.variable.MissingVariablesException;
 import org.alien4cloud.tosca.variable.QuickFileStorageService;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.util.Date;
-import java.util.Map;
-import java.util.Properties;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.topology.task.MissingVariablesTask;
+import alien4cloud.topology.task.UnresolvablePredefinedInputsTask;
 
 /**
  * This modifier loads preconfigured inputs from inputs mapping file and make them available to other
@@ -48,13 +49,14 @@ public class PreconfiguredInputsModifier implements ITopologyModifier {
 
         // TODO: avoid reloading every time - find a way to know the last update on files (git hash ?)
         Properties appVarProps = quickFileStorageService.loadApplicationVariables(environmentContext.getApplication().getId());
+        Properties envTypeVarProps = quickFileStorageService.loadEnvironmentTypeVariables(topology.getId(), environment.getEnvironmentType());
         Properties envVarProps = quickFileStorageService.loadEnvironmentVariables(topology.getId(), environment.getId());
         Map<String, Object> inputsMappingsMap = quickFileStorageService.loadInputsMappingFile(topology.getId());
 
         Map<String, PropertyValue> resolvedInputsMappingFile = null;
         try {
             resolvedInputsMappingFile = InputsMappingFileVariableResolver
-                    .configure(appVarProps, envVarProps, alienContextVariables)
+                    .configure(appVarProps, envTypeVarProps, envVarProps, alienContextVariables)
                     .resolve(inputsMappingsMap, topology.getInputs());
         } catch (MissingVariablesException e) {
             context.log().error(new MissingVariablesTask(e.getMissingVariables()));
