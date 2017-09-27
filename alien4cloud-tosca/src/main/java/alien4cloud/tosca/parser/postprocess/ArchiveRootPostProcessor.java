@@ -60,6 +60,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
         archiveRoot.getArchive().setYamlFilePath(ParsingContextExecution.getFileName());
+        archiveRoot.getArchive().setToscaDefinitionsVersion(ParsingContextExecution.getDefinitionVersion());
         if (archiveName == null) {
             archiveRoot.getArchive().setName(ParsingContextExecution.getFileName());
         }

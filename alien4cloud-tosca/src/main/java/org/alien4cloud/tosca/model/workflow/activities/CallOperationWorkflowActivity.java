@@ -1,16 +1,18 @@
-package alien4cloud.paas.wf;
+package org.alien4cloud.tosca.model.workflow.activities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Call an operation defined on a TOSCA interface of a node, relationship or group.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OperationCallActivity extends AbstractActivity {
-
+public class CallOperationWorkflowActivity extends AbstractWorkflowActivity {
     private String interfaceName;
     private String operationName;
 
@@ -23,13 +25,7 @@ public class OperationCallActivity extends AbstractActivity {
     }
 
     @Override
-    public String toString() {
-        return getNodeId() + ".call[" + interfaceName + "." + operationName + "]";
-    }
-
-    @Override
     public String getRepresentation() {
-        return operationName + "_" + getNodeId();
+        return operationName;
     }
-
 }

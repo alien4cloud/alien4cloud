@@ -1,4 +1,4 @@
-# Mapping definition for alien 4 cloud specific dsl 1.4.0
+# Mapping definition for alien 4 cloud specific dsl 2.0.0
 
 # declare custom parsers for complex types that requires specific parser.
 - scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
@@ -92,20 +92,20 @@
     key: name
     type: workflow
 
-- workflow: alien4cloud.paas.wf.Workflow
+- workflow: org.alien4cloud.tosca.model.workflow.Workflow
   description: description
   steps:
     map: steps
     key: name
     type: workflow_step
 
-- workflow_step : alien4cloud.paas.wf.NodeActivityStep
-  node: nodeId
-  activity:
-    reference: activity
+- workflow_step : org.alien4cloud.tosca.model.workflow.WorkflowStep
+  target: target
+  activities:
+    list: activities
     type: workflow_activity
   on-success:
-    set: followingSteps
+    set: onSuccess
     type: scalar
 
 - workflow_activity: __discriminator
@@ -113,15 +113,19 @@
     set_state: set_state_activity
     call_operation: call_operation_activity
     delegate: delegate_activity
+    inline: inline_activity
 
-- set_state_activity: alien4cloud.paas.wf.SetStateActivity
+- set_state_activity: org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity
   set_state: stateName
 
-- call_operation_activity: alien4cloud.paas.wf.OperationCallActivity
+- call_operation_activity: org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity
   call_operation: operationFqn
 
-- delegate_activity: alien4cloud.paas.wf.DelegateWorkflowActivity
-  delegate: workflowName
+- delegate_activity: org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity
+  delegate: delegate
+
+- inline_activity: org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity
+  inline: inline
 
 - node_group: org.alien4cloud.tosca.model.templates.NodeGroup
   members:

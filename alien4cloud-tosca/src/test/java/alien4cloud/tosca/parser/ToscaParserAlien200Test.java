@@ -2,42 +2,26 @@ package alien4cloud.tosca.parser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
-import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
-import org.alien4cloud.tosca.model.definitions.IValue;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.apache.commons.collections4.CollectionUtils;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.google.common.collect.Lists;
-
-import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.tosca.model.ArchiveRoot;
 
 /**
  * Created by lucboutier on 12/04/2017.
  */
+
 public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTest {
     @Override
     protected String getRootDirectory() {
@@ -108,6 +92,44 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertEquals(2, simplePolicyType.getTargets().size());
         assertEquals("tosca.nodes.Compute", simplePolicyType.getTargets().get(0));
         assertEquals("org.alien4cloud.Group", simplePolicyType.getTargets().get(1));
+    }
 
+    public void parseTopologyTemplateWithActivities() throws ParsingException, IOException {
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-activities.yml"));
+
+        Assert.assertFalse(parsingResult.getResult().getTopology().getWorkflows().isEmpty());
+        Assert.assertTrue(parsingResult.getResult().getTopology().getWorkflows().get("install") != null);
+
+        Workflow wf = parsingResult.getResult().getTopology().getWorkflows().get("install");
+
+        // check activities
+        Assert.assertTrue(wf.getSteps().get("Compute_install").getActivities().size() == 1);
+        Assert.assertTrue(wf.getSteps().get("Compute_install_0").getActivities().size() == 1);
+        Assert.assertTrue(wf.getSteps().get("Compute_install_1").getActivities().size() == 1);
+        Assert.assertTrue(wf.getSteps().get("Compute_install").getOnSuccess().size() == 2);
+
+        // check onSuccess
+        Assert.assertTrue(wf.getSteps().get("Compute_install").getOnSuccess().contains("Compute_uninstall"));
+        Assert.assertTrue(wf.getSteps().get("Compute_install").getOnSuccess().contains("Compute_uninstall_0"));
+        Assert.assertTrue(wf.getSteps().get("Compute_install_1").getOnSuccess().contains("Compute_uninstall"));
+        Assert.assertTrue(wf.getSteps().get("Compute_install_1").getOnSuccess().contains("Compute_uninstall_0"));
+
+        // check activities of an other step
+        Assert.assertTrue(wf.getSteps().get("Compute_uninstall").getActivities().size() == 1);
+        Assert.assertTrue(wf.getSteps().get("Compute_uninstall_0").getActivities().size() == 1);
+    }
+
+    @Test
+    public void parseTopologyTemplateWithInlineWorkflow() throws ParsingException, IOException {
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-inline-workflow.yml"));
+
+        Assert.assertFalse(parsingResult.getResult().getTopology().getWorkflows().isEmpty());
+        Assert.assertTrue(parsingResult.getResult().getTopology().getWorkflows().get("install") != null);
+
+        Workflow wf = parsingResult.getResult().getTopology().getWorkflows().get("install");
+        Assert.assertTrue(wf.getSteps().get("Compute_install_0").getActivities().size() == 1);
+        Assert.assertTrue(wf.getSteps().get("Compute_install_0").getActivities().get(0) instanceof InlineWorkflowActivity);
+        InlineWorkflowActivity activity = (InlineWorkflowActivity) wf.getSteps().get("Compute_install_0").getActivities().get(0);
+        Assert.assertTrue(activity.getInline().equals("my_custom_wf"));
     }
 }

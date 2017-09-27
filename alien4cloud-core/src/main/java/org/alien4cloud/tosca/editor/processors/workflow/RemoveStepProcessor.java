@@ -2,10 +2,10 @@ package org.alien4cloud.tosca.editor.processors.workflow;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.RemoveStepOperation;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.springframework.stereotype.Component;
 
-import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.paas.wf.Workflow;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -20,7 +20,7 @@ public class RemoveStepProcessor extends AbstractWorkflowProcessor<RemoveStepOpe
     protected void processWorkflowOperation(RemoveStepOperation operation, Workflow workflow) {
         Topology topology = EditionContextManager.getTopology();
         log.debug("removing step <{}> from workflow <{}> from topology <{}>", operation.getStepId(), workflow.getName(), topology.getId());
-        workflowBuilderService.removeStep(topology, workflow.getName(), operation.getStepId(), false);
+        workflowBuilderService.removeStep(topology, EditionContextManager.getCsar(), workflow.getName(), operation.getStepId());
     }
 
 }

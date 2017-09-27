@@ -34,6 +34,6 @@ public class RenameNodeProcessor implements IEditorOperationProcessor<RenameNode
 
         log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", operation.getNodeName(), operation.getNewName(), topology.getId());
         TopologyUtils.renameNodeTemplate(topology, operation.getNodeName(), operation.getNewName());
-        workflowBuilderService.renameNode(topology, operation.getNodeName(), operation.getNewName());
+        workflowBuilderService.renameNode(topology, EditionContextManager.getCsar(), operation.getNodeName(), operation.getNewName());
     }
 }

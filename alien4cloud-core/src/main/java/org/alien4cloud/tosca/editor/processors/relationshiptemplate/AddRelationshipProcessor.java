@@ -114,7 +114,7 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         relationshipTemplate.setProperties(properties);
 
         relationships.put(operation.getRelationshipName(), relationshipTemplate);
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
+        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, EditionContextManager.getCsar());
         workflowBuilderService.addRelationship(topologyContext, operation.getNodeName(), operation.getRelationshipName());
         log.debug("Added relationship to the topology [" + topology.getId() + "], node name [" + operation.getNodeName() + "], relationship name ["
                 + operation.getRelationshipName() + "]");

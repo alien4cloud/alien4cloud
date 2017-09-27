@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,26 +15,26 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class Path extends LinkedHashSet<AbstractStep> {
+public class Path extends LinkedHashSet<WorkflowStep> {
 
     boolean cycle;
 
     /**
      * The step responsible of the loop.
      */
-    private AbstractStep loopingStep;
-    
+    private WorkflowStep loopingStep;
+
     public Path() {
         super();
     }
 
-    public Path(Collection<? extends AbstractStep> c) {
+    public Path(Collection<? extends WorkflowStep> c) {
         super(c);
     }
 
     public List<String> getStepNames() {
         List<String> stepNames = new ArrayList<String>();
-        for (AbstractStep step : this) {
+        for (WorkflowStep step : this) {
             stepNames.add(step.getName());
         }
         if (loopingStep != null) {

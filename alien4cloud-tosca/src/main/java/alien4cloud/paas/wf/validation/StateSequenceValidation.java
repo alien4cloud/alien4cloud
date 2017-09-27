@@ -1,9 +1,9 @@
 package alien4cloud.paas.wf.validation;
 
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,16 +12,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.collect.Sets;
 
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
-import alien4cloud.paas.wf.AbstractStep;
-import alien4cloud.paas.wf.NodeActivityStep;
 import alien4cloud.paas.wf.Path;
-import alien4cloud.paas.wf.SetStateActivity;
-import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.paas.wf.exception.WorkflowException;
 import alien4cloud.paas.wf.util.WorkflowGraphUtils;
@@ -61,7 +60,7 @@ public class StateSequenceValidation implements Rule {
     private static final Map<String, Integer> STOP_STATES_SEQUENCE;
 
     static {
-        INSTALL_STATES_SEQUENCE = new HashMap<String, Integer>();
+        INSTALL_STATES_SEQUENCE = new HashMap<>();
         INSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.INITIAL, 0);
         INSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.CREATING, 1);
         INSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.CREATED, 2);
@@ -69,15 +68,15 @@ public class StateSequenceValidation implements Rule {
         INSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.CONFIGURED, 4);
         INSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STARTING, 5);
         INSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STARTED, 6);
-        START_STATES_SEQUENCE = new HashMap<String, Integer>();
+        START_STATES_SEQUENCE = new HashMap<>();
         START_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STARTING, 0);
         START_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STARTED, 1);
-        UNINSTALL_STATES_SEQUENCE = new HashMap<String, Integer>();
+        UNINSTALL_STATES_SEQUENCE = new HashMap<>();
         UNINSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STOPPING, 0);
         UNINSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STOPPED, 1);
         UNINSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.DELETING, 2);
         UNINSTALL_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.DELETED, 3);
-        STOP_STATES_SEQUENCE = new HashMap<String, Integer>();
+        STOP_STATES_SEQUENCE = new HashMap<>();
         STOP_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STOPPING, 0);
         STOP_STATES_SEQUENCE.put(ToscaNodeLifecycleConstants.STOPPED, 1);
     }
@@ -96,7 +95,7 @@ public class StateSequenceValidation implements Rule {
         }
         List<AbstractWorkflowError> errors = Lists.newArrayList();
         List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(workflow);
-        Map<String, Map<NodeActivityStep, Set<Path>>> pathsPerNodePerStepMap = getPathsPerNodePerStepMap(paths);
+        Map<String, Map<WorkflowStep, Set<Path>>> pathsPerNodePerStepMap = getPathsPerNodePerStepMap(paths);
         Map<String, Set<Path>> pathsPerNodeMap = getPathsPerNodeIntersectionMap(pathsPerNodePerStepMap);
         // now we have to ensure that for the remaining paths, the order is correct between steps
         for (Entry<String, Set<Path>> pathSetEntry : pathsPerNodeMap.entrySet()) {
@@ -114,22 +113,21 @@ public class StateSequenceValidation implements Rule {
     }
 
     private void ensureOrderIsCorrect(String nodeId, Path path, Map<String, Integer> stateSequence, List<AbstractWorkflowError> errors) {
-        Iterator<AbstractStep> steps = path.iterator();
-        NodeActivityStep lastDetectedStep = null;
+        Iterator<WorkflowStep> steps = path.iterator();
+        WorkflowStep lastDetectedStep = null;
         while (steps.hasNext()) {
-            AbstractStep step = steps.next();
-            if (step instanceof NodeActivityStep && ((NodeActivityStep) step).getNodeId().equals(nodeId)
-                    && ((NodeActivityStep) step).getActivity() instanceof SetStateActivity) {
-                String stateName = ((SetStateActivity) ((NodeActivityStep) step).getActivity()).getStateName();
+            WorkflowStep step = steps.next();
+            if (step.getTarget().equals(nodeId) && step.getActivity() instanceof SetStateWorkflowActivity) {
+                String stateName = ((SetStateWorkflowActivity) (step).getActivity()).getStateName();
                 Integer stateIdx = stateSequence.get(stateName);
                 if (stateIdx == null) {
                     // if the state is null, it can be a custom state, we don't care about it
                     continue;
                 }
                 if (lastDetectedStep == null) {
-                    lastDetectedStep = (NodeActivityStep) step;
+                    lastDetectedStep = step;
                 } else {
-                    String lastDetectedState = ((SetStateActivity) ((NodeActivityStep) lastDetectedStep).getActivity()).getStateName();
+                    String lastDetectedState = ((SetStateWorkflowActivity) (lastDetectedStep).getActivity()).getStateName();
                     Integer lastDetectedStateIdx = stateSequence.get(lastDetectedState);
                     Integer currentDetectedStateIdx = stateSequence.get(stateName);
                     if (lastDetectedStateIdx.compareTo(currentDetectedStateIdx) > 0) {
@@ -138,7 +136,7 @@ public class StateSequenceValidation implements Rule {
                         // nodeId, stateName,
                         // lastDetectedState));
                     } else {
-                        lastDetectedStep = (NodeActivityStep) step;
+                        lastDetectedStep = step;
                     }
                 }
             }
@@ -148,11 +146,11 @@ public class StateSequenceValidation implements Rule {
     /**
      * Per node, just keep the intersection between all the {@link Path} sets.
      */
-    private Map<String, Set<Path>> getPathsPerNodeIntersectionMap(Map<String, Map<NodeActivityStep, Set<Path>>> pathsPerNodePerStepMap) {
+    private Map<String, Set<Path>> getPathsPerNodeIntersectionMap(Map<String, Map<WorkflowStep, Set<Path>>> pathsPerNodePerStepMap) {
         Map<String, Set<Path>> pathsPerNodeIntersectionMap = Maps.newHashMap();
-        for (Entry<String, Map<NodeActivityStep, Set<Path>>> entry : pathsPerNodePerStepMap.entrySet()) {
+        for (Entry<String, Map<WorkflowStep, Set<Path>>> entry : pathsPerNodePerStepMap.entrySet()) {
             String nodeId = entry.getKey();
-            Map<NodeActivityStep, Set<Path>> pathsPerStep = entry.getValue();
+            Map<WorkflowStep, Set<Path>> pathsPerStep = entry.getValue();
             Iterator<Set<Path>> paths = pathsPerStep.values().iterator();
             if (pathsPerStep.size() == 1) {
                 pathsPerNodeIntersectionMap.put(nodeId, paths.next());
@@ -176,25 +174,14 @@ public class StateSequenceValidation implements Rule {
      * 
      * @return a map using nodeId as key and the list of concerned {@link Path}s as value.
      */
-    private Map<String, Map<NodeActivityStep, Set<Path>>> getPathsPerNodePerStepMap(List<Path> paths) {
-        Map<String, Map<NodeActivityStep, Set<Path>>> pathsPerNodePerStepMap = Maps.newHashMap();
+    private Map<String, Map<WorkflowStep, Set<Path>>> getPathsPerNodePerStepMap(List<Path> paths) {
+        Map<String, Map<WorkflowStep, Set<Path>>> pathsPerNodePerStepMap = Maps.newHashMap();
         for (Path path : paths) {
-            Iterator<AbstractStep> steps = path.iterator();
-            while (steps.hasNext()) {
-                AbstractStep step = steps.next();
-                if (step instanceof NodeActivityStep && ((NodeActivityStep) step).getActivity() instanceof SetStateActivity) {
-                    NodeActivityStep nodeActivityStep = (NodeActivityStep) step;
-                    String node = nodeActivityStep.getNodeId();
-                    Map<NodeActivityStep, Set<Path>> pathsPerStepMap = pathsPerNodePerStepMap.get(node);
-                    if (pathsPerStepMap == null) {
-                        pathsPerStepMap = Maps.newHashMap();
-                        pathsPerNodePerStepMap.put(node, pathsPerStepMap);
-                    }
-                    Set<Path> pathsPerStep = pathsPerStepMap.get(nodeActivityStep);
-                    if (pathsPerStep == null) {
-                        pathsPerStep = Sets.newHashSet();
-                        pathsPerStepMap.put(nodeActivityStep, pathsPerStep);
-                    }
+            for (WorkflowStep step : path) {
+                if (step.getActivity() instanceof SetStateWorkflowActivity) {
+                    String node = step.getTarget();
+                    Map<WorkflowStep, Set<Path>> pathsPerStepMap = pathsPerNodePerStepMap.computeIfAbsent(node, k -> Maps.newHashMap());
+                    Set<Path> pathsPerStep = pathsPerStepMap.computeIfAbsent(step, k -> Sets.newHashSet());
                     pathsPerStep.add(path);
                 }
             }
@@ -203,17 +190,16 @@ public class StateSequenceValidation implements Rule {
     }
 
     private Map<String, Integer> getStateSequence(Workflow workflow) {
-        if (!workflow.isStandard()) {
-            return null;
-        } else if (workflow.getName().equals(INSTALL)) {
+        switch (workflow.getName()) {
+        case INSTALL:
             return INSTALL_STATES_SEQUENCE;
-        } else if (workflow.getName().equals(UNINSTALL)) {
+        case UNINSTALL:
             return UNINSTALL_STATES_SEQUENCE;
-        } else if (workflow.getName().equals(START)) {
+        case START:
             return INSTALL_STATES_SEQUENCE;
-        } else if (workflow.getName().equals(STOP)) {
+        case STOP:
             return UNINSTALL_STATES_SEQUENCE;
-        } else {
+        default:
             return null;
         }
     }

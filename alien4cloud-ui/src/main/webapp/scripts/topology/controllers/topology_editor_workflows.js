@@ -602,7 +602,7 @@ define(function (require) {
 
         // ===== misc : should probably be removed from here
         getStepNodeIcon: function(step) {
-          var nodeName = step.nodeId;
+          var nodeName = step.target;
           if (this.scope.topology.topology.nodeTemplates[nodeName]) {
             var typeName = this.scope.topology.topology.nodeTemplates[nodeName].type;
             var nodeType = this.scope.topology.nodeTypes[typeName];
@@ -614,13 +614,13 @@ define(function (require) {
         },
         getStepActivityTypeIcon: function(step) {
           var shortType = this.getStepActivityType(step);
-          if (shortType === 'OperationCallActivity') {
+          if (shortType === 'CallOperationWorkflowActivity') {
             return '\uf085'; // fa-cogs
           } else if (shortType === 'DelegateWorkflowActivity') {
             return '\uf011'; // fa-power-off
-          } else if (shortType === 'SetStateActivity') {
-            if (this.stateIcon[step.activity.stateName]) {
-              return this.stateIcon[step.activity.stateName];
+          } else if (shortType === 'SetStateWorkflowActivity') {
+            if (this.stateIcon[step.activities[0].stateName]) {
+              return this.stateIcon[step.activities[0].stateName];
             } else {
               return '\uf087'; // fa-thumbs-o-up
             }
@@ -629,8 +629,8 @@ define(function (require) {
           }
         },
         getStepActivityType: function(step) {
-          if (step.activity) {
-            return $filter('splitAndGet')(step.activity.type, '.', 'last');
+          if (step.activities && step.activities.length === 1) {
+            return $filter('splitAndGet')(step.activities[0].type, '.', 'last');
           } else {
             return undefined;
           }
@@ -638,15 +638,15 @@ define(function (require) {
         getStepActivityDetails: function(step) {
           var details = {};
           var shortType = this.getStepActivityType(step);
-          if (shortType === 'OperationCallActivity') {
-            details.interfaceName = step.activity.interfaceName;
-            details.operationName = step.activity.operationName;
-          } else if (shortType === 'SetStateActivity') {
-            details.stateName = step.activity.stateName;
+          if (shortType === 'CallOperationWorkflowActivity') {
+            details.interfaceName = step.activities[0].interfaceName;
+            details.operationName = step.activities[0].operationName;
+          } else if (shortType === 'SetStateWorkflowActivity') {
+            details.stateName = step.activities[0].stateName;
           } else if (shortType === 'DelegateWorkflowActivity') {
-            details.delegateWorkflow = step.activity.workflowName;
+            details.delegateWorkflow = step.activities[0].workflowName;
           } else {
-            details = step.activity;
+            details = step.activities[0];
           }
           return details;
         },

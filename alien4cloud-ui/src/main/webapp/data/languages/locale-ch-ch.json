@@ -324,8 +324,8 @@
     },
     "WF": {
       "DelegateWorkflowActivity": "Delegate workflow",
-      "OperationCallActivity": "Operation call",
-      "SetStateActivity": "State change",
+      "CallOperationWorkflowActivity": "Operation call",
+      "SetStateWorkflowActivity": "State change",
       "activity": "Activity",
       "addOperationActivity": "Add operation call",
       "addStateActivity": "Add state change",

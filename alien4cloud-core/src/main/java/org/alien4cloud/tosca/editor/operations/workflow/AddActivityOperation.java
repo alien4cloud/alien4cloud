@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.editor.operations.workflow;
 
-import alien4cloud.paas.wf.AbstractActivity;
+import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +21,7 @@ public class AddActivityOperation extends AbstractWorkflowOperation {
      */
     private boolean before;
 
-    private AbstractActivity activity;
+    private AbstractWorkflowActivity activity;
 
     @Override
     public String commitMessage() {

@@ -2,8 +2,10 @@ package alien4cloud.tosca.parser.postprocess;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -11,14 +13,18 @@ import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import alien4cloud.paas.wf.*;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
@@ -26,6 +32,7 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.NameValidationUtils;
 
@@ -71,8 +78,8 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         instance.setArchiveVersion(archiveRoot.getArchive().getVersion());
 
         // Inputs validation
-        safe(instance.getInputs()).entrySet().stream().forEach(propertyDefinitionPostProcessor);
-        safe(instance.getInputArtifacts()).values().stream().forEach(typeDeploymentArtifactPostProcessor);
+        safe(instance.getInputs()).entrySet().forEach(propertyDefinitionPostProcessor);
+        safe(instance.getInputArtifacts()).values().forEach(typeDeploymentArtifactPostProcessor);
 
         int groupIndex = 0;
         // Groups validation
@@ -86,7 +93,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
             nodeTemplateEntry.getValue().setName(nodeTemplateEntry.getKey());
             nodeTemplatePostProcessor.process(nodeTemplateEntry.getValue());
         }
-        safe(instance.getNodeTemplates()).values().stream().forEach(nodeTemplateRelationshipPostProcessor);
+        safe(instance.getNodeTemplates()).values().forEach(nodeTemplateRelationshipPostProcessor);
 
         substitutionMappingPostProcessor.process(instance.getSubstitutionMapping());
 
@@ -97,6 +104,11 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
                 .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
                     @Override
+                    public String getDSLVersion() {
+                        return ParsingContextExecution.getDefinitionVersion();
+                    }
+
+                    @Override
                     public Topology getTopology() {
                         return instance;
                     }
@@ -106,6 +118,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                         return ToscaContext.get(clazz, id);
                     }
                 });
+        ensureThatActivitiesContainsOnlyOnActivityOrSplit(topologyContext);
         finalizeParsedWorkflows(topologyContext, node);
     }
 
@@ -114,6 +127,78 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
             return;
         }
         instance.setDependencies(Sets.newHashSet(archiveRoot.getArchive().getDependencies()));
+    }
+
+    /**
+     * Called after yaml parsing.
+     *
+     * Add support of activities on alien-dsl-2.0.0 and higher.
+     * For activity, other than the first, we create 1 step per activity.
+     */
+    private void ensureThatActivitiesContainsOnlyOnActivityOrSplit(WorkflowsBuilderService.TopologyContext topologyContext) {
+        if (!ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion()) || MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
+            return;
+        }
+
+        Map<String, Map<String, WorkflowStep>> stepsToAddByWf = new HashMap<>();
+        Map<String, Set<String>> newStepNames = Maps.newHashMap();
+        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
+            if (wf.getSteps() != null) {
+                for (WorkflowStep step : wf.getSteps().values()) {
+                    if (step.getActivities().size() < 2) {
+                        break;
+                    }
+                    if (newStepNames.get(step.getName()) == null) {
+                        newStepNames.put(step.getName(), Sets.newHashSet());
+                    }
+                    if (stepsToAddByWf.get(wf.getName()) == null) {
+                        stepsToAddByWf.put(wf.getName(), Maps.newHashMap());
+                    }
+                    for (int i=1; i<step.getActivities().size(); i++) {
+                        // here we iterate on activities to create new step
+                        WorkflowStep wfStep = new WorkflowStep(step.getTarget(), step.getHostId(), step.getActivities().get(i));
+                        String wfStepName = generateNewWfStepName(wf.getSteps().keySet(), stepsToAddByWf.get(wf.getName()).keySet() , step.getName());
+                        wfStep.setName(wfStepName);
+                        wfStep.setOnSuccess(step.getOnSuccess());
+                        stepsToAddByWf.get(wf.getName()).put(wfStepName, wfStep);
+                        newStepNames.get(step.getName()).add(wfStepName);
+                    }
+                    // new steps are created, we can clean activities
+                    step.getActivities().subList(1, step.getActivities().size()).clear();
+                }
+            }
+        }
+
+        // add new steps to the workflow
+        for (String wf : stepsToAddByWf.keySet()) {
+            for (String stepName : stepsToAddByWf.get(wf).keySet()) {
+                topologyContext.getTopology().getWorkflows().get(wf).getSteps().put(stepName, stepsToAddByWf.get(wf).get(stepName));
+            }
+        }
+
+        // update on_success map to call the new steps when necessary
+        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
+            if (wf.getSteps() != null) {
+                for (WorkflowStep step : wf.getSteps().values()) {
+                    if (step.getOnSuccess() == null || step.getOnSuccess().isEmpty()) {
+                        break;
+                    }
+                    for (String onSuccessId : step.getOnSuccess()) {
+                        if (newStepNames.containsKey(onSuccessId)) {
+                            step.getOnSuccess().addAll(newStepNames.get(onSuccessId));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private String generateNewWfStepName(Set<String> existingStepNames, Set<String> newStepNames, String stepName) {
+        int i = 0;
+        while (existingStepNames.contains(stepName + "_" + i) || newStepNames.contains(stepName + "_" + i)) {
+            i++;
+        }
+        return stepName + "_" + i;
     }
 
     /**
@@ -127,12 +212,12 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             wf.setStandard(WorkflowUtils.isStandardWorkflow(wf));
             if (wf.getSteps() != null) {
-                for (AbstractStep step : wf.getSteps().values()) {
-                    if (step.getFollowingSteps() != null) {
-                        Iterator<String> followingIds = step.getFollowingSteps().iterator();
+                for (WorkflowStep step : wf.getSteps().values()) {
+                    if (step.getOnSuccess() != null) {
+                        Iterator<String> followingIds = step.getOnSuccess().iterator();
                         while (followingIds.hasNext()) {
                             String followingId = followingIds.next();
-                            AbstractStep followingStep = wf.getSteps().get(followingId);
+                            WorkflowStep followingStep = wf.getSteps().get(followingId);
                             if (followingStep == null) {
                                 followingIds.remove();
                                 ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNWON_WORKFLOW_STEP,
@@ -140,14 +225,14 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                             } else {
                                 followingStep.addPreceding(step.getName());
                             }
-                        }
-                    }
-                    if (step instanceof NodeActivityStep) {
-                        AbstractActivity activity = ((NodeActivityStep) step).getActivity();
-                        if (activity == null) {
-                            // add an error ?
-                        } else {
-                            activity.setNodeId(((NodeActivityStep) step).getNodeId());
+                            if (StringUtils.isEmpty(step.getTargetRelationship())) {
+                                AbstractWorkflowActivity activity = step.getActivity();
+                                if (activity == null) {
+                                    // add an error ?
+                                } else {
+                                    activity.setTarget(step.getTarget());
+                                }
+                            }
                         }
                     }
                 }
@@ -176,9 +261,8 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                 wf.setName(newName);
                 workflows.put(newName, wf);
                 Node node = ParsingContextExecution.getObjectToNodeMap().get(oldName);
-                ParsingContextExecution.getParsingErrors().add(
-                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NAME, "Workflow", node.getStartMark(), oldName, node.getEndMark(),
-                                newName));
+                ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NAME, "Workflow",
+                        node.getStartMark(), oldName, node.getEndMark(), newName));
             }
         }
     }

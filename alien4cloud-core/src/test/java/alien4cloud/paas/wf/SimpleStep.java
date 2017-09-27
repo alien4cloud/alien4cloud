@@ -1,10 +1,13 @@
 package alien4cloud.paas.wf;
 
-public class SimpleStep extends AbstractStep {
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+
+public class SimpleStep extends WorkflowStep {
 
     public SimpleStep(String name) {
         super();
         super.setName(name);
+        super.setTarget(name);
     }
 
     @Override
