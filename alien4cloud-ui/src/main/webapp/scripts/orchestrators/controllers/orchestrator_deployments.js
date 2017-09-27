@@ -1,16 +1,21 @@
 define(function (require) {
   'use strict';
 
-  var modules = require('modules');
   var states = require('states');
-  var _ = require('lodash');
 
-  require('scripts/deployment/services/deployment_services');
+  var regsterDeploymentHistoryStates = require('scripts/_ref/applications/services/deployment_detail_register_service');
 
   states.state('admin.orchestrators.details.deployments', {
     url: '/deployments',
-    templateUrl: 'views/orchestrators/orchestrator_deployments.html',
-    controller: 'OrchestratorDeploymentsCtrl',
+    template: '<ui-view/>',
+    onEnter: ['breadcrumbsService','$translate', function(breadcrumbsService, $translate){
+      breadcrumbsService.putConfig({
+        state: 'admin.orchestrators.details.deployments',
+        text: function() {
+          return $translate.instant('ORCHESTRATORS.NAV.DEPLOYMENTS');
+        }
+      });
+    }],
     menu: {
       id: 'menu.orchestrators.deployments',
       state: 'admin.orchestrators.details.deployments',
@@ -20,42 +25,7 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-orchestrators').controller('OrchestratorDeploymentsCtrl',
-    ['$scope', '$uibModal', '$state', 'deploymentServices', 'orchestrator',
-    function($scope, $uibModal, $state, deploymentServices, orchestrator) {
-      $scope.orchestrator = orchestrator;
+  regsterDeploymentHistoryStates('admin.orchestrators.details.deployments',function($stateParams) {
+    return {orchestratorId: $stateParams.id,};});
 
-      function processDeployments(deployments){
-        if (_.defined(deployments)){
-          _.each(deployments, function(deploymentDTO){
-            if(_.defined(deploymentDTO.locations)){
-              deploymentDTO.locations = _.indexBy(deploymentDTO.locations, 'id');
-            }
-          });
-        }
-      }
-
-      //get all deployments for this cloud
-      deploymentServices.get({
-        orchestratorId: $scope.orchestrator.id,
-        includeSourceSummary: true
-      }, function(result) {
-        processDeployments(result.data);
-        $scope.deployments = result.data;
-      });
-
-      //Go to runtime view for a deployment
-      $scope.goToRuntimeView = function(deployment){
-        if(_.defined(deployment.endDate)){
-          // do nothing as the deployment is ended already
-          return;
-        }
-        $state.go('applications.detail.runtime', {
-          id:deployment.sourceId,
-          openOnEnvironment: deployment.environmentId
-        });
-      };
-
-    }
-  ]); // controller
 }); // define

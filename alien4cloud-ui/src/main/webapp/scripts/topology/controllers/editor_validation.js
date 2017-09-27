@@ -9,48 +9,36 @@ define(function (require) {
     ['$scope', 'topologyServices', 'tasksProcessor', '$alresource',
     function($scope, topologyServices, tasksProcessor, $alresource) {
 
-      var editorIsTopologyValid = $alresource('rest/latest/editor/:topologyId/isvalid');
-      var isCurrentTopologyValid = function() {
-        if (_.undefined($scope.topology)) {
-          topologyServices.dao.get({
-            topologyId: $scope.topologyId
-          }, function(successResult) {
-            if (_.undefined(successResult.error)){
-              $scope.refreshTopology(successResult.data);
-            }
-          });
-        } else if($scope.topology.operations && $scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex===-1) {
-          // nothing to check
-          return;
-        }
+      var editedTopologyValidatorResource = $alresource('rest/latest/editor/:topologyId/isvalid');
 
-        editorIsTopologyValid.create({
+      function updateValidationDtos() {
+        //validate topology beeing edited
+        editedTopologyValidatorResource.create({
           topologyId: $scope.topologyId
         }, null, function(result) {
           if(_.undefined(result.error)) {
-            $scope.validCurrentTopologyDTO = result.data;
-            tasksProcessor.processAll($scope.validCurrentTopologyDTO);
+            $scope.editedTopologyValidationDTO = result.data;
+            tasksProcessor.processAll($scope.editedTopologyValidationDTO);
           }
         });
-      };
-      isCurrentTopologyValid();
 
-      $scope.currentTopologyHasNoChanges = function(){
-        return !_.undefined($scope.topology) && ($scope.topology.operations && $scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex===-1);
-      };
-
-      var isTopologyValid = function isTopologyValid() {
-        return topologyServices.isValid({
+        //validate las saved topology
+        topologyServices.isValid({
           topologyId: $scope.topologyId
         }, function(result) {
-          $scope.validTopologyDTO = result.data;
-          tasksProcessor.processAll($scope.validTopologyDTO);
+          $scope.lastSavedTopologyValidationDto = result.data;
+          tasksProcessor.processAll($scope.lastSavedTopologyValidationDto);
         });
-      };
-      isTopologyValid();
+      }
 
-      $scope.$on('topologyRefreshedEvent', function() {
-        isTopologyValid();
+      updateValidationDtos();
+
+
+      $scope.$on('topologyRefreshedEvent', function(event, data) {
+        // no need to do this if it is the initial load of the topology, since validation is done on controller loaded
+        if(!data.initial){
+          updateValidationDtos();
+        }
       });
     }]
   );

@@ -43,6 +43,10 @@ public class Deployment {
 
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
+    private String deployerUsername;
+
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
     private DeploymentSourceType sourceType;
 
     /** Id of the orchestrator that manages the deployment. */

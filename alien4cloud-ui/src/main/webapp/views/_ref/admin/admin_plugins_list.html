@@ -1,0 +1,79 @@
+<div>
+  <div class="row">
+    <div class="col-md-12">
+      <upload-directive target-url="'rest/v1/plugins'" drag-and-drop-message="'PLUGINS.DRAG_DROP_UPLOAD'" button-message="'PLUGINS.UPLOAD'"
+                      upload-success-callback='search()' />
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-3 pull-left ">
+      <form role="search" ng-submit="search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query"> <span class="input-group-btn">
+            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+
+      <div class="table-resopnsive large-data-container" id="plugins-table">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <!-- <th></th> -->
+              <th>{{ 'COMMON.ID' | translate}}</th>
+              <th>{{ 'COMMON.VERSION' | translate}}</th>
+              <th>{{ 'COMMON.NAME' | translate}}</th>
+              <th>{{ 'PLUGINS.BEANS' | translate}}</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="plugin in data.data" id='plugin_{{plugin.id}}'>
+              <!-- <td><i class="fa fa-circle fa-2x" ng-class="{'text-success': plugin.enabled,'text-danger': !plugin.enabled}"
+                  uib-tooltip="{{'COMMON.ENABLED_' + plugin.enabled | translate }}"></i></td> -->
+              <td>{{plugin.descriptor.id}}</td>
+              <td>{{plugin.descriptor.version}}</td>
+              <td>{{plugin.descriptor.name}}</td>
+              <td>
+                  <div ng-repeat="component in plugin.descriptor.componentDescriptors">
+                    <i class="fa fa-cloud-upload" ng-if="component.type === 'IPaaSProvider'"></i> {{component.name}}
+                  </div>
+              </td>
+              <td style="vertical-align: middle">
+                <div class="pull-right">
+
+                  <a id='plugin_{{plugin.id}}_configure' ng-click="openConfiguration(plugin.id)" ng-if="plugin.configurable" class="btn btn-default btn-xs"
+                    uib-tooltip="{{ 'PLUGINS.CONFIGURE' | translate}}" tooltip-append-to-body="true">
+                    <i class="fa fa-cog"></i>
+                  </a>
+
+                  <div id="srv-state" class="switch vertical-center" ng-click="toggleState(plugin)">
+                    <div class="pending-switch-slider" ng-class="{'disabled' : !plugin.enabled , 'enabled': plugin.enabled, 'pending': plugin.pending, 'loaded': !plugin.pending}"></div>
+                  </div>
+
+                  <!-- Remove a plugin -->
+                  <delete-confirm id="delete-plugin_{{plugin.id}}" func="remove(plugin.id)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+                  </delete-confirm>
+
+                </div>
+              </td>
+              <td style="vertical-align: middle; text-align: right">
+                  <info content="plugin.descriptor.description" size="sm"></info>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- pagination bar -->
+        <pagination-directive pagination-info="searchService.pagination" />
+      </div>
+    </div>
+  </div>
+</div>

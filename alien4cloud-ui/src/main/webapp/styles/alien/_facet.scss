@@ -1,0 +1,58 @@
+.facet-panel {
+  margin: 4px -20px 0 -20px;
+  padding: 10px 20px 0px 20px;
+  background-color: $gray-lighter;
+  border-top: 1px solid $gray-darker;
+  border-bottom: 1px solid $gray-darker;
+  box-shadow: inset 0px 2px 5px $gray-darker;
+  -webkit-box-shadow: inset 0px 2px 5px $gray-darker;
+  -moz-box-shadow: inset 0px 2px 5px $gray-darker;
+}
+
+.facet-category {
+  border-top: 1px solid $gray-dark;
+  font-weight: 500;
+  font-style: italic;
+  color: $gray;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-top: 10px;
+}
+.facet-category:hover{
+  background-color: $gray-light;
+}
+
+.facet-choice .nav > li > a {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 5px;
+}
+
+.facet-choice .nav > li > a:hover {
+  background-color: transparent;
+  border-left: 1px solid #d9534f;
+  // color: #d9534f;
+  padding-left: 4px;
+  text-decoration: none;
+}
+
+.facet-option .nav > li > a {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 5px;
+}
+
+.facet-option .nav > li > a:hover {
+  background-color: transparent;
+  border-left: 1px solid $brand-primary;
+  padding-left: 4px;
+  text-decoration: none;
+}
+
+.filter-category {
+  border-top: 1px solid #ddd;
+  margin-top: 10px;
+  padding-top: 10px;
+}

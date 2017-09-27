@@ -1,22 +1,17 @@
-<div ng-if="tasks.length>0">
-    <h4 class="clickable" ng-init="isInputArtifactsCollapsed = false"
-        ng-click="isInputArtifactsCollapsed = !isInputArtifactsCollapsed">
-        <i class="fa"
-           ng-class="{'fa-caret-down' : !isInputArtifactsCollapsed , 'fa-caret-right': isInputArtifactsCollapsed }"></i>
-        <span>{{'APPLICATIONS.TOPOLOGY.TASK.INPUT_ARTIFACT.LABEL' | translate}}</span>
-    </h4>
-    <div uib-collapse="isInputArtifactsCollapsed " >
-        <table class="table table-condensed">
-            <tbody>
-            <tr ng-repeat="task in tasks">
-                <td>
-                    <strong>{{task.inputArtifactName}}</strong>
-                </td>
-                <td>
-                    {{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.ERRORS.' + task.artifactTaskCode | translate }}
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div> <!-- END SCALABILITY ERRORS -->
+<div class="content-head-error">
+  <span>{{'APPLICATIONS.TOPOLOGY.TASK.INPUT_ARTIFACT.LABEL' | translate}}</span>
+</div>
+<div class="content-body">
+  <table class="table table-condensed">
+      <tbody>
+      <tr ng-repeat="task in tasks">
+          <td>
+              <strong>{{task.inputArtifactName}}</strong>
+          </td>
+          <td>
+              {{'APPLICATIONS.TOPOLOGY.TASK.ARTIFACT.ERRORS.' + task.artifactTaskCode | translate }}
+          </td>
+      </tr>
+      </tbody>
+  </table>
+</div>

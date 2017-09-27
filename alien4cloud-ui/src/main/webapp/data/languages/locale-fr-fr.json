@@ -13,17 +13,12 @@
     "ARCHIVE_NAME_HELP" : "Le nom de l'archive TOSCA (Cloud Service Archive) liée à l'application. C'est également l'id unique et immutable de l'application.",
     "AUTHORIZED" : "application autorisée",
     "DEPLOY" : "Déployer",
-    "DEPLOY_MODAL": {
-      "MESSAGE": "Vous êtes sur le point de déployer ce qui suit:",
-      "RESOURCES_TO_CREATE": "Resources à creer",
-      "TITLE": "Informations de déploiement"
-    },
+    "DEPLOYMENT_INFO" : "Informations de déploiement",
+    "DEPLOY_CONFIRM": "Êtes-vous sûr de déployer cet environment de production ?",
+    "UNDEPLOY_CONFIRM": "Êtes-vous sûr de désinstaller cet environment de production ?",
+    "UPDATE_DEPLOYMENT" : "Update",
+    "UPDATE_CONFIRM": "Êtes-vous sûr de mettre à jour cet environment de production ?",
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
-    "UPDATE_MODAL": {
-      "MESSAGE": "Vous êtes sur le point de mettre à jour ce qui suit:",
-      "DOCUMENTATION": "Plus d'informations sur la mise à jour de déploiements...",
-      "TITLE": "Informations de mise à jour"
-    },
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",
       "INPUT" : "Input",
@@ -34,6 +29,12 @@
         "SERVICE_HELP" : "Les propriétés et attributs du service sélectioné sont affichées ci-dessous",
         "SERVICE_UNDEPLOYED_HELP" : "Le service sélectionné n'est pas déployé. Cela peut causer des problèmes lors du déploiement en cas de choix de ce service pour remplacer le noeud selectionné.",
         "TITLE" : "Matching"
+      },
+      "HISTORY": {
+        "DEPLOYER": "Déploieur",
+        "DEPLOYED_AT": "Déploié à",
+        "UNDEPLOYED_AT": "Un-déploié à",
+        "DURATION": "Durée"
       },
       "PROPERTIES" : {
         "REQUIRED" : "Obligatoire",
@@ -179,6 +180,7 @@
       "PARSING_ERROR" : "La topologie n'est pas valide",
       "PLAN" : "Workflow",
       "PROPERTIES_INPUTS" : "Propriétés d'entrée",
+      "PRECONFIGURED_PROPERTIES_INPUTS": "Propriétés d'entrée préconfigurées",
       "PROPERTIES_OUTPUTS" : "Propriétés de sortie",
       "RECOVERY" : {
         "CHOICE_ASK" : "Que souhaitez vous faire de la topologie ?",
@@ -265,7 +267,7 @@
         "TOADD_RELATIONSHIP_LABEL" : "Prérequis non statisfaits (ajoutez un lien)",
         "VALIDATION_FAILED" : "La dernière topologie enregistrée n'est pas valide, aller dans l'éditeur de topology pour plus d'informations.",
         "VALIDATION_SUCCESS" : "La dernière topologie enregistrée est valide.",
-        "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "La topologie courante est valide.",
+        "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "La topologie en cours d'édition est valide.",
         "WORKFLOWS" : {
           "HAS_ERROR" : "Le workflow '{{workflowName}}' n'est pas valide : {{errorCount}} erreur(s)",
           "TITLE" : "Workflows"
@@ -420,7 +422,7 @@
       "INTEGRATION_TESTS" : "Tests d'intégrations",
       "OTHER" : "Autre",
       "PRE_PRODUCTION" : "Pré-production",
-      "PRODUCTION" : "production",
+      "PRODUCTION" : "Production",
       "USER_ACCEPTANCE_TESTS" : "Tests utilisateurs"
     },
     "ERRORS" : {
@@ -441,13 +443,17 @@
   "COMMON" : {
     "ADD" : "Ajouter",
     "ADD_USER_ATTRIBUTE": "Ajouter un attribut utilisateur",
+    "ATTENTION": "Attention",
     "ATTRIBUTES" : "Attributs",
     "AUTHOR" : "Auteur",
     "AUTHORIZED": "Authorisé",
     "CAPABILITIES" : "Capacités",
+    "CONTENT": "Contenu",
     "DATA" : "Données",
     "DATE" : "Date",
     "DESCRIPTION" : "Description",
+    "DOWNLOAD": "Télécharger",
+    "EDIT": "Editer",
     "EMAIL" : "Email",
     "EMAIL_INVALID" : "Email non valide.",
     "ENABLED_false" : "Désactivé",
@@ -462,7 +468,9 @@
     "NAME" : "Nom",
     "NO" : "Non",
     "NODE" : "Noeud",
+    "OR": "ou",
     "PROPERTIES" : "Propriétés",
+    "SEARCH": "Rechercher...",
     "SOURCE" : "Source",
     "RESOURCES": "Ressources",
     "STATE" : "Etat",
@@ -621,6 +629,7 @@
     "CREDENTIALS" : "Authentification",
     "CREDENTIALSINFO" : "Ces informations ne sont utiles que pour les dépôts privés",
     "DELETE" : "Supprimé",
+    "DEPRECIATE": "Marquer comme dépréciée",
     "DETAILS" : {
       "ARCHIVE_COMPONENTS" : "Composants de l'archive",
       "BUTTON_ADD_NODE_TYPE" : "Ajouter un nouveau composant",
@@ -649,9 +658,13 @@
     },
     "FROMGIT" : "Importés depuis Git",
     "IMPORTTOOLTIP" : "Importer",
+    "GIT": {
+      "GIT_IMPORT": "Import git"
+    },
     "IMPORT_ALL" : "Importer tout",
     "IMPORT_SUCCESS" : "L'import a été effectué",
     "LEGEND" : "Csars ajoutés",
+    "NEW": "Nouvelle archive",
     "NEW_GIT" : "Location Git",
     "PASSWORD" : "Mot de passe",
     "SAVE_LOCALLY" : "Conserver une copie locale du dépôt",
@@ -750,7 +763,7 @@
     "UNDO" : "Annuler",
     "DOWNLOAD": "Télécharger",
     "VALIDATION" : {
-      "CURRENT_TOPOLOGY" : "Topologie courante",
+      "CURRENT_TOPOLOGY" : "Topologie En cours d'édition",
       "CURRENT_TOPOLOGY_NO_OPERATIONS" : "La topologie actuelle n'a pas changé.",
       "LAST_SAVED_TOPOLOGY" : "Dernière topologie enregistrée"
     }
@@ -767,7 +780,7 @@
     "INTEGRATION_TESTS" : "Tests d'intégrations",
     "OTHER" : "Autre",
     "PRE_PRODUCTION" : "Pré-production",
-    "PRODUCTION" : "production",
+    "PRODUCTION" : "Production",
     "USER_ACCEPTANCE_TESTS" : "Tests utilisateurs"
   },
   "ENVIRONMENT_TYPE_ALL": "Tous les types d'environment",
@@ -853,7 +866,11 @@
     "860" : "La topologie séléctionnée a besoin d'être réconciliée",
     "870" : "La topologie séléctionnée n'est pas utilisable parce qu'elle ne sera pas visible dans le context de l'application",
     "INTERNAL" : "Erreur interne",
-    "UNKNOWN" : "Erreur inconnue"
+    "UNKNOWN": "Erreur inconnue",
+    "SERVER_LOG": {
+      "MISSING_VARIABLES": "Variables manquantes: {{variables}}",
+      "UNRESOLVABLE_PREDEFINED_INPUTS": "Inputs prédéfinis non calculable: {{unresolvableInputs}}"
+    }
   },
   "EXECUTE" : "Executer",
   "FALSE" : "Faux",
@@ -926,13 +943,31 @@
     "MENU_USERS" : "Utilisateurs"
   },
   "NAVAPPLICATIONS" : {
-    "MENU_DEPLOYMENT" : "Déploiement",
-    "MENU_ENVIRONMENT" : "Environnements",
-    "MENU_INFO" : "Informations",
-    "MENU_RUNTIME" : "Runtime",
-    "MENU_TOPOLOGY" : "Topologie",
-    "MENU_USERS" : "Utilisateurs et Groupes",
-    "MENU_VERSIONS" : "Version"
+    "MENU_DEPLOY_NEXT": "Préparer le prochain déploiement",
+    "MENU_DEPLOY_CURRENT": "Gérer le déploiement actuel",
+    "MENU_DEPLOY_NEXT.VERSION": "Version",
+    "MENU_DEPLOY_NEXT.TOPOLOGY": "Topology",
+    "MENU_DEPLOY_NEXT.INPUTS": "Inputs",
+    "MENU_DEPLOY_NEXT.LOCATIONS": "Locations",
+    "MENU_DEPLOY_NEXT.MATCHING": "Matching",
+    "MENU_DEPLOY_NEXT.DEPLOY": "Vérifier & déployer",
+    "MENU_HISTORY": "Historique de déploiement",
+
+    "MENU_DEPLOY_CURRENT.INFO" : "Info",
+    "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "Vue runtime",
+    "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER" : "Workflow",
+
+    "MENU_ENVIRONMENT": "Environnements",
+    "MENU_USERS": "Utilisateurs et Groupes",
+    "MENU_VARIABLES": "Variables",
+    "MENU_VERSIONS": "Versions"
+  },
+  "NAVCATALOG": {
+    "ARCHIVES_PROMOTION": "Requêtes de promotion d'archives",
+    "BROWSE_COMPONENTS": "Consulter les composants",
+    "BROWSE_TOPOLOGIES": "Consulter les topologies",
+    "TOPOLOGIES": "Topologies",
+    "MANAGE_ARCHIVES": "Gerer les archvies"
   },
   "NAVBAR" : {
     "BUTTON_LOGIN" : "Connexion",
@@ -940,6 +975,7 @@
     "INPUT_SEARCH_MESSAGE" : "Que cherchez vous ?",
     "MENU_ADMIN" : "Administration",
     "MENU_APPS" : "Applications",
+    "MENU_CATALOG": "Catalogue",
     "MENU_COMPONENTS" : "Composants",
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS importés depuis Git",
@@ -1160,6 +1196,7 @@
   "TRUE" : "Vrai",
   "UPDATE_DATE" : "Date de mise à jour",
   "UPLOAD" : {
+    "BROWSE": "parcourir",
     "COMPLETE" : "Terminé"
   },
   "USERS" : {

@@ -24,6 +24,7 @@ require.config({
     'angular-bootstrap-datetimepicker-template': 'bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker',
     'angular-bootstrap-datetimepicker': 'bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker.templates',
     'moment': 'bower_components/moment/min/moment.min',
+    'angular-moment': 'bower_components/angular-moment/angular-moment.min',
     'angular-resource': 'bower_components/angular-resource/angular-resource.min',
     'angular-sanitize': 'bower_components/angular-sanitize/angular-sanitize.min',
     'angular-ui-router': 'bower_components/angular-ui-router/release/angular-ui-router.min',

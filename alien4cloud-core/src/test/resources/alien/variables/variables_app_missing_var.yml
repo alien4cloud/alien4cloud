@@ -1,0 +1,3 @@
+complex_with_var_in_leaf_with_missing_variables:
+  complex:
+    subfield: "${missing_inner_variable}"

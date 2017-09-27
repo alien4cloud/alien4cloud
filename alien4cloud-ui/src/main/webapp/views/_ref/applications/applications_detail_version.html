@@ -1,0 +1,23 @@
+<h3>
+  {{version.version}}
+</h3>
+
+<table class="table table-condensed">
+  <thead>
+    <th>Variant version</th>
+    <th></th>
+  </thead>
+  <tbody>
+    <tr ng-repeat="(variantVersion, variant) in version.topologyVersions">
+      <td><span class="text-muted" ng-bind-html="variantVersion | a4cHighlight: variant.qualifier:'text-default'"></span></td>
+      <td>
+        <div class="pull-right">
+          <button class="btn btn-sm btn-default"
+            id="edit-topo-{{variantVersion}}" ng-click="editTopology(variant)">
+            <i class="fa fa-edit"></i> {{'COMMON.EDIT' | translate}}
+          </button>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>

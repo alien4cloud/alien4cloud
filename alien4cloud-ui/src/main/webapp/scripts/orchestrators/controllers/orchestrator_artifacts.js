@@ -19,8 +19,16 @@ define(function (require) {
   });
 
   modules.get('a4c-orchestrators').controller('OrchestratorArtifactsCtrl',
-    ['$scope' , '$state', '$resource', 'orchestrator',
-    function($scope, $state, $resource, orchestrator) {
+    ['$scope' , '$state', '$resource', 'orchestrator', 'breadcrumbsService', '$translate',
+    function($scope, $state, $resource, orchestrator, breadcrumbsService, $translate) {
+
+      breadcrumbsService.putConfig({
+        state: 'admin.orchestrators.details.artifacts',
+        text: function() {
+          return $translate.instant('ORCHESTRATORS.NAV.ARTIFACTS');
+        }
+      });
+
       $scope.artifactTypes = [];
       $resource('rest/latest/orchestrators/'+orchestrator.id+'/artifacts-support').get(
         {},

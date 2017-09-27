@@ -3,6 +3,7 @@ package alien4cloud.tosca.model;
 import java.util.List;
 import java.util.Map;
 
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.apache.commons.collections4.MapUtils;
 
 import com.google.common.collect.Maps;
@@ -40,12 +41,14 @@ public class ArchiveRoot {
     private Map<String, RelationshipType> relationshipTypes = Maps.newHashMap();
     private Map<String, NodeType> nodeTypes = Maps.newHashMap();
 
+    private Map<String, PolicyType> policyTypes = Maps.newHashMap();
+
     /**
      * Indicates if this archive contains tosca types (node types, relationships, capabilities, artifacts).
      */
     public boolean hasToscaTypes() {
         return MapUtils.isNotEmpty(nodeTypes) || MapUtils.isNotEmpty(relationshipTypes) || MapUtils.isNotEmpty(capabilityTypes)
-                || MapUtils.isNotEmpty(artifactTypes);
+                || MapUtils.isNotEmpty(artifactTypes) || MapUtils.isNotEmpty(policyTypes);
     }
 
     /**

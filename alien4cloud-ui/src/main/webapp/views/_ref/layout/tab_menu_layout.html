@@ -1,0 +1,11 @@
+<ul class="nav nav-tabs grp-margin">
+  <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active"
+    ng-class="{'disabled' : menuItem.disabled}">
+    <a id="{{menuItem.id}}"
+       ng-click="onItemClick($event, menuItem)"
+       ui-sref="{{menuItem.state}}">
+      <i class="{{menuItem.icon}}" ng-if="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
+    </a>
+  </li>
+</ul>
+<div ui-view class="grp-margin"></div>

@@ -16,7 +16,8 @@ define(function(require) {
     'ui.bootstrap',
     'ui.router',
     'pascalprecht.translate',
-    'xeditable'
+    'xeditable',
+    'angularMoment'
   ]);
 
   // bootstrap angular js application

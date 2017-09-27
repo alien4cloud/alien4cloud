@@ -1,0 +1,47 @@
+<!-- Components list and details -->
+<a4c-search query-manager="queryManager"
+  search-service="searchService"
+  label-prefix="COMPONENTS.">
+</a4c-search>
+
+<!--   search results -->
+<div class="grp-margin" ng-class="{'small': !globalContext}" style= "text-align: center;">
+  <div class="catalog-cell"
+    ng-repeat="component in queryManager.searchResult.data"
+    id="li_{{component.id}}"
+    alien-draggable drag-enabled="dragAndDropEnabled"
+    drag-data="component"
+    ng-click="handleItemSelection(component)">
+    <div class="catalog-element-info">
+      <div style="float: left; width: 64px; height: 64px; margin: 5px; text-align: center;">
+        <img ng-src="img?id={{getIcon(component.tags)}}&quality=QUALITY_64" />
+      </div>
+      <div style="display: inline-block; vertical-align: top" ng-init="componentNameId= (component.elementId | splitAndGet:'.':'last')">
+        <h5 style="width: 120px; ">
+          <span uib-tooltip="{{component.elementId}}" tooltip-placement="bottom" tooltip-append-to-body="true">{{ componentNameId | limitTo: 12 }}{{ componentNameId.length > 12 ? '...' : ''}} </span>
+          <img ng-repeat="badge in badges"
+            ng-if="badge.canDislay(component)"
+            class="icon_16"
+            style="margin-left: 5px;"
+            alt="{{badge.name}}_ico_16"
+            uib-tooltip="{{badge.tooltip | translate}}"
+            tooltip-placement="bottom"
+            tooltip-append-to-body="true"
+            ng-src="{{badge.imgSrc}}"
+            ng-click="handleBadgeClick(badge, component, $event)" />
+        </h5>
+      </div>
+      <small ng-if="!globalContext">
+        <a class=" btn btn-default btn-xs" id="btn-{{component.elementId}}" ng-href="#/components/details/{{component.elementId}}:{{component.archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
+      </small>
+      <p ng-if="globalContext" class="small text-muted catalog-description">{{component.description}}</p>
+      <info ng-if="!globalContext" content="component.description" size="lg"></info>
+    </div>
+    <div style="position: absolute; bottom: 0px;">
+      <ng-include src="'views/components/search_component_archive_dislay.html'"></ng-include>
+    </div>
+  </div>
+</div>
+
+<!-- pagination bar -->
+<pagination-directive pagination-info="searchService.pagination"/>

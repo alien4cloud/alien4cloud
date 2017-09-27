@@ -29,14 +29,14 @@ define(function (require) {
         }
       ]
     },
-    templateUrl: 'views/orchestrators/orchestrator_details_layout.html',
-    controller: 'LayoutCtrl'
+    templateUrl: 'views/_ref/layout/vertical_menu_left_layout.html',
+    controller: 'OrchestratorDetailsCtrl'
   });
 
   states.state('admin.orchestrators.details.info', {
     url: '/info',
     templateUrl: 'views/orchestrators/orchestrator_info.html',
-    controller: 'OrchestratorDetailsCtrl',
+    controller: 'OrchestratorDetailsInfoCtrl',
     menu: {
       id: 'menu.orchestrators.info',
       state: 'admin.orchestrators.details.info',
@@ -49,8 +49,36 @@ define(function (require) {
   states.forward('admin.orchestrators.details', 'admin.orchestrators.details.info');
 
   modules.get('a4c-orchestrators').controller('OrchestratorDetailsCtrl',
-    ['$scope', '$uibModal', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'globalRestErrorHandler',
-    function($scope, $uibModal, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, globalRestErrorHandler) {
+  ['$scope', '$state', '$translate', 'orchestrator', 'breadcrumbsService', 'menu', 'layoutService', 'context',
+  function($scope, $state, $translate, orchestrator, breadcrumbsService, menu, layoutService, context) {
+      breadcrumbsService.putConfig({
+        state: 'admin.orchestrators.details',
+        text: function() {
+          return orchestrator.name;
+        },
+        onClick: function() {
+          $state.go('admin.orchestrators.details', { id: orchestrator.id });
+        }
+      });
+
+      $scope.context = context;
+      layoutService.process(menu);
+      $scope.menu = menu;
+    }
+  ]);
+
+
+  modules.get('a4c-orchestrators').controller('OrchestratorDetailsInfoCtrl',
+    ['$scope', '$uibModal', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'globalRestErrorHandler', 'breadcrumbsService',
+    function($scope, $uibModal, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, globalRestErrorHandler, breadcrumbsService) {
+
+      breadcrumbsService.putConfig({
+        state: 'admin.orchestrators.details.info',
+        text: function() {
+          return $translate.instant('ORCHESTRATORS.NAV.INFO');
+        }
+      });
+
       $scope.orchestrator = orchestrator;
       $scope.showForceDisable = false;
 

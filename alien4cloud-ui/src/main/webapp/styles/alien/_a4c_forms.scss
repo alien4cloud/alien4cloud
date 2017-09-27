@@ -1,0 +1,28 @@
+.control-value {
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+@media (min-width: $screen-sm-min) {
+  .control-value {
+    margin-bottom: 0;
+    padding-top: ($padding-base-vertical + 1); // Default padding plus a border
+  }
+}
+
+.form-group-lg {
+  @media (min-width: $screen-sm-min) {
+    .control-value {
+      padding-top: ($padding-large-vertical + 1);
+      font-size: $font-size-large;
+    }
+  }
+}
+.form-group-sm {
+  @media (min-width: $screen-sm-min) {
+    .control-value {
+      padding-top: ($padding-small-vertical + 1);
+      font-size: $font-size-small;
+    }
+  }
+}

@@ -9,24 +9,13 @@ define(function (require) {
   require('scripts/orchestrators/controllers/orchestrator_new');
   require('scripts/orchestrators/services/orchestrator_service');
   require('scripts/orchestrators/controllers/orchestrator_details');
-
-  states.state('admin.orchestrators', {
-    url: '/orchestrators',
-    template: '<ui-view/>',
-    menu: {
-      id: 'am.admin.orchestrators',
-      state: 'admin.orchestrators',
-      key: 'NAVADMIN.MENU_ORCHESTRATORS',
-      icon: 'fa fa-magic',
-      priority: 301
-    }
-  });
+  require('scripts/orchestrators/controllers/orchestrator');
+  
   states.state('admin.orchestrators.list', {
     url: '/list',
     templateUrl: 'views/orchestrators/orchestrator_list.html',
     controller: 'OrchestratorListCtrl'
   });
-  states.forward('admin.orchestrators', 'admin.orchestrators.list');
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap','a4c-common']).controller('OrchestratorListCtrl',
     ['$scope', 'searchServiceFactory', '$uibModal', '$state', 'orchestratorService',

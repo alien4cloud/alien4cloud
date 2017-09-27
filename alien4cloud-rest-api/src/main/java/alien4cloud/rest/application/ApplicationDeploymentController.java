@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.security.model.User;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -134,7 +135,8 @@ public class ApplicationDeploymentController {
         }
 
         // process with the deployment
-        deployService.deploy(deploymentTopologyDTO.getTopology(), application);
+        User deployer = AuthorizationUtil.getCurrentUser();
+        deployService.deploy(deployer, deploymentTopologyDTO.getTopology(), application);
         return RestResponseBuilder.<Void> builder().build();
     }
 

@@ -1,0 +1,10 @@
+int_input: 10
+float_input: 3.14
+string_input: "text"
+complex_input:
+  sub1:
+    subfield11: 11
+    subfield12: 12
+  sub2:
+    subfield21: 21
+  field01: "01"

@@ -1,0 +1,53 @@
+<!-- Common search directive display a top bar. -->
+<div class="form-horizontal">
+  <form role="search" ng-submit="search()">
+    <div class="input-group">
+      <input id="search-query" type="text" class="form-control" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchBoxContent" style="padding-left: {{searchPadding}}px;">
+      <div id="search-filters" style="position: absolute; top: 0px; left: 0px; z-index: 10;"
+        >
+        <h4 style="margin: 5px;">
+          <span class="label label-default" style="margin-right: 5px;"
+            ng-if="queryManager.query">
+            search: {{queryManager.query}}
+          </span>
+          <span class="label label-default info" style="margin-right: 5px;"
+            ng-repeat="(filterTerm, filterValues) in queryManager.filters"
+            ng-click="editFilter(filterTerm)">
+            {{filterTerm}}={{filterValues}} <i class="fa fa-times" ng-click="removeFilter(filterTerm)"></i>
+          </span>
+        </h4>
+      </div>
+      <span class="input-group-btn">
+        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+        <a class="btn btn-default" ng-class="{'active': advancedSearch}" ng-click="advancedSearch = !advancedSearch">
+          <i class="fa fa-filter"></i>
+        </a>
+      </span>
+    </div>
+  </form>
+</div>
+<div ng-show="searching">
+  <i class="fa fa-spinner fa-spin"></i> Searching
+</div>
+<!-- Display facets for easy filtering -->
+<div uib-collapse="!advancedSearch" class="facet-panel">
+  <!-- Displaying all terms and its facets -->
+  <div ng-repeat="(term, termFacets) in queryManager.searchResult.facets">
+    <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
+      <span>{{ queryManager.facetIdConverter.toDisplayFacet(term, queryManager.labelPrefix) }}</span>
+      <i class="pull-right fa"
+         ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
+    </div>
+    <div class="facet-option" uib-collapse="isFacetCollapsed">
+      <ul class="nav facet-option">
+        <li ng-repeat="facet in termFacets">
+          <a href="" ng-click="addFilterValue(term, facet.facetValue)">
+            {{ queryManager.facetIdConverter.toDisplay(term, facet.facetValue) || 'N/A' }}
+            <span class="badge">{{facet.count}}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+<empty-place-holder data="queryManager.searchResult.data"></empty-place-holder>

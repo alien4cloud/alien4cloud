@@ -3,10 +3,13 @@ package org.alien4cloud.tosca.model.templates;
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.model.common.Tag;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.elasticsearch.annotation.ESObject;
@@ -146,15 +149,13 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, Workflow> workflows;
 
+    /* Archive meta-data are also set as topology tags. */
+    @NestedObject(nestedClass = Tag.class)
+    private List<Tag> tags;
+
     @Id
     public String getId() {
-        if (archiveName == null) {
-            throw new IndexingServiceException("Archive name is mandatory");
-        }
-        if (archiveVersion == null) {
-            throw new IndexingServiceException("Archive version is mandatory");
-        }
-        return archiveName + ":" + archiveVersion;
+        return Csar.createId(archiveName, archiveVersion);
     }
 
     public void setId(String id) {

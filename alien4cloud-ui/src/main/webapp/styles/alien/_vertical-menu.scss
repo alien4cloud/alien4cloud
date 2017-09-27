@@ -1,0 +1,73 @@
+.vertical-panel-shift {
+  padding-left: 34px;
+}
+
+.vertical-navbar {
+  position: relative;
+  overflow: hidden;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+  background: #035b8b;
+  z-index: 1000;
+  border-right: 1px solid #023652;
+}
+
+.vertical-navbar li a {
+  display: block;
+  height: 34px;
+  width: 34px;
+  line-height: 34px;
+  text-align: center;
+  color: #ffffff;
+  position: relative;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  -webkit-transition: background 0.1s ease-in-out;
+  -moz-transition: background 0.1s ease-in-out;
+  transition: background 0.1s ease-in-out;
+}
+
+.vertical-navbar li:first-child a {
+  margin-top: 60px;
+}
+
+.vertical-navbar li a:hover {
+  background: #2396cd;
+}
+
+.vertical-navbar li.active a {
+  background: #357492;
+}
+.vertical-navbar li a.disabled {
+  cursor: not-allowed;
+}
+
+.vertical-navbar li a.disabled:hover {
+  background: #2d87af;
+}
+
+.vertical-panel-shift .vertical-navbar {
+  top: 0px;
+  left: 35px;
+  background: #555555;
+  border-right: 1px solid #333333;
+}
+
+.vertical-panel-shift .vertical-navbar li a:hover {
+  background: #666666;
+}
+
+.vertical-panel-shift .vertical-navbar li.active a {
+  background: #444444;
+}
+.vertical-panel-shift .vertical-navbar li a.disabled {
+  cursor: not-allowed;
+}
+
+.vertical-navbar-home {
+  text-align: center;
+  position: relative;
+}

@@ -1,0 +1,42 @@
+// BELOW are old styles to remove after refactoring
+.horizontal-panel {
+  color: white;
+  margin-top: -13px;
+  padding-top: 4px;
+  margin-left:-20px;
+  margin-right:-20px;
+  margin-bottom: 10px;
+  padding-left: 64px;
+  height:26px;
+  background: #555555;
+  width: auto;
+  right: 0px;
+  z-index: 300;
+  overflow: hidden;
+  border-bottom: 1px solid #333333;
+}
+
+.horizontal-panel-text {
+  color: white;
+  font-weight: 500;
+}
+
+.horizontal-panel-text:hover {
+  color: white;
+  font-weight: 500;
+}
+
+.horizontal-panel-text-light {
+  color: white;
+  font-weight: normal;
+}
+
+.horizontal-panel-text-light:hover {
+  color: white;
+  font-weight: normal;
+}
+
+.horizontal-panel-label {
+  display: inline-block;
+  font-weight: 500;
+}

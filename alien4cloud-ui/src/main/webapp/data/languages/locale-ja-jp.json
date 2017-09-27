@@ -13,22 +13,11 @@
     "ARCHIVE_NAME_HELP" : "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
     "AUTHORIZED" : "application authorized",
     "DEPLOY" : "デプロイ",
-    "DEPLOY_MODAL": {
-      "CONTENT": {
-        "HEADER" : "Are you sure you want to deploy the {{application}} application with {{type}} type and {{version}} version with the following matching:",
-        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
-      },
-      "TITLE": "Deployment informations"
-    },
+    "DEPLOYMENT_INFO" : "Deployment informations",
+    "DEPLOY_CONFIRM": "Are you sure to deploy this production environment ?",
+    "UNDEPLOY_CONFIRM": "Are you sure to undeploy this production environment ?",
     "UPDATE_DEPLOYMENT" : "Update",
-    "UPDATE_MODAL": {
-      "CONTENT": {
-        "DOCUMENTATION": "More informations on deployment update are available in our ",
-        "HEADER" : "Are you sure you want to update the {{application}} application with {{type}} type and {{version}} version with the following matching:",
-        "FOOTER": "On location {{location}} of {{orchestrator}} orchestrator ?"
-      },
-      "TITLE": "Update deployment informations"
-    },
+    "UPDATE_CONFIRM": "Are you sure to update this production environment ?",
     "DEPLOYMENT" : {
       "DEPLOY" : "デプロイ",
       "INPUT" : "入力",
@@ -39,6 +28,12 @@
         "SERVICE_HELP" : "Below are the defined properties and attributes of the matched service.",
         "SERVICE_UNDEPLOYED_HELP" : "The selected servie is undeployed, this may cause issues on deployment if you select it as matched resource.",
         "TITLE" : "代入"
+      },
+      "HISTORY": {
+        "DEPLOYER": "Deployer",
+        "DEPLOYED_AT": "Deployed at",
+        "UNDEPLOYED_AT": "Undeployed at",
+        "DURATION": "Duration"
       },
       "PROPERTIES" : {
         "REQUIRED" : "Required",
@@ -176,6 +171,7 @@
       "PARSING_ERROR" : "Topology is not valid",
       "PLAN" : "Workflow",
       "PROPERTIES_INPUTS" : "プロパティの入力",
+      "PRECONFIGURED_PROPERTIES_INPUTS": "Preconfigured input properties",
       "PROPERTIES_OUTPUTS" : "プロパティ出力",
       "RECOVERY" : {
         "CHOICE_ASK" : "What would you like to do with the topology ?",
@@ -439,6 +435,7 @@
   "COMMON" : {
     "ADD" : "追加",
     "ADD_USER_ATTRIBUTE": "Add a user attribute",
+    "ATTENTION": "Attention",
     "ATTRIBUTES" : "属性",
     "AUTHOR" : "作成者",
     "CAPABILITIES" : "ケーパビリティ",
@@ -461,6 +458,7 @@
     "NODE" : "ノード",
     "PROPERTIES" : "プロパティ",
     "SOURCE" : "ソース",
+    "SEARCH": "検索...",
     "STATE" : "状態",
     "TARGET" : "ターゲット",
     "TYPE" : "タイプ",
@@ -849,7 +847,11 @@
     "860" : "The topology that you select needs recovery",
     "870" : "The topology that you select cannot be used as it won't be visible in the context of the application",
     "INTERNAL" : "Internal error",
-    "UNKNOWN" : "Unknown error"
+    "UNKNOWN": "Unknown error",
+    "SERVER_LOG": {
+      "MISSING_VARIABLES": "Missing variables: {{variables}}",
+      "UNRESOLVABLE_PREDEFINED_INPUTS": "Unresolvable predefined inputs: {{unresolvableInputs}}"
+    }
   },
   "EXECUTE" : "Execute",
   "FALSE" : "False",
@@ -922,12 +924,23 @@
     "MENU_USERS" : "ユーザ"
   },
   "NAVAPPLICATIONS" : {
-    "MENU_DEPLOYMENT" : "配備",
+    "MENU_DEPLOY_NEXT": "Prepare next deployment",
+    "MENU_DEPLOY_CURRENT": "Manage current deployment",
+    "MENU_DEPLOY_NEXT.VERSION": "Version",
+    "MENU_DEPLOY_NEXT.TOPOLOGY": "トポロジ",
+    "MENU_DEPLOY_NEXT.INPUTS": "Inputs",
+    "MENU_DEPLOY_NEXT.LOCATIONS": "Locations",
+    "MENU_DEPLOY_NEXT.MATCHING": "Matching",
+    "MENU_DEPLOY_NEXT.DEPLOY": "Review & launch",
+    "MENU_HISTORY": "Deployment History",
+
+    "MENU_DEPLOY_CURRENT.INFO" : "情報",
+    "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "ランタイム",
+    "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER" : "Workflow",
+
     "MENU_ENVIRONMENT" : "環境",
-    "MENU_INFO" : "情報",
-    "MENU_RUNTIME" : "ランタイム",
-    "MENU_TOPOLOGY" : "トポロジ",
     "MENU_USERS" : "ユーザとグループ",
+    "MENU_VARIABLES": "Variables",
     "MENU_VERSIONS" : "バージョン"
   },
   "NAVBAR" : {

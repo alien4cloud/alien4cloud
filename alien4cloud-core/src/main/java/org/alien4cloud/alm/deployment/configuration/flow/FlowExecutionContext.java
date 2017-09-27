@@ -13,6 +13,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.ApplicationEnvironment;
 import lombok.Getter;
 import lombok.Setter;
+import org.elasticsearch.annotation.ESObject;
 
 /**
  * Flow execution context.
@@ -68,10 +69,12 @@ public class FlowExecutionContext {
      * This operation also updates the lastFlowParamUpdate that may be used by later processor to skip some processing when nothing has changed.
      *
      * The operation is also caching aware to avoid requesting multiple times the same object from elasticsearch.
+     *
+     * The configuration object is not annotated with {@link ESObject}, no request to elasticsearch will be made.
      * 
      * @param cfgClass The class of the configuration object.
      * @param modifierName Name of the modifier that tries to access a deployment configuration object (related to the environment).
-     * @param <T> The type of the configuraiton object.
+     * @param <T> The type of the configuration object.
      * @return An instance of the requested configuration object.
      */
     public <T extends AbstractDeploymentConfig> Optional<T> getConfiguration(Class<T> cfgClass, String modifierName) {
@@ -80,7 +83,8 @@ public class FlowExecutionContext {
         String cfgId = AbstractDeploymentConfig.generateId(env.getTopologyVersion(), env.getId());
         String configCacheId = cfgClass.getSimpleName() + "/" + cfgId;
         T config = (T) executionCache.get(configCacheId);
-        if (config == null) {
+        // If the config object is annotated with ESObject then it may be cached in ElasticSearch
+        if (config == null && cfgClass.isAnnotationPresent(ESObject.class)) {
             config = alienDAO.findById(cfgClass, cfgId);
             executionCache.put(configCacheId, config);
         }
@@ -94,14 +98,18 @@ public class FlowExecutionContext {
     }
 
     /**
-     * Counterparty method of the getConfiguration to actually update a configuration both in elasticsearch and the local configuration cache.
+     * Counterparty method of the getConfiguration to actually update a configuration both in elasticsearch
+     * (configuration object MUST be annotated with {@link ESObject} and the local configuration cache.
      * 
      * @param configuration The configuration to update.
      */
     public void saveConfiguration(AbstractDeploymentConfig configuration) {
         String configCacheId = configuration.getClass().getSimpleName() + "/" + configuration.getId();
         executionCache.put(configCacheId, configuration);
-        alienDAO.save(configuration); // This also updates the date.
+        if (configuration.getClass().isAnnotationPresent(ESObject.class)) {
+            alienDAO.save(configuration); // This also updates the date.
+        }
         lastFlowParamUpdate = configuration.getLastUpdateDate();
     }
+
 }

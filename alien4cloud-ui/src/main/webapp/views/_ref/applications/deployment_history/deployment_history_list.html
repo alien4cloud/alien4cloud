@@ -1,0 +1,34 @@
+<div class="col-md-12 grp-margin">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th><b>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DEPLOYER' | translate}}</b></th>
+                <th><b>{{'ORCHESTRATORS.NAV.LOCATIONS' | translate}}</b></th>
+                <th><b>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DEPLOYED_AT' | translate}}</b></th>
+                <th><b>{{'APPLICATIONS.DEPLOYMENT.HISTORY.UNDEPLOYED_AT' | translate}}</b></th>
+                <th><b>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DURATION' | translate}}</b></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="clickable" ng-repeat="deployment in deployments" ng-click="handleHistoryClick(deployment)">
+                <td>
+                    {{ deployment.deployment.deployerUsername || 'unknown' }}
+                </td>
+                <td>
+                    {{ deployment.locations[0].name }}
+                </td>
+                <td>
+                    {{ deployment.deployment.startDate | date:'medium' }}
+                </td>
+                <td>
+                    {{ (deployment.deployment.endDate | date:'medium') || '---' }}
+                </td>
+                <td>
+                    <span>
+                        {{ ((deployment.deployment.endDate || now) - deployment.deployment.startDate) | amDurationFormat : 'millisecond' }}
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
