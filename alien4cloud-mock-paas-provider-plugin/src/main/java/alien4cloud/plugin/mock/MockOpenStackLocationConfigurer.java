@@ -120,5 +120,11 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
                 resourceAccessor);
 
         return resourceGeneratorService.generateComputeFromImageAndFlavor(imageContext, flavorContext, computeContext, null, resourceAccessor);
+
+    }
+
+    @Override
+    public List<String> getPoliciesTypes() {
+        return Lists.newArrayList("org.alien4cloud.policies.mock.MinimalPolicyType", "org.alien4cloud.policies.mock.SimpleConditionPolicyType");
     }
 }

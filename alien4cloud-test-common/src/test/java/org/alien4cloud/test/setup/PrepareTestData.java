@@ -30,6 +30,9 @@ public class PrepareTestData {
             log.error("Failed to delete zipped archives repository.", e);
         }
 
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "master",
+                "tosca-normative-types-1.0.0-ALIEN14");
+
         repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.0.0.wd06.alien",
                 "tosca-normative-types-wd06");
 

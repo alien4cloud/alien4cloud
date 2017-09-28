@@ -2,7 +2,11 @@ package alien4cloud.tosca.parser.postprocess;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -15,7 +19,6 @@ import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
 import org.apache.commons.collections.MapUtils;
-import org.elasticsearch.common.inject.Inject;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -53,7 +56,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
 
     /**
      * Perform validation of a Tosca archive.
-     * 
+     *
      * @param archiveRoot The archive to validate and post process.
      */
     public void process(ArchiveRoot archiveRoot) {
