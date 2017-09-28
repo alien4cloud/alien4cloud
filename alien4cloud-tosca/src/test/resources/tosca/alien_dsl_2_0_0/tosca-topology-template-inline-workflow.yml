@@ -1,11 +1,11 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: Template name value
-  template_author: Temlate author value
-  template_version: 1.0.0-SNAPSHOT
+  template_name: org.alien4cloud.test.workflow.Inline
+  template_author: alien4cloud
+  template_version: 2.0.0-SNAPSHOT
 
-description: ""
+description: This template contains tests of inline workflow activity
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
@@ -14,18 +14,6 @@ topology_template:
   node_templates:
     Compute:
       type: tosca.nodes.Compute
-      capabilities:
-        scalable:
-          properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
-        endpoint:
-          properties:
-            secure: true
-            protocol: tcp
-            network_name: PRIVATE
-            initiator: source
   workflows:
     install:
       steps:
@@ -33,12 +21,12 @@ topology_template:
           target: Compute
           activities:
             - delegate: install
+            # Inline another workflow defined in the topology (to allow reusability)
             - inline: my_custom_wf
+    # Here the definition of the workflow who will be reuse by activities from other workflow
     my_custom_wf:
       steps:
         Compute_uninstall:
           target: Compute
           activities:
             - delegate: uninstall
-            - set_state: uninstalled
-

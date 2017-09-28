@@ -1,0 +1,44 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.test.workflow.Relationship
+  template_author: alien4cloud
+  template_version: 2.0.0-SNAPSHOT
+
+description: This template contains tests of workflow with relationship operation
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+topology_template:
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+    SoftwareComponent:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - hostedOnComputeHost:
+            type_requirement: host
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+  workflows:
+    install:
+      steps:
+        Compute_install:
+          target: Compute
+          activities:
+            - delegate: install
+        SoftwareComponent_install:
+          target: SoftwareComponent
+          activities:
+            - delegate: install
+        SoftwareComponent_hostedOnComputeHost_pre_configure_source:
+          target: SoftwareComponent
+          target_relationship: hostedOnComputeHost
+          operation_host: SOURCE
+          activities:
+            - call_operation: Configure.pre_configure_source
+            - set_state: installed
+          on-success:
+            - SoftwareComponent_install

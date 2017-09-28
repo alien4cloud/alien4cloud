@@ -1,14 +1,18 @@
 package alien4cloud.tosca.parser.postprocess;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.topology.TopologyUtils;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ToscaParser;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.NameValidationUtils;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -21,20 +25,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.paas.wf.util.WorkflowUtils;
-import alien4cloud.topology.TopologyUtils;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ToscaParser;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.utils.NameValidationUtils;
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Post process a topology.
@@ -146,7 +143,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
             if (wf.getSteps() != null) {
                 for (WorkflowStep step : wf.getSteps().values()) {
                     if (step.getActivities().size() < 2) {
-                        break;
+                        continue;
                     }
                     if (newStepNames.get(step.getName()) == null) {
                         newStepNames.put(step.getName(), Sets.newHashSet());
@@ -156,10 +153,8 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                     }
                     for (int i=1; i<step.getActivities().size(); i++) {
                         // here we iterate on activities to create new step
-                        WorkflowStep wfStep = new WorkflowStep(step.getTarget(), step.getHostId(), step.getActivities().get(i));
                         String wfStepName = generateNewWfStepName(wf.getSteps().keySet(), stepsToAddByWf.get(wf.getName()).keySet() , step.getName());
-                        wfStep.setName(wfStepName);
-                        wfStep.setOnSuccess(step.getOnSuccess());
+                        WorkflowStep wfStep = new WorkflowStep(wfStepName, step.getTarget(), step.getTargetRelationship(), step.getOperationHost(), step.getHostId(), step.getActivities().get(i), step.getOnSuccess());
                         stepsToAddByWf.get(wf.getName()).put(wfStepName, wfStep);
                         newStepNames.get(step.getName()).add(wfStepName);
                     }

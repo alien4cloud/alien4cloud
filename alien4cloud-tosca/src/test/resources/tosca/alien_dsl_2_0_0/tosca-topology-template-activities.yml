@@ -1,11 +1,11 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: Template name value
-  template_author: Temlate author value
-  template_version: 1.0.0-SNAPSHOT
+  template_name: org.alien4cloud.test.workflow.Activities
+  template_author: alien4cloud
+  template_version: 2.0.0-SNAPSHOT
 
-description: ""
+description: This template contains tests of multiple workflow activity peer step
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
@@ -14,23 +14,12 @@ topology_template:
   node_templates:
     Compute:
       type: tosca.nodes.Compute
-      capabilities:
-        scalable:
-          properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
-        endpoint:
-          properties:
-            secure: true
-            protocol: tcp
-            network_name: PRIVATE
-            initiator: source
   workflows:
     install:
       steps:
         Compute_install:
           target: Compute
+          # TOSCA defined abilities to support multiple workflow activity per step
           activities:
             - delegate: install
             - set_state: installed
@@ -42,4 +31,3 @@ topology_template:
           activities:
             - delegate: uninstall
             - set_state: uninstalled
-

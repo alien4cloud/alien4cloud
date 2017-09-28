@@ -1,19 +1,17 @@
 package org.alien4cloud.tosca.model.workflow;
 
+import alien4cloud.paas.exception.NotSupportedException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.conditions.AbstractConditionClause;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
-import org.alien4cloud.tosca.model.workflow.conditions.AbstractConditionClause;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import alien4cloud.paas.exception.NotSupportedException;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * A step in the workflow.
@@ -50,6 +48,14 @@ public class WorkflowStep {
         this.target = target;
         this.hostId = hostId;
         setActivity(activity);
+    }
+
+    public WorkflowStep(String name, String target, String targetRelationship, String operationHost, String hostId, AbstractWorkflowActivity activity, Set<String> onSuccess) {
+        this(target, hostId, activity);
+        this.name = name;
+        this.targetRelationship = targetRelationship;
+        this.operationHost = operationHost;
+        this.onSuccess = onSuccess;
     }
 
     /** The id / name of the step in the workflow **/
