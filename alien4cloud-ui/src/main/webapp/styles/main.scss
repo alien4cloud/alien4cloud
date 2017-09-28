@@ -514,3 +514,11 @@ img.icon_32 {
   display: table-cell;
   vertical-align: middle;
 }
+
+.table-vertical-center > tbody > tr > td {
+  vertical-align: middle;
+}
+
+.table-vertical-center .td-icon {
+  width: 5%;
+}
