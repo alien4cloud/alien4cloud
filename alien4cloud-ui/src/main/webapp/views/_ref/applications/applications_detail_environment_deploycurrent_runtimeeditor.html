@@ -51,7 +51,7 @@
                           </tr>
                           <tr>
                             <td class="col-md-4"><strong>{{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</strong></td>
-                            <td class="col-md-8" colspan="2">{{selectedEnvironment.name}}</td>
+                            <td class="col-md-8" colspan="2">{{environment.name}}</td>
                           </tr>
                           <tr>
                             <td class="col-md-4"><strong>{{'APPLICATIONS.VERSION.TOPOLOGY.LABEL' | translate}}</strong></td>
@@ -401,7 +401,7 @@
                 <managed-service
                   application="application"
                   topology="topology.topology"
-                  environment="selectedEnvironment"
+                  environment="environment"
                   runtime="true",
                   close="display.set('service', false)">
                 </managed-service>

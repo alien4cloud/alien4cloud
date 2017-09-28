@@ -49,7 +49,7 @@ define(function (require) {
           $scope.isLaunchingWorkflow = true;
           applicationServices.launchWorkflow({
             applicationId: $scope.application.id,
-            applicationEnvironmentId: $scope.selectedEnvironment.id,
+            applicationEnvironmentId: $scope.environment.id,
             workflowName: $scope.currentWorkflowName
           }, undefined, function success() {
             $scope.isLaunchingWorkflow = false;
