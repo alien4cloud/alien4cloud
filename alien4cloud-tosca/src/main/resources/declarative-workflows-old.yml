@@ -120,19 +120,13 @@ relationship_workflows:
     # remove_target -> source.stop
 
     operations:
+        # source.stop -> remove_target -> remove_source
       remove_source:
-        # remove_source -> [ source.stop, target.stop ]
-        source:
-          following_operations: [ stop ]
-        target:
-          following_operations: [ stop ]
+        preceding_operations: [ remove_target ]
         operation_host: TARGET
       remove_target:
-        # remove_target -> [ source.stop, target.stop ]
         source:
-          following_operations: [ stop ]
-        target:
-          following_operations: [ stop ]
+          preceding_operations: [ stop ]
         operation_host: SOURCE
 
 relationships_weaving:

@@ -154,18 +154,19 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                     stepsToAddByWf.computeIfAbsent(wf.getName(), k -> Maps.newHashMap());
                     for (int i = 1; i < step.getActivities().size(); i++) {
                         // here we iterate on activities to create new step
-                        WorkflowStep wfStep;
+                        WorkflowStep singleActivityStep;
                         if (step instanceof NodeWorkflowStep) {
-                            wfStep = new NodeWorkflowStep(step.getTarget(), ((NodeWorkflowStep) step).getHostId(), step.getActivities().get(i));
+                            singleActivityStep = new NodeWorkflowStep(step.getTarget(), ((NodeWorkflowStep) step).getHostId(), step.getActivities().get(i));
                         } else {
                             RelationshipWorkflowStep rwfs = (RelationshipWorkflowStep) step;
-                            wfStep = new RelationshipWorkflowStep(rwfs.getTarget(), rwfs.getTargetRelationship(), rwfs.getSourceHostId(),
+                            singleActivityStep = new RelationshipWorkflowStep(rwfs.getTarget(), rwfs.getTargetRelationship(), rwfs.getSourceHostId(),
                                     rwfs.getTargetHostId(), rwfs.getActivities().get(i));
                         }
                         String wfStepName = generateNewWfStepName(wf.getSteps().keySet(), stepsToAddByWf.get(wf.getName()).keySet(), step.getName());
-                        wfStep.setName(wfStepName);
-                        wfStep.setOnSuccess(step.getOnSuccess());
-                        stepsToAddByWf.get(wf.getName()).put(wfStepName, wfStep);
+                        singleActivityStep.setName(wfStepName);
+                        singleActivityStep.setOnSuccess(step.getOnSuccess());
+                        singleActivityStep.setOperationHost(step.getOperationHost());
+                        stepsToAddByWf.get(wf.getName()).put(wfStepName, singleActivityStep);
                         newStepNames.get(step.getName()).add(wfStepName);
                     }
                     // new steps are created, we can clean activities

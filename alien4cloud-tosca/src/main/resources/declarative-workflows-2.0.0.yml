@@ -70,7 +70,7 @@ node_workflows:
 
 relationship_workflows:
   install:
-    # If we join all source and operation dependencies, we have a disjoint relationship workflow
+    # If we join all source and operation dependencies, we have a relationship workflow
     # source.created -> pre_configure_source -> source.configure -> source.configured -> post_configure_source -> source.start -> source.started -> add_target
     # target.created -> pre_configure_target -> target.configure -> target.configured -> post_configure_target -> target.start -> target.started -> add_source
 
@@ -115,7 +115,7 @@ relationship_workflows:
           preceding_state: started
         operation_host: SOURCE
   uninstall:
-    # If we join all source and operation dependencies, we have a disjoint relationship workflow
+    # If we join all source and operation dependencies, we have a relationship workflow
     # remove_source -> target.stop
     # remove_target -> source.stop
 

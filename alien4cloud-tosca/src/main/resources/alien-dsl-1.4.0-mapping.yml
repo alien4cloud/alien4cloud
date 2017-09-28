@@ -95,7 +95,7 @@
     key: name
     type: workflow_step
 
-- workflow_step : org.alien4cloud.tosca.model.workflow.WorkflowStep
+- workflow_step : org.alien4cloud.tosca.model.workflow.NodeWorkflowStep
   node: target
   activity:
     reference: activity
