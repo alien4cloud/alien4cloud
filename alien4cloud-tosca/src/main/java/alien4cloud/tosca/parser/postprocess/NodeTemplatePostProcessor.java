@@ -17,7 +17,7 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import alien4cloud.tosca.topology.TemplateBuilder;
 
 /**
  * Post process a node template
@@ -53,7 +53,7 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
                 .map(Operation::getImplementationArtifact).filter(Objects::nonNull).forEach(implementationArtifactPostProcessor);
 
         // Merge the node template with data coming from the type (default values etc.).
-        NodeTemplate tempObject = NodeTemplateBuilder.buildNodeTemplate(nodeType, instance, false);
+        NodeTemplate tempObject = TemplateBuilder.buildNodeTemplate(nodeType, instance, false);
         safe(instance.getCapabilities()).keySet().forEach(s -> {
             if (!safe(tempObject.getCapabilities()).containsKey(s)) {
                 Node node = ParsingContextExecution.getObjectToNodeMap().get(s);

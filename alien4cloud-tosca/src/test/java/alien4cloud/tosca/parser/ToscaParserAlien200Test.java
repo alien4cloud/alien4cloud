@@ -42,7 +42,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
         PolicyType mockRoot = Mockito.mock(PolicyType.class);
         Mockito.when(mockRoot.isAbstract()).thenReturn(true);
-        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("tosca.policies.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockRoot);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-policy-type.yml"));
@@ -55,6 +55,8 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
 
         PolicyType minPolicyType = archiveRoot.getPolicyTypes().get("org.alien4cloud.sample.MinimalPolicyType");
         assertNotNull(minPolicyType);
+        assertEquals("org.alien4cloud.test.policies.PolicyTypes", minPolicyType.getArchiveName());
+        assertEquals("2.0.0-SNAPSHOT", minPolicyType.getArchiveVersion());
         assertEquals("org.alien4cloud.sample.MinimalPolicyType", minPolicyType.getElementId());
         assertEquals("This is a sample policy type with minimal definition", minPolicyType.getDescription());
         assertEquals(1, minPolicyType.getDerivedFrom().size());
@@ -62,6 +64,8 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
 
         PolicyType simplePolicyType = archiveRoot.getPolicyTypes().get("org.alien4cloud.sample.SimpleConditionPolicyType");
         assertNotNull(simplePolicyType);
+        assertEquals("org.alien4cloud.test.policies.PolicyTypes", simplePolicyType.getArchiveName());
+        assertEquals("2.0.0-SNAPSHOT", simplePolicyType.getArchiveVersion());
         assertEquals("org.alien4cloud.sample.SimpleConditionPolicyType", simplePolicyType.getElementId());
         assertEquals("This is a sample policy type with simple definition", simplePolicyType.getDescription());
         assertEquals(1, simplePolicyType.getDerivedFrom().size());
@@ -80,6 +84,8 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
 
         PolicyType policyType = archiveRoot.getPolicyTypes().get("org.alien4cloud.sample.PolicyType");
         assertNotNull(policyType);
+        assertEquals("org.alien4cloud.test.policies.PolicyTypes", policyType.getArchiveName());
+        assertEquals("2.0.0-SNAPSHOT", policyType.getArchiveVersion());
         assertEquals("org.alien4cloud.sample.PolicyType", policyType.getElementId());
         assertEquals("This is a sample policy type", policyType.getDescription());
         assertEquals(1, policyType.getDerivedFrom().size());
@@ -112,7 +118,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
 
         PolicyType mockRoot = Mockito.mock(PolicyType.class);
         Mockito.when(mockRoot.isAbstract()).thenReturn(true);
-        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("tosca.policies.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockRoot);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-policy-template.yml"));

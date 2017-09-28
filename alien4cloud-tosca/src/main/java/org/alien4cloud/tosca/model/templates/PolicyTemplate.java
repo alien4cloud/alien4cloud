@@ -1,8 +1,11 @@
 package org.alien4cloud.tosca.model.templates;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.alien4cloud.tosca.model.definitions.PolicyTrigger;
 
 import lombok.Getter;
@@ -14,6 +17,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PolicyTemplate extends AbstractTemplate {
-    private List<String> targets;
-    private Map<String, PolicyTrigger> triggers;
+    private List<String> targets = Lists.newArrayList();
+    private Map<String, PolicyTrigger> triggers = Maps.newLinkedHashMap();
 }

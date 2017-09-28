@@ -14,11 +14,17 @@ import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Requirement;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -33,7 +39,17 @@ import lombok.extern.slf4j.Slf4j;
  * Utility to create a Node Template by merging Node Type and Node Template data.
  */
 @Slf4j
-public class NodeTemplateBuilder {
+public class TemplateBuilder {
+    /**
+     * Build a node template. Note that a Tosca Context is required.
+     *
+     * @param indexedNodeType the type of the node
+     * @return new constructed node template.
+     */
+    public static NodeTemplate buildNodeTemplate(NodeType indexedNodeType) {
+        return buildNodeTemplate(indexedNodeType, null, true);
+    }
+
     /**
      * Build a node template. Note that a Tosca Context is required.
      *
@@ -48,38 +64,54 @@ public class NodeTemplateBuilder {
     /**
      * Build a node template. Note that a Tosca Context is required.
      *
-     * @param indexedNodeType the type of the node
+     * @param nodeType the type of the node
      * @param templateToMerge the template that can be used to merge into the new node template
      * @param adaptToType This flag allow to know if we should adapt the templateToMerge node to the type.
      * @return new constructed node template.
      */
-    public static NodeTemplate buildNodeTemplate(NodeType indexedNodeType, NodeTemplate templateToMerge, boolean adaptToType) {
+    public static NodeTemplate buildNodeTemplate(NodeType nodeType, NodeTemplate templateToMerge, boolean adaptToType) {
         NodeTemplate nodeTemplate = new NodeTemplate();
-        nodeTemplate.setType(indexedNodeType.getElementId());
-        Map<String, Capability> capabilities = Maps.newLinkedHashMap();
-        Map<String, Requirement> requirements = Maps.newLinkedHashMap();
-        Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();
-        Map<String, DeploymentArtifact> deploymentArtifacts = Maps.newLinkedHashMap();
+        fillAbstractInstantiableTemplate(nodeTemplate, nodeType, templateToMerge, !adaptToType);
 
-        fillDeploymentArtifactsMap(deploymentArtifacts, indexedNodeType.getArtifacts(), templateToMerge != null ? templateToMerge.getArtifacts() : null);
-        fillCapabilitiesMap(capabilities, indexedNodeType.getCapabilities(), templateToMerge != null ? templateToMerge.getCapabilities() : null, adaptToType);
-        fillRequirementsMap(requirements, indexedNodeType.getRequirements(), templateToMerge != null ? templateToMerge.getRequirements() : null, adaptToType);
-        fillProperties(properties, indexedNodeType.getProperties(), templateToMerge != null ? templateToMerge.getProperties() : null, adaptToType);
+        nodeTemplate.setCapabilities(Maps.newLinkedHashMap());
+        nodeTemplate.setRequirements(Maps.newLinkedHashMap());
 
-        nodeTemplate.setCapabilities(capabilities);
-        nodeTemplate.setRequirements(requirements);
-        nodeTemplate.setProperties(properties);
-        nodeTemplate.setAttributes(indexedNodeType.getAttributes());
-        nodeTemplate.setArtifacts(deploymentArtifacts.isEmpty() ? null : deploymentArtifacts);
-        if (templateToMerge != null) {
-            if (templateToMerge.getInterfaces() != null) {
-                nodeTemplate.setInterfaces(templateToMerge.getInterfaces());
-            }
-            if (templateToMerge.getRelationships() != null) {
-                nodeTemplate.setRelationships(templateToMerge.getRelationships());
-            }
+        fillCapabilitiesMap(nodeTemplate.getCapabilities(), nodeType.getCapabilities(), templateToMerge != null ? templateToMerge.getCapabilities() : null,
+                adaptToType);
+        fillRequirementsMap(nodeTemplate.getRequirements(), nodeType.getRequirements(), templateToMerge != null ? templateToMerge.getRequirements() : null,
+                adaptToType);
+
+        if (templateToMerge != null && templateToMerge.getRelationships() != null) {
+            nodeTemplate.setRelationships(templateToMerge.getRelationships());
         }
+
         return nodeTemplate;
+    }
+
+    public static PolicyTemplate buildPolicyTemplate(PolicyType policyType) {
+        PolicyTemplate policyTemplate = new PolicyTemplate();
+        fillAbstractTemplate(policyTemplate, policyType, null, false);
+        return policyTemplate;
+    }
+
+    private static void fillAbstractTemplate(AbstractTemplate template, AbstractInheritableToscaType type, AbstractTemplate templateToMerge,
+            boolean mergeUndefinedProps) {
+        template.setType(type.getElementId());
+        template.setProperties(Maps.newLinkedHashMap());
+        fillProperties(template.getProperties(), type.getProperties(), templateToMerge != null ? templateToMerge.getProperties() : null, !mergeUndefinedProps);
+    }
+
+    private static void fillAbstractInstantiableTemplate(AbstractInstantiableTemplate template, AbstractInstantiableToscaType type,
+            AbstractInstantiableTemplate templateToMerge, boolean mergeUndefinedProps) {
+        fillAbstractTemplate(template, type, templateToMerge, mergeUndefinedProps);
+        template.setArtifacts(Maps.newLinkedHashMap());
+        fillDeploymentArtifactsMap(template.getArtifacts(), type.getArtifacts(), templateToMerge != null ? templateToMerge.getArtifacts() : null);
+        // For now we just copy attributes as is.
+        template.setAttributes(type.getAttributes());
+        if (templateToMerge != null && templateToMerge.getInterfaces() != null) {
+            // FIXME we should merge here rather than replace
+            template.setInterfaces(templateToMerge.getInterfaces());
+        }
     }
 
     private static void fillDeploymentArtifactsMap(Map<String, DeploymentArtifact> deploymentArtifacts, Map<String, DeploymentArtifact> fromTypeArtifacts,

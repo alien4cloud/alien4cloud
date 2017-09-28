@@ -92,9 +92,9 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
      * Process imports within the archive and compute its complete dependency set.
      * Resolve all dependency version conflicts using the following rules:
      * <ul>
-     *     <li>If two direct dependencies conflict with each other, use the latest version</li>
-     *     <li>If a transitive dependency conflicts with a direct dependency, use the direct dependency version</li>
-     *     <li>If two transitive dependency conflict with each other, use the latest version.</li>
+     * <li>If two direct dependencies conflict with each other, use the latest version</li>
+     * <li>If a transitive dependency conflicts with a direct dependency, use the direct dependency version</li>
+     * <li>If two transitive dependency conflict with each other, use the latest version.</li>
      * </ul>
      *
      * @param archiveRoot The archive to process.
@@ -109,45 +109,31 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
 
         // Ensure the archive does not import itself
         Csar archive = archiveRoot.getArchive();
-        if(dependencies.contains(new CSARDependency(archive.getName(), archive.getVersion(), archive.getHash()))){
-            ParsingContextExecution.getParsingErrors()
-                    .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.CSAR_IMPORT_ITSELF,
-                            AlienUtils.prefixWith(":", archive.getVersion(), archive.getName()),
-                            null,
-                            "Import itself",
-                            null, null));
+        if (dependencies.contains(new CSARDependency(archive.getName(), archive.getVersion(), archive.getHash()))) {
+            ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.CSAR_IMPORT_ITSELF,
+                    AlienUtils.prefixWith(":", archive.getVersion(), archive.getName()), null, "Import itself", null, null));
         }
 
-        /* Three types of conflicts :
-          - A transitive dep has a different version than a direct dependency => Force transitive to direct version
-          - Transitive dependencies with the same name and different version are used => Use latest
-          - Direct dependencies with the same name and different version are used => Error or use latest ?
-        */
+        /*
+         * Three types of conflicts :
+         * - A transitive dep has a different version than a direct dependency => Force transitive to direct version
+         * - Transitive dependencies with the same name and different version are used => Use latest
+         * - Direct dependencies with the same name and different version are used => Error or use latest ?
+         */
 
         // 1. Resolve all direct dependencies using latest version
-        dependencies.removeIf(dependency ->
-                dependencyConflictsWithLatest(dependency, dependencies)
-        );
+        dependencies.removeIf(dependency -> dependencyConflictsWithLatest(dependency, dependencies));
 
         // Compute all distinct transitives dependencies
         final Set<CSARDependency> transitiveDependencies = new HashSet<>(
-                dependencies.stream()
-                .map(csarDependency -> ToscaContext.get().getArchive(csarDependency.getName(), csarDependency.getVersion()))
-                .map(Csar::getDependencies)
-                .filter(c -> c != null)
-                .reduce(Sets::union)
-                .orElse(Collections.emptySet())
-        );
+                dependencies.stream().map(csarDependency -> ToscaContext.get().getArchive(csarDependency.getName(), csarDependency.getVersion()))
+                        .map(Csar::getDependencies).filter(c -> c != null).reduce(Sets::union).orElse(Collections.emptySet()));
 
         // 2. Resolve all transitive vs. direct dependencies conflicts using the direct dependency's version
-        transitiveDependencies.removeIf(transitiveDependency ->
-                dependencyConflictsWithDirect(transitiveDependency, dependencies)
-        );
+        transitiveDependencies.removeIf(transitiveDependency -> dependencyConflictsWithDirect(transitiveDependency, dependencies));
 
         // 3. Resolve all transitive dependencies conflicts using latest version
-        transitiveDependencies.removeIf(transitiveDependency ->
-                dependencyConflictsWithLatest(transitiveDependency, transitiveDependencies)
-        );
+        transitiveDependencies.removeIf(transitiveDependency -> dependencyConflictsWithLatest(transitiveDependency, transitiveDependencies));
 
         // Merge all dependencies (direct + transitives)
         final Set<CSARDependency> mergedDependencies = new HashSet<>(Sets.union(dependencies, transitiveDependencies));
@@ -171,13 +157,11 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
                 .findFirst() // As we resolved direct dependencies conflicts earlier, there can only be one direct dependency that conflicts
                 .map(conflictingDependency -> {
                     // Log the dependency conflict as a warning.
-                    ParsingContextExecution.getParsingErrors().add(
-                            new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.TRANSITIVE_DEPENDENCY_VERSION_CONFLICT,
-                                AlienUtils.prefixWith(":", conflictingDependency.getVersion(), conflictingDependency.getName()), null,
-                                AlienUtils.prefixWith(":", transitiveDependency.getVersion(), transitiveDependency.getName()),
-                                null, conflictingDependency.getVersion()
-                            )
-                    );
+                    ParsingContextExecution.getParsingErrors()
+                            .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.TRANSITIVE_DEPENDENCY_VERSION_CONFLICT,
+                                    AlienUtils.prefixWith(":", conflictingDependency.getVersion(), conflictingDependency.getName()), null,
+                                    AlienUtils.prefixWith(":", transitiveDependency.getVersion(), transitiveDependency.getName()), null,
+                                    conflictingDependency.getVersion()));
                     // Resolve conflict by using the direct dependency version - delete the transitive dependency
                     return true;
                 }).orElse(false);
@@ -191,20 +175,18 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
      * @return <code>true</code> if the given dependency is present in the Set in a newer version.
      */
     private boolean dependencyConflictsWithLatest(CSARDependency dependency, Set<CSARDependency> dependencies) {
-        return dependencies.stream()
-                .anyMatch(csarDependency -> {
-                    if (Objects.equals(dependency.getName(), csarDependency.getName())
-                            && VersionUtil.compare(dependency.getVersion(), csarDependency.getVersion()) < 0) {
-                        ParsingContextExecution.getParsingErrors()
-                                .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.DEPENDENCY_VERSION_CONFLICT,
-                                        AlienUtils.prefixWith(":", dependency.getVersion(), dependency.getName()), null,
-                                        AlienUtils.prefixWith(":", csarDependency.getVersion(), csarDependency.getName()),
-                                        null, null));
-                        return true;
-                    } else     {
-                        return false;
-                    }
-                });
+        return dependencies.stream().anyMatch(csarDependency -> {
+            if (Objects.equals(dependency.getName(), csarDependency.getName())
+                    && VersionUtil.compare(dependency.getVersion(), csarDependency.getVersion()) < 0) {
+                ParsingContextExecution.getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.DEPENDENCY_VERSION_CONFLICT,
+                                AlienUtils.prefixWith(":", dependency.getVersion(), dependency.getName()), null,
+                                AlienUtils.prefixWith(":", csarDependency.getVersion(), csarDependency.getName()), null, null));
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 
     private void processRepositoriesDefinitions(Map<String, RepositoryDefinition> repositories) {
@@ -238,12 +220,13 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         derivedFromPostProcessor.process(archiveRoot.getCapabilityTypes());
         derivedFromPostProcessor.process(archiveRoot.getRelationshipTypes());
         derivedFromPostProcessor.process(archiveRoot.getNodeTypes());
+        derivedFromPostProcessor.process(archiveRoot.getPolicyTypes());
 
         safe(archiveRoot.getDataTypes()).values().stream().forEach(toscaTypePostProcessor);
         safe(archiveRoot.getArtifactTypes()).values().stream().forEach(toscaTypePostProcessor);
         safe(archiveRoot.getCapabilityTypes()).values().stream().forEach(toscaTypePostProcessor);
         safe(archiveRoot.getRelationshipTypes()).values().stream().peek(toscaTypePostProcessor).forEach(toscaArtifactTypePostProcessor);
         safe(archiveRoot.getNodeTypes()).values().stream().peek(toscaTypePostProcessor).peek(nodeTypePostProcessor).forEach(toscaArtifactTypePostProcessor);
-
+        safe(archiveRoot.getPolicyTypes()).values().stream().forEach(toscaTypePostProcessor);
     }
 }

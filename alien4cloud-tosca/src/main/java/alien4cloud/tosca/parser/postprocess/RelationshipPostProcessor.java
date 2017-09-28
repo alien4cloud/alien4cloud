@@ -26,7 +26,7 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import alien4cloud.tosca.topology.TemplateBuilder;
 
 @Component
 public class RelationshipPostProcessor {
@@ -114,7 +114,7 @@ public class RelationshipPostProcessor {
             return;
         }
         Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();
-        NodeTemplateBuilder.fillProperties(properties, indexedRelationshipType.getProperties(), relationshipTemplate.getProperties(), false);
+        TemplateBuilder.fillProperties(properties, indexedRelationshipType.getProperties(), relationshipTemplate.getProperties(), false);
         relationshipTemplate.setProperties(properties);
         relationshipTemplate.setAttributes(indexedRelationshipType.getAttributes());
 
