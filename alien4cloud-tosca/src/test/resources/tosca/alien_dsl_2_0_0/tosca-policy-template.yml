@@ -13,10 +13,14 @@ imports:
 policy_types:
   org.alien4cloud.sample.SamplePolicy:
     derived_from: tosca.policies.Root
-    description: This is a sample policy type with minimal definition
+    description: This is a sample policy type with simple definition
+    metadata:
+      sample_meta: a meta data
+      anoter_meta: another meta data
     properties:
       sample_property:
         type: string
+    targets: ["tosca.nodes.Compute", "org.alien4cloud.Group"]
 
 topology_template:
   node_templates:

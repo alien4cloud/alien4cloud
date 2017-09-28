@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
@@ -34,7 +36,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
-    public void testPolicyParsing() throws FileNotFoundException, ParsingException {
+    public void testPolicyTypeParsing() throws FileNotFoundException, ParsingException {
         Mockito.reset(csarRepositorySearchService);
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
         PolicyType mockRoot = Mockito.mock(PolicyType.class);
@@ -92,6 +94,60 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertEquals(2, simplePolicyType.getTargets().size());
         assertEquals("tosca.nodes.Compute", simplePolicyType.getTargets().get(0));
         assertEquals("org.alien4cloud.Group", simplePolicyType.getTargets().get(1));
+    }
+
+    @Test
+    public void testPolicyTemplateParsing() throws FileNotFoundException, ParsingException {
+        Mockito.reset(csarRepositorySearchService);
+        Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
+
+        NodeType mockedResult = Mockito.mock(NodeType.class);
+        Mockito.when(
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+
+        PolicyType mockRoot = Mockito.mock(PolicyType.class);
+        Mockito.when(mockRoot.isAbstract()).thenReturn(true);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockRoot);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-policy-template.yml"));
+        assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+
+        ArchiveRoot archiveRoot = parsingResult.getResult();
+        assertNotNull(archiveRoot.getArchive());
+        assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
+        assertEquals(1, archiveRoot.getPolicyTypes().size());
+
+        PolicyType simplePolicyType = archiveRoot.getPolicyTypes().get("org.alien4cloud.sample.SamplePolicy");
+        assertNotNull(simplePolicyType);
+        assertEquals("org.alien4cloud.sample.SamplePolicy", simplePolicyType.getElementId());
+        assertEquals("This is a sample policy type with simple definition", simplePolicyType.getDescription());
+        assertEquals(1, simplePolicyType.getDerivedFrom().size());
+        assertEquals("tosca.policies.Root", simplePolicyType.getDerivedFrom().get(0));
+        assertEquals(2, simplePolicyType.getTags().size());
+        assertEquals("sample_meta", simplePolicyType.getTags().get(0).getName());
+        assertEquals("a meta data", simplePolicyType.getTags().get(0).getValue());
+        assertEquals("anoter_meta", simplePolicyType.getTags().get(1).getName());
+        assertEquals("another meta data", simplePolicyType.getTags().get(1).getValue());
+        assertEquals(1, simplePolicyType.getProperties().size());
+        assertNotNull(simplePolicyType.getProperties().get("sample_property"));
+        assertEquals("string", simplePolicyType.getProperties().get("sample_property").getType());
+        assertEquals(2, simplePolicyType.getTargets().size());
+        assertEquals("tosca.nodes.Compute", simplePolicyType.getTargets().get(0));
+        assertEquals("org.alien4cloud.Group", simplePolicyType.getTargets().get(1));
+
+        // Test that the template is correctly parsed
+        assertNotNull(archiveRoot.getTopology());
+        assertEquals(1, archiveRoot.getTopology().getPolicies().size());
+        assertNotNull(archiveRoot.getTopology().getPolicies().get("anti_affinity_policy"));
+        assertEquals("org.alien4cloud.sample.SamplePolicy", archiveRoot.getTopology().getPolicies().get("anti_affinity_policy").getType());
+        assertEquals(1, archiveRoot.getTopology().getPolicies().get("anti_affinity_policy").getProperties().size());
+        assertNotNull(archiveRoot.getTopology().getPolicies().get("anti_affinity_policy").getProperties().get("sample_property"));
+        assertEquals(2, archiveRoot.getTopology().getPolicies().get("anti_affinity_policy").getTags().size());
     }
 
     public void parseTopologyTemplateWithActivities() throws ParsingException, IOException {

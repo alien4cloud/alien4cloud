@@ -1,8 +1,10 @@
 package org.alien4cloud.tosca.model.templates;
 
+import java.util.List;
 import java.util.Map;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.elasticsearch.annotation.NestedObject;
 import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
+import alien4cloud.model.common.Tag;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
@@ -29,9 +32,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor(suppressConstructorProperties = true)
 public abstract class AbstractTemplate {
-    /**
-     * Name of the template
-     */
+    /** Name of the template. Same value as it's key in the map. */
+    @StringField(indexType = IndexType.no, includeInAll = false)
     private String name;
 
     /**
@@ -44,6 +46,13 @@ public abstract class AbstractTemplate {
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String type;
+
+    @StringField(indexType = IndexType.no, includeInAll = false)
+    private String description;
+
+    /* Tosca metadata */
+    @NestedObject(nestedClass = Tag.class)
+    private List<Tag> tags;
 
     /** Properties of the template. */
     @ObjectField(enabled = false)
