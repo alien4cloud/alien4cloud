@@ -31,7 +31,7 @@ public class AddPolicyProcessor implements IEditorOperationProcessor<AddPolicyOp
     public void process(AddPolicyOperation operation) {
         Topology topology = EditionContextManager.getTopology();
 
-        NameValidationUtils.isValid(operation.getPolicyName());
+        NameValidationUtils.validate("policy", operation.getPolicyName());
         AlienUtils.failIfExists(topology.getPolicies(), operation.getPolicyName(), "A policy with the given name {} already exists in the topology {}.",
                 operation.getPolicyName(), topology.getId());
 
