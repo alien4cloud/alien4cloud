@@ -1,5 +1,7 @@
 package alien4cloud.orchestrators.locations.services;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,10 +23,12 @@ import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.utils.DataTypesFetcher;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -132,12 +136,25 @@ public class LocationResourceService implements ILocationResourceService {
         Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
-        List<String> allExposedTypes = configuratorPlugin.getResourcesTypes();
+
+        Collection<String> allExposedTypes = getAllExposedTypes(configuratorPlugin);
         fillLocationResourceTypes(allExposedTypes, locationResources, location.getDependencies());
 
         List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
         setLocationRessource(locationResourceTemplates, locationResources);
         return locationResources;
+    }
+
+    /**
+     * exposed node types and policy types
+     * 
+     * @param configuratorPlugin
+     * @return
+     */
+    private Collection<String> getAllExposedTypes(ILocationConfiguratorPlugin configuratorPlugin) {
+        Collection<String> allExposedTypes = safe(configuratorPlugin.getResourcesTypes());
+        allExposedTypes.addAll(safe(configuratorPlugin.getPoliciesTypes()));
+        return allExposedTypes;
     }
 
     /*
@@ -178,19 +195,13 @@ public class LocationResourceService implements ILocationResourceService {
             return;
         }
         for (String exposedType : exposedTypes) {
-            NodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, exposedType, dependencies);
+            AbstractInheritableToscaType exposedInheritableToscaType = csarRepoSearchService
+                    .getRequiredElementInDependencies(AbstractInheritableToscaType.class, exposedType, dependencies);
 
-            if (exposedIndexedNodeType.isAbstract()) {
-                locationResourceTypes.getConfigurationTypes().put(exposedType, exposedIndexedNodeType);
+            if (exposedInheritableToscaType instanceof NodeType) {
+                addExposedNodeType(locationResourceTypes, dependencies, (NodeType) exposedInheritableToscaType);
             } else {
-                locationResourceTypes.getNodeTypes().put(exposedType, exposedIndexedNodeType);
-            }
-
-            if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
-                for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
-                    locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(),
-                            csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies));
-                }
+                addExposedPolicyType((PolicyType) exposedInheritableToscaType, locationResourceTypes);
             }
         }
         Map<String, DataType> allDataTypes = new HashMap<>(locationResourceTypes.getDataTypes());
@@ -199,7 +210,23 @@ public class LocationResourceService implements ILocationResourceService {
         allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getCapabilityTypes().values(), dataTypeFinder));
         allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getOnDemandTypes().values(), dataTypeFinder));
         allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getConfigurationTypes().values(), dataTypeFinder));
+        allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getPolicyTypes().values(), dataTypeFinder));
         locationResourceTypes.setDataTypes(allDataTypes);
+    }
+
+    private void addExposedPolicyType(PolicyType exposedPolicyType, LocationResourceTypes locationResourceTypes) {
+        locationResourceTypes.getPolicyTypes().put(exposedPolicyType.getElementId(), exposedPolicyType);
+    }
+
+    private void addExposedNodeType(LocationResourceTypes locationResourceTypes, Set<CSARDependency> dependencies, NodeType exposedNodeType) {
+        if (exposedNodeType.isAbstract()) {
+            locationResourceTypes.getConfigurationTypes().put(exposedNodeType.getElementId(), exposedNodeType);
+        } else {
+            locationResourceTypes.getNodeTypes().put(exposedNodeType.getElementId(), exposedNodeType);
+        }
+
+        safe(exposedNodeType.getCapabilities()).forEach(capabilityDefinition -> locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(),
+                csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies)));
     }
 
     /**

@@ -1,4 +1,4 @@
-tosca_definitions_version: alien_dsl_1_4_0
+tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: mock-plugin-openstack-types
@@ -8,7 +8,7 @@ metadata:
 description: "Defines resources for the mock plugin, mocking openstack configuration."
 
 imports:
-  - tosca-normative-types:1.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
 
 node_types:
   org.alien4cloud.nodes.mock.openstack.Image:
