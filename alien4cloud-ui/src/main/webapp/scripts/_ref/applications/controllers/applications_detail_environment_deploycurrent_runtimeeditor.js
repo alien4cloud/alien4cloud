@@ -257,7 +257,7 @@ define(function (require) {
           applicationId: $scope.application.id,
           nodeTemplateId: $scope.selectedNodeTemplate.name,
           instances: (newValue - $scope.selectedNodeTemplate.instancesCount),
-          applicationEnvironmentId: $scope.selectedEnvironment.id
+          applicationEnvironmentId: $scope.environment.id
         }, undefined, function success() {
           $scope.loadTopologyRuntime();
         });
