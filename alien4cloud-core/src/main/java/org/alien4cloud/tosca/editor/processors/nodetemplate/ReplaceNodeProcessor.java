@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import alien4cloud.tosca.topology.TemplateBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -46,7 +46,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         newType = topologyService.loadType(topology, newType);
 
         // Build the new one
-        NodeTemplate newNodeTemplate = NodeTemplateBuilder.buildNodeTemplate(newType, oldNodeTemplate, false);
+        NodeTemplate newNodeTemplate = TemplateBuilder.buildNodeTemplate(newType, oldNodeTemplate, false);
         newNodeTemplate.setName(operation.getNodeName());
 
         newNodeTemplate.setName(oldNodeTemplate.getName());

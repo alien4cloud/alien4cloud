@@ -385,15 +385,6 @@ public class TopologyService {
         return !VersionUtil.isSnapshot(topology.getArchiveVersion());
     }
 
-    public void isUniqueNodeTemplateName(Topology topology, String newNodeTemplateName) {
-        if (topology.getNodeTemplates() != null && topology.getNodeTemplates().containsKey(newNodeTemplateName)) {
-            log.debug("Add Node Template <{}> impossible (already exists)", newNodeTemplateName);
-            // a node template already exist with the given name.
-            throw new AlreadyExistException(
-                    "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topology.getId() + ".");
-        }
-    }
-
     public void updateDependencies(EditionContext context, CSARDependency newDependency) {
         final Set<CSARDependency> oldDependencies = new HashSet<>(context.getTopology().getDependencies());
         final Set<CSARDependency> newDependencies = csarDependencyLoader.getDependencies(newDependency.getName(), newDependency.getVersion());

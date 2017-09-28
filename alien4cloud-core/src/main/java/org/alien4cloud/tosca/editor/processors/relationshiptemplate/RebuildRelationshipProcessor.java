@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Maps;
 
 import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import alien4cloud.tosca.topology.TemplateBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,7 +34,7 @@ public class RebuildRelationshipProcessor extends AbstractRelationshipProcessor<
                 topology.getId());
         RelationshipType relType = ToscaContext.getOrFail(RelationshipType.class, relationshipTemplate.getType());
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
-        NodeTemplateBuilder.fillProperties(properties, relType.getProperties(), relationshipTemplate.getProperties());
+        TemplateBuilder.fillProperties(properties, relType.getProperties(), relationshipTemplate.getProperties());
         relationshipTemplate.setProperties(properties);
         relationshipTemplate.setAttributes(relType.getAttributes());
     }

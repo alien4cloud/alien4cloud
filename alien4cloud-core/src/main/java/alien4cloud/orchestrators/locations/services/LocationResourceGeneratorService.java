@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import alien4cloud.tosca.topology.TemplateBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -91,7 +92,7 @@ public class LocationResourceGeneratorService {
                     if (count > 0) {
                         name = name + "_" + count;
                     }
-                    NodeTemplate node = topologyService.buildNodeTemplate(dependencies, indexedNodeType, null);
+                    NodeTemplate node = TemplateBuilder.buildNodeTemplate(indexedNodeType);
                     // set the imageId
                     node.getProperties().put(computeContext.getImageIdPropertyName(),
                             image.getTemplate().getProperties().get(imageContext.getIdPropertyName()));

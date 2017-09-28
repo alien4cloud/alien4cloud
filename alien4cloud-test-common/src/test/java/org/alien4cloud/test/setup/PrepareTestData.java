@@ -33,7 +33,7 @@ public class PrepareTestData {
         repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.0.0.wd06.alien",
                 "tosca-normative-types-wd06");
 
-        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.4.0-SM4",
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "tests/2.0.0",
                 "tosca-normative-types-1.0.0-SNAPSHOT");
 
         // TODO: Tests stills runs on wd03 data based on 1.1.0-SM4 tag

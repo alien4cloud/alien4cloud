@@ -17,6 +17,7 @@ import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.stereotype.Component;
@@ -72,7 +73,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         setJsonMapper(ElasticSearchMapper.getInstance());
 
         initIndices(TOSCA_ELEMENT_INDEX, null, CapabilityType.class, ArtifactType.class, RelationshipType.class, NodeType.class, DataType.class,
-                PrimitiveDataType.class);
+                PrimitiveDataType.class, PolicyType.class);
         initIndices(TOSCA_ELEMENT_INDEX, null, AbstractInstantiableToscaType.class, AbstractToscaType.class);
 
         initIndice(Application.class);

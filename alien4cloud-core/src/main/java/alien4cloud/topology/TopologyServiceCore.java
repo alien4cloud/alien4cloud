@@ -27,7 +27,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import alien4cloud.tosca.topology.TemplateBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -181,19 +181,6 @@ public class TopologyServiceCore {
             }
         }
         return capabilityTypes;
-    }
-
-    /**
-     * Build a node template
-     * 
-     * @param dependencies The dependencies in which to search for the node type. This is used by the ToscaContextual annotation.
-     * @param indexedNodeType The index node type from which to create the node.
-     * @param templateToMerge The node template to merge in the type to create the actual node template.
-     * @return return the node template instance.
-     */
-    @ToscaContextual
-    public NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, NodeType indexedNodeType, NodeTemplate templateToMerge) {
-        return NodeTemplateBuilder.buildNodeTemplate(indexedNodeType, templateToMerge);
     }
 
     /**
