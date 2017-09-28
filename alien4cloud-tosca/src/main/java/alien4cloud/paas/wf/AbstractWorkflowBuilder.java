@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
@@ -71,7 +72,7 @@ public abstract class AbstractWorkflowBuilder {
     }
 
     private WorkflowStep addActivityStep(Workflow wf, String nodeId, AbstractWorkflowActivity activity) {
-        WorkflowStep step = new WorkflowStep();
+        WorkflowStep step = new NodeWorkflowStep();
         step.setTarget(nodeId);
         step.setActivity(activity);
         step.setName(WorkflowUtils.buildStepName(wf, step, 0));

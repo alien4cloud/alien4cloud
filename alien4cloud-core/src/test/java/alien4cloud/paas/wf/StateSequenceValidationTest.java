@@ -1,5 +1,6 @@
 package alien4cloud.paas.wf;
 
+import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
@@ -287,7 +288,7 @@ public class StateSequenceValidationTest extends AbstractValidationTest<StateSeq
     }
 
     private WorkflowStep buildStateStep(Workflow wf, String nodeId, String stateName) {
-        WorkflowStep step = new WorkflowStep();
+        NodeWorkflowStep step = new NodeWorkflowStep();
         step.setTarget(nodeId);
         SetStateWorkflowActivity activity = new SetStateWorkflowActivity();
         activity.setTarget(nodeId);

@@ -3,9 +3,9 @@ package alien4cloud.paas.wf.validation;
 import java.util.List;
 
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
@@ -24,7 +24,7 @@ public class NodeValidation implements Rule {
         }
         List<AbstractWorkflowError> errors = Lists.newArrayList();
         for (WorkflowStep step : workflow.getSteps().values()) {
-            if (StringUtils.isEmpty(step.getTargetRelationship())) {
+            if (step instanceof NodeWorkflowStep) {
                 String nodeId = step.getTarget();
                 NodeTemplate nodeTemplate = null;
                 if (topologyContext.getTopology().getNodeTemplates() != null) {

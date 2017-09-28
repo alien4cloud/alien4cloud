@@ -105,7 +105,22 @@
     key: name
     type: workflow_step
 
-- workflow_step : org.alien4cloud.tosca.model.workflow.WorkflowStep
+- workflow_step: __discriminator
+  keys:
+    target_relationship: relationship_workflow_step
+  default: node_workflow_step
+
+- node_workflow_step : org.alien4cloud.tosca.model.workflow.NodeWorkflowStep
+  target: target
+  operation_host: operationHost
+  activities:
+    list: activities
+    type: workflow_activity
+  on-success:
+    set: onSuccess
+    type: scalar
+
+- relationship_workflow_step : org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep
   target: target
   target_relationship: targetRelationship
   operation_host: operationHost

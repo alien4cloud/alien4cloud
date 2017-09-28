@@ -1,5 +1,6 @@
 package alien4cloud.paas.wf.util;
 
+import static alien4cloud.utils.AlienUtils.safe;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
@@ -14,6 +15,8 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
+import org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity;
@@ -21,9 +24,9 @@ import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
-import org.apache.commons.lang3.StringUtils;
 
 import alien4cloud.exception.InvalidNameException;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 
 public class WorkflowUtils {
@@ -54,6 +57,19 @@ public class WorkflowUtils {
         }
     }
 
+    private static String getRelationshipTarget(String source, String relationshipId, TopologyContext topologyContext) {
+        NodeTemplate sourceNode = safe(topologyContext.getTopology().getNodeTemplates()).get(source);
+        if (sourceNode == null) {
+            throw new NotFoundException("Source " + source + " cannot be found in the topology " + topologyContext.getTopology().getId());
+        }
+        RelationshipTemplate relationshipTemplate = safe(sourceNode.getRelationships()).get(relationshipId);
+        if (relationshipTemplate == null) {
+            throw new NotFoundException(
+                    "Source " + source + " does not have the relationship " + relationshipId + " in the topology " + topologyContext.getTopology().getId());
+        }
+        return relationshipTemplate.getTarget();
+    }
+
     public static boolean isStandardWorkflow(Workflow workflow) {
         return INSTALL.equals(workflow.getName()) || UNINSTALL.equals(workflow.getName()) || START.equals(workflow.getName())
                 || STOP.equals(workflow.getName());
@@ -67,12 +83,20 @@ public class WorkflowUtils {
     public static void fillHostId(Workflow wf, TopologyContext topologyContext) {
         wf.getHosts().clear();
         for (WorkflowStep step : wf.getSteps().values()) {
-            if (StringUtils.isEmpty(step.getTargetRelationship())) {
+            if (step instanceof NodeWorkflowStep) {
                 String hostId = WorkflowUtils.getRootHostNode(step.getTarget(), topologyContext);
-                step.setHostId(hostId);
+                ((NodeWorkflowStep) step).setHostId(hostId);
                 if (hostId != null) {
                     wf.getHosts().add(hostId);
                 }
+            } else {
+                RelationshipWorkflowStep relationshipWorkflowStep = (RelationshipWorkflowStep) step;
+                String sourceHostId = WorkflowUtils.getRootHostNode(relationshipWorkflowStep.getTarget(), topologyContext);
+                String targetHostId = WorkflowUtils.getRootHostNode(
+                        getRelationshipTarget(relationshipWorkflowStep.getTarget(), relationshipWorkflowStep.getTargetRelationship(), topologyContext),
+                        topologyContext);
+                relationshipWorkflowStep.setSourceHostId(sourceHostId);
+                relationshipWorkflowStep.setTargetHostId(targetHostId);
             }
         }
     }
@@ -117,11 +141,12 @@ public class WorkflowUtils {
     }
 
     public static boolean isRelationshipStep(WorkflowStep step, String nodeId, String relationshipName) {
-        return step.getTarget().equals(nodeId) && relationshipName.equals(step.getTargetRelationship());
+        return step instanceof RelationshipWorkflowStep && step.getTarget().equals(nodeId)
+                && relationshipName.equals(((RelationshipWorkflowStep) step).getTargetRelationship());
     }
 
     public static boolean isNodeStep(WorkflowStep step, String nodeId) {
-        return step.getTarget().equals(nodeId) && StringUtils.isEmpty(step.getTargetRelationship());
+        return step instanceof NodeWorkflowStep && step.getTarget().equals(nodeId);
     }
 
     /**
@@ -197,7 +222,7 @@ public class WorkflowUtils {
             stringBuilder.append("\n  subgraph cluster_").append(++subgraphCount).append(" {");
             stringBuilder.append("\n    label = \"").append(host).append("\";\n    color=blue;");
             for (WorkflowStep step : wf.getSteps().values()) {
-                if (StringUtils.isEmpty(step.getTargetRelationship()) && host.equals(step.getHostId())) {
+                if (step instanceof NodeWorkflowStep && host.equals(((NodeWorkflowStep) step).getHostId())) {
                     stringBuilder.append("\n    \"").append(step.getName()).append("\";");
                 }
             }
@@ -228,7 +253,7 @@ public class WorkflowUtils {
         task.setInterfaceName(interfaceName);
         task.setOperationName(operationName);
         task.setTarget(nodeId);
-        WorkflowStep step = new WorkflowStep();
+        NodeWorkflowStep step = new NodeWorkflowStep();
         step.setTarget(nodeId);
         step.setActivity(task);
         step.setName(buildStepName(wf, step, 0));
@@ -242,7 +267,7 @@ public class WorkflowUtils {
         task.setInterfaceName(interfaceName);
         task.setOperationName(operationName);
         task.setTarget(nodeId);
-        WorkflowStep step = new WorkflowStep();
+        RelationshipWorkflowStep step = new RelationshipWorkflowStep();
         step.setTarget(nodeId);
         step.setTargetRelationship(relationshipId);
         step.setActivity(task);
@@ -256,7 +281,7 @@ public class WorkflowUtils {
         SetStateWorkflowActivity task = new SetStateWorkflowActivity();
         task.setStateName(stateName);
         task.setTarget(nodeId);
-        WorkflowStep step = new WorkflowStep();
+        NodeWorkflowStep step = new NodeWorkflowStep();
         step.setTarget(nodeId);
         step.setActivity(task);
         step.setName(buildStepName(wf, step, 0));
@@ -268,7 +293,7 @@ public class WorkflowUtils {
         DelegateWorkflowActivity activity = new DelegateWorkflowActivity();
         activity.setDelegate(wf.getName());
         activity.setTarget(nodeId);
-        WorkflowStep step = new WorkflowStep();
+        NodeWorkflowStep step = new NodeWorkflowStep();
         step.setTarget(nodeId);
         step.setActivity(activity);
         step.setName(buildStepName(wf, step, 0));

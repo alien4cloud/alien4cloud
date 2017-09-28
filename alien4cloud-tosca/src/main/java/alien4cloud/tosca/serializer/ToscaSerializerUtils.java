@@ -34,6 +34,7 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity;
@@ -241,7 +242,7 @@ public class ToscaSerializerUtils {
     }
 
     public boolean isNodeActivityStep(WorkflowStep abstractStep) {
-        return StringUtils.isEmpty(abstractStep.getTargetRelationship());
+        return abstractStep instanceof NodeWorkflowStep;
     }
 
     public String getActivityLabel(AbstractWorkflowActivity activity) {
