@@ -1,5 +1,7 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +10,7 @@ import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
+import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -29,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperation> {
+public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperation> implements IEditorCommitableProcessor<DeleteNodeOperation> {
     @Resource
     private TopologyService topologyService;
     @Resource
@@ -42,18 +45,9 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
         Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
 
-        // FIXME cleanup files on the github repository / This way we can commit or revert if not saved.
-        // FIXME we SHOULD we delegate all this processing to the save operation as we don't support undo on disk.
-        // Clean up internal repository
+        // Prepare to cleanup files (store artifacts reference in the operation and process deletion on before commit operation).
         Map<String, DeploymentArtifact> artifacts = template.getArtifacts();
-        if (artifacts != null) {
-            for (Map.Entry<String, DeploymentArtifact> artifactEntry : artifacts.entrySet()) {
-                DeploymentArtifact artifact = artifactEntry.getValue();
-                if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
-                    this.artifactRepository.deleteFile(artifact.getArtifactRef());
-                }
-            }
-        }
+        operation.setArtifacts(artifacts);
 
         List<String> typesTobeUnloaded = Lists.newArrayList();
         // Clean up dependencies of the topology
@@ -134,6 +128,16 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
             }
             for (String relName : keysToRemove) {
                 nodeTemplates.get(key).getRelationships().remove(relName);
+            }
+        }
+    }
+
+    @Override
+    public void beforeCommit(DeleteNodeOperation operation) {
+        for (Map.Entry<String, DeploymentArtifact> artifactEntry : safe(operation.getArtifacts()).entrySet()) {
+            DeploymentArtifact artifact = artifactEntry.getValue();
+            if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
+                this.artifactRepository.deleteFile(artifact.getArtifactRef());
             }
         }
     }
