@@ -39,20 +39,24 @@ define(function (require) {
       };
 
       $scope._ = _;
-      $scope.query = '';
       $scope.batchSize = 5;
       $scope.selectedApps = {};
       buildPreselections();
 
       // a map appId -> environment array
       $scope.environments = {};
-      $scope.onSearchCompleted = function (searchResult) {
+      var onSearchCompleted = function (searchResult) {
         $scope.appsData = searchResult.data;
         _.forEach($scope.appsData.data, function(app) {
           if (app.id in $scope.preSelection) {
             $scope.selectedApps[app.id] = $scope.preSelection[app.id];
           }
         });
+      };
+      $scope.onSearchCompleted = onSearchCompleted;
+      $scope.queryProvider = {
+        query: '',
+        onSearchCompleted: onSearchCompleted
       };
 
       $scope.expandEnvironments = function(app, isEnvironmentsCollapsed) {
@@ -81,7 +85,7 @@ define(function (require) {
           useParams = false;
           params = null;
         }
-        $scope.searchService = searchServiceFactory(url, useParams, $scope, $scope.batchSize, null, null, null, params);
+        $scope.searchService = searchServiceFactory(url, useParams, $scope.queryProvider, $scope.batchSize, null, null, null, params);
         $scope.searchService.search();
       };
 

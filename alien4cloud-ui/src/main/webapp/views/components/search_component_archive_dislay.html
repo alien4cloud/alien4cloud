@@ -10,7 +10,7 @@
       </button>
       <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" ng-init="itemIdex = $index">
         <li ng-if="!component.olderVersions" class="option-selected"><i class="fa fa-spin fa-spinner"></i> Loading...</li>
-        <li ng-repeat="olderVersion in component.olderVersions" class="option-selected"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion.version}}</a></li>
+        <li ng-repeat="olderVersion in component.olderVersions" style="text-align: right;" class="option-selected"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion.version}}</a></li>
       </ul>
     </div>
   </div>
