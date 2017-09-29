@@ -1,4 +1,4 @@
-package alien4cloud.tosca.parser.impl.advanced;
+package alien4cloud.tosca.parser.impl.v20;
 
 import java.util.Map;
 
@@ -26,8 +26,7 @@ import alien4cloud.tosca.parser.impl.base.ScalarParser;
 /**
  * Parse a relationship
  */
-@Deprecated
-@Component
+@Component("relationshipTemplateParser_v200")
 public class RelationshipTemplateParser implements INodeParser<RelationshipTemplate> {
     @Resource
     private ScalarParser scalarParser;
@@ -42,8 +41,11 @@ public class RelationshipTemplateParser implements INodeParser<RelationshipTempl
         }
         MappingNode assignmentNode = (MappingNode) node;
         RelationshipTemplate relationshipTemplate = new RelationshipTemplate();
-        relationshipTemplate.setRequirementName(scalarParser.parse(assignmentNode.getValue().get(0).getKeyNode(), context));
-
+        String relationshipId = scalarParser.parse(assignmentNode.getValue().get(0).getKeyNode(), context);
+        // The relationship's id which is used to identify the relationship within the source
+        relationshipTemplate.setName(relationshipId);
+        // By default the relationship id is the requirement name, it can be overridden with 'type_requirement'
+        relationshipTemplate.setRequirementName(relationshipId);
         // Now parse the content of the relationship assignment.
         node = assignmentNode.getValue().get(0).getValueNode();
         if (node instanceof ScalarNode) { // Short notation (host: compute)
@@ -59,6 +61,9 @@ public class RelationshipTemplateParser implements INodeParser<RelationshipTempl
                     break;
                 case "capability":
                     relationshipTemplate.setTargetedCapabilityName(scalarParser.parse(nodeTuple.getValueNode(), context));
+                    break;
+                case "type_requirement":
+                    relationshipTemplate.setRequirementName(scalarParser.parse(nodeTuple.getValueNode(), context));
                     break;
                 case "relationship":
                     relationshipTemplate.setType(scalarParser.parse(nodeTuple.getValueNode(), context));

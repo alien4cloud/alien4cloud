@@ -20,7 +20,7 @@ public class CustomWorkflowBuilder extends AbstractWorkflowBuilder {
     }
 
     @Override
-    public void addRelationship(Workflow wf, String nodeId, NodeTemplate nodeTemplate, RelationshipTemplate RelationshipTemplate,
+    public void addRelationship(Workflow wf, String nodeId, NodeTemplate nodeTemplate, String relationshipName, RelationshipTemplate RelationshipTemplate,
             TopologyContext toscaTypeFinder) {
         // relationships are not added to custom workflows
     }

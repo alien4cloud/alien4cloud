@@ -127,23 +127,23 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
     }
 
     @Override
-    public void addNode(Workflow wf, String nodeId, WorkflowsBuilderService.TopologyContext toscaTypeFinder, boolean isCompute) {
+    public void addNode(Workflow workflow, String nodeId, WorkflowsBuilderService.TopologyContext toscaTypeFinder, boolean isCompute) {
         if (WorkflowUtils.isNativeOrSubstitutionNode(nodeId, toscaTypeFinder)) {
             // for a native node, we just add a sub-workflow step
-            WorkflowUtils.addDelegateWorkflowStep(wf, nodeId);
+            WorkflowUtils.addDelegateWorkflowStep(workflow, nodeId);
         } else {
-            NodeDeclarativeWorkflow nodeDeclarativeWorkflow = defaultDeclarativeWorkflows.getNodeWorkflows().get(wf.getName());
+            NodeDeclarativeWorkflow nodeDeclarativeWorkflow = defaultDeclarativeWorkflows.getNodeWorkflows().get(workflow.getName());
             // only trigger this method if it's a default workflow
             if (nodeDeclarativeWorkflow != null) {
 
                 // Create all the states of the workflow at first
                 Map<String, WorkflowStep> statesSteps = safe(nodeDeclarativeWorkflow.getStates()).entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, stateEntry -> WorkflowUtils.addStateStep(wf, nodeId, stateEntry.getKey())));
+                        .collect(Collectors.toMap(Map.Entry::getKey, stateEntry -> WorkflowUtils.addStateStep(workflow, nodeId, stateEntry.getKey())));
 
                 // Create all the operations of the workflow at first
-                Map<String, WorkflowStep> operationSteps = safe(nodeDeclarativeWorkflow.getOperations()).entrySet().stream().collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        operationEntry -> WorkflowUtils.addOperationStep(wf, nodeId, ToscaNodeLifecycleConstants.STANDARD_SHORT, operationEntry.getKey())));
+                Map<String, WorkflowStep> operationSteps = safe(nodeDeclarativeWorkflow.getOperations()).entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, operationEntry -> WorkflowUtils.addOperationStep(workflow, nodeId,
+                                ToscaNodeLifecycleConstants.STANDARD_SHORT, operationEntry.getKey())));
                 Steps steps = new Steps(operationSteps, statesSteps, null);
                 // Declare dependencies on the states steps
                 safe(nodeDeclarativeWorkflow.getStates())
@@ -176,24 +176,24 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
     }
 
     @Override
-    public void addRelationship(Workflow wf, String nodeId, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate,
+    public void addRelationship(Workflow workflow, String nodeId, NodeTemplate nodeTemplate, String relationshipName, RelationshipTemplate relationshipTemplate,
             WorkflowsBuilderService.TopologyContext toscaTypeFinder) {
         boolean sourceIsNative = WorkflowUtils.isNativeOrSubstitutionNode(nodeId, toscaTypeFinder);
         boolean targetIsNative = WorkflowUtils.isNativeOrSubstitutionNode(relationshipTemplate.getTarget(), toscaTypeFinder);
         if (!sourceIsNative || !targetIsNative) {
             // for native types we don't care about relation ships in workflows
-            RelationshipDeclarativeWorkflow relationshipDeclarativeWorkflow = defaultDeclarativeWorkflows.getRelationshipWorkflows().get(wf.getName());
+            RelationshipDeclarativeWorkflow relationshipDeclarativeWorkflow = defaultDeclarativeWorkflows.getRelationshipWorkflows().get(workflow.getName());
             // only trigger this method if it's a default workflow
             if (relationshipDeclarativeWorkflow != null) {
                 Map<String, WorkflowStep> relationshipOperationSteps = safe(relationshipDeclarativeWorkflow.getOperations()).entrySet().stream()
                         .filter(operationEntry -> !targetIsNative || operationEntry.getValue().getOperationHost() == RelationshipOperationHost.SOURCE)
                         .filter(operationEntry -> !sourceIsNative || operationEntry.getValue().getOperationHost() == RelationshipOperationHost.TARGET)
                         .collect(Collectors.toMap(Map.Entry::getKey,
-                                operationEntry -> WorkflowUtils.addRelationshipOperationStep(wf, nodeId, relationshipTemplate.getName(),
+                                operationEntry -> WorkflowUtils.addRelationshipOperationStep(workflow, nodeId, relationshipTemplate.getName(),
                                         ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT, operationEntry.getKey(),
                                         operationEntry.getValue().getOperationHost().toString())));
-                Steps sourceSteps = new Steps(wf, nodeId);
-                Steps targetSteps = new Steps(wf, relationshipTemplate.getTarget());
+                Steps sourceSteps = new Steps(workflow, nodeId);
+                Steps targetSteps = new Steps(workflow, relationshipTemplate.getTarget());
 
                 safe(relationshipDeclarativeWorkflow.getOperations()).forEach((relationshipOperationName, relationshipOperationDependencies) -> {
                     WorkflowStep currentStep = relationshipOperationSteps.get(relationshipOperationName);
@@ -206,7 +206,7 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
                     }
                 });
                 RelationshipWeavingDeclarativeWorkflow relationshipWeavingDeclarativeWorkflow = getRelationshipWeavingDeclarativeWorkflow(
-                        relationshipTemplate.getType(), toscaTypeFinder, wf.getName());
+                        relationshipTemplate.getType(), toscaTypeFinder, workflow.getName());
                 declareWeaving(relationshipWeavingDeclarativeWorkflow.getSource(), sourceSteps, targetSteps);
                 declareWeaving(relationshipWeavingDeclarativeWorkflow.getTarget(), targetSteps, sourceSteps);
             }

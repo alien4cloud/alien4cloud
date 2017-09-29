@@ -6,14 +6,14 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.tosca.context.ToscaContext;
 
 /**
@@ -31,9 +31,13 @@ public class NodeTemplateRelationshipPostProcessor implements IPostProcessor<Nod
             return; // error managed by the reference post processor.
         }
         Map<String, RelationshipTemplate> updated = Maps.newLinkedHashMap();
-        safe(instance.getRelationships()).entrySet().stream().forEach(entry -> {
+        safe(instance.getRelationships()).entrySet().forEach(entry -> {
             relationshipPostProcessor.process(nodeType, entry);
-            String relationshipTemplateName = buildRelationShipTemplateName(entry.getValue());
+            String relationshipTemplateName = entry.getValue().getName();
+            if (StringUtils.isEmpty(relationshipTemplateName)) {
+                // from 2.0.0 the relationship's name is filled by the parser
+                relationshipTemplateName = buildRelationShipTemplateName(entry.getValue());
+            }
             updated.put(getUniqueKey(updated, relationshipTemplateName), entry.getValue());
             entry.getValue().setName(relationshipTemplateName);
         });
@@ -42,8 +46,8 @@ public class NodeTemplateRelationshipPostProcessor implements IPostProcessor<Nod
 
     private String buildRelationShipTemplateName(RelationshipTemplate relationshipTemplate) {
         String value = relationshipTemplate.getType();
-        if(value == null) {
-            return value;
+        if (value == null) {
+            return null;
         }
         if (value.contains(".")) {
             value = value.substring(value.lastIndexOf(".") + 1);

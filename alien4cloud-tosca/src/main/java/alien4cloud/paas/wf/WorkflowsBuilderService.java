@@ -158,7 +158,7 @@ public class WorkflowsBuilderService {
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipName);
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
-            builder.addRelationship(wf, nodeTemplateName, nodeTemplate, relationshipTemplate, topologyContext);
+            builder.addRelationship(wf, nodeTemplateName, nodeTemplate, relationshipName, relationshipTemplate, topologyContext);
             WorkflowUtils.fillHostId(wf, topologyContext);
             workflowValidator.validate(topologyContext, wf);
         }

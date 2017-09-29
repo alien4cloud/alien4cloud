@@ -17,7 +17,7 @@
 - meta_data: alien4cloud.tosca.parser.impl.advanced.MetaDataParser
 - fail_get_artifact: alien4cloud.tosca.parser.impl.advanced.FailGetArtifactParser
 - string_list: alien4cloud.tosca.parser.impl.advanced.StringListParser
-- relationship_template: alien4cloud.tosca.parser.impl.advanced.RelationshipTemplateParser
+- relationship_template: alien4cloud.tosca.parser.impl.v20.RelationshipTemplateParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -182,7 +182,7 @@
   requirements:
     sequence_to_map: relationships
     type: relationship_template
-    allow_duplicate: true
+    allow_duplicate: false
   capabilities:
     map: capabilities
     type: node_template_capability_definition

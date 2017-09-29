@@ -25,8 +25,8 @@ public abstract class AbstractWorkflowBuilder {
 
     public abstract void addNode(Workflow wf, String nodeId, TopologyContext toscaTypeFinder, boolean isCompute);
 
-    public abstract void addRelationship(Workflow wf, String nodeId, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate,
-            TopologyContext toscaTypeFinder);
+    public abstract void addRelationship(Workflow wf, String nodeId, NodeTemplate nodeTemplate, String relationshipId,
+            RelationshipTemplate relationshipTemplate, TopologyContext toscaTypeFinder);
 
     public void removeEdge(Workflow wf, String from, String to) {
         WorkflowStep fromStep = wf.getSteps().get(from);
@@ -339,8 +339,9 @@ public abstract class AbstractWorkflowBuilder {
             for (Entry<String, NodeTemplate> entry : toscaTypeFinder.getTopology().getNodeTemplates().entrySet()) {
                 String nodeId = entry.getKey();
                 if (entry.getValue().getRelationships() != null) {
-                    for (RelationshipTemplate relationshipTemplate : entry.getValue().getRelationships().values()) {
-                        addRelationship(wf, nodeId, entry.getValue(), relationshipTemplate, toscaTypeFinder);
+                    for (Map.Entry<String, RelationshipTemplate> relationshipTemplateEntry : entry.getValue().getRelationships().entrySet()) {
+                        addRelationship(wf, nodeId, entry.getValue(), relationshipTemplateEntry.getKey(), relationshipTemplateEntry.getValue(),
+                                toscaTypeFinder);
                     }
                 }
             }
