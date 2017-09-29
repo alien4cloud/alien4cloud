@@ -28,6 +28,8 @@ import alien4cloud.dao.model.FetchContext;
 import alien4cloud.utils.AlienConstants;
 import lombok.SneakyThrows;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 /**
  * This abstract class allows to search tosca indexed elements (Csar, AbstractToscaType, Topology) as they all follow the same search query logic.
  */
@@ -62,7 +64,7 @@ public abstract class AbstractToscaIndexSearchService<T> {
                             result.setData(getArray(0));
                             result.setTypes(new String[0]);
                         }
-                        for (Terms.Bucket bucket : ((Terms) aggregation).getBuckets()) {
+                        for (Terms.Bucket bucket : safe(((Terms) aggregation).getBuckets())) {
                             TopHits topHits = bucket.getAggregations().get("highest_version");
                             for (SearchHit hit : topHits.getHits()) {
                                 resultTypes.add(hit.getType());

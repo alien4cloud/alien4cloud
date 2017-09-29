@@ -450,6 +450,6 @@ public class TopologyService {
         List<AbstractEditorOperation> recoveringOperations = recoveryHelperService.buildRecoveryOperations(topology, Sets.newHashSet(dependencies));
         // process every recovery operation
         recoveryHelperService.processRecoveryOperations(topology, recoveringOperations);
-    };
+    }
 
 }

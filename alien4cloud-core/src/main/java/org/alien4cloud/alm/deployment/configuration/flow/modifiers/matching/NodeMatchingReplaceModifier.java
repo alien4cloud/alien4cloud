@@ -88,7 +88,7 @@ public class NodeMatchingReplaceModifier implements ITopologyModifier {
     }
 
     /**
-     * In this {@link DeploymentTopology}, proceed the substitution of the given node using the given service.
+     * In this {@link alien4cloud.model.deployment.DeploymentTopology}, proceed the substitution of the given node using the given service.
      */
     private void processServiceResourceSubstitution(String nodeId, String serviceResourceId, Topology topology) {
         ServiceResource serviceResource = serviceResourceService.getOrFail(serviceResourceId);

@@ -45,7 +45,7 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
             throw new DeleteReferencedObjectException("The substitution can not be removed since it's type is already used in at least another topology");
         }
 
-        topologyService.unloadType(topology, new String[] { topology.getSubstitutionMapping().getSubstitutionType() });
+        topologyService.unloadType(topology, topology.getSubstitutionMapping().getSubstitutionType());
         topology.setSubstitutionMapping(null);
     }
 

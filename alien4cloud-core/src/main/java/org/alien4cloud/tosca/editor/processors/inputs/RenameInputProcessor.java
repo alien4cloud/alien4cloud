@@ -3,6 +3,7 @@ package org.alien4cloud.tosca.editor.processors.inputs;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;

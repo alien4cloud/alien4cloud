@@ -234,10 +234,7 @@ public class CsarService {
         }
         // check if some of the nodes are used in topologies.
         Topology[] topologies = getDependantTopologies(csarName, csarVersion);
-        if (topologies != null && topologies.length > 0) {
-            return true;
-        }
-        return false;
+        return topologies != null && topologies.length > 0;
     }
 
     /**

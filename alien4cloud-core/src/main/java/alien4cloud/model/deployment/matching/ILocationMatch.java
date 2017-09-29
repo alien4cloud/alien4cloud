@@ -6,13 +6,13 @@ import alien4cloud.model.orchestrators.locations.Location;
 public interface ILocationMatch {
 
     /** Matched location */
-    public Location getLocation();
+    Location getLocation();
 
     /** Related orchestrator */
-    public Orchestrator getOrchestrator();
+    Orchestrator getOrchestrator();
 
     /** Reasons why this location is elected */
-    public Object getReasons();
+    Object getReasons();
 
     /**
      * Determines if the location is ready to be deploying on.
@@ -20,5 +20,5 @@ public interface ILocationMatch {
      * 
      * @return true if ready, false if not.
      */
-    public boolean isReady();
+    boolean isReady();
 }

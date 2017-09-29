@@ -2,8 +2,10 @@ package org.alien4cloud.tosca.editor.processors.policies;
 
 import java.util.LinkedHashMap;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.topology.TopologyService;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
@@ -26,6 +28,8 @@ import org.springframework.stereotype.Component;
 public class AddPolicyProcessor implements IEditorOperationProcessor<AddPolicyOperation> {
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
+    @Inject
+    private TopologyService topologyService;
 
     @Override
     public void process(AddPolicyOperation operation) {
@@ -46,6 +50,7 @@ public class AddPolicyProcessor implements IEditorOperationProcessor<AddPolicyOp
         log.debug("Adding a new policy template <" + operation.getPolicyName() + "> of type <" + operation.getPolicyTypeId() + "> to the topology <"
                 + topology.getId() + "> .");
 
+        topologyService.loadType(topology, policyType);
         topology.getPolicies().put(operation.getPolicyName(), policyTemplate);
     }
 }

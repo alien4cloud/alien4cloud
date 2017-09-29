@@ -17,8 +17,8 @@ public abstract class AbstractPolicyProcessor<T extends AbstractPolicyOperation>
         Topology topology = EditionContextManager.getTopology();
         PolicyTemplate policyTemplate = AlienUtils.getOrFail(topology.getPolicies(), operation.getPolicyName(),
                 "The policy with name <{}> cannot be found in the topology.", operation.getPolicyName());
-        processNodeOperation(operation, policyTemplate);
+        process(operation, policyTemplate);
     }
 
-    protected abstract void processNodeOperation(T operation, PolicyTemplate policyTemplate);
+    protected abstract void process(T operation, PolicyTemplate policyTemplate);
 }
