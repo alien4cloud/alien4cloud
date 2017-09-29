@@ -7,6 +7,7 @@ import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 import java.util.Date;
 import java.util.List;
 
+import org.alien4cloud.tosca.model.Csar;
 import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESAll;
 import org.elasticsearch.annotation.ESObject;

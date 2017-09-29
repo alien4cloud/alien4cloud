@@ -35,8 +35,7 @@ public class AddPolicyProcessor implements IEditorOperationProcessor<AddPolicyOp
         AlienUtils.failIfExists(topology.getPolicies(), operation.getPolicyName(), "A policy with the given name {} already exists in the topology {}.",
                 operation.getPolicyName(), topology.getId());
 
-        String[] splittedId = operation.getPolicyTypeId().split(":");
-        PolicyType policyType = toscaTypeSearchService.findOrFail(PolicyType.class, splittedId[0], splittedId[1]);
+        PolicyType policyType = toscaTypeSearchService.findByIdOrFail(PolicyType.class, operation.getPolicyTypeId());
 
         if (topology.getPolicies() == null) {
             topology.setPolicies(new LinkedHashMap<>());

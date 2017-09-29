@@ -48,8 +48,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         AlienUtils.failIfExists(topology.getPolicies(), operation.getNodeName(), "A node template with the given name {} already exists in the topology {}.",
                 operation.getNodeName(), topology.getId());
 
-        String[] splittedId = operation.getIndexedNodeTypeId().split(":");
-        NodeType nodeType = toscaTypeSearchService.findOrFail(NodeType.class, splittedId[0], splittedId[1]);
+        NodeType nodeType = toscaTypeSearchService.findByIdOrFail(NodeType.class, operation.getIndexedNodeTypeId());
 
         if (nodeType.getSubstitutionTopologyId() != null) {
             // TODO merge that in the topologyCompositionService.recursivelyDetectTopologyCompositionCyclicReference
