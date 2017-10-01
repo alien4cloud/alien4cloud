@@ -1,24 +1,21 @@
 package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
-import java.util.Map;
-
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.PropertyValueException;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.UpdateRelationshipPropertyValueOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
-import org.springframework.stereotype.Component;
-
-import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.springframework.stereotype.Component;
 
-import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
-import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.services.PropertyService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,29 +32,25 @@ public class UpdateRelationshipPropertyValueProcessor implements IEditorOperatio
     public void process(UpdateRelationshipPropertyValueOperation operation) {
         Topology topology = EditionContextManager.getTopology();
 
-        String propertyName = operation.getPropertyName();
-        Object propertyValue = operation.getPropertyValue();
-
-        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
-        // FIXME we should have the same kind of utility methods to get relationships as we have for nodes.
-        RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(operation.getRelationshipName());
+        NodeTemplate nodeTemplate = AlienUtils.getOrFail(topology.getNodeTemplates(), operation.getNodeName(),
+                "The node with name <{}> cannot be found in the topology.", operation.getNodeName());
+        RelationshipTemplate relationshipTemplate = AlienUtils.getOrFail(nodeTemplate.getRelationships(), operation.getRelationshipName(),
+                "The relationship with name <{}> cannot be found in the node <{}>.", operation.getRelationshipName(), operation.getNodeName());
 
         RelationshipType relationshipType = ToscaContext.getOrFail(RelationshipType.class, relationshipTemplate.getType());
-        if (!relationshipType.getProperties().containsKey(propertyName)) {
-            throw new NotFoundException(
-                    "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeName() + "> of type <" + relationshipType + ">");
-        }
+        PropertyDefinition propertyDefinition = AlienUtils.getOrFail(relationshipType.getProperties(), operation.getPropertyName(),
+                "Property <{}> doesn't exists in type <{}> for relationship <{}> of node <{}>.", operation.getPropertyName(), relationshipTemplate.getType(),
+                operation.getRelationshipName(), operation.getNodeName());
 
         log.debug("Updating property <{}> of the relationship <{}> for the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
-                propertyName, relationshipType, operation.getNodeName(), topology.getId(), relationshipType.getProperties().get(propertyName), propertyValue);
+                operation.getPropertyName(), relationshipType, operation.getNodeName(), topology.getId(),
+                relationshipType.getProperties().get(operation.getPropertyName()), operation.getPropertyValue());
         try {
-            propertyService.setPropertyValue(relationshipTemplate.getProperties(), relationshipType.getProperties().get(propertyName), propertyName,
-                    propertyValue);
+            propertyService.setPropertyValue(relationshipTemplate, propertyDefinition, operation.getPropertyName(), operation.getPropertyValue());
         } catch (ConstraintFunctionalException e) {
             throw new PropertyValueException(
-                    "Error when setting relationship " + operation.getNodeName() + "." + operation.getRelationshipName() + " property.", e, propertyName,
-                    propertyValue);
+                    "Error when setting relationship " + operation.getNodeName() + "." + operation.getRelationshipName() + " property.", e,
+                    operation.getPropertyName(), operation.getPropertyValue());
         }
     }
 }

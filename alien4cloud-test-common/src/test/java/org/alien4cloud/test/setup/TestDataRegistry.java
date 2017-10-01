@@ -153,6 +153,8 @@ public class TestDataRegistry {
         addConditionFolder("tosca-normative-types-1.0.0-SNAPSHOT", GIT_ARTIFACTS_PATH + "tosca-normative-types-1.0.0-SNAPSHOT");
 
         addConditionFolder("alien-base-types 1.1.0", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types-V2/alien-base-types");
+        addConditionFolder("alien-base-types-2.0.0-SNAPSHOT", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types-2.0.0-SNAPSHOT/alien-base-types",
+                "alien-base-types-2.0.0-SNAPSHOT");
         addConditionFolder("alien-extended-storage-types 1.2.0", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types-V2/alien-extended-storage-types");
 
         addConditionFolder("samples tomcat-war", GIT_ARTIFACTS_PATH + "samples/tomcat-war");
@@ -196,9 +198,14 @@ public class TestDataRegistry {
     }
 
     public static void addConditionFolder(String condition, String folderPathStr) {
+        addConditionFolder(condition, folderPathStr, null);
+    }
+
+    public static void addConditionFolder(String condition, String folderPathStr, String archiveFileName) {
         // We put all artifacts to a4c root project dir
         Path folderPath = BASE_DIR.resolve(folderPathStr);
-        Path zipPath = IT_ARTIFACTS_DIR.resolve(folderPath.getFileName() + ".csar");
+        Path zipPath = archiveFileName == null ? IT_ARTIFACTS_DIR.resolve(folderPath.getFileName() + ".csar")
+                : IT_ARTIFACTS_DIR.resolve(archiveFileName + ".csar");
         SOURCE_TO_TARGET_ARTIFACT_MAPPING.put(folderPath, zipPath);
         TEST_ARTIFACTS.put(condition, zipPath);
     }

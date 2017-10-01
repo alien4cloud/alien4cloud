@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 
 import javax.inject.Inject;
 
-import alien4cloud.tosca.topology.TemplateBuilder;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
@@ -19,6 +18,7 @@ import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.topology.TemplateBuilder;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.NameValidationUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +45,8 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         Topology topology = EditionContextManager.getTopology();
 
         NameValidationUtils.validateNodeName(operation.getNodeName());
-        AlienUtils.failIfExists(topology.getPolicies(), operation.getNodeName(), "A node template with the given name {} already exists in the topology {}.",
-                operation.getNodeName(), topology.getId());
+        AlienUtils.failIfExists(topology.getNodeTemplates(), operation.getNodeName(),
+                "A node template with the given name {} already exists in the topology {}.", operation.getNodeName(), topology.getId());
 
         NodeType nodeType = toscaTypeSearchService.findByIdOrFail(NodeType.class, operation.getIndexedNodeTypeId());
 

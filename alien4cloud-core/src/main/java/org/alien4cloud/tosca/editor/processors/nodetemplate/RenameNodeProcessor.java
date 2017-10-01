@@ -2,7 +2,6 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import javax.annotation.Resource;
 
-import alien4cloud.utils.AlienUtils;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.RenameNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyUtils;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.NameValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,8 +31,8 @@ public class RenameNodeProcessor implements IEditorOperationProcessor<RenameNode
         Topology topology = EditionContextManager.getTopology();
 
         NameValidationUtils.validateNodeName(operation.getNewName());
-        AlienUtils.failIfExists(topology.getPolicies(), operation.getNodeName(), "A node template with the given name {} already exists in the topology {}.",
-                operation.getNodeName(), topology.getId());
+        AlienUtils.failIfExists(topology.getNodeTemplates(), operation.getNewName(),
+                "A node template with the given name {} already exists in the topology {}.", operation.getNodeName(), topology.getId());
 
         log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", operation.getNodeName(), operation.getNewName(), topology.getId());
         TopologyUtils.renameNodeTemplate(topology, operation.getNodeName(), operation.getNewName());
