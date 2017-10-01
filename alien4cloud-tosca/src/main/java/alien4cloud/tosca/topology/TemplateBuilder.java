@@ -5,8 +5,10 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
@@ -27,10 +29,12 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
 import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +43,22 @@ import lombok.extern.slf4j.Slf4j;
  * Utility to create a Node Template by merging Node Type and Node Template data.
  */
 @Slf4j
+@Component
 public class TemplateBuilder {
+
+    /**
+     * Call the template builder but ensure that a TOSCA context has been created if none exists.
+     * 
+     * @param dependencies The dependencies to create the tosca context.
+     * @param indexedNodeType The instance of the node type.
+     * @return a node template instance.
+     */
+    @ToscaContextual
+    public NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, NodeType indexedNodeType) {
+        log.debug("Used dependencies to create a new tosca context", dependencies);
+        return buildNodeTemplate(indexedNodeType);
+    }
+
     /**
      * Build a node template. Note that a Tosca Context is required.
      *
@@ -47,7 +66,7 @@ public class TemplateBuilder {
      * @return new constructed node template.
      */
     public static NodeTemplate buildNodeTemplate(NodeType indexedNodeType) {
-        return buildNodeTemplate(indexedNodeType, null, true);
+        return buildNodeTemplate(indexedNodeType, null);
     }
 
     /**

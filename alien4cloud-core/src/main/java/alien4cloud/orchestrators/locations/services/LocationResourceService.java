@@ -54,7 +54,6 @@ import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.tosca.topology.TemplateBuilder;
@@ -72,7 +71,7 @@ public class LocationResourceService implements ILocationResourceService {
     @Inject
     private ICSARRepositorySearchService csarRepoSearchService;
     @Inject
-    private TopologyServiceCore topologyService;
+    private TemplateBuilder templateBuilder;
     @Inject
     private LocationService locationService;
     @Inject
@@ -310,7 +309,7 @@ public class LocationResourceService implements ILocationResourceService {
         LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
         NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName, location.getDependencies());
 
-        NodeTemplate nodeTemplate = TemplateBuilder.buildNodeTemplate(resourceType);
+        NodeTemplate nodeTemplate = templateBuilder.buildNodeTemplate(location.getDependencies(), resourceType);
         // FIXME Workaround to remove default scalable properties from compute
         TopologyUtils.setNullScalingPolicy(nodeTemplate, resourceType);
         locationResourceTemplate.setName(resourceName);
@@ -413,8 +412,7 @@ public class LocationResourceService implements ILocationResourceService {
         if (resourceType.getProperties() == null || !resourceType.getProperties().containsKey(propertyName)) {
             throw new NotFoundException("Property [" + propertyName + "] is not found in type [" + resourceType.getElementId() + "]");
         }
-        propertyService.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName),
-                propertyName, propertyValue);
+        propertyService.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue);
         saveResource(resourceTemplate);
     }
 
