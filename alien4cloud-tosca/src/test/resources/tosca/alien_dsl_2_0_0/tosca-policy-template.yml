@@ -20,7 +20,7 @@ policy_types:
     properties:
       sample_property:
         type: string
-    targets: ["tosca.nodes.Compute", "org.alien4cloud.Group"]
+    targets: ["tosca.nodes.Compute", "tosca.nodes.Root"]
 
 topology_template:
   node_templates:

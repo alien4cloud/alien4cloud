@@ -32,7 +32,6 @@ import alien4cloud.tosca.model.ArchiveRoot;
 /**
  * Created by lucboutier on 12/04/2017.
  */
-
 public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTest {
     @Override
     protected String getRootDirectory() {
@@ -53,6 +52,14 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         Mockito.when(
                 csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("tosca.policies.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockRoot);
+
+        NodeType mockType = Mockito.mock(NodeType.class);
+        Mockito.when(mockType.isAbstract()).thenReturn(true);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockType);
+        Mockito.when(
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                .thenReturn(mockType);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-policy-type.yml"));
         assertEquals(0, parsingResult.getContext().getParsingErrors().size());
@@ -89,7 +96,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertEquals("string", simplePolicyType.getProperties().get("sample_property").getType());
         assertEquals(2, simplePolicyType.getTargets().size());
         assertEquals("tosca.nodes.Compute", simplePolicyType.getTargets().get(0));
-        assertEquals("org.alien4cloud.Group", simplePolicyType.getTargets().get(1));
+        assertEquals("tosca.nodes.Root", simplePolicyType.getTargets().get(1));
 
         PolicyType policyType = archiveRoot.getPolicyTypes().get("org.alien4cloud.sample.PolicyType");
         assertNotNull(policyType);
@@ -104,12 +111,26 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertEquals("a meta data", policyType.getTags().get(0).getValue());
         assertEquals("anoter_meta", policyType.getTags().get(1).getName());
         assertEquals("another meta data", policyType.getTags().get(1).getValue());
-        assertEquals(1, simplePolicyType.getProperties().size());
-        assertNotNull(simplePolicyType.getProperties().get("sample_property"));
-        assertEquals("string", simplePolicyType.getProperties().get("sample_property").getType());
-        assertEquals(2, simplePolicyType.getTargets().size());
-        assertEquals("tosca.nodes.Compute", simplePolicyType.getTargets().get(0));
-        assertEquals("org.alien4cloud.Group", simplePolicyType.getTargets().get(1));
+        assertEquals(1, policyType.getProperties().size());
+        assertNotNull(policyType.getProperties().get("sample_property"));
+        assertEquals("string", policyType.getProperties().get("sample_property").getType());
+        assertEquals(2, policyType.getTargets().size());
+        assertEquals("tosca.nodes.Compute", policyType.getTargets().get(0));
+        assertEquals("tosca.nodes.Root", policyType.getTargets().get(1));
+    }
+
+    @Test
+    public void policyParsingWithUnknownTypeShouldFail() throws FileNotFoundException, ParsingException {
+        Mockito.reset(csarRepositorySearchService);
+        Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
+        PolicyType mockRoot = Mockito.mock(PolicyType.class);
+        Mockito.when(mockRoot.isAbstract()).thenReturn(true);
+        Mockito.when(
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("tosca.policies.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockRoot);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-policy-type.yml"));
+        assertEquals(4, parsingResult.getContext().getParsingErrors().size());
     }
 
     @Test
@@ -155,7 +176,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertEquals("string", simplePolicyType.getProperties().get("sample_property").getType());
         assertEquals(2, simplePolicyType.getTargets().size());
         assertEquals("tosca.nodes.Compute", simplePolicyType.getTargets().get(0));
-        assertEquals("org.alien4cloud.Group", simplePolicyType.getTargets().get(1));
+        assertEquals("tosca.nodes.Root", simplePolicyType.getTargets().get(1));
 
         // Test that the template is correctly parsed
         assertNotNull(archiveRoot.getTopology());

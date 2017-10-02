@@ -15,6 +15,7 @@ import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
 import org.apache.commons.collections.MapUtils;
+import org.elasticsearch.common.inject.Inject;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -47,6 +48,8 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
     private TopologyPostProcessor topologyPostProcessor;
     @Resource
     private PropertyValueChecker propertyValueChecker;
+    @Resource
+    private PolicyTypePostProcessor policyTypePostProcessor;
 
     /**
      * Perform validation of a Tosca archive.
@@ -227,6 +230,6 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         safe(archiveRoot.getCapabilityTypes()).values().stream().forEach(toscaTypePostProcessor);
         safe(archiveRoot.getRelationshipTypes()).values().stream().peek(toscaTypePostProcessor).forEach(toscaArtifactTypePostProcessor);
         safe(archiveRoot.getNodeTypes()).values().stream().peek(toscaTypePostProcessor).peek(nodeTypePostProcessor).forEach(toscaArtifactTypePostProcessor);
-        safe(archiveRoot.getPolicyTypes()).values().stream().forEach(toscaTypePostProcessor);
+        safe(archiveRoot.getPolicyTypes()).values().stream().peek(toscaTypePostProcessor).forEach(policyTypePostProcessor);
     }
 }
