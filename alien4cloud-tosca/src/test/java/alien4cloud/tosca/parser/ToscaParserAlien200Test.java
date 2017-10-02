@@ -188,6 +188,29 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertEquals(2, archiveRoot.getTopology().getPolicies().get("anti_affinity_policy").getTags().size());
     }
 
+    @Test
+    public void policyTemplateParsingWithUnknownTargetShouldFail() throws FileNotFoundException, ParsingException {
+        Mockito.reset(csarRepositorySearchService);
+        Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
+
+        NodeType mockedResult = Mockito.mock(NodeType.class);
+        Mockito.when(
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
+
+        PolicyType mockRoot = Mockito.mock(PolicyType.class);
+        Mockito.when(mockRoot.isAbstract()).thenReturn(true);
+        Mockito.when(
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("tosca.policies.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockRoot);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-policy-template-fail.yml"));
+        assertEquals(1, parsingResult.getContext().getParsingErrors().size());
+    }
+
     public void parseTopologyTemplateWithActivities() throws ParsingException, IOException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-activities.yml"));
 
