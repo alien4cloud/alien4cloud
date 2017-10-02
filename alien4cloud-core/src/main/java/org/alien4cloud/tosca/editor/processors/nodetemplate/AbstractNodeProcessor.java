@@ -1,5 +1,7 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
+import alien4cloud.utils.AlienUtils;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 
 import alien4cloud.topology.TopologyUtils;
@@ -19,9 +21,8 @@ public abstract class AbstractNodeProcessor<T extends AbstractNodeOperation> imp
     @Override
     public void process(T operation) {
         Topology topology = EditionContextManager.getTopology();
-        Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
-
+        NodeTemplate nodeTemplate = AlienUtils.getOrFail(topology.getNodeTemplates(), operation.getNodeName(),
+                "The node with name <{}> cannot be found in the topology <{}>.", operation.getNodeName(), topology.getId());
         processNodeOperation(operation, nodeTemplate);
     }
 

@@ -14,6 +14,7 @@ import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -54,6 +55,9 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
         // Clean up dependencies of the topology
         removeRelationShipReferences(operation.getNodeName(), topology, typesTobeUnloaded);
         topologyService.unloadType(topology, typesTobeUnloaded.toArray(new String[typesTobeUnloaded.size()]));
+
+        // Cleanup from policies
+        removeNodeFromPolicies(operation.getNodeName(), topology);
 
         nodeTemplates.remove(operation.getNodeName());
         removeOutputs(operation.getNodeName(), topology);
@@ -130,6 +134,12 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
                     nodeTemplate.getRelationships().remove(relationshipToRemove);
                 }
             }
+        }
+    }
+
+    private void removeNodeFromPolicies(String removedNode, Topology topology) {
+        for (PolicyTemplate policyTemplate : safe(topology.getPolicies()).values()) {
+            policyTemplate.getTargets().remove(removedNode);
         }
     }
 

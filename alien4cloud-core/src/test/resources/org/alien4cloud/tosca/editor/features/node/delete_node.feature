@@ -43,21 +43,42 @@ Feature: Topology editor: delete node template
     And I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
       | nodeName               | Template2                                                                             |
+      | relationshipName       | MyRelationship                                                                        |
       | relationshipType       | tosca.relationships.HostedOn                                                          |
       | relationshipVersion    | 1.0                                                                                   |
       | requirementName        | host                                                                                  |
       | target                 | Template1                                                                             |
       | targetedCapabilityName | compute                                                                               |
-    Given I execute the operation
+    When I execute the operation
       | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation |
-      | nodeName | missingNode                                                              |
-    Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
+      | nodeName | Template2                                                                |
+    Then No exception should be thrown
+    And The SPEL expression "nodeTemplates.size()" should return 1
 
   Scenario: Remove a node template being a target of a relationship from a topology should succeed
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template1                                                             |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Template2                                                             |
+      | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | Template2                                                                             |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0                                                                                   |
+      | requirementName        | host                                                                                  |
+      | target                 | Template1                                                                             |
+      | targetedCapabilityName | compute                                                                               |
+    When I execute the operation
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation |
+      | nodeName | Template1                                                                |
+    Then No exception should be thrown
+    And The SPEL expression "nodeTemplates.size()" should return 1
+    And The SPEL expression "nodeTemplates['Template2'].relationships.size()" should return 0
 
   Scenario: Remove a node template used in a group should succeed and remove the node from the group
     Given I execute the operation
