@@ -934,6 +934,14 @@
     "MENU_USERS": "用户和组",
     "MENU_VERSIONS": "版本"
   },
+  "NAVCATALOG": {
+    "ARCHIVES_PROMOTION": "Archives promotion requests",
+    "BROWSE_COMPONENTS": "Browse components",
+    "MANAGE_ARCHIVES": "Manage archives",
+    "BROWSE_TOPOLOGIES": "Browse topologies",
+    "BROWSE_POLICIES": "Browse policies",
+    "TOPOLOGIES": "Topologies",
+  },
   "NAVBAR": {
     "BUTTON_LOGIN": "登录",
     "BUTTON_LOGOUT": "注销",

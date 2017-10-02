@@ -85,6 +85,7 @@ public abstract class AbstractArchivePostProcessor {
         processTypes(archiveRoot.getArchive().getWorkspace(), archiveRoot.getDataTypes());
         processTypes(archiveRoot.getArchive().getWorkspace(), archiveRoot.getNodeTypes());
         processTypes(archiveRoot.getArchive().getWorkspace(), archiveRoot.getRelationshipTypes());
+        processTypes(archiveRoot.getArchive().getWorkspace(), archiveRoot.getPolicyTypes());
     }
 
     private void processTypes(String workspace, Map<String, ? extends AbstractToscaType> elements) {
@@ -191,7 +192,8 @@ public abstract class AbstractArchivePostProcessor {
         }
     }
 
-    private <T extends AbstractInstantiableTemplate> void processTemplate(ArchivePathChecker archivePathResolver, T template, ParsingResult<ArchiveRoot> parsedArchive) {
+    private <T extends AbstractInstantiableTemplate> void processTemplate(ArchivePathChecker archivePathResolver, T template,
+            ParsingResult<ArchiveRoot> parsedArchive) {
         if (template.getArtifacts() != null) {
             template.getArtifacts().values().stream().filter(artifact -> artifact != null)
                     .forEach(artifact -> processArtifact(archivePathResolver, artifact, parsedArchive));

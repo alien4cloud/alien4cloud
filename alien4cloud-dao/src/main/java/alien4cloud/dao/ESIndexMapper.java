@@ -113,7 +113,7 @@ public abstract class ESIndexMapper {
 
                 // add settings if any (including analysers definitions)
                 String indexSettings = mappingBuilder.getIndexSettings(clazz);
-                if(StringUtils.isNotBlank(indexSettings)){
+                if (StringUtils.isNotBlank(indexSettings)) {
                     createIndexRequestBuilder.setSettings(indexSettings);
                 }
             }
@@ -133,7 +133,7 @@ public abstract class ESIndexMapper {
      * 
      * @param typesMap The type map.
      */
-    private void addAlienScore(Map<String, Object> typesMap) {
+    public void addAlienScore(Map<String, Object> typesMap) {
         for (Object typeMappingObject : typesMap.values()) {
             @SuppressWarnings("unchecked")
             Map<String, Object> typeMappingMap = (Map<String, Object>) typeMappingObject;
