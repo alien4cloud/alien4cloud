@@ -38,7 +38,8 @@ public class NodeTemplateRelationshipPostProcessor implements IPostProcessor<Nod
                 // from 2.0.0 the relationship's name is filled by the parser
                 relationshipTemplateName = buildRelationShipTemplateName(entry.getValue());
             }
-            updated.put(getUniqueKey(updated, relationshipTemplateName), entry.getValue());
+            relationshipTemplateName = getUniqueKey(updated, relationshipTemplateName);
+            updated.put(relationshipTemplateName, entry.getValue());
             entry.getValue().setName(relationshipTemplateName);
         });
         instance.setRelationships(updated);

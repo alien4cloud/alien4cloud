@@ -5,8 +5,9 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
@@ -33,11 +34,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperation> implements IEditorCommitableProcessor<DeleteNodeOperation> {
-    @Resource
+    @Inject
     private TopologyService topologyService;
-    @Resource
+    @Inject
     private IFileRepository artifactRepository;
-    @Resource
+    @Inject
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
@@ -51,15 +52,9 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
 
         List<String> typesTobeUnloaded = Lists.newArrayList();
         // Clean up dependencies of the topology
-        typesTobeUnloaded.add(template.getType());
-        if (template.getRelationships() != null) {
-            for (RelationshipTemplate relationshipTemplate : template.getRelationships().values()) {
-                typesTobeUnloaded.add(relationshipTemplate.getType());
-            }
-        }
+        removeRelationShipReferences(operation.getNodeName(), topology, typesTobeUnloaded);
         topologyService.unloadType(topology, typesTobeUnloaded.toArray(new String[typesTobeUnloaded.size()]));
 
-        removeRelationShipReferences(operation.getNodeName(), topology);
         nodeTemplates.remove(operation.getNodeName());
         removeOutputs(operation.getNodeName(), topology);
         if (topology.getSubstitutionMapping() != null) {
@@ -103,31 +98,37 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
     }
 
     /**
-     * Remove all relationships in nodes where the target was the removed node.
+     * Removes all relationships connected to the removed node (either as source or target)
      *
      * @param removedNode The name of the removed node
      * @param topology The topology in which to remove the references.
+     * @param typesTobeUnloaded List of types to remove from the topology (when relationships are removed)
      */
-    private void removeRelationShipReferences(String removedNode, Topology topology) {
-        Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
-        List<String> keysToRemove = Lists.newArrayList();
-        for (String key : nodeTemplates.keySet()) {
-            NodeTemplate nodeTemp = nodeTemplates.get(key);
-            if (nodeTemp.getRelationships() == null) {
-                continue;
-            }
-            keysToRemove.clear();
-            for (String key2 : nodeTemp.getRelationships().keySet()) {
-                RelationshipTemplate relTemp = nodeTemp.getRelationships().get(key2);
-                if (relTemp == null) {
-                    continue;
+    private void removeRelationShipReferences(String removedNode, Topology topology, List<String> typesTobeUnloaded) {
+        List<String> relationshipsToRemove = Lists.newArrayList();
+
+        for (NodeTemplate nodeTemplate : safe(topology.getNodeTemplates()).values()) {
+            if (removedNode.equals(nodeTemplate.getName())) {
+                // remove all relationships
+                for (Entry<String, RelationshipTemplate> relationshipTemplateEntry : safe(nodeTemplate.getRelationships()).entrySet()) {
+                    typesTobeUnloaded.add(relationshipTemplateEntry.getValue().getType());
+                    workflowBuilderService.removeRelationship(topology, EditionContextManager.getCsar(), nodeTemplate.getName(),
+                            relationshipTemplateEntry.getKey(), relationshipTemplateEntry.getValue());
                 }
-                if (relTemp.getTarget() != null && relTemp.getTarget().equals(removedNode)) {
-                    keysToRemove.add(key2);
+            } else {
+                relationshipsToRemove.clear(); // This is for later removal
+                for (RelationshipTemplate relationshipTemplate : safe(nodeTemplate.getRelationships()).values()) {
+                    if (removedNode.equals(relationshipTemplate.getTarget())) {
+                        relationshipsToRemove.add(relationshipTemplate.getName());
+                        typesTobeUnloaded.add(relationshipTemplate.getType());
+                        workflowBuilderService.removeRelationship(topology, EditionContextManager.getCsar(), nodeTemplate.getName(),
+                                relationshipTemplate.getName(), relationshipTemplate);
+                    }
                 }
-            }
-            for (String relName : keysToRemove) {
-                nodeTemplates.get(key).getRelationships().remove(relName);
+                // remove the relationship from the node's relationship map.
+                for (String relationshipToRemove : relationshipsToRemove) {
+                    nodeTemplate.getRelationships().remove(relationshipToRemove);
+                }
             }
         }
     }
