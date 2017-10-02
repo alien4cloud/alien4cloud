@@ -457,6 +457,7 @@
     "NO" : "No",
     "NODE" : "ノード",
     "PROPERTIES" : "プロパティ",
+    "RELATIONSHIP": "Relationship",
     "SOURCE" : "ソース",
     "SEARCH": "検索...",
     "STATE" : "状態",

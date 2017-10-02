@@ -16,7 +16,6 @@
     "DEPLOYMENT_INFO" : "Informations de déploiement",
     "DEPLOY_CONFIRM": "Êtes-vous sûr de déployer cet environment de production ?",
     "UNDEPLOY_CONFIRM": "Êtes-vous sûr de désinstaller cet environment de production ?",
-    "UPDATE_DEPLOYMENT" : "Update",
     "UPDATE_CONFIRM": "Êtes-vous sûr de mettre à jour cet environment de production ?",
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
     "DEPLOYMENT" : {
@@ -470,6 +469,7 @@
     "NODE" : "Noeud",
     "OR": "ou",
     "PROPERTIES" : "Propriétés",
+    "RELATIONSHIP": "Relation",
     "SEARCH": "Rechercher...",
     "SOURCE" : "Source",
     "RESOURCES": "Ressources",

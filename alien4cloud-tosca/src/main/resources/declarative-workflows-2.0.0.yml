@@ -103,16 +103,14 @@ relationship_workflows:
       add_source:
         # [ source.started, target.started] -> add_source
         source:
-          preceding_state: started
-        target:
-          preceding_state: started
+          preceding_operations: [ start ]
+          following_state: started
         operation_host: TARGET
       add_target:
-        # [ source.started, target.started] -> add_target
+        # source.started -> add_target
         source:
-          preceding_state: started
-        target:
-          preceding_state: started
+          preceding_operations: [ start ]
+          following_state: started
         operation_host: SOURCE
   uninstall:
     # If we join all source and operation dependencies, we have a relationship workflow
@@ -121,17 +119,15 @@ relationship_workflows:
 
     operations:
       remove_source:
-        # remove_source -> [ source.stop, target.stop ]
-        source:
-          following_operations: [ stop ]
+        # target.stopping -> remove_source -> target.stop
         target:
+          preceding_state: stopping
           following_operations: [ stop ]
         operation_host: TARGET
       remove_target:
-        # remove_target -> [ source.stop, target.stop ]
+        # source.stopping -> remove_target -> source.stop
         source:
-          following_operations: [ stop ]
-        target:
+          preceding_state: stopping
           following_operations: [ stop ]
         operation_host: SOURCE
 

@@ -20,6 +20,6 @@ public class AddActivityProcessor extends AbstractWorkflowProcessor<AddActivityO
         Topology topology = EditionContextManager.getTopology();
         log.debug("adding activity [ {} ] to the workflow [ {} ] from topology [ {} ]", operation.getActivity().toString(), workflow.getName(), topology.getId());
         workflowBuilderService.addActivity(topology, EditionContextManager.getCsar(), operation.getWorkflowName(), operation.getRelatedStepId(),
-                operation.isBefore(), operation.getActivity());
+                operation.isBefore(), operation.getTarget(), operation.getTargetRelationship(), operation.getActivity());
     }
 }

@@ -17,7 +17,6 @@ public class WorkflowValidator {
         super();
         rules = new ArrayList<>();
         rules.add(new CycleDetection());
-        rules.add(new StateSequenceValidation());
         rules.add(new NodeValidation());
     }
 

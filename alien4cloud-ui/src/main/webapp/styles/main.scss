@@ -515,6 +515,11 @@ img.icon_32 {
   vertical-align: middle;
 }
 
+.break-word {
+  word-wrap: break-word;
+  width: 100%;
+}
+
 .table-vertical-center > tbody > tr > td {
   vertical-align: middle;
 }

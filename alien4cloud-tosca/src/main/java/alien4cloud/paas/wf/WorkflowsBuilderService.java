@@ -253,14 +253,15 @@ public class WorkflowsBuilderService {
         }
     }
 
-    public void addActivity(Topology topology, Csar csar, String workflowName, String relatedStepId, boolean before, AbstractWorkflowActivity activity) {
+    public void addActivity(Topology topology, Csar csar, String workflowName, String relatedStepId, boolean before, String target, String targetRelationship,
+            AbstractWorkflowActivity activity) {
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
         TopologyContext topologyContext = buildTopologyContext(topology, csar);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
-        builder.addActivity(wf, relatedStepId, before, activity, topologyContext);
+        builder.addActivity(wf, relatedStepId, before, target, targetRelationship, activity, topologyContext);
         WorkflowUtils.fillHostId(wf, topologyContext);
         if (log.isDebugEnabled()) {
             log.debug(WorkflowUtils.debugWorkflow(wf));

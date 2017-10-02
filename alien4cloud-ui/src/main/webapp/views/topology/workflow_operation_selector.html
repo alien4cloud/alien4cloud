@@ -1,34 +1,54 @@
 <form class="form-horizontal" role="form" novalidate>
-	<div class="modal-header">
-	  <h3 class="modal-title">{{'APPLICATIONS.WF.addOperationActivity' | translate}}</h3>
-	</div>
+  <div class="modal-header">
+    <h3 class="modal-title">{{'APPLICATIONS.WF.addOperationActivity' | translate}}</h3>
+  </div>
 
-	<div class="modal-body">
-        <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}">
-          <label for="nameid" class="col-lg-3 control-label">{{'COMMON.NODE' | translate}}</label>
-          <div class="col-lg-9">
-						<select name="nodeTemplateSelect" id="nodeTemplateSelect" ng-options="nodeTemplate for (key, nodeTemplate) in nodeTemplateItems" ng-model="nodeTemplateSelection" ng-change="selectNodeTemplate(nodeTemplateSelection)">
-						</select>
-          </div>
-        </div>
-        <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}">
-          <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.WF.interfaceName' | translate}}</label>
-          <div class="col-lg-9">
-						<select name="interfaceSelect" id="interfaceSelect" ng-options="interface for (key, interface) in interfaceItems" ng-model="interfaceSelection" ng-change="selectInterface(interfaceSelection)">
-						</select>
-          </div>
-        </div>
-        <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}">
-          <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.WF.operationName' | translate}}</label>
-          <div class="col-lg-9">
-						<select name="operationSelect" id="operationSelect" ng-options="operation for (key, operation) in operationItems" ng-model="operationSelection" ng-change="selectOperation(operationSelection)">
-						</select>
-          </div>
-        </div>
-	</div>
+  <div class="modal-body">
+    <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}">
+      <label for="nodeTemplateSelect" class="col-lg-3 control-label">{{'COMMON.NODE' | translate}}</label>
+      <div class="col-lg-9">
+        <select name="nodeTemplateSelect" id="nodeTemplateSelect"
+                ng-options="nodeTemplate for (key, nodeTemplate) in nodeTemplateItems" ng-model="selectedNodeTemplate"
+                ng-change="selectNodeTemplate()">
+        </select>
+      </div>
+    </div>
+    <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}"
+         ng-show="relationshipTemplateItems.length > 0">
+      <label for="relationshipSelect" class="col-lg-3 control-label">{{'COMMON.RELATIONSHIP' | translate}}</label>
+      <div class="col-lg-9">
+        <select name="relationshipSelect" id="relationshipSelect"
+                ng-options="relationship for (key, relationship) in relationshipTemplateItems"
+                ng-model="selectedRelationship"
+                ng-change="selectRelationship()">
+        </select>
+      </div>
+    </div>
+    <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}" ng-show="interfaceItems.length > 0">
+      <label for="interfaceSelect" class="col-lg-3 control-label">{{'APPLICATIONS.WF.interfaceName' |
+        translate}}</label>
+      <div class="col-lg-9">
+        <select name="interfaceSelect" id="interfaceSelect"
+                ng-options="interface for (key, interface) in interfaceItems" ng-model="selectedInterface"
+                ng-change="selectInterface()">
+        </select>
+      </div>
+    </div>
+    <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}" ng-show="operationItems.length > 0">
+      <label for="operationSelect" class="col-lg-3 control-label">{{'APPLICATIONS.WF.operationName' |
+        translate}}</label>
+      <div class="col-lg-9">
+        <select name="operationSelect" id="operationSelect"
+                ng-options="operation for (key, operation) in operationItems" ng-model="selectedOperation">
+        </select>
+      </div>
+    </div>
+  </div>
 
-	<div class="modal-footer">
-	  <button class="btn btn-primary" ng-disabled="!selectedNodeTemplate || !selectedInterface || !selectedOperation" ng-click="submit()">{{'CONFIRM' | translate }}</button>
-	  <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate }}</button>
-	</div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" ng-disabled="!selectedNodeTemplate || !selectedInterface || !selectedOperation"
+            ng-click="submit()">{{'CONFIRM' | translate }}
+    </button>
+    <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate }}</button>
+  </div>
 </form>

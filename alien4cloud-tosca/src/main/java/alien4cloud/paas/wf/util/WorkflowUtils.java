@@ -252,7 +252,6 @@ public class WorkflowUtils {
         CallOperationWorkflowActivity task = new CallOperationWorkflowActivity();
         task.setInterfaceName(interfaceName);
         task.setOperationName(operationName);
-        task.setTarget(nodeId);
         NodeWorkflowStep step = new NodeWorkflowStep();
         step.setTarget(nodeId);
         step.setActivity(task);
@@ -266,7 +265,6 @@ public class WorkflowUtils {
         CallOperationWorkflowActivity task = new CallOperationWorkflowActivity();
         task.setInterfaceName(interfaceName);
         task.setOperationName(operationName);
-        task.setTarget(nodeId);
         RelationshipWorkflowStep step = new RelationshipWorkflowStep();
         step.setTarget(nodeId);
         step.setTargetRelationship(relationshipId);
@@ -280,7 +278,6 @@ public class WorkflowUtils {
     public static WorkflowStep addStateStep(Workflow wf, String nodeId, String stateName) {
         SetStateWorkflowActivity task = new SetStateWorkflowActivity();
         task.setStateName(stateName);
-        task.setTarget(nodeId);
         NodeWorkflowStep step = new NodeWorkflowStep();
         step.setTarget(nodeId);
         step.setActivity(task);
@@ -292,7 +289,6 @@ public class WorkflowUtils {
     public static WorkflowStep addDelegateWorkflowStep(Workflow wf, String nodeId) {
         DelegateWorkflowActivity activity = new DelegateWorkflowActivity();
         activity.setDelegate(wf.getName());
-        activity.setTarget(nodeId);
         NodeWorkflowStep step = new NodeWorkflowStep();
         step.setTarget(nodeId);
         step.setActivity(activity);

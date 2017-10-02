@@ -19,12 +19,6 @@ import lombok.Setter;
 @Setter
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")
 public abstract class AbstractWorkflowActivity {
-
-    /**
-     * The target node of the activity, this is a non tosca field to facilitate integration with Alien4Cloud
-     */
-    private String target;
-
     @JsonIgnore
     public abstract String getRepresentation();
 }

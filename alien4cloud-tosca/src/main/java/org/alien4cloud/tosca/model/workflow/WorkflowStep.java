@@ -5,12 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.conditions.AbstractConditionClause;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alien4cloud.paas.exception.NotSupportedException;
 import lombok.Getter;
@@ -33,7 +33,7 @@ public abstract class WorkflowStep {
     /** The list of activities to call in a sequence as part of that workflow step. */
     private List<AbstractWorkflowActivity> activities;
     /** The steps to trigger (in parallel if multiple) if the workflow step has been executed correctly. */
-    private Set<String> onSuccess;
+    private Set<String> onSuccess = new HashSet<>();
     /** The steps to trigger (in parallel if multiple) if the workflow step has failed. */
     private Set<String> onFailure;
 
@@ -45,7 +45,7 @@ public abstract class WorkflowStep {
     /** The id / name of the step in the workflow **/
     private String name;
     /** The steps that precedes immediately this step in the workflow sequence **/
-    private Set<String> precedingSteps;
+    private Set<String> precedingSteps = new HashSet<>();
 
     @JsonIgnore
     public AbstractWorkflowActivity getActivity() {
@@ -70,9 +70,6 @@ public abstract class WorkflowStep {
     public abstract String getStepAsString();
 
     public void addPreceding(String name) {
-        if (this.precedingSteps == null) {
-            this.precedingSteps = new HashSet<>();
-        }
         this.precedingSteps.add(name);
     }
 
@@ -81,9 +78,6 @@ public abstract class WorkflowStep {
     }
 
     public void addFollowing(String name) {
-        if (this.onSuccess == null) {
-            this.onSuccess = new HashSet<>();
-        }
         this.onSuccess.add(name);
     }
 

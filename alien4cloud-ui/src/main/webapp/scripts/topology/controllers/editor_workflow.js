@@ -26,5 +26,10 @@ define(function (require) {
     topoEditWf($scope);
 
     $scope.workflows.setCurrentWorkflowName('install');
+
+    // Load archive content file
+    $scope.$on('topologyRefreshedEvent', function() {
+      $scope.workflows.refreshGraph(true, true);
+    });
   }]);
 });

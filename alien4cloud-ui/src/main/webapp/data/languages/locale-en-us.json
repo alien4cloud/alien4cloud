@@ -469,6 +469,7 @@
     "NODE": "Node",
     "OR": "or",
     "PROPERTIES": "Properties",
+    "RELATIONSHIP": "Relationship",
     "RESOURCES": "Resources",
     "SEARCH": "Search...",
     "SOURCE": "Source",

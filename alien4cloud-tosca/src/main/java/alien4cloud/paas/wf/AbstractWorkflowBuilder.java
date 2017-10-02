@@ -8,10 +8,12 @@ import java.util.Map.Entry;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
+import org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 
@@ -71,9 +73,16 @@ public abstract class AbstractWorkflowBuilder {
         }
     }
 
-    private WorkflowStep addActivityStep(Workflow wf, String nodeId, AbstractWorkflowActivity activity) {
-        WorkflowStep step = new NodeWorkflowStep();
-        step.setTarget(nodeId);
+    private WorkflowStep addActivityStep(Workflow wf, String target, String targetRelationship, AbstractWorkflowActivity activity) {
+        WorkflowStep step;
+        if (StringUtils.isEmpty(targetRelationship)) {
+            step = new NodeWorkflowStep();
+        } else {
+            RelationshipWorkflowStep relationshipWorkflowStep = new RelationshipWorkflowStep();
+            relationshipWorkflowStep.setTargetRelationship(targetRelationship);
+            step = relationshipWorkflowStep;
+        }
+        step.setTarget(target);
         step.setActivity(activity);
         step.setName(WorkflowUtils.buildStepName(wf, step, 0));
         wf.addStep(step);
@@ -89,32 +98,34 @@ public abstract class AbstractWorkflowBuilder {
      * @param wf the workflow to add activity
      * @param relatedStepId if specified, the step will be added near this one (maybe before)
      * @param before if true, the step will be added before the relatedStepId
+     * @param target the target
      * @param activity the activity to be added
      */
-    void addActivity(Workflow wf, String relatedStepId, boolean before, AbstractWorkflowActivity activity, TopologyContext topologyContext) {
-        if (WorkflowUtils.isNativeOrSubstitutionNode(activity.getTarget(), topologyContext)) {
+    void addActivity(Workflow wf, String relatedStepId, boolean before, String target, String targetRelationship, AbstractWorkflowActivity activity,
+            TopologyContext topologyContext) {
+        if (WorkflowUtils.isNativeOrSubstitutionNode(target, topologyContext)) {
             throw new BadWorkflowOperationException("Activity can not be added for abstract nodes");
         }
         if (relatedStepId != null) {
             if (before) {
                 // insert
-                insertActivityStep(wf, relatedStepId, activity);
+                insertActivityStep(wf, relatedStepId, target, targetRelationship, activity);
             } else {
                 // append
-                appendActivityStep(wf, relatedStepId, activity);
+                appendActivityStep(wf, relatedStepId, target, targetRelationship, activity);
             }
         } else {
-            addActivityStep(wf, activity.getTarget(), activity);
+            addActivityStep(wf, target, targetRelationship, activity);
         }
     }
 
-    private void insertActivityStep(Workflow wf, String stepId, AbstractWorkflowActivity activity) {
+    private void insertActivityStep(Workflow wf, String stepId, String target, String targetRelationship, AbstractWorkflowActivity activity) {
         WorkflowStep lastStep = wf.getSteps().get(stepId);
         String stepBeforeId = null;
         if (lastStep.getPrecedingSteps() != null && lastStep.getPrecedingSteps().size() == 1) {
             stepBeforeId = lastStep.getPrecedingSteps().iterator().next();
         }
-        WorkflowStep insertedStep = addActivityStep(wf, activity.getTarget(), activity);
+        WorkflowStep insertedStep = addActivityStep(wf, target, targetRelationship, activity);
         WorkflowUtils.linkSteps(insertedStep, lastStep);
         if (stepBeforeId != null) {
             WorkflowStep stepBefore = wf.getSteps().get(stepBeforeId);
@@ -123,13 +134,13 @@ public abstract class AbstractWorkflowBuilder {
         }
     }
 
-    private void appendActivityStep(Workflow wf, String stepId, AbstractWorkflowActivity activity) {
+    private void appendActivityStep(Workflow wf, String stepId, String target, String targetRelationship, AbstractWorkflowActivity activity) {
         WorkflowStep lastStep = wf.getSteps().get(stepId);
         String stepAfterId = null;
         if (lastStep.getOnSuccess() != null && lastStep.getOnSuccess().size() == 1) {
             stepAfterId = lastStep.getOnSuccess().iterator().next();
         }
-        WorkflowStep insertedStep = addActivityStep(wf, activity.getTarget(), activity);
+        WorkflowStep insertedStep = addActivityStep(wf, target, targetRelationship, activity);
         WorkflowUtils.linkSteps(lastStep, insertedStep);
         if (stepAfterId != null) {
             WorkflowStep stepAfter = wf.getSteps().get(stepAfterId);
