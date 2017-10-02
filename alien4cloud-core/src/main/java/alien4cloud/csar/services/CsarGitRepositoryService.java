@@ -110,7 +110,10 @@ public class CsarGitRepositoryService {
             boolean isStoredLocally) {
         validatesRepositoryUrl(repositoryUrl);
         CsarGitRepository repositoryToUpdate = getOrFail(id);
-        repositoryToUpdate.setRepositoryUrl(repositoryUrl);
+        if (!repositoryToUpdate.getRepositoryUrl().equals(repositoryUrl)) {
+            failIfExists(repositoryUrl);
+            repositoryToUpdate.setRepositoryUrl(repositoryUrl);
+        }
         if (username != null) {
             repositoryToUpdate.setUsername(username);
         }
