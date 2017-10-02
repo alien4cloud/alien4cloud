@@ -589,7 +589,8 @@
       "YAML_SCALAR_NODE_EXPECTED" : "Un noeud YAML de type scalar est attendu ici.",
       "YAML_SEQUENCE_EXPECTED" : "Une séquence YAML est attendu.",
       "CSAR_IMPORT_ITSELF": "Une archive ne peut pas s'importer elle même.",
-      "UNSUPPORTED_SUBSTITUTION": "La substitution n'est pas supportée dans une archive qui définit des types"
+      "UNSUPPORTED_SUBSTITUTION": "La substitution n'est pas supportée dans une archive qui définit des types",
+      "POLICY_TARGET_NOT_FOUND": "La cible de la policy [{{note}}] ne peut être trouvée."
     },
     "VALIDSOURCES" : "Sources valides",
     "WORKSPACE" : "Workspaces"

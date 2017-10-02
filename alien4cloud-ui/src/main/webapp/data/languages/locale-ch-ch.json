@@ -581,7 +581,8 @@
       "YAML_SCALAR_NODE_EXPECTED": "此处需要可扩展类型的YAML节点。",
       "YAML_SEQUENCE_EXPECTED": "需要YAML序列。",
       "CSAR_IMPORT_ITSELF": "不允许工件导入自身。",
-      "UNSUPPORTED_SUBSTITUTION": "不可替换定义类型的工件。"
+      "UNSUPPORTED_SUBSTITUTION": "不可替换定义类型的工件。",
+      "POLICY_TARGET_NOT_FOUND": "Policy target [{{note}}] cannot be found"
     },
     "VALIDSOURCES": "有效代码",
     "WORKSPACE": "工作区"
