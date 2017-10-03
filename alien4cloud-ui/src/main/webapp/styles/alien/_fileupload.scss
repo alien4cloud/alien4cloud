@@ -97,3 +97,14 @@
   font-size: 15px;
   font-style: italic;
 }
+
+.drop-box-for-icon {
+  height: 100px;
+  font-size: $font-size-h5;
+  display: table;
+}
+
+.drop-box-for-icon > span {
+  display: table-cell;
+  vertical-align: middle;
+}
