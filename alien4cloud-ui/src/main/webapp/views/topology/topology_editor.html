@@ -81,6 +81,32 @@
       </div>
     </div>
 
+    <!-- Policies -->
+    <div id="policies-box" ng-show="displays.policies.active" class="topology-column ui-resizable" style="width: {{displays.policies.size}}px;">
+      <div class="topology-column-box">
+        <resizable-bar
+          id="policies-box-handler"
+          classes="topology-column-menu-left">
+        </resizable-bar>
+        <div class="topology-column-content" ng-if="displays.policies.active">
+          <ng-include src="'views/topology/includes/policies.html'"></ng-include>
+        </div>
+      </div>
+    </div>
+
+    <!-- Policies catalog -->
+    <div id="policiescatalog-box" ng-show="displays.policiescatalog.active" class="topology-column ui-resizable" style="width: {{displays.policiescatalog.size}}px;">
+      <div class="topology-column-box">
+        <resizable-bar
+          id="policiescatalog-box-handler"
+          classes="topology-column-menu-left">
+        </resizable-bar>
+        <div class="topology-column-content" ng-if="displays.policiescatalog.active">
+          <ng-include src="'views/topology/includes/policiescatalog.html'"></ng-include>
+        </div>
+      </div>
+    </div>
+
     <!-- Node Groups -->
     <div id="groups-box" ng-show="displays.groups.active" class="topology-column ui-resizable" style="width: {{displays.groups.size}}px;">
       <div class="topology-column-box">
@@ -90,19 +116,6 @@
         </resizable-bar>
         <div class="topology-column-content" ng-if="displays.groups.active">
           <ng-include src="'views/topology/includes/groups.html'"></ng-include>
-        </div>
-      </div>
-    </div>
-
-    <!-- Input Artifacts -->
-    <div id="artifacts-box" ng-show="displays.artifacts.active" class="topology-column ui-resizable" style="width: {{displays.artifacts.size}}px;">
-      <div class="topology-column-box">
-        <resizable-bar
-          id="artifacts-box-handler"
-          classes="topology-column-menu-left">
-        </resizable-bar>
-        <div class="topology-column-content" ng-if="displays.artifacts.active">
-          <ng-include src="'views/topology/includes/artifacts.html'"></ng-include>
         </div>
       </div>
     </div>
@@ -128,14 +141,14 @@
             <i class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}
           </span>
         </li>
-        <li ng-class="{'active': displays.dependencies.active}">
-          <span id="topology-dependencies" ng-click="display.toggle('dependencies')">
-            <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}} <i ng-show="topology.dependencyConflicts.length" class="fa fa-exclamation-triangle text-warning"></i>
-          </span>
-        </li>
         <li ng-class="{'active': displays.inputs.active}">
           <span id="topology-inputs" ng-click="display.toggle('inputs')">
             <i class="fa fa-sign-in"></i> Inputs
+          </span>
+        </li>
+        <li ng-class="{'active': displays.policies.active}">
+          <span id="topology-policies" ng-click="display.toggle('policies')">
+            <i class="fa fa-gavel"></i> Policies
           </span>
         </li>
         <li ng-class="{'active': displays.groups.active}">
@@ -143,14 +156,14 @@
             <i class="fa fa-list-alt"></i> {{'COMMON.GROUPS' | translate}}
           </span>
         </li>
-        <li ng-class="{'active': displays.artifacts.active}">
-          <span id="topology-artifacts" ng-click="display.toggle('artifacts')">
-            <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
-          </span>
-        </li>
         <li ng-class="{'active': displays.substitutions.active}">
           <span id="topology-substitutions" ng-click="display.toggle('substitutions')">
             <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
+          </span>
+        </li>
+        <li ng-class="{'active': displays.dependencies.active}">
+          <span id="topology-dependencies" ng-click="display.toggle('dependencies')">
+            <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}} <i ng-show="topology.dependencyConflicts.length" class="fa fa-exclamation-triangle text-warning"></i>
           </span>
         </li>
       </ul>

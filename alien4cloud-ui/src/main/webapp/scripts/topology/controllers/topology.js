@@ -76,7 +76,8 @@ define(function (require) {
         catalog: { active: true, size: 500, selector: '#catalog-box', only: ['catalog'] },
         dependencies: { active: false, size: 400, selector: '#dependencies-box', only: ['dependencies'] },
         inputs: { active: false, size: 400, selector: '#inputs-box', only: ['inputs'], keep: ['nodetemplate'] },
-        artifacts: { active: false, size: 400, selector: '#artifacts-box', only: ['artifacts'], keep: ['nodetemplate'] },
+        policies: { active: false, size: 400, selector: '#policies-box', only: ['policies', 'policiescatalog'], keep: ['nodetemplate']},
+        policiescatalog: { active: false, size: 500, selector: '#policiescatalog-box', only: ['policies', 'policiescatalog'], keep: ['nodetemplate']},
         groups: { active: false, size: 400, selector: '#groups-box', only: ['groups'], keep: ['nodetemplate'] },
         substitutions: { active: false, size: 400, selector: '#substitutions-box', only: ['substitutions'], keep: ['nodetemplate'] },
         nodetemplate: { active: false, size: 500, selector: '#nodetemplate-box', only: ['nodetemplate'], keep: ['inputs'] }

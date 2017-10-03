@@ -1,0 +1,20 @@
+<div class="topology-column-content-head">
+  <span>
+    <i class="fa fa-gavel"></i> Policies
+  </span>
+  <span id='closePolicies' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('policies')">
+    <i class="fa fa-remove close-panel"></i>
+  </span>
+</div>
+<span id="topology-policiescatalog" ng-click="display.toggle('policiescatalog')">
+  <i class="fa fa-plus"></i> Add policies
+</span>
+
+ => open catalog
+
+<div>
+  List policies => <br>
+  Can only select a single policy from here
+
+  {{topology.topology.policies}}
+</div>

@@ -33,3 +33,35 @@
     </tr>
   </tbody>
 </table>
+<div class="topology-column-content-head">
+  <span>
+    <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
+  </span>
+  <span id='closeArtifacts' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('artifacts')">
+    <i class="fa fa-remove close-panel"></i>
+  </span>
+</div>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>{{'COMMON.ID' | translate }}</th>
+      <th>{{'COMMON.TYPE' | translate }}</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="(inputArtifactId, inputArtifact) in topology.topology.inputArtifacts">
+      <td>
+        <span editable-text="inputArtifactId" buttons="no" onbeforesave="inputs.updateArtifactId(inputArtifactId, $data)" blur="submit">
+          {{inputArtifactId}}
+          <i class="fa fa-pencil-square-o"></i>
+        </span>
+      </td>
+      <td>{{inputArtifact.artifactType}}</td>
+      <td>
+        <delete-confirm id="inputArtifact_{{inputArtifactId}}_delete" class="pull-right" func="inputs.removeArtifact(inputArtifactId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+        </delete-confirm>
+      </td>
+    </tr>
+  </tbody>
+</table>
