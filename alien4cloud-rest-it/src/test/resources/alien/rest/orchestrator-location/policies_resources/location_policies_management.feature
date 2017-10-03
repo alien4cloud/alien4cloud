@@ -17,9 +17,17 @@ Feature: Manage location policies resources
     Then The SPEL expression "resources.policyTypes.size()" should return 2
 
   @reset
-  Scenario: Create an on demand policy template
+  Scenario: Create a policy template
     When I create a policy resource of type "org.alien4cloud.policies.mock.MinimalPolicyType" named "MinimalPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
     Then I should receive a RestResponse with no error
     When I get the location "Mount doom orchestrator"/"Thark location"
     Then I should receive a RestResponse with no error
     And The location should contains a policy resource with name "MinimalPolicyType" and type "org.alien4cloud.policies.mock.MinimalPolicyType"
+
+  @reset
+  Scenario: Delete a location policy template should succeed
+    Given I create a policy resource of type "org.alien4cloud.policies.mock.MinimalPolicyType" named "MinimalPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
+    When I delete the policy resource named "MinimalPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
+    Then I should receive a RestResponse with no error
+    When I get the location "Mount doom orchestrator"/"Thark location"
+    Then The location should not contain a policy resource with name "MinimalPolicyType" and type "org.alien4cloud.policies.mock.MinimalPolicyType"

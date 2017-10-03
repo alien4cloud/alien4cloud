@@ -125,7 +125,7 @@ public class LocationResourcesBatchSecurityController {
         locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd(), location);
 
         Arrays.stream(request.getResources()).forEach(resourceId -> {
-            LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+            LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
             if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
                 resourcePermissionService.revokePermission(resourceTemplate,
                         (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.APPLICATION,
@@ -185,7 +185,7 @@ public class LocationResourcesBatchSecurityController {
         locationSecurityService.grantAuthorizationOnLocationIfNecessary(location, subjectType, subjects);
 
         Arrays.stream(resources).forEach(resourceId -> {
-            LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+            LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
             // prefer using locationResourceService.saveResource so that the location update date is update.
             // This will then trigger a deployment topology update
             resourcePermissionService.grantPermission(resourceTemplate,
@@ -198,7 +198,7 @@ public class LocationResourcesBatchSecurityController {
             return;
         }
         Arrays.stream(resources).forEach(resourceId -> {
-            LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+            LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
             resourcePermissionService.revokePermission(resourceTemplate,
                     (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)), subjectType, subjects);
         });

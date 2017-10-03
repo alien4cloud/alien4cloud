@@ -394,13 +394,13 @@ public class LocationResourceService implements ILocationResourceService {
     /*
      * (non-Javadoc)
      * 
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#deleteResourceTemplate(java.lang.String)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#deleteResourceTemplate(Class, String)
      */
     @Override
-    public void deleteResourceTemplate(String resourceId) {
-        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+    public void deleteResourceTemplate(Class<? extends AbstractLocationResourceTemplate> clazz, String resourceId) {
+        AbstractLocationResourceTemplate resourceTemplate = getOrFail(clazz, resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
-        alienDAO.delete(LocationResourceTemplate.class, resourceId);
+        alienDAO.delete(clazz, resourceId);
         refreshDependencies(location);
         alienDAO.save(location);
     }
@@ -411,8 +411,8 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getOrFail(java.lang.String)
      */
     @Override
-    public LocationResourceTemplate getOrFail(String resourceId) {
-        LocationResourceTemplate locationResourceTemplate = alienDAO.findById(LocationResourceTemplate.class, resourceId);
+    public <T extends AbstractLocationResourceTemplate> T getOrFail(Class<T> clazz, String resourceId) {
+        T locationResourceTemplate = alienDAO.findById(clazz, resourceId);
         if (locationResourceTemplate == null) {
             throw new NotFoundException("Location Resource Template [" + resourceId + "] doesn't exists.");
         }
@@ -426,7 +426,7 @@ public class LocationResourceService implements ILocationResourceService {
      */
     @Override
     public void merge(Object mergeRequest, String resourceId) {
-        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = getOrFail(LocationResourceTemplate.class, resourceId);
         ReflectionUtil.mergeObject(mergeRequest, resourceTemplate);
         saveResource(resourceTemplate);
     }
@@ -439,7 +439,7 @@ public class LocationResourceService implements ILocationResourceService {
     @Override
     public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue)
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
-        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = getOrFail(LocationResourceTemplate.class, resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTemplate.getTemplate().getType(),
                 location.getDependencies());
@@ -503,7 +503,7 @@ public class LocationResourceService implements ILocationResourceService {
     @Override
     public void setTemplateCapabilityProperty(String resourceId, String capabilityName, String propertyName, Object propertyValue)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
-        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = getOrFail(LocationResourceTemplate.class, resourceId);
         setTemplateCapabilityProperty(resourceTemplate, capabilityName, propertyName, propertyValue);
         saveResource(resourceTemplate);
     }
@@ -560,16 +560,22 @@ public class LocationResourceService implements ILocationResourceService {
 
     private void refreshDependencies(Location location) {
         ToscaTypeLoader toscaTypeLoader = new ToscaTypeLoader(csarDependencyLoader);
-        List<LocationResourceTemplate> resources = getResourcesTemplates(location.getId());
-        for (LocationResourceTemplate resource : resources) {
-            String type = resource.getTemplate().getType();
-            NodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, type, location.getDependencies());
-            toscaTypeLoader.loadType(resource.getTemplate().getType(),
-                    csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
-        }
+
+        loadResourcesTypes(getResourcesTemplates(location.getId()), location, toscaTypeLoader);
+        loadResourcesTypes(getPoliciesResourcesTemplates((location.getId())), location, toscaTypeLoader);
+
         location.setDependencies(toscaTypeLoader.getLoadedDependencies());
         // ALWAYS add native dependencies
         location.getDependencies().addAll(pluginArchiveIndexer.getNativeDependencies(orchestratorService.getOrFail(location.getOrchestratorId()), location));
+    }
+
+    private <T extends AbstractLocationResourceTemplate> void loadResourcesTypes(List<T> resources, Location location, ToscaTypeLoader toscaTypeLoader) {
+        for (T resource : resources) {
+            String type = resource.getTemplate().getType();
+            AbstractToscaType toscaType = csarRepoSearchService.getRequiredElementInDependencies(AbstractToscaType.class, type, location.getDependencies());
+            toscaTypeLoader.loadType(resource.getTemplate().getType(),
+                    csarDependencyLoader.buildDependencyBean(toscaType.getArchiveName(), toscaType.getArchiveVersion()));
+        }
     }
 
     /*

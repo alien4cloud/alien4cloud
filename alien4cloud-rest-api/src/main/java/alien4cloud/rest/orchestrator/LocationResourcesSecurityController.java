@@ -1,5 +1,25 @@
 package alien4cloud.rest.orchestrator;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.common.collect.Sets;
+
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.authorization.ResourcePermissionService;
@@ -18,25 +38,8 @@ import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUp
 import alien4cloud.rest.orchestrator.model.GroupDTO;
 import alien4cloud.rest.orchestrator.model.UserDTO;
 import alien4cloud.security.Subject;
-import com.google.common.collect.Sets;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources/{resourceId}/security/",
@@ -81,7 +84,7 @@ public class LocationResourcesSecurityController {
             @PathVariable String resourceId, @RequestBody String[] userNames) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         locationSecurityService.grantAuthorizationOnLocationIfNecessary(location, Subject.USER, userNames);
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
         // prefer using locationResourceService.saveResource so that the location update date is update.
         // This will then trigger a deployment topology update
         resourcePermissionService.grantPermission(resourceTemplate,
@@ -103,7 +106,7 @@ public class LocationResourcesSecurityController {
     @Audit
     public synchronized RestResponse<List<UserDTO>> revokeUserAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                   @PathVariable String resourceId, @PathVariable String username) {
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
         resourcePermissionService.revokePermission(resourceTemplate, (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)),
                 Subject.USER, username);
         List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
@@ -119,7 +122,7 @@ public class LocationResourcesSecurityController {
     @RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<UserDTO>> getAuthorizedUsers(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId) {
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
         List<UserDTO> users = UserDTO.convert(resourcePermissionService.getAuthorizedUsers(resourceTemplate));
         return RestResponseBuilder.<List<UserDTO>> builder().data(users).build();
     }
@@ -146,7 +149,7 @@ public class LocationResourcesSecurityController {
                                                                          @PathVariable String resourceId, @RequestBody String[] groupIds) {
         Location location = locationService.getLocation(orchestratorId, locationId);
         locationSecurityService.grantAuthorizationOnLocationIfNecessary(location, Subject.GROUP, groupIds);
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
         resourcePermissionService.grantPermission(resourceTemplate,
                 (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.GROUP, groupIds);
         List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
@@ -166,7 +169,7 @@ public class LocationResourcesSecurityController {
     @Audit
     public synchronized RestResponse<List<GroupDTO>> revokeGroupAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                        @PathVariable String resourceId, @PathVariable String groupId) {
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
         resourcePermissionService.revokePermission(resourceTemplate, (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)),
                 Subject.GROUP, groupId);
         List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
@@ -182,7 +185,7 @@ public class LocationResourcesSecurityController {
     @RequestMapping(value = "/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<GroupDTO>> getAuthorizedGroups(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String resourceId) {
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
         List<GroupDTO> groups = GroupDTO.convert(resourcePermissionService.getAuthorizedGroups(resourceTemplate));
         return RestResponseBuilder.<List<GroupDTO>> builder().data(groups).build();
     }
@@ -207,7 +210,7 @@ public class LocationResourcesSecurityController {
     @Audit
     public synchronized RestResponse<Void> revokeApplicationAccess(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                    @PathVariable String applicationId, @PathVariable String resourceId) {
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
         resourcePermissionService.revokePermission(resourceTemplate, (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)),
                 Subject.APPLICATION, applicationId);
 
@@ -242,7 +245,7 @@ public class LocationResourcesSecurityController {
         Location location = locationService.getLocation(orchestratorId, locationId);
         locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd(), location);
 
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
         if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
             resourcePermissionService.revokePermission(resourceTemplate,
                     (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.APPLICATION,
@@ -299,7 +302,7 @@ public class LocationResourcesSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsAndEnvTypePerApplication(@PathVariable String orchestratorId,
                                                                                                               @PathVariable String locationId, @PathVariable String resourceId) {
-        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
         List<Application> applicationsRelatedToEnvironment = Lists.newArrayList();
         List<Application> applicationsRelatedToEnvironmentType = Lists.newArrayList();
         List<ApplicationEnvironment> environments = Lists.newArrayList();

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
+import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -51,6 +52,18 @@ public class LocationPolicyResourcesController {
                 resourceTemplateRequest.getResourceName(), resourceTemplateRequest.getResourceType(), resourceTemplateRequest.getArchiveName(),
                 resourceTemplateRequest.getArchiveVersion());
         return RestResponseBuilder.<LocationResourceTemplateWithDependencies> builder().data(createdTemplate).build();
+    }
+
+    @ApiOperation(value = "Delete location's policy resource.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<Void> deletePolicyResourceTemplate(
+            @ApiParam(value = "Id of the orchestrator for which to delete policy resource template.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to delete policy resource template.", required = true) @PathVariable String locationId,
+            @ApiParam(value = "Id of the location's policy resource.", required = true) @PathVariable String id) {
+        locationResourceService.deleteResourceTemplate(PolicyLocationResourceTemplate.class, id);
+        return RestResponseBuilder.<Void> builder().build();
     }
 
 }

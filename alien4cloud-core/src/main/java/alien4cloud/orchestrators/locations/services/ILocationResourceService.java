@@ -68,9 +68,9 @@ public interface ILocationResourceService {
      */
     LocationResourceTemplateWithDependencies addResourceTemplateFromArchive(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion);
 
-    void deleteResourceTemplate(String resourceId);
+    void deleteResourceTemplate(Class<? extends AbstractLocationResourceTemplate> clazz, String resourceId);
 
-    LocationResourceTemplate getOrFail(String resourceId);
+    <T extends AbstractLocationResourceTemplate> T getOrFail(Class<T> clazz, String resourceId);
 
     void merge(Object mergeRequest, String resourceId);
 

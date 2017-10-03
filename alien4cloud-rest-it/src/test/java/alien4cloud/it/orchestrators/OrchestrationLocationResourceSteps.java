@@ -40,7 +40,7 @@ public class OrchestrationLocationResourceSteps {
         createResourceTemplate(resourceType, resourceName, archiveName, archiveVersion, orchestratorName, locationName, LOCATION_RESOURCES_BASE_ENDPOINT);
     }
 
-    @And("^The create resource response should contain a new dependency named \"([^\"]*)\" in version \"([^\"]*)\"$")
+    @And("^The created resource response should contain a new dependency named \"([^\"]*)\" in version \"([^\"]*)\"$")
     public void The_create_resource_response_should_contain_a_new_dependency(String archiveName, String archiveVersion) throws Throwable {
         final RestResponse<LocationResourceTemplateWithDependencies> response = JsonUtil.read(Context.getInstance().getRestResponse(), LocationResourceTemplateWithDependencies.class, Context.getJsonMapper());
         Assert.assertNotNull(response);
@@ -176,10 +176,14 @@ public class OrchestrationLocationResourceSteps {
 
     @When("^I delete the location resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
     public void iDeleteTheLocationResourceNamedRelatedToTheLocation(String resourceName, String orchestratorName, String locationName) throws Throwable {
+        deleteResourceTemplate(resourceName, orchestratorName, locationName, "/rest/v1/orchestrators/%s/locations/%s/resources/%s");
+    }
+
+    public void deleteResourceTemplate(String resourceName, String orchestratorName, String locationName, String deleteEnpoint) throws IOException {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
         String resourceId = Context.getInstance().getLocationResourceId(orchestratorId, locationId, resourceName);
-        String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s/resources/%s", orchestratorId, locationId, resourceId);
+        String restUrl = String.format(deleteEnpoint, orchestratorId, locationId, resourceId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(restUrl));
     }
 

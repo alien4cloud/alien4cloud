@@ -9,7 +9,11 @@ import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -64,7 +68,7 @@ public class LocationResourcesController {
             @ApiParam(value = "Id of the orchestrator for which to delete resource template.", required = true) @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location of the orchestrator to delete resource template.", required = true) @PathVariable String locationId,
             @ApiParam(value = "Id of the location's resource.", required = true) @PathVariable String id) {
-        locationResourceService.deleteResourceTemplate(id);
+        locationResourceService.deleteResourceTemplate(LocationResourceTemplate.class, id);
         return RestResponseBuilder.<Void> builder().build();
     }
 

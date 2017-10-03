@@ -1,13 +1,5 @@
 package alien4cloud.it.orchestrators;
 
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.junit.Assert;
-
-import alien4cloud.it.Context;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.utils.JsonUtil;
-import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -31,17 +23,6 @@ public class OrchestrationPolicyLocationResourceSteps {
                 POLICIES_LOCATION_RESOURCES_BASE_ENDPOINT);
     }
 
-    @And("^The created policy resource response should contain a new dependency named \"([^\"]*)\" in version \"([^\"]*)\"$")
-    public void The_created_policy_resource_response_should_contain_a_new_dependency(String archiveName, String archiveVersion) throws Throwable {
-        final RestResponse<LocationResourceTemplateWithDependencies> response = JsonUtil.read(Context.getInstance().getRestResponse(),
-                LocationResourceTemplateWithDependencies.class, Context.getJsonMapper());
-        Assert.assertNotNull(response);
-        Assert.assertNotNull(response.getData());
-        Assert.assertNotNull(response.getData().getResourceTemplate());
-        Assert.assertNotNull(response.getData().getNewDependencies());
-        Assert.assertTrue(response.getData().getNewDependencies().contains(new CSARDependency(archiveName, archiveVersion)));
-    }
-
     @Then("^The location should contains a policy resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")
     public void The_location_should_contains_a_resource_with_name_and_type(String resourceName, String resourceType) throws Throwable {
         locationResourceSteps.locationShouldContainResource(resourceName, resourceType, locationResources -> locationResources.getPolicyTemplates());
@@ -50,6 +31,12 @@ public class OrchestrationPolicyLocationResourceSteps {
     @Then("^The location should not contain a policy resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")
     public void theLocationShouldNotContainAResourceWithNameAndType(String resourceName, String resourceType) throws Throwable {
         locationResourceSteps.locationShouldNotContainResource(resourceName, resourceType, locationResources -> locationResources.getPolicyTemplates());
+    }
+
+    @When("^I delete the policy resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void iDeleteTheLocationResourceNamedRelatedToTheLocation(String resourceName, String orchestratorName, String locationName) throws Throwable {
+        locationResourceSteps.deleteResourceTemplate(resourceName, orchestratorName, locationName,
+                "/rest/v1/orchestrators/%s/locations/%s/resources/policies/%s");
     }
 
     // private void updatePropertyValue(String orchestratorName, String locationName, String resourceName, String propertyName, Object propertyValue,
@@ -125,14 +112,7 @@ public class OrchestrationPolicyLocationResourceSteps {
     // I_update_the_property_to_for_the_resource_named_related_to_the_location_(propertyName, keyName, resourceName, orchestratorName, locationName);
     // }
     //
-    // @When("^I delete the location resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
-    // public void iDeleteTheLocationResourceNamedRelatedToTheLocation(String resourceName, String orchestratorName, String locationName) throws Throwable {
-    // String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-    // String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
-    // String resourceId = Context.getInstance().getLocationResourceId(orchestratorId, locationId, resourceName);
-    // String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s/resources/%s", orchestratorId, locationId, resourceId);
-    // Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(restUrl));
-    // }
+
     //
 
 }
