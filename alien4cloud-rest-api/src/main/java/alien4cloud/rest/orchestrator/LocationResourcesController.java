@@ -81,7 +81,7 @@ public class LocationResourcesController {
             @ApiParam(value = "Id of the location of the orchestrator to update resource template.", required = true) @PathVariable String locationId,
             @ApiParam(value = "Id of the location's resource.", required = true) @PathVariable String id,
             @RequestBody UpdateLocationResourceTemplateRequest mergeRequest) {
-        locationResourceService.merge(mergeRequest, id);
+        locationResourceService.merge(LocationResourceTemplate.class, mergeRequest, id);
         return RestResponseBuilder.<Void> builder().build();
     }
 

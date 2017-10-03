@@ -21,6 +21,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.CreateLocationResourceTemplateRequest;
 import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplatePropertyRequest;
+import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplateRequest;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.utils.RestConstraintValidator;
 import io.swagger.annotations.Api;
@@ -57,6 +58,19 @@ public class LocationPolicyResourcesController {
                 resourceTemplateRequest.getResourceName(), resourceTemplateRequest.getResourceType(), resourceTemplateRequest.getArchiveName(),
                 resourceTemplateRequest.getArchiveVersion());
         return RestResponseBuilder.<LocationResourceTemplateWithDependencies> builder().data(createdTemplate).build();
+    }
+
+    @ApiOperation(value = "Update location policy resource.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<Void> updateResourceTemplate(
+            @ApiParam(value = "Id of the orchestrator for which to update the policy resource template.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to update the policy resource template.", required = true) @PathVariable String locationId,
+            @ApiParam(value = "Id of the location policy resource.", required = true) @PathVariable String id,
+            @RequestBody UpdateLocationResourceTemplateRequest mergeRequest) {
+        locationResourceService.merge(PolicyLocationResourceTemplate.class, mergeRequest, id);
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     @ApiOperation(value = "Delete location's policy resource.", authorizations = { @Authorization("ADMIN") })

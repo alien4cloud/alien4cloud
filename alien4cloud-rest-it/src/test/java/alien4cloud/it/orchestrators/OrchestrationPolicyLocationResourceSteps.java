@@ -1,5 +1,8 @@
 package alien4cloud.it.orchestrators;
 
+import alien4cloud.it.Context;
+import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplateRequest;
+import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -44,6 +47,20 @@ public class OrchestrationPolicyLocationResourceSteps {
             String orchestratorName, String locationName) throws Throwable {
         locationResourceSteps.updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, propertyValue,
                 "/rest/v1/orchestrators/%s/locations/%s/resources/policies/%s/properties");
+    }
+
+    @When("^I update the policy resource name from \"([^\"]*)\" to \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void MinimalPolicyTypeiUpdateThePolicyResourceNameFromToRelatedToTheLocation(String oldName, String newName, String orchestratorName,
+            String locationName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
+        String resourceId = Context.getInstance().getLocationResourceId(orchestratorId, locationId, oldName);
+
+        UpdateLocationResourceTemplateRequest request = new UpdateLocationResourceTemplateRequest();
+        request.setName(newName);
+
+        String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s/resources/policies/%s", orchestratorId, locationId, resourceId);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon(restUrl, JsonUtil.toString(request)));
     }
 
     // private void updatePropertyValue(String orchestratorName, String locationName, String resourceName, String propertyName, Object propertyValue,

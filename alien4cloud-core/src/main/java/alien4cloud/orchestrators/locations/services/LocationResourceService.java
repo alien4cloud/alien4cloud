@@ -425,8 +425,8 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#merge(java.lang.Object, java.lang.String)
      */
     @Override
-    public void merge(Object mergeRequest, String resourceId) {
-        LocationResourceTemplate resourceTemplate = getOrFail(LocationResourceTemplate.class, resourceId);
+    public void merge(Class<? extends AbstractLocationResourceTemplate> clazz, Object mergeRequest, String resourceId) {
+        AbstractLocationResourceTemplate resourceTemplate = getOrFail(clazz, resourceId);
         ReflectionUtil.mergeObject(mergeRequest, resourceTemplate);
         saveResource(resourceTemplate);
     }
