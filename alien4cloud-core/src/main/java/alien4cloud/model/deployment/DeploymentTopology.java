@@ -118,24 +118,4 @@ public class DeploymentTopology extends Topology {
 
     @ObjectField(enabled = false)
     private Map<String, DeploymentArtifact> uploadedInputArtifacts;
-
-    /**
-     * Deprecated getter for deployer input properties. Kept in code as used for migration from 1.4.0 to 1.4.1 and later versions.
-     * 
-     * @return A map of inputs as configured by the deployer.
-     */
-    @Deprecated
-    public Map<String, PropertyValue> getInputProperties() {
-        return deployerInputProperties;
-    }
-
-    /**
-     * Deprecated setter for deployer input properties. Kept in code as used for migration from 1.4.0 to 1.4.1 and later versions.
-     *
-     * @param inputProperties A map of inputs as configured by the deployer.
-     */
-    @Deprecated
-    public void setInputProperties(Map<String, PropertyValue> inputProperties) {
-        this.deployerInputProperties = inputProperties;
-    }
 }
