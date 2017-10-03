@@ -8,7 +8,7 @@ metadata:
 description: "Defines resources for the mock plugin, mocking openstack configuration."
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.nodes.mock.Compute:

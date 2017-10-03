@@ -36,6 +36,7 @@ import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.model.repository.Repository;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.plugin.Plugin;
@@ -91,6 +92,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(OrchestratorConfiguration.class);
         initIndice(Location.class);
         initIndice(LocationResourceTemplate.class);
+        initIndice(PolicyLocationResourceTemplate.class);
 
         initIndice(Deployment.class);
         initIndice(CsarGitRepository.class);

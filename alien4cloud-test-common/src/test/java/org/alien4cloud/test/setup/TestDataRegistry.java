@@ -151,7 +151,7 @@ public class TestDataRegistry {
         addConditionFolder("tosca-normative-types", GIT_ARTIFACTS_PATH + "tosca-normative-types");
         addConditionFolder("tosca-normative-types-wd06", GIT_ARTIFACTS_PATH + "tosca-normative-types-wd06");
         addConditionFolder("tosca-normative-types-1.0.0-SNAPSHOT", GIT_ARTIFACTS_PATH + "tosca-normative-types-1.0.0-SNAPSHOT");
-        addConditionFolder("tosca-normative-types-1.0.0-ALIEN14", GIT_ARTIFACTS_PATH + "tosca-normative-types-1.0.0-SNAPSHOT");
+        addConditionFolder("tosca-normative-types-1.0.0-ALIEN14", GIT_ARTIFACTS_PATH + "tosca-normative-types-1.0.0-ALIEN14");
 
         addConditionFolder("alien-base-types 1.1.0", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types-V2/alien-base-types");
         addConditionFolder("alien-base-types-2.0.0-SNAPSHOT", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types-2.0.0-SNAPSHOT/alien-base-types",

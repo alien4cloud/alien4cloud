@@ -1,4 +1,4 @@
-tosca_definitions_version: alien_dsl_1_3_0
+tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: mock-plugin-types
@@ -24,3 +24,26 @@ node_types:
     derived_from: tosca.nodes.BlockStorage
   org.alien4cloud.nodes.mock.Network:
     derived_from: tosca.nodes.Network
+
+policy_types:
+  org.alien4cloud.policies.mock.SimpleConditionPolicyType:
+    derived_from: tosca.policies.Root
+    description: This is a sample policy type with simple definition
+    metadata:
+      sample_meta: a meta data
+      anoter_meta: another meta data
+    properties:
+      sample_property:
+        type: string
+    targets: ["tosca.nodes.Compute", "org.alien4cloud.Group"]
+    triggers:
+      default:
+        description: This is the trigger of the sample policy
+        event_type: cpu
+        schedule:
+          start_time: 2016-04-04-15T00:00:00Z
+          end_time: 2020-04-04-15T00:00:00Z
+        action: scale
+  org.alien4cloud.policies.mock.MinimalPolicyType:
+    derived_from: tosca.policies.Root
+    description: This is a sample policy type with minimal definition

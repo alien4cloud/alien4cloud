@@ -20,12 +20,20 @@ public class LocationResources extends LocationResourceTypes {
     private List<LocationResourceTemplate> configurationTemplates = Lists.newArrayList();
     @ApiModelProperty(value = "List of node templates already configured for the location.")
     private List<LocationResourceTemplate> nodeTemplates = Lists.newArrayList();
-    /*
-     * @ApiModelProperty(value = "List of policy templates already configured for the location.")
-     * private List<LocationPolicyTemplate> policyTemplates = Lists.newArrayList();
-     */
+    @ApiModelProperty(value = "List of policies templates already configured for the location.")
+    private List<PolicyLocationResourceTemplate> policyTemplates = Lists.newArrayList();
 
     public LocationResources(LocationResourceTypes locationResourceTypes) {
         super(locationResourceTypes);
+    }
+
+    public void addAll(LocationResourceTypes locationResourceTypes) {
+        getConfigurationTypes().putAll(locationResourceTypes.getConfigurationTypes());
+        getNodeTypes().putAll(locationResourceTypes.getNodeTypes());
+        getDataTypes().putAll(locationResourceTypes.getDataTypes());
+        getCapabilityTypes().putAll(locationResourceTypes.getCapabilityTypes());
+        getAllNodeTypes().putAll(locationResourceTypes.getAllNodeTypes());
+        getOnDemandTypes().putAll(locationResourceTypes.getOnDemandTypes());
+        getPolicyTypes().putAll(locationResourceTypes.getPolicyTypes());
     }
 }
