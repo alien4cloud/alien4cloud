@@ -95,7 +95,7 @@ public class LocationResourcesController {
             @ApiParam(value = "Id of the location's resource.", required = true) @PathVariable String id,
             @RequestBody UpdateLocationResourceTemplatePropertyRequest updateRequest) {
         try {
-            locationResourceService.setTemplateProperty(id, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
+            locationResourceService.setTemplateProperty(LocationResourceTemplate.class, id, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
             return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().build();
         } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
             return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());

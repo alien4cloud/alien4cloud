@@ -434,18 +434,20 @@ public class LocationResourceService implements ILocationResourceService {
     /*
      * (non-Javadoc)
      * 
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateProperty(java.lang.String, java.lang.String, java.lang.Object)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateProperty(Class, java.lang.String, java.lang.String,
+     * java.lang.Object)
      */
     @Override
-    public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue)
+    public void setTemplateProperty(Class<? extends AbstractLocationResourceTemplate> clazz, String resourceId, String propertyName, Object propertyValue)
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
-        LocationResourceTemplate resourceTemplate = getOrFail(LocationResourceTemplate.class, resourceId);
+        AbstractLocationResourceTemplate resourceTemplate = getOrFail(clazz, resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
-        NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTemplate.getTemplate().getType(),
-                location.getDependencies());
-        if (resourceType.getProperties() == null || !resourceType.getProperties().containsKey(propertyName)) {
+        AbstractInheritableToscaType resourceType = (AbstractInheritableToscaType) csarRepoSearchService
+                .getRequiredElementInDependencies(AbstractToscaType.class, resourceTemplate.getTemplate().getType(), location.getDependencies());
+        if (!safe(resourceType.getProperties()).containsKey(propertyName)) {
             throw new NotFoundException("Property [" + propertyName + "] is not found in type [" + resourceType.getElementId() + "]");
         }
+
         propertyService.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue);
         saveResource(resourceTemplate);
     }

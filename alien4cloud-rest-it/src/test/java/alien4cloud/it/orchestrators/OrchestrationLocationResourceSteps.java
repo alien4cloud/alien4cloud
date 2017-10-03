@@ -105,7 +105,7 @@ public class OrchestrationLocationResourceSteps {
         return found;
     }
 
-    private void updatePropertyValue(String orchestratorName, String locationName, String resourceName, String propertyName, Object propertyValue,
+    public void updatePropertyValue(String orchestratorName, String locationName, String resourceName, String propertyName, Object propertyValue,
             String restUrlFormat, String... extraArgs) throws IOException {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);

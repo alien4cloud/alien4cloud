@@ -39,6 +39,13 @@ public class OrchestrationPolicyLocationResourceSteps {
                 "/rest/v1/orchestrators/%s/locations/%s/resources/policies/%s");
     }
 
+    @When("^I update the property \"([^\"]*)\" to \"([^\"]*)\" for the policy resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void I_update_the_property_to_for_the_resource_named_related_to_the_location_(String propertyName, String propertyValue, String resourceName,
+            String orchestratorName, String locationName) throws Throwable {
+        locationResourceSteps.updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, propertyValue,
+                "/rest/v1/orchestrators/%s/locations/%s/resources/policies/%s/properties");
+    }
+
     // private void updatePropertyValue(String orchestratorName, String locationName, String resourceName, String propertyName, Object propertyValue,
     // String restUrlFormat, String... extraArgs) throws IOException {
     // String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
@@ -59,12 +66,6 @@ public class OrchestrationPolicyLocationResourceSteps {
     // Context.getInstance().registerRestResponse(resp);
     // }
 
-    // @When("^I update the property \"([^\"]*)\" to \"([^\"]*)\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
-    // public void I_update_the_property_to_for_the_resource_named_related_to_the_location_(String propertyName, String propertyValue, String resourceName,
-    // String orchestratorName, String locationName) throws Throwable {
-    // updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, propertyValue,
-    // "/rest/v1/orchestrators/%s/locations/%s/resources/%s/template/properties");
-    // }
     //
     // @When("^I update the complex property \"([^\"]*)\" to \"\"\"(.*?)\"\"\" for the resource named \"([^\"]*)\" related to the location
     // \"([^\"]*)\"/\"([^\"]*)\"$")

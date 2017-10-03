@@ -74,7 +74,7 @@ public interface ILocationResourceService {
 
     void merge(Object mergeRequest, String resourceId);
 
-    void setTemplateProperty(String resourceId, String propertyName, Object propertyValue)
+    void setTemplateProperty(Class<? extends AbstractLocationResourceTemplate> clazz, String resourceId, String propertyName, Object propertyValue)
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException;
 
     void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName,

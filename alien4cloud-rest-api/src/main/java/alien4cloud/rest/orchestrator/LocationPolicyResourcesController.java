@@ -2,6 +2,8 @@ package alien4cloud.rest.orchestrator;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +20,9 @@ import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.CreateLocationResourceTemplateRequest;
+import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplatePropertyRequest;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil;
+import alien4cloud.utils.RestConstraintValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -64,6 +69,24 @@ public class LocationPolicyResourcesController {
             @ApiParam(value = "Id of the location's policy resource.", required = true) @PathVariable String id) {
         locationResourceService.deleteResourceTemplate(PolicyLocationResourceTemplate.class, id);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Update location's policy resource template property.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/properties", method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<ConstraintUtil.ConstraintInformation> updatePolicyResourceTemplateProperty(
+            @ApiParam(value = "Id of the orchestrator for which to update the policy resource template property.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to update the policy resource template property.", required = true) @PathVariable String locationId,
+            @ApiParam(value = "Id of the location's policy resource.", required = true) @PathVariable String id,
+            @RequestBody UpdateLocationResourceTemplatePropertyRequest updateRequest) {
+        try {
+            locationResourceService.setTemplateProperty(PolicyLocationResourceTemplate.class, id, updateRequest.getPropertyName(),
+                    updateRequest.getPropertyValue());
+            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().build();
+        } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
+            return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
+        }
     }
 
 }

@@ -31,3 +31,20 @@ Feature: Manage location policies resources
     Then I should receive a RestResponse with no error
     When I get the location "Mount doom orchestrator"/"Thark location"
     Then The location should not contain a policy resource with name "MinimalPolicyType" and type "org.alien4cloud.policies.mock.MinimalPolicyType"
+
+  @reset
+  Scenario: Update a location policy resource property
+    Given I create a policy resource of type "org.alien4cloud.policies.mock.SimpleConditionPolicyType" named "SimpleConditionPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
+    When I update the property "sample_property" to "test_update_property" for the policy resource named "SimpleConditionPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
+    Then I should receive a RestResponse with no error
+    Given I get the location "Mount doom orchestrator"/"Thark location"
+    When I register the rest response data as SPEL context of type "alien4cloud.rest.orchestrator.model.LocationDTO"
+    Then The SPEL expression "resources.policyTemplates[0].template.properties['sample_property'].value" should return "test_update_property"
+
+  @reset
+  Scenario: Update a location policy resource non-existing property should fail
+    Given I create a policy resource of type "org.alien4cloud.policies.mock.MinimalPolicyType" named "MinimalPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
+    When I update the property "sample_property" to "test_update_property" for the policy resource named "MinimalPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
+    Then I should receive a RestResponse with an error code 504
+
+
