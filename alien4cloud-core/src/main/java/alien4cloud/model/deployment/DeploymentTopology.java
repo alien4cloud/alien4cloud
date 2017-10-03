@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
@@ -19,13 +18,13 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -119,4 +118,24 @@ public class DeploymentTopology extends Topology {
 
     @ObjectField(enabled = false)
     private Map<String, DeploymentArtifact> uploadedInputArtifacts;
+
+    /**
+     * Deprecated getter for deployer input properties. Kept in code as used for migration from 1.4.0 to 1.4.1 and later versions.
+     * 
+     * @return A map of inputs as configured by the deployer.
+     */
+    @Deprecated
+    public Map<String, PropertyValue> getInputProperties() {
+        return deployerInputProperties;
+    }
+
+    /**
+     * Deprecated setter for deployer input properties. Kept in code as used for migration from 1.4.0 to 1.4.1 and later versions.
+     *
+     * @param inputProperties A map of inputs as configured by the deployer.
+     */
+    @Deprecated
+    public void setInputProperties(Map<String, PropertyValue> inputProperties) {
+        this.deployerInputProperties = inputProperties;
+    }
 }
