@@ -1,4 +1,4 @@
-<div id="topology-editor" class="topology-editor" style="height: {{dimensions.height}}px; width: {{dimensions.width}}px;">
+<div id="topology-editor" class="topology-editor" style="height: {{dimensions.height}}px;">
   <div class="topology-row" style="height: {{dimensions.height}}px;">
     <!-- TOPOLOGY display -->
     <div id="topology" class="topology-column">
@@ -18,605 +18,8 @@
           id="nodetemplate-box-handler"
           classes="topology-column-menu-left">
         </resizable-bar>
-        <div class="topology-column-content">
-          <div class="topology-column-content-head">
-            <span>
-              <i class="fa fa-info-circle"></i> {{'APPLICATIONS.TOPOLOGY.NODE_INFO' | translate}}
-            </span>
-            <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.set('nodetemplate', false)">
-              <i class="fa fa-remove close-panel"></i>
-            </span>
-          </div>
-
-          <div class="row">
-            <!-- nodeTemplateName div -->
-            <div id="nodetemplate-titles" class="col-md-7">
-              <h3 class="pull-left" style="margin-top: 10px; margin-bottom: 20px;">
-              <span editable-text="nodeNameObj.val" buttons="no" e-required onbeforesave="nodes.updateName($data)" blur="submit">
-                {{ selectedNodeTemplate.name | split }}
-                <i class="fa fa-pencil-square-o"></i>
-              </span>
-                <img ng-show="selectionabstract"
-                     class="icon_16"
-                     alt="abstract_ico_16"
-                     uib-tooltip="{{'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT' | translate}}"
-                     tooltip-placement="top"
-                     src="images/abstract_ico.png" />
-              </h3>
-            </div>
-
-            <!-- buttons group div -->
-            <div class="col-md-5" style="margin-top: 6px;">
-              <div class="pull-right">
-                <span class="btn-group" uib-dropdown>
-                  <a uib-tooltip="{{'APPLICATIONS.TOPOLOGY.REPLACE_NODETEMPLATE' | translate}}"
-                     tooltip-append-to-body="true"
-                     class="btn btn-default btn-sm"
-                     uib-dropdown-toggle
-                     ng-click="nodesswap.getPossibleReplacements(selectedNodeTemplate)">
-                    <i class="fa fa-exchange"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" style="min-width:360px; max-width:600px;">
-                    <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.SELECT_NODETYPE' | translate }}</li>
-                    <li ng-repeat="suggestedNode in suggestedReplacements" style="word-break: break-all;">
-                      <a id="newnode_{{suggestedNode.elementId}}"
-                         ng-click="nodesswap.swapNodeTemplate(selectedNodeTemplate, suggestedNode)">
-                        <img ng-src="img?id={{getIcon(suggestedNode.tags)}}&quality=QUALITY_32" />&nbsp;
-                         <span ng-bind-html="dotWb(suggestedNode.elementId)"></span>
-                      </a>
-                    </li>
-                  </ul>
-                </span>
-                <span ng-if="isComputeType(selectedNodeTemplate)" class="btn-group" uib-dropdown>
-                  <a id="node_groups_{{selectedNodeTemplate.name}}"
-                     class="btn btn-default btn-sm"
-                     uib-dropdown-toggle
-                     uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.GROUPS.TOOLTIP' | translate}}"
-                     tooltip-append-to-body="true">
-                    <i class="fa fa-list-alt"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
-                    <li>
-                      <a id="createGroupWithMember_{{selectedNodeTemplate.name}}" ng-click="groups.create(selectedNodeTemplate.name)">
-                        <strong>{{'APPLICATIONS.TOPOLOGY.GROUPS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
-                      </a>
-                    </li>
-                    <li ng-repeat="group in orderedNodeGroups">
-                      <a id="{{selectedNodeTemplate.name}}_memberOf_{{group.name}}" ng-click="groups.toggleMember(group.name, selectedNodeTemplate.name)">
-                        <i class="fa fa-fw {{groups.isMemberOf(selectedNodeTemplate.name, group.name) ? 'fa-check-square-o' : 'fa-square-o'}}"></i>
-                        {{group.name}}
-                      </a>
-                    </li>
-                  </ul>
-                </span>
-                <!-- Delete selected nodetemplate with confirm -->
-                <delete-confirm id="btn-delete-node" func="nodes.delete(selectedNodeTemplate.name)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
-                </delete-confirm>
-              </div>
-            </div>
-            <div class="col-md-12" ng-if="nodeTempNameEditError" style="margin-bottom: 10px;">
-              <span class="text-danger">{{''+nodeTempNameEditError.code | translate}}</span>
-            </div>
-          </div>
-
-          <div class="row" style="margin-left: -10px; margin-right: -10px; margin-bottom: 10px;">
-            <div class="col-md-12">
-              <div class="input-group" style="word-break: break-all;" >
-                <span class="input-group-addon">
-                  <span><i>{{'COMMON.TYPE' | translate}}</i></span>
-                </span>
-                <span class="form-control" style="float: none;">
-                  <a href="/#/components/details/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank">
-                    {{selectedNodeTemplate.type}}
-                  </a>
-                </span>
-                <span class="input-group-btn" ng-if="topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId">
-                  <button
-                    ng-click="substitution.displayEmbededTopology(topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId)"
-                    class="btn btn-default"
-                    uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.DISPLAY' | translate}}"
-                    tooltip-append-to-body="true">
-                    <i class="fa fa-sitemap text-primary"></i>
-                  </button>
-                </span>
-              </div>
-            </div>
-            <div class="col-md-12" style="margin-top: 5px;">
-              <div class="input-group">
-              <span class="input-group-addon">
-                <i class="fa fa-archive"></i>  {{topology.nodeTypes[selectedNodeTemplate.type].archiveName}}
-              </span>
-              <span class="form-control">
-                {{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}
-              </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Groups -->
-          <div ng-init="isGroupsCollapsed = true" ng-if="selectedNodeTemplate.groups && selectedNodeTemplate.groups.length > 0">
-            <div id="node-details-groups" class="clickable topology-props-section"
-              ng-click="isGroupsCollapsed = !isGroupsCollapsed">
-              <h4>
-                <i class=" fa" ng-class="{'fa-caret-down' : !isGroupsCollapsed, 'fa-caret-right': isGroupsCollapsed}"></i>
-                {{'COMMON.GROUPS' | translate}}
-              </h4>
-            </div>
-            <span class="clearfix"></span>
-            <div id="node-details-groups-panel" uib-collapse="isGroupsCollapsed" class="facet-choice">
-              <ul class="nav facet-choice">
-                <li ng-repeat="groupId in selectedNodeTemplate.groups">
-                  <a href="" id="removeGroup_{{groupId}}_from_{{selectedNodeTemplate.name}}"
-                    confirm="{{'DELETE_CONFIRM' | translate}}"
-                    confirm-title="{{'DELETE' | translate }}"
-                    confirm-handler="groups.removeMember(groupId, selectedNodeTemplate.name)"
-                    confirm-placement="bottom"
-                    confirm-class="popover"
-                    ng-click="$event.stopPropagation();">
-                    <span class="{{groups.getColorCss(groupId)}}">{{groupId}}</span>&nbsp;
-                    <i class="fa fa-times"></i>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Properties -->
-          <div ng-if="selectedNodeTemplate.properties.length > 0">
-            <div id="node-details-properties" class="clickable topology-props-section"
-                 ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
-              <h4>
-                <i class="fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
-                {{'COMMON.PROPERTIES' | translate}}
-              </h4>
-            </div>
-            <div id="node-details-properties-panel" uib-collapse="isPropertiesCollapsed" >
-              <table class="table table-condensed" id="nodeTemplateProperties">
-                <tr ng-repeat="propEntry in selectedNodeTemplate.properties">
-                  <td class="topology-props-td-inp">
-                    <div class="btn-group" uib-dropdown>
-                      <a id="p_input_pro_{{propEntry.key}}"
-                         ng-click="inputs.getCandidatesForProperty(propEntry.key)"
-                         class="btn btn-default btn-xs"
-                         uib-dropdown-toggle
-                         ng-class="{'active' : properties.isInputProperty(propEntry.key)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
-                         tooltip-append-to-body="true">
-                        <i class="fa fa-sign-in"></i>
-                      </a>
-                      <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu">
-                        <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
-                        <li>
-                          <a id="addToInputBtn_pro_{{propEntry.key}}" ng-click="inputs.createFromProperty(propEntry.key)">
-                            <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
-                          </a>
-                        </li>
-                        <li ng-repeat="inputId in currentInputCandidatesForProperty | orderBy:'toString()'">
-                          <a id="{{selectedNodeTemplate.name}}_{{propEntry.key}}_toAssociate_{{inputId}}" ng-click="inputs.toggleProperty(propEntry.key, inputId)">
-                            <i class="fa fa-fw"
-                               ng-class="inputs.isPropertyAssociatedToInput(propEntry.key, inputId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
-                            {{inputId}}
-                          </a>
-                        </li>
-                      </ul>
-                      <a id="p_output_pro_{{propEntry.key}}" ng-click="outputs.toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
-                         ng-class="{'active' : properties.isOutputProperty(propEntry.key)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
-                         tooltip-append-to-body="true">
-                        <i class="fa fa-sign-out"></i>
-                      </a>
-                    </div>
-                  </td>
-                  <td>
-                    <property-display
-                      ng-init="condensed = true"
-                      definition="properties.getFormatedProperty(propEntry.key)"
-                      property-type="topology.dataTypes[properties.getFormatedProperty(propEntry.key).type]"
-                      dependencies="topology.topology.dependencies"
-                      property-name="propEntry.key"
-                      property-value="propEntry.value"
-                      on-save="nodes.updateProperty(propertyDefinition, propertyName, propertyValue)"
-                      editable="!properties.isInputProperty(propEntry.key)"
-                      condensed="condensed">
-                    </property-display>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-          <!-- Capabilities -->
-          <div ng-if="selectedNodeTemplate.capabilities.length > 0">
-            <div id="node-details-capabilities" class="clickable topology-props-section"
-                 ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
-              <h4>
-                <i class=" fa" ng-class="{'fa-caret-down' : !isCapabilitiesCollapsed, 'fa-caret-right': isCapabilitiesCollapsed}"></i>
-                {{'COMMON.CAPABILITIES' | translate}}
-              </h4>
-            </div>
-            <div id="node-details-capabilities-panel" uib-collapse="isCapabilitiesCollapsed" >
-              <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
-                   ng-init="isReqPropsCollapsed = {};">
-                <div class="clickable"
-                     ng-click="(isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key])">
-                  <div class="row">
-                    <div class="col-md-4">
-                      <i class="fa"
-                         ng-class="{'fa-caret-down' : !isReqPropsCollapsed[capabilityEntry.key], 'fa-caret-right': isReqPropsCollapsed[capabilityEntry.key]}">
-                      </i>
-                      <span uib-tooltip="{{capabilityEntry.key}}" tooltip-append-to-body="true"><strong>{{capabilityEntry.key | truncate:20}}</strong></span>
-                    </div>
-                    <div class="col-md-3" id="capability-{{capabilityEntry.key}}">
-                    <span uib-tooltip="{{capabilityEntry.value.type}}"
-                          tooltip-append-to-body="true">{{getShortName(capabilityEntry.value.type)}}</span>
-                    </div>
-                    <div class="col-md-5 align-right" ng-init="capaComp = getComponent(selectedNodeTemplate, capabilityEntry.value.type)">
-                      <span class="btn-group">
-                        <span class="btn btn-default btn-xs cardinalities_show"
-                              uib-tooltip="{{'APPLICATIONS.TOPOLOGY.CAPABILITY_CARDINALITIES_TOOLTIP' | translate}}"
-                              tooltip-append-to-body="true">
-                            {{capabilityEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
-                            ({{capabilityEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
-                        </span>
-                        <!-- expose button for substitution-->
-                        <button id="btn-expose-{{capabilityEntry.value.type}}"
-                                ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
-                                ng-click="substitution.exposeCapability(capabilityEntry.key); $event.stopPropagation()"
-                                class="btn btn-default btn-xs"
-                                ng-class="{'active' : substitution.isCapabilityExposed(capabilityEntry.key)}"
-                                uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.EXPOSE' | translate}}"
-                                tooltip-append-to-body="true">
-                          <i class="fa fa-recycle"></i>
-                        </button>
-                      </span>
-                      <info class="pull-right" content="capaComp.description"></info>
-                    </div>
-                  </div>
-                </div>
-                <table ng-if="!isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
-                  <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
-                    <td class="topology-props-td-inp">
-                      <div class="btn-group" uib-dropdown>
-                        <a id="p_input_cap_{{propertyEntry.key}}"
-                           ng-click="inputs.getCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
-                           class="btn btn-default btn-xs"
-                           uib-dropdown-toggle
-                           ng-class="{'active' : properties.isInputPropertyValue(propertyEntry.value)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
-                           tooltip-append-to-body="true">
-                          <i class="fa fa-sign-in"></i>
-                        </a>
-                        <a id="p_output_cap_{{propertyEntry.key}}" ng-click="outputs.toggleOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
-                           ng-class="{'active' : properties.isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
-                           tooltip-append-to-body="true">
-                          <i class="fa fa-sign-out"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu">
-                          <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
-                          <li>
-                            <a id="addToInputBtn_cap_{{propertyEntry.key}}" ng-click="inputs.createFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
-                              <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
-                            </a>
-                          </li>
-                          <li ng-repeat="inputId in currentInputCandidatesForCapabilityProperty | orderBy:'toString()'">
-                            <a id="{{selectedNodeTemplate.name}}_{{propertyEntry.key}}_toAssociate_{{inputId}}" ng-click="inputs.toggleCapabilityProperty(capabilityEntry.key, propertyEntry.key, inputId)">
-                              <i class="fa fa-fw"
-                                 ng-class="inputs.isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyEntry.key, inputId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
-                              {{inputId}}
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    </td>
-                    <td>
-                      <property-display
-                        ng-init="condensed = true"
-                        definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
-                        property-type="topology.dataTypes[properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key).type]"
-                        dependencies="topology.topology.dependencies"
-                        property-name="propertyEntry.key"
-                        property-value="propertyEntry.value"
-                        on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
-                        editable="!properties.isInputPropertyValue(propertyEntry.value)"
-                        condensed="condensed">
-                      </property-display>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </div>
-          </div>
-          <!-- Attributes -->
-          <div ng-if="selectedNodeTemplate.attributes.length > 0">
-            <div id="node-details-attributes" class="clickable topology-props-section"
-                 ng-click="isAttributesCollapsed = !isAttributesCollapsed">
-              <h4>
-                <i class=" fa" ng-class="{'fa-caret-down' : !isAttributesCollapsed, 'fa-caret-right': isAttributesCollapsed}"></i>
-                {{'COMMON.ATTRIBUTES' | translate}}
-              </h4>
-            </div>
-            <div id="node-details-attributes-panel" uib-collapse="isAttributesCollapsed" >
-              <table class="table table-condensed" id="nodeTemplateAttributes">
-                <tr ng-repeat="attrEntry in selectedNodeTemplate.attributes">
-                  <td class="topology-props-td-inp">
-                    <div class="btn-group">
-                      <a id="a_output_{{attrEntry.key}}" ng-click="outputs.toggleOutputAttribute(attrEntry.key)" class="btn btn-default btn-xs"
-                         ng-class="{'active' : properties.isOutputAttribute(attrEntry.key)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
-                         tooltip-append-to-body="true">
-                        <i class="fa fa-sign-out"></i>
-                      </a>
-                    </div>
-                  </td>
-                  <td>
-                    <span><em>{{attrEntry.key}}</em></span>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-          <!-- Requirements -->
-          <div ng-if="selectedNodeTemplate.requirements.length > 0">
-            <div id="node-details-requirements" class="clickable topology-props-section"
-                 ng-click="isRequirementsCollapsed = !isRequirementsCollapsed">
-              <h4>
-                <i class=" fa" ng-class="{'fa-caret-down' : !isRequirementsCollapsed, 'fa-caret-right': isRequirementsCollapsed}"></i>
-                {{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}
-              </h4>
-            </div>
-            <div id="node-details-requirements-panel" uib-collapse="isRequirementsCollapsed" >
-              <div ng-repeat="requirementEntry in selectedNodeTemplate.requirements"
-                   ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(requirementEntry.value.properties)">
-                <div style="font-weight: normal"
-                     ng-class="{'clickable' : !emptyProps}"
-                     ng-click="!emptyProps && (isReqPropsCollapsed[requirementEntry.key] = !isReqPropsCollapsed[requirementEntry.key])">
-                  <div class="row">
-                    <div class="col-md-3">
-                      <i ng-if="!emptyProps" class=" fa"
-                         ng-class="{'fa-caret-down' : !isReqPropsCollapsed[requirementEntry.key], 'fa-caret-right': isReqPropsCollapsed[requirementEntry.key]}">
-                      </i>
-                      <span uib-tooltip="{{requirementEntry.key}}" tooltip-append-to-body="true">{{requirementEntry.key | truncate:12}}</span>
-                    </div>
-                    <div class="col-md-3" id="requirement-{{requirementEntry.key}}">
-                    <span uib-tooltip="{{requirementEntry.value.type}}"
-                          tooltip-append-to-body="true">{{getShortName(requirementEntry.value.type)}}</span>
-                    </div>
-                    <div class="col-md-6 align-right" ng-init="reqComp = getComponent(selectedNodeTemplate, requirementEntry.value.type)">
-                      <span class="btn-group">
-                        <button uib-tooltip="{{'APPLICATIONS.TOPOLOGY.ADD_RELATIONSHIP' | translate}}"
-                                ng-disabled="!requirementEntry.value.canAddRel.yes"
-                                tooltip-append-to-body="true" class="btn btn-default btn-xs"
-                                ng-click="relationships.openSearchRelationshipModal(selectedNodeTemplate.name, requirementEntry.key); $event.stopPropagation();"
-                                id="btn-add-relationship-{{requirementEntry.key}}">
-                          <i class="fa fa-link"></i>
-                        </button>
-                        <span class="btn btn-default btn-xs cardinalities_show"
-                              uib-tooltip="{{'APPLICATIONS.TOPOLOGY.CARDINALITIES_TOOLTIP' | translate}}"
-                              tooltip-append-to-body="true">
-                            {{requirementEntry.value.lowerBound}}..{{requirementEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
-                            ({{requirementEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
-                        </span>
-
-                        <button id="btn-expose-{{requirementEntry.key}}"
-                                ng-disabled="!requirementEntry.value.canAddRel.yes"
-                                ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
-                                ng-click="substitution.exposeRequirement(requirementEntry.key); $event.stopPropagation()"
-                                ng-class="{'active' : substitution.isRequirementExposed(requirementEntry.key)}"
-                                class="btn btn-default btn-xs"
-                                uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.EXPOSE' | translate}}"
-                                tooltip-append-to-body="true">
-                          <i class="fa fa-recycle"></i>
-                        </button>
-                      </span>
-                      <info class="pull-right" content="reqComp.description"></info>
-                    </div>
-                  </div>
-                </div>
-                <div
-                     ng-if="!emptyProps"
-                     uib-collapse="isReqPropsCollapsed[requirementEntry.key]">
-                  <table class="table table-condensed" id="requirement_{{requirementEntry.key}}_properties">
-                    <tr ng-repeat="(propertyKey,propertyValue) in requirementEntry.value.properties"
-                        ng-init="isPropertyRequired = isCapabilityPropertyRequired(propertyKey)">
-                      <!-- TODO manage edition / input / output of requirements properties-->
-                      <td class="col-md-6" ng-class="{'property-required' : isPropertyRequired}">
-                      <span ng-if="isPropertyRequired" uib-tooltip="{{'REQUIRED' | translate}}"
-                            tooltip-append-to-body="true">{{propertyKey}} *</span>
-                      <span ng-if="!isPropertyRequired" uib-tooltip="{{'OPTIONAL' | translate}}"
-                            tooltip-append-to-body="true">{{propertyKey}}</span>
-                      </td>
-                      <td class="col-md-6" id="p_req_{{requirementEntry.key}}_{{propertyKey}}" ng-class="{'property-required' : isPropertyRequired}">
-                        <span> {{propertyValue.value || '...'}} </span>
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Relationships -->
-          <div ng-if="selectedNodeTemplate.relationships.length > 0">
-            <div id="node-details-relationships" class="clickable topology-props-section"
-                 ng-click="isRelationshipsCollapsed = !isRelationshipsCollapsed">
-              <h4>
-                <i class=" fa" ng-class="{'fa-caret-down' : !isRelationshipsCollapsed, 'fa-caret-right': isRelationshipsCollapsed}"></i>
-                {{'APPLICATIONS.TOPOLOGY.RELATIONSHIPS' | translate}}
-              </h4>
-            </div>
-            <div id="node-details-relationships-panel" uib-collapse="isRelationshipsCollapsed">
-              <div
-                   ng-repeat="relationshipEntry in selectedNodeTemplate.relationships">
-                <div class="clickable editable-small"
-                     ng-click="isRelationshipCollapsed = !isRelationshipCollapsed"
-                     id="relationship_{{relationshipEntry.key}}">
-                  <i class=" fa"
-                     ng-class="{'fa-caret-down' : !isRelationshipCollapsed, 'fa-caret-right': isRelationshipCollapsed}"></i>
-                  <span
-                    ng-init="relNameObj[relationshipEntry.key] = relationshipEntry.key"
-                    editable-text="relNameObj[relationshipEntry.key]" buttons="no" e-required onbeforesave="relationships.updateRelationshipName(relationshipEntry.key, $data)"
-                    blur="submit" ng-click="$event.stopPropagation();"
-                    uib-tooltip="{{relationshipEntry.key}}" tooltip-append-to-body="true">
-                    {{relationshipEntry.key | truncate:25}}
-                    <i class="fa fa-pencil-square-o"></i>
-                  </span>
-                  <span class="btn-group pull-right">
-                      <button uib-tooltip="{{'APPLICATIONS.TOPOLOGY.CHANGE_RELATIONSHIP' | translate}}"
-                        tooltip-append-to-body="true" class="btn btn-default btn-xs"
-                        ng-click="relationships.openSearchRelationshipModal(selectedNodeTemplate.name, relationshipEntry.value.requirementName, relationshipEntry.value.target, relationshipEntry.value.targetedCapabilityName, relationshipEntry.key); $event.stopPropagation();"
-                        id="btn-chg-relationship-{{requirementEntry.key}}">
-                        <i class="fa fa-link"></i>
-                      </button>
-                      <delete-confirm id="btn-delete-rl-{{relationshipEntry.key}}" func="relationships.remove(relationshipEntry.key, selectedNodeTemplate)"
-                        position="left" bssize="btn-xs" fastyle="fa-unlink">
-                      </delete-confirm>
-                  </span>
-                </div>
-                <div  uib-collapse="isRelationshipCollapsed">
-                  <div class="row">
-                    <div class="col-md-3">{{'COMMON.TYPE' | translate}}</div>
-                    <div class="col-md-9" uib-tooltip="{{relationshipEntry.value.type}}" tooltip-append-to-body="true">{{relationshipEntry.value.type | splitAndGet:'.':'last'}}</div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-3">{{'COMMON.TARGET' | translate}}</div>
-                    <div class="col-md-9">{{relationshipEntry.value.target | split}}</div>
-                  </div>
-                  <div class="row" ng-if="topology.relationshipTypes[relationshipEntry.value.type].properties">
-                    <div class="col-md-12">{{'COMMON.PROPERTIES' | translate}} :</div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-12">
-                      <table class="table table-condensed" id="relationshipProperties_{{relationshipEntry.key}}">
-                        <tr ng-repeat="propertyEntry in topology.relationshipTypes[relationshipEntry.value.type].properties">
-                          <td class="col-md-1">
-                            <div class="btn-group" uib-dropdown>
-                              <a id="p_input_rel_{{propertyEntry.key}}"
-                                 ng-click="inputs.getCandidatesForRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
-                                 class="btn btn-default btn-xs"
-                                 uib-dropdown-toggle
-                                 ng-class="{'active' : properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)}"
-                                 uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
-                                 tooltip-append-to-body="true">
-                                <i class="fa fa-sign-in"></i>
-                              </a>
-                              <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu">
-                                <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
-                                <li>
-                                  <a ng-click="inputs.createFromRelationshipProperty(relationshipEntry.key, propertyEntry.key)">
-                                    <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
-                                  </a>
-                                </li>
-                                <li ng-repeat="inputId in currentInputCandidatesForRelationshipProperty | orderBy:'toString()' ">
-                                  <a ng-click="inputs.toggleRelationshipProperty(relationshipEntry.key, propertyEntry.key, inputId)">
-                                    <i class="fa fa-fw"
-                                       ng-class="inputs.isRelationshipPropertyAssociatedToInput(relationshipEntry.key, propertyEntry.key, inputId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
-                                    {{inputId}}
-                                  </a>
-                                </li>
-                              </ul>
-                            </div>
-                          </td>
-                          <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-10">
-                            <property-display
-                              ng-init="condensed = true"
-                              dependencies="topology.topology.dependencies"
-                              definition="propertyEntry.value"
-                              property-name="propertyEntry.key"
-                              property-value="relationshipEntry.value.propertiesMap[propertyEntry.key].value"
-                              on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyName, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
-                              editable="!properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
-                              condensed="condensed">
-                            </property-display>
-                          </td>
-                        </tr>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Artifacts -->
-          <div ng-if="checkMapSize(selectedNodeTemplate.artifacts)">
-            <div id="node-details-artifacts" class="clickable topology-props-section"
-                 ng-click="isArtifactsCollapsed = !isArtifactsCollapsed">
-              <h4>
-                <i class=" fa" ng-class="{'fa-caret-down' : !isArtifactsCollapsed, 'fa-caret-right': isArtifactsCollapsed}"></i>
-                {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
-              </h4>
-            </div>
-            <div id="node-details-artifacts-panel" uib-collapse="isArtifactsCollapsed">
-              <div class="clearfix"
-                   ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
-                <div class="clickable"
-                     ng-click="isArtifactCollapsed = !isArtifactCollapsed">
-                  <i class="fa"
-                     ng-class="{'fa-caret-down' : !isArtifactCollapsed, 'fa-caret-right': isArtifactCollapsed}"></i>
-                  {{artifactId}}
-                </div>
-                <div  uib-collapse="isArtifactCollapsed">
-                  <div class="row">
-                    <div class="col-md-1 dropup" uib-dropdown>
-                      <a id="p_input_art_{{artifactId}}"
-                         ng-click="$event.stopPropagation(); inputs.getCandidatesForArtifact(artifact); "
-                         class="btn btn-default btn-xs"
-                         uib-dropdown-toggle
-                         ng-class="{'active' : inputs.isInputArtifact(artifactId)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate}}"
-                         tooltip-append-to-body="true">
-                        <i class="fa fa-sign-in"></i>
-                      </a>
-                      <ul class="dropdown-menu dropdown-menu-top" uib-dropdown-menu role="menu">
-                        <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate }}</li>
-                        <li>
-                          <a id="addToInputBtn_art_{{artifactId}}" ng-click="$event.stopPropagation(); inputs.createFromArtifact(artifactId)">
-                            <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate }} <i class="fa fa-plus"></i></strong>
-                          </a>
-                        </li>
-                        <!-- TODO Maybe improve the isArtifactAssociatedToInput  -->
-                        <li ng-repeat="inputArtifactId in currentInputCandidatesForArtifact | orderBy:'toString()'">
-                          <a id="{{selectedNodeTemplate.name}}_{{artifactId}}_toAssociate_{{inputArtifactId}}" ng-click="$event.stopPropagation(); inputs.toggleArtifact(artifactId, inputArtifactId)">
-                            <i class="fa fa-fw"
-                               ng-class="inputs.isArtifactAssociatedToInput(artifactId, inputArtifactId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
-                            {{inputArtifactId}}
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                    <div class="col-md-3">{{'COMMON.TYPE' | translate}}</div>
-                    <div class="col-md-8">{{artifact.artifactType}}</div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
-                    <div class="col-md-8">
-                      <span id="{{artifactId}}-artifactRef" uib-tooltip="{{artifact.artifactRef}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactRef.length > 40]}}">
-                        {{artifact.artifactRef | truncate:40}}
-                      </span>
-                      <span class="pull-right btn-group">
-                        <a id="addToInputBtn_art_{{artifactId}}" class="btn btn-default btn-xs"
-                          ng-click="$event.stopPropagation(); artifacts.onSelect(artifactId, artifact)"
-                          ng-if="!inputs.isInputArtifact(artifactId)"
-                          uib-tooltip="{{ 'EDITOR.ARTIFACTS.SELECT' | translate }}"
-                          tooltip-append-to-body="true"
-                          tooltip-placement="left">
-                          <i class="fa fa-file"></i>
-                        </a>
-                        <a id='reset-artifact-{{artifactId}}' class="btn btn-default btn-xs" ng-click="artifacts.reset(artifactId); $event.stopPropagation();"
-                          uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"
-                          tooltip-append-to-body="true"
-                          tooltip-placement="left">
-                          <i class="fa fa-undo text-default"></i>
-                        </a>
-                      </span>
-                    </div>
-                  </div>
-                  <div class="row" ng-if="artifact.artifactRepository">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-3">{{'EDITOR.ARTIFACTS.REPOSITORY' | translate}}</div>
-                    <div class="col-md-8">
-                      <span id="{{artifactId}}-artifactRepository" uib-tooltip="{{artifact.artifactRepository}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactRepository.length > 40]}}">
-                        {{artifact.artifactRepository | truncate:40}}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="topology-column-content" ng-if="selectedNodeTemplate && displays.nodetemplate.active">
+          <ng-include src="'views/topology/includes/selected_node.html'"></ng-include>
         </div>
       </div>
     </div>
@@ -628,7 +31,7 @@
           id = "catalog-box-handler"
           classes="topology-column-menu-left">
         </resizable-bar>
-        <div class="topology-column-content">
+        <div class="topology-column-content" ng-if="displays.catalog.active">
           <div class="topology-column-content-head">
             <span>
               <i class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}
@@ -659,70 +62,8 @@
           id="dependencies-box-handler"
           classes="topology-column-menu-left">
         </resizable-bar>
-        <div class="topology-column-content">
-          <div class="topology-column-content-head">
-            <span>
-              <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}
-            </span>
-            <span id='closeDependencies' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('dependencies')">
-              <i class="fa fa-remove close-panel"></i>
-            </span>
-          </div>
-
-          <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>{{ 'COMMON.NAME' | translate}}</th>
-              <th></th>
-              <th>{{ 'COMMON.VERSION' | translate}}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="dependency in topology.topology.dependencies | orderBy:'name'">
-              <td>{{dependency.name}}</td>
-              <td>
-                <div class="btn-group" uib-dropdown>
-                  <a id="dd_dep_version_{{dependency.name}}"
-                     ng-click="dependencies.getVersionsForDependency(dependency.name)"
-                     class="btn btn-default btn-xs"
-                     uib-dropdown-toggle
-                     uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate}}"
-                     tooltip-append-to-body="true">
-                  <i class="fa fa-exchange"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu">
-                    <li ng-repeat="version in currentVersionCandidatesForDependency | orderBy:'toString()'">
-                      <a  ng-if="version != dependency.version" id="dd_dep_version_{{dependency.name}}_{{version}}"
-                          ng-click="$event.stopPropagation();"
-                          confirm="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.CONFIRM' | translate}}"
-                          confirm-title="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate }}"
-                          confirm-placement="bottom"
-                          confirm-class="popover"
-                          confirm-handler="dependencies.changeDependencyVersion(dependency.name, dependency.version, version)">
-                        {{version}}
-                      </a>
-                      <div ng-if="version == dependency.version" class="dropdown-header">{{version}}</div>
-                    </li>
-                  </ul>
-                </div>
-              </td>
-              <td>{{dependency.version}}</td>
-            </tr>
-          </tbody>
-          </table>
-          <div style="margin: 0 10px" ng-show="topology.dependencyConflicts.length">
-            <h5 class="text-warning"><i class="fa fa-exclamation-triangle"></i>&nbsp;{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.TITLE' | translate }}</h5>
-            <div class="list-group">
-              <div class="list-group-item" ng-repeat="(key, values) in dependencies.renderedConflicts">
-                <strong class="list-group-item-heading">{{ key }}</strong>
-                <p class="list-group-item-text" ng-repeat-start="conflict in values" style="margin-left:5px" >
-                {{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.MESSAGE_FROM' | translate }}<em>{{ conflict.source }}</em>{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.MESSAGE_VERSION' | translate }}<em>{{ conflict.dependency.split(':')[1] }}</em>
-                </p>
-                <strong ng-repeat-end ng-if="$last">{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.RESOLVED' | translate }}<em>{{ conflict.resolvedVersion }}</em></strong>
-              </div>
-            </div>
-            <p style="margin: 10px 5px"><em>{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.WARNING' | translate }}</em></p>
-          </div>
+        <div class="topology-column-content" ng-if="displays.dependencies.active">
+          <ng-include src="'views/topology/includes/dependencies.html'"></ng-include>
         </div>
       </div>
     </div>
@@ -734,42 +75,8 @@
           id="inputs-box-handler"
           classes="topology-column-menu-left">
         </resizable-bar>
-        <div class="topology-column-content">
-          <div class="topology-column-content-head">
-            <span>
-              <i class="fa fa-sign-in"></i> Inputs
-            </span>
-            <span id='closeInputs' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('inputs')">
-              <i class="fa fa-remove close-panel"></i>
-            </span>
-          </div>
-
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>{{'COMMON.NAME' | translate }}</th>
-                <th>{{'COMMON.TYPE' | translate }}</th>
-                <th>{{'APPLICATIONS.TOPOLOGY.INPUTS.CONSTRAINT' | translate }}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="(inputId, inputDefinition) in topology.topology.inputs">
-                <td id="td_{{inputId}}">
-                  <span id="span_{{inputId}}" editable-text="inputDefinition.inputId" buttons="no" onaftersave="inputs.update(inputId, inputDefinition.inputId, inputDefinition)" blur="submit">
-                    {{inputDefinition.inputId}}
-                    <i class="fa fa-pencil-square-o"></i>
-                  </span>
-                </td>
-                <td>{{inputDefinition.type}}</td>
-                <td>{{inputDefinition.constraints}}</td>
-                <td>
-                  <delete-confirm id="{{inputId}}_delete" class="pull-right" func="inputs.remove(inputId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
-                  </delete-confirm>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="topology-column-content" ng-if="displays.inputs.active">
+          <ng-include src="'views/topology/includes/inputs.html'"></ng-include>
         </div>
       </div>
     </div>
@@ -781,63 +88,8 @@
           id="groups-box-handler"
           classes="topology-column-menu-left">
         </resizable-bar>
-        <div class="topology-column-content">
-          <div class="topology-column-content-head">
-            <span>
-              <i class="fa fa-list-alt"></i> {{'COMMON.GROUPS' | translate}}
-            </span>
-            <span id='closeGroups' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('groups')">
-              <i class="fa fa-remove close-panel"></i>
-            </span>
-          </div>
-          <div ng-repeat="group in orderedNodeGroups">
-            <div id="group-details-{{group.name}}-header" class="clickable" ng-click="groupCollapsed[group.name].main = !groupCollapsed[group.name].main">
-              <h4>
-                <i class=" fa {{groups.getColorCss(group.name)}}" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].main, 'fa-caret-right': groupCollapsed[group.name].main}"></i>
-                <span editable-text="group.name" id="nodeGroupName_{{group.name}}" buttons="no" e-required onbeforesave="groups.updateName(group.name, $data)" blur="submit"
-                  ng-click="$event.stopPropagation();">
-                  {{group.name}}
-                  <i class="fa fa-pencil-square-o"></i>
-                </span>
-                <delete-confirm id="btn-delete-group-{{group.name}}" func="groups.delete(group.name)" position="left" class="pull-right" bssize="btn-xs" fastyle="fa-trash-o">
-                </delete-confirm>
-              </h4>
-            </div>
-            <div id="group-details-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].main" >
-              <div id="group-members-{{group.name}}-header" class="clickable"
-                   ng-click="groupCollapsed[group.name].members = !groupCollapsed[group.name].members">
-                <h5>
-                  <i class=" fa" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].members, 'fa-caret-right': groupCollapsed[group.name].members}"></i>
-                  {{'APPLICATIONS.TOPOLOGY.GROUPS.MEMBERS' | translate}}
-                </h5>
-              </div>
-              <div id="group-members-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].members" class="facet-choice">
-                <ul class="nav facet-choice">
-                  <li ng-repeat="member in group.members">
-                    <a href="" id="removeMember_{{member}}_from_{{group.name}}" confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
-                      confirm-handler="groups.removeMember(group.name, member)" confirm-placement="bottom" confirm-class="popover"
-                      ng-click="$event.stopPropagation();" >
-                      <span>{{member}}</span>&nbsp;
-                      <i class="fa fa-times"></i>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div id="group-policies-{{group.name}}-header" class="clickable"
-                   ng-click="groupCollapsed[group.name].policies = !groupCollapsed[group.name].policies">
-                <h5>
-                  <i class=" fa" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].policies, 'fa-caret-right': groupCollapsed[group.name].policies}"></i>
-                  {{'APPLICATIONS.TOPOLOGY.GROUPS.POLICIES' | translate}}
-                </h5>
-              </div>
-              <div id="group-policies-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].policies" >
-                 <div ng-repeat="policy in group.policies">
-                   <li>{{policy.type}}</li>
-                 </div>
-              </div>
-            </div>
-            <span class="clearfix"></span>
-          </div>
+        <div class="topology-column-content" ng-if="displays.groups.active">
+          <ng-include src="'views/topology/includes/groups.html'"></ng-include>
         </div>
       </div>
     </div>
@@ -849,39 +101,8 @@
           id="artifacts-box-handler"
           classes="topology-column-menu-left">
         </resizable-bar>
-        <div class="topology-column-content">
-          <div class="topology-column-content-head">
-            <span>
-              <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
-            </span>
-            <span id='closeArtifacts' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('artifacts')">
-              <i class="fa fa-remove close-panel"></i>
-            </span>
-          </div>
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>{{'COMMON.ID' | translate }}</th>
-                <th>{{'COMMON.TYPE' | translate }}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="(inputArtifactId, inputArtifact) in topology.topology.inputArtifacts">
-                <td>
-                  <span editable-text="inputArtifactId" buttons="no" onbeforesave="inputs.updateArtifactId(inputArtifactId, $data)" blur="submit">
-                    {{inputArtifactId}}
-                    <i class="fa fa-pencil-square-o"></i>
-                  </span>
-                </td>
-                <td>{{inputArtifact.artifactType}}</td>
-                <td>
-                  <delete-confirm id="inputArtifact_{{inputArtifactId}}_delete" class="pull-right" func="inputs.removeArtifact(inputArtifactId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
-                  </delete-confirm>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="topology-column-content" ng-if="displays.artifacts.active">
+          <ng-include src="'views/topology/includes/artifacts.html'"></ng-include>
         </div>
       </div>
     </div>
@@ -893,92 +114,8 @@
           id="substitutions-box-handler"
           classes="topology-column-menu-left">
         </resizable-bar>
-        <div class="topology-column-content">
-          <div class="topology-column-content-head">
-            <span>
-              <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
-            </span>
-            <span id='closeSubstitutions' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('substitutions')">
-              <i class="fa fa-remove close-panel"></i>
-            </span>
-          </div>
-          <h4>{{'COMMON.TYPE' | translate}}</h4>
-          <div class="row">
-            <div class="col-md-11">
-              <input type="text" class="form-control" id="substitution-type" ng-model="substitutionType" uib-typeahead="item for item in substitution.getTypeSuggestions.get($viewValue)" typeahead-min-length="substitution.getTypeSuggestions.minLength" typeahead-on-select="substitution.selectType($item)" />
-            </div>
-            <div class="col-md-1">
-              <delete-confirm id="substitutionType_delete" ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType" class="pull-right" func="substitution.remove()" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
-            </div>
-          </div>
-          <div ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType">
-            <h4>{{'COMMON.CAPABILITIES' | translate}}</h4>
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>{{'COMMON.NAME' | translate }}</th>
-                  <th>{{'COMMON.TARGET' | translate }}</th>
-                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.CAPABILITY' | translate }}</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr ng-repeat="(capabilityId, target) in topology.topology.substitutionMapping.capabilities">
-                  <td>
-                    <span editable-text="capabilityId" buttons="no" e-required onbeforesave="substitution.updateCababilityKey(capabilityId, $data)" blur="submit">
-                      {{capabilityId}}
-                      <i class="fa fa-pencil-square-o"></i>
-                    </span>
-                  </td>
-                  <td>{{target.nodeTemplateName}}</td>
-                  <td>{{target.targetId}}</td>
-                  <td>
-                    <delete-confirm id="substitutionCapa_{{capabilityId}}_delete" class="pull-right" func="substitution.removeCabability(capabilityId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
-                    </delete-confirm>
-                    <button id="capa_service_rel_{{capabilityId}}" ng-if="topology.delegateType === 'APPLICATION'"
-                      class="btn btn-default btn-xs pull-right" uib-tooltip="Configure service relationship" tooltip-append-to-body="true"
-                      ng-click="substitution.cfgCapaSrvRelationship(capabilityId)">
-                      <i class="fa fa-globe"></i>
-                      <i class="fa fa-link"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.REQUIREMENTS' | translate}}</h4>
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>{{'COMMON.NAME' | translate }}</th>
-                  <th>{{'COMMON.SOURCE' | translate }}</th>
-                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.REQUIREMENT' | translate }}</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr ng-repeat="(requirementId, target) in topology.topology.substitutionMapping.requirements">
-                  <td>
-                    <span editable-text="requirementId" buttons="no" e-required onbeforesave="substitution.updateRequirementKey(requirementId, $data)" blur="submit">
-                      {{requirementId}}
-                      <i class="fa fa-pencil-square-o"></i>
-                    </span>
-                  </td>
-                  <td>{{target.nodeTemplateName}}</td>
-                  <td>{{target.targetId}}</td>
-                  <td>
-                    <delete-confirm id="substitutionReq_{{requirementId}}_delete" class="pull-right" func="substitution.removeRequirement(requirementId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
-                    </delete-confirm>
-                    <button id="req_service_rel_{{requirementId}}" ng-if="topology.delegateType === 'APPLICATION'"
-                      class="btn btn-default btn-xs pull-right" uib-tooltip="Configure service relationship" tooltip-append-to-body="true"
-                      ng-click="substitution.cfgReqSrvRelationship(requirementId)">
-                      <i class="fa fa-globe"></i>
-                      <i class="fa fa-link"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="topology-column-content" ng-if="displays.substitutions.active">
+          <ng-include src="'views/topology/includes/substitutions.html'"></ng-include>
         </div>
       </div>
     </div>
@@ -986,33 +123,33 @@
     <!-- Right vertical menu -->
     <div id="topology-vertical-menu" class="topology-column">
       <ul>
-        <li ng-show="!displays.catalog.active">
+        <li ng-class="{'active': displays.catalog.active}">
           <span id="topology-components-search" ng-click="display.toggle('catalog')">
             <i class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}
           </span>
         </li>
-        <li ng-show="!displays.dependencies.active">
+        <li ng-class="{'active': displays.dependencies.active}">
           <span id="topology-dependencies" ng-click="display.toggle('dependencies')">
             <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}} <i ng-show="topology.dependencyConflicts.length" class="fa fa-exclamation-triangle text-warning"></i>
           </span>
         </li>
-        <li ng-show="!displays.inputs.active">
+        <li ng-class="{'active': displays.inputs.active}">
           <span id="topology-inputs" ng-click="display.toggle('inputs')">
             <i class="fa fa-sign-in"></i> Inputs
           </span>
         </li>
-        <li ng-show="!displays.groups.active" ng-click="display.toggle('groups')">
-          <span id="topology-groups" >
+        <li ng-class="{'active': displays.groups.active}">
+          <span id="topology-groups" ng-click="display.toggle('groups')">
             <i class="fa fa-list-alt"></i> {{'COMMON.GROUPS' | translate}}
           </span>
         </li>
-        <li ng-show="!displays.artifacts.active" ng-click="display.toggle('artifacts')">
-          <span id="topology-artifacts" >
+        <li ng-class="{'active': displays.artifacts.active}">
+          <span id="topology-artifacts" ng-click="display.toggle('artifacts')">
             <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
           </span>
         </li>
-        <li ng-show="!displays.substitutions.active" ng-click="display.toggle('substitutions')">
-          <span id="topology-substitutions" >
+        <li ng-class="{'active': displays.substitutions.active}">
+          <span id="topology-substitutions" ng-click="display.toggle('substitutions')">
             <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
           </span>
         </li>

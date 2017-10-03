@@ -1,0 +1,63 @@
+<div class="topology-column-content-head">
+  <span>
+    <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}
+  </span>
+  <span id='closeDependencies' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('dependencies')">
+    <i class="fa fa-remove close-panel"></i>
+  </span>
+</div>
+
+<table class="table table-hover">
+<thead>
+  <tr>
+    <th>{{ 'COMMON.NAME' | translate}}</th>
+    <th></th>
+    <th>{{ 'COMMON.VERSION' | translate}}</th>
+  </tr>
+</thead>
+<tbody>
+  <tr ng-repeat="dependency in topology.topology.dependencies | orderBy:'name'">
+    <td>{{dependency.name}}</td>
+    <td>
+      <div class="btn-group" uib-dropdown>
+        <a id="dd_dep_version_{{dependency.name}}"
+           ng-click="dependencies.getVersionsForDependency(dependency.name)"
+           class="btn btn-default btn-xs"
+           uib-dropdown-toggle
+           uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate}}"
+           tooltip-append-to-body="true">
+        <i class="fa fa-exchange"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu">
+          <li ng-repeat="version in currentVersionCandidatesForDependency | orderBy:'toString()'">
+            <a  ng-if="version != dependency.version" id="dd_dep_version_{{dependency.name}}_{{version}}"
+                ng-click="$event.stopPropagation();"
+                confirm="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.CONFIRM' | translate}}"
+                confirm-title="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate }}"
+                confirm-placement="bottom"
+                confirm-class="popover"
+                confirm-handler="dependencies.changeDependencyVersion(dependency.name, dependency.version, version)">
+              {{version}}
+            </a>
+            <div ng-if="version == dependency.version" class="dropdown-header">{{version}}</div>
+          </li>
+        </ul>
+      </div>
+    </td>
+    <td>{{dependency.version}}</td>
+  </tr>
+</tbody>
+</table>
+<div style="margin: 0 10px" ng-show="topology.dependencyConflicts.length">
+  <h5 class="text-warning"><i class="fa fa-exclamation-triangle"></i>&nbsp;{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.TITLE' | translate }}</h5>
+  <div class="list-group">
+    <div class="list-group-item" ng-repeat="(key, values) in dependencies.renderedConflicts">
+      <strong class="list-group-item-heading">{{ key }}</strong>
+      <p class="list-group-item-text" ng-repeat-start="conflict in values" style="margin-left:5px" >
+      {{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.MESSAGE_FROM' | translate }}<em>{{ conflict.source }}</em>{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.MESSAGE_VERSION' | translate }}<em>{{ conflict.dependency.split(':')[1] }}</em>
+      </p>
+      <strong ng-repeat-end ng-if="$last">{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.RESOLVED' | translate }}<em>{{ conflict.resolvedVersion }}</em></strong>
+    </div>
+  </div>
+  <p style="margin: 10px 5px"><em>{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CONFLICTS.WARNING' | translate }}</em></p>
+</div>

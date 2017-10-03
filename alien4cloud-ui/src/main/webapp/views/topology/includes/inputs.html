@@ -1,0 +1,35 @@
+<div class="topology-column-content-head">
+  <span>
+    <i class="fa fa-sign-in"></i> Inputs
+  </span>
+  <span id='closeInputs' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('inputs')">
+    <i class="fa fa-remove close-panel"></i>
+  </span>
+</div>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>{{'COMMON.NAME' | translate }}</th>
+      <th>{{'COMMON.TYPE' | translate }}</th>
+      <th>{{'APPLICATIONS.TOPOLOGY.INPUTS.CONSTRAINT' | translate }}</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="(inputId, inputDefinition) in topology.topology.inputs">
+      <td id="td_{{inputId}}">
+        <span id="span_{{inputId}}" editable-text="inputDefinition.inputId" buttons="no" onaftersave="inputs.update(inputId, inputDefinition.inputId, inputDefinition)" blur="submit">
+          {{inputDefinition.inputId}}
+          <i class="fa fa-pencil-square-o"></i>
+        </span>
+      </td>
+      <td>{{inputDefinition.type}}</td>
+      <td>{{inputDefinition.constraints}}</td>
+      <td>
+        <delete-confirm id="{{inputId}}_delete" class="pull-right" func="inputs.remove(inputId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+        </delete-confirm>
+      </td>
+    </tr>
+  </tbody>
+</table>

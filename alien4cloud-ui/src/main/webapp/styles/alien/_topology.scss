@@ -182,6 +182,9 @@ h4 .editable-error {
   line-height: 20px;
   overflow: hidden;
   width: 20px;
+  color: $btn-primary-color;
+  background-color: $btn-primary-bg;
+  border-bottom: 1px solid $btn-primary-border;
 }
 
 #topology-vertical-menu span {
@@ -198,8 +201,10 @@ h4 .editable-error {
   transform-origin: 0 0;
   white-space: nowrap;
   margin: 10px 0;
+  z-index: 9999;
 }
-
+// hover #3071a9
+//
 #topology-vertical-menu span::after {
   content: "";
   float: left;
@@ -207,14 +212,18 @@ h4 .editable-error {
 }
 
 #topology-vertical-menu li:hover {
-  background-color: darken($btn-default-bg, 10%);;
+  background-color: darken($btn-primary-bg, 10%);
+  border-color: darken($btn-primary-border, 12%);
 }
 
-.topology-props-section {
-  background-color: $gray-lighter;
-  overflow: auto;
-  // color: white;
-  border-top: solid 1px #cccccc;
+#topology-vertical-menu li.active {
+  background-color: darken($btn-primary-bg, 10%);
+  border-color: darken($btn-primary-border, 12%);
+}
+
+#topology-vertical-menu li.active:hover {
+  background-color: darken($btn-primary-bg, 17%);
+  border-color: darken($btn-primary-border, 25%);
 }
 
 // inputs/outputs buttons column
