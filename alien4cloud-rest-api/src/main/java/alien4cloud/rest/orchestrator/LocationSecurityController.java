@@ -44,6 +44,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 @RestController
 @RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/security/",
         "/rest/v1/orchestrators/{orchestratorId}/locations/{locationId}/security/",
@@ -255,13 +257,12 @@ public class LocationSecurityController {
 
         // remove all environments types related to this application
         Set<String> envTypeIds = Sets.newHashSet();
-        for (String envType : location.getEnvironmentTypePermissions().keySet()) {
+        for (String envType : safe(location.getEnvironmentTypePermissions()).keySet()) {
             if (envType.contains(applicationId)) {
                 envTypeIds.add(envType);
             }
         }
         resourcePermissionService.revokePermission(location, Subject.ENVIRONMENT_TYPE, envTypeIds.toArray(new String[envTypeIds.size()]));
-
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -274,7 +275,7 @@ public class LocationSecurityController {
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsAndEnvTypesPerApplication(@PathVariable String orchestratorId, @PathVariable String locationId,
                                                                                                  @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         Location location = locationService.getLocation(orchestratorId, locationId);
-        resourcePermissionService.revokeAuthorizedEnvironmentsPerApplication(location, request.getApplicationsToDelete(), request.getEnvironmentsToDelete(), request.getEnvironmentTypesToDelete());
+        resourcePermissionService.revokeAuthorizedEnvironmentsAndEnvironmentTypesPerApplication(location, request.getApplicationsToDelete(), request.getEnvironmentsToDelete(), request.getEnvironmentTypesToDelete());
         resourcePermissionService.grantAuthorizedEnvironmentsAndEnvTypesPerApplication(location, request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd());
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -346,7 +347,7 @@ public class LocationSecurityController {
         if (MapUtils.isNotEmpty(location.getEnvironmentTypePermissions())) {
             environmentTypes.addAll(location.getEnvironmentTypePermissions().keySet());
             Set<String> environmentTypeApplicationIds = Sets.newHashSet();
-            for (String envType : location.getEnvironmentTypePermissions().keySet()) {
+            for (String envType : safe(location.getEnvironmentTypePermissions()).keySet()) {
                 environmentTypeApplicationIds.add(envType.split(":")[0]);
             }
             applicationsRelatedToEnvironmentType = alienDAO.findByIds(Application.class, environmentTypeApplicationIds.toArray(new String[environmentTypeApplicationIds.size()]));

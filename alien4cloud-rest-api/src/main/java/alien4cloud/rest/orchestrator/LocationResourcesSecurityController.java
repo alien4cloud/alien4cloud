@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 @RestController
 @RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources/{resourceId}/security/",
         "/rest/v1/orchestrators/{orchestratorId}/locations/{locationId}/resources/{resourceId}/security/",
@@ -219,7 +221,7 @@ public class LocationResourcesSecurityController {
 
         // remove all environment types
         Set<String> envTypeIds = Sets.newHashSet();
-        for (String envType : resourceTemplate.getEnvironmentTypePermissions().keySet()) {
+        for (String envType : safe(resourceTemplate.getEnvironmentTypePermissions()).keySet()) {
             if (envType.split(":")[0].equals(applicationId)) {
                 envTypeIds.add(envType);
             }
@@ -315,7 +317,7 @@ public class LocationResourcesSecurityController {
         if (MapUtils.isNotEmpty(resourceTemplate.getEnvironmentTypePermissions())) {
             environmentTypes.addAll(resourceTemplate.getEnvironmentTypePermissions().keySet());
             Set<String> environmentTypeApplicationIds = Sets.newHashSet();
-            for (String envType : resourceTemplate.getEnvironmentTypePermissions().keySet()) {
+            for (String envType : safe(resourceTemplate.getEnvironmentTypePermissions()).keySet()) {
                 environmentTypeApplicationIds.add(envType.split(":")[0]);
             }
             applicationsRelatedToEnvironmentType = alienDAO.findByIds(Application.class, environmentTypeApplicationIds.toArray(new String[environmentTypeApplicationIds.size()]));
