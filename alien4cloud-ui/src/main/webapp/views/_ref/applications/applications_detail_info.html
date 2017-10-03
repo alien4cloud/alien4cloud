@@ -4,7 +4,18 @@
     <div class="row">
       <div class="col-md-4" style="text-align: center;">
         <!-- Image section -->
-        <div id="am.applications.detail.drag-and-drop" class="drop-box" ng-show="!application.imageId && isManager" ngf-drop="onImageSelected($files)">{{'APPLICATIONS.IMAGE_UPLOAD' | translate}}</div>
+        <div id="am.applications.detail.drag-and-drop" class="drop-box drop-box-for-icon" ng-show="!application.imageId && isManager" ngf-drop="onImageSelected($files)">
+          <span>
+            {{'APPLICATIONS.IMAGE_UPLOAD' | translate}}, {{'COMMON.OR' | translate}}
+            <label>
+              <span class="drop-box-browse">{{ 'UPLOAD.BROWSE' | translate }}</span>.
+              <input type="file"
+              ngf-select="onImageSelected($files)"
+              style="display:none"
+              multiple />
+            </label>
+          </span>
+        </div>
         <img ng-show="noshow = (application.imageId && isManager)" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ngf-drop="onImageSelected($files)" />
         <img ng-show="!noshow && application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" />
       </div>

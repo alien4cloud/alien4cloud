@@ -72,7 +72,7 @@
       "DELETE_TITLE" : "Supprimer une application",
       "DELETING_FAILED" : "Impossible de supprimer l'application. Annuler son déploiement et réessayez."
     },
-    "IMAGE_UPLOAD" : "Uploader nouvelle image",
+    "IMAGE_UPLOAD" : "Déposer une image",
     "META_PROPERTIES" : "Méta-propriétés",
     "NEW" : "Nouvelle Application",
     "RUNTIME" : {

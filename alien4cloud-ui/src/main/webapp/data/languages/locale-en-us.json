@@ -71,7 +71,7 @@
       "DELETE_TITLE": "Delete an application",
       "DELETING_FAILED": "Unable to delete the application. First, undeploy it and retry."
     },
-    "IMAGE_UPLOAD": "Upload new image",
+    "IMAGE_UPLOAD": "Drop an image file",
     "META_PROPERTIES": "Meta-properties",
     "NEW": "New Application",
     "RUNTIME": {
