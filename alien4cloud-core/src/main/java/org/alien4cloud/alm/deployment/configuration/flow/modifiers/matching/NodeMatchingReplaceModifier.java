@@ -116,7 +116,8 @@ public class NodeMatchingReplaceModifier implements ITopologyModifier {
     private void processLocationResourceTemplateSubstitution(String nodeId, String locationResourceTemplateId, Topology topology) {
         // Fetching a new node copy from elasticsearch avoid later issues if the same subtituted node is used in multiple templates (shared maps, shallow copies
         // etc.)
-        NodeTemplate locationNode = locationResourceService.getOrFail(LocationResourceTemplate.class, locationResourceTemplateId).getTemplate();
+        LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(locationResourceTemplateId);
+        NodeTemplate locationNode = resourceTemplate.getTemplate();
         // Substitute the node in the topology with the location provided implementation.
         NodeTemplate abstractTopologyNode = topology.getNodeTemplates().put(nodeId, locationNode);
         // Merge name, properties and capability properties

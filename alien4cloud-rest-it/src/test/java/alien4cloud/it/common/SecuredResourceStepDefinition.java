@@ -1,5 +1,17 @@
 package alien4cloud.it.common;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
+
+import com.google.common.collect.Sets;
+
 import alien4cloud.it.Context;
 import alien4cloud.it.application.ApplicationStepDefinitions;
 import alien4cloud.it.orchestrators.LocationsDefinitionsSteps;
@@ -13,20 +25,10 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.Group;
 import alien4cloud.security.model.User;
 import alien4cloud.utils.AlienUtils;
-import com.google.common.collect.Sets;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SecuredResourceStepDefinition {
 
@@ -39,15 +41,20 @@ public class SecuredResourceStepDefinition {
                     + LocationsDefinitionsSteps.getLocationIdFromName(orchestratorName, resourceName) + "/security";
             break;
         case "LOCATION_RESOURCE":
+        case "LOCATION_POLICY":
             // resrouceName == orchestratorName/locationName/resourceName
             String[] decomposed = StringUtils.split(resourceName, "/");
             orchestratorName = decomposed.length == 1 ? orchestratorName : decomposed[0].trim();
             String locationName = decomposed.length == 1 ? LocationsDefinitionsSteps.DEFAULT_LOCATION_NAME : decomposed[1].trim();
             resourceName = decomposed[decomposed.length - 1].trim();
-            String locationId = Context.getInstance().getLocationId(Context.getInstance().getOrchestratorId(orchestratorName), locationName);
+            String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+            String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
             String locationResourceId = Context.getInstance().getLocationResourceId(Context.getInstance().getOrchestratorId(orchestratorName), locationId, resourceName);
-            url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
-                    + locationId + "/resources/" + locationResourceId + "/security";
+            String customEnpointPrefix = getCustomEndpointSuffix(resourceType);
+            String urlFormat = "/rest/v1/orchestrators/%s/locations/%s/%s/%s/security";
+            url = String.format(urlFormat, orchestratorId, locationId, customEnpointPrefix, locationResourceId);
+            // url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
+            // + locationId + "/resources/" + locationResourceId + "/security";
             break;
         case "SERVICE" :
             String serviceId = Context.getInstance().getServiceId(resourceName);
@@ -60,17 +67,36 @@ public class SecuredResourceStepDefinition {
         return url;
     }
 
+    private String getCustomEndpointSuffix(String resourceType) {
+        String customEndpointSuffix;
+        switch (resourceType) {
+        case "LOCATION_RESOURCE":
+            customEndpointSuffix = "resources";
+            break;
+        case "LOCATION_POLICY":
+            customEndpointSuffix = "policies";
+            break;
+        default:
+            customEndpointSuffix = "";
+        }
+        return customEndpointSuffix;
+    }
+
     private String getBatchSecuredResourceBaseURL(String resourceType, String resourceName) throws Throwable {
         String url = null;
         String orchestratorName = LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME;
         switch (resourceType) {
         case "LOCATION_RESOURCE":
+        case "LOCATION_POLICY":
             // resrouceName == orchestratorName/locationName/resourceName
             String[] decomposed = StringUtils.split(resourceName, "/");
             orchestratorName = decomposed.length == 1 ? orchestratorName : decomposed[0].trim();
             String locationName = decomposed.length == 1 ? LocationsDefinitionsSteps.DEFAULT_LOCATION_NAME : decomposed[1].trim();
-            String locationId = Context.getInstance().getLocationId(Context.getInstance().getOrchestratorId(orchestratorName), locationName);
-            url = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/" + locationId + "/resources/security";
+            String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+            String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
+            String customEndpointSuffix = getCustomEndpointSuffix(resourceType);
+            String urlFormat = "/rest/v1/orchestrators/%s/locations/%s/%s/security";
+            url = String.format(urlFormat, orchestratorId, locationId, customEndpointSuffix);
             break;
         default:
             Assert.fail("Dot not support batch operation on resource type " + resourceType);

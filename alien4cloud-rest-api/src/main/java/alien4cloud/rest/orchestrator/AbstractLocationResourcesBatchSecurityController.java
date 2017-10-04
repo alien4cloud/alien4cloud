@@ -1,11 +1,28 @@
 package alien4cloud.rest.orchestrator;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.google.common.collect.Sets;
+
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.authorization.ResourcePermissionService;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.orchestrators.locations.AbstractLocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.orchestrators.locations.services.LocationService;
@@ -14,30 +31,9 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUpdateRequest;
 import alien4cloud.rest.orchestrator.model.SubjectsAuthorizationRequest;
 import alien4cloud.security.Subject;
-import com.google.common.collect.Sets;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-@RestController
-@RequestMapping({ "/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources/security/",
-        "/rest/v1/orchestrators/{orchestratorId}/locations/{locationId}/resources/security/",
-        "/rest/latest/orchestrators/{orchestratorId}/locations/{locationId}/resources/security/" })
-@Api(value = "", description = "Location resource security batch operations")
-public class LocationResourcesBatchSecurityController {
+public abstract class AbstractLocationResourcesBatchSecurityController {
     @Resource
     private LocationService locationService;
     @Resource
@@ -67,7 +63,7 @@ public class LocationResourcesBatchSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public synchronized RestResponse<Void> bulkAccessToUsersOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
-                                                                        @RequestBody SubjectsAuthorizationRequest request) {
+            @RequestBody SubjectsAuthorizationRequest request) {
         if (ArrayUtils.isNotEmpty(request.getCreate())) {
             processGrantForSubjectType(Subject.USER, orchestratorId, locationId, request.getResources(), request.getCreate());
         } else if (ArrayUtils.isNotEmpty(request.getDelete())) {
@@ -93,7 +89,7 @@ public class LocationResourcesBatchSecurityController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public synchronized RestResponse<Void> bulkAccessToGroupsOnResources(@PathVariable String orchestratorId, @PathVariable String locationId,
-                                                                         @RequestBody SubjectsAuthorizationRequest request) {
+            @RequestBody SubjectsAuthorizationRequest request) {
         if (ArrayUtils.isNotEmpty(request.getCreate())) {
             processGrantForSubjectType(Subject.GROUP, orchestratorId, locationId, request.getResources(), request.getCreate());
         } else if (ArrayUtils.isNotEmpty(request.getDelete())) {
@@ -122,29 +118,30 @@ public class LocationResourcesBatchSecurityController {
         }
 
         Location location = locationService.getLocation(orchestratorId, locationId);
-        locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd(), location);
+        locationSecurityService.grantAuthorizationOnLocationIfNecessary(request.getApplicationsToAdd(), request.getEnvironmentsToAdd(),
+                request.getEnvironmentTypesToAdd(), location);
 
         Arrays.stream(request.getResources()).forEach(resourceId -> {
-            LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
+            AbstractLocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
             if (ArrayUtils.isNotEmpty(request.getApplicationsToDelete())) {
                 resourcePermissionService.revokePermission(resourceTemplate,
-                        (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.APPLICATION,
+                        (resource -> locationResourceService.saveResource(location, (AbstractLocationResourceTemplate) resource)), Subject.APPLICATION,
                         request.getApplicationsToDelete());
             }
             if (ArrayUtils.isNotEmpty(request.getEnvironmentsToDelete())) {
                 resourcePermissionService.revokePermission(resourceTemplate,
-                        (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT,
+                        (resource -> locationResourceService.saveResource(location, (AbstractLocationResourceTemplate) resource)), Subject.ENVIRONMENT,
                         request.getEnvironmentsToDelete());
             }
             if (ArrayUtils.isNotEmpty(request.getEnvironmentTypesToDelete())) {
                 resourcePermissionService.revokePermission(resourceTemplate,
-                        (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT_TYPE,
+                        (resource -> locationResourceService.saveResource(location, (AbstractLocationResourceTemplate) resource)), Subject.ENVIRONMENT_TYPE,
                         request.getEnvironmentTypesToDelete());
             }
             Set<String> envIds = Sets.newHashSet();
             if (ArrayUtils.isNotEmpty(request.getApplicationsToAdd())) {
                 resourcePermissionService.grantPermission(resourceTemplate,
-                        (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.APPLICATION,
+                        (resource -> locationResourceService.saveResource(location, (AbstractLocationResourceTemplate) resource)), Subject.APPLICATION,
                         request.getApplicationsToAdd());
                 // when an app is added, all eventual existing env authorizations are removed
                 for (String applicationToAddId : request.getApplicationsToAdd()) {
@@ -155,20 +152,20 @@ public class LocationResourcesBatchSecurityController {
                 }
                 if (!envIds.isEmpty()) {
                     resourcePermissionService.revokePermission(resourceTemplate,
-                            (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT,
+                            (resource -> locationResourceService.saveResource(location, (AbstractLocationResourceTemplate) resource)), Subject.ENVIRONMENT,
                             envIds.toArray(new String[envIds.size()]));
                 }
             }
             if (ArrayUtils.isNotEmpty(request.getEnvironmentsToAdd())) {
                 List<String> envToAddSet = Arrays.stream(request.getEnvironmentsToAdd()).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
                 resourcePermissionService.grantPermission(resourceTemplate,
-                        (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT,
+                        (resource -> locationResourceService.saveResource(location, (AbstractLocationResourceTemplate) resource)), Subject.ENVIRONMENT,
                         envToAddSet.toArray(new String[envToAddSet.size()]));
             }
             if (ArrayUtils.isNotEmpty(request.getEnvironmentTypesToAdd())) {
                 List<String> envToAddSet = Arrays.stream(request.getEnvironmentTypesToAdd()).filter(env -> !envIds.contains(env)).collect(Collectors.toList());
                 resourcePermissionService.grantPermission(resourceTemplate,
-                        (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), Subject.ENVIRONMENT_TYPE,
+                        (resource -> locationResourceService.saveResource(location, (AbstractLocationResourceTemplate) resource)), Subject.ENVIRONMENT_TYPE,
                         envToAddSet.toArray(new String[envToAddSet.size()]));
             }
         });
@@ -176,8 +173,7 @@ public class LocationResourcesBatchSecurityController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    private void processGrantForSubjectType(Subject subjectType, String orchestratorId, String locationId,
-            String[] resources, String[] subjects) {
+    private void processGrantForSubjectType(Subject subjectType, String orchestratorId, String locationId, String[] resources, String[] subjects) {
         if (ArrayUtils.isEmpty(resources)) {
             return;
         }
@@ -185,11 +181,11 @@ public class LocationResourcesBatchSecurityController {
         locationSecurityService.grantAuthorizationOnLocationIfNecessary(location, subjectType, subjects);
 
         Arrays.stream(resources).forEach(resourceId -> {
-            LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
+            AbstractLocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
             // prefer using locationResourceService.saveResource so that the location update date is update.
             // This will then trigger a deployment topology update
             resourcePermissionService.grantPermission(resourceTemplate,
-                    (resource -> locationResourceService.saveResource(location, (LocationResourceTemplate) resource)), subjectType, subjects);
+                    (resource -> locationResourceService.saveResource(location, (AbstractLocationResourceTemplate) resource)), subjectType, subjects);
         });
     }
 
@@ -198,9 +194,9 @@ public class LocationResourcesBatchSecurityController {
             return;
         }
         Arrays.stream(resources).forEach(resourceId -> {
-            LocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(LocationResourceTemplate.class, resourceId);
+            AbstractLocationResourceTemplate resourceTemplate = locationResourceService.getOrFail(resourceId);
             resourcePermissionService.revokePermission(resourceTemplate,
-                    (resource -> locationResourceService.saveResource((LocationResourceTemplate) resource)), subjectType, subjects);
+                    (resource -> locationResourceService.saveResource((AbstractLocationResourceTemplate) resource)), subjectType, subjects);
         });
     }
 }

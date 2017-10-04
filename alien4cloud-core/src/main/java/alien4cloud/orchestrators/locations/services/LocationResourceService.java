@@ -397,10 +397,10 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#deleteResourceTemplate(Class, String)
      */
     @Override
-    public void deleteResourceTemplate(Class<? extends AbstractLocationResourceTemplate> clazz, String resourceId) {
-        AbstractLocationResourceTemplate resourceTemplate = getOrFail(clazz, resourceId);
+    public void deleteResourceTemplate(String resourceId) {
+        AbstractLocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
-        alienDAO.delete(clazz, resourceId);
+        alienDAO.delete(resourceTemplate.getClass(), resourceId);
         refreshDependencies(location);
         alienDAO.save(location);
     }
@@ -411,12 +411,12 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getOrFail(java.lang.String)
      */
     @Override
-    public <T extends AbstractLocationResourceTemplate> T getOrFail(Class<T> clazz, String resourceId) {
-        T locationResourceTemplate = alienDAO.findById(clazz, resourceId);
+    public <T extends AbstractLocationResourceTemplate> T getOrFail(String resourceId) {
+        AbstractLocationResourceTemplate locationResourceTemplate = alienDAO.findById(AbstractLocationResourceTemplate.class, resourceId);
         if (locationResourceTemplate == null) {
             throw new NotFoundException("Location Resource Template [" + resourceId + "] doesn't exists.");
         }
-        return locationResourceTemplate;
+        return (T) locationResourceTemplate;
     }
 
     /*
@@ -425,8 +425,8 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#merge(java.lang.Object, java.lang.String)
      */
     @Override
-    public void merge(Class<? extends AbstractLocationResourceTemplate> clazz, Object mergeRequest, String resourceId) {
-        AbstractLocationResourceTemplate resourceTemplate = getOrFail(clazz, resourceId);
+    public void merge(Object mergeRequest, String resourceId) {
+        AbstractLocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         ReflectionUtil.mergeObject(mergeRequest, resourceTemplate);
         saveResource(resourceTemplate);
     }
@@ -434,13 +434,13 @@ public class LocationResourceService implements ILocationResourceService {
     /*
      * (non-Javadoc)
      * 
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateProperty(Class, java.lang.String, java.lang.String,
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateProperty(java.lang.String, java.lang.String,
      * java.lang.Object)
      */
     @Override
-    public void setTemplateProperty(Class<? extends AbstractLocationResourceTemplate> clazz, String resourceId, String propertyName, Object propertyValue)
+    public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue)
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
-        AbstractLocationResourceTemplate resourceTemplate = getOrFail(clazz, resourceId);
+        AbstractLocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         AbstractInheritableToscaType resourceType = (AbstractInheritableToscaType) csarRepoSearchService
                 .getRequiredElementInDependencies(AbstractToscaType.class, resourceTemplate.getTemplate().getType(), location.getDependencies());
@@ -505,7 +505,7 @@ public class LocationResourceService implements ILocationResourceService {
     @Override
     public void setTemplateCapabilityProperty(String resourceId, String capabilityName, String propertyName, Object propertyValue)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
-        LocationResourceTemplate resourceTemplate = getOrFail(LocationResourceTemplate.class, resourceId);
+        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         setTemplateCapabilityProperty(resourceTemplate, capabilityName, propertyName, propertyValue);
         saveResource(resourceTemplate);
     }

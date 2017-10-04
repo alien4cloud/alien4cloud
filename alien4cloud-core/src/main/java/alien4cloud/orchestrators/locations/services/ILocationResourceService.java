@@ -51,6 +51,9 @@ public interface ILocationResourceService {
 
     Map<String, LocationResourceTemplate> getMultiple(Collection<String> ids);
 
+    /**
+     * @deprecated Use {@link #addResourceTemplateFromArchive(String, String, String, String, String)} instead.
+     */
     @Deprecated
     LocationResourceTemplateWithDependencies addResourceTemplate(String locationId, String resourceName, String resourceTypeName);
 
@@ -68,13 +71,13 @@ public interface ILocationResourceService {
      */
     LocationResourceTemplateWithDependencies addResourceTemplateFromArchive(String locationId, String resourceName, String resourceTypeName, String archiveName, String archiveVersion);
 
-    void deleteResourceTemplate(Class<? extends AbstractLocationResourceTemplate> clazz, String resourceId);
+    void deleteResourceTemplate(String resourceId);
 
-    <T extends AbstractLocationResourceTemplate> T getOrFail(Class<T> clazz, String resourceId);
+    <T extends AbstractLocationResourceTemplate> T getOrFail(String resourceId);
 
-    void merge(Class<? extends AbstractLocationResourceTemplate> clazz, Object mergeRequest, String resourceId);
+    void merge(Object mergeRequest, String resourceId);
 
-    void setTemplateProperty(Class<? extends AbstractLocationResourceTemplate> clazz, String resourceId, String propertyName, Object propertyValue)
+    void setTemplateProperty(String resourceId, String propertyName, Object propertyValue)
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException;
 
     void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName,
