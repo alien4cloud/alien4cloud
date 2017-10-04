@@ -65,6 +65,15 @@ define(function (require) {
           }
         },
 
+        getTag: function(tagName, tags) {
+          for ( var i in tags) {
+            var tag = tags[i];
+            if (tag.name === tagName) {
+              return tag.value;
+            }
+          }
+        },
+
         /**
         * Return the simple name of a TOSCA element from it's complex name.
         *
@@ -176,18 +185,18 @@ define(function (require) {
         },
 
         /**
-        * Generate a unique node template name from the given node type name and based on a map of existing node templates.
-        * @param type The name of the node type.
-        * @param nodeTemplates The map of existing node templates (to avoid duplicating a node template name).
+        * Generate a unique template name from the given type name and based on a map of existing templates.
+        * @param type The name of the type.
+        * @param templates The map of existing templates (to avoid duplicating a template name).
         */
-        generateNodeTemplateName: function(type, nodeTemplates) {
+        generateTemplateName: function(type, templates) {
           var baseName = this.simpleName(type);
           // First we have to normalize the node template name as a4c restrict special character usage
           baseName = this.getToscaName(baseName);
           var i = 1;
           var tempName = baseName;
-          if(_.defined(nodeTemplates)) {
-            while (nodeTemplates.hasOwnProperty(tempName)) {
+          if(_.defined(templates)) {
+            while (templates.hasOwnProperty(tempName)) {
               i++;
               tempName = baseName + '_' + i;
             }

@@ -24,11 +24,13 @@ import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.apache.commons.collections4.CollectionUtils;
@@ -84,28 +86,33 @@ public class TopologyService {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarDependencyLoader);
         Map<String, NodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false, failOnTypeNotFound);
         Map<String, RelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, failOnTypeNotFound);
-        if (topology.getNodeTemplates() != null) {
-            for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
-                NodeType nodeType = nodeTypes.get(nodeTemplate.getType());
-                // just load found types.
-                // the type might be null when failOnTypeNotFound is set to false.
-                if (nodeType != null) {
-                    loader.loadType(nodeTemplate.getType(), csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
-                }
-                if (nodeTemplate.getRelationships() != null) {
+        Map<String, PolicyType> policyTypes = topologyServiceCore.getPolicyTypesFromTopology(topology, failOnTypeNotFound);
 
-                    for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                        RelationshipType relationshipType = relationshipTypes.get(relationshipTemplate.getType());
-                        // just load found types.
-                        // the type might be null when failOnTypeNotFound is set to false.
-                        if (relationshipType != null) {
-                            loader.loadType(relationshipTemplate.getType(),
-                                    csarDependencyLoader.buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
-                        }
-                    }
+        for (NodeTemplate nodeTemplate : safe(topology.getNodeTemplates()).values()) {
+            NodeType nodeType = nodeTypes.get(nodeTemplate.getType());
+            // just load found types: the type might be null when failOnTypeNotFound is set to false.
+            if (nodeType != null) {
+                loader.loadType(nodeTemplate.getType(), csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
+            }
+
+            for (RelationshipTemplate relationshipTemplate : safe(nodeTemplate.getRelationships()).values()) {
+                RelationshipType relationshipType = relationshipTypes.get(relationshipTemplate.getType());
+                // just load found types: the type might be null when failOnTypeNotFound is set to false.
+                if (relationshipType != null) {
+                    loader.loadType(relationshipTemplate.getType(),
+                            csarDependencyLoader.buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
                 }
             }
         }
+
+        for (PolicyTemplate policyTemplate : safe(topology.getPolicies()).values()) {
+            PolicyType policyType = policyTypes.get(policyTemplate.getType());
+            if (policyType != null) {
+                loader.loadType(policyTemplate.getType(),
+                        csarDependencyLoader.buildDependencyBean(policyType.getArchiveName(), policyType.getArchiveVersion()));
+            }
+        }
+
         if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
             NodeType substitutionType = nodeTypes.get(topology.getSubstitutionMapping().getSubstitutionType());
             loader.loadType(substitutionType.getElementId(),

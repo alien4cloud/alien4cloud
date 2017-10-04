@@ -34,7 +34,7 @@ define(function (require) {
         /** this has to be exposed to the scope as we cannot rely on drag and drop callbacks for ui tests */
         add: function(nodeType, hostNodeName) {
           var self = this;
-          var nodeTemplateName = toscaService.generateNodeTemplateName(nodeType.elementId, this.scope.topology.topology.nodeTemplates);
+          var nodeTemplateName = toscaService.generateTemplateName(nodeType.elementId, this.scope.topology.topology.nodeTemplates);
           // Add node operation automatically change dependency version to higher so if different warn the user.
           var currentVersion = this.getDepVersionIfDifferent(nodeType.archiveName, nodeType.archiveVersion, this.scope.topology.topology.dependencies);
           if(_.defined(currentVersion)) {

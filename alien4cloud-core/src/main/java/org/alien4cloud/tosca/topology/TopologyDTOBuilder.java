@@ -13,13 +13,14 @@ import org.alien4cloud.tosca.editor.EditionContext;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
-import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.utils.DataTypesFetcher;
 import org.apache.commons.collections4.MapUtils;
@@ -105,12 +106,19 @@ public class TopologyDTOBuilder {
         topologyDTO.setRelationshipTypes(getRelationshipTypes(topology));
         topologyDTO.setCapabilityTypes(getCapabilityTypes(topologyDTO));
         topologyDTO.setDataTypes(getDataTypes(topologyDTO));
+        topologyDTO.setPolicyTypes(getPolicyTypes(topology));
         return topologyDTO;
     }
 
     private <T extends Topology> Map<String, NodeType> getNodeTypes(T topology) {
         Map<String, NodeType> types = Maps.newHashMap();
         fillTypeMap(NodeType.class, types, topology.getNodeTemplates(), false, false);
+        return types;
+    }
+
+    private <T extends Topology> Map<String, PolicyType> getPolicyTypes(T topology) {
+        Map<String, PolicyType> types = Maps.newHashMap();
+        fillTypeMap(PolicyType.class, types, topology.getPolicies(), false, false);
         return types;
     }
 
@@ -151,8 +159,8 @@ public class TopologyDTOBuilder {
         return types;
     }
 
-    private <T extends AbstractInheritableToscaType, V extends AbstractInstantiableTemplate> void fillTypeMap(Class<T> elementClass, Map<String, T> types,
-                                                                                                              Map<String, V> templateMap, boolean useTemplateNameAsKey, boolean abstractOnly) {
+    private <T extends AbstractInheritableToscaType, V extends AbstractTemplate> void fillTypeMap(Class<T> elementClass, Map<String, T> types,
+            Map<String, V> templateMap, boolean useTemplateNameAsKey, boolean abstractOnly) {
         if (templateMap == null) {
             return;
         }

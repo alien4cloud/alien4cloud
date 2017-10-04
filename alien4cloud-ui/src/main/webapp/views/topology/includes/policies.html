@@ -6,15 +6,107 @@
     <i class="fa fa-remove close-panel"></i>
   </span>
 </div>
-<span id="topology-policiescatalog" ng-click="display.toggle('policiescatalog')">
-  <i class="fa fa-plus"></i> Add policies
-</span>
 
- => open catalog
+<div style="text-align: right">
+  <button id="topology-policiescatalog" type="button" class="btn btn-success btn-xs ng-binding" ng-click="display.toggle('policiescatalog')" ng-disabled="displays.policiescatalog.active">
+    <i class="fa fa-plus"></i> Add policies
+  </button>
+</div>
 
-<div>
-  List policies => <br>
-  Can only select a single policy from here
+<div class="grp-margin" ng-class="{'drop-container': displays.policiescatalog.active}" alien-droppable drag-data="" drag-on-drop="policies.onDragged(data)">
+  <empty-place-holder data="topology.topology.policies"></empty-place-holder>
 
-  {{topology.topology.policies}}
+  <div ng-repeat="policyTemplate in topology.topology.policies">
+    <div ng-init="policyType=topology.policyTypes[policyTemplate.type];">
+      <div  id="policy-details-{{policyTemplate.name}}" class="clickable topology-column-content-head"
+        ng-click="policies.selectPolicy(policyTemplate)">
+        <i class="fa" ng-class="{'fa-caret-down' : policyTemplate.selected, 'fa-caret-right': !policyTemplate.selected}"></i>
+
+        <i class="{{getTag('a4c_class', policyType.tags)}}"></i>
+        <span editable-text="policies.edit.name" buttons="no" e-required onbeforesave="policies.updateName($data)" blur="submit">
+          {{ policyTemplate.name | split }}
+          <i class="fa fa-pencil-square-o"></i>
+        </span>
+        <img ng-show="policyType.abstract"
+             class="icon_16"
+             alt="abstract_ico_16"
+             uib-tooltip="{{'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT' | translate}}"
+             tooltip-placement="top"
+             src="images/abstract_ico.png" />
+        <span class="pull-right">
+          <delete-confirm id="btn-delete-node" func="policies.delete(policyTemplate.name)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+          </delete-confirm>
+        </span>
+        <div class="col-md-12" ng-if="nodeTempNameEditError" style="margin-bottom: 10px;">
+          <span class="text-danger">{{''+nodeTempNameEditError.code | translate}}</span>
+        </div>
+      </div>
+      <div id="policy-details-{{policyTemplate.name}}-panel" class="indent" uib-collapse="!policyTemplate.selected">
+        <!-- Targets -->
+        <div class="table-responsive grp-margin">
+          <table class="table table-condensed">
+            <tr ng-repeat="target in policyTemplate.targets">
+              <td><span ng-if="$index === 0"><strong>Targets</strong></span></td>
+              <td>{{target}}</td>
+              <td>
+                <a ng-click="policies.removeTarget(target)">
+                  <i class="fa fa-trash-o text-danger"></i>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <form name="formAddTarget" class="form-inline" ng-submit="policies.addTarget(newPolicyTarget.name)">
+                  <div ng-class="{'form-group':true, 'has-error': formAddTarget.policyNewTarget.$invalid}">
+                    <input type="text" class="form-control" id="policies-target" name="policyNewTarget" ng-model="newPolicyTarget.name"
+                      uib-typeahead="item for item in policies.edit.targetSuggestions" typeahead-min-length="1" required/>
+                  </div>
+                  <div class="form-group">
+                    <button ng-disabled="formAddTarget.policyNewTarget.$invalid" type="submit" class="btn btn-primary btn-sm" id="btn-policies-target">
+                      <i class="fa fa-plus-circle"></i>
+                    </button>
+                  </div>
+                  <div class="form-group" ng-show="formAddTarget.policyNewTarget.$invalid">
+                    <p class="text-danger">Targets should be the name of a node template.</p>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Properties -->
+        <div ng-if="policyTemplate.properties.length > 0" ng-init="isPropertiesCollapsed=true">
+          <div id="node-details-properties" class="clickable topology-column-content-head" ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
+            <i class="fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
+            {{'COMMON.PROPERTIES' | translate}}
+          </div>
+          <div id="node-details-properties-panel" uib-collapse="isPropertiesCollapsed" >
+            <table class="table table-condensed" id="nodeTemplateProperties">
+              <tr ng-repeat="propEntry in policyTemplate.properties">
+                <td class="topology-props-td-inp">
+                  inputs
+                </td>
+                <td ng-init="condensed=true; propDef=policyType.propertiesMap[propEntry.key].value">
+                  <property-display
+                    definition="propDef"
+                    property-type="topology.dataTypes[propDef.type]"
+                    dependencies="topology.topology.dependencies"
+                    property-name="propEntry.key"
+                    property-value="propEntry.value"
+                    on-save="policies.updateProperty(propertyName, propertyValue)"
+                    editable="true"
+                    condensed="condensed">
+                  </property-display>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="drop-container-label" ng-show="displays.policiescatalog.active">
+    <i class="fa fa-plus"></i> Drop new policies here or on the list above
+  </div>
 </div>

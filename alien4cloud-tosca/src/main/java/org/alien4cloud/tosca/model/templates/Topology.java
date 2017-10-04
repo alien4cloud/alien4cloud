@@ -87,7 +87,7 @@ public class Topology implements IDatableResource, IWorkspaceResource {
 
     @MapKeyValue
     @ConditionalOnAttribute(ConditionalAttributes.ES)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = NodeTemplateDeserializer.class)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, PolicyTemplate> policies;
@@ -99,8 +99,8 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     /**
      * Outputs coming from node properties:
      * <ul>
-     * <li>key is the node template name.
-     * <li>value is a list of node template property names.
+     * <li>key is the node template name.</li>
+     * <li>value is a list of node template property names.</li>
      * </ul>
      */
     @ObjectField(enabled = false)
@@ -110,9 +110,9 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     /**
      * Outputs coming from node template capability properties:
      * <ul>
-     * <li>key is the node template name.
-     * <li>key is the capability name.
-     * <li>value is a list of output property names.
+     * <li>key is the node template name.</li>
+     * <li>key is the capability name.</li>
+     * <li>value is a list of output property names.</li>
      * </ul>
      */
     @ObjectField(enabled = false)
@@ -122,8 +122,8 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     /**
      * Outputs coming from node attributes:
      * <ul>
-     * <li>key is the node template name.
-     * <li>value is a list of node template attribute names.
+     * <li>key is the node template name.</li>
+     * <li>value is a list of node template attribute names.</li>
      * </ul>
      */
     @ObjectField(enabled = false)

@@ -16,6 +16,7 @@ define(function (require) {
          */
         process: function(topology) {
           listToMapService.processMap(topology.nodeTypes, 'properties');
+          listToMapService.processMap(topology.policyTypes, 'properties');
           listToMapService.processMap(topology.relationshipTypes, 'properties');
           listToMapService.processMap(topology.capabilityTypes, 'properties');
 
