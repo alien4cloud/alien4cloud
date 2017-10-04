@@ -463,8 +463,8 @@
 - policy_type: org.alien4cloud.tosca.model.types.PolicyType
   <<: *abstract_type
   targets:
-    reference: targets
-    type: string_list
+    set: targets
+    type: scalar
   triggers:
     map: triggers
     type: policy_trigger
@@ -476,8 +476,8 @@
   <<: *abstract_template
   # Specific to policy template
   targets:
-    reference: targets
-    type: string_list
+    set: targets
+    type: scalar
   triggers:
     map: triggers
     type: policy_trigger
