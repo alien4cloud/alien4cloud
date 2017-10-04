@@ -95,8 +95,8 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertNotNull(simplePolicyType.getProperties().get("sample_property"));
         assertEquals("string", simplePolicyType.getProperties().get("sample_property").getType());
         assertEquals(2, simplePolicyType.getTargets().size());
-        assertEquals("tosca.nodes.Compute", simplePolicyType.getTargets().get(0));
-        assertEquals("tosca.nodes.Root", simplePolicyType.getTargets().get(1));
+        assertTrue(simplePolicyType.getTargets().contains("tosca.nodes.Compute"));
+        assertTrue(simplePolicyType.getTargets().contains("tosca.nodes.Root"));
 
         PolicyType policyType = archiveRoot.getPolicyTypes().get("org.alien4cloud.sample.PolicyType");
         assertNotNull(policyType);
@@ -115,8 +115,8 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertNotNull(policyType.getProperties().get("sample_property"));
         assertEquals("string", policyType.getProperties().get("sample_property").getType());
         assertEquals(2, policyType.getTargets().size());
-        assertEquals("tosca.nodes.Compute", policyType.getTargets().get(0));
-        assertEquals("tosca.nodes.Root", policyType.getTargets().get(1));
+        assertTrue(simplePolicyType.getTargets().contains("tosca.nodes.Compute"));
+        assertTrue(simplePolicyType.getTargets().contains("tosca.nodes.Root"));
     }
 
     @Test
@@ -175,8 +175,8 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertNotNull(simplePolicyType.getProperties().get("sample_property"));
         assertEquals("string", simplePolicyType.getProperties().get("sample_property").getType());
         assertEquals(2, simplePolicyType.getTargets().size());
-        assertEquals("tosca.nodes.Compute", simplePolicyType.getTargets().get(0));
-        assertEquals("tosca.nodes.Root", simplePolicyType.getTargets().get(1));
+        assertTrue(simplePolicyType.getTargets().contains("tosca.nodes.Compute"));
+        assertTrue(simplePolicyType.getTargets().contains("tosca.nodes.Root"));
 
         // Test that the template is correctly parsed
         assertNotNull(archiveRoot.getTopology());
