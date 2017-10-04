@@ -1,24 +1,5 @@
 package alien4cloud.rest.orchestrator;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.google.common.collect.Sets;
-
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.authorization.ResourcePermissionService;
@@ -37,7 +18,25 @@ import alien4cloud.rest.orchestrator.model.ApplicationEnvironmentAuthorizationUp
 import alien4cloud.rest.orchestrator.model.GroupDTO;
 import alien4cloud.rest.orchestrator.model.UserDTO;
 import alien4cloud.security.Subject;
+import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 public abstract class AbstractLocationResourcesSecurityController {
     @Resource
@@ -214,7 +213,7 @@ public abstract class AbstractLocationResourcesSecurityController {
 
         // remove all environment types
         Set<String> envTypeIds = Sets.newHashSet();
-        for (String envType : resourceTemplate.getEnvironmentTypePermissions().keySet()) {
+        for (String envType : safe(resourceTemplate.getEnvironmentTypePermissions()).keySet()) {
             if (envType.split(":")[0].equals(applicationId)) {
                 envTypeIds.add(envType);
             }
@@ -314,7 +313,7 @@ public abstract class AbstractLocationResourcesSecurityController {
         if (MapUtils.isNotEmpty(resourceTemplate.getEnvironmentTypePermissions())) {
             environmentTypes.addAll(resourceTemplate.getEnvironmentTypePermissions().keySet());
             Set<String> environmentTypeApplicationIds = Sets.newHashSet();
-            for (String envType : resourceTemplate.getEnvironmentTypePermissions().keySet()) {
+            for (String envType : safe(resourceTemplate.getEnvironmentTypePermissions()).keySet()) {
                 environmentTypeApplicationIds.add(envType.split(":")[0]);
             }
             applicationsRelatedToEnvironmentType = alienDAO.findByIds(Application.class,

@@ -61,7 +61,7 @@ Feature: Manage location resources authorizations
       | ALIEN |
     When I revoke access to the resource type "SERVICE" named "MyBdService" from the application "ALIEN"
     Then I should not have any authorized applications
-    
+
   @reset
   Scenario: Add / Remove rights to a application environment on a service
     Given I upload a plugin
@@ -83,4 +83,29 @@ Feature: Manage location resources authorizations
     Then I should have following list of environments:
       | DEV-ALIEN |
     When I revoke access to the resource type "SERVICE" named "MyBdService" from the environment "DEV-ALIEN" of the application "ALIEN"
+    Then I should not have any authorized environments
+
+  @reset
+  Scenario: Grant / Revoke rights to a application environment type on a service
+    Given I upload a plugin
+    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
+    And I enable the orchestrator "Mount doom orchestrator"
+    And I create a location named "middle_earth" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
+
+    Given I create an application with name "ALIEN", archive name "ALIEN", description "" and topology template id "null"
+    And I create an application environment of type "DEVELOPMENT" with name "DEV-ALIEN" and description "" for the newly created application
+    And I create an application environment of type "INTEGRATION_TESTS" with name "TST-ALIEN" and description "" for the newly created application
+    And I create an application environment of type "PRODUCTION" with name "PRD-ALIEN" and description "" for the newly created application
+    And I grant access to the resource type "SERVICE" named "MyBdService" to the environment type "DEVELOPMENT" of the application "ALIEN"
+    And I grant access to the resource type "SERVICE" named "MyBdService" to the environment type "INTEGRATION_TESTS" of the application "ALIEN"
+    Then I get the authorised applications for the resource type "SERVICE" named "MyBdService"
+    Then I should have following list of environment types:
+      | DEVELOPMENT |
+      | INTEGRATION_TESTS |
+    When I revoke access to the resource type "SERVICE" named "MyBdService" from the environment type "INTEGRATION_TESTS" of the application "ALIEN"
+    Then I get the authorised applications for the resource type "SERVICE" named "MyBdService"
+    Then I should have following list of environment types:
+      | DEVELOPMENT |
+    When I revoke access to the resource type "SERVICE" named "MyBdService" from the environment type "DEVELOPMENT" of the application "ALIEN"
+    Then I get the authorised applications for the resource type "SERVICE" named "MyBdService"
     Then I should not have any authorized environments

@@ -83,7 +83,7 @@ public class ResourcePermissionServiceTest {
         Mockito.when(applicationEnvironmentService.getByApplicationId("subject1")).thenReturn(new ApplicationEnvironment[] { ae1, ae2 });
 
         // When
-        service.revokeAuthorizedEnvironmentsPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
+        service.revokeAuthorizedEnvironmentsAndEnvironmentTypesPerApplication((AbstractSecurityEnabledResource) resourceSecured, new String[] { "subject1" }, new String[] {
                 "subject1_1", "subject1_2" }, new String[] {"subject_env_1_1" });
 
         // Then
