@@ -1,38 +1,6 @@
 package org.alien4cloud.alm.deployment.configuration.services;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import alien4cloud.model.deployment.DeploymentTopology;
-import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
-import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
-import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
-import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
-import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
-import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
-import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
-import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.apache.commons.collections4.MapUtils;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
-
 import alien4cloud.common.MetaPropertiesService;
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -42,6 +10,28 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.TagUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 import alien4cloud.utils.services.PropertyService;
+import com.google.common.collect.Maps;
+import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
+import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
+import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Manage input values storage and retrieval.
@@ -55,8 +45,8 @@ public class InputService {
 
     @Inject
     private MetaPropertiesService metaPropertiesService;
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    @Inject
+    private DeploymentConfigurationDao deploymentConfigurationDao;
     @Inject
     private PropertyService propertyService;
     @Inject
@@ -68,7 +58,7 @@ public class InputService {
         }
 
         // Get the configuration object
-        DeploymentInputs configuration = alienDAO.findById(DeploymentInputs.class,
+        DeploymentInputs configuration = deploymentConfigurationDao.findById(DeploymentInputs.class,
                 AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId()));
 
         if (configuration == null) {
@@ -90,13 +80,13 @@ public class InputService {
         }
 
         // Save configuration
-        alienDAO.save(configuration);
+        deploymentConfigurationDao.save(configuration);
     }
 
     /**
      * Get input values matching the requested input definitions as defined in application meta properties or tags.
-     * 
-     * @param application The application for which to fetch meta properties or tag based inputs.
+     *
+     * @param application      The application for which to fetch meta properties or tag based inputs.
      * @param inputDefinitions The input definitions that may define request for application meta or tags based inputs.
      * @return A map of <Input name, Property value> computed from the application meta and tags.
      */
@@ -119,8 +109,8 @@ public class InputService {
 
     /**
      * Get input values matching the requested input definitions as defined in location meta properties.
-     * 
-     * @param locations The map of locations from which to fetch meta properties based inputs.
+     *
+     * @param locations        The map of locations from which to fetch meta properties based inputs.
      * @param inputDefinitions The input definitions that may define request for location meta based inputs.
      * @return A map of <Input name, Property value> computed from the location meta properties.
      */
@@ -143,12 +133,12 @@ public class InputService {
      * Add the context inputs to the actual deployment inputs by adding the given prefix to the key.
      *
      * @param inputDefinitions The input definitions for which to retrieve values.
-     * @param inputs The map of input values in which to add the fetched values.
-     * @param prefix The prefix to be added to the context inputs.
-     * @param contextInputs The map of inputs from context elements (cloud, application, environment).
+     * @param inputs           The map of input values in which to add the fetched values.
+     * @param prefix           The prefix to be added to the context inputs.
+     * @param contextInputs    The map of inputs from context elements (cloud, application, environment).
      */
     private void prefixAndAddContextInput(Map<String, PropertyDefinition> inputDefinitions, Map<String, PropertyValue> inputs, String prefix,
-            Map<String, String> contextInputs, boolean isMeta) {
+                                          Map<String, String> contextInputs, boolean isMeta) {
         if (contextInputs == null || contextInputs.isEmpty()) {
             // no inputs to add.
             return;
@@ -181,7 +171,7 @@ public class InputService {
     public void onCopyConfiguration(OnDeploymentConfigCopyEvent onDeploymentConfigCopyEvent) {
         ApplicationEnvironment source = onDeploymentConfigCopyEvent.getSourceEnvironment();
         ApplicationEnvironment target = onDeploymentConfigCopyEvent.getTargetEnvironment();
-        DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class,
+        DeploymentInputs deploymentInputs = deploymentConfigurationDao.findById(DeploymentInputs.class,
                 AbstractDeploymentConfig.generateId(source.getTopologyVersion(), source.getId()));
 
         if (deploymentInputs == null || MapUtils.isEmpty(deploymentInputs.getInputs())) {
@@ -205,37 +195,16 @@ public class InputService {
                         }
                     }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             if (MapUtils.isNotEmpty(inputsToCopy)) {
-                DeploymentInputs targetDeploymentInputs = alienDAO.findById(DeploymentInputs.class,
+                DeploymentInputs targetDeploymentInputs = deploymentConfigurationDao.findById(DeploymentInputs.class,
                         AbstractDeploymentConfig.generateId(target.getTopologyVersion(), target.getId()));
                 if (targetDeploymentInputs == null) {
                     targetDeploymentInputs = new DeploymentInputs(target.getTopologyVersion(), target.getId());
                 }
                 // Copy inputs from original topology
                 targetDeploymentInputs.setInputs(inputsToCopy);
-                alienDAO.save(targetDeploymentInputs);
+                deploymentConfigurationDao.save(targetDeploymentInputs);
             }
         }
     }
 
-    /**
-     * This will clean up deployment setup when user promote to a new version.
-     *
-     * @param event the event fired
-     */
-    @EventListener
-    public void handleEnvironmentTopologyVersionChanged(AfterEnvironmentTopologyVersionChanged event) {
-        alienDAO.delete(DeploymentInputs.class,
-                QueryBuilders.boolQuery().must(QueryBuilders.termQuery("versionId", Csar.createId(event.getApplicationId(), event.getOldVersion())))
-                        .must(QueryBuilders.termQuery("environmentId", event.getEnvironmentId())));
-    }
-
-    @EventListener
-    public void handleDeleteTopologyVersion(BeforeApplicationTopologyVersionDeleted event) {
-        alienDAO.delete(DeploymentInputs.class, QueryBuilders.termQuery("versionId", Csar.createId(event.getApplicationId(), event.getTopologyVersion())));
-    }
-
-    @EventListener
-    public void handleDeleteEnvironment(BeforeApplicationEnvironmentDeleted event) {
-        alienDAO.delete(DeploymentInputs.class, QueryBuilders.termQuery("environmentId", event.getApplicationEnvironmentId()));
-    }
 }

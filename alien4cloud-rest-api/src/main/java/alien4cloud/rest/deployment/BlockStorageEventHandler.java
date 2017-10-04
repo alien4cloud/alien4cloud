@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -36,8 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 public class BlockStorageEventHandler extends DeploymentEventHandler {
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    @Resource
+    private DeploymentConfigurationDao deploymentConfigurationDao;
     @Resource
     private TopologyServiceCore topoServiceCore;
     @Resource
@@ -100,28 +101,28 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             if (abstractPropertyValue != null && abstractPropertyValue instanceof FunctionPropertyValue) { // the value is set in the topology
                 FunctionPropertyValue function = (FunctionPropertyValue) abstractPropertyValue;
                 if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT) && propertyValue instanceof String) {
-                    DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class,
+                    DeploymentInputs deploymentInputs = deploymentConfigurationDao.findById(DeploymentInputs.class,
                             AbstractDeploymentConfig.generateId(deployment.getVersionId(), deployment.getEnvironmentId()));
                     // the value is set in the input (deployment setup)
                     log.info("Updating deploymentsetup [ {} ] input properties [ {} ] to add a new VolumeId", deploymentInputs.getId(), function.getTemplateName());
                     log.debug("Property [ {} ] to update: [ {} ]. New value is [ {} ]", propertyName,
                             persistentResourceEvent.getPersistentProperties().get(propertyName), propertyValue);
                     deploymentInputs.getInputs().put(function.getTemplateName(), new ScalarPropertyValue((String) propertyValue));
-                    alienDAO.save(deploymentInputs);
+                    deploymentConfigurationDao.save(deploymentInputs);
                 } else {
                     // this is not supported / print a warning
                     log.warn("Failed to store the id of the created block storage [ {} ] for deployment [ {} ] application [ {} ] environment [ {} ]");
                     return;
                 }
             } else {
-                DeploymentMatchingConfiguration matchingConfiguration = alienDAO.findById(DeploymentMatchingConfiguration.class,
+                DeploymentMatchingConfiguration matchingConfiguration = deploymentConfigurationDao.findById(DeploymentMatchingConfiguration.class,
                         AbstractDeploymentConfig.generateId(deployment.getVersionId(), deployment.getEnvironmentId()));
                 log.info("Updating deployment topology: Persistent resource property [ {} ] for node template <{}.{}> to add a value", propertyName,
                         matchingConfiguration.getId(), persistentResourceEvent.getNodeTemplateId());
                 log.debug("Value to add: [ {} ]. New value is [ {} ]", persistentResourceEvent.getPersistentProperties().get(propertyName), propertyValue);
                 matchingConfiguration.getMatchedNodesConfiguration().get(persistentResourceEvent.getNodeTemplateId()).getProperties().put(propertyName,
                         getPropertyValue(propertyValue));
-                alienDAO.save(matchingConfiguration);
+                deploymentConfigurationDao.save(matchingConfiguration);
             }
         }
     }
