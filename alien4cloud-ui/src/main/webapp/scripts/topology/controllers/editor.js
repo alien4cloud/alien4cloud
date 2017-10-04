@@ -93,6 +93,7 @@ define(function (require) {
 
         // trigger refresh event so child scope can update what they need. Initial flag allows to know if this is the initial loading of the topology.
         $scope.$broadcast('topologyRefreshedEvent', {
+          topology: topologyDTO,
           initial: initial,
           selectedNodeTemplateName: selectedNodeTemplateName
         });

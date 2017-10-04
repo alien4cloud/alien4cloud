@@ -2,7 +2,9 @@ package org.alien4cloud.tosca.model.templates;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.model.definitions.PolicyTrigger;
 import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.StringField;
@@ -21,7 +23,7 @@ import lombok.Setter;
 @Setter
 public class PolicyTemplate extends AbstractTemplate {
     @StringField(indexType = IndexType.no, includeInAll = false)
-    private List<String> targets = Lists.newArrayList();
+    private Set<String> targets = Sets.newLinkedHashSet();
     @ObjectField(enabled = false)
     private Map<String, PolicyTrigger> triggers = Maps.newLinkedHashMap();
 }

@@ -4,7 +4,6 @@
     <div id="topology" class="topology-column">
       <div class="topology topology-column-box" alien-droppable drag-data="" drag-on-drop="nodes.onDragged(data)" ng-init="visual = true;">
         <topology-rendering ng-if="topology" dimensions="visualDimensions" topology="topology"
-                            trigger-refresh="triggerTopologyRefresh"
                             select-callback="editorCallback.selectNodeTemplate(newSelectedName, oldSelectedName)"
                             add-relationship-callback="editorCallback.addRelationship(sourceId, requirementName, requirementType, targetId, capabilityName, relationship)"
                             runtime="false"></topology-rendering>

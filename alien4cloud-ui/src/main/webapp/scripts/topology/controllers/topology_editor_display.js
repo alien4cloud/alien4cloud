@@ -97,9 +97,8 @@ define(function (require) {
 
           if(beforeComponentActive && !this.scope.displays.nodetemplate.active &&
             _.defined(this.scope.selectedNodeTemplate)) {
-            this.scope.selectedNodeTemplate.selected = false;
             this.scope.selectedNodeTemplate = null;
-            this.scope.triggerTopologyRefresh = {};
+            this.scope.$broadcast('editorSelectionChangedEvent', { nodeNames: [] });
           }
 
           this.updateVisualDimensions();

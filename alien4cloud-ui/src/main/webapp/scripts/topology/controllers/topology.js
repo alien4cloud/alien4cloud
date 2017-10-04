@@ -237,7 +237,7 @@ define(function (require) {
           newSelected.selected = true;
 
           fillNodeSelectionVars(newSelected);
-          $scope.triggerTopologyRefresh = {};
+          $scope.$broadcast('editorSelectionChangedEvent', { nodeNames: [ newSelectedName ] });
           $scope.$digest();
         }
       };

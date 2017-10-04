@@ -3,15 +3,13 @@
     <!-- TOPOLOGY display -->
     <div id="topology" class="topology-column">
       <div class="topology topology-column-box">
-        <topology-rendering ng-if="view === 'RENDERED' && topology" topology="topology" dimensions="visualDimensions"
-          trigger-refresh="triggerTopologyRefresh"
+        <topology-rendering ng-if="topology" topology="topology" dimensions="visualDimensions"
           select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true">
         </topology-rendering>
-        <topology-plan ng-if="view === 'PLAN' && topology" id="plan-graph-container"></topology-plan>
       </div>
     </div>
     <!-- runtime details -->
-    <div id="runtime-details-box" ng-show="view === 'RENDERED' && displays.details.active" class="topology-column" style="width: {{displays.details.size}}px;">
+    <div id="runtime-details-box" ng-show="displays.details.active" class="topology-column" style="width: {{displays.details.size}}px;">
       <div class="topology-column-box">
         <resizable-bar
           id="runtime-details-box-handler"

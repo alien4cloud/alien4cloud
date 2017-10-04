@@ -4,7 +4,7 @@ define(function(require) {
   var modules = require('modules');
   var angular = require('angular');
   var _ = require('lodash');
-  var $ = require('jquery');
+  const COMPONENT_VERSION = 'component_version';
 
 
   require('scripts/tosca/services/tosca_service');
@@ -147,9 +147,9 @@ define(function(require) {
 
           // update version
           nodeGroup.select('.version').text(function() {
-            if (_.defined(nodeTemplate.propertiesMap) && _.defined(nodeTemplate.propertiesMap.component_version) && _.defined(nodeTemplate.propertiesMap.component_version.value) && _.defined(nodeTemplate.propertiesMap.component_version.value.value)) {
-              return 'v' + nodeTemplate.propertiesMap.component_version.value.value;
-            } else if (_.defined(nodeTemplate.propertiesMap) && _.defined(nodeTemplate.propertiesMap.version) && _.defined(nodeTemplate.propertiesMap.version.value) && _.defined(nodeTemplate.propertiesMap.version.value.value)) {
+            if (_.defined(_.get(nodeTemplate, 'propertiesMap.component_version.value.value'))) {
+              return 'v' + nodeTemplate.propertiesMap[COMPONENT_VERSION].value.value;
+            } else if(_.defined(_.get(nodeTemplate, 'propertiesMap.version.value.value'))) {
               return 'v' + nodeTemplate.propertiesMap.version.value.value;
             }
           });

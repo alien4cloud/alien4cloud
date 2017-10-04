@@ -1,6 +1,6 @@
 package org.alien4cloud.tosca.editor.operations.policies;
 
-import java.util.List;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdatePolicyTargetsOperation extends AbstractPolicyOperation {
-    private List<String> targets;
+    private Set<String> targets;
 
     @Override
     public String commitMessage() {

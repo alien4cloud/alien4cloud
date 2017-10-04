@@ -20,8 +20,9 @@ define(function (require) {
           _.each(self.scope.topology.topology.policies, function(policyTemplate) {
             if(_.defined(self.selectedTemplate)) {
               policyTemplate.selected = self.selectedTemplate.name === policyTemplate.name;
-              self.selectedTemplate = policyTemplate;
-              self.updateTargetSuggestions();
+              if(policyTemplate.selected) {
+                self.doSelectPolicy(policyTemplate);
+              }
             }
           });
         });
@@ -40,14 +41,14 @@ define(function (require) {
           if(_.defined(this.selectedTemplate) && this.selectedTemplate.name === policyTemplate.name) {
             this.selectedTemplate = undefined;
           } else {
-            this.selectedTemplate = policyTemplate;
-            this.selectedTemplate.selected = true;
             // compute target suggestions for this policy template (all node template names but current selected targets)
-            this.updateSelectedNode();
-            this.edit.name = policyTemplate.name;
+            this.doSelectPolicy(policyTemplate);
           }
         },
-        updateTargetSuggestions: function() {
+        doSelectPolicy: function(policyTemplate) {
+          this.selectedTemplate = policyTemplate;
+          this.selectedTemplate.selected = true;
+
           var self = this;
           this.edit.targetSuggestions = [];
           _.each(this.scope.topology.topology.nodeTemplates, function(nodeTemplate) {
@@ -55,6 +56,9 @@ define(function (require) {
               self.edit.targetSuggestions.push(nodeTemplate.name);
             }
           });
+
+          this.edit.name = policyTemplate.name;
+          this.scope.$broadcast('editorSelectionChangedEvent', { nodeNames: this.selectedTemplate.targets });
         },
         isSelected: function(policyTemplate) {
           return policyTemplate.name === this.selectedTemplate.name;
@@ -147,7 +151,6 @@ define(function (require) {
           var targets = [];
           _.each(this.selectedTemplate.targets, function(target) { targets.push(target); });
           targets.push(newTarget);
-          console.log(targets);
           this.scope.execute({
               type: 'org.alien4cloud.tosca.editor.operations.policies.UpdatePolicyTargetsOperation',
               policyName: this.selectedTemplate.name,

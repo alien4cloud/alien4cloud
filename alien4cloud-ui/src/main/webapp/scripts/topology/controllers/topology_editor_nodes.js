@@ -136,6 +136,10 @@ define(function (require) {
             function(result){
               if (_.undefined(result.error)) {
                 updatedNodeTemplate.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
+                if (propertyName === 'component_version' || propertyName === 'version') {
+                  // This is the only property with the version that updates the rendering
+                  scope.$broadcast('editorUpdateNode', { node: scope.selectedNodeTemplate.name });
+                }
               }
             },
             null,

@@ -17,7 +17,6 @@ define(function (require) {
         scope: {
           selectCallback: '&',
           addRelationshipCallback: '&',
-          triggerRefresh: '=', // better add a change callback actually - using select callback ?
           topology: '=',
           dimensions: '=',
           runtime: '='
@@ -31,18 +30,30 @@ define(function (require) {
           };
           defaultNodeRendererService.setRuntime(scope.runtime);
           var topologySvg = topologySvgFactory.create(callbacks, topologyElement, scope.runtime, defaultNodeRendererService);
+          var topology = scope.topology;
 
-          scope.$watch('topology', function(topology) {
+          scope.$on('topologyRefreshedEvent', function(event, param) {
+            topology = param.topology;
+            // Draw using d3 js selections the topology updates.
             topologySvg.reset(topology);
           });
 
-          scope.$watch('triggerRefresh', function() {
-            topologySvg.reset(scope.topology);
+          scope.$on('editorSelectionChangedEvent', function(event, param) {
+            // just update the selection classes.
+            topologySvg.updateNodeSelection(topology, param.nodeNames);
+          });
+
+          scope.$on('editorUpdateNode', function() {
+            // Just update the given node
+            // topologySvg.updateNode(topology, param.node);
+            topologySvg.reset(topology);
           });
 
           scope.$watch('dimensions', function(dimensions) {
             topologySvg.onResize(dimensions);
           });
+
+          topologySvg.reset(topology);
         }
       };
     }
