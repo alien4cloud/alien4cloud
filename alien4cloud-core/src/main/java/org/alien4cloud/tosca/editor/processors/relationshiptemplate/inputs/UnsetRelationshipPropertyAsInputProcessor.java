@@ -34,7 +34,7 @@ public class UnsetRelationshipPropertyAsInputProcessor extends AbstractRelations
         AbstractPropertyValue defaultPropertyValue = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(relationshipPropertyDefinition);
         relationshipTemplate.getProperties().put(operation.getPropertyName(), defaultPropertyValue);
 
-        log.debug("Remove association from property <{}> of relationship template <{}> of node <{}> to an input of the topology <{}>.",
+        log.debug("Remove association from property [ {} ] of relationship template [ {} ] of node [ {} ] to an input of the topology [ {} ].",
                 operation.getPropertyName(), operation.getRelationshipName(), operation.getNodeName(), EditionContextManager.getTopology().getId());
     }
 }

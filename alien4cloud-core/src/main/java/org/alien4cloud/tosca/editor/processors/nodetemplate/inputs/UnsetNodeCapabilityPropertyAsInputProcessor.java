@@ -42,7 +42,7 @@ public class UnsetNodeCapabilityPropertyAsInputProcessor extends AbstractNodePro
         AbstractPropertyValue defaultPropertyValue = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(capabilityPropertyDefinition);
         capabilityTemplate.getProperties().put(operation.getPropertyName(), defaultPropertyValue);
 
-        log.debug("Remove association from property <{}> of capability template <{}> of node <{}> to an input of the topology <{}>.",
+        log.debug("Remove association from property [ {} ] of capability template [ {} ] of node [ {} ] to an input of the topology [ {} ].",
                 operation.getPropertyName(), operation.getCapabilityName(), operation.getNodeName(), EditionContextManager.getTopology().getId());
     }
 }

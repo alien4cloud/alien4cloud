@@ -19,7 +19,7 @@ public class ConnectStepFromProcessor extends AbstractWorkflowProcessor<ConnectS
     @Override
     protected void processWorkflowOperation(ConnectStepFromOperation operation, Workflow workflow) {
         Topology topology = EditionContextManager.getTopology();
-        log.debug("connecting steps <{}> to <{}> in the workflow <{}> from topology <{}>", StringUtils.join(operation.getFromStepIds(), ","),
+        log.debug("connecting steps [ {} ] to [ {} ] in the workflow [ {} ] from topology [ {} ]", StringUtils.join(operation.getFromStepIds(), ","),
                 operation.getToStepId(), workflow.getName(), topology.getId());
         workflowBuilderService.connectStepFrom(topology, EditionContextManager.getCsar(), workflow.getName(), operation.getToStepId(),
                 operation.getFromStepIds());

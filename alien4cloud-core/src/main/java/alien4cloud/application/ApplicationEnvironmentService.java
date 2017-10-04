@@ -237,7 +237,7 @@ public class ApplicationEnvironmentService {
         long result = alienDAO.count(ApplicationEnvironment.class, null,
                 MapUtil.newHashMap(new String[] { "applicationId", "name" }, new String[][] { new String[] { applicationId }, new String[] { name } }));
         if (result > 0) {
-            log.debug("Application environment with name <{}> already exists for application id <{}>", name, applicationId);
+            log.debug("Application environment with name [ {} ] already exists for application id [ {} ]", name, applicationId);
             throw new AlreadyExistException("An application environment with the given name already exists");
         }
     }

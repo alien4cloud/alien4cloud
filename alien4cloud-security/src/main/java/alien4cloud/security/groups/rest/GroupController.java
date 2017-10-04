@@ -74,7 +74,7 @@ public class GroupController {
         if (!isInternalAllUserGroup(groupId)) {
             groupService.updateGroup(groupId, groupUpdateRequest);
         } else {
-            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, AlienConstants.GROUP_NAME_ALL_USERS);
+            log.info("You can not update the group with id [ {} ] corresponding to an internal group [ {} ]", groupId, AlienConstants.GROUP_NAME_ALL_USERS);
             return RestResponseBuilder
                     .<Void> builder()
                     .data(null)
@@ -128,7 +128,7 @@ public class GroupController {
         if (!isInternalAllUserGroup(groupId)) {
             groupService.deleteGroup(groupId);
         } else {
-            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, AlienConstants.GROUP_NAME_ALL_USERS);
+            log.info("You can not update the group with id [ {} ] corresponding to an internal group [ {} ]", groupId, AlienConstants.GROUP_NAME_ALL_USERS);
             return RestResponseBuilder
                     .<Void> builder()
                     .data(null)
@@ -240,7 +240,7 @@ public class GroupController {
         if (!isInternalAllUserGroup(groupId)) {
             user = groupService.addUserToGroup(username, groupId);
         } else {
-            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, AlienConstants.GROUP_NAME_ALL_USERS);
+            log.info("You can not update the group with id [ {} ] corresponding to an internal group [ {} ]", groupId, AlienConstants.GROUP_NAME_ALL_USERS);
             return RestResponseBuilder
                     .<User> builder()
                     .data(null)
@@ -276,7 +276,7 @@ public class GroupController {
         if (!isInternalAllUserGroup(groupId)) {
             user = groupService.removeUserFromGroup(username, groupId);
         } else {
-            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, AlienConstants.GROUP_NAME_ALL_USERS);
+            log.info("You can not update the group with id [ {} ] corresponding to an internal group [ {} ]", groupId, AlienConstants.GROUP_NAME_ALL_USERS);
             return RestResponseBuilder
                     .<User> builder()
                     .data(null)

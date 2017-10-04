@@ -107,7 +107,7 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
     private void updateRunningService(ServiceResource serviceResource, String deploymentId, String state) {
         Deployment deployment = deploymentService.get(deploymentId);
         if (deployment == null) {
-            log.error("Unable to update service <{}> as deployment <{}> cannot be found.", serviceResource.getId(), deploymentId);
+            log.error("Unable to update service [ {} ] as deployment [ {} ] cannot be found.", serviceResource.getId(), deploymentId);
             resetRunningServiceResource(serviceResource);
             return;
         }
@@ -162,7 +162,7 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         for (Entry<String, Set<String>> nodeOutputAttrEntry : safe(topology.getOutputAttributes()).entrySet()) {
             Map<String, InstanceInformation> instances = instanceInformation.get(nodeOutputAttrEntry.getKey());
             if (instances == null) {
-                log.error("Failed to map attributes from node <{}> for service <id: {}, name: {}>. The node cannot be found in deployed topology <{}>.",
+                log.error("Failed to map attributes from node [ {} ] for service <id: {}, name: {}>. The node cannot be found in deployed topology [ {} ].",
                         nodeOutputAttrEntry.getKey(), serviceResource.getId(), serviceResource.getName(), topology.getId());
             } else if (instances.size() > 1) {
                 log.error("Services substitution does not yet supports the exposure of multiple instances");
@@ -227,7 +227,7 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
             String nodeTemplateName, String prefix, String capaReqName) {
         Map<String, InstanceInformation> instances = instanceInformation.get(nodeTemplateName);
         if (instances == null) {
-            log.error("Failed to map attributes from node <{}> capability for service <id: {}, name: {}>. The node cannot be found in deployed topology.",
+            log.error("Failed to map attributes from node [ {} ] capability for service <id: {}, name: {}>. The node cannot be found in deployed topology.",
                     nodeTemplateName, serviceResource.getId(), serviceResource.getName());
         } else if (instances.size() > 1) {
             log.error("Services substitution does not yet supports the exposure of multiple instances");

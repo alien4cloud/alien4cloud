@@ -69,7 +69,7 @@ public final class AlienUtils {
      * @return A non null element.
      */
     public static <K, V> V getOrFail(Map<K, V> map, K key) {
-        return getOrFail(map, key, "The element with key <{}> cannot be found", key.toString());
+        return getOrFail(map, key, "The element with key [ {} ] cannot be found", key.toString());
     }
 
     /**

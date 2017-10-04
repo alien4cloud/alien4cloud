@@ -38,7 +38,7 @@ public class UnsetNodePropertyAsInputProcessor extends AbstractNodeProcessor<Uns
         AbstractPropertyValue defaultPropertyValue = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(nodePropertyDefinition);
         nodeTemplate.getProperties().put(operation.getPropertyName(), defaultPropertyValue);
 
-        log.debug("Remove association from property <{}> of the node template <{}> to an input of the topology <{}>.", operation.getPropertyName(),
+        log.debug("Remove association from property [ {} ] of the node template [ {} ] to an input of the topology [ {} ].", operation.getPropertyName(),
                 operation.getNodeName(), EditionContextManager.getTopology().getId());
     }
 }

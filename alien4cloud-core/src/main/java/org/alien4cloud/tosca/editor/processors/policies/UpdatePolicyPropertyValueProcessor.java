@@ -32,9 +32,9 @@ public class UpdatePolicyPropertyValueProcessor extends AbstractPolicyProcessor<
 
         PolicyType policyType = ToscaContext.getOrFail(PolicyType.class, policyTemplate.getType());
         PropertyDefinition propertyDefinition = AlienUtils.getOrFail(policyType.getProperties(), operation.getPropertyName(),
-                "Property <{}> doesn't exists in type <{}> for policy <{}>.", operation.getPropertyName(), policyTemplate.getType(), operation.getPolicyName());
+                "Property [ {} ] doesn't exists in type [ {} ] for policy [ {} ].", operation.getPropertyName(), policyTemplate.getType(), operation.getPolicyName());
 
-        log.debug("Updating property <{}> of the policy template <{}> from the topology <{}>: changing value from [{}] to [{}].", operation.getPropertyName(),
+        log.debug("Updating property [ {} ] of the policy template [ {} ] from the topology [ {} ]: changing value from [{}] to [{}].", operation.getPropertyName(),
                 operation.getPolicyName(), topology.getId(), policyTemplate.getProperties().get(operation.getPropertyName()), operation.getPropertyValue());
 
         try {

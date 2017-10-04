@@ -20,7 +20,7 @@ public class RemoveWorkflowProcessor extends AbstractWorkflowProcessor<RemoveWor
     protected void processWorkflowOperation(RemoveWorkflowOperation operation, Workflow workflow) {
         Topology topology = EditionContextManager.getTopology();
         ensureNotStandard(workflow, "standard workflow <" + workflow.getName() + "> can not be removed");
-        log.debug("removing workflow <{}> from topology <{}>", operation.getWorkflowName(), topology.getId());
+        log.debug("removing workflow [ {} ] from topology [ {} ]", operation.getWorkflowName(), topology.getId());
         topology.getWorkflows().remove(operation.getWorkflowName());
     }
 

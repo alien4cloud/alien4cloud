@@ -50,7 +50,7 @@ public class UpdateCapabilityPropertyValueProcessor implements IEditorOperationP
                     "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeName() + "> of type <" + capabilityType + ">");
         }
 
-        log.debug("Updating property <{}> of the capability <{}> for the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
+        log.debug("Updating property [ {} ] of the capability [ {} ] for the Node template [ {} ] from the topology [ {} ]: changing value from [{}] to [{}].",
                 propertyName, capability.getType(), operation.getNodeName(), topology.getId(), capabilityType.getProperties().get(propertyName), propertyValue);
 
         try {

@@ -211,7 +211,7 @@ public class PluginManager {
 
             // check plugin already exists and is loaded
             if (pluginContexts.get(plugin.getId()) != null) {
-                log.warn("Uploading Plugin <{}> impossible (already exists and enabled)", plugin.getId());
+                log.warn("Uploading Plugin [ {} ] impossible (already exists and enabled)", plugin.getId());
                 throw new AlreadyExistException("A plugin with the given id already exists and is enabled.");
             }
 

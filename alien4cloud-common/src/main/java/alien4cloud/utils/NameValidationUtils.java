@@ -40,7 +40,7 @@ public final class NameValidationUtils {
     private static void validate(String ownerKey, String name, String regex, String message) {
         if (!isValid(name, regex)) {
             if (log.isDebugEnabled()) {
-                log.debug("{}: invalid name <{}>. Expects one matching the regex < {} >", ownerKey, name, regex);
+                log.debug("{}: invalid name [ {} ]. Expects one matching the regex [ {} ]", ownerKey, name, regex);
             }
             throw new InvalidNameException(ownerKey, name, message);
         }

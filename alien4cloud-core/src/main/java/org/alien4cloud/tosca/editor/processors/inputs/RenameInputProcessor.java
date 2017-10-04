@@ -64,7 +64,7 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
             }
         }
 
-        log.debug("Change the name of an input parameter <{}> to <{}> for the topology ", operation.getInputName(), operation.getNewInputName(),
+        log.debug("Change the name of an input parameter [ {} ] to [ {} ] for the topology ", operation.getInputName(), operation.getNewInputName(),
                 topology.getId());
     }
 

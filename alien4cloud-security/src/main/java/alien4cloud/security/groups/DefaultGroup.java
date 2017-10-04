@@ -30,10 +30,10 @@ public class DefaultGroup {
             String createdGroupId = groupService.createGroup(AlienConstants.GROUP_NAME_ALL_USERS, null, DESCRIPTION,
                     Sets.newHashSet(Role.COMPONENTS_BROWSER.toString()), null);
             if (createdGroupId != null) {
-                log.info("Default group <{}> created in your system with id <{}>", AlienConstants.GROUP_NAME_ALL_USERS, createdGroupId);
+                log.info("Default group [ {} ] created in your system with id [ {} ]", AlienConstants.GROUP_NAME_ALL_USERS, createdGroupId);
             }
         } catch (AlreadyExistException e) {
-            log.info("Default group <{}> already exists in your system", AlienConstants.GROUP_NAME_ALL_USERS);
+            log.info("Default group [ {} ] already exists in your system", AlienConstants.GROUP_NAME_ALL_USERS);
         }
     }
 }

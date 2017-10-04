@@ -45,7 +45,7 @@ public class SetRelationshipPropertyAsInputProcessor extends AbstractRelationshi
         getInput.setParameters(Arrays.asList(operation.getInputName()));
         relationshipTemplate.getProperties().put(operation.getPropertyName(), getInput);
 
-        log.debug("Associate the property <{}> of relationship template <{}> of node <{}> to an input of the topology <{}>.", operation.getPropertyName(),
+        log.debug("Associate the property [ {} ] of relationship template [ {} ] of node [ {} ] to an input of the topology [ {} ].", operation.getPropertyName(),
                 operation.getRelationshipName(), operation.getNodeName(), EditionContextManager.getTopology().getId());
     }
 }

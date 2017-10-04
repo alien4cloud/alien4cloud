@@ -103,22 +103,22 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                     DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class,
                             AbstractDeploymentConfig.generateId(deployment.getVersionId(), deployment.getEnvironmentId()));
                     // the value is set in the input (deployment setup)
-                    log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentInputs.getId(), function.getTemplateName());
-                    log.debug("Property <{}> to update: <{}>. New value is <{}>", propertyName,
+                    log.info("Updating deploymentsetup [ {} ] input properties [ {} ] to add a new VolumeId", deploymentInputs.getId(), function.getTemplateName());
+                    log.debug("Property [ {} ] to update: [ {} ]. New value is [ {} ]", propertyName,
                             persistentResourceEvent.getPersistentProperties().get(propertyName), propertyValue);
                     deploymentInputs.getInputs().put(function.getTemplateName(), new ScalarPropertyValue((String) propertyValue));
                     alienDAO.save(deploymentInputs);
                 } else {
                     // this is not supported / print a warning
-                    log.warn("Failed to store the id of the created block storage <{}> for deployment <{}> application <{}> environment <{}>");
+                    log.warn("Failed to store the id of the created block storage [ {} ] for deployment [ {} ] application [ {} ] environment [ {} ]");
                     return;
                 }
             } else {
                 DeploymentMatchingConfiguration matchingConfiguration = alienDAO.findById(DeploymentMatchingConfiguration.class,
                         AbstractDeploymentConfig.generateId(deployment.getVersionId(), deployment.getEnvironmentId()));
-                log.info("Updating deployment topology: Persistent resource property <{}> for node template <{}.{}> to add a value", propertyName,
+                log.info("Updating deployment topology: Persistent resource property [ {} ] for node template <{}.{}> to add a value", propertyName,
                         matchingConfiguration.getId(), persistentResourceEvent.getNodeTemplateId());
-                log.debug("Value to add: <{}>. New value is <{}>", persistentResourceEvent.getPersistentProperties().get(propertyName), propertyValue);
+                log.debug("Value to add: [ {} ]. New value is [ {} ]", persistentResourceEvent.getPersistentProperties().get(propertyName), propertyValue);
                 matchingConfiguration.getMatchedNodesConfiguration().get(persistentResourceEvent.getNodeTemplateId()).getProperties().put(propertyName,
                         getPropertyValue(propertyValue));
                 alienDAO.save(matchingConfiguration);
@@ -133,7 +133,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 persistentResourceEvent.getNodeTemplateId());
         for (String key : persistentProperties.keySet()) {
             nodeTemplate.getProperties().put(key, getPropertyValue(persistentProperties.get(key)));
-            log.debug("Property <{}> to update: <{}>. New value is <{}>", key, persistentResourceEvent.getPersistentProperties().get(key),
+            log.debug("Property [ {} ] to update: [ {} ]. New value is [ {} ]", key, persistentResourceEvent.getPersistentProperties().get(key),
                     persistentProperties.get(key));
         }
         alienMonitorDao.save(runtimeTopo);

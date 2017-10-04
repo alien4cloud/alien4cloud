@@ -47,7 +47,7 @@ public class SetNodeAttributeAsOutputProcessor extends AbstractNodeProcessor<Set
 
         topology.setOutputAttributes(outputs);
 
-        log.debug("Set node <{}>'s attribute <{}> as output for the topology <{}>.", operation.getNodeName(), operation.getAttributeName(), topology.getId());
+        log.debug("Set node [ {} ]'s attribute [ {} ] as output for the topology [ {} ].", operation.getNodeName(), operation.getAttributeName(), topology.getId());
     }
 
 }

@@ -175,7 +175,7 @@ public class LocationService {
             if (Objects.equals(element.getTarget(), MetaPropertyTarget.LOCATION)) {
                 // we only support string values for meta properties
                 PropertyUtil.setScalarDefaultValueOrNull(location.getMetaProperties(), element.getId(), element.getDefault());
-                log.debug("Added meta property <{}> to the new location <{}> ", element.getName(), location.getName());
+                log.debug("Added meta property [ {} ] to the new location [ {} ] ", element.getName(), location.getName());
             }
         }
 

@@ -33,16 +33,16 @@ public class UpdateRelationshipPropertyValueProcessor implements IEditorOperatio
         Topology topology = EditionContextManager.getTopology();
 
         NodeTemplate nodeTemplate = AlienUtils.getOrFail(topology.getNodeTemplates(), operation.getNodeName(),
-                "The node with name <{}> cannot be found in the topology.", operation.getNodeName());
+                "The node with name [ {} ] cannot be found in the topology.", operation.getNodeName());
         RelationshipTemplate relationshipTemplate = AlienUtils.getOrFail(nodeTemplate.getRelationships(), operation.getRelationshipName(),
-                "The relationship with name <{}> cannot be found in the node <{}>.", operation.getRelationshipName(), operation.getNodeName());
+                "The relationship with name [ {} ] cannot be found in the node [ {} ].", operation.getRelationshipName(), operation.getNodeName());
 
         RelationshipType relationshipType = ToscaContext.getOrFail(RelationshipType.class, relationshipTemplate.getType());
         PropertyDefinition propertyDefinition = AlienUtils.getOrFail(relationshipType.getProperties(), operation.getPropertyName(),
-                "Property <{}> doesn't exists in type <{}> for relationship <{}> of node <{}>.", operation.getPropertyName(), relationshipTemplate.getType(),
+                "Property [ {} ] doesn't exists in type [ {} ] for relationship [ {} ] of node [ {} ].", operation.getPropertyName(), relationshipTemplate.getType(),
                 operation.getRelationshipName(), operation.getNodeName());
 
-        log.debug("Updating property <{}> of the relationship <{}> for the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
+        log.debug("Updating property [ {} ] of the relationship [ {} ] for the Node template [ {} ] from the topology [ {} ]: changing value from [{}] to [{}].",
                 operation.getPropertyName(), relationshipType, operation.getNodeName(), topology.getId(),
                 relationshipType.getProperties().get(operation.getPropertyName()), operation.getPropertyValue());
         try {

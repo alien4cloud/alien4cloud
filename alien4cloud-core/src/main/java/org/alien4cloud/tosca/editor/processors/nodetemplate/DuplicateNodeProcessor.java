@@ -87,7 +87,7 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
         NodeType type = ToscaContext.getOrFail(NodeType.class, nodeTemplateToDuplicate.getType());
         topologyService.loadType(topology, type);
 
-        log.debug("Duplicating node template <{}> into <{}> on the topology <{}> .", nodeTemplateToDuplicate.getName(), newNodeTemplate.getName(),
+        log.debug("Duplicating node template [ {} ] into [ {} ] on the topology [ {} ] .", nodeTemplateToDuplicate.getName(), newNodeTemplate.getName(),
                 topology.getId());
         // Put the new one in the topology
         nodeTemplates.put(newNodeTemplate.getName(), newNodeTemplate);

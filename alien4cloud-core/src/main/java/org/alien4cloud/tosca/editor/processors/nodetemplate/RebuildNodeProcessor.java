@@ -21,7 +21,7 @@ public class RebuildNodeProcessor extends AbstractNodeProcessor<RebuildNodeOpera
     @Override
     protected void processNodeOperation(RebuildNodeOperation operation, NodeTemplate nodeTemplate) {
         Topology topology = EditionContextManager.getTopology();
-        log.debug("Rebuilding the node template <{}> of topology <{}> .", operation.getNodeName(), topology.getId());
+        log.debug("Rebuilding the node template [ {} ] of topology [ {} ] .", operation.getNodeName(), topology.getId());
         NodeType type = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
         NodeTemplate rebuiltNodeTemplate = TemplateBuilder.buildNodeTemplate(type, nodeTemplate);
         rebuiltNodeTemplate.setName(operation.getNodeName());

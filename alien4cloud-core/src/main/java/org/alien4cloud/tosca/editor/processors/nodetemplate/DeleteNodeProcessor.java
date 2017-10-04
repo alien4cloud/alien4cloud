@@ -70,7 +70,7 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
         TopologyUtils.updateGroupMembers(topology, template, operation.getNodeName(), null);
         // update the workflows
         workflowBuilderService.removeNode(topology, EditionContextManager.getCsar(), operation.getNodeName());
-        log.debug("Removed node template <{}> from the topology <{}> .", operation.getNodeName(), topology.getId());
+        log.debug("Removed node template [ {} ] from the topology [ {} ] .", operation.getNodeName(), topology.getId());
     }
 
     /**

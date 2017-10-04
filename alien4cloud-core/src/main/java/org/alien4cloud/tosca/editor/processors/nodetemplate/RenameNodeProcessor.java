@@ -34,7 +34,7 @@ public class RenameNodeProcessor implements IEditorOperationProcessor<RenameNode
         AlienUtils.failIfExists(topology.getNodeTemplates(), operation.getNewName(),
                 "A node template with the given name {} already exists in the topology {}.", operation.getNodeName(), topology.getId());
 
-        log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", operation.getNodeName(), operation.getNewName(), topology.getId());
+        log.debug("Renaming the Node template [ {} ] with [ {} ] in the topology [ {} ] .", operation.getNodeName(), operation.getNewName(), topology.getId());
         TopologyUtils.renameNodeTemplate(topology, operation.getNodeName(), operation.getNewName());
         workflowBuilderService.renameNode(topology, EditionContextManager.getCsar(), operation.getNodeName(), operation.getNewName());
     }

@@ -162,7 +162,7 @@ public final class FunctionEvaluator {
                 }
             }
         }
-        log.warn("Couldn't find output <{}> in nodes <{}>", outputRQN, nodes.toString());
+        log.warn("Couldn't find output [ {} ] in nodes [ {} ]", outputRQN, nodes.toString());
         return defaultValue;
     }
 
@@ -187,7 +187,7 @@ public final class FunctionEvaluator {
                 }
             }
         }
-        log.warn("Couldn't find property <{}> of node <{}>", propertyOrAttributeName, nodes);
+        log.warn("Couldn't find property [ {} ] of node [ {} ]", propertyOrAttributeName, nodes);
         return "[" + nodes + "." + propertyOrAttributeName + "=Error!]";
     }
 
@@ -219,7 +219,7 @@ public final class FunctionEvaluator {
                 }
             }
         }
-        log.warn("Couldn't find attribute <{}> in nodes <{}>", propertyOrAttributeName, nodes.toString());
+        log.warn("Couldn't find attribute [ {} ] in nodes [ {} ]", propertyOrAttributeName, nodes.toString());
         return "<" + propertyOrAttributeName + ">"; // value not yet computed (or won't be computes)
     }
 

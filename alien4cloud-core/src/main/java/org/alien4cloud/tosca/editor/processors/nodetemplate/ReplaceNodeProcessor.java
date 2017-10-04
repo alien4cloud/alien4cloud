@@ -65,7 +65,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
             removeNodeTemplateSubstitutionTargetMapEntry(oldNodeTemplate.getName(), topology.getSubstitutionMapping().getRequirements());
         }
 
-        log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", oldNodeTemplate.getName(),
+        log.debug("Replacing the node template[ {} ] with [ {} ] bound to the node type [ {} ] on the topology [ {} ] .", oldNodeTemplate.getName(),
                 oldNodeTemplate.getName(), operation.getNewTypeId(), topology.getId());
 
         // add the new node to the workflow

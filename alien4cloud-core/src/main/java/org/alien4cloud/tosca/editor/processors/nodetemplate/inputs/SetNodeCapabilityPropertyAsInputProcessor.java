@@ -47,7 +47,7 @@ public class SetNodeCapabilityPropertyAsInputProcessor extends AbstractNodeProce
         getInput.setParameters(Arrays.asList(operation.getInputName()));
         capabilityTemplate.getProperties().put(operation.getPropertyName(), getInput);
 
-        log.debug("Associate the property <{}> of capability template <{}> of node <{}> to an input of the topology <{}>.", operation.getPropertyName(),
+        log.debug("Associate the property [ {} ] of capability template [ {} ] of node [ {} ] to an input of the topology [ {} ].", operation.getPropertyName(),
                 operation.getCapabilityName(), operation.getNodeName(), EditionContextManager.getTopology().getId());
     }
 }

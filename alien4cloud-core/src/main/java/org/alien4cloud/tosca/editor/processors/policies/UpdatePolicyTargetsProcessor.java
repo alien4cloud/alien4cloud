@@ -19,7 +19,7 @@ public class UpdatePolicyTargetsProcessor extends AbstractPolicyProcessor<Update
 
         for (String target : operation.getTargets()) {
             AlienUtils.getOrFail(topology.getNodeTemplates(), target,
-                    "The node with name <{}> and assigned as policy <{}> target cannot be found in the topology.", target, policyTemplate.getName());
+                    "The node with name [ {} ] and assigned as policy [ {} ] target cannot be found in the topology.", target, policyTemplate.getName());
             // FIXME if the policy type defines some restriction on the policy targets then it should be checked here
 
         }

@@ -18,7 +18,7 @@ public class AddActivityProcessor extends AbstractWorkflowProcessor<AddActivityO
     @Override
     protected void processWorkflowOperation(AddActivityOperation operation, Workflow workflow) {
         Topology topology = EditionContextManager.getTopology();
-        log.debug("adding activity <{}> to the workflow <{}> from topology <{}>", operation.getActivity().toString(), workflow.getName(), topology.getId());
+        log.debug("adding activity [ {} ] to the workflow [ {} ] from topology [ {} ]", operation.getActivity().toString(), workflow.getName(), topology.getId());
         workflowBuilderService.addActivity(topology, EditionContextManager.getCsar(), operation.getWorkflowName(), operation.getRelatedStepId(),
                 operation.isBefore(), operation.getActivity());
     }

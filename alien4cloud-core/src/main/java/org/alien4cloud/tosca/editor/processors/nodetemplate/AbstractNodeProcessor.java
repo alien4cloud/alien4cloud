@@ -22,7 +22,7 @@ public abstract class AbstractNodeProcessor<T extends AbstractNodeOperation> imp
     public void process(T operation) {
         Topology topology = EditionContextManager.getTopology();
         NodeTemplate nodeTemplate = AlienUtils.getOrFail(topology.getNodeTemplates(), operation.getNodeName(),
-                "The node with name <{}> cannot be found in the topology <{}>.", operation.getNodeName(), topology.getId());
+                "The node with name [ {} ] cannot be found in the topology [ {} ].", operation.getNodeName(), topology.getId());
         processNodeOperation(operation, nodeTemplate);
     }
 

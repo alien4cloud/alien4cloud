@@ -96,7 +96,7 @@ public class ApplicationService {
         NameValidationUtils.validateApplicationName(name);
 
         if (alienDAO.buildQuery(Application.class).setFilters(singleKeyFilter("name", name)).count() > 0) {
-            log.debug("Application name <{}> already exists.", name);
+            log.debug("Application name [ {} ] already exists.", name);
             throw new AlreadyExistException("An application with the given name already exists.");
         }
     }

@@ -24,7 +24,7 @@ public class RenameWorkflowProcessor extends AbstractWorkflowProcessor<RenameWor
         ensureNotStandard(workflow, "standard workflow <" + workflow.getName() + "> can not be renamed");
         WorkflowUtils.validateName(operation.getNewName());
         ensureUniqueness(topology, operation.getNewName());
-        log.debug("renaming workflow <{}> to <{}> from topology <{}>", workflow.getName(), operation.getNewName(), topology.getId());
+        log.debug("renaming workflow [ {} ] to [ {} ] from topology [ {} ]", workflow.getName(), operation.getNewName(), topology.getId());
         topology.getWorkflows().remove(workflow.getName());
         workflow.setName(operation.getNewName());
         topology.getWorkflows().put(workflow.getName(), workflow);

@@ -64,7 +64,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
             topology.setNodeTemplates(new LinkedHashMap<>());
         }
 
-        log.debug("Create node template <{}>", operation.getNodeName());
+        log.debug("Create node template [ {} ]", operation.getNodeName());
 
         NodeType loadedIndexedNodeType = topologyService.loadType(topology, nodeType);
 
