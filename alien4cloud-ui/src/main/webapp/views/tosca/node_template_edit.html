@@ -1,107 +1,105 @@
-<div ng-controller="a4cNodeTemplateEditCtrl">
-  <!-- Properties -->
-  <div ng-if="nodeTemplate.properties.length > 0">
-    <div id="node-details-properties" class="clickable topology-column-content-head" ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
-      <i class="fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
-      {{'COMMON.PROPERTIES' | translate}}
-    </div>
-    <div id="node-details-properties-panel" class="indent" uib-collapse="isPropertiesCollapsed" >
-      <table class="table table-condensed" id="nodeTemplateProperties">
-        <tr ng-repeat="propEntry in nodeTemplate.properties">
-          <td>
-            <property-display
-                ng-init="condensed = true"
-                definition="getPropertyDefinition(propEntry.key)"
-                property-type="getDataTypeForProperty(propEntry.key)"
-                dependencies="dependencies"
-                property-name="propEntry.key"
-                property-value="propEntry.value"
-                editable = "canEditProperty(propEntry.key)"
-                on-save="updateProperty(propertyName, propertyValue)"
-                condensed="condensed">
-            </property-display>
-          </td>
-        </tr>
-      </table>
-    </div>
+<!-- Properties -->
+<div ng-if="template.properties.length > 0">
+  <div id="node-details-properties" class="clickable topology-column-content-head" ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
+    <i class="fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
+    {{'COMMON.PROPERTIES' | translate}}
   </div>
+  <div id="node-details-properties-panel" class="indent" uib-collapse="isPropertiesCollapsed" >
+    <table class="table table-condensed" id="nodeTemplateProperties">
+      <tr ng-repeat="propEntry in template.properties">
+        <td>
+          <property-display
+              ng-init="condensed = true"
+              definition="getPropertyDefinition(propEntry.key)"
+              property-type="getDataTypeForProperty(propEntry.key)"
+              dependencies="dependencies"
+              property-name="propEntry.key"
+              property-value="propEntry.value"
+              editable = "canEditProperty(propEntry.key)"
+              on-save="updateProperty(propertyName, propertyValue)"
+              condensed="condensed">
+          </property-display>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
 
-  <!-- Capabilities -->
-  <div ng-if="nodeTemplate.capabilities.length > 0">
-    <div id="node-details-capabilities" class="clickable topology-column-content-head"
-         ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
-      <i class=" fa" ng-class="{'fa-caret-down' : !isCapabilitiesCollapsed, 'fa-caret-right': isCapabilitiesCollapsed}"></i>
-      {{'COMMON.CAPABILITIES' | translate}}
-    </div>
-    <div id="node-details-capabilities-panel" class="indent" uib-collapse="isCapabilitiesCollapsed" >
-      <div id="node-details-capabilities-{{capabilityEntry.key}}-block" class="row-margin" ng-repeat="capabilityEntry in nodeTemplate.capabilities"
-           ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
-        <div class="topology-column-content-head"
-             ng-class="{'clickable' : !emptyProps}"
-             ng-click="!emptyProps && (isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key])">
-          <div class="row">
-            <div class="col-md-5">
-              <i class="fa fa-fw"
-                 ng-class="{'fa-caret-down' : !emptyProps && !isReqPropsCollapsed[capabilityEntry.key], 'fa-caret-right': !emptyProps && isReqPropsCollapsed[capabilityEntry.key]}">
-              </i>{{capabilityEntry.key}}
-            </div>
-            <div style="font-weight: normal" class="col-md-6 text-info" id="capability-{{capabilityEntry.key}}">
-              {{capabilityEntry.value.type}}
-            </div>
-            <div class="col-md-1" ng-init="capaComp = getComponent(nodeTemplate, capabilityEntry.value.type)">
-              <info content="capaComp.description"></info>
-            </div>
+<!-- Capabilities -->
+<div ng-if="template.capabilities.length > 0">
+  <div id="node-details-capabilities" class="clickable topology-column-content-head"
+       ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
+    <i class=" fa" ng-class="{'fa-caret-down' : !isCapabilitiesCollapsed, 'fa-caret-right': isCapabilitiesCollapsed}"></i>
+    {{'COMMON.CAPABILITIES' | translate}}
+  </div>
+  <div id="node-details-capabilities-panel" class="indent" uib-collapse="isCapabilitiesCollapsed" >
+    <div id="node-details-capabilities-{{capabilityEntry.key}}-block" class="row-margin" ng-repeat="capabilityEntry in template.capabilities"
+         ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
+      <div class="topology-column-content-head"
+           ng-class="{'clickable' : !emptyProps}"
+           ng-click="!emptyProps && (isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key])">
+        <div class="row">
+          <div class="col-md-5">
+            <i class="fa fa-fw"
+               ng-class="{'fa-caret-down' : !emptyProps && !isReqPropsCollapsed[capabilityEntry.key], 'fa-caret-right': !emptyProps && isReqPropsCollapsed[capabilityEntry.key]}">
+            </i>{{capabilityEntry.key}}
+          </div>
+          <div style="font-weight: normal" class="col-md-6 text-info" id="capability-{{capabilityEntry.key}}">
+            {{capabilityEntry.value.type}}
+          </div>
+          <div class="col-md-1" ng-init="capaComp = getComponent(nodeTemplate, capabilityEntry.value.type)">
+            <info content="capaComp.description"></info>
           </div>
         </div>
-        <div class="indent" ng-if="!isReqPropsCollapsed[capabilityEntry.key]">
-          <table ng-if="!emptyProps" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
-            <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
-              <td>
-                <property-display
-                    ng-init="condensed = true"
-                    definition="getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key)"
-                    property-type="getDataTypeForCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
-                    dependencies="dependencies"
-                    property-name="propertyEntry.key"
-                    property-value="propertyEntry.value"
-                    editable = "canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
-                    on-save="updateCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
-                    condensed="condensed">
-                </property-display>
-              </td>
-            </tr>
-          </table>
+      </div>
+      <div class="indent" ng-if="!isReqPropsCollapsed[capabilityEntry.key]">
+        <table ng-if="!emptyProps" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
+          <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
+            <td>
+              <property-display
+                  ng-init="condensed = true"
+                  definition="getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key)"
+                  property-type="getDataTypeForCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                  dependencies="dependencies"
+                  property-name="propertyEntry.key"
+                  property-value="propertyEntry.value"
+                  editable = "canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
+                  on-save="updateCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
+                  condensed="condensed">
+              </property-display>
+            </td>
+          </tr>
+        </table>
 
-          <div class="row" ng-if="isService">
-            <div class="col-md-3">
-              <label id="p_name_{{propertyName}}"
-                     style="white-space: nowrap"
-                     uib-tooltip="{{SERVICE.RELATIONSHIP.LABEL | translate}}"
-                     tooltip-append-to-body="true">
-                <i class="fa fa-link"></i> {{'SERVICE.RELATIONSHIP.LABEL'| translate}}
-              </label>
-            </div>
-            <div class="col-md-8">
-              <span ng-if = "isRelEditable()"
-                    class="typeahead"
-                    ng-click="switchLongTextChoice(true)"
-                    editable-text="capabilitiesRelationshipTypes[capabilityEntry.key]"
-                    buttons="no"
-                    onbeforesave="updateHalfRelationshipType(capabilityEntry.key, $data)" blur="submit"
-                    onhide="switchLongTextChoice(false)"
-                    e-uib-typeahead="item for item in relationshipTypeQuickSearchHandler.doQuickSearch($viewValue)"
-                    e-typeahead-min-length="relationshipTypeQuickSearchHandler.minLength"
-                    e-typeahead-wait-ms="relationshipTypeQuickSearchHandler.waitBeforeRequest"
-                    e-typeahead-loading="searching"
-                    e-style="width: 100%">
-              {{capabilitiesRelationshipTypes[capabilityEntry.key]}}
-              <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
-              </span>
-              <em ng-if="!isRelEditable()">{{capabilitiesRelationshipTypes[capabilityEntry.key] || '...'}}</em>
-            </div>
-            <div class="col-md-1">
-              <info content="'SERVICE.RELATIONSHIP.CAPABILITY_DESCRIPTION'"></info>
-            </div>
+        <div class="row" ng-if="isService">
+          <div class="col-md-3">
+            <label id="p_name_{{propertyName}}"
+                   style="white-space: nowrap"
+                   uib-tooltip="{{SERVICE.RELATIONSHIP.LABEL | translate}}"
+                   tooltip-append-to-body="true">
+              <i class="fa fa-link"></i> {{'SERVICE.RELATIONSHIP.LABEL'| translate}}
+            </label>
+          </div>
+          <div class="col-md-8">
+            <span ng-if = "isRelEditable()"
+                  class="typeahead"
+                  ng-click="switchLongTextChoice(true)"
+                  editable-text="capabilitiesRelationshipTypes[capabilityEntry.key]"
+                  buttons="no"
+                  onbeforesave="updateHalfRelationshipType(capabilityEntry.key, $data)" blur="submit"
+                  onhide="switchLongTextChoice(false)"
+                  e-uib-typeahead="item for item in relationshipTypeQuickSearchHandler.doQuickSearch($viewValue)"
+                  e-typeahead-min-length="relationshipTypeQuickSearchHandler.minLength"
+                  e-typeahead-wait-ms="relationshipTypeQuickSearchHandler.waitBeforeRequest"
+                  e-typeahead-loading="searching"
+                  e-style="width: 100%">
+            {{capabilitiesRelationshipTypes[capabilityEntry.key]}}
+            <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
+            </span>
+            <em ng-if="!isRelEditable()">{{capabilitiesRelationshipTypes[capabilityEntry.key] || '...'}}</em>
+          </div>
+          <div class="col-md-1">
+            <info content="'SERVICE.RELATIONSHIP.CAPABILITY_DESCRIPTION'"></info>
           </div>
         </div>
       </div>

@@ -1,0 +1,14 @@
+<orchestrator-location-resource-template
+  resource-template="selectedResourceTemplate"
+  resource-type="resourcesTypesMap[selectedResourceTemplate.template.type]"
+  resource-capability-types="context.locationResources.capabilityTypes"
+  resource-data-types="context.locationResources.dataTypes"
+  dependencies="context.location.dependencies"
+  is-editable="true"
+  is-property-editable="isPropertyEditable()"
+  on-delete="deleteResourceTemplate(resourceTemplate)"
+  on-update="updateLocationResource(propertyName, propertyValue)"
+  on-property-update="updateResourceProperty(propertyName, propertyValue)"
+  on-capability-property-update="updateResourceCapabilityProperty(capabilityName, propertyName, propertyValue)"
+  on-portability-property-update="updatePortabilityProperty(propertyName, propertyValue)">
+</orchestrator-location-resource-template>

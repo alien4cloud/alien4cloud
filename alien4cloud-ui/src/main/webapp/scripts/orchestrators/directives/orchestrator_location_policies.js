@@ -3,20 +3,20 @@ define(function(require) {
 
   var modules = require('modules');
 
-  require('scripts/orchestrators/directives/orchestrator_location_resources_ctrl');
+  require('scripts/orchestrators/directives/orchestrator_location_policies_ctrl');
 
-  modules.get('a4c-orchestrators').directive('orchestratorLocationResources', function() {
+  modules.get('a4c-orchestrators').directive('orchestratorLocationPolicies', function() {
     return {
       templateUrl: 'views/orchestrators/directives/common_orchestrator_location_resources.html',
+      controller: 'OrchestratorLocationPoliciesTemplateCtrl',
       restrict: 'E',
-      controller: 'OrchestratorLocationResourcesTemplateCtrl',
       scope: {
         'resourcesTypesMap': '=',
         'resourcesTemplates': '=',
-        'providedTypes': '=?',
+        // 'providedTypes': '=?',
         'context': '=?',
-        'showCatalog': '=?',
-        'showMultiSelect': '=?'
+        // 'showCatalog': '=?',
+        'showMultiSelect': '=?',
       },
       link: {}
     };

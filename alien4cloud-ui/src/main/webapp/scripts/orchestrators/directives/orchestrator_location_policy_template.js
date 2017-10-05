@@ -3,24 +3,22 @@ define(function(require) {
 
   var modules = require('modules');
 
-  require('scripts/orchestrators/directives/orchestrator_location_resource_template_ctrl');
+  require('scripts/orchestrators/directives/orchestrator_location_policy_template_ctrl');
 
-  modules.get('a4c-orchestrators').directive('orchestratorLocationResourceTemplate', function() {
+  modules.get('a4c-orchestrators').directive('orchestratorLocationPolicyTemplate', function() {
     return {
-      templateUrl: 'views/orchestrators/directives/orchestrator_location_resource_template.html',
-      controller: 'OrchestratorLocationResourceTemplateCtrl',
+      templateUrl: 'views/orchestrators/directives/orchestrator_location_policy_template.html',
+      controller: 'OrchestratorLocationPolicyTemplateCtrl',
       restrict: 'E',
       scope: {
         'resourceTemplate': '=',
         'resourceType': '=',
-        'resourceCapabilityTypes': '=',
         'resourceDataTypes': '=',
         'dependencies': '=',
         'isPropertyEditable': '&',
         'onDelete': '&',
         'onUpdate': '&',
         'onPropertyUpdate': '&',
-        'onCapabilityPropertyUpdate': '&',
         'onPortabilityPropertyUpdate': '&'
       },
       link: {}

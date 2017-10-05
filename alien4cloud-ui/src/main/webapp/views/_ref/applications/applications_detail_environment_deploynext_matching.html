@@ -128,10 +128,10 @@
           <p>{{'APPLICATIONS.DEPLOYMENT.MATCHING.SERVICE_HELP' | translate}}</p>
         </div>
         <a4c-node-template-edit
-          node-template="selectedResourceTemplate.template"
-          node-type="deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
+          template="selectedResourceTemplate.template"
+          type="deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
           node-capability-types="deploymentTopologyDTO.availableSubstitutions.substitutionTypes.capabilityTypes"
-          node-data-types="deploymentTopologyDTO.availableSubstitutions.substitutionTypes.dataTypes"
+          resource-data-types="deploymentTopologyDTO.availableSubstitutions.substitutionTypes.dataTypes"
           dependencies="deploymentTopologyDTO.topology.dependencies"
           is-property-editable="isPropertyEditable(propertyPath)"
           on-property-update="updateSubstitutionProperty(propertyName, propertyValue)"

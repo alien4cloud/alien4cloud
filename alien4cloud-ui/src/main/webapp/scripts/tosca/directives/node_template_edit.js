@@ -12,12 +12,13 @@ define(function(require) {
   modules.get('a4c-tosca').directive('a4cNodeTemplateEdit', function() {
     return {
       templateUrl: 'views/tosca/node_template_edit.html',
+      controller: 'a4cNodeTemplateEditCtrl',
       restrict: 'E',
       scope: {
-        'nodeTemplate': '=', // This is the actual node template to edit.
-        'nodeType': '=', // The type of the node template.
+        'template': '=', // This is the actual node template to edit.
+        'type': '=', // The type of the node template.
         'nodeCapabilityTypes': '=', // map of capability types
-        'nodeDataTypes': '=', // map of capability types
+        'resourceDataTypes': '=', // map of capability types
         'dependencies': '=', // dependencies
         'onPropertyUpdate': '&', // callback operation triggered when a property is actually updated
         'isPropertyEditable': '&?', // callback operation that should return true if a property or a capability property can be edited.

@@ -1,0 +1,18 @@
+<div>
+  <!-- header: name, delete button-->
+  <ng-include src="'views/orchestrators/includes/location_resource_header_edit.html'"></ng-include>
+
+  <a4c-policy-template-edit
+    template="resourceTemplate.template"
+    type="resourceType"
+    resource-data-types="resourceDataTypes"
+    dependencies="dependencies"
+    is-property-editable="isPropertyEditable()"
+    on-property-update="updateResourceProperty(propertyName, propertyValue)"
+    >
+  </a4c-policy-template-edit>
+
+  <!-- Portability -->
+  <ng-include src="'views/orchestrators/includes/location_resource_portability_edit.html'"></ng-include>
+
+</div>

@@ -1047,7 +1047,7 @@
       "RESOURCES": {
         "BACK": "Back to catalog",
         "CONFIG": "Resource configuration",
-        "CONFIG_HELP": "You can configure the name and properties of the template for the on-demand resource. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
+        "CONFIG_HELP": "You can configure the name and properties of the resource template. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
         "DROP": "Drop new resources here or on the table above",
         "PROVIDED": "Provided type from the orchestrator",
         "TYPE": "Resource types"
@@ -1092,6 +1092,7 @@
     },
     "UPLOAD": "Upload plugin"
   },
+  "POLICIES": "Policies",
   "PROPERTY_RESET": "Set to default value or reset",
   "PROPERTY_SUGGESTION": {
     "MODAL": {

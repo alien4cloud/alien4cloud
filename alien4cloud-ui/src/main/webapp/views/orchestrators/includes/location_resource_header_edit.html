@@ -1,0 +1,17 @@
+<div class="row">
+  <div class="col-md-7">
+    <h3 class="pull-left" style="margin-top: 10px; margin-bottom: 20px;">
+    <span editable-text="resourceTemplate.name" buttons="no" e-required onbeforesave="updateLocationResource('name', $data)" blur="submit">
+      {{ resourceTemplate.name | split }}
+      <i class="fa fa-pencil-square-o"></i>
+    </span>
+    </h3>
+  </div>
+  <div class="col-md-5" style="margin-top: 6px;">
+    <div class="pull-right">
+      <delete-confirm id="btn-delete-node" func="onDelete({'resourceTemplate' : resourceTemplate})" position="left" bssize="btn-sm"
+                      fastyle="fa-trash-o">
+      </delete-confirm>
+    </div>
+  </div>
+</div>

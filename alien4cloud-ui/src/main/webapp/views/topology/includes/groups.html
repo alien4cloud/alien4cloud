@@ -43,7 +43,7 @@
          ng-click="groupCollapsed[group.name].policies = !groupCollapsed[group.name].policies">
       <h5>
         <i class=" fa" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].policies, 'fa-caret-right': groupCollapsed[group.name].policies}"></i>
-        {{'APPLICATIONS.TOPOLOGY.GROUPS.POLICIES' | translate}}
+        {{'POLICIES' | translate}}
       </h5>
     </div>
     <div id="group-policies-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].policies" >

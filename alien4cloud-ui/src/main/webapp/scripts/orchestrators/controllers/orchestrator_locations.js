@@ -9,6 +9,7 @@ define(function(require) {
   require('scripts/orchestrators/controllers/orchestrator_location_new');
   require('scripts/orchestrators/controllers/orchestrator_location_config');
   require('scripts/orchestrators/controllers/orchestrator_location_nodes');
+  require('scripts/orchestrators/controllers/orchestrator_location_policies');
   require('scripts/orchestrators/controllers/orchestrator_location_metaprops');
   require('scripts/orchestrators/controllers/orchestrator_location_security');
   require('scripts/orchestrators/services/orchestrator_location_service');
@@ -30,7 +31,7 @@ define(function(require) {
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsCtrl',
     ['$scope', '$uibModal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor', '$translate', '$state', 'breadcrumbsService',
       function($scope, $uibModal, $http, locationService, orchestrator, menu, locationResourcesProcessor, $translate, $state, breadcrumbsService) {
-        
+
         breadcrumbsService.putConfig({
           state: 'admin.orchestrators.details.locations',
           text: function() {
@@ -74,9 +75,9 @@ define(function(require) {
           $scope.uiModel.locationDTO = location;
           $scope.context.location = location.location;
           $scope.context.locationResources = location.resources;
-          $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
-          $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
-
+          // $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
+          // $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
+          // $scope.context.policyTypes = _.values(location.resource.policyTypes);
         };
 
         $scope.deleteLocation = function(location){

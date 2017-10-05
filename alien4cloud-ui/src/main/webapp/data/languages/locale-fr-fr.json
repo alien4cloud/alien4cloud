@@ -1046,7 +1046,7 @@
       "RESOURCES" : {
         "BACK" : "Retour au catalogue",
         "CONFIG" : "Configuration de la resource",
-        "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés du template pour la resource à la demande. Les propriétés définies sont immutable, les propriétés non définies pourront être définie par l'utilisateur avant le déploiement.",
+        "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés du template de la resource. Les propriétés définies sont immutable, les propriétés non définies pourront être définie par l'utilisateur avant le déploiement.",
         "DROP" : "Déposez des ressources ici ou dans le tableau au dessus",
         "PROVIDED" : "Type fourni par l'orchestrateur",
         "TYPE" : "Type de ressources"
@@ -1078,6 +1078,7 @@
     "OVERFLOW" : "Le nombre de résultat dépasse le nombre maxium supporté par Alien4Cloud, merci d'utiliser le champs de recherche."
   },
   "NO_DATA_AVAILABLE" : "Pas de données disponibles.",
+  "POLICIES": "Policies",
   "PLUGINS" : {
     "BEANS" : "Composants",
     "CONFIGURE" : "Configurer",
