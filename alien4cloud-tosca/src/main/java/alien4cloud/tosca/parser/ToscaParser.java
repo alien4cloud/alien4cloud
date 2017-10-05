@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -26,15 +28,17 @@ import alien4cloud.tosca.parser.postprocess.ArchiveRootPostProcessor;
 /**
  * Main entry point for TOSCA template parsing.
  */
+@Slf4j
 @Component
 public class ToscaParser extends YamlParser<ArchiveRoot> {
     public static final String ALIEN_DSL_120 = "alien_dsl_1_2_0";
     public static final String ALIEN_DSL_130 = "alien_dsl_1_3_0";
     public static final String ALIEN_DSL_140 = "alien_dsl_1_4_0";
     public static final String ALIEN_DSL_200 = "alien_dsl_2_0_0";
-    public static final String LATEST_DSL = ALIEN_DSL_200;
     public static final String NORMATIVE_DSL_100 = "tosca_simple_yaml_1_0";
     public static final String NORMATIVE_DSL_100_URL = "http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0";
+
+    public static String LATEST_DSL = ALIEN_DSL_200;
 
     private static final String DEFINITION_TYPE = "definition";
     private Map<String, Map<String, INodeParser>> parserRegistriesByVersion = Maps.newHashMap();
@@ -44,6 +48,16 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
 
     @Resource
     private ArchiveRootPostProcessor archiveRootPostProcessor;
+
+    @Value("${tosca.new_archives_dsl:#{null}}")
+    public void setNewArchiveDSL(String newArchiveDSL) {
+        if (newArchiveDSL != null) {
+            log.warn(
+                    "User has explicitly configured a TOSCA dsl version ({}) to override the default new archive dsl ({}). Some alien4cloud feature may not be supported.",
+                    newArchiveDSL, LATEST_DSL);
+            LATEST_DSL = newArchiveDSL;
+        }
+    }
 
     @PostConstruct
     public void initialize() throws ParsingException {

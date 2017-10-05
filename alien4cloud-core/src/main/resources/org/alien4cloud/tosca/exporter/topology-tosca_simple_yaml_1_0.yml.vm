@@ -6,7 +6,7 @@
 ## - topology
 ## --------------------------------------------
 ## BEGINNING OF DOCUMENT
-tosca_definitions_version: alien_dsl_1_4_0
+tosca_definitions_version: tosca_simple_yaml_1_0
 
 metadata:
   template_name: ${template_name}
@@ -218,38 +218,9 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #end## of outputCapaPropSubEntry iteration
 #end## of outputCapaPropEntry iteration
 #end## if maps are not empty
+
 #if($utils.mapIsNotEmpty($topology.workflows) && $generateWorkflow)
-  workflows:
-#foreach($wfEntry in ${topology.workflows.entrySet()})
-    ${wfEntry.key}:
-#if(${wfEntry.value.description})
-      description: ${utils.renderDescription(${wfEntry.value.description}, "        ")}
-#end## if wfEntry.value.description
-#if($utils.mapIsNotEmpty(${wfEntry.value.steps}))
-      steps:
-#foreach($taskEntry in ${wfEntry.value.steps.entrySet()})
-        ${taskEntry.key}:
-#if($taskEntry.value.nodeId)
-          node: ${taskEntry.value.nodeId}
-#if($taskEntry.value.activity)
-          activity:
-#if($utils.canRenderInlineActivityArgs(${taskEntry.value.activity}))
-            ${utils.getActivityLabel(${taskEntry.value.activity})}: ${utils.getInlineActivityArg(${taskEntry.value.activity})}
-#else
-            ${utils.getActivityLabel(${taskEntry.value.activity})}:
-#foreach($argEntry in ${utils.getActivityArgsMap(${taskEntry.value.activity})})
-              ${argEntry.key}: ${argEntry.value}
-#end## foreach getActivityArgsMap
-#end## if canRenderInlineActivityArgs
-#end## if taskEntry.value.activity
-#end## if taskEntry.value.nodeId
-#if($utils.collectionIsNotEmpty(${taskEntry.value.followingSteps}))
-          on-success:
-#foreach($following in ${taskEntry.value.followingSteps})
-            - ${following}
-#end## foreach taskEntry.value.followingSteps
-#end## if taskEntry.value.followingSteps not empty
-#end## foreach wfEntry.value.steps
-#end## if map wfEntry.value.steps not empty
-#end## foreach topology.workflows.entrySet
+#[[
+# Imperative workflow definition is not supported in tosca 1.0.0 therefore alien4cloud has not included any update to the declarative workflow in this template.
+]]#
 #end## if map topology.workflows not empty
