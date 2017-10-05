@@ -34,6 +34,8 @@ import alien4cloud.topology.TopologyDTO;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 /**
  * Service that helps to create a topology dto object out of a topology.
  */
@@ -137,10 +139,10 @@ public class TopologyDTOBuilder {
         Map<String, NodeType> delayedNodeTypeAddMap = Maps.newHashMap();
         for (NodeType nodeType : topologyDTO.getNodeTypes().values()) {
             if (nodeType != null) {
-                for (CapabilityDefinition capabilityDefinition : nodeType.getCapabilities()) {
+                for (CapabilityDefinition capabilityDefinition : safe(nodeType.getCapabilities())) {
                     types.put(capabilityDefinition.getType(), ToscaContext.get(CapabilityType.class, capabilityDefinition.getType()));
                 }
-                for (RequirementDefinition requirementDefinition : nodeType.getRequirements()) {
+                for (RequirementDefinition requirementDefinition : safe(nodeType.getRequirements())) {
                     CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, requirementDefinition.getType());
                     if (capabilityType != null) {
                         types.put(requirementDefinition.getType(), capabilityType);
