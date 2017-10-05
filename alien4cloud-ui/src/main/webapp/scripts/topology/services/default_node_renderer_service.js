@@ -2,8 +2,8 @@ define(function(require) {
   'use strict';
 
   var modules = require('modules');
-  var angular = require('angular');
   var _ = require('lodash');
+  var d3 = require('d3');
   const COMPONENT_VERSION = 'component_version';
 
 
@@ -182,12 +182,23 @@ define(function(require) {
             // If there is policies defined for this node let's display icon(s)
             var policySelection = nodeGroup.selectAll('.policy').data(nodeTemplate.policies, function(policyTemplate) { return policyTemplate.name; });
             var newPolicySelection = policySelection.enter().append('g').attr('class', 'policy-template').attr('id', function(policyTemplate) { return 'a4c_svgp_' + policyTemplate.name; });
-            // newPolicySelection.each(function(policyTemplate) {
-            //   var policyTemplateGroup = d3.select(this);
-            //   // append ce policy circle
-            //   policyTemplateGroup.append('circle');
-            //   // append ce policy icon
-            // });
+            newPolicySelection.each(function(policyTemplate) {
+              var policyTemplateGroup = d3.select(this);
+              var index = _.findIndex(nodeTemplate.policies, 'name', policyTemplate.name);
+              var policyX = node.bbox.width() - 12 - 18 * ( index );
+              // append ce policy circle
+              d3Service.circle(policyTemplateGroup, policyX, 0, 8).attr('class', 'connector');
+              var svgChar = toscaService.getTag('a4c_svg_char', topology.policyTypes[policyTemplate.type].tags);
+              if(_.defined(svgChar)) {
+                var rotate = toscaService.getTag('a4c_svg_rotate', topology.policyTypes[policyTemplate.type].tags);
+                // append ce policy icon
+                var policyIconBuilder = policyTemplateGroup.append('text').attr('class', 'topology-svg-icon topology-svg-icon-center');
+                if(_.defined(rotate)) {
+                  policyIconBuilder.attr('transform', 'rotate(' + rotate + ' ' + policyX + ' 0)');
+                }
+                policyIconBuilder.attr('x', policyX).attr('y', 0).text(String.fromCharCode(parseInt(svgChar, 16)));
+              }
+            });
             policySelection.exit().remove();
           }
 

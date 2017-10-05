@@ -24,6 +24,13 @@ define(function (require) {
                 self.doSelectPolicy(policyTemplate);
               }
             }
+            _.each(policyTemplate.targets, function(target) {
+              var targetNode = self.scope.topology.topology.nodeTemplates[target];
+              if(_.undefined(targetNode.policies)) {
+                targetNode.policies = [];
+              }
+              targetNode.policies.push(policyTemplate);
+            });
           });
         });
         this.scope.$on('displayUpdate', function(event, params) {
