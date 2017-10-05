@@ -35,6 +35,7 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
+import alien4cloud.utils.CloneUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 import lombok.extern.slf4j.Slf4j;
@@ -89,6 +90,9 @@ public class TemplateBuilder {
      * @return new constructed node template.
      */
     public static NodeTemplate buildNodeTemplate(NodeType nodeType, NodeTemplate templateToMerge, boolean adaptToType) {
+        // clone the type of the node to avoid impacts, this should be improved in the future
+        nodeType = CloneUtil.clone(nodeType);
+
         NodeTemplate nodeTemplate = new NodeTemplate();
         fillAbstractInstantiableTemplate(nodeTemplate, nodeType, templateToMerge, !adaptToType);
 
@@ -108,6 +112,7 @@ public class TemplateBuilder {
     }
 
     public static PolicyTemplate buildPolicyTemplate(PolicyType policyType) {
+        policyType = CloneUtil.clone(policyType);
         PolicyTemplate policyTemplate = new PolicyTemplate();
         fillAbstractTemplate(policyTemplate, policyType, null, false);
         return policyTemplate;
@@ -138,14 +143,14 @@ public class TemplateBuilder {
         if (MapUtils.isEmpty(fromTypeArtifacts)) {
             fromTypeArtifacts = Maps.newLinkedHashMap();
         }
+        // We need to clone objects
         deploymentArtifacts.putAll(fromTypeArtifacts);
-        if (mapToMerge != null) {
-            for (Map.Entry<String, DeploymentArtifact> entryArtifact : mapToMerge.entrySet()) {
-                deploymentArtifacts.put(entryArtifact.getKey(), entryArtifact.getValue());
-                DeploymentArtifact artifactFromType = deploymentArtifacts.get(entryArtifact.getKey());
-                if (artifactFromType != null && StringUtils.isBlank(entryArtifact.getValue().getArtifactType())) {
-                    entryArtifact.getValue().setArtifactType(artifactFromType.getArtifactType());
-                }
+
+        for (Map.Entry<String, DeploymentArtifact> entryArtifact : safe(mapToMerge).entrySet()) {
+            deploymentArtifacts.put(entryArtifact.getKey(), entryArtifact.getValue());
+            DeploymentArtifact artifactFromType = deploymentArtifacts.get(entryArtifact.getKey());
+            if (artifactFromType != null && StringUtils.isBlank(entryArtifact.getValue().getArtifactType())) {
+                entryArtifact.getValue().setArtifactType(artifactFromType.getArtifactType());
             }
         }
     }
