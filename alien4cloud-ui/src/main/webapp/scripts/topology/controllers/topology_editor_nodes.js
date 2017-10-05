@@ -20,7 +20,16 @@ define(function (require) {
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
         /** Init method is called when the controller is ready. */
-        init: function() {},
+        init: function() {
+          var self = this;
+          this.scope.$on('displayUpdate', function(event, params) {
+            // if the display becomes inactive then reset selection
+            if(!params.displays.nodetemplate.active && _.defined(self.scope.selectedNodeTemplate)) {
+              self.scope.selectedNodeTemplate = undefined;
+              self.scope.$broadcast('editorSelectionChangedEvent', { nodeNames: [] });
+            }
+          });
+        },
         /** Method triggered as a result of a on-drag (see drag and drop directive and node type search directive). */
         onDragged: function(e) {
           var nodeType = angular.fromJson(e.source);
@@ -161,6 +170,7 @@ define(function (require) {
 
       return function(scope) {
         var instance = new TopologyEditorMixin(scope);
+        instance.init();
         scope.nodes = instance;
       };
     }

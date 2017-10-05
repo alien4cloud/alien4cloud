@@ -26,6 +26,14 @@ define(function (require) {
             }
           });
         });
+        this.scope.$on('displayUpdate', function(event, params) {
+          // if the display becomes inactive then reset selection
+          if(!params.displays.policies.active && _.defined(self.selectedTemplate)) {
+            self.selectedTemplate.selected = false;
+            self.selectedTemplate = undefined;
+            self.scope.$broadcast('editorSelectionChangedEvent', { nodeNames: [] });
+          }
+        });
       };
 
       TopologyEditorMixin.prototype = {
