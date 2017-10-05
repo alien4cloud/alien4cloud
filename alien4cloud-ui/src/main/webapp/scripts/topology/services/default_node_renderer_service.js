@@ -168,7 +168,7 @@ define(function(require) {
             var gY = node.bbox.height() - 5;
             // the end of the node square
             var nodeEndX = node.bbox.width() - (gW / 2);
-            angular.forEach(nodeTemplate.groups, function(value) {
+            _.each(nodeTemplate.groups, function(value) {
               // let's place the group square regarding it's index and applying a 0.2 margin
               var gX = nodeEndX - (gIdx * 1.2 * gW);
 
@@ -177,6 +177,18 @@ define(function(require) {
               rect.attr('title', value);
               gIdx++;
             });
+          }
+          if(_.defined(nodeTemplate.policies)) {
+            // If there is policies defined for this node let's display icon(s)
+            var policySelection = nodeGroup.selectAll('.policy').data(nodeTemplate.policies, function(policyTemplate) { return policyTemplate.name; });
+            var newPolicySelection = policySelection.enter().append('g').attr('class', 'policy-template').attr('id', function(policyTemplate) { return 'a4c_svgp_' + policyTemplate.name; });
+            // newPolicySelection.each(function(policyTemplate) {
+            //   var policyTemplateGroup = d3.select(this);
+            //   // append ce policy circle
+            //   policyTemplateGroup.append('circle');
+            //   // append ce policy icon
+            // });
+            policySelection.exit().remove();
           }
 
           // runtime infos
