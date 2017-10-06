@@ -21,9 +21,9 @@ define(function (require) {
             tooltipContent += ' <img src="images/abstract_ico.png" height="' + icoSize + '" width="' + icoSize + '"></img>';
           }
           tooltipContent += '</div>';
-          if (_.defined(_.get(element, 'template.propertiesMap.component_version.value.value'))) {
+          if (_.defined(element, 'template.propertiesMap.component_version.value.value')) {
             tooltipContent += '<div>' + 'v' + element.template.propertiesMap[COMPONENT_VERSION].value.value + '</div>';
-          } else if(_.defined(_.get(element, 'template.propertiesMap.version.value.value'))) {
+          } else if(_.defined(element, 'template.propertiesMap.version.value.value')) {
             tooltipContent += '<div>' + 'v' + element.template.propertiesMap.version.value.value + '</div>';
           }
           tooltipContent += '</div>';

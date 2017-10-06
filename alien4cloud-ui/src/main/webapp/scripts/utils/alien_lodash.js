@@ -23,6 +23,13 @@ define(function (require) {
     defined: function(val, path) {
       return !this.undefined(val, path);
     },
+    // legacy alias for defined, undefined with a required path
+    undefinedPath: function (object, path) {
+      return this.undefined(object, path);
+    },
+    definedPath: function (object, path) {
+      return this.defined(object, path);
+    },
     concat: function(arrayLeft, arrayRight) {
       if (this.defined(arrayLeft) && this.defined(arrayRight)) {
         return arrayLeft.concat(arrayRight);
@@ -89,12 +96,6 @@ define(function (require) {
       }
       var result = string.slice(string.length - end);
       return omission + result;
-    },
-    undefinedPath: function (object, path){
-      return this.undefined(_.get(object, path));
-    },
-    definedPath: function (object, path){
-      return !this.undefinedPath(object, path);
     }
   });
   return _;
