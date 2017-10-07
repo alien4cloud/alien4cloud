@@ -67,6 +67,26 @@ node_workflows:
         preceding_state: deleting
         following_state: deleted
         operation_host: SELF
+  start:
+    states:
+      starting:
+      started:
+    operations:
+      start:
+        states: [ configured ]
+        preceding_state: starting
+        following_state: started
+        operation_host: SELF
+  stop:
+    states:
+      stopping:
+      stopped:
+    operations:
+      stop:
+        states: [ started ]
+        preceding_state: stopping
+        following_state: stopped
+        operation_host: SELF
 
 relationship_workflows:
   install:
@@ -130,6 +150,30 @@ relationship_workflows:
           preceding_state: stopping
           following_operations: [ stop ]
         operation_host: SOURCE
+  start:
+    operations:
+      add_source:
+        source:
+          preceding_operations: [ start ]
+          following_state: started
+        operation_host: TARGET
+      add_target:
+        source:
+          preceding_operations: [ start ]
+          following_state: started
+        operation_host: SOURCE
+  stop:
+    operations:
+      remove_source:
+        target:
+          preceding_state: stopping
+          following_operations: [ stop ]
+        operation_host: TARGET
+      remove_target:
+        source:
+          preceding_state: stopping
+          following_operations: [ stop ]
+        operation_host: SOURCE
 
 relationships_weaving:
   tosca.relationships.Root:
@@ -152,3 +196,13 @@ relationships_weaving:
             # the mirror model does not explicit something like wait_source_state as in a real DSL
             # source.deleted -> target.stopping
             preceding_state: deleted
+    start:
+      source:
+        states:
+          starting:
+            preceding_state: started
+    stop:
+      target:
+        states:
+          stopping:
+            preceding_state: stopped

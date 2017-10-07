@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
@@ -81,6 +80,7 @@ public class EditorTopologyUploadService {
 
         Topology currentTopology = EditionContextManager.getTopology();
         Topology parsedTopology = parsingResult.getResult().getTopology();
+        final String definitionVersion = parsingResult.getResult().getArchive().getToscaDefinitionsVersion();
 
         if (!currentTopology.getArchiveName().equals(parsedTopology.getArchiveName())
                 || !currentTopology.getArchiveVersion().equals(parsedTopology.getArchiveVersion())) {
@@ -99,7 +99,7 @@ public class EditorTopologyUploadService {
                 .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
                     @Override
                     public String getDSLVersion() {
-                        return ParsingContextExecution.getDefinitionVersion();
+                        return definitionVersion;
                     }
 
                     @Override
