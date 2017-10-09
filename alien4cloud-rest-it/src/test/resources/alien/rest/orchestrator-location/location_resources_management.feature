@@ -39,6 +39,13 @@ Feature: Manage location resources
     Then I should receive a RestResponse with no error
 
   @reset
+  Scenario: Update a resource property of custom data type should succeed
+    When I create a resource of type "org.alien4cloud.nodes.mock.Network" named "Network" related to the location "Mount doom orchestrator"/"Thark location"
+#    And I update the property "subnet" to "2" for the resource named "Network" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the complex property "subnet" to """{"ip_version": "6"}""" for the resource named "Network" related to the location "Mount doom orchestrator"/"Thark location"
+    Then I should receive a RestResponse with no error
+
+  @reset
   Scenario: Update a resource capability property
     When I create a resource of type "org.alien4cloud.nodes.mock.openstack.Flavor" named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the capability "host" property "disk_size" to "1 GB" for the resource named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
@@ -57,13 +64,13 @@ Feature: Manage location resources
     And The location should contains an on-demand resource with name "Medium_Ubuntu" and type "org.alien4cloud.nodes.mock.Compute"
 
   @reset
-  Scenario: Update a resource with a non-existing property should fail
+  Scenario: Update a non existing property of a resource should fail
     When I create a resource of type "org.alien4cloud.nodes.mock.openstack.Flavor" named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "wrong-property-name" to "should-fail" for the resource named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
     Then I should receive a RestResponse with an error code 504
 
   @reset
-  Scenario: Update a resource with wrong value type should fail
+  Scenario: Update a resource capability property with wrong value type should fail
     When I create a resource of type "org.alien4cloud.nodes.mock.openstack.Flavor" named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the capability "host" property "disk_size" to "should-fail" for the resource named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
     Then I should receive a RestResponse with an error code 804

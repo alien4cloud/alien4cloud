@@ -2,9 +2,11 @@ package alien4cloud.utils.services;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 
 import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.tosca.context.ToscaContextual;
 
 /**
  * Service to set and check constraints on properties.
@@ -65,6 +68,21 @@ public class PropertyService {
             template.setProperties(Maps.newLinkedHashMap());
         }
         setPropertyValue(template.getProperties(), propertyDefinition, propertyName, propertyValue);
+    }
+
+    /**
+     * Set value for a property
+     *
+     * @param dependencies all tosca dependencies for current operation
+     * @param nodeTemplate the node template
+     * @param propertyDefinition the definition of the property to be set
+     * @param propertyName the name of the property to set
+     * @param propertyValue the value to be set
+     */
+    @ToscaContextual
+    public void setPropertyValue(Set<CSARDependency> dependencies, AbstractTemplate nodeTemplate, PropertyDefinition propertyDefinition, String propertyName,
+            Object propertyValue) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        setPropertyValue(nodeTemplate, propertyDefinition, propertyName, propertyValue);
     }
 
     /**

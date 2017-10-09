@@ -448,7 +448,8 @@ public class LocationResourceService implements ILocationResourceService {
             throw new NotFoundException("Property [" + propertyName + "] is not found in type [" + resourceType.getElementId() + "]");
         }
 
-        propertyService.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue);
+        propertyService.setPropertyValue(location.getDependencies(), resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName),
+                propertyName, propertyValue);
         saveResource(resourceTemplate);
     }
 
