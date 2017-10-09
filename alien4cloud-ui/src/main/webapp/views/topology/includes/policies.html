@@ -84,9 +84,9 @@
           <div id="node-details-properties-panel" uib-collapse="isPropertiesCollapsed" >
             <table class="table table-condensed" id="nodeTemplateProperties">
               <tr ng-repeat="propEntry in policyTemplate.properties">
-                <td class="topology-props-td-inp">
+                <!-- <td class="topology-props-td-inp">
                   inputs
-                </td>
+                </td> -->
                 <td ng-init="condensed=true; propDef=policyType.propertiesMap[propEntry.key].value">
                   <property-display
                     definition="propDef"
