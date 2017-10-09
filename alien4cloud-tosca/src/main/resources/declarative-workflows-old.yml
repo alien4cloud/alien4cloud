@@ -195,6 +195,16 @@ relationships_weaving:
           stopping:
             # source.stopped -> target.stopping
             preceding_state: stopped
+    start:
+      source:
+        states:
+          starting:
+            preceding_state: started
+    stop:
+      target:
+        states:
+          stopping:
+            preceding_state: stopped
   tosca.relationships.HostedOn:
     install:
       source:
