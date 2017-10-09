@@ -121,34 +121,30 @@ relationship_workflows:
           following_state: configured
         operation_host: TARGET
       add_source:
-        # [ source.started, target.started] -> add_source
+        # source.started -> add_source
         source:
-          preceding_operations: [ start ]
-          following_state: started
+          preceding_state: started
         operation_host: TARGET
       add_target:
         # source.started -> add_target
         source:
-          preceding_operations: [ start ]
-          following_state: started
+          preceding_state: started
         operation_host: SOURCE
   uninstall:
     # If we join all source and operation dependencies, we have a relationship workflow
-    # remove_source -> target.stop
-    # remove_target -> source.stop
+    # remove_source -> target.stopping -> target.stop
+    # remove_target -> source.stopping -> source.stop
 
     operations:
       remove_source:
-        # target.stopping -> remove_source -> target.stop
+        # remove_source -> target.stopping
         target:
-          preceding_state: stopping
-          following_operations: [ stop ]
+          following_state: stopping
         operation_host: TARGET
       remove_target:
-        # source.stopping -> remove_target -> source.stop
+        # remove_target -> source.stopping
         source:
-          preceding_state: stopping
-          following_operations: [ stop ]
+          following_state: stopping
         operation_host: SOURCE
   start:
     operations:
@@ -165,14 +161,14 @@ relationship_workflows:
   stop:
     operations:
       remove_source:
+        # remove_source -> target.stopping
         target:
-          preceding_state: stopping
-          following_operations: [ stop ]
+          following_state: stopping
         operation_host: TARGET
       remove_target:
+        # remove_target -> source.stopping
         source:
-          preceding_state: stopping
-          following_operations: [ stop ]
+          following_state: stopping
         operation_host: SOURCE
 
 relationships_weaving:

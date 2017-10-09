@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
 
+import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.model.ArchiveRoot;
 
 /**
@@ -265,10 +266,30 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertNotNull(parsingResult.getResult().getTopology().getWorkflows().get("install"));
         Workflow wf = parsingResult.getResult().getTopology().getWorkflows().get("install");
 
-        assertTrue(wf.getSteps().get("Compute_install_0").getActivities().size() == 1);
+        assertEquals(1, wf.getSteps().get("Compute_install_0").getActivities().size());
         assertTrue(wf.getSteps().get("Compute_install_0").getActivities().get(0) instanceof InlineWorkflowActivity);
         InlineWorkflowActivity activity = (InlineWorkflowActivity) wf.getSteps().get("Compute_install_0").getActivities().get(0);
         assertTrue(activity.getInline().equals("my_custom_wf"));
+        WorkflowUtils.processInlineWorkflows(parsingResult.getResult().getTopology().getWorkflows());
+        assertFalse(wf.getSteps().containsKey("Compute_install_0"));
+        assertTrue(wf.getSteps().containsKey("Compute_stop"));
+        assertTrue(wf.getSteps().containsKey("Compute_uninstall"));
+
+        assertTrue(wf.getSteps().get("Compute_install").getOnSuccess().contains("Compute_stop"));
+        assertTrue(wf.getSteps().get("Compute_stop").getPrecedingSteps().contains("Compute_install"));
+        assertEquals(1, wf.getSteps().get("Compute_install").getOnSuccess().size());
+        assertEquals(0, wf.getSteps().get("Compute_install").getPrecedingSteps().size());
+        assertEquals(1, wf.getSteps().get("Compute_stop").getPrecedingSteps().size());
+
+        assertFalse(wf.getSteps().get("Compute_install").getOnSuccess().contains("Compute_uninstall"));
+        assertFalse(wf.getSteps().get("Compute_uninstall").getPrecedingSteps().contains("Compute_install"));
+
+        assertTrue(wf.getSteps().get("Compute_stop").getOnSuccess().contains("Compute_uninstall"));
+        assertTrue(wf.getSteps().get("Compute_uninstall").getPrecedingSteps().contains("Compute_stop"));
+        assertEquals(1, wf.getSteps().get("Compute_stop").getOnSuccess().size());
+        assertEquals(1, wf.getSteps().get("Compute_uninstall").getPrecedingSteps().size());
+        assertEquals(0, wf.getSteps().get("Compute_uninstall").getOnSuccess().size());
+
     }
 
     @Test
@@ -325,8 +346,8 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertTrue(relStep.getTarget().equals("SoftwareComponent"));
         assertTrue(relStep.getTargetRelationship().equals("hostedOnComputeHost"));
         assertTrue(relStep.getOperationHost().equals("SOURCE"));
-        assertTrue(relStep.getActivities().size() == 1);
-        assertTrue(relStep.getOnSuccess().size() == 1);
+        assertEquals(1, relStep.getActivities().size());
+        assertEquals(2, relStep.getOnSuccess().size());
 
         // test the second step, create to split activities into steps
         WorkflowStep step_0 = wf.getSteps().get("SoftwareComponent_hostedOnComputeHost_pre_configure_source_0");
@@ -335,7 +356,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertTrue(relStep_0.getTarget().equals("SoftwareComponent"));
         assertTrue(relStep_0.getTargetRelationship().equals("hostedOnComputeHost"));
         assertTrue(relStep_0.getOperationHost().equals("SOURCE"));
-        assertTrue(relStep_0.getActivities().size() == 1);
-        assertTrue(relStep_0.getOnSuccess().size() == 1);
+        assertEquals(1, relStep_0.getActivities().size());
+        assertEquals(1, relStep_0.getOnSuccess().size());
     }
 }

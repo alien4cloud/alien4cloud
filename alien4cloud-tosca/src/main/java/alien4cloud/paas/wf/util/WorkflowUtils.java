@@ -6,7 +6,11 @@ import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameCon
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
@@ -21,6 +25,7 @@ import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
@@ -302,6 +307,98 @@ public class WorkflowUtils {
             throw new InvalidNameException("workflowName", name, "name <" + name
                     + "> is not valid. It should only contains alphanumeric character from the basic Latin alphabet, underscores(_) and dash(-).");
         }
+    }
+
+    public static void processInlineWorkflows(Map<String, Workflow> workflowMap) {
+        workflowMap.forEach((workflowId, workflow) -> {
+            Map<String, Map<String, WorkflowStep>> inlinedWorkflowSteps = workflow.getSteps().entrySet().stream()
+                    .filter(entry -> entry.getValue().getActivity() instanceof InlineWorkflowActivity)
+                    .collect(Collectors.toMap(Map.Entry::getKey, inlinedStepEntry -> {
+                        WorkflowStep step = inlinedStepEntry.getValue();
+                        InlineWorkflowActivity inlineWorkflowActivity = (InlineWorkflowActivity) inlinedStepEntry.getValue().getActivity();
+                        String inlinedName = inlineWorkflowActivity.getInline();
+                        Workflow inlined = workflowMap.get(inlinedName);
+                        if (inlined == null) {
+                            throw new NotFoundException("Inlined workflow " + inlinedName);
+                        }
+                        Map<String, WorkflowStep> inlinedSteps = cloneSteps(inlined.getSteps());
+                        // Find all root steps of the workflow and link them to the parent workflows
+                        final Map<String, WorkflowStep> rootInlinedSteps = inlinedSteps.values().stream()
+                                .filter(inlinedStep -> inlinedStep.getPrecedingSteps().isEmpty())
+                                .peek(rootInlinedStep -> rootInlinedStep.getPrecedingSteps().addAll(step.getPrecedingSteps()))
+                                .collect(Collectors.toMap(WorkflowStep::getName, rootInlinedStep -> rootInlinedStep));
+
+                        step.getPrecedingSteps().forEach(precedingStepName -> {
+                            WorkflowStep precedingStep = workflow.getSteps().get(precedingStepName);
+                            precedingStep.getOnSuccess().remove(inlinedStepEntry.getKey());
+                            precedingStep.getOnSuccess().addAll(rootInlinedSteps.keySet());
+                        });
+                        // Find all leaf steps of the workflow and link them to the parent workflows
+                        final Map<String, WorkflowStep> leafInlinedSteps = inlinedSteps.values().stream()
+                                .filter(inlinedStep -> inlinedStep.getOnSuccess().isEmpty())
+                                .peek(leafInlinedStep -> leafInlinedStep.getOnSuccess().addAll(step.getOnSuccess()))
+                                .collect(Collectors.toMap(WorkflowStep::getName, leafInlinedStep -> leafInlinedStep));
+
+                        step.getOnSuccess().forEach(onSuccessStepName -> {
+                            WorkflowStep onSuccessStep = workflow.getSteps().get(onSuccessStepName);
+                            onSuccessStep.getPrecedingSteps().remove(inlinedStepEntry.getKey());
+                            onSuccessStep.getPrecedingSteps().addAll(leafInlinedSteps.keySet());
+                        });
+
+                        // Remove the inlined step and replace by other workflow's steps
+                        final Set<String> newInlinedStepNames = new HashSet<>();
+                        return inlinedSteps.entrySet().stream().collect(Collectors.toMap(entry -> {
+                            if (workflow.getSteps().containsKey(entry.getKey())) {
+                                // If the workflow contains step with the same name then generate a new one
+                                String newName = generateNewWfStepName(workflow.getSteps().keySet(), newInlinedStepNames, entry.getKey());
+                                newInlinedStepNames.add(newName);
+                                return newName;
+                            } else {
+                                return entry.getKey();
+                            }
+                        }, Map.Entry::getValue));
+                    }));
+            inlinedWorkflowSteps.forEach((inlinedStepName, generatedInlinedWorkflowSteps) -> {
+                workflow.getSteps().remove(inlinedStepName);
+                workflow.getSteps().putAll(generatedInlinedWorkflowSteps);
+            });
+        });
+    }
+
+    private static Map<String, WorkflowStep> cloneSteps(Map<String, WorkflowStep> steps) {
+        return steps.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> cloneStep(entry.getValue())));
+    }
+
+    private static WorkflowStep cloneStep(WorkflowStep step) {
+        WorkflowStep cloned;
+        if (step instanceof NodeWorkflowStep) {
+            NodeWorkflowStep nodeWorkflowStep = (NodeWorkflowStep) step;
+            cloned = new NodeWorkflowStep();
+            ((NodeWorkflowStep) cloned).setHostId(nodeWorkflowStep.getHostId());
+        } else {
+            RelationshipWorkflowStep relationshipWorkflowStep = (RelationshipWorkflowStep) step;
+            cloned = new RelationshipWorkflowStep();
+            ((RelationshipWorkflowStep) cloned).setTargetRelationship(relationshipWorkflowStep.getTargetRelationship());
+            ((RelationshipWorkflowStep) cloned).setSourceHostId(relationshipWorkflowStep.getSourceHostId());
+            ((RelationshipWorkflowStep) cloned).setTargetHostId(relationshipWorkflowStep.getTargetHostId());
+        }
+        cloned.setActivity(step.getActivity());
+        cloned.setFilter(step.getFilter());
+        cloned.setName(step.getName());
+        cloned.setOnFailure(step.getOnFailure());
+        cloned.setOnSuccess(new HashSet<>(step.getOnSuccess()));
+        cloned.setOperationHost(step.getOperationHost());
+        cloned.setPrecedingSteps(new HashSet<>(step.getPrecedingSteps()));
+        cloned.setTarget(step.getTarget());
+        return cloned;
+    }
+
+    public static String generateNewWfStepName(Set<String> existingStepNames, Set<String> newStepNames, String stepName) {
+        int i = 0;
+        while (existingStepNames.contains(stepName + "_" + i) || newStepNames.contains(stepName + "_" + i)) {
+            i++;
+        }
+        return stepName + "_" + i;
     }
 
 }

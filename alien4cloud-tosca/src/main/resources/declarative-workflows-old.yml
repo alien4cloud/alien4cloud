@@ -4,7 +4,6 @@ node_workflows:
   install:
     # If we join state and operation dependencies, we have a node workflow
     # initial -> creating -> create -> created -> configuring -> configure -> configured -> starting -> start -> started
-
     # all set-state steps that should be created for the install workflow
     states:
       initial:
@@ -44,7 +43,6 @@ node_workflows:
   uninstall:
     # If we join state and operation dependencies, we have a node workflow
     # stopping -> stop -> stopped -> deleting -> delete -> deleted
-
     # all set-state steps that should be created for the uninstall workflow
     states:
       stopping:
@@ -91,34 +89,33 @@ node_workflows:
 relationship_workflows:
   install:
     # If we join all source and operation dependencies, we have a relationship workflow
-    # source.created -> pre_configure_source -> source.configure -> source.configured -> post_configure_source -> source.start -> source.started -> add_target
-    # target.created -> pre_configure_target -> target.configure -> target.configured -> post_configure_target -> target.start -> target.started -> add_source
-
+    # source.configuring -> pre_configure_source -> source.configure -> post_configure_source -> source.configured -> source.start -> source.started -> add_target
+    # target.configuring -> pre_configure_target -> target.configure -> post_configure_target -> target.configured -> target.start -> target.started -> add_source
     # all call-operation steps that should be created for the install workflow
     operations:
       pre_configure_source:
-        # source.created -> pre_configure_source -> source.configure
+        # source.configuring -> pre_configure_source -> source.configure
         source:
-          preceding_state: created
+          preceding_state: configuring
           following_operations: [ configure ]
         operation_host: SOURCE
       pre_configure_target:
-        # target.created -> pre_configure_target -> target.configure
+        # target.configuring -> pre_configure_target -> target.configure
         target:
-          preceding_state: created
+          preceding_state: configuring
           following_operations: [ configure ]
         operation_host: TARGET
       post_configure_source:
-        # source.configured -> post_configure_source -> source.start
+        # source.configure -> post_configure_source -> source.configured
         source:
-          preceding_state: configured
-          following_operations: [ start ]
+          preceding_operations: [ configure ]
+          following_state: configured
         operation_host: SOURCE
       post_configure_target:
-        # target.configured -> post_configure_target -> target.start
+        # target.configure -> post_configure_target -> target.configured
         target:
-          preceding_state: configured
-          following_operations: [ start ]
+          preceding_operations: [ configure ]
+          following_state: configured
         operation_host: TARGET
       add_source:
         # [ source.started, target.started] -> add_source
@@ -138,15 +135,16 @@ relationship_workflows:
     # If we join all source and operation dependencies, we have a relationship workflow
     # remove_source -> target.stop
     # remove_target -> source.stop
-
     operations:
-        # source.stop -> remove_target -> remove_source
       remove_source:
-        preceding_operations: [ remove_target ]
+        # remove_source -> target.stopping
+        target:
+          following_state: stopping
         operation_host: TARGET
       remove_target:
+        # remove_target -> source.stopping
         source:
-          preceding_operations: [ stop ]
+          following_state: stopping
         operation_host: SOURCE
   start:
     operations:
@@ -163,14 +161,14 @@ relationship_workflows:
   stop:
     operations:
       remove_source:
+        # remove_source -> target.stopping
         target:
-          preceding_state: stopping
-          following_operations: [ stop ]
+          following_state: stopping
         operation_host: TARGET
       remove_target:
+        # remove_target -> source.stopping
         source:
-          preceding_state: stopping
-          following_operations: [ stop ]
+          following_state: stopping
         operation_host: SOURCE
 
 relationships_weaving:
