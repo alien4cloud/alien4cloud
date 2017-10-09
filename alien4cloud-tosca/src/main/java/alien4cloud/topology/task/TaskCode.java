@@ -12,22 +12,24 @@ public enum TaskCode {
     SCALABLE_CAPABILITY_INVALID,
     NODE_FILTER_INVALID,
     WORKFLOW_INVALID,
+    ARTIFACT_INVALID,
 
     /** Inputs codes */
     MISSING_VARIABLES,
     UNRESOLVABLE_PREDEFINED_INPUTS,
     INPUT_PROPERTY,
     INPUT_ARTIFACT_INVALID,
-    ARTIFACT_INVALID,
 
     /* Location policies */
     LOCATION_POLICY,
     LOCATION_UNAUTHORIZED,
     LOCATION_DISABLED,
+
     /* No matching node found on location for criterias */
     NO_NODE_MATCHES,
     NODE_NOT_SUBSTITUTED,
     FORBIDDEN_OPERATION,
+
     /** Post matching errors. */
     IMPLEMENT,
     REPLACE,
