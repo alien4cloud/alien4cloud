@@ -39,6 +39,7 @@ import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -252,6 +253,8 @@ public class ToscaSerializerUtils {
             return "set_state";
         } else if (activity instanceof DelegateWorkflowActivity) {
             return "delegate";
+        } else if (activity instanceof InlineWorkflowActivity) {
+            return "inline";
         } else {
             return activity.getClass().getSimpleName();
         }
@@ -267,6 +270,8 @@ public class ToscaSerializerUtils {
         } else if (activity instanceof DelegateWorkflowActivity) {
             DelegateWorkflowActivity delegateWorkflowActivity = (DelegateWorkflowActivity) activity;
             return delegateWorkflowActivity.getDelegate();
+        } else if (activity instanceof InlineWorkflowActivity) {
+            return ((InlineWorkflowActivity) activity).getInline();
         } else {
             return "void";
         }
