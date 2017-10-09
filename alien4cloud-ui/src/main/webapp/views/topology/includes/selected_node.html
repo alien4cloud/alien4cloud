@@ -513,7 +513,7 @@
         <div class="row">
           <div class="col-md-1 dropup" uib-dropdown>
             <a id="p_input_art_{{artifactId}}"
-               ng-click="$event.stopPropagation(); inputs.getCandidatesForArtifact(artifact); "
+               ng-click="inputs.getCandidatesForArtifact(artifact); "
                class="btn btn-default btn-xs"
                uib-dropdown-toggle
                ng-class="{'active' : inputs.isInputArtifact(artifactId)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate}}"
@@ -523,13 +523,13 @@
             <ul class="dropdown-menu dropdown-menu-top" uib-dropdown-menu role="menu">
               <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate }}</li>
               <li>
-                <a id="addToInputBtn_art_{{artifactId}}" ng-click="$event.stopPropagation(); inputs.createFromArtifact(artifactId)">
+                <a id="addToInputBtn_art_{{artifactId}}" ng-click="inputs.createFromArtifact(artifactId)">
                   <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate }} <i class="fa fa-plus"></i></strong>
                 </a>
               </li>
               <!-- TODO Maybe improve the isArtifactAssociatedToInput  -->
               <li ng-repeat="inputArtifactId in currentInputCandidatesForArtifact | orderBy:'toString()'">
-                <a id="{{selectedNodeTemplate.name}}_{{artifactId}}_toAssociate_{{inputArtifactId}}" ng-click="$event.stopPropagation(); inputs.toggleArtifact(artifactId, inputArtifactId)">
+                <a id="{{selectedNodeTemplate.name}}_{{artifactId}}_toAssociate_{{inputArtifactId}}" ng-click="inputs.toggleArtifact(artifactId, inputArtifactId)">
                   <i class="fa fa-fw"
                      ng-class="inputs.isArtifactAssociatedToInput(artifactId, inputArtifactId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
                   {{inputArtifactId}}
@@ -548,7 +548,7 @@
               {{artifact.artifactRef | truncate:40}}
             </span>
             <span class="pull-right btn-group">
-              <a id="addToInputBtn_art_{{artifactId}}" class="btn btn-default btn-xs"
+              <a id="selectBtn_art_{{artifactId}}" class="btn btn-default btn-xs"
                 ng-click="$event.stopPropagation(); artifacts.onSelect(artifactId, artifact)"
                 ng-if="!inputs.isInputArtifact(artifactId)"
                 uib-tooltip="{{ 'EDITOR.ARTIFACTS.SELECT' | translate }}"

@@ -263,3 +263,7 @@ h4 .editable-error {
 #editor-topo-version-select .ui-select-dropdown{
   width:auto;
 }
+
+#nodetemplate-box ng-include > div:last-child {
+  margin-bottom: 05px;
+}

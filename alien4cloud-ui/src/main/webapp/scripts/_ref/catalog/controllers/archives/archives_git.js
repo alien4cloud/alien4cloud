@@ -123,7 +123,7 @@ define(function (require) {
         }
       }
       $scope.importInfos.push(importResult);
-      $scope.search();
+      // $scope.search();
     }
 
     $scope.closeUploadInfos = function(index) {
@@ -134,8 +134,11 @@ define(function (require) {
       csarGitService.remove({
         id: id
       }, function() {
+        //Do this instead of $scope.search(), to avoid useless REST call
+        var index = _.findIndex($scope.searchResult.data, {id: id});
+        $scope.searchResult.data.splice(index, 1);
         // refresh csargit list
-        $scope.search();
+        // $scope.search();
       });
     };
 
