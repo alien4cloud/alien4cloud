@@ -96,6 +96,13 @@
       <div class="text-muted">
         Prepare next deployment for an environment: associate a version, edit it's topology, configure deployment options and deploy.<br>Manage the current deployment for the environment.
       </div>
+      <!-- inplace search bar-->
+        <form class="grp-margin">
+          <div class="input-group">
+            <input id="inplace-search-query" type="text" class="form-control input-sm" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchEnv" style="padding-left: {{searchPadding}}px;">
+              <div class="input-group-addon"><i class="fa fa-search"></i></div>
+          </div>
+        </form>
       <table class="table table-condensed grp-margin">
         <thead>
           <tr>
@@ -107,7 +114,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="environment in environments" id='env_{{environment.id}}' class="clickable" ng-click="onEnvironment(environment.id)">
+          <tr ng-repeat="environment in environments | filter:searchEnv" id='env_{{environment.id}}' class="clickable" ng-click="onEnvironment(environment.id)">
             <td><i class="fa {{statusCss(environment)}}" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true"
             ></i></td>
             <td>{{environment.name}}</td>
@@ -124,6 +131,13 @@
       <div class="text-muted">
         Edit a version's topology out of the scope of an environment (allow the edition of a version that is not currently selected for deployment on any environment)
       </div>
+      <!-- inplace search bar-->
+      <form class="grp-margin">
+        <div class="input-group">
+          <input id="inplace-search-query" type="text" class="form-control input-sm" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchVersion">
+            <div class="input-group-addon"><i class="fa fa-search"></i></div>
+        </div>
+      </form>
       <table class="table table-condensed grp-margin">
         <thead>
           <tr>
@@ -132,7 +146,7 @@
             <th>Description</th>
           </tr>
         </thead>
-        <tbody ng-repeat="version in versions" id='v_{{version.id}}' class="clickable" ng-click="onVersion(version.id)">
+        <tbody ng-repeat="version in versions | filter:searchVersion" id='v_{{version.id}}' class="clickable" ng-click="onVersion(version.id)">
           <tr>
             <td rowspan="{{1 + _.size(version.topologyVersions)}}"><i class="fa" ng-class="{'fa-truck': version.released, 'fa-code': !version.released}"></i></td>
             <td colspan="2">{{version.version}}</td>
