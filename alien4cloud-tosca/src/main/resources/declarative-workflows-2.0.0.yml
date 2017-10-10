@@ -137,8 +137,8 @@ relationship_workflows:
 
     operations:
       remove_source:
-        # remove_source -> target.stopping
-        target:
+        # remove_source -> source.stopping
+        source:
           following_state: stopping
         operation_host: TARGET
       remove_target:
@@ -161,8 +161,8 @@ relationship_workflows:
   stop:
     operations:
       remove_source:
-        # remove_source -> target.stopping
-        target:
+        # remove_source -> source.stopping
+        source:
           following_state: stopping
         operation_host: TARGET
       remove_target:

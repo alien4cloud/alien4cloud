@@ -133,19 +133,17 @@ relationship_workflows:
         operation_host: SOURCE
   uninstall:
     # If we join all source and operation dependencies, we have a relationship workflow
-    # remove_source -> target.stop
-    # remove_target -> source.stop
+    # source.stop -> remove_target -> remove_source
     operations:
+      # source.stop -> remove_target -> remove_source
       remove_source:
-        # remove_source -> target.stopping
-        target:
-          following_state: stopping
+        preceding_operations: [ remove_target ]
         operation_host: TARGET
       remove_target:
-        # remove_target -> source.stopping
         source:
-          following_state: stopping
+          preceding_operations: [ stop ]
         operation_host: SOURCE
+
   start:
     operations:
       add_source:
@@ -160,15 +158,13 @@ relationship_workflows:
         operation_host: SOURCE
   stop:
     operations:
+      # source.stop -> remove_target -> remove_source
       remove_source:
-        # remove_source -> target.stopping
-        target:
-          following_state: stopping
+        preceding_operations: [ remove_target ]
         operation_host: TARGET
       remove_target:
-        # remove_target -> source.stopping
         source:
-          following_state: stopping
+          preceding_operations: [ stop ]
         operation_host: SOURCE
 
 relationships_weaving:
