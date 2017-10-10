@@ -47,70 +47,70 @@ topology_template:
           target: Compute
           activities:
             - delegate: install
-          on-success:
+          on_success:
             - OracleJDK_hostedOnComputeHost_add_target
             - OracleJDK_creating
         OracleJDK_initial:
           target: OracleJDK
           activities:
             - set_state: initial
-          on-success:
+          on_success:
             - OracleJDK_creating
         OracleJDK_creating:
           target: OracleJDK
           activities:
             - set_state: creating
-          on-success:
+          on_success:
             - OracleJDK_create
         OracleJDK_created:
           target: OracleJDK
           activities:
             - set_state: created
-          on-success:
+          on_success:
             - OracleJDK_hostedOnComputeHost_pre_configure_source
             - OracleJDK_configuring
         OracleJDK_configuring:
           target: OracleJDK
           activities:
             - set_state: configuring
-          on-success:
+          on_success:
             - OracleJDK_configure
         OracleJDK_configured:
           target: OracleJDK
           activities:
             - set_state: configured
-          on-success:
+          on_success:
             - OracleJDK_starting
             - OracleJDK_hostedOnComputeHost_post_configure_source
         OracleJDK_starting:
           target: OracleJDK
           activities:
             - set_state: starting
-          on-success:
+          on_success:
             - OracleJDK_start
         OracleJDK_started:
           target: OracleJDK
           activities:
             - set_state: started
-          on-success:
+          on_success:
             - OracleJDK_hostedOnComputeHost_add_target
         OracleJDK_create:
           target: OracleJDK
           activities:
             - call_operation: Standard.create
-          on-success:
+          on_success:
             - OracleJDK_created
         OracleJDK_configure:
           target: OracleJDK
           activities:
             - call_operation: Standard.configure
-          on-success:
+          on_success:
             - OracleJDK_configured
         OracleJDK_start:
           target: OracleJDK
           activities:
             - call_operation: Standard.start
-          on-success:
+          on_success:
             - OracleJDK_started
         OracleJDK_hostedOnComputeHost_pre_configure_source:
           target: OracleJDK
@@ -118,7 +118,7 @@ topology_template:
           operation_host: SOURCE
           activities:
             - call_operation: Configure.pre_configure_source
-          on-success:
+          on_success:
             - OracleJDK_configure
         OracleJDK_hostedOnComputeHost_post_configure_source:
           target: OracleJDK
@@ -126,7 +126,7 @@ topology_template:
           operation_host: SOURCE
           activities:
             - call_operation: Configure.post_configure_source
-          on-success:
+          on_success:
             - OracleJDK_start
         OracleJDK_hostedOnComputeHost_add_target:
           target: OracleJDK
@@ -144,37 +144,37 @@ topology_template:
           target: OracleJDK
           activities:
             - set_state: stopping
-          on-success:
+          on_success:
             - OracleJDK_stop
         OracleJDK_stopped:
           target: OracleJDK
           activities:
             - set_state: stopped
-          on-success:
+          on_success:
             - OracleJDK_deleting
         OracleJDK_deleting:
           target: OracleJDK
           activities:
             - set_state: deleting
-          on-success:
+          on_success:
             - OracleJDK_delete
         OracleJDK_deleted:
           target: OracleJDK
           activities:
             - set_state: deleted
-          on-success:
+          on_success:
             - Compute_uninstall
         OracleJDK_stop:
           target: OracleJDK
           activities:
             - call_operation: Standard.stop
-          on-success:
+          on_success:
             - OracleJDK_stopped
         OracleJDK_delete:
           target: OracleJDK
           activities:
             - call_operation: Standard.delete
-          on-success:
+          on_success:
             - OracleJDK_deleted
         OracleJDK_hostedOnComputeHost_remove_target:
           target: OracleJDK
@@ -182,7 +182,7 @@ topology_template:
           operation_host: SOURCE
           activities:
             - call_operation: Configure.remove_target
-          on-success:
+          on_success:
             - Compute_uninstall
             - OracleJDK_stop
     start:

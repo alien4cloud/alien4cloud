@@ -210,7 +210,7 @@ public abstract class AbstractWorkflowBuilder {
         WorkflowStep[] steps = new WorkflowStep[wf.getSteps().size()];
         steps = wf.getSteps().values().toArray(steps);
         for (WorkflowStep step : steps) {
-            if (step.getTarget().equals(nodeName)) {
+            if (nodeName.equals(step.getTarget())) {
                 removeStep(wf, step.getName(), true);
             }
         }
@@ -227,7 +227,7 @@ public abstract class AbstractWorkflowBuilder {
      */
     void removeRelationship(Workflow wf, String nodeId, String relationshipName, String relationshipTarget) {
         for (WorkflowStep step : wf.getSteps().values()) {
-            if (step.getTarget().equals(nodeId)) {
+            if (nodeId.equals(step.getTarget())) {
                 if (step.getOnSuccess() != null) {
                     for (String followingId : step.getOnSuccess().toArray(new String[step.getOnSuccess().size()])) {
                         WorkflowStep followingStep = wf.getSteps().get(followingId);
@@ -329,7 +329,7 @@ public abstract class AbstractWorkflowBuilder {
     void renameNode(Workflow wf, String oldName, String newName) {
         if (wf.getSteps() != null) {
             for (WorkflowStep step : wf.getSteps().values()) {
-                if (step.getTarget().equals(oldName)) {
+                if (oldName.equals(step.getTarget())) {
                     step.setTarget(newName);
                 }
             }

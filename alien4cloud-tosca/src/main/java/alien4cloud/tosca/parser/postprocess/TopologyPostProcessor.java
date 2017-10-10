@@ -2,9 +2,6 @@ package alien4cloud.tosca.parser.postprocess;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -13,28 +10,17 @@ import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.workflow.Workflow;
-import org.alien4cloud.tosca.model.workflow.WorkflowStep;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.utils.NameValidationUtils;
 
 /**
  * Post process a topology.
@@ -50,12 +36,12 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
     @Resource
     private GroupPostProcessor groupPostProcessor;
     @Resource
-    private WorkflowsBuilderService workflowBuilderService;
-    @Resource
     private PropertyDefinitionPostProcessor propertyDefinitionPostProcessor;
     // Inputs do not define artifact reference so we don't perform validation on them like for types.
     @Resource
     private TypeDeploymentArtifactPostProcessor typeDeploymentArtifactPostProcessor;
+    @Resource
+    private WorkflowPostProcessor workflowPostProcessor;
 
     @Override
     public void process(Topology instance) {
@@ -102,27 +88,8 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         // first validate names
         TopologyUtils.normalizeAllNodeTemplateName(instance, ParsingContextExecution.getParsingErrors(), ParsingContextExecution.getObjectToNodeMap());
 
-        // Workflow validation if any are defined
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
-                .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
-                    @Override
-                    public String getDSLVersion() {
-                        return ParsingContextExecution.getDefinitionVersion();
-                    }
-
-                    @Override
-                    public Topology getTopology() {
-                        return instance;
-                    }
-
-                    @Override
-                    public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
-                        return ToscaContext.get(clazz, id);
-                    }
-                });
-        // If the workflow contains steps with multiple activities then split them into single activity steps
-        splitMultipleActivitiesSteps(topologyContext);
-        finalizeParsedWorkflows(topologyContext, node);
+        // Post process workflows
+        workflowPostProcessor.processWorkflows(instance, node);
     }
 
     private void setDependencies(Topology instance, ArchiveRoot archiveRoot) {
@@ -147,121 +114,4 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
         }
     }
 
-    /**
-     * Called after yaml parsing.
-     *
-     * Add support of activities on alien-dsl-2.0.0 and higher.
-     * For activity, other than the first, we create 1 step per activity.
-     */
-    private void splitMultipleActivitiesSteps(WorkflowsBuilderService.TopologyContext topologyContext) {
-        if (!ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion()) || MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
-            return;
-        }
-
-        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
-            if (wf.getSteps() != null) {
-                Map<String, WorkflowStep> stepsToAdd = new HashMap<>();
-                Map<String, LinkedHashSet<String>> newStepsNames = new HashMap<>();
-                for (WorkflowStep step : wf.getSteps().values()) {
-                    if (step.getActivities().size() < 2) {
-                        continue;
-                    }
-                    LinkedHashSet<String> newStepsNamesForCurrentStep = newStepsNames.computeIfAbsent(step.getName(), k -> new LinkedHashSet<>());
-                    for (int i = 1; i < step.getActivities().size(); i++) {
-                        // here we iterate on activities to create new step
-                        WorkflowStep singleActivityStep = WorkflowUtils.cloneStep(step);
-                        singleActivityStep.setActivities(Lists.newArrayList(step.getActivities().get(i)));
-                        String wfStepName = WorkflowUtils.generateNewWfStepName(wf.getSteps().keySet(), stepsToAdd.keySet(), step.getName());
-                        singleActivityStep.setName(wfStepName);
-                        stepsToAdd.put(wfStepName, singleActivityStep);
-                        newStepsNamesForCurrentStep.add(wfStepName);
-                    }
-                    // new steps are created, we can clean activities
-                    step.getActivities().subList(1, step.getActivities().size()).clear();
-                }
-
-                // update on_success map to call the new steps when necessary
-                for (WorkflowStep step : wf.getSteps().values()) {
-                    if (step.getOnSuccess() == null || step.getOnSuccess().isEmpty()) {
-                        break;
-                    }
-                    for (String onSuccessId : step.getOnSuccess()) {
-                        if (newStepsNames.containsKey(onSuccessId)) {
-                            step.getOnSuccess().addAll(newStepsNames.get(onSuccessId));
-                        }
-                    }
-                }
-
-                // Generated steps must be executed in a sequential manner
-                newStepsNames.forEach((stepName, generatedStepsNames) -> {
-                    wf.getSteps().get(stepName).addFollowing(generatedStepsNames.iterator().next());
-                    String[] generatedStepsNamesArray = generatedStepsNames.toArray(new String[generatedStepsNames.size()]);
-                    for (int i = 0; i < generatedStepsNamesArray.length - 1; i++) {
-                        stepsToAdd.get(generatedStepsNamesArray[i]).addFollowing(generatedStepsNamesArray[i + 1]);
-                    }
-                });
-
-                // add new steps to the workflow
-                wf.getSteps().putAll(stepsToAdd);
-            }
-        }
-    }
-
-    /**
-     * Called after yaml parsing.
-     */
-    private void finalizeParsedWorkflows(WorkflowsBuilderService.TopologyContext topologyContext, Node node) {
-        if (MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
-            return;
-        }
-        normalizeWorkflowNames(topologyContext.getTopology().getWorkflows());
-        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
-            wf.setStandard(WorkflowUtils.isStandardWorkflow(wf));
-            if (wf.getSteps() != null) {
-                for (WorkflowStep step : wf.getSteps().values()) {
-                    if (step.getOnSuccess() != null) {
-                        Iterator<String> followingIds = step.getOnSuccess().iterator();
-                        while (followingIds.hasNext()) {
-                            String followingId = followingIds.next();
-                            WorkflowStep followingStep = wf.getSteps().get(followingId);
-                            if (followingStep == null) {
-                                followingIds.remove();
-                                ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNWON_WORKFLOW_STEP,
-                                        null, node.getStartMark(), null, node.getEndMark(), followingId));
-                            } else {
-                                followingStep.addPreceding(step.getName());
-                            }
-                        }
-                    }
-                }
-            }
-            WorkflowUtils.fillHostId(wf, topologyContext);
-            int errorCount = workflowBuilderService.validateWorkflow(topologyContext, wf);
-            if (errorCount > 0) {
-                ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.WORKFLOW_HAS_ERRORS, null,
-                        node.getStartMark(), null, node.getEndMark(), wf.getName()));
-            }
-        }
-    }
-
-    private void normalizeWorkflowNames(Map<String, Workflow> workflows) {
-        for (String oldName : Sets.newHashSet(workflows.keySet())) {
-            if (!NameValidationUtils.isValid(oldName)) {
-                String newName = StringUtils.stripAccents(oldName);
-                newName = NameValidationUtils.DEFAULT_NAME_REPLACE_PATTERN.matcher(newName).replaceAll("_");
-                String toAppend = "";
-                int i = 1;
-                while (workflows.containsKey(newName + toAppend)) {
-                    toAppend = "_" + i++;
-                }
-                newName = newName.concat(toAppend);
-                Workflow wf = workflows.remove(oldName);
-                wf.setName(newName);
-                workflows.put(newName, wf);
-                Node node = ParsingContextExecution.getObjectToNodeMap().get(oldName);
-                ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NAME, "Workflow",
-                        node.getStartMark(), oldName, node.getEndMark(), newName));
-            }
-        }
-    }
 }

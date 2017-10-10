@@ -1,7 +1,6 @@
 package org.alien4cloud.tosca.editor.operations.workflow;
 
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
-import org.hibernate.validator.constraints.NotBlank;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +19,6 @@ public class AddActivityOperation extends AbstractWorkflowOperation {
     /**
      * The target node
      */
-    @NotBlank
     private String target;
 
     /**

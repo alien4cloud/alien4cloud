@@ -24,6 +24,7 @@ public class NodeWorkflowStep extends WorkflowStep {
 
     @JsonIgnore
     public String getStepAsString() {
-        return getTarget() + "_" + getActivity().getRepresentation();
+        String target = getTarget() != null ? getTarget() : "inline";
+        return target + "_" + getActivity().getRepresentation();
     }
 }

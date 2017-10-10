@@ -246,7 +246,7 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #end## if taskEntry.value.activity
 #end## if taskEntry.value.target
 #if($utils.collectionIsNotEmpty(${taskEntry.value.onSuccess}))
-          on-success:
+          on_success:
 #foreach($following in ${taskEntry.value.onSuccess})
             - ${following}
 #end## foreach taskEntry.value.followingSteps

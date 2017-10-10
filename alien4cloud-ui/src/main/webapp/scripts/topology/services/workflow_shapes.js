@@ -76,6 +76,8 @@ define(function (require) {
           } else if (shortActivityType === 'SetStateWorkflowActivity' && !simpleView) {
             parent.append('text').attr('class', 'wfStateLabel').attr('fill', '#003399').attr('y', y + h - 8).text(_.trunc(step.activities[0].stateName, {'length': 13})).style('text-anchor', 'middle');
             iconSize = 16;
+          } else {
+            parent.append('text').attr('class', 'wfDelegateLabel').attr('fill', '#7A7A52').attr('y', y + h - 10).text(_.trunc(step.activities[0].inline, {'length': 10})).style('text-anchor', 'middle');
           }
           if (nodeType && nodeType.tags && !simpleView) {
             var nodeIcon = toscaService.getIcon(nodeType.tags);
