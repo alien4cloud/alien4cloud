@@ -6,12 +6,24 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.*;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.PreconfiguredInputsModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.CfyMultirelationshipErrorModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.EditorTopologyValidator;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhaseModifiersExecutor;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.LocationMatchingModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PolicyMatchingModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingNodeSetupModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PreDeploymentTopologyValidator;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.SubstitutionCompositionModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputArtifactsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputValidationModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputsModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.*;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.PreconfiguredInputsModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCandidateModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigCleanupModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingReplaceModifier;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
@@ -30,8 +42,11 @@ import alien4cloud.tosca.context.ToscaContextual;
  * <ul>
  * <li>Apply topology specific environment variables</li>
  * <li>Validation of the Topology to be ready to pass to deployer user</li>
- * <li>Apply location matching</li>
+ * <li>Location matching</li>
  * <li>Apply deployer inputs and applications and environment meta-properties and process get_property functions</li>
+ * <li>Apply injected location modifiers if any</li>
+ * <li>Policy matching</li>
+ * <li>Apply injected policy modifiers to</li>
  * <li>Validation that no required inputs are missing</li>
  * <li>Apply node matching</li>
  * <li>Apply node override configurations</li>
@@ -42,12 +57,20 @@ import alien4cloud.tosca.context.ToscaContextual;
  */
 @Component
 public class FlowExecutor {
+
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
-    private EditorTopologyValidator editorTopologyValidator;
-    @Inject
     private SubstitutionCompositionModifier substitutionCompositionModifier;
+    @Inject
+    private EditorTopologyValidator editorTopologyValidator;
+
+    @Inject
+    private LocationMatchingModifier locationMatchingModifier;
+    // To be moved to location specific
+    @Inject
+    private CfyMultirelationshipErrorModifier cfyMultirelationshipErrorModifier;
+
     @Inject
     private PreconfiguredInputsModifier preconfiguredInputsModifier;
     @Inject
@@ -55,11 +78,11 @@ public class FlowExecutor {
     @Inject
     private InputArtifactsModifier inputArtifactsModifier;
     @Inject
-    private LocationMatchingModifier locationMatchingModifier;
-    @Inject
-    private CfyMultirelationshipErrorModifier cfyMultirelationshipErrorModifier;
-    @Inject
     private InputValidationModifier inputValidationModifier;
+
+    @Inject
+    private PolicyMatchingModifier policyMatchingModifier;
+
     @Inject
     private NodeMatchingCandidateModifier nodeMatchingCandidateModifier;
     @Inject
@@ -94,18 +117,27 @@ public class FlowExecutor {
         topologyModifiers.add(substitutionCompositionModifier);
         // Process topology validation before actually letting the deployer to configure deployment
         topologyModifiers.add(editorTopologyValidator);
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_LOCATION_MATCH));
         // Checks location matching
         topologyModifiers.add(locationMatchingModifier);
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_LOCATION_MATCH));
         // FIXME cfy specific modifier, remove when issue solved or move to cfy plugin when possible
         topologyModifiers.add(cfyMultirelationshipErrorModifier);
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_INJECT_INPUT));
         // Inject preconfigured inputs (reading inputs file mapping) into the configuration context
         topologyModifiers.add(preconfiguredInputsModifier);
-        // Inject deployer + preconfigured + location inputs in the topology. This is done after location matching as we may have inputs that refers to location meta properties.
+        // Inject deployer + preconfigured + location inputs in the topology. This is done after location matching as we may have inputs that refers to location
+        // meta properties.
         topologyModifiers.add(inputsModifier);
         // Inject input artifacts in the topology.
         topologyModifiers.add(inputArtifactsModifier);
         // Process validation that no required inputs are missing
         topologyModifiers.add(inputValidationModifier);
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_INJECT_INPUT));
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_POLICY_MATCH));
+        topologyModifiers.add(policyMatchingModifier);
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_POLICY_MATCH));
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_NODE_MATCH));
         // Future: Load specific pre-matching location specific modifiers (pre-matching policy handlers etc.)
         // Node matching is composed of multiple sub modifiers that performs the various steps of matching.
         topologyModifiers.add(new NodeMatchingModifier(nodeMatchingCandidateModifier, // find matching candidates (do not change topology)
@@ -113,10 +145,11 @@ public class FlowExecutor {
                 nodeMatchingConfigAutoSelectModifier, // auto-select missing nodes
                 nodeMatchingReplaceModifier // Impact the topology to replace matched nodes as configured
         ));
-
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_NODE_MATCH));
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_MATCHED_NODE_SETUP));
         // Overrides unspecified matched/substituted nodes unset's properties with values provided by the deployer user
         topologyModifiers.add(postMatchingNodeSetupModifier);
-
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_MATCHED_NODE_SETUP));
         // Future: Load specific post-matching location specific modifiers (Security groups additions/ Auto-configuration, Pre-deployment policies handlers
         // etc..)
         // Check orchestrator properties configuration
