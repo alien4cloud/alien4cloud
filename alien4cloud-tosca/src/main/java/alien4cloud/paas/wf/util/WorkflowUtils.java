@@ -369,7 +369,7 @@ public class WorkflowUtils {
         return steps.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> cloneStep(entry.getValue())));
     }
 
-    private static WorkflowStep cloneStep(WorkflowStep step) {
+    public static WorkflowStep cloneStep(WorkflowStep step) {
         WorkflowStep cloned;
         if (step instanceof NodeWorkflowStep) {
             NodeWorkflowStep nodeWorkflowStep = (NodeWorkflowStep) step;
@@ -382,7 +382,7 @@ public class WorkflowUtils {
             ((RelationshipWorkflowStep) cloned).setSourceHostId(relationshipWorkflowStep.getSourceHostId());
             ((RelationshipWorkflowStep) cloned).setTargetHostId(relationshipWorkflowStep.getTargetHostId());
         }
-        cloned.setActivity(step.getActivity());
+        cloned.setActivities(step.getActivities());
         cloned.setFilter(step.getFilter());
         cloned.setName(step.getName());
         cloned.setOnFailure(step.getOnFailure());

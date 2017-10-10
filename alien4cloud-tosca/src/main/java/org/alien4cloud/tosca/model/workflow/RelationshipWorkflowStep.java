@@ -1,7 +1,5 @@
 package org.alien4cloud.tosca.model.workflow;
 
-import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
@@ -23,15 +21,6 @@ public class RelationshipWorkflowStep extends WorkflowStep {
      * Everything underneath is non tosca, it does exist to facilitate implementation in Alien4Cloud
      * ________________________________________________________________________________________________
      */
-
-    public RelationshipWorkflowStep(String target, String targetRelationship, String sourceHostId, String targetHostId, AbstractWorkflowActivity activity) {
-        setTarget(target);
-        this.targetRelationship = targetRelationship;
-        this.sourceHostId = sourceHostId;
-        this.targetHostId = targetHostId;
-        setActivity(activity);
-    }
-
     /** The node id of the host of the source of the relationship **/
     private String sourceHostId;
 

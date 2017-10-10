@@ -3,7 +3,6 @@ package alien4cloud.tosca.parser.postprocess;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -15,8 +14,6 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
-import org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.apache.commons.collections4.MapUtils;
@@ -24,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
@@ -171,18 +169,10 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                     LinkedHashSet<String> newStepsNamesForCurrentStep = newStepsNames.computeIfAbsent(step.getName(), k -> new LinkedHashSet<>());
                     for (int i = 1; i < step.getActivities().size(); i++) {
                         // here we iterate on activities to create new step
-                        WorkflowStep singleActivityStep;
-                        if (step instanceof NodeWorkflowStep) {
-                            singleActivityStep = new NodeWorkflowStep(step.getTarget(), ((NodeWorkflowStep) step).getHostId(), step.getActivities().get(i));
-                        } else {
-                            RelationshipWorkflowStep rwfs = (RelationshipWorkflowStep) step;
-                            singleActivityStep = new RelationshipWorkflowStep(rwfs.getTarget(), rwfs.getTargetRelationship(), rwfs.getSourceHostId(),
-                                    rwfs.getTargetHostId(), rwfs.getActivities().get(i));
-                        }
+                        WorkflowStep singleActivityStep = WorkflowUtils.cloneStep(step);
+                        singleActivityStep.setActivities(Lists.newArrayList(step.getActivities().get(i)));
                         String wfStepName = WorkflowUtils.generateNewWfStepName(wf.getSteps().keySet(), stepsToAdd.keySet(), step.getName());
                         singleActivityStep.setName(wfStepName);
-                        singleActivityStep.setOnSuccess(new HashSet<>(step.getOnSuccess()));
-                        singleActivityStep.setOperationHost(step.getOperationHost());
                         stepsToAdd.put(wfStepName, singleActivityStep);
                         newStepsNamesForCurrentStep.add(wfStepName);
                     }
