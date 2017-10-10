@@ -1,5 +1,20 @@
 package alien4cloud.dao;
 
+import java.beans.IntrospectionException;
+import java.io.IOException;
+
+import javax.annotation.PostConstruct;
+
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
+import org.alien4cloud.git.model.GitLocation;
+import org.alien4cloud.server.MaintenanceModeState;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.*;
+import org.springframework.stereotype.Component;
+
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -102,6 +117,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
 
         initIndice(DataObjectVersion.class);
         initIndice(MaintenanceModeState.class);
+        initIndice(GitLocation.class);
 
         initIndices(SUGGESTION_INDEX, null, AbstractSuggestionEntry.class, SuggestionEntry.class, SimpleSuggestionEntry.class);
 

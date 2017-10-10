@@ -1,0 +1,59 @@
+<form name="customGit" class="form-horizontal" role="form" ng-submit="save(customGit.$valid)" novalidate>
+  <div class="modal-header">
+    <h3>{{'APPLICATIONS.GIT.CONFIGURE' | translate}}</h3>
+  </div>
+{{}}
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="git_owner" class="col-lg-3 control-label">{{'GIT.TYPE' | translate}}</label>
+      <div class="col-lg-9">
+        <input type="radio" name="git_owner" ng-model="gitOwner" value="alien"> {{'GIT.ALIEN_MANAGED' | translate }}<br>
+        <input type="radio" name="git_owner" ng-model="gitOwner" value="user"> {{'GIT.CUSTOM' | translate }}<br>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': customGit.url.$invalid && !isAlienManagedGit() }">
+      <label for="url" class="col-lg-3 control-label">{{'EDITOR.GIT.MODAL.URL' | translate}}</label>
+      <div class="col-lg-9">
+        <input type="text" ng-disabled="isAlienManagedGit()" class="form-control" id="url" ng-model="gitLocation.url" name="url"
+          required placeholder="{{'EDITOR.GIT.MODAL.URL' | translate}}" autofocus>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': customGit.path.$invalid  && !isAlienManagedGit() }">
+      <label for="path" class="col-lg-3 control-label">{{ 'COMMON.PATH' | translate}}</label>
+      <div class="col-lg-9">
+        <input type="text" ng-disabled="isAlienManagedGit()" class="form-control" id="path" ng-model="gitLocation.path" name="path"
+          required placeholder="{{ 'COMMON.PATH' | translate}}">
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': customGit.branch.$invalid  && !isAlienManagedGit() }">
+      <label for="branch" class="col-lg-3 control-label">{{ 'EDITOR.GIT.MODAL.REMOTE_BRANCH' | translate}}</label>
+      <div class="col-lg-9">
+        <input type="text" ng-disabled="isAlienManagedGit()" class="form-control" id="branch" ng-model="gitLocation.branch" name="branch"
+          required placeholder="{{ 'EDITOR.GIT.MODAL.REMOTE_BRANCH' | translate}}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="username" class="col-lg-3 control-label">{{ 'COMMON.USERNAME' | translate}}</label>
+      <div class="col-lg-9">
+        <input type="text" ng-disabled="isAlienManagedGit()" class="form-control" id="username" ng-model="gitLocation.credential.username"
+          name="username" placeholder="{{ 'COMMON.USERNAME' | translate}}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password" class="col-lg-3 control-label">{{ 'COMMON.PASSWORD' | translate}}</label>
+      <div class="col-lg-9">
+        <input type="password" ng-disabled="isAlienManagedGit()" class="form-control" id="password" ng-model="gitLocation.credential.password"
+          name="password" placeholder="{{ 'COMMON.PASSWORD' | translate}}">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button id="btn-create" ng-disabled="customGit.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+      <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+    </div>
+</form>

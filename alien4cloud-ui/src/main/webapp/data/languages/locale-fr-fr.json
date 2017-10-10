@@ -71,6 +71,13 @@
       "DELETE_TITLE" : "Supprimer une application",
       "DELETING_FAILED" : "Impossible de supprimer l'application. Annuler son déploiement et réessayez."
     },
+    "GIT" : {
+      "CONFIGURE" : "Configurer un Git personalisé",
+      "ALIEN_MANAGED" : "Git géré par A4C",
+      "URL" : "URL",
+      "PATH" : "Path",
+      "BRANCH": "Branch"  
+    },
     "IMAGE_UPLOAD" : "Déposer une image",
     "META_PROPERTIES" : "Méta-propriétés",
     "NEW" : "Nouvelle Application",
@@ -468,6 +475,7 @@
     "NO" : "Non",
     "NODE" : "Noeud",
     "OR": "ou",
+    "PATH": "Path",
     "PROPERTIES" : "Propriétés",
     "RELATIONSHIP": "Relation",
     "SEARCH": "Rechercher...",

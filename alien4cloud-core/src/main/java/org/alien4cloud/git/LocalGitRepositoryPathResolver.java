@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.CaseFormat;
 
-import alien4cloud.git.RepositoryManager;
 import alien4cloud.utils.FileUtil;
 import lombok.SneakyThrows;
 
@@ -21,55 +20,40 @@ import lombok.SneakyThrows;
 public class LocalGitRepositoryPathResolver {
 
     private Path storageRootPath;
+    private DeploymentConfigGitResolver deploymentConfigGitResolver = new DeploymentConfigGitResolver();
+
+    public DeploymentConfigGitResolver forDeploymentConfig() {
+        return deploymentConfigGitResolver;
+    }
 
     @Required
     @Value("${directories.alien}")
     public void setStorageRootPath(String rootDir) throws IOException {
-        this.storageRootPath = FileUtil.createDirectoryIfNotExists(rootDir + "/fake_git/");
+        this.storageRootPath = FileUtil.createDirectoryIfNotExists(rootDir + "/git/");
     }
 
     /**
      * Return the "local path" where the AbstractDeploymentConfig file should be stored in the alien directory.
      *
      * @param clazz Implementation class of {@link AbstractDeploymentConfig}
-     * @param id id of the AbstractDeploymentConfig
+     * @param deploymentConfigId deploymentConfigId of the AbstractDeploymentConfig
      * @param <T> the type of the {@link AbstractDeploymentConfig} implementation type
      * 
      * @return the path of the config file should be stored.
      */
     @SneakyThrows
-    public <T extends AbstractDeploymentConfig> Path resolve(Class<T> clazz, String id) {
-        AbstractDeploymentConfig.VersionIdEnvId versionIdEnvId = AbstractDeploymentConfig.extractInfoFromId(id);
+    public <T extends AbstractDeploymentConfig> Path resolve(Class<T> clazz, String deploymentConfigId) {
+        AbstractDeploymentConfig.VersionIdEnvId versionIdEnvId = AbstractDeploymentConfig.extractInfoFromId(deploymentConfigId);
         String fileName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, clazz.getSimpleName()) + ".yml";
-
-        Path localGitPath = storageRootPath.resolve(versionIdEnvId.getEnvironmentId());
-        if (!Files.exists(localGitPath)) {
-            RepositoryManager.create(localGitPath, null);
-        }
-
-        Path filePath = localGitPath.resolve(versionIdEnvId.getVersionId()).resolve(fileName);
-        if (!Files.exists(filePath)) {
-            Files.createDirectories(filePath.getParent());
-            Files.createFile(filePath);
-        }
-
-        return filePath;
+        return storageRootPath.resolve(versionIdEnvId.getEnvironmentId()).resolve(versionIdEnvId.getVersionId()).resolve(fileName);
     }
 
-    public Path resolveRootDir(String id) {
-        AbstractDeploymentConfig.VersionIdEnvId versionIdEnvId = AbstractDeploymentConfig.extractInfoFromId(id);
-        return storageRootPath.resolve(versionIdEnvId.getEnvironmentId());
-    }
+    public class DeploymentConfigGitResolver{
+        private DeploymentConfigGitResolver(){}
 
-    /**
-     * Return the directory that holds the configuration files related to this ID
-     * 
-     * @param id id of the AbstractDeploymentConfig
-     * @return the directory where the configurations are stored
-     */
-    public Path resolveDirectory(String id) {
-        AbstractDeploymentConfig.VersionIdEnvId versionIdEnvId = AbstractDeploymentConfig.extractInfoFromId(id);
-        return storageRootPath.resolve(versionIdEnvId.getEnvironmentId()).resolve(versionIdEnvId.getVersionId());
+        public Path resolveGitRoot(String environmentId) {
+            return storageRootPath.resolve(environmentId);
+        }
     }
 
     public Path findLocalPathRelatedToEnvironment(String environmentId) {

@@ -11,6 +11,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
+import org.alien4cloud.git.LocalGitManager;
 import org.alien4cloud.git.LocalGitRepositoryPathResolver;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -28,20 +29,24 @@ public class DeploymentConfigurationDao {
     // TODO: add prefetch ?
     // TODO: eviction method?
     private LocalGitRepositoryPathResolver localGitRepositoryPathResolver;
+    private LocalGitManager localGitManager;
 
     @Inject
-    public DeploymentConfigurationDao(LocalGitRepositoryPathResolver localGitRepositoryPathResolver) {
+    public DeploymentConfigurationDao(LocalGitManager localGitManager, LocalGitRepositoryPathResolver localGitRepositoryPathResolver) {
+        this.localGitManager = localGitManager;
         this.localGitRepositoryPathResolver = localGitRepositoryPathResolver;
     }
 
     @SneakyThrows
     public <T extends AbstractDeploymentConfig> T findById(Class<T> clazz, String id) {
         Path path = localGitRepositoryPathResolver.resolve(clazz, id);
-        byte[] bytes = Files.readAllBytes(path);
-
         T config = null;
-        if(ArrayUtils.isNotEmpty(bytes)){
-            config = YamlParserUtil.parse(new String(bytes, StandardCharsets.UTF_8), clazz);
+        if(Files.exists(path)) {
+            byte[] bytes = Files.readAllBytes(path);
+
+            if (ArrayUtils.isNotEmpty(bytes)) {
+                config = YamlParserUtil.parse(new String(bytes, StandardCharsets.UTF_8), clazz);
+            }
         }
         return config;
     }
@@ -56,6 +61,7 @@ public class DeploymentConfigurationDao {
 
         Path path = localGitRepositoryPathResolver.resolve(deploymentInputs.getClass(), deploymentInputs.getId());
         String yaml = YamlParserUtil.toYaml(deploymentInputs);
+        Files.createDirectories(path.getParent());
         Files.write(path, yaml.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 

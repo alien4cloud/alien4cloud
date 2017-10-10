@@ -169,10 +169,7 @@ public class RepositoryManager {
     public static boolean isATag(Git repository, String branch) {
         String fullBranchReference = getFullReference(repository, branch);
         String[] segments = fullBranchReference.split("/");
-        if (segments.length > 2 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[segments.length - 2])) {
-            return true;
-        }
-        return false;
+        return segments.length > 2 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[segments.length - 2]);
     }
 
     private static String addPrefixOnTag(Git repository, String branch) {
@@ -242,10 +239,7 @@ public class RepositoryManager {
             PullResult result = pullCommand.call();
 
             MergeResult mergeResult = result.getMergeResult();
-            if (mergeResult != null && MergeResult.MergeStatus.ALREADY_UP_TO_DATE == mergeResult.getMergeStatus()) {
-                return false; // nothing has changed
-            }
-            return true;
+            return mergeResult == null || MergeResult.MergeStatus.ALREADY_UP_TO_DATE != mergeResult.getMergeStatus();
         } catch (GitAPIException e) {
             throw new GitException("Failed to pull git repository", e);
         }
@@ -571,6 +565,23 @@ public class RepositoryManager {
             throw new GitException("Unable to open the git repository", e);
         } catch (GitAPIException e) {
             throw new GitException("Unable to clean the git repository", e);
+        } finally {
+            close(repository);
+        }
+    }
+
+    public static void reset(Path repositoryDirectory){
+        Git repository = null;
+        try {
+            repository = Git.open(repositoryDirectory.resolve(".git").toFile());
+            ResetCommand resetCommand = repository.reset();
+            resetCommand.setMode(ResetCommand.ResetType.HARD);
+            resetCommand.setRef("HEAD");
+            resetCommand.call();
+        } catch (IOException e) {
+            throw new GitException("Unable to open the git repository", e);
+        } catch (GitAPIException e) {
+            throw new GitException("Unable to reset the git repository", e);
         } finally {
             close(repository);
         }

@@ -1,12 +1,12 @@
 package org.alien4cloud.alm.deployment.configuration.services;
 
+import javax.inject.Inject;
+
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
 import org.alien4cloud.tosca.model.Csar;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
 
 /**
  * Clean local git repository when environment or topology is deleted
@@ -29,6 +29,7 @@ public class LocalDeploymentConfigurationRepositoryCleaner {
                 QueryBuilders.boolQuery().must(QueryBuilders.termQuery("versionId", Csar.createId(event.getApplicationId(), event.getOldVersion())))
                         .must(QueryBuilders.termQuery("environmentId", event.getEnvironmentId())));
     }*/
+
     @EventListener
     public void handleDeleteTopologyVersion(BeforeApplicationTopologyVersionDeleted event) {
         deploymentConfigurationDao.deleteAllByVersionId(Csar.createId(event.getApplicationId(), event.getTopologyVersion()));
