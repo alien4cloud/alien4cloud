@@ -17,7 +17,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutor;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.action.SetMatchedNodeModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.ComposedModifier;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.Csar;
@@ -83,7 +83,7 @@ public class MatchingSubstitutionService {
 
     private List<ITopologyModifier> getModifierListWithSelectionAction(SetMatchedNodeModifier matchedNodeModifier) {
         List<ITopologyModifier> modifierList = flowExecutor.getDefaultFlowModifiers();
-        NodeMatchingModifier nodeMatchingModifier = (NodeMatchingModifier) modifierList.stream().filter(modifier -> modifier instanceof NodeMatchingModifier)
+        ComposedModifier nodeMatchingModifier = (ComposedModifier) modifierList.stream().filter(modifier -> modifier instanceof ComposedModifier)
                 .findFirst().orElseThrow(() -> new IllegalArgumentException(
                         "Unexpected exception in deployment flow to update node substitution; unable to find the master node matching modifier to inject selection action modifier."));
 
@@ -146,14 +146,14 @@ public class MatchingSubstitutionService {
         List<ITopologyModifier> modifierList = flowExecutor.getDefaultFlowModifiers();
         // only keep modifiers until NodeMatchingModifier
         for (int i = 0; i < modifierList.size(); i++) {
-            if (modifierList.get(i) instanceof NodeMatchingModifier) {
+            if (modifierList.get(i) instanceof ComposedModifier) {
                 // only keep node matching modifiers until nodeMatchingConfigAutoSelectModifier
-                ((NodeMatchingModifier) modifierList.get(i)).removeModifiersAfter(nodeMatchingConfigAutoSelectModifier);
+                ((ComposedModifier) modifierList.get(i)).removeModifiersAfter(nodeMatchingConfigAutoSelectModifier);
                 return modifierList.subList(0, i + 1);
             }
         }
 
         throw new IllegalArgumentException("Unexpected exception in deployment flow to update node substitution; unable to find the "
-                + NodeMatchingModifier.class.getSimpleName() + " modifier to proceed.");
+                + ComposedModifier.class.getSimpleName() + " modifier to proceed.");
     }
 }

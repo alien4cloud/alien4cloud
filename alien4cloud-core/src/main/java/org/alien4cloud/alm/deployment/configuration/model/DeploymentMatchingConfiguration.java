@@ -37,6 +37,9 @@ public class DeploymentMatchingConfiguration extends AbstractDeploymentConfig {
     /** Location matching definitions. */
     @ObjectField(enabled = false)
     private Map<String, NodeGroup> locationGroups = Maps.newHashMap();
+    /** Map of policy template id -> policy resource id for the policies that are substituted. */
+    @ObjectField(enabled = false)
+    private Map<String, String> matchedPolicies = Maps.newHashMap();
     /** Map of node template id -> location resource id for the nodes that are substituted. */
     @ObjectField(enabled = false)
     private Map<String, String> matchedLocationResources = Maps.newHashMap();

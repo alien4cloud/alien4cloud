@@ -24,12 +24,14 @@ public class FlowExecutionContext {
     /** A4C OOB keys of elements in the context cache. */
     public static final String LOCATION_MATCH_CACHE_KEY = "location_matches";
     public static final String DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY = "deployment_locations";
-
+    /** Location resource template candidates per node template key. */
     public static final String MATCHING_PER_NODE_LOC_RES_TEMPLATES = "matching_per_node_loc_res_templates";
     public static final String MATCHED_LOCATION_RESOURCE_TEMPLATES = "matched_location_resource_templates";
     public static final String MATCHED_LOCATION_RESOURCE_TEMPLATE_IDS_PER_NODE = "matched_location_resource_template_ids_per_node";
     public static final String MATCHING_ORIGINAL_NODES = "matching_original_nodes";
     public static final String MATCHING_SUBSTITUTION_REQUEST = "matching_substitution_request";
+    /** Location resource template candidates per policy template key. */
+    public static final String MATCHING_PER_POLICY_LOC_RES_TEMPLATES = "matching_per_policy_loc_res_templates";
 
     /** Injected dao for configuration retrieval management. */
     private final IGenericSearchDAO alienDAO;

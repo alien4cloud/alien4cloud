@@ -11,31 +11,27 @@ import com.google.common.collect.Lists;
 import lombok.Getter;
 
 /**
- *
- * Node matching is composed of multiple sub modifiers that performs the various steps of matching.
+ * Some phases as node and policy matching are composed of multiple sub modifiers that performs the various steps of matching.
  *
  * This modifier is the entry point, and will execute all sub modifiers in the proper order.
- *
  */
 @Getter
-public class NodeMatchingModifier implements ITopologyModifier {
+public class ComposedModifier implements ITopologyModifier {
+    private List<ITopologyModifier> subModifiers;
 
-    private List<ITopologyModifier> nodeMatchingModifiers;
-
-    public NodeMatchingModifier(ITopologyModifier... nodeMatchingModifiers) {
-        this.nodeMatchingModifiers = Lists.newArrayList(nodeMatchingModifiers);
+    public ComposedModifier(ITopologyModifier... subModifiers) {
+        this.subModifiers = Lists.newArrayList(subModifiers);
     }
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
-        nodeMatchingModifiers.forEach(modifier -> modifier.process(topology, context));
+        subModifiers.forEach(modifier -> modifier.process(topology, context));
     }
 
     public void addModifierAfter(ITopologyModifier toAddModifier, ITopologyModifier existingModifier) {
-
-        for (int i = 0; i < this.nodeMatchingModifiers.size(); i++) {
-            if (this.nodeMatchingModifiers.get(i) == existingModifier) {
-                this.nodeMatchingModifiers.add(i + 1, toAddModifier);
+        for (int i = 0; i < this.subModifiers.size(); i++) {
+            if (this.subModifiers.get(i) == existingModifier) {
+                this.subModifiers.add(i + 1, toAddModifier);
                 return;
             }
         }
@@ -50,9 +46,9 @@ public class NodeMatchingModifier implements ITopologyModifier {
      * @param lastModifierToKeep The last modifier to keep in the list. Everything else after it will be removed.
      */
     public void removeModifiersAfter(ITopologyModifier lastModifierToKeep) {
-        for (int i = 0; i < this.nodeMatchingModifiers.size(); i++) {
-            if (this.nodeMatchingModifiers.get(i) == lastModifierToKeep) {
-                this.nodeMatchingModifiers.subList(i + 1, this.nodeMatchingModifiers.size()).clear();
+        for (int i = 0; i < this.subModifiers.size(); i++) {
+            if (this.subModifiers.get(i) == lastModifierToKeep) {
+                this.subModifiers.subList(i + 1, this.subModifiers.size()).clear();
                 return;
             }
         }

@@ -25,6 +25,8 @@ import alien4cloud.topology.task.LocationPolicyTask;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.AlienConstants;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 /**
  * This modifier load and put in context cache the matching candidates nodes.
  *
@@ -80,17 +82,14 @@ public class NodeMatchingCandidateModifier implements ITopologyModifier {
                     nodesToMatch = Maps.filterEntries(topology.getNodeTemplates(), input -> locationNodeGroup.getMembers().contains(input.getKey()));
                 }
             }
-            availableSubstitutions.putAll(nodeMatcherService.match(nodeTypes, nodesToMatch, locationByIds.get(AlienConstants.GROUP_ALL), environmentId));
+            availableSubstitutions.putAll(nodeMatcherService.match(nodeTypes, nodesToMatch, locationByIds.get(groupName), environmentId));
         }
         return availableSubstitutions;
     }
 
     private Map<String, NodeType> getNodeTypes(Topology topology) {
         Map<String, NodeType> nodeTypes = Maps.newHashMap();
-        if (topology.getNodeTemplates() == null) {
-            return nodeTypes;
-        }
-        for (NodeTemplate template : topology.getNodeTemplates().values()) {
+        for (NodeTemplate template : safe(topology.getNodeTemplates()).values()) {
             if (!nodeTypes.containsKey(template.getType())) {
                 NodeType nodeType = ToscaContext.getOrFail(NodeType.class, template.getType());
                 nodeTypes.put(nodeType.getElementId(), nodeType);

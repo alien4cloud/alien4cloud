@@ -14,5 +14,4 @@ public final class FlowPhases {
     public static final String POST_NODE_MATCH = "post-node-match";
     public static final String PRE_MATCHED_NODE_SETUP = "pre-matched-node-setup";
     public static final String POST_MATCHED_NODE_SETUP = "post-matched-node-setup";
-
 }
