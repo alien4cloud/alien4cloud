@@ -39,16 +39,16 @@ public abstract class AbstractMatchingConfigAutoSelectModifier<T extends Abstrac
         Map<String, List<T>> availableMatches = getAvailableMatches(context);
 
         // Last user substitution may be incomplete or not valid anymore so let's check them and eventually select default values
-        Map<String, T> allAvailableResourceTemplate = Maps.newHashMap();
-        Map<String, Set<String>> locResTemplateIdsPerNodeIds = Maps.newHashMap(); // map of nodeId -> location resource template ids required to create
+        Map<String, T> availableResourceTemplatesById = Maps.newHashMap();
+        Map<String, Set<String>> resourceTemplatesByTemplateId = Maps.newHashMap(); // map of nodeId -> location resource template ids required to create
         // historical deployment topology dto object
         for (Map.Entry<String, List<T>> entry : availableMatches.entrySet()) {
             // Fill locResTemplateIdsPerNodeIds
             Set<String> lrtIds = Sets.newHashSet();
-            locResTemplateIdsPerNodeIds.put(entry.getKey(), lrtIds);
+            resourceTemplatesByTemplateId.put(entry.getKey(), lrtIds);
             // We leverage the loop to also create a map of resources by id for later usage.
             for (T lrt : entry.getValue()) {
-                allAvailableResourceTemplate.put(lrt.getId(), lrt);
+                availableResourceTemplatesById.put(lrt.getId(), lrt);
                 lrtIds.add(lrt.getId());
             }
             // select default values
@@ -66,13 +66,17 @@ public abstract class AbstractMatchingConfigAutoSelectModifier<T extends Abstrac
         }
 
         // This is required for next modifier so we cache them here for performance reasons.
-        context.getExecutionCache().put(FlowExecutionContext.MATCHED_LOCATION_RESOURCE_TEMPLATES, allAvailableResourceTemplate);
-        context.getExecutionCache().put(FlowExecutionContext.MATCHED_LOCATION_RESOURCE_TEMPLATE_IDS_PER_NODE, locResTemplateIdsPerNodeIds);
+        context.getExecutionCache().put(getResourceTemplateByIdMapCacheKey(), availableResourceTemplatesById);
+        context.getExecutionCache().put(getResourceTemplateByTemplateIdCacheKey(), resourceTemplatesByTemplateId);
 
         matchingConfiguration.setMatchedLocationResources(lastUserMatches);
         // TODO Do that only if updated...
         context.saveConfiguration(matchingConfiguration);
     }
+
+    protected abstract String getResourceTemplateByIdMapCacheKey();
+
+    protected abstract String getResourceTemplateByTemplateIdCacheKey();
 
     protected abstract Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
 

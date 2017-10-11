@@ -25,6 +25,6 @@ public class NodeMatchingConfigCleanupModifier extends AbstractMatchingConfigCle
 
     @Override
     protected Map<String, List<LocationResourceTemplate>> getAvailableMatches(FlowExecutionContext context) {
-        return (Map<String, List<LocationResourceTemplate>>) context.getExecutionCache().get(FlowExecutionContext.MATCHING_PER_NODE_LOC_RES_TEMPLATES);
+        return (Map<String, List<LocationResourceTemplate>>) context.getExecutionCache().get(FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_NODE_ID_MAP);
     }
 }

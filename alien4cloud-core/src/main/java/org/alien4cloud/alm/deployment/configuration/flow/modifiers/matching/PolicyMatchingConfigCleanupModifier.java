@@ -25,6 +25,6 @@ public class PolicyMatchingConfigCleanupModifier extends AbstractMatchingConfigC
 
     @Override
     protected Map<String, List<PolicyLocationResourceTemplate>> getAvailableMatches(FlowExecutionContext context) {
-        return (Map<String, List<PolicyLocationResourceTemplate>>) context.getExecutionCache().get(FlowExecutionContext.MATCHING_PER_POLICY_LOC_RES_TEMPLATES);
+        return (Map<String, List<PolicyLocationResourceTemplate>>) context.getExecutionCache().get(FlowExecutionContext.MATCHED_POLICY_LOCATION_TEMPLATES_BY_NODE_ID_MAP);
     }
 }

@@ -117,7 +117,7 @@ public class MatchingSubstitutionService {
             flowExecutor.execute(topology, getMatchingFlow(), executionContext);
 
             Map<String, Set<String>> locResTemplateIdsPerNodeIds = (Map<String, Set<String>>) executionContext.getExecutionCache()
-                    .get(FlowExecutionContext.MATCHED_LOCATION_RESOURCE_TEMPLATE_IDS_PER_NODE);
+                    .get(FlowExecutionContext.SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP);
 
             // Update the substitution on the target if available substitution is always compatible
             Map<String, String> validOnNewEnvSubstitutedNodes = safe(sourceConfiguration.getMatchedLocationResources()).entrySet().stream()

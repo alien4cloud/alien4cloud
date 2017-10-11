@@ -153,7 +153,7 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
 
         // Restrict the map of LocationResourceTemplate to the ones that are actually substituted after matching.
         Map<String, LocationResourceTemplate> allLocationResourcesTemplates = (Map<String, LocationResourceTemplate>) executionContext.getExecutionCache()
-                .get(FlowExecutionContext.MATCHED_LOCATION_RESOURCE_TEMPLATES);
+                .get(FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP);
         Map<String, LocationResourceTemplate> substitutedLocationResourceTemplate = Maps.newHashMap(); //
         matchingConfiguration.getMatchedLocationResources().forEach((nodeKey, locationResourceId) -> substitutedLocationResourceTemplate.put(locationResourceId,
                 safe(allLocationResourcesTemplates).get(locationResourceId)));
@@ -162,7 +162,7 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
         DeploymentSubstitutionConfiguration substitutionConfiguration = new DeploymentSubstitutionConfiguration();
 
         substitutionConfiguration.setAvailableSubstitutions(
-                (Map<String, Set<String>>) executionContext.getExecutionCache().get(FlowExecutionContext.MATCHED_LOCATION_RESOURCE_TEMPLATE_IDS_PER_NODE));
+                (Map<String, Set<String>>) executionContext.getExecutionCache().get(FlowExecutionContext.SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP));
         substitutionConfiguration.setSubstitutionsTemplates(allLocationResourcesTemplates);
         // Fetch all required types associated with the location substitution templates.
         substitutionConfiguration

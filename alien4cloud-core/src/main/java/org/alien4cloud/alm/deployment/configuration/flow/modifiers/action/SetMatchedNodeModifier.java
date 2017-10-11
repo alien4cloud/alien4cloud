@@ -47,7 +47,7 @@ public class SetMatchedNodeModifier implements ITopologyModifier {
         Map<String, String> lastUserSubstitutions = matchingConfiguration.getMatchedLocationResources();
 
         Map<String, Set<String>> locResTemplateIdsPerNodeIds = (Map<String, Set<String>>) context.getExecutionCache()
-                .get(FlowExecutionContext.MATCHED_LOCATION_RESOURCE_TEMPLATE_IDS_PER_NODE);
+                .get(FlowExecutionContext.SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP);
 
         // Update matching configuration
         Set<String> nodeAvailableSubstitutions = locResTemplateIdsPerNodeIds.get(nodeId);

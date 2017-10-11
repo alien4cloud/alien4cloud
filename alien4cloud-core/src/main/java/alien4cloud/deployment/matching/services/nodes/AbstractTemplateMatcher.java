@@ -87,7 +87,6 @@ public abstract class AbstractTemplateMatcher<R extends AbstractLocationResource
     }
 
     /**
-     *
      * Get the matching configuration for the substitution candidate based on its type hierarchy.
      *
      * Meaning if a candidateType D derives from (in this order) C, B, A, then we will first look for a matching for D. <br>

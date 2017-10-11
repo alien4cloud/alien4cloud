@@ -18,12 +18,23 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 public class NodeMatchingConfigAutoSelectModifier extends AbstractMatchingConfigAutoSelectModifier<LocationResourceTemplate> {
 
     @Override
+    protected String getResourceTemplateByTemplateIdCacheKey() {
+        return FlowExecutionContext.SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP;
+    }
+
+    @Override
+    protected String getResourceTemplateByIdMapCacheKey() {
+        return FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP;
+    }
+
+    @Override
     protected Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedLocationResources();
     }
 
     @Override
     protected Map<String, List<LocationResourceTemplate>> getAvailableMatches(FlowExecutionContext context) {
-        return (Map<String, List<LocationResourceTemplate>>) context.getExecutionCache().get(FlowExecutionContext.MATCHING_PER_NODE_LOC_RES_TEMPLATES);
+        return (Map<String, List<LocationResourceTemplate>>) context.getExecutionCache()
+                .get(FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_NODE_ID_MAP);
     }
 }

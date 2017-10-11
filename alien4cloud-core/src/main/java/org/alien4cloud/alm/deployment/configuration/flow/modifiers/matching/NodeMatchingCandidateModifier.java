@@ -61,7 +61,7 @@ public class NodeMatchingCandidateModifier implements ITopologyModifier {
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = getAvailableSubstitutions(topology, matchingConfiguration.getLocationGroups(),
                 locationMap, context.getEnvironmentContext().get().getEnvironment().getId());
 
-        context.getExecutionCache().put(FlowExecutionContext.MATCHING_PER_NODE_LOC_RES_TEMPLATES, availableSubstitutions);
+        context.getExecutionCache().put(FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_NODE_ID_MAP, availableSubstitutions);
     }
 
     private Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(Topology topology, Map<String, NodeGroup> locationGroups,

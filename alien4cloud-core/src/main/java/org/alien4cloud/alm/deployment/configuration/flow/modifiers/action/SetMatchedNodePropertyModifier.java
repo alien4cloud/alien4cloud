@@ -73,7 +73,7 @@ public class SetMatchedNodePropertyModifier implements ITopologyModifier {
         }
 
         Map<String, LocationResourceTemplate> allAvailableResourceTemplate = (Map<String, LocationResourceTemplate>) context.getExecutionCache()
-                .get(FlowExecutionContext.MATCHED_LOCATION_RESOURCE_TEMPLATES);
+                .get(FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP);
 
         LocationResourceTemplate locationResourceTemplate = allAvailableResourceTemplate.get(substitutionId);
 

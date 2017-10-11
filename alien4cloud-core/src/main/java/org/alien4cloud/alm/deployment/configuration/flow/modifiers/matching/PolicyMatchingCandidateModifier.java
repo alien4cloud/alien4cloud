@@ -58,7 +58,7 @@ public class PolicyMatchingCandidateModifier implements ITopologyModifier {
         Map<String, List<PolicyLocationResourceTemplate>> availableSubstitutions = getAvailableMatches(topology, context,
                 matchingConfiguration.getLocationGroups(), locationMap, context.getEnvironmentContext().get().getEnvironment().getId());
 
-        context.getExecutionCache().put(FlowExecutionContext.MATCHING_PER_POLICY_LOC_RES_TEMPLATES, availableSubstitutions);
+        context.getExecutionCache().put(FlowExecutionContext.MATCHED_POLICY_LOCATION_TEMPLATES_BY_NODE_ID_MAP, availableSubstitutions);
     }
 
     private Map<String, List<PolicyLocationResourceTemplate>> getAvailableMatches(Topology topology, FlowExecutionContext context,

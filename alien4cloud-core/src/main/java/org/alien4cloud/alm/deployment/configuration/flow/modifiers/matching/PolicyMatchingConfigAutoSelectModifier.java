@@ -16,6 +16,17 @@ import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
  */
 @Component
 public class PolicyMatchingConfigAutoSelectModifier extends AbstractMatchingConfigAutoSelectModifier<PolicyLocationResourceTemplate> {
+
+    @Override
+    protected String getResourceTemplateByTemplateIdCacheKey() {
+        return FlowExecutionContext.SELECTED_MATCH_POLICY_LOCATION_TEMPLATE_BY_NODE_ID_MAP;
+    }
+
+    @Override
+    protected String getResourceTemplateByIdMapCacheKey() {
+        return FlowExecutionContext.MATCHED_POLICY_LOCATION_TEMPLATES_BY_ID_MAP;
+    }
+
     @Override
     protected Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedPolicies();
@@ -23,6 +34,7 @@ public class PolicyMatchingConfigAutoSelectModifier extends AbstractMatchingConf
 
     @Override
     protected Map<String, List<PolicyLocationResourceTemplate>> getAvailableMatches(FlowExecutionContext context) {
-        return (Map<String, List<PolicyLocationResourceTemplate>>) context.getExecutionCache().get(FlowExecutionContext.MATCHING_PER_POLICY_LOC_RES_TEMPLATES);
+        return (Map<String, List<PolicyLocationResourceTemplate>>) context.getExecutionCache()
+                .get(FlowExecutionContext.MATCHED_POLICY_LOCATION_TEMPLATES_BY_NODE_ID_MAP);
     }
 }
