@@ -8,8 +8,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.inject.Named;
 
+import alien4cloud.dao.IGenericSearchDAO;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.git.LocalGitManager;
 import org.alien4cloud.git.LocalGitRepositoryPathResolver;
@@ -25,27 +28,34 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DeploymentConfigurationDao {
 
-    // TODO: add cache
+    // TODO: add cache / eviction method ?
     // TODO: add prefetch ?
-    // TODO: eviction method?
     private LocalGitRepositoryPathResolver localGitRepositoryPathResolver;
-    private LocalGitManager localGitManager;
+    private IGenericSearchDAO alienDao;
 
     @Inject
-    public DeploymentConfigurationDao(LocalGitManager localGitManager, LocalGitRepositoryPathResolver localGitRepositoryPathResolver) {
-        this.localGitManager = localGitManager;
+    public DeploymentConfigurationDao(LocalGitRepositoryPathResolver localGitRepositoryPathResolver, @Named("alien-es-dao") IGenericSearchDAO alienDao) {
         this.localGitRepositoryPathResolver = localGitRepositoryPathResolver;
+        this.alienDao = alienDao;
     }
 
     @SneakyThrows
     public <T extends AbstractDeploymentConfig> T findById(Class<T> clazz, String id) {
         Path path = localGitRepositoryPathResolver.resolve(clazz, id);
         T config = null;
-        if(Files.exists(path)) {
+        if (Files.exists(path)) {
             byte[] bytes = Files.readAllBytes(path);
 
             if (ArrayUtils.isNotEmpty(bytes)) {
                 config = YamlParserUtil.parse(new String(bytes, StandardCharsets.UTF_8), clazz);
+            }
+        }else{
+            // Any data to migrate?
+            config = alienDao.findById(clazz, id);
+            if(config != null){
+                // migrating data from ES to Git
+                save(config);
+                alienDao.delete(clazz, id);
             }
         }
         return config;

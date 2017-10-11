@@ -45,7 +45,7 @@ public class GitController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
     @Audit
     public RestResponse<Void> updateToCustomGit(@Valid @RequestBody UpdateDeploymentConfigGitConfig request) {
-        checkAuthorization(request.getEnvironmentId());
+        checkEnvironmentAuthorization(request.getEnvironmentId());
 
         // path cannot leave the git root directory
         boolean incorrectPath = Paths.get(request.getPath()).normalize().startsWith("..");
@@ -57,7 +57,7 @@ public class GitController {
         if(StringUtils.isBlank(protocol)){
             throw new IllegalStateException("Incorrect URL. Missing protocol <" + request.getUrl() + ">");
         }
-        // file:// protocol is not allowed for security reason
+        // file:// protocol is not allowed for security reason and only supported for alien managed repository
         if (protocol.startsWith("file")) {
             throw new IllegalStateException("Protocol <" + protocol + "> is not allowed");
         }
@@ -81,7 +81,7 @@ public class GitController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
     @Audit
     public RestResponse<Void> updateToAlienManaged(@Valid @PathVariable String environmentId) {
-        checkAuthorization(environmentId);
+        checkEnvironmentAuthorization(environmentId);
 
         GitLocation managedGit = alienManagedGitLocationBuilder.forDeploymentConfig(environmentId);
         updateGitLocation(managedGit);
@@ -93,13 +93,13 @@ public class GitController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
     public RestResponse<GitLocation> getByEnvironmentId(
             @ApiParam(value = "Environment id", required = true) @PathVariable String environmentId) {
-        checkAuthorization(environmentId);
+        checkEnvironmentAuthorization(environmentId);
 
         GitLocation gitLocation = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environmentId);
         return RestResponseBuilder.<GitLocation>builder().data(gitLocation).build();
     }
 
-    private void checkAuthorization(String environmentId) {
+    private void checkEnvironmentAuthorization(String environmentId) {
         ApplicationEnvironment environment = environmentService.getOrFail(environmentId);
         Application application = applicationService.getOrFail(environment.getApplicationId());
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
@@ -116,28 +116,4 @@ public class GitController {
         localGitManager.createLocalGitIfNeeded(newGitLocation);
         gitLocationDao.save(newGitLocation);
     }
-
-    /*
-    @ApiOperation(value = "Delete a registered TOSCA CSAR git repository.")
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
-    @Audit
-    public RestResponse<Void> delete(@ApiParam(value = "Id of the git repository to delete", required = true) @PathVariable String id) {
-        // TODO: check right on resources
-
-        gitLocationDao.delete(id);
-        return RestResponseBuilder.<Void>builder().build();
-    }
-    */
-
-    /*
-    @ApiOperation(value = "Retrieve information about a git repository using its Id.")
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
-    public RestResponse<GitLocation> get(@ApiParam(value = "Id of git repository to get", required = true) @PathVariable String id) {
-        // TODO: check right on resources
-
-        GitLocation gitLocation = gitLocationDao.findById(id);
-        return RestResponseBuilder.<GitLocation>builder().data(gitLocation).build();
-    }*/
 }
