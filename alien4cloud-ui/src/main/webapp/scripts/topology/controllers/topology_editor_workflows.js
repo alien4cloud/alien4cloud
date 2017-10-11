@@ -473,6 +473,44 @@ define(function (require) {
         insertOperation: function (stepId) {
           this.addOperationActivity(stepId, true);
         },
+        addInline: function () {
+          this.addInlineActivity();
+        },
+        appendInline: function (stepId) {
+          this.addInlineActivity(stepId, false);
+        },
+        insertInline: function (stepId) {
+          this.addInlineActivity(stepId, true);
+        },
+        addInlineActivity: function (stepId, before) {
+          var scope = this.scope;
+          var instance = this;
+          var modalInstance = $uibModal.open({
+            templateUrl: 'views/topology/workflow_inline_selector.html',
+            controller: 'WfInlineSelectorController',
+            resolve: {
+              topologyDTO: function () {
+                return scope.topology;
+              },
+              thisWorkflow: function () {
+                return scope.currentWorkflowName;
+              }
+            }
+          });
+          modalInstance.result.then(function (response) {
+            var activityRequest = {
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.AddActivityOperation',
+              workflowName: scope.currentWorkflowName,
+              relatedStepId: stepId,
+              before: before,
+              activity: {
+                type: 'org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity',
+                inline: response
+              }
+            };
+            instance.addActivity(activityRequest);
+          });
+        },
         addOperationActivity: function (stepId, before) {
           var scope = this.scope;
           var instance = this;
@@ -672,7 +710,7 @@ define(function (require) {
           } else if (shortType === 'DelegateWorkflowActivity') {
             details.delegateWorkflow = step.activities[0].delegate;
           } else {
-            details = step.activities[0];
+            details.inline = step.activities[0].inline;
           }
           return details;
         },

@@ -40,5 +40,5 @@ topology_template:
           activities:
             - call_operation: Configure.pre_configure_source
             - set_state: installed
-          on-success:
+          on_success:
             - SoftwareComponent_install

@@ -17,7 +17,7 @@ public class WorkflowValidator {
         super();
         rules = new ArrayList<>();
         rules.add(new CycleDetection());
-        rules.add(new NodeValidation());
+        rules.add(new SemanticValidation());
     }
 
     public int validate(TopologyContext topologyContext, Workflow workflow) {

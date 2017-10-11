@@ -29,6 +29,7 @@ import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
+import org.apache.commons.lang3.StringUtils;
 
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
@@ -89,12 +90,17 @@ public class WorkflowUtils {
         wf.getHosts().clear();
         for (WorkflowStep step : wf.getSteps().values()) {
             if (step instanceof NodeWorkflowStep) {
+                if (StringUtils.isEmpty(step.getTarget())) {
+                    // Inline steps might not have target
+                    // FIXME when tosca is clear on this point then we might change the model because it's not beautiful
+                    return;
+                }
                 String hostId = WorkflowUtils.getRootHostNode(step.getTarget(), topologyContext);
                 ((NodeWorkflowStep) step).setHostId(hostId);
                 if (hostId != null) {
                     wf.getHosts().add(hostId);
                 }
-            } else {
+            } else if (step instanceof RelationshipWorkflowStep) {
                 RelationshipWorkflowStep relationshipWorkflowStep = (RelationshipWorkflowStep) step;
                 String sourceHostId = WorkflowUtils.getRootHostNode(relationshipWorkflowStep.getTarget(), topologyContext);
                 String targetHostId = WorkflowUtils.getRootHostNode(
@@ -146,12 +152,12 @@ public class WorkflowUtils {
     }
 
     public static boolean isRelationshipStep(WorkflowStep step, String nodeId, String relationshipName) {
-        return step instanceof RelationshipWorkflowStep && step.getTarget().equals(nodeId)
+        return step instanceof RelationshipWorkflowStep && nodeId.equals(step.getTarget())
                 && relationshipName.equals(((RelationshipWorkflowStep) step).getTargetRelationship());
     }
 
     public static boolean isNodeStep(WorkflowStep step, String nodeId) {
-        return step instanceof NodeWorkflowStep && step.getTarget().equals(nodeId);
+        return step instanceof NodeWorkflowStep && nodeId.equals(step.getTarget());
     }
 
     /**
@@ -311,6 +317,7 @@ public class WorkflowUtils {
 
     public static void processInlineWorkflows(Map<String, Workflow> workflowMap) {
         workflowMap.forEach((workflowId, workflow) -> {
+            final Set<String> newInlinedStepNames = new HashSet<>();
             Map<String, Map<String, WorkflowStep>> inlinedWorkflowSteps = workflow.getSteps().entrySet().stream()
                     .filter(entry -> entry.getValue().getActivity() instanceof InlineWorkflowActivity)
                     .collect(Collectors.toMap(Map.Entry::getKey, inlinedStepEntry -> {
@@ -321,9 +328,28 @@ public class WorkflowUtils {
                         if (inlined == null) {
                             throw new NotFoundException("Inlined workflow " + inlinedName);
                         }
-                        Map<String, WorkflowStep> inlinedSteps = cloneSteps(inlined.getSteps());
+                        Map<String, WorkflowStep> generatedSteps = cloneSteps(inlined.getSteps());
+
+                        Map<String, WorkflowStep> generatedStepsWithNewNames = generatedSteps.entrySet().stream().collect(Collectors.toMap(entry -> {
+                            String newName = generateNewWfStepNameWithPrefix(inlinedStepEntry.getKey() + "_", workflow.getSteps().keySet(), newInlinedStepNames,
+                                    entry.getKey());
+                            newInlinedStepNames.add(newName);
+                            if (!newName.equals(entry.getKey())) {
+                                entry.getValue().setName(newName);
+                                generatedSteps.forEach((generatedStepId, generatedStep) -> {
+                                    if (generatedStep.getOnSuccess().remove(entry.getKey())) {
+                                        generatedStep.getOnSuccess().add(newName);
+                                    }
+                                    if (generatedStep.getPrecedingSteps().remove(entry.getKey())) {
+                                        generatedStep.getPrecedingSteps().add(newName);
+
+                                    }
+                                });
+                            }
+                            return newName;
+                        }, Map.Entry::getValue));
                         // Find all root steps of the workflow and link them to the parent workflows
-                        final Map<String, WorkflowStep> rootInlinedSteps = inlinedSteps.values().stream()
+                        final Map<String, WorkflowStep> rootInlinedSteps = generatedStepsWithNewNames.values().stream()
                                 .filter(inlinedStep -> inlinedStep.getPrecedingSteps().isEmpty())
                                 .peek(rootInlinedStep -> rootInlinedStep.getPrecedingSteps().addAll(step.getPrecedingSteps()))
                                 .collect(Collectors.toMap(WorkflowStep::getName, rootInlinedStep -> rootInlinedStep));
@@ -334,7 +360,7 @@ public class WorkflowUtils {
                             precedingStep.getOnSuccess().addAll(rootInlinedSteps.keySet());
                         });
                         // Find all leaf steps of the workflow and link them to the parent workflows
-                        final Map<String, WorkflowStep> leafInlinedSteps = inlinedSteps.values().stream()
+                        final Map<String, WorkflowStep> leafInlinedSteps = generatedStepsWithNewNames.values().stream()
                                 .filter(inlinedStep -> inlinedStep.getOnSuccess().isEmpty())
                                 .peek(leafInlinedStep -> leafInlinedStep.getOnSuccess().addAll(step.getOnSuccess()))
                                 .collect(Collectors.toMap(WorkflowStep::getName, leafInlinedStep -> leafInlinedStep));
@@ -346,17 +372,7 @@ public class WorkflowUtils {
                         });
 
                         // Remove the inlined step and replace by other workflow's steps
-                        final Set<String> newInlinedStepNames = new HashSet<>();
-                        return inlinedSteps.entrySet().stream().collect(Collectors.toMap(entry -> {
-                            if (workflow.getSteps().containsKey(entry.getKey())) {
-                                // If the workflow contains step with the same name then generate a new one
-                                String newName = generateNewWfStepName(workflow.getSteps().keySet(), newInlinedStepNames, entry.getKey());
-                                newInlinedStepNames.add(newName);
-                                return newName;
-                            } else {
-                                return entry.getKey();
-                            }
-                        }, Map.Entry::getValue));
+                        return generatedStepsWithNewNames;
                     }));
             inlinedWorkflowSteps.forEach((inlinedStepName, generatedInlinedWorkflowSteps) -> {
                 workflow.getSteps().remove(inlinedStepName);
@@ -393,12 +409,17 @@ public class WorkflowUtils {
         return cloned;
     }
 
-    public static String generateNewWfStepName(Set<String> existingStepNames, Set<String> newStepNames, String stepName) {
+    private static String generateNewWfStepNameWithPrefix(String prefix, Set<String> existingStepNames, Set<String> newStepNames, String stepName) {
+        String newStepName = prefix + stepName;
         int i = 0;
-        while (existingStepNames.contains(stepName + "_" + i) || newStepNames.contains(stepName + "_" + i)) {
-            i++;
+        while (existingStepNames.contains(newStepName) || newStepNames.contains(newStepName)) {
+            newStepName = prefix + stepName + "_" + (i++);
         }
-        return stepName + "_" + i;
+        return newStepName;
+    }
+
+    public static String generateNewWfStepName(Set<String> existingStepNames, Set<String> newStepNames, String stepName) {
+        return generateNewWfStepNameWithPrefix("", existingStepNames, newStepNames, stepName);
     }
 
 }

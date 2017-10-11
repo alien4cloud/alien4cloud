@@ -23,6 +23,15 @@ topology_template:
             - delegate: install
             # Inline another workflow defined in the topology (to allow re-usability)
             - inline: my_custom_wf
+          on_success:
+            - Compute_start
+        Compute_start:
+          target: Compute
+          activities:
+            - delegate: start
+        Some_other_inline:
+          activities:
+            - inline: my_custom_wf
     # Here the definition of the workflow who will be reused by activities from other workflow
     my_custom_wf:
       steps:
@@ -30,7 +39,7 @@ topology_template:
           target: Compute
           activities:
             - delegate: stop
-          on-success:
+          on_success:
             - Compute_uninstall
         Compute_uninstall:
           target: Compute

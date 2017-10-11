@@ -96,6 +96,12 @@
             </div>
             <div>
               <a class="btn btn-default btn-md"
+                 ng-mouseover="workflows.addStepPreview()"
+                 ng-mouseleave="workflows.resetPreview()"
+                 ng-click="workflows.addInline()">{{'APPLICATIONS.WF.addInlineActivity' | translate}}</a>
+            </div>
+            <div>
+              <a class="btn btn-default btn-md"
                 ng-mouseover="workflows.addStepPreview()"
                 ng-mouseleave="workflows.resetPreview()"
                 ng-click="workflows.addState()">{{'APPLICATIONS.WF.addStateActivity' | translate}}</a>
@@ -115,13 +121,13 @@
                </span>
              </div>
               <div class="col-md-9">
-                <span ng-if="!previewWorkflowStep.targetRelationship">{{'COMMON.NODE' | translate}}: <b class="break-word">{{previewWorkflowStep.target}}</b><br></span>
+                <span ng-if="!previewWorkflowStep.targetRelationship && previewWorkflowStep.target">{{'COMMON.NODE' | translate}}: <b class="break-word">{{previewWorkflowStep.target}}</b><br></span>
                 <span ng-if="previewWorkflowStep.targetRelationship">
                   {{'COMMON.SOURCE' | translate}}: <b class="break-word">{{previewWorkflowStep.target}}</b><br>
                   {{'COMMON.RELATIONSHIP' | translate}}: <b class="break-word">{{previewWorkflowStep.targetRelationship}}</b><br>
                   {{'COMMON.TARGET' | translate}}: <b class="break-word">{{workflows.getTargetNodeForRelationshipStep(previewWorkflowStep)}}</b><br>
                 </span>
-               {{'APPLICATIONS.WF.host' | translate}}: <b class="break-word">{{workflows.getStepHost(previewWorkflowStep)}}</b><br>
+                <span ng-init="previewWorkflowStepHost=workflows.getStepHost(previewWorkflowStep)" ng-if="previewWorkflowStepHost">{{'APPLICATIONS.WF.host' | translate}}: <b class="break-word">{{previewWorkflowStepHost}}</b><br></span>
                {{'APPLICATIONS.WF.activity' | translate}}: <b>{{ 'APPLICATIONS.WF.' + workflows.getStepActivityType(previewWorkflowStep) | translate}}</b><br>
              </div>
            </div>
@@ -271,6 +277,18 @@
                   ng-mouseleave="workflows.resetPreview()"
                   ng-click="workflows.appendOperation(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.appendOperationActivity' | translate}}</a>
               </div>
+            <div>
+              <a class="btn btn-default btn-md"
+                 ng-mouseover="workflows.insertStepPreview(pinnedWorkflowStep.name)"
+                 ng-mouseleave="workflows.resetPreview()"
+                 ng-click="workflows.insertInline(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.insertInlineActivity' | translate}}</a>
+            </div>
+            <div>
+              <a class="btn btn-default btn-md"
+                  ng-mouseover="workflows.appendStepPreview(pinnedWorkflowStep.name)"
+                  ng-mouseleave="workflows.resetPreview()"
+                  ng-click="workflows.appendInline(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.appendInlineActivity' | translate}}</a>
+            </div>
               <div>
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.insertStepPreview(pinnedWorkflowStep.name)"

@@ -116,7 +116,7 @@
   activities:
     list: activities
     type: workflow_activity
-  on-success:
+  on_success:
     set: onSuccess
     type: scalar
 
@@ -127,7 +127,7 @@
   activities:
     list: activities
     type: workflow_activity
-  on-success:
+  on_success:
     set: onSuccess
     type: scalar
 

@@ -23,8 +23,9 @@ define(function (require) {
   states.forward('editor_app_env', 'editor_app_env.editor');
 
   modules.get('a4c-applications').controller('AppEnvTopoEditorCtrl',
-    ['$scope', '$state', '$stateParams', 'applicationServices', 'applicationEnvironmentServices', 'breadcrumbsService','$translate',
-    function ($scope, $state, $stateParams, applicationServices, applicationEnvironmentServices, breadcrumbsService, $translate) {
+    ['$scope', '$state', '$stateParams', 'applicationServices', 'applicationEnvironmentServices', 'breadcrumbsService','$translate', 'topoEditDisplay',
+    function ($scope, $state, $stateParams, applicationServices, applicationEnvironmentServices, breadcrumbsService, $translate, topoEditDisplay) {
+      topoEditDisplay($scope, '#editor-explorer');
 
       breadcrumbsService.registerMapping('editor_app_env.', 'applications.detail.environment.deploynext.topology.');
       var setupBreadCrumbs = function (scope) {

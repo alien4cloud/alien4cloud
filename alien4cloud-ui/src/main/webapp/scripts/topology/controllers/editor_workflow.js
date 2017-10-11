@@ -14,8 +14,9 @@ define(function (require) {
   require('scripts/topology/directives/workflow_rendering');
   require('scripts/topology/directives/topology_rendering');
   require('scripts/topology/controllers/workflow_operation_selector');
+  require('scripts/topology/controllers/workflow_inline_selector');
   require('scripts/topology/controllers/workflow_state_selector');
-
+  
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('TopologyWorkflowEditorCtrl',
     ['$scope', '$http', 'explorerService', '$stateParams', 'topoEditDisplay', 'topoEditWf',
     function($scope, $http, explorerService, $stateParams, topoEditDisplay, topoEditWf) {
