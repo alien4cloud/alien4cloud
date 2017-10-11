@@ -16,10 +16,10 @@ import lombok.Getter;
  * This modifier is the entry point, and will execute all sub modifiers in the proper order.
  */
 @Getter
-public class ComposedModifier implements ITopologyModifier {
+public abstract class AbstractComposedModifier implements ITopologyModifier {
     private List<ITopologyModifier> subModifiers;
 
-    public ComposedModifier(ITopologyModifier... subModifiers) {
+    public AbstractComposedModifier(ITopologyModifier... subModifiers) {
         this.subModifiers = Lists.newArrayList(subModifiers);
     }
 

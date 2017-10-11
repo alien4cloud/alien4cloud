@@ -18,12 +18,13 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputA
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputValidationModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.PreconfiguredInputsModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.ComposedModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCandidateModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCompositeModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigCleanupModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingReplaceModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingCandidateModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingCompositeModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingConfigAutoSelectModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingConfigCleanupModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingReplaceModifier;
@@ -144,16 +145,16 @@ public class FlowExecutor {
         topologyModifiers.add(inputValidationModifier);
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_INJECT_INPUT));
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_POLICY_MATCH));
-        topologyModifiers.add(new ComposedModifier(policyMatchingCandidateModifier, // Find candidate matches.
+        topologyModifiers.add(new PolicyMatchingCompositeModifier(policyMatchingCandidateModifier, // Find candidate matches.
                 policyMatchingConfigCleanupModifier, // cleanup configuraiton in case some matches are not valid anymore.
                 policyMatchingConfigAutoSelectModifier, // performs auto-selection of policies impl.
-                policyMatchingReplaceModifier // Inject policy implementation modifiers in the flow and eventually add warnings.
+                policyMatchingReplaceModifier// Inject policy implementation modifiers in the flow and eventually add warnings.
         ));
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_POLICY_MATCH));
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_NODE_MATCH));
         // Future: Load specific pre-matching location specific modifiers (pre-matching policy handlers etc.)
         // Node matching is composed of multiple sub modifiers that performs the various steps of matching.
-        topologyModifiers.add(new ComposedModifier(nodeMatchingCandidateModifier, // find matching candidates (do not change topology)
+        topologyModifiers.add(new NodeMatchingCompositeModifier(nodeMatchingCandidateModifier, // find matching candidates (do not change topology)
                 nodeMatchingConfigCleanupModifier, // cleanup user configuration if some config are not valid anymore
                 nodeMatchingConfigAutoSelectModifier, // auto-select missing nodes
                 nodeMatchingReplaceModifier // Impact the topology to replace matched nodes as configured
