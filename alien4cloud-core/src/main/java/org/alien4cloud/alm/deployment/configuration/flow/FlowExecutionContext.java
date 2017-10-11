@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.elasticsearch.annotation.ESObject;
 
 import com.google.common.collect.Maps;
 
@@ -13,7 +14,6 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.ApplicationEnvironment;
 import lombok.Getter;
 import lombok.Setter;
-import org.elasticsearch.annotation.ESObject;
 
 /**
  * Flow execution context.
@@ -34,6 +34,7 @@ public class FlowExecutionContext {
     public static final String MATCHED_POLICY_LOCATION_TEMPLATES_BY_NODE_ID_MAP = "matched_policy_location_templates_by_node_id_map";
     public static final String MATCHED_POLICY_LOCATION_TEMPLATES_BY_ID_MAP = "matched_policy_location_templates_by_id_map";
     public static final String SELECTED_MATCH_POLICY_LOCATION_TEMPLATE_BY_NODE_ID_MAP = "selected_match_policy_location_template_by_node_id_map";
+    public static final String MATCHING_ORIGINAL_POLICIES = "matching_original_policies";
 
     /** Injected dao for configuration retrieval management. */
     private final IGenericSearchDAO alienDAO;
