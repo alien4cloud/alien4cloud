@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.types.PolicyType;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,9 @@ public class PolicyMatcherService {
      */
     public Map<String, List<PolicyLocationResourceTemplate>> match(Map<String, PolicyTemplate> policyTemplates, Map<String, PolicyType> policyTypes,
             Location location, String environmentId) {
+        if (MapUtils.isEmpty(policyTemplates)) {
+            return Maps.newHashMap();
+        }
         Map<String, List<PolicyLocationResourceTemplate>> matches = Maps.newHashMap();
         // fetch location resources
         LocationResources locationResources = locationResourceService.getLocationResources(location);
