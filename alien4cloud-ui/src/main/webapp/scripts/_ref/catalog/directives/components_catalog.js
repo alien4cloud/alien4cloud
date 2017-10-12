@@ -16,7 +16,7 @@ define(function (require) {
         'dragAndDropEnabled': '=',
         'defaultFilters': '=',
         'staticFacets': '=',
-        'badges': '=',
+        'badges': '<',
         'componentType': '@'
       }
     };
