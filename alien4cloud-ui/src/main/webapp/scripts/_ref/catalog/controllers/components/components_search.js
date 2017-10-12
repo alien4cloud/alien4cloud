@@ -71,7 +71,7 @@ define(function (require) {
         }
       });
 
-      var badges = $scope.badges || [];
+      var badges = _.clone($scope.badges) || [];
       // abstract badge is always displayed
       badges.push({
         name: 'abstract',
