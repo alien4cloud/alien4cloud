@@ -21,11 +21,12 @@ public class ResourceUpdateInterceptorForGit {
     public void configure(){
         resourceUpdateInterceptor.getOnNewEnvironment().add(applicationEnvironment -> {
             // create local git if needed
-            localGitManager.createLocalGitIfNeeded(applicationEnvironment);
+            localGitManager.checkout(applicationEnvironment, applicationEnvironment.getTopologyVersion());
         });
 
         resourceUpdateInterceptor.getOnEnvironmentTopologyVersionChanged().add(topologyVersionChangedInfo -> {
-            localGitManager.switchBranch(topologyVersionChangedInfo.getEnvironment(), topologyVersionChangedInfo.getEnvironment().getTopologyVersion());
+            // checkout the new branch
+            localGitManager.checkout(topologyVersionChangedInfo.getEnvironment(), topologyVersionChangedInfo.getEnvironment().getTopologyVersion());
         });
     }
 }

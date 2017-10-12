@@ -1,10 +1,7 @@
 package org.alien4cloud.git;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.springframework.beans.factory.annotation.Required;
@@ -45,7 +42,7 @@ public class LocalGitRepositoryPathResolver {
     public <T extends AbstractDeploymentConfig> Path resolve(Class<T> clazz, String deploymentConfigId) {
         AbstractDeploymentConfig.VersionIdEnvId versionIdEnvId = AbstractDeploymentConfig.extractInfoFromId(deploymentConfigId);
         String fileName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, clazz.getSimpleName()) + ".yml";
-        return storageRootPath.resolve(versionIdEnvId.getEnvironmentId()).resolve(versionIdEnvId.getVersionId()).resolve(fileName);
+        return storageRootPath.resolve(versionIdEnvId.getEnvironmentId()).resolve(fileName);
     }
 
     public class DeploymentConfigGitResolver{
@@ -58,21 +55,6 @@ public class LocalGitRepositoryPathResolver {
 
     public Path findLocalPathRelatedToEnvironment(String environmentId) {
         return storageRootPath.resolve(environmentId);
-    }
-
-    @SneakyThrows
-    public List<Path> findAllLocalPathRelatedToTopologyVersion(String topologyVersion) {
-        return Files.walk(storageRootPath, 2).filter(path -> {
-            if (Files.isDirectory(path)) {
-                // check if we its a level 1 directory (== envId)
-                // or level 2 directory (== topologyVersion)
-                if (!storageRootPath.equals(path.getParent())) {
-                    return topologyVersion.equals(path.getFileName());
-                }
-            }
-
-            return false;
-        }).collect(Collectors.toList());
     }
 
 }

@@ -7,8 +7,6 @@ import java.nio.file.Paths;
 
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.git.model.GitLocation;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.application.ApplicationEnvironment;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -37,12 +36,12 @@ public class LocalGitManager {
             return Paths.get(new URI(gitLocation.getUrl()));
         } else {
             switch (gitLocation.getGitType()) {
-                case DeploymentConfig:
-                    String environmentId = GitLocation.IdExtractor.DeploymentConfig.extractEnvironmentId(gitLocation.getId());
-                    return localGitRepositoryPathResolver.forDeploymentConfig().resolveGitRoot(environmentId);
+            case DeploymentConfig:
+                String environmentId = GitLocation.IdExtractor.DeploymentConfig.extractEnvironmentId(gitLocation.getId());
+                return localGitRepositoryPathResolver.forDeploymentConfig().resolveGitRoot(environmentId);
 
-                default:
-                    throw new IllegalArgumentException("GitType <" + gitLocation.getGitType() + "> is unknown");
+            default:
+                throw new IllegalArgumentException("GitType <" + gitLocation.getGitType() + "> is unknown");
             }
         }
     }
@@ -55,25 +54,21 @@ public class LocalGitManager {
         }
     }
 
-    public boolean hasLocalGit(GitLocation location) {
-        Path localGitPath = getLocalGitPath(location);
-        return Files.exists(localGitPath) && RepositoryManager.isGitRepository(localGitPath);
-    }
-
     public void pull() {
         throw new RuntimeException("TODO");
     }
 
-    public void createLocalGitIfNeeded(ApplicationEnvironment environment) {
+    public void checkout(ApplicationEnvironment environment, String branch) {
         GitLocation location = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environment.getId());
-        createLocalGitIfNeeded(location);
+        location.setBranch(branch);
+        checkout(location);
     }
 
-
     @SneakyThrows
-    public void createLocalGitIfNeeded(GitLocation location) {
-        if (!hasLocalGit(location)) {
-            Path localGitPath = getLocalGitPath(location);
+    public void checkout(GitLocation location) {
+        Path localGitPath = getLocalGitPath(location);
+
+        if (!gitRepositoryExistLocally(location)) {
             if (Files.exists(localGitPath)) {
                 FileUtils.deleteDirectory(localGitPath.toFile());
             }
@@ -83,19 +78,15 @@ public class LocalGitManager {
                 log.debug("Creating local git under <" + localGitPath + ">");
                 Files.createDirectories(localGitPath);
                 RepositoryManager.create(localGitPath, null);
+                RepositoryManager.checkoutExistingBranchOrCreateOrphan(localGitPath, location.isLocal(), location.getCredential().getUsername(),
+                        location.getCredential().getPassword(), location.getBranch());
             } else {
                 // clone remote git locally
                 log.debug("About to clone the remote git <" + location.getUrl() + "> under <" + localGitPath + ">");
-                Git git = null;
-                try {
-                    git = RepositoryManager.cloneOrCheckout(localGitPath, location.getUrl(), location.getCredential().getUsername(),
-                            location.getCredential().getPassword(), location.getBranch(), ".");
-                } finally {
-                    if (git != null) {
-                        git.close();
-                    }
-                }
+                safeCloneOrCheckout(location, localGitPath);
             }
+        } else {
+            checkoutBranchWithAutoStashIfNeeded(location, location.getBranch());
         }
     }
 
@@ -104,25 +95,63 @@ public class LocalGitManager {
         RepositoryManager.commitAll(localGitPath, userName, email, commitMessage);
         if (!location.isLocal()) {
             RepositoryManager.push(localGitPath, location.getCredential().getUsername(), location.getCredential().getPassword(), location.getBranch());
-            log.debug("commit and push changes to remote git <" + location.getUrl() + "> made by <" + userName + "/" + email + "> with commit message <" + commitMessage + ">");
-        }else{
+            log.debug("commit and push changes to remote git <" + location.getUrl() + "> made by <" + userName + "/" + email + "> with commit message <"
+                    + commitMessage + ">");
+        } else {
             log.debug("commit change locally at <" + localGitPath + "> made by <" + userName + "/" + email + "> with commit message <" + commitMessage + ">");
         }
     }
 
-    public void reset(GitLocation location) {
+    public void clean(GitLocation location) {
         Path localGitPath = getLocalGitPath(location);
-        RepositoryManager.reset(localGitPath);
+        RepositoryManager.clean(localGitPath);
         log.debug("Reset git " + localGitPath);
 
     }
 
-    public void switchBranch(ApplicationEnvironment environment, String branch) {
-        GitLocation location = gitLocationDao.forDeploymentConfig.findByDeploymentConfigId(AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId()));
-        log.debug("About to checkout branch <" + branch + "> from repository " + location.getUrl());
+    /**
+     * Check if a git repository exists locally AND check remote git url.
+     *
+     * In case {@link GitLocation} describe a remote git, then a extra check is made:
+     * the remote origin url need to match the remote git url defined into {@link GitLocation}
+     *
+     * @param location git location information to check
+     * @return true if a git repository exists locally
+     */
+    private boolean gitRepositoryExistLocally(GitLocation location) {
+        Path localGitPath = getLocalGitPath(location);
+        if (Files.exists(localGitPath)) {
+            if (location.isLocal()) {
+                return RepositoryManager.isGitRepository(localGitPath);
+            } else {
+                return RepositoryManager.isGitRepository(localGitPath, location.getUrl());
+            }
+        }
 
-        // FIXME: me ? branch should be stored if we need to change it depending on context?
-        location.setBranch(branch);
-        createLocalGitIfNeeded(location);
+        return false;
+    }
+
+    private void checkoutBranchWithAutoStashIfNeeded(GitLocation location, String branch) {
+        Path localGitPath = getLocalGitPath(location);
+        String currentBranchName = RepositoryManager.getCurrentBranchName(localGitPath);
+        if (!currentBranchName.equals(branch)) {
+            log.debug("About to checkout from <" + currentBranchName + "> to <" + branch + "> from repository " + location.getUrl());
+            RepositoryManager.stash(localGitPath, "a4c_stash_" +currentBranchName);
+            RepositoryManager.checkoutExistingBranchOrCreateOrphan(localGitPath, location.isLocal(), location.getCredential().getUsername(),
+                    location.getCredential().getPassword(), branch);
+            RepositoryManager.applyStashThenDrop(localGitPath, "a4c_stash_" + branch);
+        }
+    }
+
+    private void safeCloneOrCheckout(GitLocation location, Path localGitPath) {
+        Git git = null;
+        try {
+            git = RepositoryManager.cloneOrCheckout(localGitPath, location.getUrl(), location.getCredential().getUsername(),
+                    location.getCredential().getPassword(), location.getBranch(), ".");
+        } finally {
+            if (git != null) {
+                git.close();
+            }
+        }
     }
 }

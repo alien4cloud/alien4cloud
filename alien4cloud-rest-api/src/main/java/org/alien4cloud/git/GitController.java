@@ -1,5 +1,7 @@
 package org.alien4cloud.git;
 
+import java.nio.file.Paths;
+
 import javax.inject.Inject;
 import javax.validation.Valid;
 
@@ -22,10 +24,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-import java.nio.file.Paths;
-
 @RestController
-@RequestMapping(value = {"/rest/git", "/rest/v1/git", "/rest/latest/git"})
+@RequestMapping(value = { "/rest/git", "/rest/v1/git", "/rest/latest/git" })
 @Api(value = "", description = "Operations to manage custom Git repositories")
 public class GitController {
 
@@ -54,7 +54,7 @@ public class GitController {
         }
 
         String protocol = StringUtils.substringBefore(request.getUrl(), "://");
-        if(StringUtils.isBlank(protocol)){
+        if (StringUtils.isBlank(protocol)) {
             throw new IllegalStateException("Incorrect URL. Missing protocol <" + request.getUrl() + ">");
         }
         // file:// protocol is not allowed for security reason and only supported for alien managed repository
@@ -73,7 +73,7 @@ public class GitController {
 
         updateGitLocation(gitLocation);
 
-        return RestResponseBuilder.<Void>builder().build();
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     @ApiOperation(value = "Update the git repository parameters for storing deployment config")
@@ -85,18 +85,17 @@ public class GitController {
 
         GitLocation managedGit = alienManagedGitLocationBuilder.forDeploymentConfig(environmentId);
         updateGitLocation(managedGit);
-        return RestResponseBuilder.<Void>builder().build();
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     @ApiOperation(value = "Retrieve information about a git repository using environment Id.")
     @RequestMapping(value = "/deployment/environment/{environmentId}", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
-    public RestResponse<GitLocation> getByEnvironmentId(
-            @ApiParam(value = "Environment id", required = true) @PathVariable String environmentId) {
+    public RestResponse<GitLocation> getByEnvironmentId(@ApiParam(value = "Environment id", required = true) @PathVariable String environmentId) {
         checkEnvironmentAuthorization(environmentId);
 
         GitLocation gitLocation = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environmentId);
-        return RestResponseBuilder.<GitLocation>builder().data(gitLocation).build();
+        return RestResponseBuilder.<GitLocation> builder().data(gitLocation).build();
     }
 
     private void checkEnvironmentAuthorization(String environmentId) {
@@ -108,12 +107,12 @@ public class GitController {
     private void updateGitLocation(GitLocation newGitLocation) {
         // delete previous
         GitLocation previousLocation = gitLocationDao.findById(newGitLocation.getId());
-        if(previousLocation != null) {
+        if (previousLocation != null) {
             localGitManager.deleteLocalGit(previousLocation);
         }
 
         // create the new one
-        localGitManager.createLocalGitIfNeeded(newGitLocation);
+        localGitManager.checkout(newGitLocation);
         gitLocationDao.save(newGitLocation);
     }
 }

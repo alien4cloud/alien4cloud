@@ -67,6 +67,26 @@ public class RepositoryManager {
     }
 
     /**
+     * Check if a given directory is a git repository with a specific remote origin url
+     *
+     * @param targetDirectory The directory to check.
+     * @param remoteGitUrl expected remote origin url
+     * @return true if the directory is a git repository, false if not.
+     */
+    public static boolean isGitRepository(Path targetDirectory, String remoteGitUrl) {
+        Git repository = null;
+        try {
+            repository = Git.open(targetDirectory.toFile());
+            String originUrl = repository.getRepository().getConfig().getString("remote", "origin", "url");
+            return remoteGitUrl.equals(originUrl);
+        } catch (IOException e) {
+            return false;
+        } finally {
+            close(repository);
+        }
+    }
+
+    /**
      * Create a git repository that includes an optional readme file.
      *
      * @param targetDirectory The path of the repository to create.
@@ -179,8 +199,95 @@ public class RepositoryManager {
         return branch;
     }
 
-    private static  boolean branchExistsLocally(Git git, String branch) throws GitAPIException {
-        return  git.branchList().call().stream().anyMatch(ref -> ref.getName().replace("refs/heads/", "").equals(branch));
+    private static boolean branchExistsLocally(Git git, String branch) throws GitAPIException {
+        return git.branchList().call().stream().anyMatch(ref -> ref.getName().replace("refs/heads/", "").equals(branch));
+    }
+
+    public static void stash(Path repositoryDirectory, String stashId) {
+        Git git = null;
+        try {
+            log.debug("Stashing change from <" + repositoryDirectory + "> to stash <" + stashId + ">");
+            git = Git.open(repositoryDirectory.toFile());
+
+            Collection<RevCommit> stashes = git.stashList().call();
+            int stashIndex = 0;
+            for (RevCommit stash : stashes) {
+                if (stash.getFullMessage().equals(stashId)) {
+                    git.stashDrop().setStashRef(stashIndex).call();
+                    log.warn("Stash <" + stashId + "> was already existing in <" + repositoryDirectory + ">. It has been deleted.");
+                    break;
+                }
+                stashIndex++;
+            }
+
+            git.stashCreate().setIncludeUntracked(true).setWorkingDirectoryMessage(stashId).call();
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Failed to stash data", e);
+        } finally {
+            close(git);
+        }
+    }
+
+    public static void applyStashThenDrop(Path repositoryDirectory, String stashId) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            int stashIndex = 0;
+            Collection<RevCommit> stashes = git.stashList().call();
+            for (RevCommit stash : stashes) {
+                if (stash.getFullMessage().equals(stashId)) {
+                    git.stashApply().setStashRef(stash.getName()).call();
+                    git.stashDrop().setStashRef(stashIndex).call();
+                    log.debug("Stash <" + stashId + ">  applied on <" + repositoryDirectory + ">");
+                    break;
+                }
+                stashIndex++;
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Failed to apply then drop stash", e);
+        } finally {
+            close(git);
+        }
+    }
+
+    public static void checkoutExistingBranchOrCreateOrphan(Path repositoryDirectory, boolean isLocalOnly, String username, String password, String branch) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            if (!isLocalOnly) {
+                fetch(git, username, password);
+            }
+            // need to checkout branch ?
+            if (!branch.equals(git.getRepository().getBranch())) {
+                // HEAD is needed for creating a branch
+                try {
+                    git.log().setMaxCount(1).call();
+                } catch (NoHeadException e) {
+                    // no HEAD - commit for creating a HEAD
+                    git.add().addFilepattern(".").call();
+                    git.commit().setCommitter("a4c-bot", "a4c-bot@robot.org").setMessage("initial commit").call();
+                }
+
+                // checkout branch
+                CheckoutCommand checkoutCommand = git.checkout();
+                checkoutCommand.setName(branch);
+                if (!branchExistsLocally(git, branch)) {
+                    checkoutCommand.setCreateBranch(true);
+                    String fullReference = getFullReference(git, branch);
+                    boolean existRemotely = !fullReference.equals(branch);
+                    if (existRemotely) {
+                        checkoutCommand.setStartPoint(getFullReference(git, branch));
+                    } else {
+                        checkoutCommand.setOrphan(true);
+                    }
+                }
+                checkoutCommand.call();
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Git repository related issue", e);
+        } finally {
+            close(git);
+        }
     }
 
     private static String getFullReference(Git repository, String branch) {
@@ -339,6 +446,30 @@ public class RepositoryManager {
         try {
             git = Git.open(repositoryDirectory.toFile());
             return git.getRepository().getConfig().getString("remote", remoteName, "url");
+        } catch (IOException e) {
+            throw new GitException("Unable to open the git repository", e);
+        } finally {
+            close(git);
+        }
+    }
+
+    public static String getCurrentBranchName(Path repositoryDirectory) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            return git.getRepository().getBranch();
+        } catch (IOException e) {
+            throw new GitException("Unable to open the git repository", e);
+        } finally {
+            close(git);
+        }
+    }
+
+    public static boolean isOnBranch(Path repositoryDirectory, String branchName) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            return branchName.equals(git.getRepository().getBranch());
         } catch (IOException e) {
             throw new GitException("Unable to open the git repository", e);
         } finally {
@@ -565,23 +696,6 @@ public class RepositoryManager {
             throw new GitException("Unable to open the git repository", e);
         } catch (GitAPIException e) {
             throw new GitException("Unable to clean the git repository", e);
-        } finally {
-            close(repository);
-        }
-    }
-
-    public static void reset(Path repositoryDirectory){
-        Git repository = null;
-        try {
-            repository = Git.open(repositoryDirectory.resolve(".git").toFile());
-            ResetCommand resetCommand = repository.reset();
-            resetCommand.setMode(ResetCommand.ResetType.HARD);
-            resetCommand.setRef("HEAD");
-            resetCommand.call();
-        } catch (IOException e) {
-            throw new GitException("Unable to open the git repository", e);
-        } catch (GitAPIException e) {
-            throw new GitException("Unable to reset the git repository", e);
         } finally {
             close(repository);
         }
