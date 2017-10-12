@@ -7,6 +7,8 @@ import org.elasticsearch.common.collect.Maps;
 
 import alien4cloud.model.common.Tag;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 /**
  * Utility to work with tags.
  */
@@ -23,11 +25,8 @@ public final class TagUtil {
      */
     public static Map<String, String> tagListToMap(List<Tag> tags) {
         Map<String, String> tagMap = Maps.newHashMap();
-        if (tags != null) {
-
-            for (Tag tag : tags) {
-                tagMap.put(tag.getName(), tag.getValue());
-            }
+        for (Tag tag : safe(tags)) {
+            tagMap.put(tag.getName(), tag.getValue());
         }
         return tagMap;
     }
@@ -43,11 +42,9 @@ public final class TagUtil {
      * @return The value of the tag or null if no value exists.
      */
     public static String getTagValue(List<Tag> tags, String key) {
-        if (tags != null) {
-            for (Tag tag : tags) {
-                if (tag.getName().equals(key)) {
-                    return tag.getValue();
-                }
+        for (Tag tag : safe(tags)) {
+            if (tag.getName().equals(key)) {
+                return tag.getValue();
             }
         }
         return null;
@@ -63,11 +60,9 @@ public final class TagUtil {
      * @return
      */
     public static Tag getTagByName(List<Tag> tags, String key) {
-        if (tags != null) {
-            for (Tag tag : tags) {
-                if (tag.getName().equals(key)) {
-                    return tag;
-                }
+        for (Tag tag : safe(tags)) {
+            if (tag.getName().equals(key)) {
+                return tag;
             }
         }
         return null;
