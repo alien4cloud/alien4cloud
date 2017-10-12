@@ -307,6 +307,9 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
 
         assertTrue(wf.getSteps().get("Some_other_inline_Compute_stop").getOnSuccess().contains("Some_other_inline_Compute_uninstall"));
         assertTrue(wf.getSteps().get("Some_other_inline_Compute_uninstall").getPrecedingSteps().contains("Some_other_inline_Compute_stop"));
+
+        assertTrue(wf.getSteps().get("inception_inline_inception_inline_Compute_stop").getOnSuccess().contains("inception_inline_inception_inline_Compute_uninstall"));
+        assertTrue(wf.getSteps().get("inception_inline_inception_inline_Compute_uninstall").getPrecedingSteps().contains("inception_inline_inception_inline_Compute_stop"));
     }
 
     @Test
