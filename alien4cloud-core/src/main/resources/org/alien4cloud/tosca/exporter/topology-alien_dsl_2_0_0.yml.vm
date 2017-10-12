@@ -234,6 +234,7 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
         ${taskEntry.key}:
 #if($taskEntry.value.target)
           target: ${taskEntry.value.target}
+#end## if taskEntry.value.target
 #if($taskEntry.value.targetRelationship)
           target_relationship: ${taskEntry.value.targetRelationship}
 #end
@@ -244,7 +245,6 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
           activities:
             - ${utils.getActivityLabel(${taskEntry.value.activity})}: ${utils.getInlineActivityArg(${taskEntry.value.activity})}
 #end## if taskEntry.value.activity
-#end## if taskEntry.value.target
 #if($utils.collectionIsNotEmpty(${taskEntry.value.onSuccess}))
           on_success:
 #foreach($following in ${taskEntry.value.onSuccess})
