@@ -114,7 +114,7 @@ public class LocationResourceService implements ILocationResourceService {
 
         // process policies types also
         List<PolicyLocationResourceTemplate> policyLocationResourceTemplates = getPoliciesResourcesTemplates(location.getId());
-        locationResources.addAll(getPoliciesLocationResourceTypes(policyLocationResourceTemplates));
+        locationResources.addFrom(getPoliciesLocationResourceTypes(policyLocationResourceTemplates));
         /*
          * If the orchestrator is present, take node types computed from the resources template
          * as "Custom resources types". If not, consider this is an orchestrator-free location.
@@ -169,6 +169,14 @@ public class LocationResourceService implements ILocationResourceService {
         LocationResourceTypes locationResourceTypes = new LocationResourceTypes();
         fillLocationResourceTypes(resourceTemplates,
                 (exposedTypes, dependencies) -> fillLocationResourceTypes(exposedTypes, locationResourceTypes, dependencies));
+        return locationResourceTypes;
+    }
+
+    @Override
+    public LocationResourceTypes getPoliciesLocationResourceTypes(Collection<PolicyLocationResourceTemplate> resourceTemplates) {
+        LocationResourceTypes locationResourceTypes = new LocationResourceTypes();
+        fillLocationResourceTypes(resourceTemplates,
+                (exposedTypes, dependencies) -> fillPoliciesLocationResourceTypes(exposedTypes, locationResourceTypes, dependencies));
         return locationResourceTypes;
     }
 
@@ -559,13 +567,6 @@ public class LocationResourceService implements ILocationResourceService {
         return new LocationResourceTemplateWithDependencies(this.addPolicyLocationResourceTemplate(location, resourceName, policyType),
                 Sets.newHashSet(location.getDependencies()));
 
-    }
-
-    private LocationResourceTypes getPoliciesLocationResourceTypes(Collection<PolicyLocationResourceTemplate> resourceTemplates) {
-        LocationResourceTypes locationResourceTypes = new LocationResourceTypes();
-        fillLocationResourceTypes(resourceTemplates,
-                (exposedTypes, dependencies) -> fillPoliciesLocationResourceTypes(exposedTypes, locationResourceTypes, dependencies));
-        return locationResourceTypes;
     }
 
     private PolicyLocationResourceTemplate addPolicyLocationResourceTemplate(Location location, String resourceName, String resourceTypeName) {

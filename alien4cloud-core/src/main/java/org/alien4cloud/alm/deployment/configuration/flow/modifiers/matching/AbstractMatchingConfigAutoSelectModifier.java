@@ -26,7 +26,7 @@ public abstract class AbstractMatchingConfigAutoSelectModifier<T extends Abstrac
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
         Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
-                NodeMatchingConfigAutoSelectModifier.class.getSimpleName());
+                this.getClass().getSimpleName());
 
         if (!configurationOptional.isPresent()) { // we should not end-up here as location matching should be processed first
             context.log().error(new LocationPolicyTask());
@@ -69,7 +69,7 @@ public abstract class AbstractMatchingConfigAutoSelectModifier<T extends Abstrac
         context.getExecutionCache().put(getResourceTemplateByIdMapCacheKey(), availableResourceTemplatesById);
         context.getExecutionCache().put(getResourceTemplateByTemplateIdCacheKey(), resourceTemplatesByTemplateId);
 
-        matchingConfiguration.setMatchedLocationResources(lastUserMatches);
+        // matchingConfiguration.setMatchedPolicies(lastUserMatches);
         // TODO Do that only if updated...
         context.saveConfiguration(matchingConfiguration);
     }

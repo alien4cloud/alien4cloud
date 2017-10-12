@@ -37,13 +37,13 @@ public class LocationResourceTypes {
     @ApiModelProperty(value = "Map of policy types id, policy type used to configure the templates of policies in a location.")
     private Map<String, PolicyType> policyTypes = Maps.newHashMap();
 
-    public LocationResourceTypes(LocationResourceTypes locationResourceTypes) {
-        this.configurationTypes = locationResourceTypes.getConfigurationTypes();
-        this.nodeTypes = locationResourceTypes.getNodeTypes();
-        this.dataTypes = locationResourceTypes.getDataTypes();
-        this.capabilityTypes = locationResourceTypes.getCapabilityTypes();
-        this.allNodeTypes = locationResourceTypes.getAllNodeTypes();
-        this.onDemandTypes = locationResourceTypes.getOnDemandTypes();
-        this.policyTypes = locationResourceTypes.getPolicyTypes();
+    public void addFrom(LocationResourceTypes locationResourceTypes) {
+        this.configurationTypes.putAll(locationResourceTypes.getConfigurationTypes());
+        this.nodeTypes.putAll(locationResourceTypes.getNodeTypes());
+        this.dataTypes.putAll(locationResourceTypes.getDataTypes());
+        this.capabilityTypes.putAll(locationResourceTypes.getCapabilityTypes());
+        this.allNodeTypes.putAll(locationResourceTypes.getAllNodeTypes());
+        this.onDemandTypes.putAll(locationResourceTypes.getOnDemandTypes());
+        this.policyTypes.putAll(locationResourceTypes.getPolicyTypes());
     }
 }

@@ -42,7 +42,7 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
         Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
-                NodeMatchingReplaceModifier.class.getSimpleName());
+                this.getClass().getSimpleName());
 
         if (!configurationOptional.isPresent()) { // we should not end-up here as location matching should be processed first
             context.log().error(new LocationPolicyTask());

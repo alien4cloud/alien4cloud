@@ -21,7 +21,7 @@ public abstract class AbstractMatchingConfigCleanupModifier<T extends AbstractLo
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
         Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
-                NodeMatchingConfigCleanupModifier.class.getSimpleName());
+                this.getClass().getSimpleName());
 
         if (!configurationOptional.isPresent()) { // we should not end-up here as location matching should be processed first
             context.log().error(new LocationPolicyTask());

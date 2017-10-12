@@ -39,7 +39,7 @@ public class PolicyMatchingCandidateModifier implements ITopologyModifier {
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
         Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
-                NodeMatchingCandidateModifier.class.getSimpleName());
+                PolicyMatchingCandidateModifier.class.getSimpleName());
 
         if (!configurationOptional.isPresent()) { // we should not end-up here as location matching should be processed first
             context.log().error(new LocationPolicyTask());

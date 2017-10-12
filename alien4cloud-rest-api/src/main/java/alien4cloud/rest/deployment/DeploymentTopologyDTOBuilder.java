@@ -14,13 +14,14 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutor;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
+import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsConfiguration;
 import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
@@ -35,6 +36,7 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationResourceTypes;
@@ -147,28 +149,15 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
         // Good enough approximation as it doesn't contains just the location dependencies.
         deploymentTopology.setLocationDependencies(executionContext.getTopology().getDependencies());
 
-        // used by ui to know if a property is editable. This should however be done differently with a better v2 api.
-        deploymentTopology.setOriginalNodes((Map<String, NodeTemplate>) executionContext.getExecutionCache().get(FlowExecutionContext.MATCHING_ORIGINAL_NODES));
-        deploymentTopology.setSubstitutedNodes(matchingConfiguration.getMatchedLocationResources());
-
-        // Restrict the map of LocationResourceTemplate to the ones that are actually substituted after matching.
-        Map<String, LocationResourceTemplate> allLocationResourcesTemplates = (Map<String, LocationResourceTemplate>) executionContext.getExecutionCache()
-                .get(FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP);
-        Map<String, LocationResourceTemplate> substitutedLocationResourceTemplate = Maps.newHashMap(); //
-        matchingConfiguration.getMatchedLocationResources().forEach((nodeKey, locationResourceId) -> substitutedLocationResourceTemplate.put(locationResourceId,
-                safe(allLocationResourcesTemplates).get(locationResourceId)));
-        deploymentTopologyDTO.setLocationResourceTemplates(substitutedLocationResourceTemplate);
-
         DeploymentSubstitutionConfiguration substitutionConfiguration = new DeploymentSubstitutionConfiguration();
+        substitutionConfiguration.setSubstitutionTypes(new LocationResourceTypes());
+        // fill DTO with policies substitution stuffs
+        fillDTOWithPoliciesSubstitutionConfiguration(executionContext, deploymentTopology, deploymentTopologyDTO, matchingConfiguration,
+                substitutionConfiguration);
 
-        substitutionConfiguration.setAvailableSubstitutions(
-                (Map<String, Set<String>>) executionContext.getExecutionCache().get(FlowExecutionContext.SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP));
-        substitutionConfiguration.setSubstitutionsTemplates(allLocationResourcesTemplates);
-        // Fetch all required types associated with the location substitution templates.
-        substitutionConfiguration
-                .setSubstitutionTypes(locationResourceService.getLocationResourceTypes(safe(substitutionConfiguration.getSubstitutionsTemplates()).values()));
-        enrichSubstitutionTypesWithServicesDependencies(safe(substitutionConfiguration.getSubstitutionsTemplates()).values(),
-                substitutionConfiguration.getSubstitutionTypes());
+        // fill DTO with nodes substitution stuffs
+        fillDTOWithNodesSubstitutionConfiguration(executionContext, deploymentTopology, deploymentTopologyDTO, matchingConfiguration,
+                substitutionConfiguration);
 
         deploymentTopologyDTO.setAvailableSubstitutions(substitutionConfiguration);
 
@@ -179,6 +168,55 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
         deploymentTopology.setProviderDeploymentProperties(orchestratorDeploymentProperties.getProviderDeploymentProperties());
 
         return deploymentTopologyDTO;
+    }
+
+    private void fillDTOWithNodesSubstitutionConfiguration(FlowExecutionContext executionContext, DeploymentTopology deploymentTopology,
+            DeploymentTopologyDTO deploymentTopologyDTO, DeploymentMatchingConfiguration matchingConfiguration,
+            DeploymentSubstitutionConfiguration substitutionConfiguration) {
+        // used by ui to know if a property is editable. This should however be done differently with a better v2 api.
+        deploymentTopology.setOriginalNodes((Map<String, NodeTemplate>) executionContext.getExecutionCache().get(FlowExecutionContext.MATCHING_ORIGINAL_NODES));
+        deploymentTopology.setSubstitutedNodes(matchingConfiguration.getMatchedLocationResources());
+
+        // Restrict the map of LocationResourceTemplate to the ones that are actually substituted after matching.
+        Map<String, LocationResourceTemplate> allLocationResourcesTemplates = (Map<String, LocationResourceTemplate>) executionContext.getExecutionCache()
+                .get(FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP);
+        Map<String, LocationResourceTemplate> substitutedLocationResourceTemplate = Maps.newHashMap(); //
+        matchingConfiguration.getMatchedLocationResources().values().forEach((locationResourceId) -> substitutedLocationResourceTemplate.put(locationResourceId,
+                safe(allLocationResourcesTemplates).get(locationResourceId)));
+        deploymentTopologyDTO.setLocationResourceTemplates(substitutedLocationResourceTemplate);
+
+        substitutionConfiguration.setAvailableSubstitutions(
+                (Map<String, Set<String>>) executionContext.getExecutionCache().get(FlowExecutionContext.SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP));
+        substitutionConfiguration.setSubstitutionsTemplates(allLocationResourcesTemplates);
+        // Fetch all required types associated with the location substitution templates.
+        substitutionConfiguration
+                .setSubstitutionTypes(locationResourceService.getLocationResourceTypes(safe(substitutionConfiguration.getSubstitutionsTemplates()).values()));
+        enrichSubstitutionTypesWithServicesDependencies(safe(substitutionConfiguration.getSubstitutionsTemplates()).values(),
+                substitutionConfiguration.getSubstitutionTypes());
+    }
+
+    private void fillDTOWithPoliciesSubstitutionConfiguration(FlowExecutionContext executionContext, DeploymentTopology deploymentTopology,
+            DeploymentTopologyDTO deploymentTopologyDTO, DeploymentMatchingConfiguration matchingConfiguration,
+            DeploymentSubstitutionConfiguration substitutionConfiguration) {
+        // used by ui to know if a property is editable. This should however be done differently with a better v2 api.
+        deploymentTopology
+                .setOriginalPolicies((Map<String, PolicyTemplate>) executionContext.getExecutionCache().get(FlowExecutionContext.MATCHING_ORIGINAL_POLICIES));
+        deploymentTopology.setSubstitutedPolicies(matchingConfiguration.getMatchedPolicies());
+
+        // Restrict the map of PolicyLocationResourceTemplate to the ones that are actually substituted after matching.
+        Map<String, PolicyLocationResourceTemplate> allResourcesTemplates = (Map<String, PolicyLocationResourceTemplate>) executionContext.getExecutionCache()
+                .get(FlowExecutionContext.MATCHED_POLICY_LOCATION_TEMPLATES_BY_ID_MAP);
+        Map<String, PolicyLocationResourceTemplate> substitutedResourceTemplates = Maps.newHashMap(); //
+        safe(matchingConfiguration.getMatchedPolicies()).values()
+                .forEach((locationResourceId) -> substitutedResourceTemplates.put(locationResourceId, safe(allResourcesTemplates).get(locationResourceId)));
+        deploymentTopologyDTO.setPolicyLocationResourceTemplates(substitutedResourceTemplates);
+
+        substitutionConfiguration.setAvailablePoliciesSubstitutions((Map<String, Set<String>>) executionContext.getExecutionCache()
+                .get(FlowExecutionContext.SELECTED_MATCH_POLICY_LOCATION_TEMPLATE_BY_NODE_ID_MAP));
+        substitutionConfiguration.setSubstitutionsPoliciesTemplates(allResourcesTemplates);
+        // Fetch all required types associated with the location substitution templates.
+        substitutionConfiguration.getSubstitutionTypes().addFrom(
+                locationResourceService.getPoliciesLocationResourceTypes(safe(substitutionConfiguration.getSubstitutionsPoliciesTemplates()).values()));
     }
 
     /**

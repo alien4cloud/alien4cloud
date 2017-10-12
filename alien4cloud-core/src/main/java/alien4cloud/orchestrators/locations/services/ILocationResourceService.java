@@ -13,6 +13,7 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import alien4cloud.model.orchestrators.locations.LocationResources;
+import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.plugin.aop.Overridable;
 
@@ -64,6 +65,8 @@ public interface ILocationResourceService {
             String archiveVersion);
 
     LocationResourceTypes getLocationResourceTypes(Collection<LocationResourceTemplate> resourceTemplates);
+
+    LocationResourceTypes getPoliciesLocationResourceTypes(Collection<PolicyLocationResourceTemplate> resourceTemplates);
 
     /**
      * Create an instance of an ILocationResourceAccessor that will perform queries on LocationResourceTemplate for a given location.
