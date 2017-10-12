@@ -4,6 +4,7 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -90,5 +91,11 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
     @Override
     protected PolicyLocationResourceTemplate getLocationResourceTemplateCopy(String locationResourceTemplateId) {
         return getLocationResourceService().getOrFail(locationResourceTemplateId);
+    }
+
+    @Override
+    protected void processSpecificReplacement(PolicyTemplate replacingNode, PolicyTemplate replacedTopologyNode, Set<String> topologyNotMergedProps) {
+        replacingNode.setTargets(replacedTopologyNode.getTargets());
+        replacingNode.setTriggers(replacedTopologyNode.getTriggers());
     }
 }

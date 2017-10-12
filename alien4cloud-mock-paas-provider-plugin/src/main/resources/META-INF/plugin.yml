@@ -12,6 +12,10 @@ component_descriptors:
       Used for our automated tests the plugin suceed for every application except an application named:
        - BAD-APPLICATION: The deployment will fail.
        - WARN-APPLICATION: The deployment will ends up in a warning state.
+  - bean_name: mock-anti-affinity-modifier
+    name: Mock Anti affinity modifier
+    description: >
+      Sample implementation of an anti-affinity policy through an alien modifier that will inject zones into compute nodes.
 #  - bean_name: mock-location-matcher
 #    name: Mock location matcher
 #    description: >

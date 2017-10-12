@@ -73,7 +73,13 @@ public class MockAmazonLocationConfigurer implements ILocationConfiguratorPlugin
 
     @Override
     public List<String> getResourcesTypes() {
-        return Lists.newArrayList("org.alien4cloud.nodes.mock.aws.Compute", "org.alien4cloud.nodes.mock.aws.BlockStorage", "org.alien4cloud.nodes.mock.aws.Network");
+        return Lists.newArrayList("org.alien4cloud.nodes.mock.aws.Compute", "org.alien4cloud.nodes.mock.aws.BlockStorage",
+                "org.alien4cloud.nodes.mock.aws.Network");
+    }
+
+    @Override
+    public List<String> getPoliciesTypes() {
+        return Lists.newArrayList("org.alien4cloud.mock.policies.AntiAffinity");
     }
 
     @Override

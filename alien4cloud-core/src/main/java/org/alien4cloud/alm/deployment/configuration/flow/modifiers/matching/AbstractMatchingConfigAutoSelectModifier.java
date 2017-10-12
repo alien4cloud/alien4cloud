@@ -59,7 +59,7 @@ public abstract class AbstractMatchingConfigAutoSelectModifier<T extends Abstrac
                 } else {
                     // Only take the first element as selected if no configuration has been set before
                     // let an info so the user know that we made a default selection for him
-                    context.log().info("Automatic matching for node <" + entry.getKey() + ">");
+                    context.log().info("Automatic matching for template <" + entry.getKey() + ">");
                     lastUserMatches.put(entry.getKey(), entry.getValue().iterator().next().getId());
                 }
             }

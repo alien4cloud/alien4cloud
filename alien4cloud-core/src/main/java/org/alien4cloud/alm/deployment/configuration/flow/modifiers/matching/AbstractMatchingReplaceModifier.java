@@ -107,9 +107,7 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
 
     protected abstract V getLocationResourceTemplateCopy(String locationResourceTemplateId);
 
-    protected void processSpecificReplacement(T replacingNode, T replacedTopologyNode, Set<String> topologyNotMergedProps) {
-        // No default implementation
-    }
+    protected abstract void processSpecificReplacement(T replacingNode, T replacedTopologyNode, Set<String> topologyNotMergedProps);
 
     protected void processServiceResourceReplacement(Topology topology, Map<String, T> topologyTemplateMap, String nodeId, String serviceResourceId) {
         // No default implementation
