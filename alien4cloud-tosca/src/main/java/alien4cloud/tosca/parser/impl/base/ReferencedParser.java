@@ -35,12 +35,4 @@ public class ReferencedParser<T> implements INodeParser<T> {
         }
         return (T) delegate.parse(node, context);
     }
-
-    private INodeParser<?> getParser(ParsingContextExecution context) {
-        INodeParser<?> innerNodeParser = context.getRegistry().get(typeName);
-        if (innerNodeParser == null) {
-            context.getParsingErrors().add(new ParsingError(ErrorCode.ALIEN_MAPPING_ERROR, "No parser found for yaml type", null, "", null, typeName));
-        }
-        return innerNodeParser;
-    }
 }

@@ -1,5 +1,6 @@
 package alien4cloud.it.orchestrators;
 
+import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -40,9 +41,22 @@ public class OrchestrationPolicyLocationResourceSteps extends AbstractLocationRe
         updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, propertyValue, getUpdatePropertyUrlFormat());
     }
 
+    @When("^I update the complex property \"([^\"]*)\" to \"\"\"(.*?)\"\"\" for the policy resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void I_update_the_complex_property_to_for_the_resource_named_related_to_the_location_(String propertyName, String propertyValue, String resourceName,
+            String orchestratorName, String locationName) throws Throwable {
+        updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, JsonUtil.toMap(propertyValue), getUpdatePropertyUrlFormat());
+    }
+
+    @When("^I update the complex list property \"([^\"]*)\" to \"\"\"(.*?)\"\"\" for the policy resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void I_update_the_complex_list_property_to_for_the_resource_named_related_to_the_location_(String propertyName, String propertyValue, String resourceName,
+            String orchestratorName, String locationName) throws Throwable {
+        updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, JsonUtil.toList(propertyValue, String.class),
+                getUpdatePropertyUrlFormat());
+    }
+
     @When("^I update the policy resource name from \"([^\"]*)\" to \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
-    public void IUpdateThePolicyResourceNameFromRelatedToTheLocation(String oldName, String newName, String orchestratorName,
-            String locationName) throws Throwable {
+    public void IUpdateThePolicyResourceNameFromRelatedToTheLocation(String oldName, String newName, String orchestratorName, String locationName)
+            throws Throwable {
         updateLocationResource(orchestratorName, locationName, oldName, newName);
     }
 

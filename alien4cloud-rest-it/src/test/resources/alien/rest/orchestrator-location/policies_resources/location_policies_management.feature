@@ -47,7 +47,6 @@ Feature: Manage location policies resources
     When I update the property "sample_property" to "test_update_property" for the policy resource named "MinimalPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
     Then I should receive a RestResponse with an error code 504
 
-
   @reset
   Scenario: Updating a policy template name
     Given I create a policy resource of type "org.alien4cloud.policies.mock.MinimalPolicyType" named "MinimalPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
@@ -56,7 +55,3 @@ Feature: Manage location policies resources
     When I get the location "Mount doom orchestrator"/"Thark location"
     Then The location should not contain a policy resource with name "MinimalPolicyType" and type "org.alien4cloud.policies.mock.MinimalPolicyType"
     And The location should contains a policy resource with name "MinimalPolicyType_Renamed" and type "org.alien4cloud.policies.mock.MinimalPolicyType"
-
-
-
-

@@ -10,6 +10,7 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(features = {
         //
         "classpath:alien/rest/application-deployment/"
+        // "classpath:alien/rest/application-deployment/policies/policy_matching.feature"
         // "classpath:alien/rest/application-deployment/service_matching.feature"
         // "classpath:alien/rest/application-deployment/deploy_application.feature"
         // "classpath:alien/rest/application-deployment/deploy_application_with_events.feature"
