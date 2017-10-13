@@ -86,6 +86,29 @@ public class RepositoryManager {
         }
     }
 
+    public static void deleteBranch(Path targetDirectory, String branch, boolean deleteRemoteBranch){
+        Git repository = null;
+        try {
+            repository = Git.open(targetDirectory.toFile());
+            //delete locally
+            if (branchExistsLocally(repository, branch)) {
+                repository.branchDelete().setBranchNames("refs/heads/" + branch).call();
+            }
+
+            // delete remote branch
+            if(deleteRemoteBranch){
+                RefSpec refSpec = new RefSpec()
+                        .setSource(null)
+                        .setDestination("refs/heads/" + branch);
+                repository.push().setRefSpecs(refSpec).setRemote("origin").call();
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Error while deleting branch <" + branch + ">", e);
+        } finally {
+            close(repository);
+        }
+    }
+
     /**
      * Create a git repository that includes an optional readme file.
      *
@@ -228,6 +251,26 @@ public class RepositoryManager {
         }
     }
 
+    public static void dropStash(Path repositoryDirectory, String stashId){
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            int stashIndex = 0;
+            Collection<RevCommit> stashes = git.stashList().call();
+            for (RevCommit stash : stashes) {
+                if (stash.getFullMessage().equals(stashId)) {
+                    git.stashDrop().setStashRef(stashIndex).call();
+                    log.debug("Stash <" + stashId + ">  has been dropped on <" + repositoryDirectory + ">");
+                }
+                stashIndex++;
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Failed to apply then drop stash", e);
+        } finally {
+            close(git);
+        }
+    }
+
     public static void applyStashThenDrop(Path repositoryDirectory, String stashId) {
         Git git = null;
         try {
@@ -238,7 +281,7 @@ public class RepositoryManager {
                 if (stash.getFullMessage().equals(stashId)) {
                     git.stashApply().setStashRef(stash.getName()).call();
                     git.stashDrop().setStashRef(stashIndex).call();
-                    log.debug("Stash <" + stashId + ">  applied on <" + repositoryDirectory + ">");
+                    log.debug("Stash <" + stashId + ">  applied teh dropped on <" + repositoryDirectory + ">");
                     break;
                 }
                 stashIndex++;

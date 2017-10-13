@@ -106,7 +106,18 @@ public class LocalGitManager {
         Path localGitPath = getLocalGitPath(location);
         RepositoryManager.clean(localGitPath);
         log.debug("Reset git " + localGitPath);
+    }
 
+    public void deleteBranch(GitLocation location, String branch){
+        Path localGitPath = getLocalGitPath(location);
+
+        // The current behavior is to NOT delete remote branch
+        // only local branch will be deleted
+        //boolean deleteRemoteBranch = !location.isLocal();
+        boolean deleteRemoteBranch = false;
+
+        RepositoryManager.deleteBranch(localGitPath, branch, deleteRemoteBranch);
+        log.debug("Deleted branch <" + branch + "> from " + location.getUrl());
     }
 
     /**

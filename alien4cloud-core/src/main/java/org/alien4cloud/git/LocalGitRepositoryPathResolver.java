@@ -1,7 +1,10 @@
 package org.alien4cloud.git;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.springframework.beans.factory.annotation.Required;
@@ -57,4 +60,8 @@ public class LocalGitRepositoryPathResolver {
         return storageRootPath.resolve(environmentId);
     }
 
+    @SneakyThrows
+    public List<Path> findAllLocalDeploymentConfigGitPath() {
+        return Files.walk(storageRootPath, 1).filter(path -> Files.isDirectory(path)).collect(Collectors.toList());
+    }
 }
