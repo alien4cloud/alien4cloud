@@ -8,19 +8,18 @@ import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.git.RepositoryManager;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
-import org.alien4cloud.git.LocalGitManager;
 import org.alien4cloud.git.LocalGitRepositoryPathResolver;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.GitException;
+import alien4cloud.git.RepositoryManager;
 import alien4cloud.utils.YamlParserUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -76,12 +75,17 @@ public class DeploymentConfigurationDao {
         Files.write(path, yaml.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
-    public void deleteAllByVersionId(String versionId) {
+    public void deleteAllByTopologyVersionId(String versionId) {
         // delete local branch + related stash
         List<Path> paths = localGitRepositoryPathResolver.findAllLocalDeploymentConfigGitPath();
         for (Path path : paths) {
-            RepositoryManager.dropStash(path, "a4c_stash_" + versionId);
-            RepositoryManager.deleteBranch(path, versionId, false);
+            try {
+                RepositoryManager.dropStash(path, "a4c_stash_" + versionId);
+                RepositoryManager.deleteBranch(path, versionId, false);
+            }
+            catch(GitException e){
+                log.error("Error when deleting data related to the topology version <" + versionId + "> from local git.",e);
+            }
         }
     }
 

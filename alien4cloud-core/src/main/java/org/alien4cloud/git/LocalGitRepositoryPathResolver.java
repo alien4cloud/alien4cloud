@@ -48,8 +48,9 @@ public class LocalGitRepositoryPathResolver {
         return storageRootPath.resolve(versionIdEnvId.getEnvironmentId()).resolve(fileName);
     }
 
-    public class DeploymentConfigGitResolver{
-        private DeploymentConfigGitResolver(){}
+    public class DeploymentConfigGitResolver {
+        private DeploymentConfigGitResolver() {
+        }
 
         public Path resolveGitRoot(String environmentId) {
             return storageRootPath.resolve(environmentId);
@@ -62,6 +63,8 @@ public class LocalGitRepositoryPathResolver {
 
     @SneakyThrows
     public List<Path> findAllLocalDeploymentConfigGitPath() {
-        return Files.walk(storageRootPath, 1).filter(path -> Files.isDirectory(path)).collect(Collectors.toList());
+        return Files.walk(storageRootPath, 1)
+                .filter(path -> !storageRootPath.equals(path) && Files.isDirectory(path))
+                .collect(Collectors.toList());
     }
 }

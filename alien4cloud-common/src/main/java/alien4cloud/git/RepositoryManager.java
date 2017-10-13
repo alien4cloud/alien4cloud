@@ -281,7 +281,7 @@ public class RepositoryManager {
                 if (stash.getFullMessage().equals(stashId)) {
                     git.stashApply().setStashRef(stash.getName()).call();
                     git.stashDrop().setStashRef(stashIndex).call();
-                    log.debug("Stash <" + stashId + ">  applied teh dropped on <" + repositoryDirectory + ">");
+                    log.debug("Stash <" + stashId + ">  applied/dropped on <" + repositoryDirectory + ">");
                     break;
                 }
                 stashIndex++;

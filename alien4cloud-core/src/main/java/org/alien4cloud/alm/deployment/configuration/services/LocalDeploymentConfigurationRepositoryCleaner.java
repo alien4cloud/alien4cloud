@@ -4,8 +4,6 @@ import javax.inject.Inject;
 
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
-import org.alien4cloud.git.GitLocationDao;
-import org.alien4cloud.git.LocalGitManager;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +18,7 @@ public class LocalDeploymentConfigurationRepositoryCleaner {
 
     @EventListener
     public void handleDeleteTopologyVersion(BeforeApplicationTopologyVersionDeleted event) {
-        deploymentConfigurationDao.deleteAllByVersionId(event.getVersionId());
+        deploymentConfigurationDao.deleteAllByTopologyVersionId(event.getTopologyVersion());
     }
 
     @EventListener
