@@ -23,15 +23,13 @@ define(function (require) {
 
         this.setNodeRenderer(nodeRenderer);
 
-        this.clickCallback = callbacks.click;
-        this.addRelationship = callbacks.addRelationship;
-
+        this.callbacks = callbacks;
         this.isRuntime = isRuntime;
 
         // create svg element
         var contextContainer = d3.select('#editor-context-container');
         contextContainer.html('');
-        this.svgGraph = svgServiceFactory.create(containerElement, 'topologySvgContainer', 'topology-svg', contextContainer);
+        this.svgGraph = svgServiceFactory.create(containerElement, 'topologySvgContainer', 'topology-svg', contextContainer, callbacks.graphControl);
         this.svg = this.svgGraph.svgGroup;
         d3.selectAll('.d3-tip').remove();
         var self = this;
@@ -110,6 +108,9 @@ define(function (require) {
             var nodeGroup = d3.select(this);
             nodeGroup.classed('node-hidden', function(){ return !_.isEmpty(selectedNodeNames) && !_.contains(selectedNodeNames, node.template.name); });
           });
+
+          // Update link selection
+          this.drawLink(this.svg, this.layout.links);
         },
 
         computeLinkRoute: function(link) {
@@ -188,13 +189,14 @@ define(function (require) {
           var actions = {
             click: function() {
               // un-select last node and select the new one on click
-              self.clickCallback({
+              self.callbacks.click({
                 'newSelectedName': node.id
               });
             },
             mouseover: this.tip.show,
             mouseout: this.tip.hide,
-            connectorDrag: this.connectorDrag
+            connectorDrag: this.connectorDrag,
+            callbacks: this.callbacks
           };
 
           this.nodeRenderer.createNode(this.layout, nodeGroup, node, nodeTemplate, nodeType, this.topology, actions);
@@ -206,7 +208,7 @@ define(function (require) {
 
           // update location
           nodeGroup.attr('transform', function(d) {
-            return 'translate(' + d.coordinate.x + ',' + d.coordinate.y + ')';
+            return 'translate(' + d.bbox.x() + ',' + d.bbox.y() + ')';
           });
           // update background class
           // nodeGroup.classed('selected', function(){ return nodeTemplate.selected; });
@@ -229,8 +231,6 @@ define(function (require) {
         drawLink: function(parent, links) {
           var self = this;
 
-          var topology = this.topology;
-
           var linkSelection = parent.selectAll('.link').data(links, function(link) { return link.id; });
 
           linkSelection.each(function() {
@@ -245,10 +245,7 @@ define(function (require) {
               var netStyle = link.networkId % self.nodeRenderer.networkStyles;
               linkPath.attr('class', 'link link-network link-network-' + netStyle);
             } else {
-              linkPath.attr('class', 'link');
-              var isHostedOn = toscaService.isHostedOnType(link.type, topology.relationshipTypes);
-              linkPath.classed('link-hosted-on', function() { return isHostedOn; })
-                .classed('link-depends-on', function() { return !isHostedOn; });
+              linkPath.attr('class', 'link link-depends-on');
             }
             self.drawLinkPath(linkPath, true);
           });
@@ -268,13 +265,13 @@ define(function (require) {
             path = linkPath.select('path');
           }
           path.attr('d', function(d){ return line(d.route);});
-          linkPath.classed('link-selected', function(link) { return link.selected; });
+          linkPath.classed('link-selected', function(link) { return link.sourceTemplate.selected || link.targetTemplate.selected; });
         }
       };
 
       return {
-        create: function(clickCallback, containerElement, isRuntime, nodeRenderer) {
-          return new TopologySvg(clickCallback, containerElement, isRuntime, nodeRenderer);
+        create: function(callbacks, containerElement, isRuntime, nodeRenderer) {
+          return new TopologySvg(callbacks, containerElement, isRuntime, nodeRenderer);
         }
       };
     } // function

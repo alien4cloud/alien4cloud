@@ -63,6 +63,14 @@ define(function (require) {
         this.addPoint(rectMaxX, rectMaxY);
       },
 
+      x: function() {
+        return this.minX;
+      },
+
+      y: function() {
+        return this.minY;
+      },
+
       width: function() {
         return this.maxX - this.minX;
       },

@@ -17,6 +17,7 @@ define(function (require) {
         scope: {
           selectCallback: '&',
           addRelationshipCallback: '&',
+          graphControl: '=',
           topology: '=',
           dimensions: '=',
           runtime: '='
@@ -26,7 +27,8 @@ define(function (require) {
           var topologyElement = d3.select(element[0]);
           var callbacks = {
             click: scope.selectCallback,
-            addRelationship: scope.addRelationshipCallback
+            addRelationship: scope.addRelationshipCallback,
+            graphControl: scope.graphControl
           };
           defaultNodeRendererService.setRuntime(scope.runtime);
           var topologySvg = topologySvgFactory.create(callbacks, topologyElement, scope.runtime, defaultNodeRendererService);

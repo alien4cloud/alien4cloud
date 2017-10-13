@@ -208,9 +208,10 @@ define(function (require) {
         });
       };
 
-      $scope.editorCallback = {
-        autoOpenRelationshipModal: $scope.relationships.autoOpenRelationshipModal,
+      // Object in which the topology svg directive will inject control ops.
+      $scope.graphControl = {};
 
+      $scope.editorCallback = {
         addRelationship: function(sourceId, requirementName, requirementType, targetId, capabilityName, relationship) {
           if(_.defined(relationship)) {
             // generate relationship name

@@ -89,6 +89,9 @@ ${utils.formatArtifact($artifactEntry.value, 4)}
   node_templates:
 #foreach($nodeTemplateEntry in ${topology.nodeTemplates.entrySet()})
     ${nodeTemplateEntry.key}:
+#if(!$utils.isNull(${nodeTemplateEntry.value.description}))
+      description: ${utils.renderDescription(${nodeTemplateEntry.value.description}, "        ")}
+#end## description
       type: ${nodeTemplateEntry.value.type}
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.properties))
       properties:$propertyUtils.formatProperties(4, $nodeTemplateEntry.value.properties)

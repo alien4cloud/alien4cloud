@@ -21,20 +21,18 @@ define(function (require) {
           listToMapService.processMap(topology.capabilityTypes, 'properties');
 
           this.postProcess(topology.topology.nodeTemplates, ['properties', 'attributes', 'requirements', 'relationships', 'capabilities']);
-          for (var nodeTemplateName in topology.topology.nodeTemplates) {
-            if (topology.topology.nodeTemplates.hasOwnProperty(nodeTemplateName)) {
-              if (_.defined(topology.topology.nodeTemplates[nodeTemplateName].relationships)) {
-                for (var i = 0; i < topology.topology.nodeTemplates[nodeTemplateName].relationships.length; i++) {
-                  listToMapService.process(topology.topology.nodeTemplates[nodeTemplateName].relationships[i].value, 'properties');
-                }
-              }
-              if (_.defined(topology.topology.nodeTemplates[nodeTemplateName].capabilities)) {
-                for (var j = 0; j < topology.topology.nodeTemplates[nodeTemplateName].capabilities.length; j++) {
-                  listToMapService.process(topology.topology.nodeTemplates[nodeTemplateName].capabilities[j].value, 'properties');
-                }
-              }
-            }
-          }
+          _.each(topology.topology.nodeTemplates, function(nodeTemplate) {
+            nodeTemplate.metadata = {};
+            _.each(nodeTemplate.tags, function(tag) {
+              nodeTemplate.metadata[tag.name] = tag.value;
+            });
+            _.each(nodeTemplate.relationships, function(relationship) {
+              listToMapService.process(relationship.value, 'properties');
+            });
+            _.each(nodeTemplate.capabilities, function(capability) {
+              listToMapService.process(capability.value, 'properties');
+            });
+          });
         },
 
         postProcess: function(object, properties) {

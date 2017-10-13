@@ -1,5 +1,7 @@
 define(function (require) {
   'use strict';
+  const X_META = 'a4c_edit_x';
+  const Y_META = 'a4c_edit_y';
 
   var modules = require('modules');
   var _ = require('lodash');
@@ -18,9 +20,9 @@ define(function (require) {
         layout: function(nodeTemplates, topology, renderer) {
           var tree = topologyTreeService.buildTree(nodeTemplates, topology);
           topologyTreeService.sortTree(tree, topology);
-
           // process the layout of all tree elements but network
           this.treeLayout(tree, renderer);
+
           // compute graph
           var treeGraph = this.buildTreeGraph(tree);
           // manage networks
@@ -67,7 +69,16 @@ define(function (require) {
         treeLayout: function(tree, renderer) {
           var position = {x: 0, y: 0};
           for (var i = 0; i < tree.children.length; i++) {
-            this.nodeLayout(tree.children[i], position, renderer, true);
+            var node = tree.children[i];
+            var nodePosition = position;
+            if(_.defined(node.template.metadata[X_META])) {
+              nodePosition = {
+                x: parseInt(node.template.metadata[X_META]),
+                y: parseInt(node.template.metadata[Y_META])
+              };
+            }
+
+            this.nodeLayout(tree.children[i], nodePosition, renderer, true);
             // distance between the branches
             position.x += xSpacing + tree.children[i].bbox.width();
             position.y = 0;
@@ -204,13 +215,13 @@ define(function (require) {
                 source.direction = routerFactoryService.directions.right;
                 target.direction = routerFactoryService.directions.left;
               }
-              var selected = graph.nodeMap[relationship.target].template.selected || node.template.selected;
               graph.links.push({
                 id: node.id + '.' + relationship.id,
                 type: relationship.type,
                 source: source,
                 target: target,
-                selected: selected,
+                sourceTemplate: node.template,
+                targetTemplate: graph.nodeMap[relationship.target].template,
                 isNetwork: isNetwork,
                 networkId: networkId
               });

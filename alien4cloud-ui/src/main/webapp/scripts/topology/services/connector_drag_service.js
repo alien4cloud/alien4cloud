@@ -85,7 +85,7 @@ define(function (require) {
 
               if(_.defined(selectedTarget)) {
                 var target = selectedTarget.target;
-                topologySvg.addRelationship({
+                topologySvg.callbacks.addRelationship({
                   sourceId: element.node.id,
                   requirementName: element.id,
                   requirementType: element.template.type,
