@@ -4,13 +4,6 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Map;
 
-import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-import alien4cloud.utils.jackson.ConditionalOnAttribute;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.AbstractPolicy;
 import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
@@ -18,8 +11,15 @@ import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.ObjectField;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Maps;
 
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -49,6 +49,9 @@ public class DeploymentMatchingConfiguration extends AbstractDeploymentConfig {
      */
     @ObjectField(enabled = false)
     private Map<String, NodePropsOverride> matchedNodesConfiguration = Maps.newHashMap();
+
+    @ObjectField(enabled = false)
+    private Map<String, NodePropsOverride> matchedPoliciesConfiguration = Maps.newHashMap();
 
     public DeploymentMatchingConfiguration(String versionId, String environmentId) {
         super(versionId, environmentId);

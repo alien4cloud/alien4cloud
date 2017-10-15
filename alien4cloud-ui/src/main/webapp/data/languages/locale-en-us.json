@@ -27,7 +27,9 @@
         "SERVICE": "Service information",
         "SERVICE_HELP": "Below are the defined properties and attributes of the matched service.",
         "SERVICE_UNDEPLOYED_HELP": "The selected servie is undeployed, this may cause issues on deployment if you select it as matched resource.",
-        "TITLE": "Matching"
+        "TITLE": "Matching",
+        "NODES_TITLE": "Nodes matching",
+        "POLICIES_TITLE": "Policies matching"
       },
       "HISTORY": {
         "DEPLOYER": "Deployer",

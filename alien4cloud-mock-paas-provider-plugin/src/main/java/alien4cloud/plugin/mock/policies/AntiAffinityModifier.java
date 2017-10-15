@@ -67,6 +67,7 @@ public class AntiAffinityModifier implements ITopologyModifier {
             // This modifier is injected after matching phase. Nodes must have been matched against valid type.
             if (!AWS_MOCK_COMPUTE_TYPE.equals(target.getType())) {
                 context.log().error("Anti-affinity policy {} is not correctly configured, target {} is not an instance of {}.", policy.getName(),
+                        target.getName(),
                         AWS_MOCK_COMPUTE_TYPE);
                 return null;
             }

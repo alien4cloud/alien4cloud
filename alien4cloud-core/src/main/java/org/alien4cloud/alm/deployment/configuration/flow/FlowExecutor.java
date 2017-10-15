@@ -12,6 +12,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhaseModi
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.LocationMatchingModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingNodeSetupModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingPolicySetupModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PreDeploymentTopologyValidator;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.SubstitutionCompositionModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputArtifactsModifier;
@@ -103,6 +104,8 @@ public class FlowExecutor {
     private NodeMatchingReplaceModifier nodeMatchingReplaceModifier;
 
     @Inject
+    private PostMatchingPolicySetupModifier postMatchingPolicySetupModifier;
+    @Inject
     private PostMatchingNodeSetupModifier postMatchingNodeSetupModifier;
     @Inject
     private PreDeploymentTopologyValidator preDeploymentTopologyValidator;
@@ -151,6 +154,12 @@ public class FlowExecutor {
                 policyMatchingReplaceModifier// Inject policy implementation modifiers in the flow and eventually add warnings.
         ));
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_POLICY_MATCH));
+
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_MATCHED_POLICY_SETUP));
+        // Overrides unspecified matched/substituted policies unset's properties with values provided by the deployer user
+        topologyModifiers.add(postMatchingPolicySetupModifier);
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_MATCHED_POLICY_SETUP));
+
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_NODE_MATCH));
         // Future: Load specific pre-matching location specific modifiers (pre-matching policy handlers etc.)
         // Node matching is composed of multiple sub modifiers that performs the various steps of matching.

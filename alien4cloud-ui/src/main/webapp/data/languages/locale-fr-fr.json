@@ -27,7 +27,9 @@
         "SERVICE" : "Détails du service",
         "SERVICE_HELP" : "Les propriétés et attributs du service sélectioné sont affichées ci-dessous",
         "SERVICE_UNDEPLOYED_HELP" : "Le service sélectionné n'est pas déployé. Cela peut causer des problèmes lors du déploiement en cas de choix de ce service pour remplacer le noeud selectionné.",
-        "TITLE" : "Matching"
+        "TITLE" : "Matching",
+        "NODES_TITLE": "Matching de noeuds",
+        "POLICIES_TITLE": "Matching de policies"
       },
       "HISTORY": {
         "DEPLOYER": "Déploieur",

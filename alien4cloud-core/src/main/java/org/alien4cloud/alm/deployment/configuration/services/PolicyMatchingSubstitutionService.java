@@ -15,17 +15,15 @@ import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutor;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.action.SetMatchedNodeModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.action.SetMatchedPolicyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.AbstractComposedModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCompositeModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingCompositeModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingConfigAutoSelectModifier;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -38,16 +36,16 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.topology.TopologyServiceCore;
 
 /**
- * Service responsible to configure the matched substitutions for a given deployment.
+ * Service responsible to configure the matched substitutions on policies for a given deployment.
  */
 @Service
-public class MatchingSubstitutionService {
+public class PolicyMatchingSubstitutionService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
     private FlowExecutor flowExecutor;
     @Inject
-    private NodeMatchingConfigAutoSelectModifier nodeMatchingConfigAutoSelectModifier;
+    private PolicyMatchingConfigAutoSelectModifier policyMatchingConfigAutoSelectModifier;
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
@@ -60,42 +58,42 @@ public class MatchingSubstitutionService {
      * @param environment The environment for which to execute the deployment flow.
      * @param topology The topology linked to the specified environment.
      * @param nodeId The id of the node to substitute at matching phase.
-     * @param locationResourceTemplateId The id of the location resources to substitute.
+     * @param resourceTemplateId The id of the location resource to substitute.
      * @return The flow execution context.
      */
     public FlowExecutionContext updateSubstitution(Application application, ApplicationEnvironment environment, Topology topology, String nodeId,
-            String locationResourceTemplateId) {
+            String resourceTemplateId) {
         FlowExecutionContext executionContext = new FlowExecutionContext(alienDAO, topology, new EnvironmentContext(application, environment));
         // Load the actual configuration
 
         // add a modifier that will actually perform the configuration of a substitution from user request (after cleanup and prior to node matching
         // auto-selection).
-        SetMatchedNodeModifier setMatchedNodeModifier = new SetMatchedNodeModifier(nodeId, locationResourceTemplateId);
-        List<ITopologyModifier> modifierList = getModifierListWithSelectionAction(setMatchedNodeModifier);
+        SetMatchedPolicyModifier setMatchedPolicyModifier = new SetMatchedPolicyModifier(nodeId, resourceTemplateId);
+        List<ITopologyModifier> modifierList = getModifierListWithSelectionAction(setMatchedPolicyModifier);
 
         flowExecutor.execute(topology, modifierList, executionContext);
-        if (!setMatchedNodeModifier.isExecuted()) {
-            throw new NotFoundException("Requested substitution <" + locationResourceTemplateId + "> for node <" + nodeId
+        if (!setMatchedPolicyModifier.isExecuted()) {
+            throw new NotFoundException("Requested substitution <" + resourceTemplateId + "> for node <" + nodeId
                     + "> is not available as a match. Please check that inputs and location are configured and ask your admin to grant you access to requested resources on the location.");
         }
 
         return executionContext;
     }
 
-    private List<ITopologyModifier> getModifierListWithSelectionAction(SetMatchedNodeModifier matchedNodeModifier) {
+    private List<ITopologyModifier> getModifierListWithSelectionAction(SetMatchedPolicyModifier matchedModifier) {
         List<ITopologyModifier> modifierList = flowExecutor.getDefaultFlowModifiers();
-        NodeMatchingCompositeModifier nodeMatchingModifier = (NodeMatchingCompositeModifier) modifierList.stream()
-                .filter(modifier -> modifier instanceof NodeMatchingCompositeModifier)
-                .findFirst().orElseThrow(() -> new IllegalArgumentException(
+        PolicyMatchingCompositeModifier matchingModifier = (PolicyMatchingCompositeModifier) modifierList.stream()
+                .filter(modifier -> modifier instanceof PolicyMatchingCompositeModifier).findFirst().orElseThrow(() -> new IllegalArgumentException(
                         "Unexpected exception in deployment flow to update node substitution; unable to find the master node matching modifier to inject selection action modifier."));
 
-        // inject the SetMatchedNodeModifier into the nodeMatchingModifiers, just after nodeMatchingConfigAutoSelectModifier
-        nodeMatchingModifier.addModifierAfter(matchedNodeModifier, nodeMatchingConfigAutoSelectModifier);
+        // inject the SetMatchedNodeModifier into the nodeMatchingModifiers, just after policyMatchingConfigAutoSelectModifier
+        matchingModifier.addModifierAfter(matchedModifier, policyMatchingConfigAutoSelectModifier);
         return modifierList;
     }
 
-    @EventListener
-    @Order(30) // Process this after location matching copy (first element).
+    // FIXME fix this, synch with org.alien4cloud.alm.deployment.configuration.services.MatchingSubstitutionService#onCopyConfiguration
+    // @EventListener
+    // @Order(30) // Process this after location matching copy (first element).
     public void onCopyConfiguration(OnDeploymentConfigCopyEvent onDeploymentConfigCopyEvent) {
         ApplicationEnvironment source = onDeploymentConfigCopyEvent.getSourceEnvironment();
         ApplicationEnvironment target = onDeploymentConfigCopyEvent.getTargetEnvironment();
@@ -146,11 +144,12 @@ public class MatchingSubstitutionService {
 
     private List<ITopologyModifier> getMatchingFlow() {
         List<ITopologyModifier> modifierList = flowExecutor.getDefaultFlowModifiers();
-        // only keep modifiers until NodeMatchingModifier
+        // only keep modifiers until MatchingModifier
         for (int i = 0; i < modifierList.size(); i++) {
-            if (modifierList.get(i) instanceof AbstractComposedModifier) {
-                // only keep node matching modifiers until nodeMatchingConfigAutoSelectModifier
-                ((AbstractComposedModifier) modifierList.get(i)).removeModifiersAfter(nodeMatchingConfigAutoSelectModifier);
+            if (modifierList.get(i) instanceof PolicyMatchingCompositeModifier) {
+                // FIXME what shoud we do regarding node modifers?
+                // only keep policy matching modifiers until policyMatchingConfigAutoSelectModifier
+                ((AbstractComposedModifier) modifierList.get(i)).removeModifiersAfter(policyMatchingConfigAutoSelectModifier);
                 return modifierList.subList(0, i + 1);
             }
         }

@@ -1,9 +1,6 @@
 package alien4cloud.rest.deployment;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
 import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -12,16 +9,15 @@ import org.alien4cloud.alm.deployment.configuration.services.InputArtifactServic
 import org.alien4cloud.alm.deployment.configuration.services.InputService;
 import org.alien4cloud.alm.deployment.configuration.services.LocationMatchService;
 import org.alien4cloud.alm.deployment.configuration.services.MatchedNodePropertiesConfigService;
-import org.alien4cloud.alm.deployment.configuration.services.MatchingSubstitutionService;
+import org.alien4cloud.alm.deployment.configuration.services.MatchedPolicyPropertiesConfigService;
+import org.alien4cloud.alm.deployment.configuration.services.NodeMatchingSubstitutionService;
 import org.alien4cloud.alm.deployment.configuration.services.OrchestratorPropertiesService;
+import org.alien4cloud.alm.deployment.configuration.services.PolicyMatchingSubstitutionService;
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
 import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
-import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
-import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.apache.commons.collections4.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,9 +32,6 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.deployment.DeploymentTopologyService;
-import alien4cloud.deployment.OrchestratorPropertiesValidationService;
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
@@ -46,17 +39,12 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
 import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.utils.RestConstraintValidator;
-import alien4cloud.utils.services.PropertyService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -81,9 +69,13 @@ public class DeploymentTopologyController {
     @Inject
     private InputArtifactService inputArtifactService;
     @Inject
-    private MatchingSubstitutionService matchingSubstitutionService;
+    private NodeMatchingSubstitutionService nodeMatchingSubstitutionService;
+    @Inject
+    private PolicyMatchingSubstitutionService policyMatchingSubstitutionService;
     @Inject
     private MatchedNodePropertiesConfigService matchedNodePropertiesConfigService;
+    @Inject
+    private MatchedPolicyPropertiesConfigService matchedPolicyPropertiesConfigService;
     @Inject
     private LocationMatchService locationMatchService;
     @Inject
@@ -183,12 +175,39 @@ public class DeploymentTopologyController {
         Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
 
         DeploymentTopologyDTO dto = deploymentTopologyDTOBuilder.prepareDeployment(topology,
-                () -> matchingSubstitutionService.updateSubstitution(application, environment, topology, nodeId, locationResourceTemplateId));
+                () -> nodeMatchingSubstitutionService.updateSubstitution(application, environment, topology, nodeId, locationResourceTemplateId));
 
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(dto).build();
     }
 
-    @ApiOperation(value = "Update substitution's property.", authorizations = { @Authorization("ADMIN") })
+    /**
+     * Update policy substitution.
+     *
+     * @param appId id of the application.
+     * @param environmentId id of the environment.
+     * @return response containing the deployment topology dto {@link DeploymentTopologyDTO}.
+     */
+    @ApiOperation(value = "Substitute a specific policy by a location policy resource template in the topology of an application, given an environment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/policies/{policyId}/substitution", method = RequestMethod.POST)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
+    public RestResponse<DeploymentTopologyDTO> updatePolicySubstitution(@PathVariable String appId, @PathVariable String environmentId,
+            @PathVariable String policyId, @RequestParam String locationResourceTemplateId) {
+        Application application = applicationService.getOrFail(appId);
+        ApplicationEnvironment environment = appEnvironmentService.getOrFail(environmentId);
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
+
+        ApplicationTopologyVersion topologyVersion = applicationVersionService
+                .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
+        Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
+
+        DeploymentTopologyDTO dto = deploymentTopologyDTOBuilder.prepareDeployment(topology,
+                () -> policyMatchingSubstitutionService.updateSubstitution(application, environment, topology, policyId, locationResourceTemplateId));
+
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(dto).build();
+    }
+
+    @ApiOperation(value = "Update node substitution's property.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/substitutions/{nodeId}/properties", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
     @Audit
@@ -206,6 +225,34 @@ public class DeploymentTopologyController {
             DeploymentTopologyDTO dto = deploymentTopologyDTOBuilder.prepareDeployment(topology,
                     () -> matchedNodePropertiesConfigService.updateProperty(application, environment, topology, nodeId, Optional.empty(),
                             updateRequest.getPropertyName(), updateRequest.getPropertyValue()));
+
+            return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(dto).build();
+        } catch (ConstraintTechnicalException e) {
+            if (e.getCause() instanceof ConstraintFunctionalException) {
+                return RestConstraintValidator.fromException((ConstraintFunctionalException) e.getCause(), updateRequest.getPropertyName(),
+                        updateRequest.getPropertyValue());
+            }
+            throw e;
+        }
+    }
+
+    @ApiOperation(value = "Update policy substitution's property.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/policies/{nodeId}/substitution/properties", method = RequestMethod.POST)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
+    public RestResponse<?> updatePolicySubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
+            @RequestBody UpdatePropertyRequest updateRequest) {
+        try {
+            Application application = applicationService.getOrFail(appId);
+            ApplicationEnvironment environment = appEnvironmentService.getOrFail(environmentId);
+            AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
+
+            ApplicationTopologyVersion topologyVersion = applicationVersionService
+                    .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
+            Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
+
+            DeploymentTopologyDTO dto = deploymentTopologyDTOBuilder.prepareDeployment(topology, () -> matchedPolicyPropertiesConfigService
+                    .updateProperty(application, environment, topology, nodeId, updateRequest.getPropertyName(), updateRequest.getPropertyValue()));
 
             return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(dto).build();
         } catch (ConstraintTechnicalException e) {
