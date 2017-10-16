@@ -1,15 +1,11 @@
 package org.alien4cloud.alm.deployment.configuration.services;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
+import alien4cloud.application.ApplicationService;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.topology.TopologyServiceCore;
+import com.google.common.collect.Maps;
 import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
@@ -27,22 +23,21 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Maps;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import alien4cloud.application.ApplicationService;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.topology.TopologyServiceCore;
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Service responsible to configure the matched substitutions for a given deployment.
  */
 @Service
 public class MatchingSubstitutionService {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    @Inject
+    private DeploymentConfigurationDao deploymentConfigurationDao;
     @Inject
     private FlowExecutor flowExecutor;
     @Inject
@@ -64,7 +59,7 @@ public class MatchingSubstitutionService {
      */
     public FlowExecutionContext updateSubstitution(Application application, ApplicationEnvironment environment, Topology topology, String nodeId,
             String locationResourceTemplateId) {
-        FlowExecutionContext executionContext = new FlowExecutionContext(alienDAO, topology, new EnvironmentContext(application, environment));
+        FlowExecutionContext executionContext = new FlowExecutionContext(deploymentConfigurationDao, topology, new EnvironmentContext(application, environment));
         // Load the actual configuration
 
         // add a modifier that will actually perform the configuration of a substitution from user request (after cleanup and prior to node matching
@@ -97,10 +92,10 @@ public class MatchingSubstitutionService {
     public void onCopyConfiguration(OnDeploymentConfigCopyEvent onDeploymentConfigCopyEvent) {
         ApplicationEnvironment source = onDeploymentConfigCopyEvent.getSourceEnvironment();
         ApplicationEnvironment target = onDeploymentConfigCopyEvent.getTargetEnvironment();
-        DeploymentMatchingConfiguration sourceConfiguration = alienDAO.findById(DeploymentMatchingConfiguration.class,
+        DeploymentMatchingConfiguration sourceConfiguration = deploymentConfigurationDao.findById(DeploymentMatchingConfiguration.class,
                 AbstractDeploymentConfig.generateId(source.getTopologyVersion(), source.getId()));
 
-        DeploymentMatchingConfiguration targetConfiguration = alienDAO.findById(DeploymentMatchingConfiguration.class,
+        DeploymentMatchingConfiguration targetConfiguration = deploymentConfigurationDao.findById(DeploymentMatchingConfiguration.class,
                 AbstractDeploymentConfig.generateId(target.getTopologyVersion(), target.getId()));
 
         if (sourceConfiguration == null || MapUtils.isEmpty(sourceConfiguration.getLocationGroups()) || targetConfiguration == null
@@ -113,7 +108,7 @@ public class MatchingSubstitutionService {
 
         if (MapUtils.isNotEmpty(topology.getNodeTemplates())) {
             Application application = applicationService.getOrFail(target.getApplicationId());
-            FlowExecutionContext executionContext = new FlowExecutionContext(alienDAO, topology, new EnvironmentContext(application, target));
+            FlowExecutionContext executionContext = new FlowExecutionContext(deploymentConfigurationDao, topology, new EnvironmentContext(application, target));
             flowExecutor.execute(topology, getMatchingFlow(), executionContext);
 
             Map<String, Set<String>> locResTemplateIdsPerNodeIds = (Map<String, Set<String>>) executionContext.getExecutionCache()
@@ -137,7 +132,7 @@ public class MatchingSubstitutionService {
                     targetConfiguration.getMatchedNodesConfiguration().put(key, safe(sourceConfiguration.getMatchedNodesConfiguration()).get(key));
                 });
 
-                alienDAO.save(targetConfiguration);
+                deploymentConfigurationDao.save(targetConfiguration);
             }
         }
     }

@@ -1,14 +1,10 @@
 package org.alien4cloud.alm.deployment.configuration.services;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
+import alien4cloud.component.repository.IFileRepository;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.topology.TopologyServiceCore;
 import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
@@ -21,20 +17,21 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import alien4cloud.component.repository.ArtifactRepositoryConstants;
-import alien4cloud.component.repository.IFileRepository;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.topology.TopologyServiceCore;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Service responsible for management of input artifacts.
  */
 @Service
 public class InputArtifactService {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    @Resource
+    private DeploymentConfigurationDao deploymentConfigurationDao;
     @Resource
     private IFileRepository artifactRepository;
     @Inject
@@ -62,7 +59,7 @@ public class InputArtifactService {
             artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
             artifact.setRepositoryName(null);
             artifact.setRepositoryURL(null);
-            alienDAO.save(deploymentInputs);
+            deploymentConfigurationDao.save(deploymentInputs);
         }
     }
 
@@ -82,11 +79,11 @@ public class InputArtifactService {
         artifact.setArchiveName(updatedArtifact.getArchiveName());
         artifact.setArchiveVersion(updatedArtifact.getArchiveVersion());
 
-        alienDAO.save(deploymentInputs);
+        deploymentConfigurationDao.save(deploymentInputs);
     }
 
     private DeploymentInputs getDeploymentInputs(String versionId, String environmentId) {
-        DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class, AbstractDeploymentConfig.generateId(versionId, environmentId));
+        DeploymentInputs deploymentInputs = deploymentConfigurationDao.findById(DeploymentInputs.class, AbstractDeploymentConfig.generateId(versionId, environmentId));
         if (deploymentInputs == null) {
             deploymentInputs = new DeploymentInputs(versionId, environmentId);
         }
@@ -121,7 +118,7 @@ public class InputArtifactService {
     public void onCopyConfiguration(OnDeploymentConfigCopyEvent onDeploymentConfigCopyEvent) {
         ApplicationEnvironment source = onDeploymentConfigCopyEvent.getSourceEnvironment();
         ApplicationEnvironment target = onDeploymentConfigCopyEvent.getTargetEnvironment();
-        DeploymentInputs deploymentInputs = alienDAO.findById(DeploymentInputs.class,
+        DeploymentInputs deploymentInputs = deploymentConfigurationDao.findById(DeploymentInputs.class,
                 AbstractDeploymentConfig.generateId(source.getTopologyVersion(), source.getId()));
 
         if (deploymentInputs == null || MapUtils.isEmpty(deploymentInputs.getInputArtifacts())) {
@@ -138,14 +135,14 @@ public class InputArtifactService {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             if (MapUtils.isNotEmpty(inputsArtifactsToCopy)) {
                 // There's something to copy
-                DeploymentInputs targetDeploymentInputs = alienDAO.findById(DeploymentInputs.class,
+                DeploymentInputs targetDeploymentInputs = deploymentConfigurationDao.findById(DeploymentInputs.class,
                         AbstractDeploymentConfig.generateId(target.getTopologyVersion(), target.getId()));
                 if (targetDeploymentInputs == null) {
                     targetDeploymentInputs = new DeploymentInputs(target.getTopologyVersion(), target.getId());
                 }
 
                 targetDeploymentInputs.setInputArtifacts(inputsArtifactsToCopy);
-                alienDAO.save(targetDeploymentInputs);
+                deploymentConfigurationDao.save(targetDeploymentInputs);
             }
         }
     }

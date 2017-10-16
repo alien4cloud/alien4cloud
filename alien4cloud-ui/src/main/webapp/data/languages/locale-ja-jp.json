@@ -456,6 +456,8 @@
     "NAME" : "名前",
     "NO" : "No",
     "NODE" : "ノード",
+    "PATH": "Path",
+    "PASSWORD": "Password",
     "PROPERTIES" : "プロパティ",
     "RELATIONSHIP": "Relationship",
     "SOURCE" : "ソース",
@@ -883,6 +885,13 @@
       "minLength" : "Min value length is {{reference}}",
       "pattern" : "Value must match the pattern {{reference}}"
     }
+  },
+  "GIT" : {
+    "CONFIGURE_TITLE" : "Git configuration",
+    "ALIEN_MANAGED" : "A4C",
+    "USER_MANAGED": "Manually",
+    "BRANCH": "Branch",
+    "MANAGED_BY": "Managed by" 
   },
   "GROUPS" : {
     "AUTHORIZED" : "group authorized",

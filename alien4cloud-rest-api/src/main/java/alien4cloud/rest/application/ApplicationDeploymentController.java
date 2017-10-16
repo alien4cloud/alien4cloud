@@ -8,12 +8,16 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import alien4cloud.security.model.User;
+import org.alien4cloud.git.GitLocationDao;
+import org.alien4cloud.git.LocalGitManager;
+import org.alien4cloud.git.model.GitLocation;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.elasticsearch.common.joda.time.DateTime;
+import org.elasticsearch.common.joda.time.DateTimeZone;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,6 +55,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
+import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyValidationResult;
@@ -91,6 +96,10 @@ public class ApplicationDeploymentController {
     private TopologyServiceCore topologyServiceCore;
     @Inject
     private DeploymentTopologyDTOBuilder deploymentTopologyDTOBuilder;
+    @Inject
+    private LocalGitManager localGitManager;
+    @Inject
+    private GitLocationDao gitLocationDao;
 
     /**
      * Trigger deployment of the application on the current configured PaaS.
@@ -134,8 +143,12 @@ public class ApplicationDeploymentController {
                     .data(validation).build();
         }
 
-        // process with the deployment
         User deployer = AuthorizationUtil.getCurrentUser();
+        // commit and push the deployment configuration data
+        GitLocation location = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environmentId);
+        localGitManager.commitAndPush(location,  deployer.getUsername(), deployer.getEmail(), "Deployment " + DateTime.now(DateTimeZone.UTC));
+
+        // process with the deployment
         deployService.deploy(deployer, deploymentTopologyDTO.getTopology(), application);
         return RestResponseBuilder.<Void> builder().build();
     }

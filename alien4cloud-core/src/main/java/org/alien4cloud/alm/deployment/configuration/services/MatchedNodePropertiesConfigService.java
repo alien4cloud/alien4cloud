@@ -1,13 +1,8 @@
 package org.alien4cloud.alm.deployment.configuration.services;
 
-import java.util.List;
-import java.util.Optional;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import alien4cloud.tosca.context.ToscaContextual;
-import org.alien4cloud.alm.deployment.configuration.events.OnMatchedLocationChangedEvent;
+import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.utils.services.PropertyService;
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutor;
@@ -15,21 +10,19 @@ import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingNodeSetupModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.action.SetMatchedNodePropertyModifier;
 import org.alien4cloud.tosca.model.templates.Topology;
-
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.utils.services.PropertyService;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Manage configuration of deployer configured properties for matched nodes.
  */
 @Service
 public class MatchedNodePropertiesConfigService {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    @Inject
+    private DeploymentConfigurationDao deploymentConfigurationDao;
     @Inject
     private FlowExecutor flowExecutor;
     @Inject
@@ -51,7 +44,7 @@ public class MatchedNodePropertiesConfigService {
      */
     public FlowExecutionContext updateProperty(Application application, ApplicationEnvironment environment, Topology topology, String nodeId,
             Optional<String> optionalCapabilityName, String propertyName, Object propertyValue) {
-        FlowExecutionContext executionContext = new FlowExecutionContext(alienDAO, topology, new EnvironmentContext(application, environment));
+        FlowExecutionContext executionContext = new FlowExecutionContext(deploymentConfigurationDao, topology, new EnvironmentContext(application, environment));
         // Load the actual configuration
 
         // add a modifier that will actually perform the configuration of a substitution from user request (after cleanup and prior to node matching

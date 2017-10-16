@@ -468,6 +468,8 @@
     "NO" : "Non",
     "NODE" : "Noeud",
     "OR": "ou",
+    "PATH": "Path",
+    "PASSWORD": "Mot de passe",
     "PROPERTIES" : "Propriétés",
     "RELATIONSHIP": "Relation",
     "SEARCH": "Rechercher...",
@@ -477,6 +479,7 @@
     "TARGET" : "Cible",
     "TYPE" : "Type",
     "USERNAME" : "Nom d'utilisateur",
+    "URL" : "URL",
     "VERSION" : "Version",
     "YES" : "Oui"
   },
@@ -901,6 +904,13 @@
       "minLength" : "La taille minimale de la valeur est {{reference}}",
       "pattern" : "La valeur doit respecter le modèle {{reference}}"
     }
+  },
+  "GIT" : {
+    "CONFIGURE_TITLE" : "Configurer Git",
+    "ALIEN_MANAGED" : "A4C",
+    "USER_MANAGED": "Manuellement",
+    "BRANCH": "Branche",
+    "MANAGED_BY": "Géré par" 
   },
   "GROUPS" : {
     "AUTHORIZED" : "groupe autorisé",

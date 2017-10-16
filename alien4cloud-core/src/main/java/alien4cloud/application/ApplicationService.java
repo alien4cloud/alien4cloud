@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService.DeleteApplicationEnvironments;
 import alien4cloud.application.ApplicationVersionService.DeleteApplicationVersions;
+import alien4cloud.common.ResourceUpdateInterceptor;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
@@ -51,6 +52,8 @@ public class ApplicationService {
     private ApplicationEventPublisher publisher;
     @Resource
     private ImageDAO imageDAO;
+    @Resource
+    private ResourceUpdateInterceptor resourceUpdateInterceptor;
 
     /**
      * Create a new application and return it's id
@@ -79,6 +82,9 @@ public class ApplicationService {
         application.setMetaProperties(Maps.newHashMap());
 
         alienDAO.save(application);
+
+        resourceUpdateInterceptor.runOnNewApplication(application);
+
         return archiveName;
     }
 
