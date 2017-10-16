@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 
 import alien4cloud.application.ApplicationService;
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -40,8 +38,8 @@ import alien4cloud.topology.TopologyServiceCore;
  */
 @Service
 public class PolicyMatchingSubstitutionService {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    @Inject
+    private DeploymentConfigurationDao deploymentConfigurationDao;
     @Inject
     private FlowExecutor flowExecutor;
     @Inject
@@ -63,7 +61,8 @@ public class PolicyMatchingSubstitutionService {
      */
     public FlowExecutionContext updateSubstitution(Application application, ApplicationEnvironment environment, Topology topology, String nodeId,
             String resourceTemplateId) {
-        FlowExecutionContext executionContext = new FlowExecutionContext(alienDAO, topology, new EnvironmentContext(application, environment));
+        FlowExecutionContext executionContext = new FlowExecutionContext(deploymentConfigurationDao, topology,
+                new EnvironmentContext(application, environment));
         // Load the actual configuration
 
         // add a modifier that will actually perform the configuration of a substitution from user request (after cleanup and prior to node matching
@@ -97,10 +96,10 @@ public class PolicyMatchingSubstitutionService {
     public void onCopyConfiguration(OnDeploymentConfigCopyEvent onDeploymentConfigCopyEvent) {
         ApplicationEnvironment source = onDeploymentConfigCopyEvent.getSourceEnvironment();
         ApplicationEnvironment target = onDeploymentConfigCopyEvent.getTargetEnvironment();
-        DeploymentMatchingConfiguration sourceConfiguration = alienDAO.findById(DeploymentMatchingConfiguration.class,
+        DeploymentMatchingConfiguration sourceConfiguration = deploymentConfigurationDao.findById(DeploymentMatchingConfiguration.class,
                 AbstractDeploymentConfig.generateId(source.getTopologyVersion(), source.getId()));
 
-        DeploymentMatchingConfiguration targetConfiguration = alienDAO.findById(DeploymentMatchingConfiguration.class,
+        DeploymentMatchingConfiguration targetConfiguration = deploymentConfigurationDao.findById(DeploymentMatchingConfiguration.class,
                 AbstractDeploymentConfig.generateId(target.getTopologyVersion(), target.getId()));
 
         if (sourceConfiguration == null || MapUtils.isEmpty(sourceConfiguration.getLocationGroups()) || targetConfiguration == null
@@ -113,7 +112,7 @@ public class PolicyMatchingSubstitutionService {
 
         if (MapUtils.isNotEmpty(topology.getNodeTemplates())) {
             Application application = applicationService.getOrFail(target.getApplicationId());
-            FlowExecutionContext executionContext = new FlowExecutionContext(alienDAO, topology, new EnvironmentContext(application, target));
+            FlowExecutionContext executionContext = new FlowExecutionContext(deploymentConfigurationDao, topology, new EnvironmentContext(application, target));
             flowExecutor.execute(topology, getMatchingFlow(), executionContext);
 
             Map<String, Set<String>> locResTemplateIdsPerNodeIds = (Map<String, Set<String>>) executionContext.getExecutionCache()
@@ -137,7 +136,7 @@ public class PolicyMatchingSubstitutionService {
                     targetConfiguration.getMatchedNodesConfiguration().put(key, safe(sourceConfiguration.getMatchedNodesConfiguration()).get(key));
                 });
 
-                alienDAO.save(targetConfiguration);
+                deploymentConfigurationDao.save(targetConfiguration);
             }
         }
     }

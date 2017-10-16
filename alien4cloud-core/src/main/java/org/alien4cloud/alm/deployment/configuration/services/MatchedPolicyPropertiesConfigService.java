@@ -2,7 +2,6 @@ package org.alien4cloud.alm.deployment.configuration.services;
 
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
@@ -14,7 +13,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.action.SetMat
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.utils.services.PropertyService;
@@ -24,8 +22,8 @@ import alien4cloud.utils.services.PropertyService;
  */
 @Service
 public class MatchedPolicyPropertiesConfigService {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    @Inject
+    private DeploymentConfigurationDao deploymentConfigurationDao;
     @Inject
     private FlowExecutor flowExecutor;
     @Inject
@@ -46,7 +44,8 @@ public class MatchedPolicyPropertiesConfigService {
      */
     public FlowExecutionContext updateProperty(Application application, ApplicationEnvironment environment, Topology topology, String nodeId,
             String propertyName, Object propertyValue) {
-        FlowExecutionContext executionContext = new FlowExecutionContext(alienDAO, topology, new EnvironmentContext(application, environment));
+        FlowExecutionContext executionContext = new FlowExecutionContext(deploymentConfigurationDao, topology,
+                new EnvironmentContext(application, environment));
         // Load the actual configuration
 
         // add a modifier that will actually perform the configuration of a substitution from user request (after cleanup and prior to node matching
