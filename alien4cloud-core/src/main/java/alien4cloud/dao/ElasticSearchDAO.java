@@ -1,26 +1,5 @@
 package alien4cloud.dao;
 
-import java.beans.IntrospectionException;
-import java.io.IOException;
-
-import javax.annotation.PostConstruct;
-
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
-import org.alien4cloud.server.MaintenanceModeState;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.types.ArtifactType;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.PrimitiveDataType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.springframework.stereotype.Component;
-
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -40,6 +19,25 @@ import alien4cloud.model.service.ServiceResource;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
+import org.alien4cloud.server.MaintenanceModeState;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.beans.IntrospectionException;
+import java.io.IOException;
 
 /**
  * Elastic Search DAO for alien 4 cloud application.
@@ -98,6 +96,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(DeploymentMatchingConfiguration.class);
         initIndice(OrchestratorDeploymentProperties.class);
 
+        initIndice(DataObjectVersion.class);
         initIndice(MaintenanceModeState.class);
 
         initIndices(SUGGESTION_INDEX, null, AbstractSuggestionEntry.class, SuggestionEntry.class, SimpleSuggestionEntry.class);
