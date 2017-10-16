@@ -1,6 +1,7 @@
 package alien4cloud.it.application.deployment;
 
 import static alien4cloud.utils.AlienUtils.safe;
+import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpression;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -48,6 +49,8 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 public class DeploymentTopologyStepDefinitions {
 
@@ -160,6 +163,14 @@ public class DeploymentTopologyStepDefinitions {
         DeploymentTopologyDTO dto = getDeploymentTopologyDTO();
         NodeTemplate node = dto.getTopology().getNodeTemplates().get(nodeName);
         assertNodePropertyValueEquals(node, propertyName, expectPropertyValue);
+    }
+
+    @Then("^The TopologyDTO SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
+    public void the_node_in_the_deployment_topology_should_have_the_property_with_value(String spelExpression, String expected) throws Throwable {
+        DeploymentTopologyDTO dto = getDeploymentTopologyDTO();
+        EvaluationContext topologyEvaluationContext = new StandardEvaluationContext(dto);
+
+        evaluateAndAssertExpression(topologyEvaluationContext, spelExpression, expected);
     }
 
     @When("^I update the capability \"(.*?)\" property \"(.*?)\" to \"(.*?)\" for the subtituted node \"(.*?)\"$")

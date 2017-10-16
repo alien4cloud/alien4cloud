@@ -2,6 +2,9 @@ package org.alien4cloud.alm.deployment.configuration.flow;
 
 import java.util.List;
 
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
+
 import com.google.common.collect.Lists;
 
 import alien4cloud.topology.task.AbstractTask;
@@ -34,6 +37,11 @@ public class FlowExecutionLog {
         infos.add(new LogTask(message));
     }
 
+    public void info(String message, Object... args) {
+        FormattingTuple ft = MessageFormatter.arrayFormat(message, args);
+        infos.add(new LogTask(ft.getMessage()));
+    }
+
     public void warn(AbstractTask task) {
         warnings.add(task);
     }
@@ -42,12 +50,22 @@ public class FlowExecutionLog {
         warnings.add(new LogTask(message));
     }
 
+    public void warn(String message, Object... args) {
+        FormattingTuple ft = MessageFormatter.arrayFormat(message, args);
+        warnings.add(new LogTask(ft.getMessage()));
+    }
+
     public void error(AbstractTask task) {
         errors.add(task);
     }
 
     public void error(String message) {
         errors.add(new LogTask(message));
+    }
+
+    public void error(String message, Object... args) {
+        FormattingTuple ft = MessageFormatter.arrayFormat(message, args);
+        errors.add(new LogTask(ft.getMessage()));
     }
 
     public void error(TaskCode taskCode, String message) {

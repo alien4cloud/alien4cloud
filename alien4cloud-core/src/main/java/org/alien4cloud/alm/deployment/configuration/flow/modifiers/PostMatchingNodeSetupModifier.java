@@ -5,25 +5,16 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
-import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodeCapabilitiesPropsOverride;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-
-import alien4cloud.topology.task.LocationPolicyTask;
-import alien4cloud.utils.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,57 +22,18 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class PostMatchingNodeSetupModifier implements ITopologyModifier {
+public class PostMatchingNodeSetupModifier extends AbstractPostMatchingSetupModifier<NodeTemplate> {
 
     @Override
-    public void process(Topology topology, FlowExecutionContext context) {
-        Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
-                PostMatchingNodeSetupModifier.class.getSimpleName());
+    protected boolean doMergeNode(Topology topology, FlowExecutionContext context, String nodeTemplateId, NodePropsOverride nodePropsOverride) {
 
-        if (!configurationOptional.isPresent()) { // we should not end-up here as location matching should be processed first
-            context.log().error(new LocationPolicyTask());
-            return;
-        }
-
-        DeploymentMatchingConfiguration deploymentMatchingConfiguration = configurationOptional.get();
-        Map<String, String> lastUserSubstitutions = deploymentMatchingConfiguration.getMatchedLocationResources();
-        Map<String, NodePropsOverride> matchedNodesConfiguration = deploymentMatchingConfiguration.getMatchedNodesConfiguration();
-
-        boolean configChanged = false;
-
-        Iterator<Entry<String, NodePropsOverride>> nodePropsOverrideIter = matchedNodesConfiguration.entrySet().iterator();
-        while (nodePropsOverrideIter.hasNext()) {
-            Entry<String, NodePropsOverride> nodePropsOverrideEntry = nodePropsOverrideIter.next();
-            if (lastUserSubstitutions.containsKey(nodePropsOverrideEntry.getKey())) {
-                // Merge the user overrides into the node.
-                configChanged = mergeNode(topology, context, nodePropsOverrideEntry.getKey(), nodePropsOverrideEntry.getValue());
-            } else {
-                // This node is no more a matched node, remove from configuration
-                configChanged = true;
-                context.getLog().info("Definition of user properties for node <" + nodePropsOverrideEntry.getKey()
-                        + "> have been removed as the node is not available for matching anymore.");
-                nodePropsOverrideIter.remove();
-            }
-        }
-        // If the configuration has changed then update it.
-        if (configChanged) {
-            context.saveConfiguration(deploymentMatchingConfiguration);
-        }
-    }
-
-    private boolean mergeNode(Topology topology, FlowExecutionContext context, String nodeTemplateId, NodePropsOverride nodePropsOverride) {
-        if (nodePropsOverride == null) {
-            return false;
-        }
         final ConfigChanged configChanged = new ConfigChanged();
-        // This node is still a matched node merge properties
-        NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
-        nodeTemplate.setProperties(mergeProperties(nodePropsOverride.getProperties(), nodeTemplate.getProperties(), s -> {
-            configChanged.changed = true;
-            context.getLog().info("The property <" + s + "> previously specified to configure node <" + nodeTemplateId
-                    + "> cannot be set anymore as it is already specified by the location resource or in the topology.");
-        }));
 
+        // play the super method first. This will process nodetemplate properties
+        configChanged.changed = super.doMergeNode(topology, context, nodeTemplateId, nodePropsOverride);
+
+        // Then process capabilities
+        NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
         Iterator<Entry<String, NodeCapabilitiesPropsOverride>> capabilitiesOverrideIter = safe(nodePropsOverride.getCapabilities()).entrySet().iterator();
         while (capabilitiesOverrideIter.hasNext()) {
             Entry<String, NodeCapabilitiesPropsOverride> overrideCapabilityProperties = capabilitiesOverrideIter.next();
@@ -93,27 +45,32 @@ public class PostMatchingNodeSetupModifier implements ITopologyModifier {
                 capability.setProperties(mergeProperties(overrideCapabilityProperties.getValue().getProperties(), capability.getProperties(), s -> {
                     configChanged.changed = true;
                     context.getLog()
-                            .info("The property <" + s + "> previously specified to configure capability <" + overrideCapabilityProperties.getKey()
-                                    + "> of node <" + nodeTemplateId
-                                    + "> cannot be set anymore as it is already specified by the location resource or in the topology.");
+                            .info("The property [" + s + "] previously specified to configure capability [" + overrideCapabilityProperties.getKey()
+                                    + "] of node [" + nodeTemplateId
+                                    + "] cannot be set anymore as it is already specified by the matched location resource or in the topology.");
                 }));
             }
         }
         return configChanged.changed;
     }
 
-    private Map<String, AbstractPropertyValue> mergeProperties(Map<String, AbstractPropertyValue> source, Map<String, AbstractPropertyValue> target,
-            Consumer<String> messageSupplier) {
-        Set<String> untouchedProperties = Sets.newHashSet();
-        Map<String, AbstractPropertyValue> merged = CollectionUtils.merge(source, target, true, untouchedProperties);
-        for (String untouchedProp : untouchedProperties) {
-            messageSupplier.accept(untouchedProp);
-            source.remove(untouchedProp);
-        }
-        return merged;
+    @Override
+    Map<String, String> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+        return matchingConfiguration.getMatchedLocationResources();
     }
 
-    private static class ConfigChanged {
-        private boolean changed = false;
+    @Override
+    Map<String, NodePropsOverride> getPropertiesOverrides(DeploymentMatchingConfiguration matchingConfiguration) {
+        return matchingConfiguration.getMatchedNodesConfiguration();
+    }
+
+    @Override
+    String getSubject() {
+        return "node";
+    }
+
+    @Override
+    Map<String, NodeTemplate> getTemplates(Topology topology) {
+        return topology.getNodeTemplates();
     }
 }

@@ -35,6 +35,6 @@ public class FlowPhaseModifiersExecutor implements ITopologyModifier {
                 return;
             }
         }
-        log.debug("Phase {} completed.");
+        log.debug("Phase {} completed.", phase);
     }
 }

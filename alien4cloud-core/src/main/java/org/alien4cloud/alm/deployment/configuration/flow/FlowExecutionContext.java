@@ -1,17 +1,19 @@
 package org.alien4cloud.alm.deployment.configuration.flow;
 
-import alien4cloud.model.application.ApplicationEnvironment;
-import com.google.common.collect.Maps;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
+
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.annotation.ESObject;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
+import com.google.common.collect.Maps;
+
+import alien4cloud.model.application.ApplicationEnvironment;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Flow execution context.
@@ -22,12 +24,17 @@ public class FlowExecutionContext {
     /** A4C OOB keys of elements in the context cache. */
     public static final String LOCATION_MATCH_CACHE_KEY = "location_matches";
     public static final String DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY = "deployment_locations";
-
-    public static final String MATCHING_PER_NODE_LOC_RES_TEMPLATES = "matching_per_node_loc_res_templates";
-    public static final String MATCHED_LOCATION_RESOURCE_TEMPLATES = "matched_location_resource_templates";
-    public static final String MATCHED_LOCATION_RESOURCE_TEMPLATE_IDS_PER_NODE = "matched_location_resource_template_ids_per_node";
+    /** Location resource template candidates per node template key. */
+    public static final String MATCHED_NODE_LOCATION_TEMPLATES_BY_NODE_ID_MAP = "matched_node_location_templates_by_node_id_map";
+    public static final String MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP = "matched_node_location_templates_by_id_map";
+    public static final String SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP = "selected_match_node_location_template_by_node_id_map";
     public static final String MATCHING_ORIGINAL_NODES = "matching_original_nodes";
     public static final String MATCHING_SUBSTITUTION_REQUEST = "matching_substitution_request";
+    /** Location resource template candidates per policy template key. */
+    public static final String MATCHED_POLICY_LOCATION_TEMPLATES_BY_NODE_ID_MAP = "matched_policy_location_templates_by_node_id_map";
+    public static final String MATCHED_POLICY_LOCATION_TEMPLATES_BY_ID_MAP = "matched_policy_location_templates_by_id_map";
+    public static final String SELECTED_MATCH_POLICY_LOCATION_TEMPLATE_BY_NODE_ID_MAP = "selected_match_policy_location_template_by_node_id_map";
+    public static final String MATCHING_ORIGINAL_POLICIES = "matching_original_policies";
 
     /** Injected dao for configuration retrieval management. */
     private final DeploymentConfigurationDao deploymentConfigurationDao;

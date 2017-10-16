@@ -10,6 +10,7 @@ import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.ESObject;
@@ -118,4 +119,14 @@ public class DeploymentTopology extends Topology {
 
     @ObjectField(enabled = false)
     private Map<String, DeploymentArtifact> uploadedInputArtifacts;
+
+    /**
+     * The map that contains the user selected matching for policies of the topology. key is the initial topology policy node id, value is the
+     * location policy resource id.
+     */
+    @ObjectField(enabled = false)
+    private Map<String, String> substitutedPolicies = Maps.newHashMap();
+
+    @ObjectField(enabled = false)
+    private Map<String, PolicyTemplate> originalPolicies = Maps.newHashMap();
 }

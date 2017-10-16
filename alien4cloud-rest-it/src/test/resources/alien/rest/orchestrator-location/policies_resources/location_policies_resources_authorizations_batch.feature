@@ -19,8 +19,8 @@ Feature: Manage location policies resources authorizations in batch mode
     And I create a location named "middle_earth" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
     Given I grant access to the resource type "LOCATION" named "middle_earth" to the user "frodon"
     Given I grant access to the resource type "LOCATION" named "middle_earth" to the group "lordOfRing"
-    When I create a policy resource of type "org.alien4cloud.policies.mock.MinimalPolicyType" named "MinimalPolicyType1" related to the location "Mount doom orchestrator"/"middle_earth"
-    When I create a policy resource of type "org.alien4cloud.policies.mock.MinimalPolicyType" named "MinimalPolicyType2" related to the location "Mount doom orchestrator"/"middle_earth"
+    When I create a policy resource of type "org.alien4cloud.mock.policies.AntiAffinity" named "MinimalPolicyType1" related to the location "Mount doom orchestrator"/"middle_earth"
+    When I create a policy resource of type "org.alien4cloud.mock.policies.AntiAffinity" named "MinimalPolicyType2" related to the location "Mount doom orchestrator"/"middle_earth"
     Then I should receive a RestResponse with no error
 
 

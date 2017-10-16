@@ -1,8 +1,10 @@
 package org.alien4cloud.alm.deployment.configuration.services;
 
-import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.utils.services.PropertyService;
+import java.util.List;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutor;
@@ -12,9 +14,9 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.action.SetMat
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import java.util.List;
-import java.util.Optional;
+import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.utils.services.PropertyService;
 
 /**
  * Manage configuration of deployer configured properties for matched nodes.
@@ -61,7 +63,7 @@ public class MatchedNodePropertiesConfigService {
 
         for (int i = 0; i < modifierList.size(); i++) {
             if (modifierList.get(i) == postMatchingNodeSetupModifier) {
-                modifierList.add(i, new SetMatchedNodePropertyModifier(propertyService, nodeId, optionalCapabilityName, propertyName, propertyValue));
+                modifierList.add(i, new SetMatchedNodePropertyModifier(propertyService, nodeId, propertyName, propertyValue, optionalCapabilityName));
                 return modifierList;
             }
         }

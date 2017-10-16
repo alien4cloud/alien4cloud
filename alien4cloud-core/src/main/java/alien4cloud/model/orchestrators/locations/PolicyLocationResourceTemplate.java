@@ -17,5 +17,4 @@ public class PolicyLocationResourceTemplate extends AbstractLocationResourceTemp
     /** Policy template that describe the location policy (it's type must be a type derived from one of the orchestrator LocationPolicyDefinition types). */
     @ObjectField(enabled = false)
     private PolicyTemplate template;
-
 }

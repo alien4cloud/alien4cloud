@@ -60,6 +60,15 @@ policy_types:
           start_time: 2016-04-04-15T00:00:00Z
           end_time: 2020-04-04-15T00:00:00Z
         action: scale
-  org.alien4cloud.policies.mock.MinimalPolicyType:
-    derived_from: tosca.policies.Root
-    description: This is a sample policy type with minimal definition
+  org.alien4cloud.mock.policies.AntiAffinity:
+    derived_from: tosca.policies.Placement
+    description: A sample policy that injects availability zones to it's target on a round robin basis.
+    metadata:
+      # pluginId:pluginBean:phase
+      a4c_policy_impl: alien4cloud-mock-paas-provider:mock-anti-affinity-modifier:post-node-match
+    properties:
+      availability_zones:
+        required: true
+        type: list
+        entry_schema:
+          type: string

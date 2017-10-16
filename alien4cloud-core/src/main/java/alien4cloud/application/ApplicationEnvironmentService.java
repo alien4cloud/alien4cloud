@@ -28,7 +28,6 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentLockService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
-import alien4cloud.deployment.OrchestratorPropertiesValidationService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteReferencedObjectException;
@@ -51,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ApplicationEnvironmentService {
-    private final static String DEFAULT_ENVIRONMENT_NAME = "Environment";
+    private static final String DEFAULT_ENVIRONMENT_NAME = "Environment";
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
@@ -67,8 +66,6 @@ public class ApplicationEnvironmentService {
     private DeploymentService deploymentService;
     @Inject
     private DeploymentLockService deploymentLockService;
-    @Inject
-    private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
     @Inject
     private ResourceUpdateInterceptor resourceUpdateInterceptor;
 
@@ -258,7 +255,7 @@ public class ApplicationEnvironmentService {
     public ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, IResourceRoles... roles) {
         ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
         // Does the user is allowed access (application, environment) level ?
-        if(AuthorizationUtil.hasAuthorization(applicationEnvironment, Role.ADMIN, roles)){
+        if (AuthorizationUtil.hasAuthorization(applicationEnvironment, Role.ADMIN, roles)) {
             return applicationEnvironment;
         }
         // Does the user is allowed to access at the application level
@@ -320,7 +317,7 @@ public class ApplicationEnvironmentService {
 
     /**
      * Get the topology id linked to the environment
-     * 
+     *
      * @param applicationEnvironmentId The id of the environment.
      * @return a topology id or null
      */
