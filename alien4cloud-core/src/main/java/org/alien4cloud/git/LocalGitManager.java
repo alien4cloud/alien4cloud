@@ -4,6 +4,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -164,5 +165,10 @@ public class LocalGitManager {
                 git.close();
             }
         }
+    }
+
+    public void renameBranches(GitLocation location, Map<String, String> branchNameFromTo) {
+        Path localGitPath = getLocalGitPath(location);
+        RepositoryManager.renameBranches(localGitPath, branchNameFromTo);
     }
 }

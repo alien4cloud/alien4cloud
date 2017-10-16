@@ -520,6 +520,25 @@ public class RepositoryManager {
         }
     }
 
+    public static void renameBranches(Path repositoryDirectory, Map<String, String> branchOldNameToNewName) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            for (Map.Entry<String, String> entry : branchOldNameToNewName.entrySet()) {
+                String oldBranchName = entry.getKey();
+                String newBranchName = entry.getValue();
+                if (branchExistsLocally(git, oldBranchName)) {
+                    git.branchRename().setOldName(oldBranchName).setNewName(newBranchName).call();
+                }
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Unable to rename all branches", e);
+        } finally {
+            close(git);
+        }
+    }
+
+
     /**
      * Git push to a remote.
      *

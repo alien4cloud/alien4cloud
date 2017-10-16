@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public class ResourceUpdateInterceptor {
     private List<Consumer<Application>> onNewApplication = Lists.newArrayList();
     private List<Consumer<ApplicationEnvironment>> onNewEnvironment = Lists.newArrayList();
     private List<Consumer<TopologyVersionChangedInfo>> onEnvironmentTopologyVersionChanged = Lists.newArrayList();
+    private List<Consumer<TopologyVersionUpdated>> onTopologyVersionUpdated = Lists.newArrayList();
 
     public void runOnNewApplication(Application application) {
         onNewApplication.forEach(func -> func.accept(application));
@@ -32,6 +34,10 @@ public class ResourceUpdateInterceptor {
         onEnvironmentTopologyVersionChanged.forEach(func -> func.accept(topologyVersionChangedInfo));
     }
 
+    public void runOnTopologyVersionReleased(TopologyVersionUpdated topologyVersionUpdated){
+        onTopologyVersionUpdated.forEach(func-> func.accept(topologyVersionUpdated));
+    }
+
     @Getter
     @Setter
     @AllArgsConstructor
@@ -39,5 +45,13 @@ public class ResourceUpdateInterceptor {
         private ApplicationEnvironment environment;
         private String oldVersion;
         private String newVersion;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class TopologyVersionUpdated {
+        private ApplicationVersion from;
+        private ApplicationVersion to;
     }
 }
