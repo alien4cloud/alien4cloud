@@ -1,4 +1,4 @@
-tosca_definitions_version: alien_dsl_1_4_0
+tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: mock-plugin-types
@@ -20,7 +20,24 @@ node_types:
       flavorId:
         type: string
         required: true
+      zone:
+        type: string
+        required: false
   org.alien4cloud.nodes.mock.aws.BlockStorage:
     derived_from: tosca.nodes.BlockStorage
   org.alien4cloud.nodes.mock.aws.Network:
     derived_from: tosca.nodes.Network
+
+policy_types:
+  org.alien4cloud.mock.policies.AntiAffinity:
+    derived_from: tosca.policies.Placement
+    description: A sample policy that injects availability zones to it's target on a round robin basis.
+    metadata:
+      # pluginId:pluginBean:phase
+      a4c_policy_impl: alien4cloud-mock-paas-provider:mock-anti-affinity-modifier:post-node-match
+    properties:
+      availability_zones:
+        required: true
+        type: list
+        entry_schema:
+          type: string

@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.editor.operations.workflow;
 
-import alien4cloud.paas.wf.AbstractActivity;
+import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,11 +17,21 @@ public class AddActivityOperation extends AbstractWorkflowOperation {
     private String relatedStepId;
 
     /**
+     * The target node
+     */
+    private String target;
+
+    /**
+     * The target relationship, if specified it concerns relationship target
+     */
+    private String targetRelationship;
+
+    /**
      * If relatedStepId is specified, indicates if the step will be added before the related step (or after).
      */
     private boolean before;
 
-    private AbstractActivity activity;
+    private AbstractWorkflowActivity activity;
 
     @Override
     public String commitMessage() {

@@ -15,7 +15,6 @@ import alien4cloud.rest.orchestrator.model.CreateLocationRequest;
 import alien4cloud.rest.orchestrator.model.LocationDTO;
 import alien4cloud.rest.orchestrator.model.UpdateLocationRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import cucumber.api.PendingException;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -145,6 +144,22 @@ public class LocationsDefinitionsSteps {
                 Assert.assertEquals(metaPropertyValue, currentMetaProperties.get(tagId));
                 break;
             }
+        }
+    }
+
+    @When("^I get the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void I_get_the_location_(String orchestratorName, String locationName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
+        String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s", orchestratorId, locationId);
+        String resp = Context.getRestClientInstance().get(restUrl);
+        Context.getInstance().registerRestResponse(resp);
+
+        // build the eval context if possible
+        String restResponse = Context.getInstance().getRestResponse();
+        RestResponse<LocationDTO> response = JsonUtil.read(restResponse, LocationDTO.class, Context.getJsonMapper());
+        if (response.getError() == null) {
+            Context.getInstance().buildEvaluationContext(response.getData());
         }
     }
 }

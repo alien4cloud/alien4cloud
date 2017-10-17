@@ -20,7 +20,16 @@ define(function (require) {
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
         /** Init method is called when the controller is ready. */
-        init: function() {},
+        init: function() {
+          var self = this;
+          this.scope.$on('displayUpdate', function(event, params) {
+            // if the display becomes inactive then reset selection
+            if(!params.displays.nodetemplate.active && _.defined(self.scope.selectedNodeTemplate)) {
+              self.scope.selectedNodeTemplate = undefined;
+              self.scope.$broadcast('editorSelectionChangedEvent', { nodeNames: [] });
+            }
+          });
+        },
         /** Method triggered as a result of a on-drag (see drag and drop directive and node type search directive). */
         onDragged: function(e) {
           var nodeType = angular.fromJson(e.source);
@@ -34,7 +43,7 @@ define(function (require) {
         /** this has to be exposed to the scope as we cannot rely on drag and drop callbacks for ui tests */
         add: function(nodeType, hostNodeName) {
           var self = this;
-          var nodeTemplateName = toscaService.generateNodeTemplateName(nodeType.elementId, this.scope.topology.topology.nodeTemplates);
+          var nodeTemplateName = toscaService.generateTemplateName(nodeType.elementId, this.scope.topology.topology.nodeTemplates);
           // Add node operation automatically change dependency version to higher so if different warn the user.
           var currentVersion = this.getDepVersionIfDifferent(nodeType.archiveName, nodeType.archiveVersion, this.scope.topology.topology.dependencies);
           if(_.defined(currentVersion)) {
@@ -136,6 +145,10 @@ define(function (require) {
             function(result){
               if (_.undefined(result.error)) {
                 updatedNodeTemplate.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
+                if (propertyName === 'component_version' || propertyName === 'version') {
+                  // This is the only property with the version that updates the rendering
+                  scope.$broadcast('editorUpdateNode', { node: scope.selectedNodeTemplate.name });
+                }
               }
             },
             null,
@@ -157,6 +170,7 @@ define(function (require) {
 
       return function(scope) {
         var instance = new TopologyEditorMixin(scope);
+        instance.init();
         scope.nodes = instance;
       };
     }

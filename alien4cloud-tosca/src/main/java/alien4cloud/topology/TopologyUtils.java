@@ -1,5 +1,7 @@
 package alien4cloud.topology;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -12,6 +14,7 @@ import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.ScalingPolicy;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
@@ -351,9 +354,21 @@ public class TopologyUtils {
         nodeTemplate.setName(newNodeTemplateName);
         nodeTemplates.put(newNodeTemplateName, nodeTemplate);
         nodeTemplates.remove(nodeTemplateName);
+
         refreshNodeTempNameInRelationships(nodeTemplateName, newNodeTemplateName, nodeTemplates);
         updateOnNodeTemplateNameChange(nodeTemplateName, newNodeTemplateName, topology);
         updateGroupMembers(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
+        updatePolicyMembers(topology, nodeTemplateName, newNodeTemplateName);
+    }
+
+    private static void updatePolicyMembers(Topology topology, String nodeName, String newName) {
+        // Update the policy members when a node template is renamed.
+        for (PolicyTemplate policyTemplate : safe(topology.getPolicies()).values()) {
+            boolean removed = policyTemplate.getTargets().remove(nodeName);
+            if (removed && newName != null) {
+                policyTemplate.getTargets().add(newName);
+            }
+        }
     }
 
     /**

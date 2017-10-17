@@ -42,7 +42,7 @@ public class SetNodePropertyAsInputProcessor extends AbstractNodeProcessor<SetNo
         getInput.setParameters(Arrays.asList(operation.getInputName()));
         nodeTemplate.getProperties().put(operation.getPropertyName(), getInput);
 
-        log.debug("Associate the property <{}> of the node template <{}> to input <{}> of the topology <{}>.", operation.getPropertyName(),
+        log.debug("Associate the property [ {} ] of the node template [ {} ] to input [ {} ] of the topology [ {} ].", operation.getPropertyName(),
                 operation.getNodeName(), operation.getInputName(), topology.getId());
     }
 }

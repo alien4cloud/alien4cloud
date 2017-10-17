@@ -1,12 +1,16 @@
 package alien4cloud.paas.wf.util;
 
+import static alien4cloud.utils.AlienUtils.safe;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
@@ -15,16 +19,22 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
+import org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.exception.InvalidNameException;
-import alien4cloud.paas.wf.AbstractStep;
-import alien4cloud.paas.wf.DelegateWorkflowActivity;
-import alien4cloud.paas.wf.NodeActivityStep;
-import alien4cloud.paas.wf.OperationCallActivity;
-import alien4cloud.paas.wf.SetStateActivity;
-import alien4cloud.paas.wf.Workflow;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 
 public class WorkflowUtils {
@@ -39,7 +49,7 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return null;
         }
-        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTemplate.getType());
         if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, DOCKER_TYPE)) {
             return nodeId;
         } else {
@@ -55,8 +65,22 @@ public class WorkflowUtils {
         }
     }
 
+    private static String getRelationshipTarget(String source, String relationshipId, TopologyContext topologyContext) {
+        NodeTemplate sourceNode = safe(topologyContext.getTopology().getNodeTemplates()).get(source);
+        if (sourceNode == null) {
+            throw new NotFoundException("Source " + source + " cannot be found in the topology " + topologyContext.getTopology().getId());
+        }
+        RelationshipTemplate relationshipTemplate = safe(sourceNode.getRelationships()).get(relationshipId);
+        if (relationshipTemplate == null) {
+            throw new NotFoundException(
+                    "Source " + source + " does not have the relationship " + relationshipId + " in the topology " + topologyContext.getTopology().getId());
+        }
+        return relationshipTemplate.getTarget();
+    }
+
     public static boolean isStandardWorkflow(Workflow workflow) {
-        return INSTALL.equals(workflow.getName()) || UNINSTALL.equals(workflow.getName()) || START.equals(workflow.getName()) || STOP.equals(workflow.getName());
+        return INSTALL.equals(workflow.getName()) || UNINSTALL.equals(workflow.getName()) || START.equals(workflow.getName())
+                || STOP.equals(workflow.getName());
     }
 
     /**
@@ -66,32 +90,28 @@ public class WorkflowUtils {
      */
     public static void fillHostId(Workflow wf, TopologyContext topologyContext) {
         wf.getHosts().clear();
-        for (AbstractStep step : wf.getSteps().values()) {
-            if (step instanceof NodeActivityStep) {
-                NodeActivityStep dstep = (NodeActivityStep) step;
-                String hostId = WorkflowUtils.getRootHostNode(dstep.getNodeId(), topologyContext);
-                dstep.setHostId(hostId);
+        for (WorkflowStep step : wf.getSteps().values()) {
+            if (step instanceof NodeWorkflowStep) {
+                if (StringUtils.isEmpty(step.getTarget())) {
+                    // Inline steps might not have target
+                    // FIXME when tosca is clear on this point then we might change the model because it's not beautiful
+                    return;
+                }
+                String hostId = WorkflowUtils.getRootHostNode(step.getTarget(), topologyContext);
+                ((NodeWorkflowStep) step).setHostId(hostId);
                 if (hostId != null) {
                     wf.getHosts().add(hostId);
                 }
+            } else if (step instanceof RelationshipWorkflowStep) {
+                RelationshipWorkflowStep relationshipWorkflowStep = (RelationshipWorkflowStep) step;
+                String sourceHostId = WorkflowUtils.getRootHostNode(relationshipWorkflowStep.getTarget(), topologyContext);
+                String targetHostId = WorkflowUtils.getRootHostNode(
+                        getRelationshipTarget(relationshipWorkflowStep.getTarget(), relationshipWorkflowStep.getTargetRelationship(), topologyContext),
+                        topologyContext);
+                relationshipWorkflowStep.setSourceHostId(sourceHostId);
+                relationshipWorkflowStep.setTargetHostId(targetHostId);
             }
         }
-    }
-
-    /**
-     * @return the parentId of the node : the id of the node it's hostedOn (if exists).
-     */
-    public static String getParentId(Workflow wf, String nodeId, TopologyContext topologyContext) {
-        NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
-        if (nodeTemplate != null && nodeTemplate.getRelationships() != null) {
-            for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                RelationshipType relationshipType = topologyContext.findElement(RelationshipType.class, relationshipTemplate.getType());
-                if (isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
-                    return relationshipTemplate.getTarget();
-                }
-            }
-        }
-        return null;
     }
 
     /**
@@ -133,24 +153,25 @@ public class WorkflowUtils {
         return null;
     }
 
+    public static boolean isRelationshipStep(WorkflowStep step, String nodeId, String relationshipName) {
+        return step instanceof RelationshipWorkflowStep && nodeId.equals(step.getTarget())
+                && relationshipName.equals(((RelationshipWorkflowStep) step).getTargetRelationship());
+    }
+
+    public static boolean isNodeStep(WorkflowStep step, String nodeId) {
+        return step instanceof NodeWorkflowStep && nodeId.equals(step.getTarget());
+    }
+
+    /**
+     * Check whether the node type is equals or derived from the given type name
+     * 
+     * @param indexedNodeType the node type
+     * @param type the type name
+     * @return true if the node type is equals or derived from the given type name
+     */
     public static boolean isOfType(AbstractInheritableToscaType indexedNodeType, String type) {
-        if (indexedNodeType == null) {
-            return false;
-        }
-        return indexedNodeType.getElementId().equals(type) || indexedNodeType.getDerivedFrom() != null && indexedNodeType.getDerivedFrom().contains(type);
-    }
-
-    public static Interface getInterface(String interfaceName, Map<String, Interface> interfaces) {
-        return interfaces == null ? null : interfaces.get(interfaceName);
-    }
-
-    public static boolean isCompute(String nodeId, TopologyContext topologyContext) {
-        NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
-        if (nodeTemplate == null) {
-            return false;
-        }
-        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
-        return isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE);
+        return indexedNodeType != null
+                && (indexedNodeType.getElementId().equals(type) || indexedNodeType.getDerivedFrom() != null && indexedNodeType.getDerivedFrom().contains(type));
     }
 
     public static boolean isComputeOrNetwork(String nodeId, TopologyContext topologyContext) {
@@ -158,12 +179,8 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return false;
         }
-        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
-        if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE)) {
-            return true;
-        } else {
-            return isOfType(nodeType, NETWORK_TYPE);
-        }
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTemplate.getType());
+        return isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, NETWORK_TYPE);
     }
 
     public static boolean isComputeOrVolume(String nodeId, TopologyContext topologyContext) {
@@ -171,12 +188,8 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return false;
         }
-        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
-        if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE)) {
-            return true;
-        } else {
-            return isOfType(nodeType, "tosca.nodes.BlockStorage");
-        }
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTemplate.getType());
+        return isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, "tosca.nodes.BlockStorage");
     }
 
     public static boolean isNativeOrSubstitutionNode(String nodeId, TopologyContext topologyContext) {
@@ -190,21 +203,17 @@ public class WorkflowUtils {
         }
         // TODO: the following should be removed after merge with orchestrator refactoring branch
         // (since these types will be abstract)
-        if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, NETWORK_TYPE)) {
-            return true;
-        } else {
-            return isOfType(nodeType, "tosca.nodes.BlockStorage");
-        }
+        return isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, NETWORK_TYPE) || isOfType(nodeType, "tosca.nodes.BlockStorage");
     }
 
-    public static void linkSteps(AbstractStep from, AbstractStep to) {
+    public static void linkSteps(WorkflowStep from, WorkflowStep to) {
         if (from != null && to != null) {
             from.addFollowing(to.getName());
             to.addPreceding(from.getName());
         }
     }
 
-    public static String buildStepName(Workflow wf, AbstractStep step, int increment) {
+    public static String buildStepName(Workflow wf, WorkflowStep step, int increment) {
         StringBuilder nameBuilder = new StringBuilder(step.getStepAsString());
         if (increment > 0) {
             nameBuilder.append("_").append(increment);
@@ -217,33 +226,28 @@ public class WorkflowUtils {
         }
     }
 
-    public static boolean isStateStep(AbstractStep step) {
-        return (step instanceof NodeActivityStep) && ((NodeActivityStep) step).getActivity() instanceof SetStateActivity;
-    }
-
     public static String debugWorkflow(Workflow wf) {
         StringBuilder stringBuilder = new StringBuilder("\n ======> Paste the folowing graph in http://www.webgraphviz.com/  !!\n");
         int subgraphCount = 0;
         stringBuilder.append("\ndigraph ").append(wf.getName()).append(" {");
         stringBuilder.append("\n  node [shape=box];");
-
         for (String host : wf.getHosts()) {
             stringBuilder.append("\n  subgraph cluster_").append(++subgraphCount).append(" {");
             stringBuilder.append("\n    label = \"").append(host).append("\";\n    color=blue;");
-            for (AbstractStep step : wf.getSteps().values()) {
-                if (step instanceof NodeActivityStep && host.equals(((NodeActivityStep) step).getHostId())) {
+            for (WorkflowStep step : wf.getSteps().values()) {
+                if (step instanceof NodeWorkflowStep && host.equals(((NodeWorkflowStep) step).getHostId())) {
                     stringBuilder.append("\n    \"").append(step.getName()).append("\";");
                 }
             }
             stringBuilder.append("\n  }\n");
         }
-        for (AbstractStep step : wf.getSteps().values()) {
-            if (step.getFollowingSteps() != null) {
-                for (String following : step.getFollowingSteps()) {
+        for (WorkflowStep step : wf.getSteps().values()) {
+            if (step.getOnSuccess() != null) {
+                for (String following : step.getOnSuccess()) {
                     stringBuilder.append("\n  \"").append(step.getName()).append("\" -> \"").append(following).append("\";");
                 }
             }
-            if (step.getFollowingSteps() == null || step.getFollowingSteps().isEmpty()) {
+            if (step.getOnSuccess() == null || step.getOnSuccess().isEmpty()) {
                 stringBuilder.append("\n  \"").append(step.getName()).append("\" -> end;");
             }
             if (step.getPrecedingSteps() == null || step.getPrecedingSteps().isEmpty()) {
@@ -257,72 +261,53 @@ public class WorkflowUtils {
         return stringBuilder.toString();
     }
 
-    public static NodeActivityStep addOperationStep(Workflow wf, String nodeId, String interfaceName, String operationName) {
-        OperationCallActivity task = new OperationCallActivity();
+    public static WorkflowStep addOperationStep(Workflow wf, String nodeId, String interfaceName, String operationName) {
+        CallOperationWorkflowActivity task = new CallOperationWorkflowActivity();
         task.setInterfaceName(interfaceName);
         task.setOperationName(operationName);
-        task.setNodeId(nodeId);
-        NodeActivityStep step = new NodeActivityStep();
-        step.setNodeId(nodeId);
+        NodeWorkflowStep step = new NodeWorkflowStep();
+        step.setTarget(nodeId);
         step.setActivity(task);
         step.setName(buildStepName(wf, step, 0));
         wf.addStep(step);
         return step;
     }
 
-    public static NodeActivityStep addStateStep(Workflow wf, String nodeId, String stateName) {
-        SetStateActivity task = new SetStateActivity();
+    public static WorkflowStep addRelationshipOperationStep(Workflow wf, String nodeId, String relationshipId, String interfaceName, String operationName,
+            String operationHost) {
+        CallOperationWorkflowActivity task = new CallOperationWorkflowActivity();
+        task.setInterfaceName(interfaceName);
+        task.setOperationName(operationName);
+        RelationshipWorkflowStep step = new RelationshipWorkflowStep();
+        step.setTarget(nodeId);
+        step.setTargetRelationship(relationshipId);
+        step.setActivity(task);
+        step.setName(buildStepName(wf, step, 0));
+        step.setOperationHost(operationHost);
+        wf.addStep(step);
+        return step;
+    }
+
+    public static WorkflowStep addStateStep(Workflow wf, String nodeId, String stateName) {
+        SetStateWorkflowActivity task = new SetStateWorkflowActivity();
         task.setStateName(stateName);
-        task.setNodeId(nodeId);
-        NodeActivityStep step = new NodeActivityStep();
-        step.setNodeId(nodeId);
+        NodeWorkflowStep step = new NodeWorkflowStep();
+        step.setTarget(nodeId);
         step.setActivity(task);
         step.setName(buildStepName(wf, step, 0));
         wf.addStep(step);
         return step;
     }
 
-    public static NodeActivityStep addDelegateWorkflowStep(Workflow wf, String nodeId) {
+    public static WorkflowStep addDelegateWorkflowStep(Workflow wf, String nodeId) {
         DelegateWorkflowActivity activity = new DelegateWorkflowActivity();
-        activity.setNodeId(nodeId);
-        activity.setWorkflowName(wf.getName());
-        NodeActivityStep step = new NodeActivityStep();
-        step.setNodeId(nodeId);
+        activity.setDelegate(wf.getName());
+        NodeWorkflowStep step = new NodeWorkflowStep();
+        step.setTarget(nodeId);
         step.setActivity(activity);
         step.setName(buildStepName(wf, step, 0));
         wf.addStep(step);
         return step;
-    }
-
-    public static AbstractStep getDelegateWorkflowStepByNode(Workflow wf, String nodeName) {
-        for (AbstractStep step : wf.getSteps().values()) {
-            if (step instanceof NodeActivityStep) {
-                NodeActivityStep defaultStep = (NodeActivityStep) step;
-                if (defaultStep.getNodeId().equals(nodeName) && (defaultStep.getActivity() instanceof DelegateWorkflowActivity)) {
-                    return defaultStep;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static NodeActivityStep getStateStepByNode(Workflow wf, String nodeName, String stateName) {
-        for (AbstractStep step : wf.getSteps().values()) {
-            if (step instanceof NodeActivityStep) {
-                NodeActivityStep defaultStep = (NodeActivityStep) step;
-                if (defaultStep.getActivity().getNodeId().equals(nodeName) && isStateStep(defaultStep, stateName)) {
-                    return defaultStep;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static boolean isStateStep(NodeActivityStep defaultStep, String stateName) {
-        if (defaultStep.getActivity() instanceof SetStateActivity && ((SetStateActivity) defaultStep.getActivity()).getStateName().equals(stateName)) {
-            return true;
-        }
-        return false;
     }
 
     public static void validateName(String name) {
@@ -330,6 +315,118 @@ public class WorkflowUtils {
             throw new InvalidNameException("workflowName", name, "name <" + name
                     + "> is not valid. It should only contains alphanumeric character from the basic Latin alphabet, underscores(_) and dash(-).");
         }
+    }
+
+    private static void processInlineWorkflow(Map<String, Workflow> workflowMap, Workflow workflow) {
+        final Set<String> newInlinedStepNames = new HashSet<>();
+        // Clone the map as we iterate and in the same time modify it
+        Maps.newHashMap(workflow.getSteps()).entrySet().stream().filter(entry -> entry.getValue().getActivity() instanceof InlineWorkflowActivity)
+                .forEach(inlinedStepEntry -> {
+                    String inlinedStepName = inlinedStepEntry.getKey();
+                    WorkflowStep inlinedStep = inlinedStepEntry.getValue();
+                    InlineWorkflowActivity inlineWorkflowActivity = (InlineWorkflowActivity) inlinedStep.getActivity();
+                    String inlinedName = inlineWorkflowActivity.getInline();
+                    Workflow inlined = workflowMap.get(inlinedName);
+                    if (inlined == null) {
+                        throw new NotFoundException("Inlined workflow " + inlinedName);
+                    }
+                    Map<String, WorkflowStep> generatedSteps = cloneSteps(inlined.getSteps());
+
+                    Map<String, WorkflowStep> generatedStepsWithNewNames = generatedSteps.entrySet().stream().collect(Collectors.toMap(entry -> {
+                        String newName = generateNewWfStepNameWithPrefix(inlinedStepEntry.getKey() + "_", workflow.getSteps().keySet(), newInlinedStepNames,
+                                entry.getKey());
+                        newInlinedStepNames.add(newName);
+                        if (!newName.equals(entry.getKey())) {
+                            entry.getValue().setName(newName);
+                            generatedSteps.forEach((generatedStepId, generatedStep) -> {
+                                if (generatedStep.getOnSuccess().remove(entry.getKey())) {
+                                    generatedStep.getOnSuccess().add(newName);
+                                }
+                                if (generatedStep.getPrecedingSteps().remove(entry.getKey())) {
+                                    generatedStep.getPrecedingSteps().add(newName);
+
+                                }
+                            });
+                        }
+                        return newName;
+                    }, Map.Entry::getValue));
+                    // Find all root steps of the workflow and link them to the parent workflows
+                    final Map<String, WorkflowStep> rootInlinedSteps = generatedStepsWithNewNames.values().stream()
+                            .filter(generatedStepWithNewName -> generatedStepWithNewName.getPrecedingSteps().isEmpty())
+                            .peek(rootInlinedStep -> rootInlinedStep.getPrecedingSteps().addAll(inlinedStep.getPrecedingSteps()))
+                            .collect(Collectors.toMap(WorkflowStep::getName, rootInlinedStep -> rootInlinedStep));
+
+                    inlinedStep.getPrecedingSteps().forEach(precedingStepName -> {
+                        WorkflowStep precedingStep = workflow.getSteps().get(precedingStepName);
+                        precedingStep.getOnSuccess().remove(inlinedStepName);
+                        precedingStep.getOnSuccess().addAll(rootInlinedSteps.keySet());
+                    });
+                    // Find all leaf steps of the workflow and link them to the parent workflows
+                    final Map<String, WorkflowStep> leafInlinedSteps = generatedStepsWithNewNames.values().stream()
+                            .filter(generatedStepWithNewName -> generatedStepWithNewName.getOnSuccess().isEmpty())
+                            .peek(leafInlinedStep -> leafInlinedStep.getOnSuccess().addAll(inlinedStep.getOnSuccess()))
+                            .collect(Collectors.toMap(WorkflowStep::getName, leafInlinedStep -> leafInlinedStep));
+
+                    inlinedStep.getOnSuccess().forEach(onSuccessStepName -> {
+                        WorkflowStep onSuccessStep = workflow.getSteps().get(onSuccessStepName);
+                        onSuccessStep.getPrecedingSteps().remove(inlinedStepName);
+                        onSuccessStep.getPrecedingSteps().addAll(leafInlinedSteps.keySet());
+                    });
+                    // Remove the inlined step and replace by other workflow's steps
+                    workflow.getSteps().remove(inlinedStepName);
+                    workflow.getSteps().putAll(generatedStepsWithNewNames);
+                });
+        // Check if the workflow contains inline activity event after processing
+        boolean processedWorkflowContainsInline = workflow.getSteps().values().stream().anyMatch(step -> step.getActivity() instanceof InlineWorkflowActivity);
+        if (processedWorkflowContainsInline) {
+            // Recursively process inline workflow until no step is inline workflow
+            processInlineWorkflow(workflowMap, workflow);
+        }
+    }
+
+    public static void processInlineWorkflows(Map<String, Workflow> workflowMap) {
+        workflowMap.forEach((workflowId, workflow) -> processInlineWorkflow(workflowMap, workflow));
+    }
+
+    private static Map<String, WorkflowStep> cloneSteps(Map<String, WorkflowStep> steps) {
+        return steps.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> cloneStep(entry.getValue())));
+    }
+
+    public static WorkflowStep cloneStep(WorkflowStep step) {
+        WorkflowStep cloned;
+        if (step instanceof NodeWorkflowStep) {
+            NodeWorkflowStep nodeWorkflowStep = (NodeWorkflowStep) step;
+            cloned = new NodeWorkflowStep();
+            ((NodeWorkflowStep) cloned).setHostId(nodeWorkflowStep.getHostId());
+        } else {
+            RelationshipWorkflowStep relationshipWorkflowStep = (RelationshipWorkflowStep) step;
+            cloned = new RelationshipWorkflowStep();
+            ((RelationshipWorkflowStep) cloned).setTargetRelationship(relationshipWorkflowStep.getTargetRelationship());
+            ((RelationshipWorkflowStep) cloned).setSourceHostId(relationshipWorkflowStep.getSourceHostId());
+            ((RelationshipWorkflowStep) cloned).setTargetHostId(relationshipWorkflowStep.getTargetHostId());
+        }
+        cloned.setActivities(step.getActivities());
+        cloned.setFilter(step.getFilter());
+        cloned.setName(step.getName());
+        cloned.setOnFailure(step.getOnFailure());
+        cloned.setOnSuccess(new HashSet<>(step.getOnSuccess()));
+        cloned.setOperationHost(step.getOperationHost());
+        cloned.setPrecedingSteps(new HashSet<>(step.getPrecedingSteps()));
+        cloned.setTarget(step.getTarget());
+        return cloned;
+    }
+
+    private static String generateNewWfStepNameWithPrefix(String prefix, Set<String> existingStepNames, Set<String> newStepNames, String stepName) {
+        String newStepName = prefix + stepName;
+        int i = 0;
+        while (existingStepNames.contains(newStepName) || newStepNames.contains(newStepName)) {
+            newStepName = prefix + stepName + "_" + (i++);
+        }
+        return newStepName;
+    }
+
+    public static String generateNewWfStepName(Set<String> existingStepNames, Set<String> newStepNames, String stepName) {
+        return generateNewWfStepNameWithPrefix("", existingStepNames, newStepNames, stepName);
     }
 
 }

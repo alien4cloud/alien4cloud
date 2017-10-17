@@ -29,7 +29,7 @@ import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.topology.validation.TopologyCapabilityBoundsValidationServices;
 import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import alien4cloud.tosca.topology.TemplateBuilder;
 import alien4cloud.utils.AlienUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -110,11 +110,11 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         relationshipTemplate.setArtifacts(newLinkedHashMap(indexedRelationshipType.getArtifacts()));
         relationshipTemplate.setAttributes(newLinkedHashMap(indexedRelationshipType.getAttributes()));
         Map<String, AbstractPropertyValue> properties = new LinkedHashMap<String, AbstractPropertyValue>();
-        NodeTemplateBuilder.fillProperties(properties, indexedRelationshipType.getProperties(), null);
+        TemplateBuilder.fillProperties(properties, indexedRelationshipType.getProperties(), null);
         relationshipTemplate.setProperties(properties);
 
         relationships.put(operation.getRelationshipName(), relationshipTemplate);
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
+        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, EditionContextManager.getCsar());
         workflowBuilderService.addRelationship(topologyContext, operation.getNodeName(), operation.getRelationshipName());
         log.debug("Added relationship to the topology [" + topology.getId() + "], node name [" + operation.getNodeName() + "], relationship name ["
                 + operation.getRelationshipName() + "]");

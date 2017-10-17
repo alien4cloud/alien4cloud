@@ -75,7 +75,7 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
     @Override
     public Object postProcessAfterInitialization(final Object bean, final String id) throws BeansException {
         if (log.isTraceEnabled()) {
-            log.trace("post processing bean with id <{}> of type <{}>", id, bean.getClass().toString());
+            log.trace("post processing bean with id [ {} ] of type [ {} ]", id, bean.getClass().toString());
         }
         if (AopUtils.isAopProxy(bean)) {
             log.debug("Spring is already managing proxy for bean of class {}.", bean.getClass().toString());
@@ -84,14 +84,14 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
 
         if (AnnotationUtils.findAnnotation(bean.getClass(), Overridable.class) != null) {
             // the bean is annotated as Overridable candidate
-            log.info("The bean with id <{}> of type <{}> is candidate to be overridden by plugin child contexts", id, bean.getClass().toString());
+            log.info("The bean with id [ {} ] of type [ {} ] is candidate to be overridden by plugin child contexts", id, bean.getClass().toString());
             registerProxyCandidate(bean, id);
         } else {
             // let's look for annotation in methods
             ReflectionUtils.doWithMethods(bean.getClass(), new MethodCallback() {
                 @Override
                 public void doWith(Method m) throws IllegalArgumentException, IllegalAccessException {
-                    log.info("The method <{}> of bean <{}> is candidate to be overridden by plugin child contexts", m.toString(), id);
+                    log.info("The method [ {} ] of bean [ {} ] is candidate to be overridden by plugin child contexts", m.toString(), id);
                     registerProxyCandidate(bean, id);
                 }
             }, new MethodFilter() {
@@ -151,7 +151,7 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
         String[] applicationListenerBeanNames = ctx.getBeanNamesForType(ApplicationListener.class);
         if (applicationListenerBeanNames != null && applicationListenerBeanNames.length > 0) {
             if (log.isDebugEnabled()) {
-                log.debug("The child context <{}> contains the following listeners: {}", ctx.getDisplayName(), applicationListenerBeanNames);
+                log.debug("The child context [ {} ] contains the following listeners: {}", ctx.getDisplayName(), applicationListenerBeanNames);
             }
             GenericApplicationListenerAdapter[] adapters = new GenericApplicationListenerAdapter[applicationListenerBeanNames.length];
             int i = 0;
@@ -275,15 +275,15 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
                 if (proxyRegistry != null) {
                     if (log.isDebugEnabled()) {
                         if (proxyRegistry.target != proxyRegistry.original) {
-                            log.debug("Invoking method <{}> on proxy", method);
+                            log.debug("Invoking method [ {} ] on proxy", method);
                         } else {
-                            log.debug("Invoking method <{}> on native bean (no proxy found)", method);
+                            log.debug("Invoking method [ {} ] on native bean (no proxy found)", method);
                         }
                     }
                     target = proxyRegistry.target;
                 } else {
                     if (log.isDebugEnabled()) {
-                        log.debug("Invoking method <{}> on native bean (no proxy registry found)", method);
+                        log.debug("Invoking method [ {} ] on native bean (no proxy registry found)", method);
                     }
                 }
             } finally {

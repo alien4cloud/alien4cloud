@@ -1,0 +1,33 @@
+<div ng-if="!isObjectEmpty(resourceTemplate.portabilityDefinitions) && !isObjectEmpty(resourceTemplate.template.portability)">
+  <div id="node-details-portability" class="clickable"
+       ng-click="isPortabilityCollapsed = !isPortabilityCollapsed">
+    <h4>
+      <i class=" fa" ng-class="{'fa-caret-down' : !isPortabilityCollapsed, 'fa-caret-right': isPortabilityCollapsed}"></i>
+      {{'PORTABILITY.COMPONENTS.TITLE' | translate}}
+    </h4>
+  </div>
+  <div id="node-details-portability-panel" uib-collapse="isPortabilityCollapsed" >
+    <table class="table table-condensed" id="nodeTemplatePortability">
+      <tr ng-repeat="(portabilityKey, portabilityValue) in resourceTemplate.template.portability" ng-if="resourceTemplate.portabilityDefinitions[portabilityKey]">
+        <td>
+          <property-display
+              ng-init="condensed = true"
+              definition="resourceTemplate.portabilityDefinitions[portabilityKey]"
+              dependencies="dependencies"
+              property-name="portabilityKey"
+              property-value="portabilityValue"
+              on-save="updatePortabilityProperty(propertyName, propertyValue)"
+              condensed="condensed"
+              editable="resourceTemplate.portabilityDefinitions[portabilityKey].editable">
+          </property-display>
+        </td>
+        <td>
+          <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{properties.getPropertyDescription(propEntry.key)}}"
+                        key="{{propEntry.key}}"></simple-modal>
+        </td>
+      </tr>
+    </table>
+    <div id="node-details-portability-{{portabilityKey}}-block" ng-repeat="portabilityEntry in resourceTemplate.template.portability">
+    </div>
+  </div>
+</div>

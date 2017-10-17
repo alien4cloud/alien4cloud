@@ -80,6 +80,7 @@ public class EditorTopologyUploadService {
 
         Topology currentTopology = EditionContextManager.getTopology();
         Topology parsedTopology = parsingResult.getResult().getTopology();
+        final String definitionVersion = parsingResult.getResult().getArchive().getToscaDefinitionsVersion();
 
         if (!currentTopology.getArchiveName().equals(parsedTopology.getArchiveName())
                 || !currentTopology.getArchiveVersion().equals(parsedTopology.getArchiveVersion())) {
@@ -96,6 +97,11 @@ public class EditorTopologyUploadService {
         // init the workflows for the topology based on the yaml
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
                 .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
+                    @Override
+                    public String getDSLVersion() {
+                        return definitionVersion;
+                    }
+
                     @Override
                     public Topology getTopology() {
                         return parsedTopology;

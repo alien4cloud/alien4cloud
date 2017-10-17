@@ -1,10 +1,10 @@
 server:
   port: 8088
   use-forward-headers: true
-  #ssl:
-  #  key-store: keystore.jks
-  #  key-store-password: ******
-  #  key-password: ******
+#  ssl:
+#    key-store: /home/igor/projets/a4c/certs/server-keystore.jks
+#    key-store-password: changeit
+#    key-password: abcd
   #session:
   #  cookie:
   #    http-only: true
@@ -13,6 +13,8 @@ server:
 # Configuration of alien4cloud's CSAR repository, temporary folder and upload settings.
 directories:
   alien_init: ${user.home}/init
+#  alien_init: ${user.home}/WKS/A4C/alien4cloud-premium-dist/target/alien4cloud-premium-dist/alien4cloud-premium/init
+
   # alien4cloud main directory (other directories are relative path to this one)
   alien: ${user.home}/.alien
   # directory in which alien4cloud stores Cloud Service Archives

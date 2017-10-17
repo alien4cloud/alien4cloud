@@ -2,6 +2,8 @@ package org.alien4cloud.tosca.model.definitions;
 
 import java.util.Map;
 
+import org.elasticsearch.annotation.ObjectField;
+
 import com.google.common.collect.Maps;
 
 import alien4cloud.ui.form.annotation.FormProperties;
@@ -22,6 +24,7 @@ public class Interface {
     /** Description of the interface. */
     private String description;
     /** Defines an operation available to manage particular aspects of the Node Type. */
+    @ObjectField(enabled = false)
     private Map<String, Operation> operations = Maps.newHashMap();
 
     /**

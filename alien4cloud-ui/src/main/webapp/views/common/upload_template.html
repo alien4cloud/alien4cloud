@@ -1,5 +1,5 @@
 <div ng-controller="UploadCtrl">
-  <div class="drop-box" ng-show="dropSupported" ngf-drop="uploadCtrl.onFileSelect($files)">
+  <div class="drop-box" ngf-drop="uploadCtrl.onFileSelect($files)">
     <div class="drop-box-workspace" ng-if="uploadWorkspaceTemplateUrl">
       <ng-include src="uploadWorkspaceTemplateUrl"></ng-include>
     </div>
@@ -11,21 +11,6 @@
         style="display:none"
         multiple />
     </label>
-  </div>
-  <div ng-show="!dropSupported">
-    <div class="col-md-2" ng-if="uploadWorkspaceTemplateUrl">
-      <ng-include src="uploadWorkspaceTemplateUrl"></ng-include>
-    </div>
-    <div class="fileUploadBtn btn btn-success" >
-      <span>
-        <i class="fa fa-upload"></i> {{ buttonMessage | translate }}
-      </span>
-      <input id="fileUpload" type="file"
-        class="upload"
-        ngf-drop-available="dropSupported=true"
-        ngf-select="uploadCtrl.onFileSelect($files)"
-        multiple>
-    </div>
   </div>
   <div class="upload-infos-bloc" ng-repeat="uploadInfo in uploadInfos">
     <div uib-alert ng-class="'alert-' + (uploadInfo.infoType || 'warning')" close="uploadCtrl.closeUploadInfos($index)" style="margin-top: 15px;">

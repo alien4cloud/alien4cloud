@@ -3,7 +3,6 @@ define(function(require) {
 
   var states = require('states');
 
-  require('scripts/orchestrators/controllers/orchestrator_location_resources');
   require('scripts/orchestrators/directives/orchestrator_location_resources');
 
   states.state('admin.orchestrators.details.locations.config', {

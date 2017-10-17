@@ -10,6 +10,12 @@ define(function (require) {
     url: '/info',
     templateUrl: 'views/_ref/catalog/components/components_info.html',
     controller: 'ComponentInfoCtrl',
+    menu: {
+      state: 'catalog.components.detail.info',
+      key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.INFO',
+      icon: 'fa fa-info',
+      priority: 100
+    }
   });
 
   require('scripts/authentication/services/authservices');

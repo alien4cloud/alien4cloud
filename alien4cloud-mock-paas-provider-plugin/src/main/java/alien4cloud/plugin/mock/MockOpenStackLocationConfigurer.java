@@ -1,5 +1,7 @@
 package alien4cloud.plugin.mock;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -120,5 +122,16 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
                 resourceAccessor);
 
         return resourceGeneratorService.generateComputeFromImageAndFlavor(imageContext, flavorContext, computeContext, null, resourceAccessor);
+
+    }
+
+    @Override
+    public List<String> getPoliciesTypes() {
+        List<String> policies = Lists.newArrayList();
+        safe(pluginArchives()).forEach(pluginArchive -> {
+            policies.addAll(safe(pluginArchive.getArchive().getPolicyTypes()).keySet());
+        });
+
+        return CollectionUtils.isEmpty(policies) ? null : policies;
     }
 }

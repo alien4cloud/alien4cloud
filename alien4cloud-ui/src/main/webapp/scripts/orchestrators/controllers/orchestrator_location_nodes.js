@@ -4,10 +4,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var _ = require('lodash');
-  var angular = require('angular');
 
-
-  require('scripts/orchestrators/controllers/orchestrator_location_resources');
   require('scripts/orchestrators/directives/orchestrator_location_resources');
   require('scripts/orchestrators/services/location_resources_security_service');
   require('scripts/users/directives/authorize_users');
@@ -27,8 +24,8 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource', 'locationResourcesProcessor', '$uibModal', 'locationResourcesSecurityService',
-    function($scope, $resource, locationResourcesProcessor, $uibModal, locationResourcesSecurityService) {
+  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource', 'locationResourcesProcessor', '$uibModal', 'locationResourcesSecurity',
+    function($scope, $resource, locationResourcesProcessor, $uibModal, locationResourcesSecurity) {
 
       function removeGeneratedResources() {
           _.remove($scope.context.locationResources.nodeTemplates, function(locationResource){
@@ -59,69 +56,8 @@ define(function (require) {
       *  For authorizations directives
       /************************************/
 
-      var params = {
-        orchestratorId: $scope.context.orchestrator.id,
-        locationId: $scope.context.location.id
-      };
+      locationResourcesSecurity('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources', $scope);
 
-      $scope.buildSecuritySearchConfig = function(subject){
-        return {
-          url: 'rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/' + subject + '/search',
-          useParams: true,
-          params: _.clone(params, true)
-        };
-      };
-
-      // *****************************************************************************
-      // USERS
-      // *****************************************************************************
-
-      $scope.processUserAction = function (action, result) {
-        var request = {
-          'resources':  Object.keys($scope.context.selectedResourceTemplates)
-        };
-        request[action] = _.map(result.subjects, 'username');
-        locationResourcesSecurityService.bulkUsers(_.merge(params, {force: result.force}), angular.toJson(request), function(successResponse) {
-          console.log(successResponse);
-          //TODO: check if an error occur and add a refresh
-        });
-      };
-
-      // *****************************************************************************
-      // GROUPS
-      // *****************************************************************************
-
-      $scope.processGroupAction = function (action, result) {
-          var request = {
-            'resources':  Object.keys($scope.context.selectedResourceTemplates)
-          };
-          request[action] = _.map(result.subjects, 'id');
-          locationResourcesSecurityService.bulkGroups(_.merge(params, {force:result.force}), angular.toJson(request), function(successResponse) {
-            console.log(successResponse);
-            //TODO: check if an error occur and add a refresh
-          });
-      };
-
-      // *****************************************************************************
-      // APPLICATIONS / ENVIRONMENTS
-      // *****************************************************************************
-
-      $scope.processAppsAction = function (action, result) {
-        var request = result.subjects;
-        request.resources =  Object.keys($scope.context.selectedResourceTemplates);
-        if (action === 'revoke') {
-          request.applicationsToDelete = request.applicationsToAdd;
-          request.environmentsToDelete = request.environmentsToAdd;
-          request.environmentTypesToDelete = request.environmentTypesToAdd;
-          delete request.applicationsToAdd;
-          delete request.environmentsToAdd;
-          delete request.environmentTypesToAdd;
-        }
-        locationResourcesSecurityService.updateEnvironmentsPerApplicationBatch.grant(_.merge(params, {force:result.force}), angular.toJson(request), function(successResponse) {
-          console.log(successResponse);
-          //TODO: check if an error occur and add a refresh
-        });
-      };
     }
   ]);
 }); // define

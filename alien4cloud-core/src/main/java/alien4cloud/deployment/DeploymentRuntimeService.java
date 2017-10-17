@@ -105,7 +105,7 @@ public class DeploymentRuntimeService {
         final Capability capability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, true);
         final int previousInitialInstances = TopologyUtils.getScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, capability);
         final int newInitialInstances = previousInitialInstances + instances;
-        log.info("Scaling <{}> node from <{}> to <{}>. Updating runtime topology...", nodeTemplateId, previousInitialInstances, newInitialInstances);
+        log.info("Scaling [ {} ] node from [ {} ] to [ {} ]. Updating runtime topology...", nodeTemplateId, previousInitialInstances, newInitialInstances);
         TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, newInitialInstances, capability);
         alienMonitorDao.save(topology);
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
@@ -113,7 +113,7 @@ public class DeploymentRuntimeService {
         orchestratorPlugin.scale(deploymentContext, nodeTemplateId, instances, new IPaaSCallback() {
             @Override
             public void onFailure(Throwable throwable) {
-                log.info("Failed to scale <{}> node from <{}> to <{}>. rolling back to {}...", nodeTemplateId, previousInitialInstances, newInitialInstances,
+                log.info("Failed to scale [ {} ] node from [ {} ] to [ {} ]. rolling back to {}...", nodeTemplateId, previousInitialInstances, newInitialInstances,
                         previousInitialInstances);
                 TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, previousInitialInstances, capability);
                 alienMonitorDao.save(topology);

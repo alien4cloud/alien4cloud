@@ -67,7 +67,7 @@ public class InitialLoader {
         }
         Path alienInitDirectoryPath = Paths.get(alienInitDirectory);
         if (!Files.exists(alienInitDirectoryPath)) {
-            log.warn("Specified initial directory <{}> cannot be found - skipping initial loading of archives and plugins.", alienInitDirectoryPath.toString());
+            log.warn("Specified initial directory [ {} ] cannot be found - skipping initial loading of archives and plugins.", alienInitDirectoryPath.toString());
             return;
         }
 
@@ -95,17 +95,17 @@ public class InitialLoader {
             Collections.sort(archives);
             for (Path archive : archives) {
                 try {
-                    log.debug("Initial load of archives from <{}>.", archive.toString());
+                    log.debug("Initial load of archives from [ {} ].", archive.toString());
                     csarUploadService.upload(archive, CSARSource.ALIEN, AlienConstants.GLOBAL_WORKSPACE_ID);
                 } catch (AlreadyExistException e) {
-                    log.debug("Skipping initial upload of archive <{}>. Archive has already been loaded.", archive.toString(), e);
+                    log.debug("Skipping initial upload of archive [ {} ]. Archive has already been loaded.", archive.toString(), e);
                 } catch (CSARUsedInActiveDeployment e) {
-                    log.debug("Skipping initial upload of archive <{}>. Archive is used in an active depoyment, and then cannot be overrided.",
+                    log.debug("Skipping initial upload of archive [ {} ]. Archive is used in an active depoyment, and then cannot be overrided.",
                             archive.toString(), e);
                 } catch (ParsingException e) {
-                    log.error("Initial upload of archive <{}> has failed.", archive.toString(), e);
+                    log.error("Initial upload of archive [ {} ] has failed.", archive.toString(), e);
                 } catch (ToscaTypeAlreadyDefinedInOtherCSAR e) {
-                    log.debug("Skipping initial upload of archive <{}>, it's archive contain's a tosca type already defined in an other archive."
+                    log.debug("Skipping initial upload of archive [ {} ], it's archive contain's a tosca type already defined in an other archive."
                             + e.getMessage(), archive.toString(), e);
                 }
             }

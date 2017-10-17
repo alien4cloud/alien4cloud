@@ -5,15 +5,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
+import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.elasticsearch.annotation.ESObject;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.ApplicationEnvironment;
 import lombok.Getter;
 import lombok.Setter;
-import org.elasticsearch.annotation.ESObject;
 
 /**
  * Flow execution context.
@@ -24,15 +24,20 @@ public class FlowExecutionContext {
     /** A4C OOB keys of elements in the context cache. */
     public static final String LOCATION_MATCH_CACHE_KEY = "location_matches";
     public static final String DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY = "deployment_locations";
-
-    public static final String MATCHING_PER_NODE_LOC_RES_TEMPLATES = "matching_per_node_loc_res_templates";
-    public static final String MATCHED_LOCATION_RESOURCE_TEMPLATES = "matched_location_resource_templates";
-    public static final String MATCHED_LOCATION_RESOURCE_TEMPLATE_IDS_PER_NODE = "matched_location_resource_template_ids_per_node";
+    /** Location resource template candidates per node template key. */
+    public static final String MATCHED_NODE_LOCATION_TEMPLATES_BY_NODE_ID_MAP = "matched_node_location_templates_by_node_id_map";
+    public static final String MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP = "matched_node_location_templates_by_id_map";
+    public static final String SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP = "selected_match_node_location_template_by_node_id_map";
     public static final String MATCHING_ORIGINAL_NODES = "matching_original_nodes";
     public static final String MATCHING_SUBSTITUTION_REQUEST = "matching_substitution_request";
+    /** Location resource template candidates per policy template key. */
+    public static final String MATCHED_POLICY_LOCATION_TEMPLATES_BY_NODE_ID_MAP = "matched_policy_location_templates_by_node_id_map";
+    public static final String MATCHED_POLICY_LOCATION_TEMPLATES_BY_ID_MAP = "matched_policy_location_templates_by_id_map";
+    public static final String SELECTED_MATCH_POLICY_LOCATION_TEMPLATE_BY_NODE_ID_MAP = "selected_match_policy_location_template_by_node_id_map";
+    public static final String MATCHING_ORIGINAL_POLICIES = "matching_original_policies";
 
     /** Injected dao for configuration retrieval management. */
-    private final IGenericSearchDAO alienDAO;
+    private final DeploymentConfigurationDao deploymentConfigurationDao;
     /** The topology after impact from the various topology modifiers. */
     private final Topology topology;
     /** Optional environment context for modifiers that runs in the context of an environment. */
@@ -47,8 +52,8 @@ public class FlowExecutionContext {
     /** Date of the last updated topology or configuration in the current processed flow. */
     private Date lastFlowParamUpdate;
 
-    public FlowExecutionContext(IGenericSearchDAO alienDAO, Topology topology, EnvironmentContext environmentContext) {
-        this.alienDAO = alienDAO;
+    public FlowExecutionContext(DeploymentConfigurationDao deploymentConfigurationDao, Topology topology, EnvironmentContext environmentContext) {
+        this.deploymentConfigurationDao = deploymentConfigurationDao;
         this.topology = topology;
         this.environmentContext = Optional.of(environmentContext);
         lastFlowParamUpdate = topology.getLastUpdateDate();
@@ -85,7 +90,7 @@ public class FlowExecutionContext {
         T config = (T) executionCache.get(configCacheId);
         // If the config object is annotated with ESObject then it may be cached in ElasticSearch
         if (config == null && cfgClass.isAnnotationPresent(ESObject.class)) {
-            config = alienDAO.findById(cfgClass, cfgId);
+            config = deploymentConfigurationDao.findById(cfgClass, cfgId);
             executionCache.put(configCacheId, config);
         }
         if (config == null) {
@@ -107,7 +112,7 @@ public class FlowExecutionContext {
         String configCacheId = configuration.getClass().getSimpleName() + "/" + configuration.getId();
         executionCache.put(configCacheId, configuration);
         if (configuration.getClass().isAnnotationPresent(ESObject.class)) {
-            alienDAO.save(configuration); // This also updates the date.
+            deploymentConfigurationDao.save(configuration); // This also updates the date.
         }
         lastFlowParamUpdate = configuration.getLastUpdateDate();
     }

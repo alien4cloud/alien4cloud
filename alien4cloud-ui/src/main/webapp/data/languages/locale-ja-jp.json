@@ -318,8 +318,8 @@
     },
     "WF" : {
       "DelegateWorkflowActivity" : "Delegate workflow",
-      "OperationCallActivity" : "Operation call",
-      "SetStateActivity" : "State change",
+      "CallOperationWorkflowActivity" : "Operation call",
+      "SetStateWorkflowActivity" : "State change",
       "activity" : "Activity",
       "addOperationActivity" : "Add opreration call",
       "addStateActivity" : "Add state change",
@@ -456,7 +456,10 @@
     "NAME" : "名前",
     "NO" : "No",
     "NODE" : "ノード",
+    "PATH": "Path",
+    "PASSWORD": "Password",
     "PROPERTIES" : "プロパティ",
+    "RELATIONSHIP": "Relationship",
     "SOURCE" : "ソース",
     "SEARCH": "検索...",
     "STATE" : "状態",
@@ -575,7 +578,8 @@
       "YAML_SCALAR_NODE_EXPECTED" : "A YAML node of type scalar is expected here.",
       "YAML_SEQUENCE_EXPECTED" : "A YAML sequence is expected.",
       "CSAR_IMPORT_ITSELF": "An archive is not allowed to import itself.",
-      "UNSUPPORTED_SUBSTITUTION": "Substitution is not supported on archive that defines types."
+      "UNSUPPORTED_SUBSTITUTION": "Substitution is not supported on archive that defines types.",
+      "POLICY_TARGET_NOT_FOUND": "Policy target [{{note}}] cannot be found"
     },
     "VALIDSOURCES" : "Valid sources",
     "WORKSPACE" : "Workspaces"
@@ -882,6 +886,13 @@
       "pattern" : "Value must match the pattern {{reference}}"
     }
   },
+  "GIT" : {
+    "CONFIGURE_TITLE" : "Git configuration",
+    "ALIEN_MANAGED" : "A4C",
+    "USER_MANAGED": "Manually",
+    "BRANCH": "Branch",
+    "MANAGED_BY": "Managed by" 
+  },
   "GROUPS" : {
     "AUTHORIZED" : "group authorized",
     "EDIT_GROUPS" : "グループの編集",
@@ -942,6 +953,14 @@
     "MENU_USERS" : "ユーザとグループ",
     "MENU_VARIABLES": "Variables",
     "MENU_VERSIONS" : "バージョン"
+  },
+  "NAVCATALOG": {
+    "ARCHIVES_PROMOTION": "Archives promotion requests",
+    "BROWSE_COMPONENTS": "Browse components",
+    "MANAGE_ARCHIVES": "Manage archives",
+    "BROWSE_TOPOLOGIES": "Browse topologies",
+    "BROWSE_POLICIES": "Browse policies",
+    "TOPOLOGIES": "Topologies"
   },
   "NAVBAR" : {
     "BUTTON_LOGIN" : "ログイン",

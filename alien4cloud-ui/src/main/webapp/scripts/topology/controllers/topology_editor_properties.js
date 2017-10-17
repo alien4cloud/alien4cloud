@@ -86,7 +86,8 @@ define(function(require) {
               if (_.undefined(result.error)) {
                 scope.topology.topology.nodeTemplates[scope.selectedNodeTemplate.name].capabilitiesMap[capabilityId].value.propertiesMap[propertyName].value = { value: propertyValue, definition: false };
                 if (capabilityType === 'tosca.capabilities.Scalable') {
-                  scope.triggerTopologyRefresh = {};
+                  // This is the only property with the version that updates the rendering
+                  scope.$broadcast('editorUpdateNode', { node: scope.selectedNodeTemplate.name });
                 }
               }
             },

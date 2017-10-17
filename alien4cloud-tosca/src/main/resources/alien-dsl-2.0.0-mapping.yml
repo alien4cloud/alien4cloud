@@ -1,4 +1,4 @@
-# Mapping definition for alien 4 cloud specific dsl 1.4.0
+# Mapping definition for alien 4 cloud specific dsl 2.0.0
 
 # declare custom parsers for complex types that requires specific parser.
 - scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
@@ -17,7 +17,7 @@
 - meta_data: alien4cloud.tosca.parser.impl.advanced.MetaDataParser
 - fail_get_artifact: alien4cloud.tosca.parser.impl.advanced.FailGetArtifactParser
 - string_list: alien4cloud.tosca.parser.impl.advanced.StringListParser
-- relationship_template: alien4cloud.tosca.parser.impl.advanced.RelationshipTemplateParser
+- relationship_template: alien4cloud.tosca.parser.impl.v20.RelationshipTemplateParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -79,6 +79,7 @@
     type: sustitution_mapping_parser
   node_templates:
     map: nodeTemplates
+    key: name
     type: node_template
   outputs:
     reference: void # means : do the parsing but do not set anything
@@ -87,25 +88,47 @@
     map: groups
     key: name
     type: node_group
+  policies:
+    sequence_to_map: policies
+    node_is_value: false
+    # key: name
+    type: policy_template
   workflows:
     map: workflows
     key: name
     type: workflow
 
-- workflow: alien4cloud.paas.wf.Workflow
+- workflow: org.alien4cloud.tosca.model.workflow.Workflow
   description: description
   steps:
     map: steps
     key: name
     type: workflow_step
 
-- workflow_step : alien4cloud.paas.wf.NodeActivityStep
-  node: nodeId
-  activity:
-    reference: activity
+- workflow_step: __discriminator
+  keys:
+    target_relationship: relationship_workflow_step
+  default: node_workflow_step
+
+- node_workflow_step : org.alien4cloud.tosca.model.workflow.NodeWorkflowStep
+  target: target
+  operation_host: operationHost
+  activities:
+    list: activities
     type: workflow_activity
-  on-success:
-    set: followingSteps
+  on_success:
+    set: onSuccess
+    type: scalar
+
+- relationship_workflow_step : org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep
+  target: target
+  target_relationship: targetRelationship
+  operation_host: operationHost
+  activities:
+    list: activities
+    type: workflow_activity
+  on_success:
+    set: onSuccess
     type: scalar
 
 - workflow_activity: __discriminator
@@ -113,15 +136,38 @@
     set_state: set_state_activity
     call_operation: call_operation_activity
     delegate: delegate_activity
+    inline: inline_activity
 
-- set_state_activity: alien4cloud.paas.wf.SetStateActivity
+- set_state_activity: org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity
   set_state: stateName
 
-- call_operation_activity: alien4cloud.paas.wf.OperationCallActivity
+- call_operation_activity: org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity
   call_operation: operationFqn
 
-- delegate_activity: alien4cloud.paas.wf.DelegateWorkflowActivity
-  delegate: workflowName
+- delegate_activity: org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity
+  delegate: delegate
+
+- inline_activity: org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity
+  inline: inline
+
+- abstract_template: &abstract_template
+    type: type
+    description: description
+    metadata:
+      reference: tags
+      type: tag
+    properties:
+      map: properties
+      type: node_template_property
+
+- abstract_instantiable_template: &abstract_instantiable_template
+    <<: *abstract_template
+    interfaces:
+      reference: interfaces
+      type: interfaces
+    artifacts:
+      map: artifacts
+      type: deployment_artifact
 
 - node_group: org.alien4cloud.tosca.model.templates.NodeGroup
   members:
@@ -132,24 +178,14 @@
     type: group_policy_parser
 
 - node_template: org.alien4cloud.tosca.model.templates.NodeTemplate
-  type: type
-  name: name
-  properties:
-    map: properties
-    type: node_template_property
+  <<: *abstract_instantiable_template
   requirements:
     sequence_to_map: relationships
     type: relationship_template
-    allow_duplicate: true
+    allow_duplicate: false
   capabilities:
     map: capabilities
     type: node_template_capability_definition
-  interfaces:
-    reference: interfaces
-    type: interfaces
-  artifacts:
-    map: artifacts
-    type: deployment_artifact
 
 - node_template_capability_definition: org.alien4cloud.tosca.model.templates.Capability
   type: type
@@ -302,24 +338,42 @@
     map: inputParameters
     type: input
 
-- node_type: org.alien4cloud.tosca.model.types.NodeType
-  description: description
-  abstract: abstract
-  tags:
-    reference: tags
-    type: tag
-  metadata:
+############# TOSCA Types parsing definitions #############
+
+- abstract_type_no_props: &abstract_type_no_props
+    description: description
+    abstract: abstract
+    derived_from:
+      reference: derivedFrom
+      type: string_list
+    tags:
       reference: tags
       type: tag
-  derived_from:
-    reference: derivedFrom
-    type: string_list
-  properties:
-    map: properties
-    type: property_definition
-  attributes:
-    map: attributes
-    type: attribute
+    metadata:
+      reference: tags
+      type: tag
+
+- abstract_type: &abstract_type
+    <<: *abstract_type_no_props
+    properties:
+      map: properties
+      type: property_definition
+
+- abstract_instantiable_type: &abstract_instantiable_type
+    <<: *abstract_type
+    attributes:
+      map: attributes
+      type: attribute
+    interfaces:
+      reference: interfaces
+      type: interfaces
+    artifacts:
+      sequence_to_map: artifacts
+      node_is_value: false
+      type: deployment_artifact
+
+- node_type: org.alien4cloud.tosca.model.types.NodeType
+  <<: *abstract_instantiable_type
   requirements:
     list: requirements
     key: id
@@ -328,13 +382,6 @@
     list: capabilities
     key: id
     type: capability_definition
-  interfaces:
-    reference: interfaces
-    type: interfaces
-  artifacts:
-    sequence_to_map: artifacts
-    node_is_value: false
-    type: deployment_artifact
   portability:
     map: portability
     type: node_template_property
@@ -345,100 +392,28 @@
   default: complex_data_type
 
 - simple_data_type: org.alien4cloud.tosca.model.types.PrimitiveDataType
-  description: description
-  abstract: abstract
-  tags:
-    reference: tags
-    type: tag
-  metadata:
-    reference: tags
-    type: tag
-  derived_from:
-    reference: derivedFrom
-    type: string_list
+  <<: *abstract_type_no_props
   constraints:
     list: constraints
     type: constraint
 
 - complex_data_type: org.alien4cloud.tosca.model.types.DataType
-  description: description
-  abstract: abstract
-  tags:
-    reference: tags
-    type: tag
-  metadata:
-    reference: tags
-    type: tag
-  derived_from:
-    reference: derivedFrom
-    type: string_list
-  properties:
-    map: properties
-    type: property_definition
+  <<: *abstract_type
 
 - capability_type: org.alien4cloud.tosca.model.types.CapabilityType
-  description: description
-  abstract: abstract
-  tags:
-    reference: tags
-    type: tag
-  metadata:
-    reference: tags
-    type: tag
-  derived_from:
-    reference: derivedFrom
-    type: string_list
-  properties:
-    map: properties
-    type: property_definition
+  <<: *abstract_type
   valid_source_types:
     list: validSources
     type: scalar
 
 - relationship_type: org.alien4cloud.tosca.model.types.RelationshipType
-  description: description
-  abstract: abstract
-  tags:
-    reference: tags
-    type: tag
-  metadata:
-    reference: tags
-    type: tag
-  derived_from:
-    reference: derivedFrom
-    type: string_list
-  properties:
-    map: properties
-    type: property_definition
-  attributes:
-    map: attributes
-    type: attribute
-  interfaces:
-    reference: interfaces
-    type: interfaces
-  artifacts:
-    sequence_to_map: artifacts
-    node_is_value: false
-    type: deployment_artifact
+  <<: *abstract_instantiable_type
   valid_target_types:
     list: validTargets
     type: scalar
 
 - artifact_type: org.alien4cloud.tosca.model.types.ArtifactType
-  description: description
-  abstract: abstract
-  tags:
-    reference: tags
-    type: tag
-  metadata:
-    reference: tags
-    type: tag
-  derived_from:
-    reference: derivedFrom
-    type: string_list
-  properties:
-    map: properties
-    type: property_definition
+  <<: *abstract_type
   mime_type: mimeType
   file_ext:
     list: fileExt
@@ -486,22 +461,23 @@
   action: actionWorkflow
 
 - policy_type: org.alien4cloud.tosca.model.types.PolicyType
-  # entity type properties
-  description: description
-  abstract: abstract
-  derived_from:
-    reference: derivedFrom
-    type: string_list
-  metadata:
-    reference: tags
-    type: tag
-  properties:
-    map: properties
-    type: property_definition
-  # specific to policy type
+  <<: *abstract_type
   targets:
-    reference: targets
-    type: string_list
+    set: targets
+    type: scalar
+  triggers:
+    map: triggers
+    type: policy_trigger
+
+############# TOSCA Templates parsing definitions #############
+
+- policy_template: org.alien4cloud.tosca.model.templates.PolicyTemplate
+  # Generic template properties
+  <<: *abstract_template
+  # Specific to policy template
+  targets:
+    set: targets
+    type: scalar
   triggers:
     map: triggers
     type: policy_trigger

@@ -28,7 +28,6 @@ define(function (require) {
 
         this.isRuntime = isRuntime;
 
-        this.selectedNodeId = null;
         // create svg element
         var contextContainer = d3.select('#editor-context-container');
         contextContainer.html('');
@@ -99,6 +98,20 @@ define(function (require) {
           }
         },
 
+        updateNodeSelection: function(topology, selectedNodeNames) {
+          var nodes = [];
+          _.each(topology.topology.nodeTemplates, function(nodeTemplate) {
+            nodes.push({template: nodeTemplate, id: nodeTemplate.name});
+          });
+          var nodeSelection = this.svg.selectAll('.node-template').data(nodes, function(node) { return node.id; });
+
+          // update existing nodes
+          nodeSelection.each(function(node) {
+            var nodeGroup = d3.select(this);
+            nodeGroup.classed('node-hidden', function(){ return !_.isEmpty(selectedNodeNames) && !_.contains(selectedNodeNames, node.template.name); });
+          });
+        },
+
         computeLinkRoute: function(link) {
           // compute the route path
           var route;
@@ -148,7 +161,7 @@ define(function (require) {
 
           var requiresViewBoxUpdate = false;
           // create new nodes
-          var newNodeGroups = nodeSelection.enter().append('g').attr('class', 'node-template');
+          var newNodeGroups = nodeSelection.enter().append('g').attr('class', 'node-template').attr('id', function(node) { return 'a4c_svgn_' + node.id; });
           newNodeGroups.each(function(node) {
             var nodeGroup = d3.select(this);
             self.createNode(nodeGroup, node);
@@ -196,7 +209,7 @@ define(function (require) {
             return 'translate(' + d.coordinate.x + ',' + d.coordinate.y + ')';
           });
           // update background class
-          nodeGroup.classed('selected', function(){ return nodeTemplate.selected; });
+          // nodeGroup.classed('selected', function(){ return nodeTemplate.selected; });
 
           this.nodeRenderer.updateNode(nodeGroup, node, nodeTemplate, nodeType, this.topology);
 

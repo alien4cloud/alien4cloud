@@ -1,0 +1,55 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.test.workflow.Inline
+  template_author: alien4cloud
+  template_version: 2.0.0-SNAPSHOT
+
+description: This template contains tests of inline workflow activity
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+topology_template:
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+  workflows:
+    install:
+      steps:
+        Compute_install:
+          target: Compute
+          activities:
+            - delegate: install
+            # Inline another workflow defined in the topology (to allow re-usability)
+            - inline: my_custom_wf
+          on_success:
+            - Compute_start
+        Compute_start:
+          target: Compute
+          activities:
+            - delegate: start
+        Some_other_inline:
+          activities:
+            - inline: my_custom_wf
+        inception_inline:
+          activities:
+            - inline: inception
+    # Here the definition of the workflow who will be reused by activities from other workflow
+    my_custom_wf:
+      steps:
+        Compute_stop:
+          target: Compute
+          activities:
+            - delegate: stop
+          on_success:
+            - Compute_uninstall
+        Compute_uninstall:
+          target: Compute
+          activities:
+            - delegate: uninstall
+    inception:
+      steps:
+        inception_inline:
+          activities:
+            - inline: my_custom_wf

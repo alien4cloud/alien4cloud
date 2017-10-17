@@ -39,7 +39,8 @@ public class CsarGitRepositoryService {
      * @return The auto-generated id of the CsarGitRepository object
      */
     public String create(String repositoryUrl, String username, String password, List<CsarGitCheckoutLocation> importLocations, boolean isStoredLocally) {
-        validatesRepositoryUrl(repositoryUrl, null);
+        validatesRepositoryUrl(repositoryUrl);
+        failIfExists(repositoryUrl);
         if (importLocations.isEmpty()) {
             throw new InvalidArgumentException("Import locations cannot be empty.");
         }
@@ -55,16 +56,16 @@ public class CsarGitRepositoryService {
         return csarGit.getId();
     }
 
-    private void validatesRepositoryUrl(String repositoryUrl, String id) {
+    private void validatesRepositoryUrl(String repositoryUrl) {
         // check if the repository url has a valid format
         if (!UrlUtil.isValid(repositoryUrl)) {
             throw new InvalidArgumentException("Repository url <" + repositoryUrl + "> is not a valid url.");
         }
-        // and that the repository doesn't already exists
+    }
+
+    private void failIfExists(String repositoryUrl) {
         CsarGitRepository existingCsarGitRepository = alienDAO.customFind(CsarGitRepository.class, QueryBuilders.termQuery(URL_FIELD, repositoryUrl));
-        if (existingCsarGitRepository == null) {
-            return;
-        } else if (id == null || !id.equals(existingCsarGitRepository.getId())) {
+        if (existingCsarGitRepository != null) {
             throw new AlreadyExistException("A repository with url <" + repositoryUrl + "> already exists in alien 4 cloud.");
         }
     }
@@ -107,9 +108,12 @@ public class CsarGitRepositoryService {
      */
     public void update(String id, String repositoryUrl, String username, String password, List<CsarGitCheckoutLocation> importLocations,
             boolean isStoredLocally) {
-        validatesRepositoryUrl(repositoryUrl, id);
+        validatesRepositoryUrl(repositoryUrl);
         CsarGitRepository repositoryToUpdate = getOrFail(id);
-        repositoryToUpdate.setRepositoryUrl(repositoryUrl);
+        if (!repositoryToUpdate.getRepositoryUrl().equals(repositoryUrl)) {
+            failIfExists(repositoryUrl);
+            repositoryToUpdate.setRepositoryUrl(repositoryUrl);
+        }
         if (username != null) {
             repositoryToUpdate.setUsername(username);
         }
@@ -133,8 +137,8 @@ public class CsarGitRepositoryService {
     private CsarGitCheckoutLocation findLocationIn(CsarGitCheckoutLocation location, List<CsarGitCheckoutLocation> importLocations) {
         for (CsarGitCheckoutLocation givenLocation : importLocations) {
             if (givenLocation.getBranchId().equals(location.getBranchId())
-                    && ((Strings.isNullOrEmpty(givenLocation.getSubPath()) && Strings.isNullOrEmpty(location.getSubPath())) || (!Strings
-                            .isNullOrEmpty(givenLocation.getSubPath()) && givenLocation.getSubPath().equals(location.getSubPath())))) {
+                    && ((Strings.isNullOrEmpty(givenLocation.getSubPath()) && Strings.isNullOrEmpty(location.getSubPath()))
+                            || (!Strings.isNullOrEmpty(givenLocation.getSubPath()) && givenLocation.getSubPath().equals(location.getSubPath())))) {
                 return givenLocation;
             }
         }

@@ -15,6 +15,7 @@ import org.slf4j.helpers.MessageFormatter;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import lombok.SneakyThrows;
 
@@ -68,7 +69,7 @@ public final class AlienUtils {
      * @return A non null element.
      */
     public static <K, V> V getOrFail(Map<K, V> map, K key) {
-        return getOrFail(map, key, "The element with key <{}> cannot be found", key.toString());
+        return getOrFail(map, key, "The element with key [ {} ] cannot be found", key.toString());
     }
 
     /**
@@ -93,6 +94,21 @@ public final class AlienUtils {
             throw new NotFoundException(ft.getMessage());
         }
         return value;
+    }
+
+    /**
+     * Throw an exception if the given element exists in the map.
+     * 
+     * @param map The map to check.
+     * @param key The key for which to check unicity
+     * @param message The message in case of error.
+     * @param args The message formating arguments.
+     */
+    public static void failIfExists(Map<String, ?> map, String key, String message, Object... args) {
+        if (safe(map).containsKey(key)) {
+            FormattingTuple ft = MessageFormatter.arrayFormat(message, args);
+            throw new AlreadyExistException(ft.getMessage());
+        }
     }
 
     /**

@@ -576,7 +576,7 @@ public class ApplicationStepDefinitions {
                 appEnvRequest.setCurrentVersionId(attributeValue);
                 break;
             default:
-                log.info("Attribute <{}> not found in ApplicationEnvironmentRequest object", attribute);
+                log.info("Attribute [ {} ] not found in ApplicationEnvironmentRequest object", attribute);
                 break;
             }
         }

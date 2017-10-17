@@ -33,7 +33,7 @@ public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation>
         inputs.put(operation.getInputName(), operation.getPropertyDefinition());
         topology.setInputs(inputs);
 
-        log.debug("Add a new input <{}> for the topology <{}>.", operation.getInputName(), topology.getId());
+        log.debug("Add a new input [ {} ] for the topology [ {} ].", operation.getInputName(), topology.getId());
     }
 
     @Override

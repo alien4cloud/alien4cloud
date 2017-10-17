@@ -1,0 +1,224 @@
+# This is a mirror of the internal model and not the Tosca DSL !!
+# In the future when Tosca DSL for declarative workflow is defined, then it can be parsed and fill this configuration object
+node_workflows:
+  install:
+    # If we join state and operation dependencies, we have a node workflow
+    # initial -> creating -> create -> created -> configuring -> configure -> configured -> starting -> start -> started
+    # all set-state steps that should be created for the install workflow
+    states:
+      initial:
+        # initial -> creating
+        following_state: creating
+      creating:
+      created:
+        # created -> configuring
+        following_state: configuring
+      configuring:
+      configured:
+        # configured -> starting
+        following_state: starting
+      starting:
+      started:
+    # all call-operation steps that should be created for the install workflow
+    operations:
+      # creating -> create -> created
+      create:
+        # precondition on states to trigger the step
+        states: [ initial ]
+        preceding_state: creating
+        following_state: created
+        operation_host: SELF
+      # configuring -> configure -> configured
+      configure:
+        states: [ created ]
+        preceding_state: configuring
+        following_state: configured
+        operation_host: SELF
+      # starting -> start -> started
+      start:
+        states: [ configured ]
+        preceding_state: starting
+        following_state: started
+        operation_host: SELF
+  uninstall:
+    # If we join state and operation dependencies, we have a node workflow
+    # stopping -> stop -> stopped -> deleting -> delete -> deleted
+    # all set-state steps that should be created for the uninstall workflow
+    states:
+      stopping:
+      stopped:
+        following_state: deleting
+      deleting:
+      deleted:
+    # all call-operation steps that should be created for the uninstall workflow
+    operations:
+      # stopping -> stop -> stopped
+      stop:
+        # precondition on states to trigger the step
+        states: [ started ]
+        preceding_state: stopping
+        following_state: stopped
+        operation_host: SELF
+      # deleting -> delete -> deleted
+      delete:
+        states: [ stopped ]
+        preceding_state: deleting
+        following_state: deleted
+        operation_host: SELF
+  start:
+    states:
+      starting:
+      started:
+    operations:
+      start:
+        states: [ configured ]
+        preceding_state: starting
+        following_state: started
+        operation_host: SELF
+  stop:
+    states:
+      stopping:
+      stopped:
+    operations:
+      stop:
+        states: [ started ]
+        preceding_state: stopping
+        following_state: stopped
+        operation_host: SELF
+
+relationship_workflows:
+  install:
+    # If we join all source and operation dependencies, we have a relationship workflow
+    # source.configuring -> pre_configure_source -> source.configure -> post_configure_source -> source.configured -> source.start -> source.started -> add_target
+    # target.configuring -> pre_configure_target -> target.configure -> post_configure_target -> target.configured -> target.start -> target.started -> add_source
+    # all call-operation steps that should be created for the install workflow
+    operations:
+      pre_configure_source:
+        # source.configuring -> pre_configure_source -> source.configure
+        source:
+          preceding_state: configuring
+          following_operations: [ configure ]
+        operation_host: SOURCE
+      pre_configure_target:
+        # target.configuring -> pre_configure_target -> target.configure
+        target:
+          preceding_state: configuring
+          following_operations: [ configure ]
+        operation_host: TARGET
+      post_configure_source:
+        # source.configure -> post_configure_source -> source.configured
+        source:
+          preceding_operations: [ configure ]
+          following_state: configured
+        operation_host: SOURCE
+      post_configure_target:
+        # target.configure -> post_configure_target -> target.configured
+        target:
+          preceding_operations: [ configure ]
+          following_state: configured
+        operation_host: TARGET
+      add_source:
+        # [ source.started, target.started] -> add_source
+        source:
+          preceding_state: started
+        target:
+          preceding_state: started
+        operation_host: TARGET
+      add_target:
+        # [ source.started, target.started] -> add_target
+        source:
+          preceding_state: started
+        target:
+          preceding_state: started
+        operation_host: SOURCE
+  uninstall:
+    # If we join all source and operation dependencies, we have a relationship workflow
+    # source.stop -> remove_target -> remove_source
+    operations:
+      # source.stop -> remove_target -> remove_source
+      remove_source:
+        preceding_operations: [ remove_target ]
+        operation_host: TARGET
+      remove_target:
+        source:
+          preceding_operations: [ stop ]
+        operation_host: SOURCE
+
+  start:
+    operations:
+      add_source:
+        source:
+          preceding_operations: [ start ]
+          following_state: started
+        operation_host: TARGET
+      add_target:
+        source:
+          preceding_operations: [ start ]
+          following_state: started
+        operation_host: SOURCE
+  stop:
+    operations:
+      # source.stop -> remove_target -> remove_source
+      remove_source:
+        preceding_operations: [ remove_target ]
+        operation_host: TARGET
+      remove_target:
+        source:
+          preceding_operations: [ stop ]
+        operation_host: SOURCE
+
+relationships_weaving:
+  # This section declares dependencies between the source and the target of a relationship
+  tosca.relationships.Root:
+    install:
+      source:
+        states:
+          configuring:
+            # dependencies here are declared for the partner of the source which is the target
+            # the mirror model does not explicit something like wait_target_state as in a real DSL
+            # target.started -> source.configuring
+            preceding_state: started
+      target:
+        states:
+          configuring:
+            # source.created -> target.configuring
+            preceding_state: created
+    uninstall:
+      target:
+        states:
+          stopping:
+            # source.stopped -> target.stopping
+            preceding_state: stopped
+    start:
+      source:
+        states:
+          starting:
+            preceding_state: started
+    stop:
+      target:
+        states:
+          stopping:
+            preceding_state: stopped
+  tosca.relationships.HostedOn:
+    install:
+      source:
+        states:
+          initial:
+            # target.started -> source.initial
+            preceding_state: started
+    uninstall:
+      target:
+        states:
+          stopping:
+            # source.deleted -> target.stopping
+            preceding_state: deleted
+    start:
+      source:
+        states:
+          starting:
+            preceding_state: started
+    stop:
+      target:
+        states:
+          stopping:
+            preceding_state: stopped

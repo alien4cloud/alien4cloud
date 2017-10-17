@@ -3,15 +3,13 @@
           <!-- TOPOLOGY display -->
           <div id="topology" class="topology-column">
             <div class="topology topology-column-box">
-              <topology-rendering ng-if="view === 'RENDERED' && topology" topology="topology" dimensions="visualDimensions"
-                trigger-refresh="triggerTopologyRefresh"
+              <topology-rendering ng-if="topology" topology="topology" dimensions="visualDimensions"
                 select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true">
               </topology-rendering>
-              <topology-plan ng-if="view === 'PLAN' && topology" id="plan-graph-container"></topology-plan>
             </div>
           </div>
           <!-- runtime details -->
-          <div id="runtime-details-box" ng-show="view === 'RENDERED' && displays.details.active" class="topology-column" style="width: {{displays.details.size}}px;">
+          <div id="runtime-details-box" ng-show="displays.details.active" class="topology-column" style="width: {{displays.details.size}}px;">
             <div class="topology-column-box">
               <resizable-bar
                 id="runtime-details-box-handler"
@@ -51,7 +49,7 @@
                           </tr>
                           <tr>
                             <td class="col-md-4"><strong>{{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</strong></td>
-                            <td class="col-md-8" colspan="2">{{selectedEnvironment.name}}</td>
+                            <td class="col-md-8" colspan="2">{{environment.name}}</td>
                           </tr>
                           <tr>
                             <td class="col-md-4"><strong>{{'APPLICATIONS.VERSION.TOPOLOGY.LABEL' | translate}}</strong></td>
@@ -180,7 +178,7 @@
                     </div>
                   </div>
                 </div>
-      
+
                 <!-- Instance -->
                 <div ng-show="selectedNodeTemplate && selectedInstance">
                   <div>
@@ -274,9 +272,9 @@
                     </div>
                   </div>
                 </div>
-      
+
                 <!-- Operations -->
-      
+
                 <div ng-show="(selectedNodeTemplate || selectedInstance) && isMapNotNullOrEmpty(selectedNodeCustomInterfaces)">
                   <div id="node-instance-attributes-command" class="clickable" ng-click="isNodeOperationsCollapsed = !isNodeOperationsCollapsed">
                     <h4>
@@ -389,7 +387,7 @@
               </div>
             </div>
           </div>
-      
+
           <!-- exposed service information -->
           <div id="runtime-service-box" ng-show="view === 'RENDERED' && displays.service.active" class="topology-column" style="width: {{displays.service.size}}px;">
             <div class="topology-column-box">
@@ -401,7 +399,7 @@
                 <managed-service
                   application="application"
                   topology="topology.topology"
-                  environment="selectedEnvironment"
+                  environment="environment"
                   runtime="true",
                   close="display.set('service', false)">
                 </managed-service>
@@ -420,4 +418,3 @@
           </div>
         </div>
       </div>
-      

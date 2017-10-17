@@ -78,7 +78,7 @@ public class EditorRepositoryService {
         User user = auth == null ? null : (User) auth.getPrincipal();
         if (user != null) {
             username = user.getUsername();
-            useremail = user.getEmail() == null ? username + "@undefined.org" : user.getEmail();
+            useremail = user.getEmail();
         }
         RepositoryManager.commitAll(archiveGitPath, username, useremail, message);
     }

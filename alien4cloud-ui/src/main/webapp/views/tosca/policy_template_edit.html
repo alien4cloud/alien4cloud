@@ -1,0 +1,28 @@
+<div>
+  <!-- Properties -->
+  <div ng-if="template.properties.length > 0">
+    <div id="template-details-properties" class="clickable topology-column-content-head" ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
+      <i class="fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
+      {{'COMMON.PROPERTIES' | translate}}
+    </div>
+    <div id="details-properties-panel" class="indent" uib-collapse="isPropertiesCollapsed" >
+      <table class="table table-condensed" id="templateProperties">
+        <tr ng-repeat="propEntry in template.properties">
+          <td>
+            <property-display
+                ng-init="condensed = true"
+                definition="getPropertyDefinition(propEntry.key)"
+                property-type="getDataTypeForProperty(propEntry.key)"
+                dependencies="dependencies"
+                property-name="propEntry.key"
+                property-value="propEntry.value"
+                editable = "canEditProperty(propEntry.key)"
+                on-save="updateProperty(propertyName, propertyValue)"
+                condensed="condensed">
+            </property-display>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

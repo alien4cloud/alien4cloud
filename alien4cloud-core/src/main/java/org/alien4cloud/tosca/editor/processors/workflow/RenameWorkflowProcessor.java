@@ -3,10 +3,11 @@ package org.alien4cloud.tosca.editor.processors.workflow;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.RenameWorkflowOperation;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,12 +23,21 @@ public class RenameWorkflowProcessor extends AbstractWorkflowProcessor<RenameWor
     protected void processWorkflowOperation(RenameWorkflowOperation operation, Workflow workflow) {
         Topology topology = EditionContextManager.getTopology();
         ensureNotStandard(workflow, "standard workflow <" + workflow.getName() + "> can not be renamed");
+        String oldName = workflow.getName();
         WorkflowUtils.validateName(operation.getNewName());
         ensureUniqueness(topology, operation.getNewName());
-        log.debug("renaming workflow <{}> to <{}> from topology <{}>", workflow.getName(), operation.getNewName(), topology.getId());
+        log.debug("renaming workflow [ {} ] to [ {} ] from topology [ {} ]", workflow.getName(), operation.getNewName(), topology.getId());
         topology.getWorkflows().remove(workflow.getName());
         workflow.setName(operation.getNewName());
         topology.getWorkflows().put(workflow.getName(), workflow);
+        topology.getWorkflows().values().forEach(wf -> wf.getSteps().values().forEach(step -> {
+            if (step.getActivity() instanceof InlineWorkflowActivity) {
+                InlineWorkflowActivity inlineWorkflowActivity = (InlineWorkflowActivity) step.getActivity();
+                if (inlineWorkflowActivity.getInline().equals(oldName)) {
+                    inlineWorkflowActivity.setInline(operation.getNewName());
+                }
+            }
+        }));
     }
 
     private void ensureUniqueness(Topology topology, String name) {

@@ -102,7 +102,7 @@ public class InputsModifier implements ITopologyModifier {
         }
     }
 
-    private void processGetInput(FunctionEvaluatorContext evaluatorContext, AbstractTemplate template, Map<String, AbstractPropertyValue> properties) {
+    private void processGetInput(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template, Map<String, AbstractPropertyValue> properties) {
         for (Map.Entry<String, AbstractPropertyValue> propEntry : safe(properties).entrySet()) {
             try {
                 PropertyValue value = FunctionEvaluator.resolveValue(evaluatorContext, template, properties, propEntry.getValue());

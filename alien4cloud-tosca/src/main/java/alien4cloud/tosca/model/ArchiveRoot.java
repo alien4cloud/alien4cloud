@@ -33,15 +33,15 @@ public class ArchiveRoot {
 
     private List<ArchiveRoot> localImports;
 
-    private Map<String, RepositoryDefinition> repositories = Maps.newHashMap();
+    private Map<String, RepositoryDefinition> repositories = Maps.newLinkedHashMap();
 
-    private Map<String, DataType> dataTypes = Maps.newHashMap();
-    private Map<String, ArtifactType> artifactTypes = Maps.newHashMap();
-    private Map<String, CapabilityType> capabilityTypes = Maps.newHashMap();
-    private Map<String, RelationshipType> relationshipTypes = Maps.newHashMap();
-    private Map<String, NodeType> nodeTypes = Maps.newHashMap();
+    private Map<String, DataType> dataTypes = Maps.newLinkedHashMap();
+    private Map<String, ArtifactType> artifactTypes = Maps.newLinkedHashMap();
+    private Map<String, CapabilityType> capabilityTypes = Maps.newLinkedHashMap();
+    private Map<String, RelationshipType> relationshipTypes = Maps.newLinkedHashMap();
+    private Map<String, NodeType> nodeTypes = Maps.newLinkedHashMap();
 
-    private Map<String, PolicyType> policyTypes = Maps.newHashMap();
+    private Map<String, PolicyType> policyTypes = Maps.newLinkedHashMap();
 
     /**
      * Indicates if this archive contains tosca types (node types, relationships, capabilities, artifacts).

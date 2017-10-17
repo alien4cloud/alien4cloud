@@ -89,7 +89,6 @@ public class TopologyRequirementBoundsValidationServices {
                     int count = countRelationshipsForRequirement(reqDef.getId(), reqDef.getType(), nodeTemp.getRelationships());
                     if (count < reqDef.getLowerBound()) {
                         task.getRequirementsToImplement().add(new RequirementToSatisfy(reqDef.getId(), reqDef.getType(), reqDef.getLowerBound() - count));
-                        continue;
                     }
                 }
                 if (CollectionUtils.isNotEmpty(task.getRequirementsToImplement())) {

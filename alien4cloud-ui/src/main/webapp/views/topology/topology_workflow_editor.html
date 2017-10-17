@@ -96,6 +96,12 @@
             </div>
             <div>
               <a class="btn btn-default btn-md"
+                 ng-mouseover="workflows.addStepPreview()"
+                 ng-mouseleave="workflows.resetPreview()"
+                 ng-click="workflows.addInline()">{{'APPLICATIONS.WF.addInlineActivity' | translate}}</a>
+            </div>
+            <div>
+              <a class="btn btn-default btn-md"
                 ng-mouseover="workflows.addStepPreview()"
                 ng-mouseleave="workflows.resetPreview()"
                 ng-click="workflows.addState()">{{'APPLICATIONS.WF.addStateActivity' | translate}}</a>
@@ -103,16 +109,25 @@
           </div>
           <!-- The displayed step -->
           <div class="well wfbox" ng-if="previewWorkflowStep">
-            <h4 class="pull-left">{{previewWorkflowStep.name}}</h4>
+            <h4 class="pull-left break-word">{{previewWorkflowStep.name}}</h4>
             <i class="fa pull-right">{{workflows.getStepActivityTypeIcon(previewWorkflowStep)}}</i>
             <span class="clearfix"></span>
             <div class="row">
              <div class="col-md-3">
-               <img ng-src="img?id={{workflows.getStepNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" />
+               <img ng-if="!previewWorkflowStep.targetRelationship" ng-src="img?id={{workflows.getStepNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" />
+               <span ng-if="previewWorkflowStep.targetRelationship" >
+                 <img ng-show="!onTargetImage" ng-mouseleave="onSourceImage = false" ng-mouseenter="onSourceImage = true; onTargetImage = false" ng-src="img?id={{workflows.getStepNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" class="wf-source-rel-img"/>
+                 <img ng-show="!onSourceImage" ng-mouseleave="onTargetImage = false" ng-mouseenter="onTargetImage = true; onSourceImage = false" ng-src="img?id={{workflows.getStepTargetNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" class="wf-target-rel-img"/>
+               </span>
              </div>
               <div class="col-md-9">
-                {{'COMMON.NODE' | translate}}: <b>{{previewWorkflowStep.nodeId}}</b><br>
-               {{'APPLICATIONS.WF.host' | translate}}: <b>{{previewWorkflowStep.hostId}}</b><br>
+                <span ng-if="!previewWorkflowStep.targetRelationship && previewWorkflowStep.target">{{'COMMON.NODE' | translate}}: <b class="break-word">{{previewWorkflowStep.target}}</b><br></span>
+                <span ng-if="previewWorkflowStep.targetRelationship">
+                  {{'COMMON.SOURCE' | translate}}: <b class="break-word">{{previewWorkflowStep.target}}</b><br>
+                  {{'COMMON.RELATIONSHIP' | translate}}: <b class="break-word">{{previewWorkflowStep.targetRelationship}}</b><br>
+                  {{'COMMON.TARGET' | translate}}: <b class="break-word">{{workflows.getTargetNodeForRelationshipStep(previewWorkflowStep)}}</b><br>
+                </span>
+                <span ng-init="previewWorkflowStepHost=workflows.getStepHost(previewWorkflowStep)" ng-if="previewWorkflowStepHost">{{'APPLICATIONS.WF.host' | translate}}: <b class="break-word">{{previewWorkflowStepHost}}</b><br></span>
                {{'APPLICATIONS.WF.activity' | translate}}: <b>{{ 'APPLICATIONS.WF.' + workflows.getStepActivityType(previewWorkflowStep) | translate}}</b><br>
              </div>
            </div>
@@ -194,7 +209,7 @@
                   confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectFrom' | translate}} {{precedingNodeId}}</a>
               </div>
               <div
-                ng-repeat="followingNodeId in pinnedWorkflowStep.followingSteps">
+                ng-repeat="followingNodeId in pinnedWorkflowStep.onSuccess">
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.removeEdgePreview(pinnedWorkflowStep.name, followingNodeId)"
                   ng-mouseleave="workflows.resetPreview()"
@@ -232,7 +247,7 @@
                   confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapLeft' | translate}} ({{precedingNodeId}})</a>
               </div>
               <div
-                ng-repeat="followingNodeId in pinnedWorkflowStep.followingSteps">
+                ng-repeat="followingNodeId in pinnedWorkflowStep.onSuccess">
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.swapPreview(pinnedWorkflowStep.name, followingNodeId)"
                   ng-mouseleave="workflows.resetPreview()"
@@ -262,6 +277,18 @@
                   ng-mouseleave="workflows.resetPreview()"
                   ng-click="workflows.appendOperation(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.appendOperationActivity' | translate}}</a>
               </div>
+            <div>
+              <a class="btn btn-default btn-md"
+                 ng-mouseover="workflows.insertStepPreview(pinnedWorkflowStep.name)"
+                 ng-mouseleave="workflows.resetPreview()"
+                 ng-click="workflows.insertInline(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.insertInlineActivity' | translate}}</a>
+            </div>
+            <div>
+              <a class="btn btn-default btn-md"
+                  ng-mouseover="workflows.appendStepPreview(pinnedWorkflowStep.name)"
+                  ng-mouseleave="workflows.resetPreview()"
+                  ng-click="workflows.appendInline(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.appendInlineActivity' | translate}}</a>
+            </div>
               <div>
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.insertStepPreview(pinnedWorkflowStep.name)"

@@ -1,6 +1,10 @@
 package alien4cloud.deployment.matching.services.nodes;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -44,7 +48,7 @@ public class NodeMatcherService {
     @Inject
     private ServiceResourceService serviceResourceService;
     @Inject
-    @Lazy(true)
+    @Lazy
     private ILocationResourceService locationResourceService;
     @Inject
     private LocationMatchingConfigurationService locationMatchingConfigurationService;

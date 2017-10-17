@@ -184,8 +184,8 @@ public class ResourcePermissionService {
         void save(ISecurityEnabledResource resource);
     }
 
-    public void revokeAuthorizedEnvironmentsPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToDelete,
-            String[] environmentsToDelete, String[] environmentTypesToDelete) {
+    public void revokeAuthorizedEnvironmentsAndEnvironmentTypesPerApplication(AbstractSecurityEnabledResource resource, String[] applicationsToDelete,
+                                                                              String[] environmentsToDelete, String[] environmentTypesToDelete) {
         IResourceSaver noSave = null;
 
         if (ArrayUtils.isNotEmpty(applicationsToDelete)) {

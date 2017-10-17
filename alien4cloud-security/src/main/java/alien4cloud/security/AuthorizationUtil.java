@@ -342,7 +342,7 @@ public final class AuthorizationUtil {
     private static Group getAllUsersGroup() {
         Group group = alienGroupDao.findByName(AlienConstants.GROUP_NAME_ALL_USERS);
         if (group == null) {
-            log.warn("Default all users group <{}> not found", AlienConstants.GROUP_NAME_ALL_USERS);
+            log.warn("Default all users group [ {} ] not found", AlienConstants.GROUP_NAME_ALL_USERS);
             return null;
         }
         return group;

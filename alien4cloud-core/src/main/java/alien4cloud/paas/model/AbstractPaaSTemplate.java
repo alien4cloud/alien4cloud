@@ -7,12 +7,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import alien4cloud.paas.IPaaSTemplate;
 
 @Getter
 @Setter
-public abstract class AbstractPaaSTemplate<V extends AbstractToscaType, T extends AbstractTemplate> implements IPaaSTemplate<V> {
+public abstract class AbstractPaaSTemplate<V extends AbstractToscaType, T extends AbstractInstantiableTemplate> implements IPaaSTemplate<V> {
 
     /** The unique id for the template within the topology. */
     private String id;

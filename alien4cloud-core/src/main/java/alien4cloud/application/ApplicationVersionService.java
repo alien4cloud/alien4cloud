@@ -1,5 +1,6 @@
 package alien4cloud.application;
 
+import static alien4cloud.common.ResourceUpdateInterceptor.TopologyVersionUpdated;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienConstants.APP_WORKSPACE_PREFIX;
 
@@ -37,14 +38,10 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.common.ResourceUpdateInterceptor;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.DeleteLastApplicationVersionException;
-import alien4cloud.exception.DeleteReferencedObjectException;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.exception.ReferencedResourceException;
-import alien4cloud.exception.ReleaseReferencingSnapshotException;
+import alien4cloud.exception.*;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
@@ -53,6 +50,7 @@ import alien4cloud.model.common.Usage;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.utils.ArtifactUtil;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
@@ -78,6 +76,9 @@ public class ApplicationVersionService {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Inject
     private ICsarRepositry archiveRepositry;
+    @Inject
+    private ResourceUpdateInterceptor resourceUpdateInterceptor;
+
     private Path tempDirPath;
 
     /**
@@ -254,16 +255,19 @@ public class ApplicationVersionService {
     private ApplicationTopologyVersion createTopologyVersion(String applicationId, String version, String qualifier, String description, Topology topology) {
         String oldArchiveName = topology.getArchiveName();
         String oldArchiveVersion = topology.getArchiveVersion();
+
         // Every version of an application has a Cloud Service Archive
         String delegateType = ArchiveDelegateType.APPLICATION.toString();
         Csar csar = new Csar(applicationId, version);
         csar.setWorkspace(APP_WORKSPACE_PREFIX + ":" + applicationId);
         csar.setDelegateId(applicationId);
         csar.setDelegateType(delegateType);
-
         if (oldArchiveName != null && oldArchiveVersion != null) {
             // Change all artifact references to the newly created archive if it's a copy
             ArtifactUtil.changeTopologyArtifactReferences(topology, csar);
+            csar.setToscaDefinitionsVersion(csarService.getOrFail(new Csar(oldArchiveName, oldArchiveVersion).getId()).getToscaDefinitionsVersion());
+        } else {
+            csar.setToscaDefinitionsVersion(ToscaParser.LATEST_DSL);
         }
         topology.setArchiveName(csar.getName());
         topology.setArchiveVersion(csar.getVersion());
@@ -543,6 +547,8 @@ public class ApplicationVersionService {
 
             // save the new version
             alienDAO.save(newApplicationVersion);
+
+            resourceUpdateInterceptor.runOnTopologyVersionReleased(new TopologyVersionUpdated(applicationVersion, newApplicationVersion));
 
             // update topology versions on related objects: (environments, deploymentTopologies)
             updateTopologyVersion(relatedEnvironments, applicationVersion, newApplicationVersion);

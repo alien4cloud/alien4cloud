@@ -34,20 +34,20 @@
           <th>{{ 'COMMON.VERSION' | translate}}</th>
           <th>{{ 'COMMON.SOURCE' | translate}}</th>
           <th>{{ 'COMMON.DESCRIPTION' | translate}}</th>
-          <th>{{ 'COMMON.CONTENT' | translate}}</th>
+          <th class="center">{{ 'COMMON.CONTENT' | translate}}</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="csar in queryManager.searchResult.data" ng-click="openCsar(csar.id)" id="csar_{{csar.id}}" name="csar_{{csar.id}}" class="clickable">
-          <td>
+          <td class="td-icon">
             <i class="pull-left media-object fa fa-archive fa-2x"></i>
           </td>
           <td>{{csar.name}}</td>
           <td>{{csar.version}}</td>
           <td>{{csar.importSource || '---' }}</td>
           <td>{{csar.description || '---' }}</td>
-          <td ng-init="empty=!csar.hasTopology && csar.nodeTypesCount==0">
+          <td ng-init="empty=!csar.hasTopology && csar.nodeTypesCount==0" class="center">
             <span ng-if="!empty">
               <i ng-if="csar.hasTopology" style="margin-right: 5px" class="fa fa-sitemap"></i>
               <span ng-if="csar.nodeTypesCount>0">

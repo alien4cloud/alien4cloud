@@ -36,7 +36,7 @@ public class MapMappingBuilder implements IMappingBuilder {
     public MappingTarget buildMapping(MappingNode mappingNode, ParsingContextExecution context) {
         Map<String, String> map = ParserUtils.parseStringMap(mappingNode, context);
         if (map.containsKey(TYPE) && map.containsKey(LIST_TYPE)) {
-            log.warn("Both field <{}> and <{}> exist in your mapping. If it's defined <{}> will override the <{}>.", TYPE, LIST_TYPE, LIST_TYPE, TYPE);
+            log.warn("Both field [ {} ] and [ {} ] exist in your mapping. If it's defined [ {} ] will override the [ {} ].", TYPE, LIST_TYPE, LIST_TYPE, TYPE);
         }
         // default mapping for simple type or for a list_type if defined
         MappingTarget mappingTarget = new MappingTarget(map.get(MAP),

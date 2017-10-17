@@ -2,10 +2,10 @@ package org.alien4cloud.tosca.editor.processors.workflow;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.RenameStepOperation;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.springframework.stereotype.Component;
 
-import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.paas.wf.Workflow;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -19,8 +19,8 @@ public class RenameStepProcessor extends AbstractWorkflowProcessor<RenameStepOpe
     @Override
     protected void processWorkflowOperation(RenameStepOperation operation, Workflow workflow) {
         Topology topology = EditionContextManager.getTopology();
-        log.debug("renaming step <{}> to <{}> in workflow <{}> from topology <{}>", operation.getStepId(), operation.getNewName(), workflow.getName(),
+        log.debug("renaming step [ {} ] to [ {} ] in workflow [ {} ] from topology [ {} ]", operation.getStepId(), operation.getNewName(), workflow.getName(),
                 topology.getId());
-        workflowBuilderService.renameStep(topology, workflow.getName(), operation.getStepId(), operation.getNewName());
+        workflowBuilderService.renameStep(topology, EditionContextManager.getCsar(), workflow.getName(), operation.getStepId(), operation.getNewName());
     }
 }

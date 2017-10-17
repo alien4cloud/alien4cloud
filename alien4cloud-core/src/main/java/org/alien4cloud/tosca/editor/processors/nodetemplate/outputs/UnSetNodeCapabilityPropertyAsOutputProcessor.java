@@ -36,7 +36,7 @@ public class UnSetNodeCapabilityPropertyAsOutputProcessor extends AbstractNodePr
         removeAndClean(operation, outputs);
         topology.setOutputCapabilityProperties(outputs);
 
-        log.debug("Set node<{}> capability <{}>'s property <{}> as output for the topology <{}>.", operation.getNodeName(), operation.getCapabilityName(),
+        log.debug("Set node[ {} ] capability [ {} ]'s property [ {} ] as output for the topology [ {} ].", operation.getNodeName(), operation.getCapabilityName(),
                 operation.getPropertyName(), topology.getId());
     }
 

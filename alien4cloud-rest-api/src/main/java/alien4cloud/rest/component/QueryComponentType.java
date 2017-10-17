@@ -1,17 +1,21 @@
 package alien4cloud.rest.component;
 
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
 
 /**
  * Enumeration of the components types available for search.
  */
 public enum QueryComponentType {
-    NODE_TYPE(NodeType.class), CAPABILITY_TYPE(CapabilityType.class), RELATIONSHIP_TYPE(RelationshipType.class), ARTIFACT_TYPE(
-            ArtifactType.class);
+    NODE_TYPE(NodeType.class),
+    CAPABILITY_TYPE(CapabilityType.class),
+    RELATIONSHIP_TYPE(RelationshipType.class),
+    ARTIFACT_TYPE(ArtifactType.class),
+    POLICY_TYPE(PolicyType.class);
 
     private final Class<? extends AbstractToscaType> indexedToscaElementClass;
 

@@ -15,9 +15,21 @@ define(function(require) {
     }
   ]);
 
+  modules.get('a4c-orchestrators', ['a4c-common']).factory('locationPoliciesService', ['$alresource',
+    function($alresource) {
+      return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/policies/:id');
+    }
+  ]);
+
   modules.get('a4c-orchestrators', ['a4c-common']).factory('locationResourcesPropertyService', ['$alresource',
     function($alresource) {
       return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:id/template/properties');
+    }
+  ]);
+
+  modules.get('a4c-orchestrators', ['a4c-common']).factory('locationPoliciesPropertyService', ['$alresource',
+    function($alresource) {
+      return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/policies/:id/template/properties');
     }
   ]);
 
@@ -26,11 +38,11 @@ define(function(require) {
       return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:id/template/capabilities/:capabilityName/properties');
     }
   ]);
-  
+
   modules.get('a4c-orchestrators', [ 'a4c-common' ]).factory('locationResourcesPortabilityService', ['$alresource',
     function($alresource) {
       return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:id/template/portability');
     }
   ]);
-  
+
 });

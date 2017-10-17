@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 @RestController
 @RequestMapping({ "/rest/v1/services/{serviceId}/security/", "/rest/latest/services/{serviceId}/security/" })
 @Api(value = "", description = "Allow to grant/revoke services authorizations")
@@ -168,7 +170,7 @@ public class ServiceSecurityController {
      *******************************************************************************************************************************/
 
     /**
-     * Revoke the application's authorisation to access the location (including all related environments).
+     * Revoke the application's authorisation to access the location (including all related environments and environment types).
      *
      * @param serviceId The id of the location.
      * @param applicationId The authorized application.
@@ -185,18 +187,27 @@ public class ServiceSecurityController {
         ApplicationEnvironment[] aes = applicationEnvironmentService.getByApplicationId(applicationId);
         String[] envIds = Arrays.stream(aes).map(ae -> ae.getId()).toArray(String[]::new);
         resourcePermissionService.revokePermission(service, Subject.ENVIRONMENT, envIds);
+
+        // remove all environments types related to this application
+        Set<String> envTypeIds = Sets.newHashSet();
+        for (String envType : safe(service.getEnvironmentTypePermissions()).keySet()) {
+            if (envType.contains(applicationId)) {
+                envTypeIds.add(envType);
+            }
+        }
+        resourcePermissionService.revokePermission(service, Subject.ENVIRONMENT_TYPE, envTypeIds.toArray(new String[envTypeIds.size()]));
         return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
-     * Update applications/environments authorized to access the location.
+     * Update applications, environments and environment types authorized to access the location.
      */
-    @ApiOperation(value = "Update applications/environments authorized to access the service resource", notes = "Only user with ADMIN role can update authorized applications/environments for the location.")
+    @ApiOperation(value = "Update applications, environments and environment types authorized to access the service resource", notes = "Only user with ADMIN role can update authorized applications, environments and environment types for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public synchronized RestResponse<Void> updateAuthorizedEnvironmentsPerApplication(@PathVariable String serviceId, @RequestBody ApplicationEnvironmentAuthorizationUpdateRequest request) {
         ServiceResource service = serviceResourceService.getOrFail(serviceId);
-        resourcePermissionService.revokeAuthorizedEnvironmentsPerApplication(service, request.getApplicationsToDelete(), request.getEnvironmentsToDelete(), request.getEnvironmentTypesToDelete());
+        resourcePermissionService.revokeAuthorizedEnvironmentsAndEnvironmentTypesPerApplication(service, request.getApplicationsToDelete(), request.getEnvironmentsToDelete(), request.getEnvironmentTypesToDelete());
         resourcePermissionService.grantAuthorizedEnvironmentsAndEnvTypesPerApplication(service, request.getApplicationsToAdd(), request.getEnvironmentsToAdd(), request.getEnvironmentTypesToAdd());
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -206,7 +217,7 @@ public class ServiceSecurityController {
      *
      * @return list of all environments per application.
      */
-    @ApiOperation(value = "List all applications/environments authorized to access the service resource", notes = "Only user with ADMIN role can list authorized applications/environments for the location.")
+    @ApiOperation(value = "List all applications, environments and environment types authorized to access the service resource", notes = "Only user with ADMIN role can list authorized applications, environments and environment types for the location.")
     @RequestMapping(value = "/environmentsPerApplication", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<ApplicationEnvironmentAuthorizationDTO>> getAuthorizedEnvironmentsPerApplication(@PathVariable String serviceId) {
@@ -214,6 +225,7 @@ public class ServiceSecurityController {
         List<Application> applicationsRelatedToEnvironment = Lists.newArrayList();
         List<Application> applicationsRelatedToEnvironmentType = Lists.newArrayList();
         List<ApplicationEnvironment> environments = Lists.newArrayList();
+        List<String> environmentTypes = Lists.newArrayList();
         List<Application> applications = Lists.newArrayList();
 
         if (service.getEnvironmentPermissions() != null && service.getEnvironmentPermissions().size() > 0) {
@@ -223,8 +235,9 @@ public class ServiceSecurityController {
         }
 
         if (service.getEnvironmentTypePermissions() != null && service.getEnvironmentTypePermissions().size() > 0) {
+            environmentTypes.addAll(service.getEnvironmentTypePermissions().keySet());
             Set<String> environmentTypeApplicationIds = Sets.newHashSet();
-            for (String envType : service.getEnvironmentTypePermissions().keySet()) {
+            for (String envType : safe(service.getEnvironmentTypePermissions()).keySet()) {
                 environmentTypeApplicationIds.add(envType.split(":")[0]);
             }
             applicationsRelatedToEnvironmentType = alienDAO.findByIds(Application.class, environmentTypeApplicationIds.toArray(new String[environmentTypeApplicationIds.size()]));
@@ -234,7 +247,7 @@ public class ServiceSecurityController {
             applications = alienDAO.findByIds(Application.class, service.getApplicationPermissions().keySet().toArray(new String[service.getApplicationPermissions().size()]));
         }
 
-        List<ApplicationEnvironmentAuthorizationDTO> result = ApplicationEnvironmentAuthorizationDTO.buildDTOs(applicationsRelatedToEnvironment, applicationsRelatedToEnvironmentType, environments, applications, Lists.newArrayList());
+        List<ApplicationEnvironmentAuthorizationDTO> result = ApplicationEnvironmentAuthorizationDTO.buildDTOs(applicationsRelatedToEnvironment, applicationsRelatedToEnvironmentType, environments, applications, environmentTypes);
         return RestResponseBuilder.<List<ApplicationEnvironmentAuthorizationDTO>> builder().data(result).build();
     }
 

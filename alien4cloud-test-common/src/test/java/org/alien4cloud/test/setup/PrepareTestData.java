@@ -30,10 +30,13 @@ public class PrepareTestData {
             log.error("Failed to delete zipped archives repository.", e);
         }
 
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "master",
+                "tosca-normative-types-1.0.0-ALIEN14");
+
         repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.0.0.wd06.alien",
                 "tosca-normative-types-wd06");
 
-        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.4.0-SM4",
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "tests/2.0.0",
                 "tosca-normative-types-1.0.0-SNAPSHOT");
 
         // TODO: Tests stills runs on wd03 data based on 1.1.0-SM4 tag
@@ -42,6 +45,8 @@ public class PrepareTestData {
 
         repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "1.3.0",
                 "alien4cloud-extended-types-V2");
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "tests/2.0.0",
+                "alien4cloud-extended-types-2.0.0-SNAPSHOT");
         repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/samples.git", "1.4.0-RC1", "samples");
 
         for (Map.Entry<Path, Path> entry : TestDataRegistry.SOURCE_TO_TARGET_ARTIFACT_MAPPING.entrySet()) {

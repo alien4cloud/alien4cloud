@@ -32,21 +32,11 @@
         <b>{{'ORCHESTRATORS.LOCATIONS.ENVIRONMENT_TYPE' | translate}}:</b>
         <select ng-model="uiModel.locationDTO.location.environmentType" ng-change="updateLocation({'environmentType': uiModel.locationDTO.location.environmentType})" ng-options="'CLOUDS.ENVIRONMENT.'+env | translate for env in envTypes"></select> <i class="fa" assass="{'fa-spinner fa-spin': saving, 'text-success fa-check': savedSuccess, 'text-danger fa-times': savedError}"></i>
       </div>
-    </div>
-    <div class="row" style="margin-top: 10px">
-      <div class="col-md-12">
-        <ul class="nav nav-tabs">
-          <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active">
-            <a id="{{menuItem.id}}"
-               ng-click="onItemClick($event, menuItem)"
-               ui-sref="{{menuItem.state}}"
-               ng-class="{'disabled' : menuItem.disabled}">
-              <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
-            </a>
-          </li>
-        </ul>
-        <div class="tab-pane" ui-view></div>
+
+      <!-- tabs for location configuration states -->
+      <div class="col-md-12 grp-margin" ng-include="'views/_ref/layout/tab_menu_layout.html'">
       </div>
+
     </div>
   </div>
 </div>

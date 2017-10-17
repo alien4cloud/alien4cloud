@@ -6,5 +6,6 @@ Feature: Topology editor: Ensure tests environment
 
 
     And I upload CSAR from path "../target/it-artifacts/tosca-normative-types-1.0.0-SNAPSHOT.csar"
+    And I upload CSAR from path "../target/it-artifacts/alien-base-types-2.0.0-SNAPSHOT.csar"
     And I upload CSAR from path "../target/it-artifacts/tosca-base-types-1.0.csar"
     And I upload CSAR from path "../target/it-artifacts/java-types-1.0.csar"

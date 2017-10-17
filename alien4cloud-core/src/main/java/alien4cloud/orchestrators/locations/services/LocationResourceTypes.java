@@ -6,6 +6,7 @@ import java.util.Set;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -33,13 +34,16 @@ public class LocationResourceTypes {
     private Map<String, NodeType> allNodeTypes = Maps.newHashMap();
     @ApiModelProperty(value = "Map that contains the on demdand types.")
     private Map<String, NodeType> onDemandTypes = Maps.newHashMap();
+    @ApiModelProperty(value = "Map of policy types id, policy type used to configure the templates of policies in a location.")
+    private Map<String, PolicyType> policyTypes = Maps.newHashMap();
 
-    public LocationResourceTypes(LocationResourceTypes locationResourceTypes) {
-        this.configurationTypes = locationResourceTypes.getConfigurationTypes();
-        this.nodeTypes = locationResourceTypes.getNodeTypes();
-        this.dataTypes = locationResourceTypes.getDataTypes();
-        this.capabilityTypes = locationResourceTypes.getCapabilityTypes();
-        this.allNodeTypes = locationResourceTypes.getAllNodeTypes();
-        this.onDemandTypes = locationResourceTypes.getOnDemandTypes();
+    public void addFrom(LocationResourceTypes locationResourceTypes) {
+        this.configurationTypes.putAll(locationResourceTypes.getConfigurationTypes());
+        this.nodeTypes.putAll(locationResourceTypes.getNodeTypes());
+        this.dataTypes.putAll(locationResourceTypes.getDataTypes());
+        this.capabilityTypes.putAll(locationResourceTypes.getCapabilityTypes());
+        this.allNodeTypes.putAll(locationResourceTypes.getAllNodeTypes());
+        this.onDemandTypes.putAll(locationResourceTypes.getOnDemandTypes());
+        this.policyTypes.putAll(locationResourceTypes.getPolicyTypes());
     }
 }

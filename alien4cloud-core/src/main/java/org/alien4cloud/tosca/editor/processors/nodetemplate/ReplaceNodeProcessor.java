@@ -1,12 +1,9 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import alien4cloud.topology.TopologyUtils;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
@@ -19,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyUtils;
+import alien4cloud.tosca.topology.TemplateBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -47,7 +46,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         newType = topologyService.loadType(topology, newType);
 
         // Build the new one
-        NodeTemplate newNodeTemplate = NodeTemplateBuilder.buildNodeTemplate(newType, oldNodeTemplate, false);
+        NodeTemplate newNodeTemplate = TemplateBuilder.buildNodeTemplate(newType, oldNodeTemplate, false);
         newNodeTemplate.setName(operation.getNodeName());
 
         newNodeTemplate.setName(oldNodeTemplate.getName());
@@ -58,7 +57,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         // Unload and remove old node template
         topologyService.unloadType(topology, oldNodeTemplate.getType());
         // remove the node from the workflows
-        workflowBuilderService.removeNode(topology, oldNodeTemplate.getName(), oldNodeTemplate);
+        workflowBuilderService.removeNode(topology, EditionContextManager.getCsar(), oldNodeTemplate.getName());
 
         // FIXME we should remove outputs/inputs, others here ?
         if (topology.getSubstitutionMapping() != null) {
@@ -66,23 +65,17 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
             removeNodeTemplateSubstitutionTargetMapEntry(oldNodeTemplate.getName(), topology.getSubstitutionMapping().getRequirements());
         }
 
-        log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", oldNodeTemplate.getName(),
+        log.debug("Replacing the node template[ {} ] with [ {} ] bound to the node type [ {} ] on the topology [ {} ] .", oldNodeTemplate.getName(),
                 oldNodeTemplate.getName(), operation.getNewTypeId(), topology.getId());
 
         // add the new node to the workflow
-        workflowBuilderService.addNode(workflowBuilderService.buildTopologyContext(topology), oldNodeTemplate.getName(), newNodeTemplate);
+        workflowBuilderService.addNode(workflowBuilderService.buildTopologyContext(topology, EditionContextManager.getCsar()), oldNodeTemplate.getName());
     }
 
     private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {
         if (substitutionTargets == null) {
             return;
         }
-        Iterator<Map.Entry<String, SubstitutionTarget>> capabilities = substitutionTargets.entrySet().iterator();
-        while (capabilities.hasNext()) {
-            Map.Entry<String, SubstitutionTarget> e = capabilities.next();
-            if (e.getValue().getNodeTemplateName().equals(nodeTemplateName)) {
-                capabilities.remove();
-            }
-        }
+        substitutionTargets.entrySet().removeIf(e -> e.getValue().getNodeTemplateName().equals(nodeTemplateName));
     }
 }

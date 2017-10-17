@@ -87,11 +87,11 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
         GetResponse response = getClient().prepareGet(indexName, typeName, id).execute().actionGet();
 
         if (response == null || !response.isExists()) {
-            ESIndexMapper.getLog().debug("Nothing found in index <{}>, type <{}>, for Id <{}>.", indexName, typeName, id);
+            ESIndexMapper.getLog().debug("Nothing found in index [ {} ], type [ {} ], for Id [ {} ].", indexName, typeName, id);
             return null;
         }
 
-        ESIndexMapper.getLog().debug("Found one in index <{}>, type <{}>, for Id <{}>.", indexName, typeName, id);
+        ESIndexMapper.getLog().debug("Found one in index [ {} ], type [ {} ], for Id [ {} ].", indexName, typeName, id);
 
         if (abstractType) {
             return (T) getJsonMapper().readValue(response.getSourceAsString(), getTypesToClasses().get(response.getType()));
@@ -108,7 +108,7 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
         MultiGetResponse response = getClient().prepareMultiGet().add(indexName, typeName, ids).execute().actionGet();
 
         if (response == null || response.getResponses() == null || response.getResponses().length == 0) {
-            ESIndexMapper.getLog().debug("Nothing found in index <{}>, type <{}>, for Ids <{}>.", indexName, typeName, Arrays.toString(ids));
+            ESIndexMapper.getLog().debug("Nothing found in index [ {} ], type [ {} ], for Ids [ {} ].", indexName, typeName, Arrays.toString(ids));
             return null;
         }
 

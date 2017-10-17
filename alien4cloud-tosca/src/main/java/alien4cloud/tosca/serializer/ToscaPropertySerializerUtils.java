@@ -1,17 +1,12 @@
 package alien4cloud.tosca.serializer;
 
+import alien4cloud.paas.exception.NotSupportedException;
+import org.alien4cloud.tosca.model.definitions.*;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
-import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
-
-import alien4cloud.paas.exception.NotSupportedException;
 
 public class ToscaPropertySerializerUtils {
 
@@ -146,9 +141,9 @@ public class ToscaPropertySerializerUtils {
         return buffer.toString();
     }
 
-    public static String formatProperties(int indentLevel, Map<String, AbstractPropertyValue> properties) {
+    public static String formatProperties(int indentLevel, Map<String, ? extends AbstractPropertyValue> properties) {
         StringBuilder buffer = new StringBuilder();
-        for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
+        for (Map.Entry<String, ? extends AbstractPropertyValue> propertyEntry : properties.entrySet()) {
             if (propertyEntry.getValue() != null) {
                 if (propertyEntry.getValue() instanceof PropertyValue && ((PropertyValue) propertyEntry.getValue()).getValue() == null) {
                     continue;

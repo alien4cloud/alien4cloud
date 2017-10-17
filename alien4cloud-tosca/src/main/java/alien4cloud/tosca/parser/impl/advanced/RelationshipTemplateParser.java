@@ -4,24 +4,29 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.tosca.parser.ParserUtils;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import alien4cloud.tosca.parser.impl.base.MapParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
 /**
  * Parse a relationship
  */
+@Deprecated
 @Component
 public class RelationshipTemplateParser implements INodeParser<RelationshipTemplate> {
     @Resource

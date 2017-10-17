@@ -324,8 +324,8 @@
     },
     "WF": {
       "DelegateWorkflowActivity": "Delegate workflow",
-      "OperationCallActivity": "Operation call",
-      "SetStateActivity": "State change",
+      "CallOperationWorkflowActivity": "Operation call",
+      "SetStateWorkflowActivity": "State change",
       "activity": "Activity",
       "addOperationActivity": "Add operation call",
       "addStateActivity": "Add state change",
@@ -462,7 +462,10 @@
     "NAME": "名称",
     "NO": "号",
     "NODE": "节点",
+    "PATH": "Path",
+    "PASSWORD": "Password",
     "PROPERTIES": "属性",
+    "RELATIONSHIP": "Relationship",
     "RESOURCES": "资源",
     "SOURCE": "来源",
     "STATE": "状态",
@@ -581,7 +584,8 @@
       "YAML_SCALAR_NODE_EXPECTED": "此处需要可扩展类型的YAML节点。",
       "YAML_SEQUENCE_EXPECTED": "需要YAML序列。",
       "CSAR_IMPORT_ITSELF": "不允许工件导入自身。",
-      "UNSUPPORTED_SUBSTITUTION": "不可替换定义类型的工件。"
+      "UNSUPPORTED_SUBSTITUTION": "不可替换定义类型的工件。",
+      "POLICY_TARGET_NOT_FOUND": "Policy target [{{note}}] cannot be found"
     },
     "VALIDSOURCES": "有效代码",
     "WORKSPACE": "工作区"
@@ -883,6 +887,13 @@
       "pattern": "值必须匹配模式 {{reference}}"
     }
   },
+  "GIT" : {
+    "CONFIGURE_TITLE" : "Git configuration",
+    "ALIEN_MANAGED" : "A4C",
+    "USER_MANAGED": "Manually",
+    "BRANCH": "Branch",
+    "MANAGED_BY": "Managed by" 
+  },
   "GROUPS": {
     "AUTHORIZED": "被授权的组",
     "EDIT_GROUPS": "编辑组",
@@ -932,6 +943,14 @@
     "MENU_TOPOLOGY": "拓扑",
     "MENU_USERS": "用户和组",
     "MENU_VERSIONS": "版本"
+  },
+  "NAVCATALOG": {
+    "ARCHIVES_PROMOTION": "Archives promotion requests",
+    "BROWSE_COMPONENTS": "Browse components",
+    "MANAGE_ARCHIVES": "Manage archives",
+    "BROWSE_TOPOLOGIES": "Browse topologies",
+    "BROWSE_POLICIES": "Browse policies",
+    "TOPOLOGIES": "Topologies"
   },
   "NAVBAR": {
     "BUTTON_LOGIN": "登录",

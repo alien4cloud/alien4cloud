@@ -15,6 +15,7 @@ define(function(require) {
         return {
           process: function(deploymentTopology) {
             topologyJsonProcessor.process(deploymentTopology);
+            console.log(deploymentTopology);
             if (!_.isEmpty(deploymentTopology.topology.substitutedNodes) && _.defined(deploymentTopology.availableSubstitutions.substitutionsTemplates)) {
               for (var nodeId in deploymentTopology.topology.substitutedNodes) {
                 if (deploymentTopology.topology.substitutedNodes.hasOwnProperty(nodeId)) {
@@ -23,6 +24,15 @@ define(function(require) {
                   deploymentTopology.topology.substitutedNodes[nodeId].template = deploymentTopology.topology.nodeTemplates[nodeId];
                 }
               }
+            }
+
+            if (!_.isEmpty(deploymentTopology.topology.substitutedPolicies) && _.defined(deploymentTopology.availableSubstitutions.substitutionsPoliciesTemplates)) {
+              _.forEach(deploymentTopology.topology.substitutedPolicies, function(templateId, policyId){
+                deploymentTopology.topology.substitutedPolicies[policyId] = _.clone(deploymentTopology.availableSubstitutions.substitutionsPoliciesTemplates[templateId]);
+                deploymentTopology.topology.substitutedPolicies[policyId].template = deploymentTopology.topology.policies[policyId];
+
+              });
+
             }
             if (_.defined(deploymentTopology.availableSubstitutions)) {
               this.processSubstitutionResources(deploymentTopology.availableSubstitutions);
@@ -46,6 +56,17 @@ define(function(require) {
                 locationResourcesProcessor.processLocationResourceTemplates(substitutionResources.availableSubstitutions[nodeId]);
               }
             }
+
+            //policies
+            var availablePoliciesSubstitutionsIds = substitutionResources.availablePoliciesSubstitutions;
+            substitutionResources.availablePoliciesSubstitutions = {};
+            _.forEach(availablePoliciesSubstitutionsIds, function(value, policyId){
+              substitutionResources.availablePoliciesSubstitutions[policyId] = _.map(value, function(resourceId){
+                return substitutionResources.substitutionsPoliciesTemplates[resourceId];
+              });
+            });
+            listToMapService.processMap(substitutionResources.substitutionTypes.policyTypes, 'properties');
+            locationResourcesProcessor.processTemplates(substitutionResources.availablePoliciesSubstitutions);
           }
         };
       } // function

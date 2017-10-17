@@ -558,19 +558,37 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
     }
 
+    private NodeType getMockedCompute() {
+        NodeType mockedCompute = new NodeType();
+        mockedCompute.setArchiveName("tosca-normative-types");
+        mockedCompute.setArchiveVersion("1.0.0.wd03-SNAPSHOT");
+        CapabilityDefinition capabilityDefinition = new CapabilityDefinition("host", "tosca.capabilities.Container", Integer.MAX_VALUE);
+        mockedCompute.setCapabilities(Lists.newArrayList(capabilityDefinition));
+        mockedCompute.setElementId("tosca.nodes.Compute");
+        return mockedCompute;
+    }
+
+    private NodeType getMockedSoftwareComponent() {
+        NodeType mockedSoftware = new NodeType();
+        mockedSoftware.setArchiveName("tosca-normative-types");
+        mockedSoftware.setArchiveVersion("1.0.0.wd03-SNAPSHOT");
+        RequirementDefinition hostRequirement = new RequirementDefinition("host", "tosca.capabilities.Container", null, "", "tosca.relationships.HostedOn",
+                "host", 1, Integer.MAX_VALUE, null);
+        mockedSoftware.setRequirements(Lists.<RequirementDefinition> newArrayList(hostRequirement));
+        mockedSoftware.setElementId("tosca.nodes.SoftwareComponent");
+        return mockedSoftware;
+    }
+
     @Test
     public void testParseTopologyReferenceToNormative() throws FileNotFoundException, ParsingException {
         Csar csar = new Csar("tosca-normative-types", "1.0.0.wd03-SNAPSHOT");
 
-        NodeType mockedCompute = Mockito.mock(NodeType.class);
-        NodeType mockedSoftware = Mockito.mock(NodeType.class);
+        NodeType mockedCompute = getMockedCompute();
+        NodeType mockedSoftware = getMockedSoftwareComponent();
+
         CapabilityType mockedContainer = Mockito.mock(CapabilityType.class);
-        RequirementDefinition hostRequirement = new RequirementDefinition("host", "tosca.capabilities.Container", null, "", "tosca.relationships.HostedOn",
-                "host", 1, Integer.MAX_VALUE, null);
-        Mockito.when(mockedSoftware.getRequirements()).thenReturn(Lists.<RequirementDefinition> newArrayList(hostRequirement));
-        Mockito.when(mockedSoftware.getElementId()).thenReturn("tosca.nodes.SoftwareComponent");
-        CapabilityDefinition capabilityDefinition = new CapabilityDefinition("host", "tosca.capabilities.Container", Integer.MAX_VALUE);
-        Mockito.when(mockedCompute.getCapabilities()).thenReturn(Lists.newArrayList(capabilityDefinition));
+        Mockito.when(mockedContainer.getElementId()).thenReturn("tosca.capabilities.Container");
+
         Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                 Mockito.any(Set.class))).thenReturn(mockedSoftware);
         Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Container"),
@@ -591,22 +609,13 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
     }
 
     @Test
-    public void testParseTopologyWirhWorkflows() throws FileNotFoundException, ParsingException {
+    public void testParseTopologyWithWorkflows() throws FileNotFoundException, ParsingException {
         Csar csar = new Csar("tosca-normative-types", "1.0.0.wd03-SNAPSHOT");
-        // Mockito.when(csarRepositorySearchService.getArchive(csar.getId())).thenReturn(csar);
 
-        NodeType mockedSoftware = Mockito.mock(NodeType.class);
+        NodeType mockedCompute = getMockedCompute();
+        NodeType mockedSoftware = getMockedSoftwareComponent();
         CapabilityType mockedContainer = Mockito.mock(CapabilityType.class);
         Mockito.when(mockedContainer.getElementId()).thenReturn("tosca.capabilities.Container");
-        RequirementDefinition hostRequirement = new RequirementDefinition("host", "tosca.capabilities.Container", null, "", "tosca.relationships.HostedOn",
-                "host", 1, Integer.MAX_VALUE, null);
-        Mockito.when(mockedSoftware.getRequirements()).thenReturn(Lists.<RequirementDefinition> newArrayList(hostRequirement));
-        Mockito.when(mockedSoftware.getElementId()).thenReturn("tosca.nodes.SoftwareComponent");
-
-        NodeType mockedCompute = Mockito.mock(NodeType.class);
-        CapabilityDefinition capabilityDefinition = new CapabilityDefinition("host", "tosca.capabilities.Container", Integer.MAX_VALUE);
-        Mockito.when(mockedCompute.getCapabilities()).thenReturn(Lists.newArrayList(capabilityDefinition));
-        Mockito.when(mockedCompute.getElementId()).thenReturn("tosca.nodes.Compute");
 
         Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                 Mockito.any(Set.class))).thenReturn(mockedSoftware);

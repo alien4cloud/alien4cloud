@@ -1,0 +1,56 @@
+<div class="topology-column-content-head">
+  <span>
+    <i class="fa fa-list-alt"></i> {{'COMMON.GROUPS' | translate}}
+  </span>
+  <span id='closeGroups' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('groups')">
+    <i class="fa fa-remove close-panel"></i>
+  </span>
+</div>
+<div ng-repeat="group in orderedNodeGroups">
+  <div id="group-details-{{group.name}}-header" class="clickable" ng-click="groupCollapsed[group.name].main = !groupCollapsed[group.name].main">
+    <h4>
+      <i class=" fa {{groups.getColorCss(group.name)}}" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].main, 'fa-caret-right': groupCollapsed[group.name].main}"></i>
+      <span editable-text="group.name" id="nodeGroupName_{{group.name}}" buttons="no" e-required onbeforesave="groups.updateName(group.name, $data)" blur="submit"
+        ng-click="$event.stopPropagation();">
+        {{group.name}}
+        <i class="fa fa-pencil-square-o"></i>
+      </span>
+      <delete-confirm id="btn-delete-group-{{group.name}}" func="groups.delete(group.name)" position="left" class="pull-right" bssize="btn-xs" fastyle="fa-trash-o">
+      </delete-confirm>
+    </h4>
+  </div>
+  <div id="group-details-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].main" >
+    <div id="group-members-{{group.name}}-header" class="clickable"
+         ng-click="groupCollapsed[group.name].members = !groupCollapsed[group.name].members">
+      <h5>
+        <i class=" fa" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].members, 'fa-caret-right': groupCollapsed[group.name].members}"></i>
+        {{'APPLICATIONS.TOPOLOGY.GROUPS.MEMBERS' | translate}}
+      </h5>
+    </div>
+    <div id="group-members-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].members" class="facet-choice">
+      <ul class="nav facet-choice">
+        <li ng-repeat="member in group.members">
+          <a href="" id="removeMember_{{member}}_from_{{group.name}}" confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
+            confirm-handler="groups.removeMember(group.name, member)" confirm-placement="bottom" confirm-class="popover"
+            ng-click="$event.stopPropagation();" >
+            <span>{{member}}</span>&nbsp;
+            <i class="fa fa-times"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div id="group-policies-{{group.name}}-header" class="clickable"
+         ng-click="groupCollapsed[group.name].policies = !groupCollapsed[group.name].policies">
+      <h5>
+        <i class=" fa" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].policies, 'fa-caret-right': groupCollapsed[group.name].policies}"></i>
+        {{'POLICIES' | translate}}
+      </h5>
+    </div>
+    <div id="group-policies-{{group.name}}-content" uib-collapse="groupCollapsed[group.name].policies" >
+       <div ng-repeat="policy in group.policies">
+         <li>{{policy.type}}</li>
+       </div>
+    </div>
+  </div>
+  <span class="clearfix"></span>
+</div>

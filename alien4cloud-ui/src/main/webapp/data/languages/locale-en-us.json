@@ -27,7 +27,9 @@
         "SERVICE": "Service information",
         "SERVICE_HELP": "Below are the defined properties and attributes of the matched service.",
         "SERVICE_UNDEPLOYED_HELP": "The selected servie is undeployed, this may cause issues on deployment if you select it as matched resource.",
-        "TITLE": "Matching"
+        "TITLE": "Matching",
+        "NODES_TITLE": "Nodes matching",
+        "POLICIES_TITLE": "Policies matching"
       },
       "HISTORY": {
         "DEPLOYER": "Deployer",
@@ -71,7 +73,7 @@
       "DELETE_TITLE": "Delete an application",
       "DELETING_FAILED": "Unable to delete the application. First, undeploy it and retry."
     },
-    "IMAGE_UPLOAD": "Upload new image",
+    "IMAGE_UPLOAD": "Drop an image file",
     "META_PROPERTIES": "Meta-properties",
     "NEW": "New Application",
     "RUNTIME": {
@@ -324,20 +326,25 @@
       }
     },
     "WF": {
+      "workflow": "Workflow",
       "DelegateWorkflowActivity": "Delegate workflow",
-      "OperationCallActivity": "Operation call",
-      "SetStateActivity": "State change",
+      "InlineWorkflowActivity": "Inline workflow",
+      "CallOperationWorkflowActivity": "Operation call",
+      "SetStateWorkflowActivity": "State change",
       "activity": "Activity",
       "addOperationActivity": "Add operation call",
+      "addInlineActivity": "Add inline workflow",
       "addStateActivity": "Add state change",
       "addWorkflow": "Add workflow",
       "appendOperationActivity": "Append operation call",
+      "appendInlineActivity": "Append inline workflow",
       "appendStateActivity": "Append state change",
       "changeViewMode": "Simplified view",
       "connectFromSelection": "Connect from selection",
       "connectToSelection": "Connect to selection",
       "currentSelection": "Current selection",
       "delegateWorkflow": "Workflow",
+      "inline": "Inlined",
       "disconnect": "Disconnect",
       "disconnectFrom": "Disconnect from",
       "disconnectTo": "Disconnect to",
@@ -350,6 +357,7 @@
       "hasErrors": "error(s)",
       "host": "Host",
       "insertOperationActivity": "Insert operation call",
+      "insertInlineActivity": "Insert inline workflow",
       "insertStateActivity": "Insert state change",
       "interfaceName": "Interface",
       "launch": "Launch",
@@ -468,7 +476,10 @@
     "NO": "No",
     "NODE": "Node",
     "OR": "or",
+    "PATH": "Path",
+    "PASSWORD": "Password",
     "PROPERTIES": "Properties",
+    "RELATIONSHIP": "Relationship",
     "RESOURCES": "Resources",
     "SEARCH": "Search...",
     "SOURCE": "Source",
@@ -589,7 +600,8 @@
       "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here.",
       "YAML_SEQUENCE_EXPECTED": "A YAML sequence is expected.",
       "CSAR_IMPORT_ITSELF": "An archive is not allowed to import itself.",
-      "UNSUPPORTED_SUBSTITUTION": "Substitution is not supported on archive that defines types."
+      "UNSUPPORTED_SUBSTITUTION": "Substitution is not supported on archive that defines types.",
+      "POLICY_TARGET_NOT_FOUND": "Policy target [{{note}}] cannot be found"
     },
     "VALIDSOURCES": "Valid sources",
     "WORKSPACE": "Workspaces"
@@ -901,6 +913,13 @@
       "pattern": "Value must match the pattern {{reference}}"
     }
   },
+  "GIT" : {
+    "CONFIGURE_TITLE" : "Git configuration",
+    "ALIEN_MANAGED" : "A4C",
+    "USER_MANAGED": "Manually",
+    "BRANCH": "Branch",
+    "MANAGED_BY": "Managed by" 
+  },
   "GROUPS": {
     "AUTHORIZED": "group authorized",
     "EDIT_GROUPS": "Edit groups",
@@ -967,6 +986,7 @@
     "BROWSE_COMPONENTS": "Browse components",
     "MANAGE_ARCHIVES": "Manage archives",
     "BROWSE_TOPOLOGIES": "Browse topologies",
+    "BROWSE_POLICIES": "Browse policies",
     "TOPOLOGIES": "Topologies"
   },
   "NAVBAR": {
@@ -1044,7 +1064,7 @@
       "RESOURCES": {
         "BACK": "Back to catalog",
         "CONFIG": "Resource configuration",
-        "CONFIG_HELP": "You can configure the name and properties of the template for the on-demand resource. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
+        "CONFIG_HELP": "You can configure the name and properties of the resource template. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
         "DROP": "Drop new resources here or on the table above",
         "PROVIDED": "Provided type from the orchestrator",
         "TYPE": "Resource types"
@@ -1089,6 +1109,7 @@
     },
     "UPLOAD": "Upload plugin"
   },
+  "POLICIES": "Policies",
   "PROPERTY_RESET": "Set to default value or reset",
   "PROPERTY_SUGGESTION": {
     "MODAL": {

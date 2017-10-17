@@ -44,7 +44,7 @@
 
 .wfDelegateLabel {
   font-weight: bold;
-  font-size: 14px;  
+  font-size: 14px;
 }
 
 .wfbox {
@@ -84,4 +84,22 @@
   display: inline-block !important;
   padding: 3px !important;
   margin: 2px !important;
+}
+
+.wf-source-rel-img {
+  position:absolute;
+  clip:rect(0px,32px,64px,0px);
+}
+
+.wf-source-rel-img:hover {
+  clip:rect(0px,64px,64px,0px);
+}
+
+.wf-target-rel-img {
+  position:absolute;
+  clip:rect(0px,64px,64px,32px);
+}
+
+.wf-target-rel-img:hover {
+  clip:rect(0px,64px,64px,0px);
 }

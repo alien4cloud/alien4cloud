@@ -59,9 +59,9 @@ define(function (require) {
         };
 
         $rootScope.$on('$stateChangeSuccess',
-          function (event, toState, toParams, fromState, fromParams) {
+          function (event, toState) {
             var stateName = toState.name;
-            if (_.defined(_.get(toState, 'breadcrumbs.state'))) {
+            if (_.defined(toState, 'breadcrumbs.state')) {
               stateName = toState.breadcrumbs.state;
             }
             stateName = processStateMapping(stateName);

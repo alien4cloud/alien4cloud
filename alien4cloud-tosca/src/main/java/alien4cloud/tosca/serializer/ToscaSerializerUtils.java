@@ -6,7 +6,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -35,18 +34,18 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Sets;
-
-import alien4cloud.paas.wf.AbstractActivity;
-import alien4cloud.paas.wf.AbstractStep;
-import alien4cloud.paas.wf.DelegateWorkflowActivity;
-import alien4cloud.paas.wf.NodeActivityStep;
-import alien4cloud.paas.wf.OperationCallActivity;
-import alien4cloud.paas.wf.SetStateActivity;
 
 /**
  * Tools for serializing in YAML/TOSCA. ALl methods should be static but did not found how to use statics from velocity.
@@ -243,48 +242,39 @@ public class ToscaSerializerUtils {
         return builder.toString();
     }
 
-    public boolean isNodeActivityStep(AbstractStep abstractStep) {
-        return abstractStep instanceof NodeActivityStep;
+    public boolean isNodeActivityStep(WorkflowStep abstractStep) {
+        return abstractStep instanceof NodeWorkflowStep;
     }
 
-    public String getActivityLabel(AbstractActivity activity) {
-        if (activity instanceof OperationCallActivity) {
+    public String getActivityLabel(AbstractWorkflowActivity activity) {
+        if (activity instanceof CallOperationWorkflowActivity) {
             return "call_operation";
-        } else if (activity instanceof SetStateActivity) {
+        } else if (activity instanceof SetStateWorkflowActivity) {
             return "set_state";
         } else if (activity instanceof DelegateWorkflowActivity) {
             return "delegate";
+        } else if (activity instanceof InlineWorkflowActivity) {
+            return "inline";
         } else {
             return activity.getClass().getSimpleName();
         }
     }
 
-    public boolean canRenderInlineActivityArgs(AbstractActivity activity) {
-        // if return false, the renderer will call getActivityArgsMap, elsewhere getActivityArg
-        return true;
-    }
-
-    public String getInlineActivityArg(AbstractActivity activity) {
-        if (activity instanceof OperationCallActivity) {
-            OperationCallActivity callActivity = (OperationCallActivity) activity;
+    public String getInlineActivityArg(AbstractWorkflowActivity activity) {
+        if (activity instanceof CallOperationWorkflowActivity) {
+            CallOperationWorkflowActivity callActivity = (CallOperationWorkflowActivity) activity;
             return callActivity.getInterfaceName() + "." + callActivity.getOperationName();
-        } else if (activity instanceof SetStateActivity) {
-            SetStateActivity stateActivity = (SetStateActivity) activity;
+        } else if (activity instanceof SetStateWorkflowActivity) {
+            SetStateWorkflowActivity stateActivity = (SetStateWorkflowActivity) activity;
             return stateActivity.getStateName();
         } else if (activity instanceof DelegateWorkflowActivity) {
             DelegateWorkflowActivity delegateWorkflowActivity = (DelegateWorkflowActivity) activity;
-            return delegateWorkflowActivity.getWorkflowName();
+            return delegateWorkflowActivity.getDelegate();
+        } else if (activity instanceof InlineWorkflowActivity) {
+            return ((InlineWorkflowActivity) activity).getInline();
         } else {
             return "void";
         }
-    }
-
-    // sample map for complex activity that can not be rendered simply
-    public Map<String, String> getActivityArgsMap(AbstractActivity activity) {
-        Map<String, String> args = new HashMap<String, String>();
-        args.put("arg1", "value1");
-        args.put("arg2", "value2");
-        return args;
     }
 
     public static boolean hasRepositories(String topologyArchiveName, String topologyArchiveVersion, Topology topology) {

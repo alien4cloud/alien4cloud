@@ -16,7 +16,6 @@
     "DEPLOYMENT_INFO" : "Informations de déploiement",
     "DEPLOY_CONFIRM": "Êtes-vous sûr de déployer cet environment de production ?",
     "UNDEPLOY_CONFIRM": "Êtes-vous sûr de désinstaller cet environment de production ?",
-    "UPDATE_DEPLOYMENT" : "Update",
     "UPDATE_CONFIRM": "Êtes-vous sûr de mettre à jour cet environment de production ?",
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
     "DEPLOYMENT" : {
@@ -28,7 +27,9 @@
         "SERVICE" : "Détails du service",
         "SERVICE_HELP" : "Les propriétés et attributs du service sélectioné sont affichées ci-dessous",
         "SERVICE_UNDEPLOYED_HELP" : "Le service sélectionné n'est pas déployé. Cela peut causer des problèmes lors du déploiement en cas de choix de ce service pour remplacer le noeud selectionné.",
-        "TITLE" : "Matching"
+        "TITLE" : "Matching",
+        "NODES_TITLE": "Matching de noeuds",
+        "POLICIES_TITLE": "Matching de policies"
       },
       "HISTORY": {
         "DEPLOYER": "Déploieur",
@@ -72,7 +73,7 @@
       "DELETE_TITLE" : "Supprimer une application",
       "DELETING_FAILED" : "Impossible de supprimer l'application. Annuler son déploiement et réessayez."
     },
-    "IMAGE_UPLOAD" : "Uploader nouvelle image",
+    "IMAGE_UPLOAD" : "Déposer une image",
     "META_PROPERTIES" : "Méta-propriétés",
     "NEW" : "Nouvelle Application",
     "RUNTIME" : {
@@ -326,8 +327,8 @@
     },
     "WF" : {
       "DelegateWorkflowActivity" : "Workflow sous-traité",
-      "OperationCallActivity" : "Appel d'opération",
-      "SetStateActivity" : "Changement d'état",
+      "CallOperationWorkflowActivity" : "Appel d'opération",
+      "SetStateWorkflowActivity" : "Changement d'état",
       "activity" : "Activité",
       "addOperationActivity" : "Ajouter un appel d'opération",
       "addStateActivity" : "Ajouter un changement d'état",
@@ -469,7 +470,10 @@
     "NO" : "Non",
     "NODE" : "Noeud",
     "OR": "ou",
+    "PATH": "Path",
+    "PASSWORD": "Mot de passe",
     "PROPERTIES" : "Propriétés",
+    "RELATIONSHIP": "Relation",
     "SEARCH": "Rechercher...",
     "SOURCE" : "Source",
     "RESOURCES": "Ressources",
@@ -477,6 +481,7 @@
     "TARGET" : "Cible",
     "TYPE" : "Type",
     "USERNAME" : "Nom d'utilisateur",
+    "URL" : "URL",
     "VERSION" : "Version",
     "YES" : "Oui"
   },
@@ -589,7 +594,8 @@
       "YAML_SCALAR_NODE_EXPECTED" : "Un noeud YAML de type scalar est attendu ici.",
       "YAML_SEQUENCE_EXPECTED" : "Une séquence YAML est attendu.",
       "CSAR_IMPORT_ITSELF": "Une archive ne peut pas s'importer elle même.",
-      "UNSUPPORTED_SUBSTITUTION": "La substitution n'est pas supportée dans une archive qui définit des types"
+      "UNSUPPORTED_SUBSTITUTION": "La substitution n'est pas supportée dans une archive qui définit des types",
+      "POLICY_TARGET_NOT_FOUND": "La cible de la policy [{{note}}] ne peut être trouvée."
     },
     "VALIDSOURCES" : "Sources valides",
     "WORKSPACE" : "Workspaces"
@@ -901,6 +907,13 @@
       "pattern" : "La valeur doit respecter le modèle {{reference}}"
     }
   },
+  "GIT" : {
+    "CONFIGURE_TITLE" : "Configurer Git",
+    "ALIEN_MANAGED" : "A4C",
+    "USER_MANAGED": "Manuellement",
+    "BRANCH": "Branche",
+    "MANAGED_BY": "Géré par" 
+  },
   "GROUPS" : {
     "AUTHORIZED" : "groupe autorisé",
     "EDIT_GROUPS" : "Editer les groupes",
@@ -966,6 +979,7 @@
     "ARCHIVES_PROMOTION": "Requêtes de promotion d'archives",
     "BROWSE_COMPONENTS": "Consulter les composants",
     "BROWSE_TOPOLOGIES": "Consulter les topologies",
+    "BROWSE_POLICIES": "Consulter les policies",
     "TOPOLOGIES": "Topologies",
     "MANAGE_ARCHIVES": "Gerer les archvies"
   },
@@ -1044,7 +1058,7 @@
       "RESOURCES" : {
         "BACK" : "Retour au catalogue",
         "CONFIG" : "Configuration de la resource",
-        "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés du template pour la resource à la demande. Les propriétés définies sont immutable, les propriétés non définies pourront être définie par l'utilisateur avant le déploiement.",
+        "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés du template de la resource. Les propriétés définies sont immutable, les propriétés non définies pourront être définie par l'utilisateur avant le déploiement.",
         "DROP" : "Déposez des ressources ici ou dans le tableau au dessus",
         "PROVIDED" : "Type fourni par l'orchestrateur",
         "TYPE" : "Type de ressources"
@@ -1076,6 +1090,7 @@
     "OVERFLOW" : "Le nombre de résultat dépasse le nombre maxium supporté par Alien4Cloud, merci d'utiliser le champs de recherche."
   },
   "NO_DATA_AVAILABLE" : "Pas de données disponibles.",
+  "POLICIES": "Policies",
   "PLUGINS" : {
     "BEANS" : "Composants",
     "CONFIGURE" : "Configurer",

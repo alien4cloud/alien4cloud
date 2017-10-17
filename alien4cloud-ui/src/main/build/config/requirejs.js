@@ -48,7 +48,8 @@ module.exports = function (grunt) {
     },
     a4cdist: {
       options: {
-        optimize: 'uglify',
+        // optimize: 'uglify',
+        optimize: 'none',
         optimizeCss: 'none',
         optimizeAllPluginResources: false,
         removeCombined: true,

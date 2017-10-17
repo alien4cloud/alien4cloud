@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyUtils;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.NameValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,10 +31,11 @@ public class RenameNodeProcessor implements IEditorOperationProcessor<RenameNode
         Topology topology = EditionContextManager.getTopology();
 
         NameValidationUtils.validateNodeName(operation.getNewName());
-        topologyService.isUniqueNodeTemplateName(topology, operation.getNewName());
+        AlienUtils.failIfExists(topology.getNodeTemplates(), operation.getNewName(),
+                "A node template with the given name {} already exists in the topology {}.", operation.getNodeName(), topology.getId());
 
-        log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", operation.getNodeName(), operation.getNewName(), topology.getId());
+        log.debug("Renaming the Node template [ {} ] with [ {} ] in the topology [ {} ] .", operation.getNodeName(), operation.getNewName(), topology.getId());
         TopologyUtils.renameNodeTemplate(topology, operation.getNodeName(), operation.getNewName());
-        workflowBuilderService.renameNode(topology, operation.getNodeName(), operation.getNewName());
+        workflowBuilderService.renameNode(topology, EditionContextManager.getCsar(), operation.getNodeName(), operation.getNewName());
     }
 }

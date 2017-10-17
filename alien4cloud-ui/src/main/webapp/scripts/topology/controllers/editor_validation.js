@@ -6,8 +6,9 @@ define(function (require) {
   var _ = require('lodash');
 
   modules.get('a4c-topology-editor', ['a4c-common']).controller('TopologyValidationCtrl',
-    ['$scope', 'topologyServices', 'tasksProcessor', '$alresource',
-    function($scope, topologyServices, tasksProcessor, $alresource) {
+    ['$scope', 'topologyServices', 'tasksProcessor', '$alresource', 'topoEditDisplay',
+    function($scope, topologyServices, tasksProcessor, $alresource, topoEditDisplay) {
+      topoEditDisplay($scope, '#topology_validation');
 
       var editedTopologyValidatorResource = $alresource('rest/latest/editor/:topologyId/isvalid');
 

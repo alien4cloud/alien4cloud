@@ -48,7 +48,7 @@ public class UpdateNodePropertyValueProcessor implements IEditorOperationProcess
                     "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeName() + "> of type <" + nodeTemp.getType() + ">");
         }
 
-        log.debug("Updating property <{}> of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].", propertyName,
+        log.debug("Updating property [ {} ] of the Node template [ {} ] from the topology [ {} ]: changing value from [{}] to [{}].", propertyName,
                 operation.getNodeName(), topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
 
         try {

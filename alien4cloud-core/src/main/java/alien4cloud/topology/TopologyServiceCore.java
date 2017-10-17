@@ -12,11 +12,14 @@ import javax.annotation.Resource;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
@@ -26,8 +29,7 @@ import com.google.common.collect.Maps;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import alien4cloud.tosca.context.ToscaContext;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -35,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TopologyServiceCore {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
 
@@ -72,29 +75,23 @@ public class TopologyServiceCore {
                 useTemplateNameAsKey, failOnTypeNotFound);
 
         if (!useTemplateNameAsKey && topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
-            NodeType nodeType = failOnTypeNotFound
-                    ? csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType(),
-                            topology.getDependencies())
-                    : csarRepoSearchService.getElementInDependencies(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType(),
-                            topology.getDependencies());
+            NodeType nodeType = getFromContextIfDefined(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType(), topology.getDependencies(),
+                    failOnTypeNotFound);
             nodeTypeMap.put(topology.getSubstitutionMapping().getSubstitutionType(), nodeType);
         }
 
         return nodeTypeMap;
     }
 
-    public Map<String, NodeType> getIndexedNodeTypesFromDependencies(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
+    private Map<String, NodeType> getIndexedNodeTypesFromDependencies(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
             boolean abstractOnly, boolean useTemplateNameAsKey, boolean failOnTypeNotFound) {
-
         Map<String, NodeType> nodeTypes = Maps.newHashMap();
         if (nodeTemplates == null) {
             return nodeTypes;
         }
         for (Map.Entry<String, NodeTemplate> template : nodeTemplates.entrySet()) {
             if (!nodeTypes.containsKey(template.getValue().getType())) {
-                NodeType nodeType = failOnTypeNotFound
-                        ? csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, template.getValue().getType(), dependencies)
-                        : csarRepoSearchService.getElementInDependencies(NodeType.class, template.getValue().getType(), dependencies);
+                NodeType nodeType = getFromContextIfDefined(NodeType.class, template.getValue().getType(), dependencies, failOnTypeNotFound);
                 if (!abstractOnly || nodeType.isAbstract()) {
                     String key = useTemplateNameAsKey ? template.getKey() : template.getValue().getType();
                     nodeTypes.put(key, nodeType);
@@ -102,6 +99,14 @@ public class TopologyServiceCore {
             }
         }
         return nodeTypes;
+    }
+
+    public Map<String, PolicyType> getPolicyTypesFromTopology(Topology topology, boolean failOnTypeNotFound) {
+        Map<String, PolicyType> types = Maps.newHashMap();
+        for (PolicyTemplate template : safe(topology.getPolicies()).values()) {
+            types.put(template.getType(), getFromContextIfDefined(PolicyType.class, template.getType(), topology.getDependencies(), failOnTypeNotFound));
+        }
+        return types;
     }
 
     /**
@@ -122,10 +127,8 @@ public class TopologyServiceCore {
                 for (Map.Entry<String, RelationshipTemplate> relationshipEntry : template.getRelationships().entrySet()) {
                     RelationshipTemplate relationship = relationshipEntry.getValue();
                     if (!relationshipTypes.containsKey(relationship.getType())) {
-                        RelationshipType relationshipType = failOnTypeNotFound
-                                ? csarRepoSearchService.getRequiredElementInDependencies(RelationshipType.class, relationship.getType(),
-                                        topology.getDependencies())
-                                : csarRepoSearchService.getElementInDependencies(RelationshipType.class, relationship.getType(), topology.getDependencies());
+                        RelationshipType relationshipType = getFromContextIfDefined(RelationshipType.class, relationship.getType(), topology.getDependencies(),
+                                failOnTypeNotFound);
                         relationshipTypes.put(relationship.getType(), relationshipType);
                     }
                 }
@@ -147,20 +150,17 @@ public class TopologyServiceCore {
     private void addRelationshipTypeFromSubstitutionTarget(Topology topology, Map<String, RelationshipType> relationshipTypes,
             SubstitutionTarget substitutionTarget, boolean failOnTypeNotFound) {
         if (substitutionTarget.getServiceRelationshipType() != null) {
-            RelationshipType relationshipType = failOnTypeNotFound
-                    ? csarRepoSearchService.getRequiredElementInDependencies(RelationshipType.class, substitutionTarget.getServiceRelationshipType(),
-                            topology.getDependencies())
-                    : csarRepoSearchService.getElementInDependencies(RelationshipType.class, substitutionTarget.getServiceRelationshipType(),
-                            topology.getDependencies());
+            RelationshipType relationshipType = getFromContextIfDefined(RelationshipType.class, substitutionTarget.getServiceRelationshipType(),
+                    topology.getDependencies(), failOnTypeNotFound);
             relationshipTypes.put(substitutionTarget.getServiceRelationshipType(), relationshipType);
         }
     }
 
     /**
-     * Get IndexedRelationshipType in a topology
+     * Get all capability types used in a topology
      *
      * @param topology the topology to find all relationship types
-     * @return the map containing rel
+     * @return The map that contains the capability types.
      */
     public Map<String, CapabilityType> getIndexedCapabilityTypesFromTopology(Topology topology) {
         Map<String, CapabilityType> capabilityTypes = Maps.newHashMap();
@@ -173,8 +173,7 @@ public class TopologyServiceCore {
                 for (Map.Entry<String, Capability> capabilityEntry : template.getCapabilities().entrySet()) {
                     Capability capability = capabilityEntry.getValue();
                     if (!capabilityTypes.containsKey(capability.getType())) {
-                        CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capability.getType(),
-                                topology.getDependencies());
+                        CapabilityType capabilityType = getFromContextIfDefined(CapabilityType.class, capability.getType(), topology.getDependencies(), true);
                         capabilityTypes.put(capability.getType(), capabilityType);
                     }
                 }
@@ -183,17 +182,20 @@ public class TopologyServiceCore {
         return capabilityTypes;
     }
 
-    /**
-     * Build a node template
-     * 
-     * @param dependencies The dependencies in which to search for the node type. This is used by the ToscaContextual annotation.
-     * @param indexedNodeType The index node type from which to create the node.
-     * @param templateToMerge The node template to merge in the type to create the actual node template.
-     * @return return the node template instance.
-     */
-    @ToscaContextual
-    public NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, NodeType indexedNodeType, NodeTemplate templateToMerge) {
-        return NodeTemplateBuilder.buildNodeTemplate(indexedNodeType, templateToMerge);
+    private <T extends AbstractToscaType> T getFromContextIfDefined(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies,
+            boolean failOnTypeNotFound) {
+        T toscaType = null;
+        if (ToscaContext.get() != null) {
+            toscaType = ToscaContext.get(elementClass, elementId);
+        }
+        if (toscaType == null) {
+            toscaType = failOnTypeNotFound ? csarRepoSearchService.getRequiredElementInDependencies(elementClass, elementId, dependencies)
+                    : csarRepoSearchService.getElementInDependencies(elementClass, elementId, dependencies);
+            if (toscaType != null) {
+                log.info("NOT FOUND IN TOSCA CONTEXT BUT WAS IN REPO SEARCH SERVICE, context: ", ToscaContext.get());
+            }
+        }
+        return toscaType;
     }
 
     /**

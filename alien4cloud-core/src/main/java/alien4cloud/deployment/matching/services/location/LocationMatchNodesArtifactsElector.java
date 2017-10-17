@@ -8,7 +8,7 @@ import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
 import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 
@@ -45,7 +45,7 @@ public class LocationMatchNodesArtifactsElector {
         return isEligible;
     }
 
-    private boolean isEligible(AbstractTemplate template, LocationMatchNodeFilter.NodeMatchContext matchContext) {
+    private boolean isEligible(AbstractInstantiableTemplate template, LocationMatchNodeFilter.NodeMatchContext matchContext) {
         if (template == null) {
             return true;
         }

@@ -1,13 +1,13 @@
 package alien4cloud.paas.wf;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.stereotype.Component;
-
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.springframework.stereotype.Component;
+
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -20,7 +20,7 @@ public class CustomWorkflowBuilder extends AbstractWorkflowBuilder {
     }
 
     @Override
-    public void addRelationship(Workflow wf, String nodeId, NodeTemplate nodeTemplate, RelationshipTemplate RelationshipTemplate,
+    public void addRelationship(Workflow wf, String nodeId, NodeTemplate nodeTemplate, String relationshipName, RelationshipTemplate RelationshipTemplate,
             TopologyContext toscaTypeFinder) {
         // relationships are not added to custom workflows
     }

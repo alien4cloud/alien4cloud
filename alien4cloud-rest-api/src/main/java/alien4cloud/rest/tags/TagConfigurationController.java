@@ -67,7 +67,7 @@ public class TagConfigurationController {
                 MapUtil.newHashMap(new String[] { "name", "target" }, new String[][] { new String[] { name }, new String[] { target } }), null, 0, 5);
 
         if (result.getData().length > 0 && !result.getData()[0].getId().equals(id)) {
-            log.debug("An other tag with name <{}> and target <{}> already exists", target, name);
+            log.debug("An other tag with name [ {} ] and target [ {} ] already exists", target, name);
             throw new AlreadyExistException("An other tag with name " + name + " and target " + target + " already exists");
         }
     }
@@ -129,7 +129,7 @@ public class TagConfigurationController {
             }
             PropertyUtil.setScalarDefaultValueOrNull(element.getMetaProperties(), configuration.getId(), configuration.getDefault());
             dao.save(element);
-            log.debug("Adding meta property <{}> to a resource of type <{}> ", configuration.getName(), element.getClass());
+            log.debug("Adding meta property [ {} ] to a resource of type [ {} ] ", configuration.getName(), element.getClass());
         }
     }
 
@@ -140,7 +140,7 @@ public class TagConfigurationController {
                 element.getMetaProperties().remove(configuration.getId());
             }
             dao.save(element);
-            log.debug("Adding meta property <{}> to a resource of type <{}> ", configuration.getName(), element.getClass());
+            log.debug("Adding meta property [ {} ] to a resource of type [ {} ] ", configuration.getName(), element.getClass());
         }
     }
 

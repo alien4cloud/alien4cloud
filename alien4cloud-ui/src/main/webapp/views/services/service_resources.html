@@ -61,6 +61,7 @@
         </span>
       </div>
       <a4c-component-catalog
+              component-type='NODE_TYPE'
               display-detail-pannel="false"
               drag-and-drop-enabled="true"
               height-info="dimensions"
@@ -132,10 +133,10 @@
           <a4c-node-template-edit ng-if="selectedNodeType"
             is-rel-editable="stateDisabled"
             is-service="true"
-            node-template="selectedService.nodeInstance.nodeTemplate"
-            node-type="selectedNodeType"
+            template="selectedService.nodeInstance.nodeTemplate"
+            type="selectedNodeType"
             node-capability-types="selectedCapabilityTypes"
-            node-data-types="selectedDataTypes"
+            resource-data-types="selectedDataTypes"
             on-half-relationship-type-update="updateHalfRelationshipType(type, name, relationshipTypeId)"
             capabilities-relationship-types="selectedService.capabilitiesRelationshipTypes"
             dependencies="selectedDependencies"

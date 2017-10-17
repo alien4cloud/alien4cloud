@@ -2,9 +2,9 @@ define(function(require) {
   'use strict';
 
   var modules = require('modules');
-  var angular = require('angular');
   var _ = require('lodash');
-  var $ = require('jquery');
+  var d3 = require('d3');
+  const COMPONENT_VERSION = 'component_version';
 
 
   require('scripts/tosca/services/tosca_service');
@@ -116,10 +116,17 @@ define(function(require) {
           nodeGroup.append('text').attr('id', 'title_' + node.id).attr('text-anchor', 'start').attr('class', 'title').attr('x', 44).attr('y', 20);
           nodeGroup.append('text').attr('text-anchor', 'end').attr('class', 'version').attr('x', node.bbox.width() - 10).attr('y', 40);
 
-          // if the node has some children we should add the collapse bar.
-          // if(_.defined(node.children) && node.children.length>0) {
-          //   d3Service.rect(nodeGroup, .5, 45, node.bbox.width()-1, 10, 0, 0).attr('class', 'collapsebar');
-          // }
+          // TODO manage node collapse management.
+          // Scalable capability management
+          if (!this.isRuntime && _.defined(nodeTemplate, 'capabilitiesMap.scalable')) {
+            var scalableSelection = nodeGroup.append('g').attr('id', 'scalable_' + node.id);
+            var scaleX = nodeType.abstract ? 70 : 50;
+            scalableSelection.append('text').attr('class', 'topology-svg-icon topology-svg-icon-center')
+              .attr('transform', 'rotate(90 ' + (scaleX) + ' 35)')
+              .attr('x', scaleX).attr('y', 35).text('\uf112');
+            scalableSelection.append('text').attr('id', 'scaling-text').attr('text-anchor', 'start')
+              .attr('x', scaleX + 10).attr('y', 40).text('1 - 1 - 1');
+          }
 
           // specific to networks
           if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, topology.nodeTypes)) {
@@ -147,9 +154,9 @@ define(function(require) {
 
           // update version
           nodeGroup.select('.version').text(function() {
-            if (_.defined(nodeTemplate.propertiesMap) && _.defined(nodeTemplate.propertiesMap.component_version) && _.defined(nodeTemplate.propertiesMap.component_version.value) && _.defined(nodeTemplate.propertiesMap.component_version.value.value)) {
-              return 'v' + nodeTemplate.propertiesMap.component_version.value.value;
-            } else if (_.defined(nodeTemplate.propertiesMap) && _.defined(nodeTemplate.propertiesMap.version) && _.defined(nodeTemplate.propertiesMap.version.value) && _.defined(nodeTemplate.propertiesMap.version.value.value)) {
+            if (_.defined(nodeTemplate, 'propertiesMap.component_version.value.value')) {
+              return 'v' + nodeTemplate.propertiesMap[COMPONENT_VERSION].value.value;
+            } else if(_.defined(nodeTemplate, 'propertiesMap.version.value.value')) {
               return 'v' + nodeTemplate.propertiesMap.version.value.value;
             }
           });
@@ -168,7 +175,7 @@ define(function(require) {
             var gY = node.bbox.height() - 5;
             // the end of the node square
             var nodeEndX = node.bbox.width() - (gW / 2);
-            angular.forEach(nodeTemplate.groups, function(value) {
+            _.each(nodeTemplate.groups, function(value) {
               // let's place the group square regarding it's index and applying a 0.2 margin
               var gX = nodeEndX - (gIdx * 1.2 * gW);
 
@@ -177,6 +184,29 @@ define(function(require) {
               rect.attr('title', value);
               gIdx++;
             });
+          }
+          if(_.defined(nodeTemplate.policies)) {
+            // If there is policies defined for this node let's display icon(s)
+            var policySelection = nodeGroup.selectAll('.policy').data(nodeTemplate.policies, function(policyTemplate) { return policyTemplate.name; });
+            var newPolicySelection = policySelection.enter().append('g').attr('class', 'policy-template').attr('id', function(policyTemplate) { return 'a4c_svgp_' + policyTemplate.name; });
+            newPolicySelection.each(function(policyTemplate) {
+              var policyTemplateGroup = d3.select(this);
+              var index = _.findIndex(nodeTemplate.policies, 'name', policyTemplate.name);
+              var policyX = node.bbox.width() - 12 - 18 * ( index );
+              // append ce policy circle
+              d3Service.circle(policyTemplateGroup, policyX, 0, 8).attr('class', 'connector');
+              var svgChar = toscaService.getTag('a4c_svg_char', topology.policyTypes[policyTemplate.type].tags);
+              if(_.defined(svgChar)) {
+                var rotate = toscaService.getTag('a4c_svg_rotate', topology.policyTypes[policyTemplate.type].tags);
+                // append ce policy icon
+                var policyIconBuilder = policyTemplateGroup.append('text').attr('class', 'topology-svg-icon topology-svg-icon-center');
+                if(_.defined(rotate)) {
+                  policyIconBuilder.attr('transform', 'rotate(' + rotate + ' ' + policyX + ' 0)');
+                }
+                policyIconBuilder.attr('x', policyX).attr('y', 0).text(String.fromCharCode(parseInt(svgChar, 16)));
+              }
+            });
+            policySelection.exit().remove();
           }
 
           // runtime infos
@@ -197,33 +227,22 @@ define(function(require) {
               this.drawRuntimeInfos(node, runtimeGroup, nodeInstances, nodeInstancesCount, 0, 0);
             }
           } else { // scaling policy
-            var scalingPolicy = toscaService.getScalingPolicy(nodeTemplate);
-            var scalingPolicySelection = nodeGroup.select('#scalingPolicy');
-            if (_.defined(scalingPolicy)) {
+            var scalableCapability = toscaService.getScalingPolicy(nodeTemplate);
+            var scalableSelection = nodeGroup.select('#scalable_' + node.id);
+            if (_.defined(scalableCapability)) {
+              scalableSelection.classed('hidden', function(){ return false; });
               var formatScalingValue = function(scalingValue) {
-                if (scalingValue.hasOwnProperty('function')) {
+                if (scalingValue.hasOwnProperty('function')) { // input
                   return '...';
                 } else {
                   return scalingValue;
                 }
               };
-              var scalingText = formatScalingValue(scalingPolicy.minInstances) + ' - ' + formatScalingValue(scalingPolicy.initialInstances) + ' - ' + formatScalingValue(scalingPolicy.maxInstances);
-              if (scalingPolicySelection.empty()) {
-                var scaleX = 50;
-                if (nodeType.abstract) {
-                  scaleX += 20;
-                }
-                scalingPolicySelection = nodeGroup.append('g').attr('id', 'scalingPolicy');
-                scalingPolicySelection.append('text').attr('class', 'topology-svg-icon topology-svg-icon-center')
-                  .attr('transform', 'rotate(90 ' + (scaleX) + ' 35)')
-                  .attr('x', scaleX).attr('y', 35).text('\uf112');
-                scalingPolicySelection.append('text').attr('id', 'scaling-text').attr('text-anchor', 'start')
-                  .attr('x', scaleX + 10).attr('y', 40).text(scalingText);
-              } else {
-                scalingPolicySelection.select('#scaling-text').text(scalingText);
-              }
-            } else if (!scalingPolicySelection.empty()) {
-              scalingPolicySelection.remove();
+              var scalingText = formatScalingValue(scalableCapability.minInstances) + ' - ' + formatScalingValue(scalableCapability.initialInstances) + ' - ' + formatScalingValue(scalableCapability.maxInstances);
+              scalableSelection.select('#scaling-text').text(scalingText);
+            } else {
+              // The scaling poilcy is just 1 - 1 - 1 don't display to the user
+              scalableSelection.classed('hidden', function(){ return true; });
             }
           }
 

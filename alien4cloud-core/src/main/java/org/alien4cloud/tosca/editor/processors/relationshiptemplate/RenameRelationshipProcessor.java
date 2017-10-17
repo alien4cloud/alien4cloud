@@ -35,7 +35,7 @@ public class RenameRelationshipProcessor extends AbstractRelationshipProcessor<R
         nodeTemplate.getRelationships().remove(operation.getRelationshipName());
         nodeTemplate.getRelationships().put(operation.getNewRelationshipName(), relationshipTemplate);
 
-        log.debug("Renaming the relationship <{}> with <{}> in the node template <{}> of topology <{}> .", operation.getRelationshipName(),
+        log.debug("Renaming the relationship [ {} ] with [ {} ] in the node template [ {} ] of topology [ {} ] .", operation.getRelationshipName(),
                 operation.getNewRelationshipName(), operation.getNodeName(), topologyId);
     }
 }

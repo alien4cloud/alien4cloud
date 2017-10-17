@@ -15,7 +15,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RelationshipTemplate extends AbstractTemplate {
+public class RelationshipTemplate extends AbstractInstantiableTemplate {
     /**
      * <p>
      * This element specifies the target of the relationship represented by the current Relationship Template

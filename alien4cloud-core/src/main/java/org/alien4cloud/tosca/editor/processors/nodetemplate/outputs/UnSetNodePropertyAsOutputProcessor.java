@@ -32,7 +32,7 @@ public class UnSetNodePropertyAsOutputProcessor extends AbstractNodeProcessor<Un
         removeAndClean(operation, outputs);
         topology.setOutputProperties(outputs);
 
-        log.debug("Unset node <{}>'s property <{}> as output for the topology <{}>.", operation.getNodeName(), operation.getPropertyName(), topology.getId());
+        log.debug("Unset node [ {} ]'s property [ {} ] as output for the topology [ {} ].", operation.getNodeName(), operation.getPropertyName(), topology.getId());
     }
 
     private void removeAndClean(UnSetNodePropertyAsOutputOperation operation, Map<String, Set<String>> outputs) {

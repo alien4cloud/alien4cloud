@@ -1,4 +1,4 @@
-tosca_definitions_version: alien_dsl_1_4_0
+tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: mock-plugin-openstack-types

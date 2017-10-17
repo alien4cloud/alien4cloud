@@ -1,0 +1,85 @@
+<div class="topology-column-content-head">
+  <span>
+    <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
+  </span>
+  <span id='closeSubstitutions' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('substitutions')">
+    <i class="fa fa-remove close-panel"></i>
+  </span>
+</div>
+<h4>{{'COMMON.TYPE' | translate}}</h4>
+<div class="row">
+  <div class="col-md-11">
+    <input type="text" class="form-control" id="substitution-type" ng-model="substitutionType" uib-typeahead="item for item in substitution.getTypeSuggestions.get($viewValue)" typeahead-min-length="substitution.getTypeSuggestions.minLength" typeahead-on-select="substitution.selectType($item)" />
+  </div>
+  <div class="col-md-1">
+    <delete-confirm id="substitutionType_delete" ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType" class="pull-right" func="substitution.remove()" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
+  </div>
+</div>
+<div ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType">
+  <h4>{{'COMMON.CAPABILITIES' | translate}}</h4>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>{{'COMMON.NAME' | translate }}</th>
+        <th>{{'COMMON.TARGET' | translate }}</th>
+        <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.CAPABILITY' | translate }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="(capabilityId, target) in topology.topology.substitutionMapping.capabilities">
+        <td>
+          <span editable-text="capabilityId" buttons="no" e-required onbeforesave="substitution.updateCababilityKey(capabilityId, $data)" blur="submit">
+            {{capabilityId}}
+            <i class="fa fa-pencil-square-o"></i>
+          </span>
+        </td>
+        <td>{{target.nodeTemplateName}}</td>
+        <td>{{target.targetId}}</td>
+        <td>
+          <delete-confirm id="substitutionCapa_{{capabilityId}}_delete" class="pull-right" func="substitution.removeCabability(capabilityId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+          </delete-confirm>
+          <button id="capa_service_rel_{{capabilityId}}" ng-if="topology.delegateType === 'APPLICATION'"
+            class="btn btn-default btn-xs pull-right" uib-tooltip="Configure service relationship" tooltip-append-to-body="true"
+            ng-click="substitution.cfgCapaSrvRelationship(capabilityId)">
+            <i class="fa fa-globe"></i>
+            <i class="fa fa-link"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.REQUIREMENTS' | translate}}</h4>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>{{'COMMON.NAME' | translate }}</th>
+        <th>{{'COMMON.SOURCE' | translate }}</th>
+        <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.REQUIREMENT' | translate }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="(requirementId, target) in topology.topology.substitutionMapping.requirements">
+        <td>
+          <span editable-text="requirementId" buttons="no" e-required onbeforesave="substitution.updateRequirementKey(requirementId, $data)" blur="submit">
+            {{requirementId}}
+            <i class="fa fa-pencil-square-o"></i>
+          </span>
+        </td>
+        <td>{{target.nodeTemplateName}}</td>
+        <td>{{target.targetId}}</td>
+        <td>
+          <delete-confirm id="substitutionReq_{{requirementId}}_delete" class="pull-right" func="substitution.removeRequirement(requirementId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+          </delete-confirm>
+          <button id="req_service_rel_{{requirementId}}" ng-if="topology.delegateType === 'APPLICATION'"
+            class="btn btn-default btn-xs pull-right" uib-tooltip="Configure service relationship" tooltip-append-to-body="true"
+            ng-click="substitution.cfgReqSrvRelationship(requirementId)">
+            <i class="fa fa-globe"></i>
+            <i class="fa fa-link"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

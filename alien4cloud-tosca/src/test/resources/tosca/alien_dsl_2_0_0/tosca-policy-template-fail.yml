@@ -1,0 +1,58 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.test.policies.PolicyTemplate
+  template_author: alien4cloud
+  template_version: 2.0.0-SNAPSHOT
+
+description: This template contains tests of policy templates parsing.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+policy_types:
+  org.alien4cloud.sample.SamplePolicy:
+    derived_from: tosca.policies.Root
+    description: This is a sample policy type with simple definition
+    metadata:
+      sample_meta: a meta data
+      anoter_meta: another meta data
+    properties:
+      sample_property:
+        type: string
+    targets: ["tosca.nodes.Compute", "tosca.nodes.Root"]
+
+topology_template:
+  node_templates:
+    my_node:
+      type: tosca.nodes.Compute
+    my_other_node:
+      type: tosca.nodes.Compute
+  policies:
+    - anti_affinity_policy:
+        type: org.alien4cloud.sample.SamplePolicy
+        description: The anti affinity policy between node 1 and 2
+        metadata:
+          a_meta: a meta value
+          another_meta: another meta value
+        properties:
+          sample_property: sample prop value
+        targets: [my_node, missing_node]
+        triggers:
+          default:
+            description: This is the trigger of the sample policy
+            # Event type is not required anymore since 1.2 and not defined for now.
+            event_type: "my_event_type"
+            schedule:
+              start_time: 2016-04-04-15T00:00:00Z
+              end_time: 2020-04-04-15T00:00:00Z
+            target_filter:
+              # This filter is applied only on the tosca.nodes.Compute, either direct target either for tosca.nodes.Compute nodes that are part of the org.alien4cloud.groups.SampleGroup group
+              node: "tosca.nodes.Compute"
+            condition:
+              constraints:
+                - greater_than: 80
+              period: 60s # condition should remain true for 60 seconds
+              evaluations: 3 # There should be at least 3 evaluations of the condition
+              method: average # Compute on an average basis: so if there is a 80% cpu usage average during 60sec and that 3 times consecutive
+            action: dosomething.sh # trigger an operation on the manager

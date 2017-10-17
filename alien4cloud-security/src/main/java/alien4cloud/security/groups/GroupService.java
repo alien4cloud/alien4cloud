@@ -183,11 +183,11 @@ public class GroupService {
      */
     private void checkGroupNameUniqueness(String groupName) throws AlreadyExistException {
         if (alienGroupDao.isGroupWithNameExist(groupName)) {
-            log.debug("Create group <{}> impossible (already exists)", groupName);
+            log.debug("Create group [ {} ] impossible (already exists)", groupName);
             // a group already exist with the given id.
             throw new AlreadyExistException("A Group with the given id <" + groupName + "> already exists.");
         } else {
-            log.debug("Create group <{}>", groupName);
+            log.debug("Create group [ {} ]", groupName);
         }
     }
 

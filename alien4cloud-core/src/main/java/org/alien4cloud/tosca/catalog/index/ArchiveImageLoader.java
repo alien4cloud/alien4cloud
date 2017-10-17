@@ -89,18 +89,22 @@ public class ArchiveImageLoader {
                 iconTag.setValue(iconId);
             } else {
                 parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null,
-                        "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
+                        "Invalid icon format at path <" + iconPath + ">", null, safeToString(iconPath)));
             }
         } catch (NoSuchFileException | InvalidPathException e) {
             parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_FILE, "Icon loading", null,
-                    "No icon file found at path <" + iconPath + ">", null, iconPath.toString()));
+                    "No icon file found at path <" + iconPath + ">", null, safeToString(iconPath)));
         } catch (ImageUploadException e) {
             parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null,
-                    "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
+                    "Invalid icon format at path <" + iconPath + ">", null, safeToString(iconPath)));
         } catch (IOException e) {
             parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.FAILED_TO_READ_FILE, "Icon loading", null,
-                    "IO error while loading icon at path <" + iconPath + ">", null, iconPath.toString()));
+                    "IO error while loading icon at path <" + iconPath + ">", null, safeToString(iconPath)));
         }
+    }
+
+    private String safeToString(Path path) {
+        return path == null ? "" : path.toString();
     }
 
     /**

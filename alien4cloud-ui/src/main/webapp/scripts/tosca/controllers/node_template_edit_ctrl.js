@@ -6,14 +6,19 @@ define(function(require) {
   require('scripts/tosca/services/tosca_processor');
   require('scripts/tosca/services/relationship_type_quicksearch_service');
 
-  modules.get('a4c-tosca').controller('a4cNodeTemplateEditCtrl', ['$scope', 'a4cToscaProcessor', 'relationshipTypeQuickSearchService',
-    function($scope, a4cToscaProcessor, relationshipTypeQuickSearchService) {
-      a4cToscaProcessor.processNodeType($scope.nodeType);
-      a4cToscaProcessor.processNodeTemplate($scope.nodeTemplate);
-      a4cToscaProcessor.processCapabilityTypes($scope.nodeCapabilityTypes);
-      a4cToscaProcessor.processDataTypes($scope.nodeDataTypes);
+  require('scripts/tosca/controllers/template_edit_ctrl');
 
-      $scope.isService = _.defined($scope.isService) ? $scope.isService : false;
+  modules.get('a4c-tosca').controller('a4cNodeTemplateEditCtrl', ['$controller', '$scope', 'a4cToscaProcessor', 'relationshipTypeQuickSearchService',
+    function($controller, $scope, a4cToscaProcessor, relationshipTypeQuickSearchService) {
+
+      // first load default template edit controller
+      $controller('a4cTemplateEditCtrl', {
+        $scope: $scope,
+        a4cToscaProcessor: a4cToscaProcessor
+      });
+
+      a4cToscaProcessor.processInheritableToscaTypes($scope.nodeCapabilityTypes);
+      a4cToscaProcessor.processNodeTemplate($scope.template);
 
       $scope.getCapabilityPropertyDefinition = function(capabilityTypeId, capabilityPropertyName) {
         var capabilityType = $scope.nodeCapabilityTypes[capabilityTypeId];
@@ -22,26 +27,13 @@ define(function(require) {
 
       $scope.getDataTypeForCapabilityProperty = function(capabilityTypeId, capabilityPropertyName) {
         var propertyDefinition = $scope.getCapabilityPropertyDefinition(capabilityTypeId, capabilityPropertyName);
-        return $scope.nodeDataTypes[propertyDefinition.type];
-      };
-
-      $scope.getPropertyDefinition = function(propertyName) {
-        return $scope.nodeType.propertiesMap[propertyName].value;
-      };
-
-      $scope.getDataTypeForProperty = function(propertyName) {
-        var propertyDefinition = $scope.getPropertyDefinition(propertyName);
-        return $scope.nodeDataTypes[propertyDefinition.type];
+        return $scope.resourceDataTypes[propertyDefinition.type];
       };
 
       $scope.relationshipTypeQuickSearchHandler = {
         'doQuickSearch': relationshipTypeQuickSearchService.doQuickSearch,
         'waitBeforeRequest': 500,
         'minLength': 3
-      };
-
-      $scope.checkMapSize = function(map) {
-        return _.defined(map) && Object.keys(map).length > 0;
       };
 
       $scope.updateHalfRelationshipType = function(name, relationshipTypeId) {
@@ -61,19 +53,6 @@ define(function(require) {
         });
       };
 
-      $scope.updateProperty = function(propertyName, propertyValue) {
-        var updatePromise = $scope.onPropertyUpdate({
-          propertyName: propertyName,
-          propertyValue: propertyValue
-        });
-        return updatePromise.then(function(response) {
-          if (_.undefined(response.error)) { // update was performed on server side - impact js data.
-            $scope.nodeTemplate.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
-          }
-          return response; // dispatch response to property display
-        });
-      };
-
       $scope.updateCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
         var updatePromise = $scope.onCapabilityPropertyUpdate({
           capabilityName: capabilityName,
@@ -82,7 +61,7 @@ define(function(require) {
         });
         return updatePromise.then(function(response) {
           if (_.undefined(response.error)) {
-            $scope.nodeTemplate.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
+            $scope.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
               value: propertyValue,
               definition: false
             };
@@ -91,15 +70,7 @@ define(function(require) {
         });
       };
 
-      $scope.canEditProperty = function(propertyName){
-        return $scope.isPropertyEditable({
-          propertyPath: {
-            propertyName: propertyName
-          }
-        });
-      };
       $scope.canEditCapabilityProperty = function(capabilityName, propertyName){
-
         return $scope.isPropertyEditable({
           propertyPath: {
             capabilityName: capabilityName,

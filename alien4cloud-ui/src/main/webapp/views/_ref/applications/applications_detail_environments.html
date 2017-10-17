@@ -21,6 +21,7 @@
               <th style="width: 180px">{{'COMMON.TYPE' | translate}}</th>
               <th>{{'COMMON.DESCRIPTION' | translate}}</th>
               <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -37,27 +38,21 @@
               </td>
               <td id="{{environment.name}}-name-td"><span editable-text="environment.name" onbeforesave="updateApplicationEnvironment('name', $data, environment.id, environment.name)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.name}} <i class="fa fa-edit"></i></span></td>
               <td>
-                <ui-select id="{{environment.name}}-versionslistid" ng-model="environment.selectedAppVersion" append-to-body="true" reset-search-input="true" close-on-select="true" on-select="forceUserToChangeTopoVersion(environment)">
-                  <ui-select-match placeholder="Select or search a version...">{{$select.selected.version | limitTo: 20}}{{$select.selected.version.length > 20 ? '...' : ''}}</ui-select-match>
-                  <ui-select-choices repeat="appVersion in archiveVersions | filter: $select.search">
-                    <span ng-bind-html="appVersion.version | limitTo: 20"></span>
-                    {{appVersion.version.length > 20 ? '...' : ''}}
-                  </ui-select-choices>
-                </ui-select>
+                {{environment.selectedAppVersion.version}}
               </td>
               <td>
-                <ui-select id="{{environment.name}}-topo-versions" ng-if="environment.selectedAppVersion" ng-model="environment.selectedAppTopoVersion" append-to-body="true" on-select="setAppTopologyVersion(environment, environment.selectedAppTopoVersion)" reset-search-input="true" close-on-select="true">
-                  <ui-select-match placeholder="Select or search a version...">{{$select.selected.key | limitTo: 20}}{{$select.selected.key.length > 20 ? '...' : ''}}</ui-select-match>
-                  <ui-select-choices repeat="topologyVersionRpt.key as (key, topologyVersionRpt) in environment.selectedAppVersion.topologyVersions | filter: {'key':$select.search}">
-                    <span ng-bind-html="topologyVersionRpt.key | limitTo: 20"></span>{{topologyVersionRpt.key.length > 20 ? '...' : ''}}
-                  </ui-select-choices>
-                </ui-select>
-                <span ng-if="!environment.selectedAppTopoVersion" class="text-danger">{{'APPLICATIONS.VERSION.CHANGE_TOPO_VERSION_WARNING' | translate}}</span>
+                <span class="text-muted" ng-bind-html="environment.selectedAppTopoVersion | a4cHighlight: variant.qualifier:'text-default'"></span>
               </td>
               <td>
                 <select class="form-control" name="envList" id="{{environment.name}}-envlistid" ng-model="environment.environmentType" ng-options="'ENVIRONMENT_TYPE.'+e | translate for e in envTypeList.data" ng-change="updateApplicationEnvironment('environmentType', environment.environmentType, environment.id)"></select>
               </td>
               <td><span editable-text="environment.description" onbeforesave="updateApplicationEnvironment('description', $data, environment.id, environment.description)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.description}} <i class="fa fa-edit"></i></span></td>
+              <td>
+                  <!-- Edit Git config -->
+                  <button class="btn btn-success" id="edit-git-env_{{environment.name}}" ng-click="editGit(environment.id)">
+                      <i class="fa fa-git"></i>
+                  </button>
+              </td>
               <td>
                 <!-- Remove an environment -->
                 <delete-confirm class="pull-right" id="delete-env_{{environment.name}}" func="delete(environment.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">

@@ -4,9 +4,20 @@
     <div class="row">
       <div class="col-md-4" style="text-align: center;">
         <!-- Image section -->
-        <div id="am.applications.detail.drag-and-drop" class="drop-box" ng-show="!application.imageId && isManager" ngf-drop="onImageSelected($files)">{{'APPLICATIONS.IMAGE_UPLOAD' | translate}}</div>
-        <img ng-show="noshow = (application.imageId && isManager)" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ngf-drop="onImageSelected($files)" />
-        <img ng-show="!noshow && application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" />
+        <div id="am.applications.detail.drag-and-drop" class="drop-box drop-box-for-icon" ng-if="!application.imageId && isManager" ngf-drop="onImageSelected($files)">
+          <span>
+            {{'APPLICATIONS.IMAGE_UPLOAD' | translate}}, {{'COMMON.OR' | translate}}
+            <label>
+              <span class="drop-box-browse">{{ 'UPLOAD.BROWSE' | translate }}</span>.
+              <input type="file"
+              ngf-select="onImageSelected($files)"
+              style="display:none"
+              multiple />
+            </label>
+          </span>
+        </div>
+        <img ng-if="noshow = (application.imageId && isManager)" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ngf-drop="onImageSelected($files)" />
+        <img ng-if="!noshow && application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" />
       </div>
       <div class="col-md-8">
         <div id="app-name" class="h1" style="display: inline-block;" ng-switch="isManager">
@@ -85,6 +96,13 @@
       <div class="text-muted">
         Prepare next deployment for an environment: associate a version, edit it's topology, configure deployment options and deploy.<br>Manage the current deployment for the environment.
       </div>
+      <!-- inplace search bar-->
+        <form class="grp-margin">
+          <div class="input-group">
+            <input id="inplace-search-query" type="text" class="form-control input-sm" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchEnv" style="padding-left: {{searchPadding}}px;">
+              <div class="input-group-addon"><i class="fa fa-search"></i></div>
+          </div>
+        </form>
       <table class="table table-condensed grp-margin">
         <thead>
           <tr>
@@ -96,7 +114,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="environment in environments" id='env_{{environment.id}}' class="clickable" ng-click="onEnvironment(environment.id)">
+          <tr ng-repeat="environment in environments | filter:searchEnv" id='env_{{environment.id}}' class="clickable" ng-click="onEnvironment(environment.id)">
             <td><i class="fa {{statusCss(environment)}}" uib-tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true"
             ></i></td>
             <td>{{environment.name}}</td>
@@ -113,6 +131,13 @@
       <div class="text-muted">
         Edit a version's topology out of the scope of an environment (allow the edition of a version that is not currently selected for deployment on any environment)
       </div>
+      <!-- inplace search bar-->
+      <form class="grp-margin">
+        <div class="input-group">
+          <input id="inplace-search-query" type="text" class="form-control input-sm" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchVersion">
+            <div class="input-group-addon"><i class="fa fa-search"></i></div>
+        </div>
+      </form>
       <table class="table table-condensed grp-margin">
         <thead>
           <tr>
@@ -121,7 +146,7 @@
             <th>Description</th>
           </tr>
         </thead>
-        <tbody ng-repeat="version in versions" id='v_{{version.id}}' class="clickable" ng-click="onVersion(version.id)">
+        <tbody ng-repeat="version in versions | filter:searchVersion" id='v_{{version.id}}' class="clickable" ng-click="onVersion(version.id)">
           <tr>
             <td rowspan="{{1 + _.size(version.topologyVersions)}}"><i class="fa" ng-class="{'fa-truck': version.released, 'fa-code': !version.released}"></i></td>
             <td colspan="2">{{version.version}}</td>

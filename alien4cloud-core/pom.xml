@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>2.0.0-SM1</version>
+    <version>2.0.0-SM2</version>
   </parent>
   <artifactId>alien4cloud-core</artifactId>
   <name>Alien 4 Cloud Core</name>
@@ -204,6 +204,7 @@
                 <excludedClasse>alien4cloud.model.deployment.DeploymentSourceType</excludedClasse>
                 <excludedClasse>alien4cloud.utils.version.ComparableVersion</excludedClasse>
                 <excludedClasse>org.alien4cloud.tosca.model.templates.AbstractTemplate</excludedClasse>
+                <excludedClasse>org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate</excludedClasse>
                 <excludedClasse>org.alien4cloud.tosca.model.definitions.AbstractPropertyValue</excludedClasse>
                 <excludedClasse>org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType</excludedClasse>
                 <excludedClasse>org.alien4cloud.tosca.model.definitions.PropertyDefinition</excludedClasse>

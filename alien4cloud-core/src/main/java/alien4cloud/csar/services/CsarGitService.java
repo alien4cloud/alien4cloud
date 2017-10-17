@@ -124,7 +124,7 @@ public class CsarGitService {
         Git git = null;
         try {
             // checkout the repository branch
-            log.debug("Checkout repository: url: <{}> branch <{}> to <{}>", csarGitRepository.getRepositoryUrl(), csarGitCheckoutLocation.getBranchId(),
+            log.debug("Checkout repository: url: [ {} ] branch [ {} ] to [ {} ]", csarGitRepository.getRepositoryUrl(), csarGitCheckoutLocation.getBranchId(),
                     tempDirPath);
             git = RepositoryManager.cloneOrCheckout(tempDirPath, csarGitRepository.getRepositoryUrl(), csarGitRepository.getUsername(),
                     csarGitRepository.getPassword(), csarGitCheckoutLocation.getBranchId(), csarGitRepository.getId());

@@ -13,11 +13,22 @@ define(function (require) {
         console.error(e);
       }
     },
-    undefined: function(val) {
-      return _.isUndefined(val) || _.isNull(val);
+    undefined: function(val, path) {
+      if(path === undefined) {
+        return _.isUndefined(val) || _.isNull(val);
+      }
+      var value = _.get(val, path);
+      return _.isUndefined(value) || _.isNull(value);
     },
-    defined: function(val) {
-      return !this.undefined(val);
+    defined: function(val, path) {
+      return !this.undefined(val, path);
+    },
+    // legacy alias for defined, undefined with a required path
+    undefinedPath: function (object, path) {
+      return this.undefined(object, path);
+    },
+    definedPath: function (object, path) {
+      return this.defined(object, path);
     },
     concat: function(arrayLeft, arrayRight) {
       if (this.defined(arrayLeft) && this.defined(arrayRight)) {
@@ -85,12 +96,6 @@ define(function (require) {
       }
       var result = string.slice(string.length - end);
       return omission + result;
-    },
-    undefinedPath: function (object, path){
-      return this.undefined(_.get(object, path));
-    },
-    definedPath: function (object, path){
-      return !this.undefinedPath(object, path);
     }
   });
   return _;

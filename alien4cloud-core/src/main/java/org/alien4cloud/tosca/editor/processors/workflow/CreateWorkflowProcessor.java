@@ -26,10 +26,10 @@ public class CreateWorkflowProcessor implements IEditorOperationProcessor<Create
     public void process(CreateWorkflowOperation operation) {
         Topology topology = EditionContextManager.getTopology();
         if (log.isDebugEnabled()) {
-            log.debug("creating new workflow <{}> in topology <{}>", operation.getWorkflowName(), topology.getId());
+            log.debug("creating new workflow [ {} ] in topology [ {} ]", operation.getWorkflowName(), topology.getId());
         }
         WorkflowUtils.validateName(operation.getWorkflowName());
-        workflowsBuilderService.ceateWorkflow(topology, operation.getWorkflowName());
+        workflowsBuilderService.createWorkflow(topology, operation.getWorkflowName());
     }
 
 }

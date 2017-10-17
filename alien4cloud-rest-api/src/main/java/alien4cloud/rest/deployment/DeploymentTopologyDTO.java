@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.topology.AbstractTopologyDTO;
 import alien4cloud.topology.TopologyValidationResult;
 import lombok.Getter;
@@ -21,8 +22,11 @@ public class DeploymentTopologyDTO extends AbstractTopologyDTO<DeploymentTopolog
     /** validation result of the deployment topology. */
     private TopologyValidationResult validation;
 
-    /** template id --> location resource template. **/
+    /** node template id --> location resource template. **/
     private Map<String, LocationResourceTemplate> locationResourceTemplates;
+
+    /** policy template id --> policy location resource template. **/
+    private Map<String, PolicyLocationResourceTemplate> policyLocationResourceTemplates;
 
     /** Information about which node can be substituted by which orchestrator's location's resource. */
     private DeploymentSubstitutionConfiguration availableSubstitutions;

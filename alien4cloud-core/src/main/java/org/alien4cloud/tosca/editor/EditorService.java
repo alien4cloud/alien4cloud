@@ -164,7 +164,6 @@ public class EditorService {
         }
         operation.setId(UUID.randomUUID().toString());
         EditionContextManager.get().setCurrentOperation(operation);
-        return;
     }
 
     // trigger editor operation

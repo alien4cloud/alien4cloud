@@ -20,8 +20,8 @@
   fill: whitesmoke;
 }
 
-.topology-svg-rect.selected {
-  fill: #dddddd;
+.node-template.node-hidden {
+  opacity: .5;
 }
 
 .topology-svg-rect.selected:hover {

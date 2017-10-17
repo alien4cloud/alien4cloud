@@ -123,7 +123,7 @@ define(function (require) {
         }
       }
       $scope.importInfos.push(importResult);
-      $scope.search();
+      // $scope.search();
     }
 
     $scope.closeUploadInfos = function(index) {

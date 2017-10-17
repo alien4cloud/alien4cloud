@@ -10,38 +10,31 @@ define(function(require) {
   require('scripts/common/services/list_to_map_service');
 
   modules.get('a4c-orchestrators').factory('a4cToscaProcessor', ['listToMapService', function(listToMapService) {
+    function processObject(toProcess, propertyToProcess){
+      // if the type has not been processed yet
+      if(_.definedPath(toProcess, propertyToProcess) && _.undefinedPath(toProcess, propertyToProcess+'Map')) {
+        listToMapService.process(toProcess, propertyToProcess);
+      }
+    }
     return {
-      processNodeType: function(nodeType) {
-        // if the node has not been processed yet
-        if(_.definedPath(nodeType,'properties') && _.undefinedPath(nodeType,'propertiesMap')) {
-          listToMapService.process(nodeType, 'properties');
-        }
+      processInheritableToscaTypes: function(toscaTypes){
+        var _this = this;
+        _.forEach(toscaTypes, function(toscaType){_this.processInheritableToscaType(toscaType);});
+
+      },
+      processInheritableToscaType: function(toscaType){
+        processObject(toscaType, 'properties');
+      },
+      processTemplate: function(template) {
+        processObject(template, 'properties');
       },
       processNodeTemplate: function(nodeTemplate) {
-        // if the node has not been processed yet
-        if(_.definedPath(nodeTemplate,'properties') && _.undefinedPath(nodeTemplate,'propertiesMap')) {
-          listToMapService.process(nodeTemplate, 'properties');
-          listToMapService.process(nodeTemplate, 'requirements');
-          listToMapService.process(nodeTemplate, 'capabilities');
+          processObject(nodeTemplate, 'properties');
+          processObject(nodeTemplate, 'requirements');
+          processObject(nodeTemplate, 'capabilities');
           _.each(nodeTemplate.capabilitiesMap, function(capabilityEntry){
-            listToMapService.process(capabilityEntry.value, 'properties');
+            processObject(capabilityEntry.value, 'properties');
           });
-        }
-      },
-      processCapabilityTypes: function(capabilityTypes) {
-        var _this = this;
-        _.each(capabilityTypes, function(capabilityType){ _this.processCapabilityType(capabilityType); });
-      },
-      processDataTypes: function(dataType) {
-        // if the node has not been processed yet
-        if(_.definedPath(dataType,'properties') && _.undefinedPath(dataType,'propertiesMap')) {
-          listToMapService.process(dataType, 'properties');
-        }
-      },
-      processCapabilityType: function(capabilityType) {
-        if(_.definedPath(capabilityType,'properties') && _.undefinedPath(capabilityType,'propertiesMap')) {
-          listToMapService.process(capabilityType, 'properties');
-        }
       }
     };
   } // function

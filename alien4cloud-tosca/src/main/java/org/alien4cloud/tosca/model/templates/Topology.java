@@ -12,6 +12,7 @@ import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.MapKeyValue;
@@ -29,11 +30,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Sets;
 
-import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.json.deserializer.NodeTemplateDeserializer;
 import alien4cloud.model.common.IDatableResource;
 import alien4cloud.model.common.IWorkspaceResource;
-import alien4cloud.paas.wf.Workflow;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
@@ -86,6 +85,13 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, NodeTemplate> nodeTemplates;
 
+    @MapKeyValue
+    @ConditionalOnAttribute(ConditionalAttributes.ES)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
+    private Map<String, PolicyTemplate> policies;
+
     @ObjectField(enabled = false)
     @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, PropertyDefinition> inputs;
@@ -93,8 +99,8 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     /**
      * Outputs coming from node properties:
      * <ul>
-     * <li>key is the node template name.
-     * <li>value is a list of node template property names.
+     * <li>key is the node template name.</li>
+     * <li>value is a list of node template property names.</li>
      * </ul>
      */
     @ObjectField(enabled = false)
@@ -104,9 +110,9 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     /**
      * Outputs coming from node template capability properties:
      * <ul>
-     * <li>key is the node template name.
-     * <li>key is the capability name.
-     * <li>value is a list of output property names.
+     * <li>key is the node template name.</li>
+     * <li>key is the capability name.</li>
+     * <li>value is a list of output property names.</li>
      * </ul>
      */
     @ObjectField(enabled = false)
@@ -116,8 +122,8 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     /**
      * Outputs coming from node attributes:
      * <ul>
-     * <li>key is the node template name.
-     * <li>value is a list of node template attribute names.
+     * <li>key is the node template name.</li>
+     * <li>value is a list of node template attribute names.</li>
      * </ul>
      */
     @ObjectField(enabled = false)

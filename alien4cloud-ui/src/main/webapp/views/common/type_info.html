@@ -1,0 +1,12 @@
+<div>
+  <span><b>{{'COMMON.TYPE' | translate}}: </b></span>
+  <span>{{selectedNodeTemplate.type}}</span>
+</div>
+<div>
+  <span>
+    <i class="fa fa-archive"></i> {{topology.nodeTypes[selectedNodeTemplate.type].archiveName}}
+  </span>
+  <span>
+    {{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}
+  </span>
+</div>

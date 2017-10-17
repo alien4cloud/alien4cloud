@@ -6,6 +6,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 
 import lombok.AllArgsConstructor;
@@ -24,4 +25,5 @@ public class AbstractTopologyDTO<T extends Topology> {
     private Map<String, RelationshipType> relationshipTypes;
     private Map<String, CapabilityType> capabilityTypes;
     private Map<String, DataType> dataTypes;
+    private Map<String, PolicyType> policyTypes;
 }

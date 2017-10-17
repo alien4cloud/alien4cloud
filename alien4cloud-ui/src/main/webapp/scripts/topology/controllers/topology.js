@@ -23,6 +23,7 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_nodes');
   require('scripts/topology/controllers/topology_editor_nodesswap');
   require('scripts/topology/controllers/topology_editor_outputs');
+  require('scripts/topology/controllers/topology_editor_policies');
   require('scripts/topology/controllers/topology_editor_properties');
   require('scripts/topology/controllers/topology_editor_relationships');
   require('scripts/topology/controllers/topology_editor_substitution');
@@ -37,6 +38,7 @@ define(function (require) {
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
     ['$scope', '$uibModal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService','hotkeys', '$translate',
     'defaultFilters',
+    'badges',
     'topoEditArtifacts',
     'topoEditDisplay',
     'topoEditGroups',
@@ -44,12 +46,14 @@ define(function (require) {
     'topoEditNodes',
     'topoEditNodesSwap',
     'topoEditOutputs',
+    'topoEditPolicies',
     'topoEditProperties',
     'topoEditRelationships',
     'topoEditSubstitution',
     'topoEditDependencies',
     function($scope, $uibModal, $timeout, componentService, nodeTemplateService, toscaService, hotkeys, $translate,
     defaultFilters,
+    badges,
     topoEditArtifacts,
     topoEditDisplay,
     topoEditGroups,
@@ -57,11 +61,13 @@ define(function (require) {
     topoEditNodes,
     topoEditNodesSwap,
     topoEditOutputs,
+    topoEditPolicies,
     topoEditProperties,
     topoEditRelationships,
     topoEditSubstitution,
     topoEditDependencies) {
       $scope.defaultFilters = defaultFilters;
+      $scope.badges = badges;
       $scope.isRuntime = false;
 
       $scope.isNodeTemplateCollapsed = false;
@@ -73,14 +79,14 @@ define(function (require) {
       $scope.isRequirementsCollapsed = false;
       $scope.isCapabilitiesCollapsed = false;
       $scope.displays = {
-        catalog: { active: true, size: 500, selector: '#catalog-box', only: ['topology', 'catalog'] },
-        dependencies: { active: false, size: 400, selector: '#dependencies-box', only: ['topology', 'dependencies'] },
-        inputs: { active: false, size: 400, selector: '#inputs-box', only: ['topology', 'inputs'], keep: ['nodetemplate'] },
-        artifacts: { active: false, size: 400, selector: '#artifacts-box', only: ['topology', 'artifacts'], keep: ['nodetemplate'] },
-        groups: { active: false, size: 400, selector: '#groups-box', only: ['topology', 'groups'], keep: ['nodetemplate'] },
-        substitutions: { active: false, size: 400, selector: '#substitutions-box', only: ['topology', 'substitutions'], keep: ['nodetemplate'] },
-        nodetemplate: { active: false, size: 500, selector: '#nodetemplate-box', only: ['topology', 'nodetemplate'], keep: ['inputs'] },
-        workflows: { active: false, size: 400, selector: '#workflows-box', only:['workflows'] }
+        catalog: { active: true, size: 500, selector: '#catalog-box', only: ['catalog'] },
+        dependencies: { active: false, size: 400, selector: '#dependencies-box', only: ['dependencies'] },
+        inputs: { active: false, size: 400, selector: '#inputs-box', only: ['inputs'], keep: ['nodetemplate'] },
+        policies: { active: false, size: 400, selector: '#policies-box', only: ['policies'], keep: ['policiescatalog']},
+        policiescatalog: { active: false, size: 500, selector: '#policiescatalog-box', only: ['policiescatalog'], keep: ['policies']},
+        groups: { active: false, size: 400, selector: '#groups-box', only: ['groups'], keep: ['nodetemplate'] },
+        substitutions: { active: false, size: 400, selector: '#substitutions-box', only: ['substitutions'], keep: ['nodetemplate'] },
+        nodetemplate: { active: false, size: 500, selector: '#nodetemplate-box', only: ['nodetemplate'], keep: ['inputs'] }
       };
 
       topoEditDisplay($scope, '#topology-editor');
@@ -90,6 +96,7 @@ define(function (require) {
       topoEditNodes($scope);
       topoEditNodesSwap($scope);
       topoEditOutputs($scope);
+      topoEditPolicies($scope);
       topoEditProperties($scope);
       topoEditRelationships($scope);
       topoEditSubstitution($scope);
@@ -172,6 +179,7 @@ define(function (require) {
       }
 
       $scope.getIcon = toscaService.getIcon;
+      $scope.getTag = toscaService.getTag;
       // check if compute type
       $scope.isComputeType = function(nodeTemplate) {
         if (_.undefined($scope.topology) || _.undefined(nodeTemplate)) {
@@ -232,7 +240,7 @@ define(function (require) {
           newSelected.selected = true;
 
           fillNodeSelectionVars(newSelected);
-          $scope.triggerTopologyRefresh = {};
+          $scope.$broadcast('editorSelectionChangedEvent', { nodeNames: [ newSelectedName ] });
           $scope.$digest();
         }
       };

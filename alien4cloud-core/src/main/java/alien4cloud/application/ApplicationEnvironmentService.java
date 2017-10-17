@@ -1,5 +1,6 @@
 package alien4cloud.application;
 
+import static alien4cloud.common.ResourceUpdateInterceptor.TopologyVersionChangedInfo;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 import java.util.Map;
@@ -21,12 +22,12 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.common.ResourceUpdateInterceptor;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentLockService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
-import alien4cloud.deployment.OrchestratorPropertiesValidationService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteReferencedObjectException;
@@ -49,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ApplicationEnvironmentService {
-    private final static String DEFAULT_ENVIRONMENT_NAME = "Environment";
+    private static final String DEFAULT_ENVIRONMENT_NAME = "Environment";
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
@@ -66,7 +67,7 @@ public class ApplicationEnvironmentService {
     @Inject
     private DeploymentLockService deploymentLockService;
     @Inject
-    private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
+    private ResourceUpdateInterceptor resourceUpdateInterceptor;
 
     /**
      * Method used to create a default environment
@@ -108,6 +109,7 @@ public class ApplicationEnvironmentService {
         userRoles.put(user, Sets.newHashSet(ApplicationEnvironmentRole.DEPLOYMENT_MANAGER.toString()));
         applicationEnvironment.setUserRoles(userRoles);
         alienDAO.save(applicationEnvironment);
+        resourceUpdateInterceptor.runOnNewEnvironment(applicationEnvironment);
         return applicationEnvironment;
     }
 
@@ -237,7 +239,7 @@ public class ApplicationEnvironmentService {
         long result = alienDAO.count(ApplicationEnvironment.class, null,
                 MapUtil.newHashMap(new String[] { "applicationId", "name" }, new String[][] { new String[] { applicationId }, new String[] { name } }));
         if (result > 0) {
-            log.debug("Application environment with name <{}> already exists for application id <{}>", name, applicationId);
+            log.debug("Application environment with name [ {} ] already exists for application id [ {} ]", name, applicationId);
             throw new AlreadyExistException("An application environment with the given name already exists");
         }
     }
@@ -253,7 +255,7 @@ public class ApplicationEnvironmentService {
     public ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, IResourceRoles... roles) {
         ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
         // Does the user is allowed access (application, environment) level ?
-        if(AuthorizationUtil.hasAuthorization(applicationEnvironment, Role.ADMIN, roles)){
+        if (AuthorizationUtil.hasAuthorization(applicationEnvironment, Role.ADMIN, roles)) {
             return applicationEnvironment;
         }
         // Does the user is allowed to access at the application level
@@ -315,7 +317,7 @@ public class ApplicationEnvironmentService {
 
     /**
      * Get the topology id linked to the environment
-     * 
+     *
      * @param applicationEnvironmentId The id of the environment.
      * @return a topology id or null
      */
@@ -360,6 +362,12 @@ public class ApplicationEnvironmentService {
         }
         publisher.publishEvent(new AfterEnvironmentTopologyVersionChanged(this, oldTopologyVersion, newTopologyVersion, applicationEnvironment.getId(),
                 applicationEnvironment.getApplicationId()));
+
+        resourceUpdateInterceptor.runOnEnvironmentTopologyVersionChanged(new TopologyVersionChangedInfo(
+                applicationEnvironment,
+                oldTopologyVersion,
+                newTopologyVersion
+        ));
     }
 
     private void failIfExposedAsService(ApplicationEnvironment environment) {

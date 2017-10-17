@@ -15,6 +15,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.deployment.matching.services.location.LocationMatchingService;
@@ -22,6 +23,7 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
+import alien4cloud.plugin.exception.MissingPluginException;
 import alien4cloud.topology.validation.LocationPolicyValidationService;
 import alien4cloud.tosca.context.ToscaContext;
 
@@ -37,6 +39,8 @@ public class LocationMatchingModifier implements ITopologyModifier {
     private LocationService locationService;
     @Inject
     private LocationPolicyValidationService locationPolicyValidationService;
+    @Inject
+    private PluginModifierRegistry pluginModifierRegistry;
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
@@ -50,6 +54,43 @@ public class LocationMatchingModifier implements ITopologyModifier {
         // perform validation
         locationPolicyValidationService.validateLocationPolicies(configurationOptional.orElse(new DeploymentMatchingConfiguration()))
                 .forEach(locationPolicyTask -> context.log().error(locationPolicyTask));
+
+        // No errors from validation let's inject location topology modifiers if any.
+        if (context.log().isValid()) {
+            // FIXME this code is a temporary demo implementation for 2.0.0 SM2, it has to be removed and improved in favor of a clear definition of locaiton
+            // modifiers.
+            List<ILocationMatch> locationMatches = (List<ILocationMatch>) context.getExecutionCache().get(FlowExecutionContext.LOCATION_MATCH_CACHE_KEY);
+            String locationModifierDefinitionsStr = safe(locationMatches.get(0).getLocation().getMetaProperties()).get("loc_modifiers");
+            if (locationModifierDefinitionsStr == null) {
+                return;
+            }
+            String[] locationModifierDefinitions = locationModifierDefinitionsStr.split(",");
+            for (String locationModifierDefinition : locationModifierDefinitions) {
+                injectLocationTopologyModfier(context, locationMatches.get(0).getLocation().getName(), locationModifierDefinition);
+            }
+        }
+    }
+
+    private void injectLocationTopologyModfier(FlowExecutionContext context, String locationName, String locationModifierDefinition) {
+        String[] locationModifierImpl = locationModifierDefinition.split(":");
+        if (locationModifierImpl.length != 3) {
+            context.log().error(
+                    "Matched location {} defines an invalid modifier implementation {}, format should be policy_plugin_id:policy_plugin_bean:injection_phase",
+                    locationName, locationModifierDefinition);
+        }
+
+        try {
+            ITopologyModifier modifier = pluginModifierRegistry.getPluginBean(locationModifierImpl[0], locationModifierImpl[1]);
+            List<ITopologyModifier> phaseModifiers = (List<ITopologyModifier>) context.getExecutionCache().get(locationModifierImpl[2]);
+            if (phaseModifiers == null) {
+                phaseModifiers = Lists.newArrayList();
+                context.getExecutionCache().put(locationModifierImpl[2], phaseModifiers);
+            }
+            phaseModifiers.add(modifier);
+        } catch (MissingPluginException e) {
+            context.log().error("Location {} defines modifier that refers to plugin bean {}, {} cannot be found.", locationName, locationModifierImpl[0],
+                    locationModifierImpl[1]);
+        }
     }
 
     private void processLocationMatching(Topology topology, FlowExecutionContext context) {

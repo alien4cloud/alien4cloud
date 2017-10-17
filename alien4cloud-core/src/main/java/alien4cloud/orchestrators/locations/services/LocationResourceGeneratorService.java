@@ -1,35 +1,34 @@
 package alien4cloud.orchestrators.locations.services;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.types.NodeType;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
-import alien4cloud.topology.TopologyServiceCore;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
-import static alien4cloud.utils.AlienUtils.safe;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
+import alien4cloud.tosca.topology.TemplateBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Location Resource Generator Service provides utilities to generate location resources .
@@ -38,7 +37,7 @@ import static alien4cloud.utils.AlienUtils.safe;
 @Slf4j
 public class LocationResourceGeneratorService {
     @Inject
-    private TopologyServiceCore topologyService;
+    private TemplateBuilder templateBuilder;
 
     @Getter
     @Setter
@@ -91,7 +90,7 @@ public class LocationResourceGeneratorService {
                     if (count > 0) {
                         name = name + "_" + count;
                     }
-                    NodeTemplate node = topologyService.buildNodeTemplate(dependencies, indexedNodeType, null);
+                    NodeTemplate node = templateBuilder.buildNodeTemplate(dependencies, indexedNodeType);
                     // set the imageId
                     node.getProperties().put(computeContext.getImageIdPropertyName(),
                             image.getTemplate().getProperties().get(imageContext.getIdPropertyName()));

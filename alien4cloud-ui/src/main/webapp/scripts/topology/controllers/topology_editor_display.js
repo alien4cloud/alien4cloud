@@ -71,7 +71,7 @@ define(function (require) {
         },
         // display given elements and hide others except keepDisplays if active
         displayOnly: function(displays, keepDisplays) {
-          _.each(this.scope.displays, function(display, displayName){
+          _.each(this.scope.displays, function(display, displayName) {
             if(!_.contains(keepDisplays, displayName)) {
               display.active = _.contains(displays, displayName);
             }
@@ -79,6 +79,7 @@ define(function (require) {
         },
         displayAndUpdateVisualDimensions: function(displays, keepDisplays) {
           this.displayOnly(displays, keepDisplays);
+          this.scope.$broadcast('displayUpdate', { displays: this.scope.displays });
           this.updateVisualDimensions();
         },
         set: function(displayName, active) {
@@ -87,7 +88,6 @@ define(function (require) {
           }
         },
         toggle: function(displayName) {
-          var beforeComponentActive = this.scope.isRuntime ? false : this.scope.displays.nodetemplate.active;
           var targetDisplay = this.scope.displays[displayName];
           targetDisplay.active = !targetDisplay.active;
           // When some display are active some other may have not to be displayed.
@@ -95,13 +95,7 @@ define(function (require) {
             this.displayOnly(targetDisplay.only, targetDisplay.keep);
           }
 
-          if(beforeComponentActive && !this.scope.displays.nodetemplate.active &&
-            _.defined(this.scope.selectedNodeTemplate)) {
-            this.scope.selectedNodeTemplate.selected = false;
-            this.scope.selectedNodeTemplate = null;
-            this.scope.triggerTopologyRefresh = {};
-          }
-
+          this.scope.$broadcast('displayUpdate', { displays: this.scope.displays });
           this.updateVisualDimensions();
         }
       };

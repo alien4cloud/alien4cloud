@@ -42,4 +42,13 @@ public interface ILocationConfiguratorPlugin {
      * @return A list of locations resources templates that users can define or null if the plugin doesn't support auto-configuration of resources..
      */
     List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor) throws UnsupportedOperationException;
+
+    /**
+     * Get a list of the policies types supported by the location.
+     *
+     * @return A list of location policies types.
+     */
+    default List<String> getPoliciesTypes() {
+        return null;
+    }
 }

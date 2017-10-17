@@ -8,17 +8,11 @@ import javax.annotation.PostConstruct;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
+import org.alien4cloud.git.model.GitLocation;
 import org.alien4cloud.server.MaintenanceModeState;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.types.ArtifactType;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.PrimitiveDataType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.types.*;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.IndexingServiceException;
@@ -33,8 +27,10 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
+import alien4cloud.model.orchestrators.locations.AbstractLocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.model.repository.Repository;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.plugin.Plugin;
@@ -72,7 +68,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         setJsonMapper(ElasticSearchMapper.getInstance());
 
         initIndices(TOSCA_ELEMENT_INDEX, null, CapabilityType.class, ArtifactType.class, RelationshipType.class, NodeType.class, DataType.class,
-                PrimitiveDataType.class);
+                PrimitiveDataType.class, PolicyType.class);
         initIndices(TOSCA_ELEMENT_INDEX, null, AbstractInstantiableToscaType.class, AbstractToscaType.class);
 
         initIndice(Application.class);
@@ -89,7 +85,8 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(Orchestrator.class);
         initIndice(OrchestratorConfiguration.class);
         initIndice(Location.class);
-        initIndice(LocationResourceTemplate.class);
+        initIndices(LocationResourceTemplate.class.getSimpleName().toLowerCase(), null, LocationResourceTemplate.class, PolicyLocationResourceTemplate.class,
+                AbstractLocationResourceTemplate.class);
 
         initIndice(Deployment.class);
         initIndice(CsarGitRepository.class);
@@ -98,7 +95,9 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(DeploymentMatchingConfiguration.class);
         initIndice(OrchestratorDeploymentProperties.class);
 
+        initIndice(DataObjectVersion.class);
         initIndice(MaintenanceModeState.class);
+        initIndice(GitLocation.class);
 
         initIndices(SUGGESTION_INDEX, null, AbstractSuggestionEntry.class, SuggestionEntry.class, SimpleSuggestionEntry.class);
 

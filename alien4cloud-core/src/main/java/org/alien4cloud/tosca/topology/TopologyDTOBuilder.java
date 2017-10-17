@@ -20,6 +20,7 @@ import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.utils.DataTypesFetcher;
 import org.apache.commons.collections4.MapUtils;
@@ -32,6 +33,8 @@ import alien4cloud.topology.DependencyConflictDTO;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Service that helps to create a topology dto object out of a topology.
@@ -105,12 +108,19 @@ public class TopologyDTOBuilder {
         topologyDTO.setRelationshipTypes(getRelationshipTypes(topology));
         topologyDTO.setCapabilityTypes(getCapabilityTypes(topologyDTO));
         topologyDTO.setDataTypes(getDataTypes(topologyDTO));
+        topologyDTO.setPolicyTypes(getPolicyTypes(topology));
         return topologyDTO;
     }
 
     private <T extends Topology> Map<String, NodeType> getNodeTypes(T topology) {
         Map<String, NodeType> types = Maps.newHashMap();
         fillTypeMap(NodeType.class, types, topology.getNodeTemplates(), false, false);
+        return types;
+    }
+
+    private <T extends Topology> Map<String, PolicyType> getPolicyTypes(T topology) {
+        Map<String, PolicyType> types = Maps.newHashMap();
+        fillTypeMap(PolicyType.class, types, topology.getPolicies(), false, false);
         return types;
     }
 
@@ -129,10 +139,10 @@ public class TopologyDTOBuilder {
         Map<String, NodeType> delayedNodeTypeAddMap = Maps.newHashMap();
         for (NodeType nodeType : topologyDTO.getNodeTypes().values()) {
             if (nodeType != null) {
-                for (CapabilityDefinition capabilityDefinition : nodeType.getCapabilities()) {
+                for (CapabilityDefinition capabilityDefinition : safe(nodeType.getCapabilities())) {
                     types.put(capabilityDefinition.getType(), ToscaContext.get(CapabilityType.class, capabilityDefinition.getType()));
                 }
-                for (RequirementDefinition requirementDefinition : nodeType.getRequirements()) {
+                for (RequirementDefinition requirementDefinition : safe(nodeType.getRequirements())) {
                     CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, requirementDefinition.getType());
                     if (capabilityType != null) {
                         types.put(requirementDefinition.getType(), capabilityType);

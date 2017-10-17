@@ -12,7 +12,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
@@ -111,7 +111,7 @@ public class InputArtifactsModifier implements ITopologyModifier {
      * @param artifactMap The map of inputArtifactId -> List of associated artifacts into which to map the given template's artifacts.
      * @param template The template for which to map artifact.
      */
-    private static void processInputArtifactForTemplate(Map<String, List<DeploymentArtifact>> artifactMap, AbstractTemplate template) {
+    private static void processInputArtifactForTemplate(Map<String, List<DeploymentArtifact>> artifactMap, AbstractInstantiableTemplate template) {
         for (DeploymentArtifact da : template.getArtifacts().values()) {
             String inputArtifactId = InputArtifactUtil.getInputArtifactId(da);
             if (inputArtifactId != null) {

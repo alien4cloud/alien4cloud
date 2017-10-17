@@ -31,7 +31,7 @@ import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
-import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import alien4cloud.tosca.topology.TemplateBuilder;
 import alien4cloud.utils.services.PropertyService;
 
 /**
@@ -54,7 +54,7 @@ public class NodeInstanceService {
      */
     @ToscaContextual
     public NodeInstance create(NodeType nodeType, String typeVersion) {
-        NodeTemplate nodeTemplate = NodeTemplateBuilder.buildNodeTemplate(nodeType, null);
+        NodeTemplate nodeTemplate = TemplateBuilder.buildNodeTemplate(nodeType, null);
         NodeInstance instance = new NodeInstance();
         instance.setAttribute(ToscaNodeLifecycleConstants.ATT_STATE, ToscaNodeLifecycleConstants.INITIAL);
         instance.setNodeTemplate(nodeTemplate);
@@ -69,7 +69,7 @@ public class NodeInstanceService {
         nodeInstance.getNodeTemplate().setCapabilities(nodeCapabilities);
         // performs property values validations and ensure the node template match the required type
 
-        nodeInstance.setNodeTemplate(NodeTemplateBuilder.buildNodeTemplate(nodeType, nodeInstance.getNodeTemplate()));
+        nodeInstance.setNodeTemplate(TemplateBuilder.buildNodeTemplate(nodeType, nodeInstance.getNodeTemplate()));
         nodeInstance.setAttributeValues(nodeAttributeValues);
     }
 

@@ -1,5 +1,7 @@
 package alien4cloud.orchestrators.locations.services;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,12 +21,16 @@ import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.utils.DataTypesFetcher;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -39,25 +45,27 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.events.LocationTemplateCreated;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.locations.AbstractLocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplateWithDependencies;
 import alien4cloud.model.orchestrators.locations.LocationResources;
+import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.container.ToscaTypeLoader;
-import alien4cloud.utils.MapUtil;
+import alien4cloud.tosca.topology.TemplateBuilder;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.PropertyService;
 
@@ -71,7 +79,7 @@ public class LocationResourceService implements ILocationResourceService {
     @Inject
     private ICSARRepositorySearchService csarRepoSearchService;
     @Inject
-    private TopologyServiceCore topologyService;
+    private TemplateBuilder templateBuilder;
     @Inject
     private LocationService locationService;
     @Inject
@@ -103,6 +111,10 @@ public class LocationResourceService implements ILocationResourceService {
         // Also get resource templates from outside of the orchestrator definition - eg custom resources
         List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
         LocationResources locationResources = new LocationResources(getLocationResourceTypes(locationResourceTemplates));
+
+        // process policies types also
+        List<PolicyLocationResourceTemplate> policyLocationResourceTemplates = getPoliciesResourcesTemplates(location.getId());
+        locationResources.addFrom(getPoliciesLocationResourceTypes(policyLocationResourceTemplates));
         /*
          * If the orchestrator is present, take node types computed from the resources template
          * as "Custom resources types". If not, consider this is an orchestrator-free location.
@@ -114,8 +126,10 @@ public class LocationResourceService implements ILocationResourceService {
             locationResources.getProvidedTypes().addAll(orchestratorResources.getNodeTypes().keySet());
             locationResources.getAllNodeTypes().putAll(orchestratorResources.getAllNodeTypes());
             locationResources.getOnDemandTypes().putAll(orchestratorResources.getOnDemandTypes());
+            locationResources.getPolicyTypes().putAll(orchestratorResources.getPolicyTypes());
         });
         setLocationRessource(locationResourceTemplates, locationResources);
+        locationResources.getPolicyTemplates().addAll(policyLocationResourceTemplates);
         return locationResources;
     }
 
@@ -130,42 +144,56 @@ public class LocationResourceService implements ILocationResourceService {
     public LocationResources getLocationResourcesFromOrchestrator(Location location) {
         LocationResources locationResources = new LocationResources();
         Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
+        IOrchestratorPlugin orchestratorInstance = orchestratorPluginService.getOrFail(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
-        List<String> allExposedTypes = configuratorPlugin.getResourcesTypes();
-        fillLocationResourceTypes(allExposedTypes, locationResources, location.getDependencies());
 
+        fillLocationResourceTypes(configuratorPlugin.getResourcesTypes(), locationResources, location.getDependencies());
+        fillPoliciesLocationResourceTypes(configuratorPlugin.getPoliciesTypes(), locationResources, location.getDependencies());
+
+        // add LocationResourceTemplate
         List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
         setLocationRessource(locationResourceTemplates, locationResources);
+
+        // add PolicyLocationResourceTemplate
+        locationResources.getPolicyTemplates().addAll(getPoliciesResourcesTemplates(location.getId()));
         return locationResources;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getLocationResourceTypes(java.util.Collection)
      */
     @Override
     public LocationResourceTypes getLocationResourceTypes(Collection<LocationResourceTemplate> resourceTemplates) {
+        LocationResourceTypes locationResourceTypes = new LocationResourceTypes();
+        fillLocationResourceTypes(resourceTemplates,
+                (exposedTypes, dependencies) -> fillLocationResourceTypes(exposedTypes, locationResourceTypes, dependencies));
+        return locationResourceTypes;
+    }
+
+    @Override
+    public LocationResourceTypes getPoliciesLocationResourceTypes(Collection<PolicyLocationResourceTemplate> resourceTemplates) {
+        LocationResourceTypes locationResourceTypes = new LocationResourceTypes();
+        fillLocationResourceTypes(resourceTemplates,
+                (exposedTypes, dependencies) -> fillPoliciesLocationResourceTypes(exposedTypes, locationResourceTypes, dependencies));
+        return locationResourceTypes;
+    }
+
+    private void fillLocationResourceTypes(Collection<? extends AbstractLocationResourceTemplate> resourceTemplates, IResourceTypeFiller resourceTypeFiller) {
         Map<String, Set<String>> resourceTypesByLocationId = Maps.newHashMap();
-        for (LocationResourceTemplate resourceTemplate : resourceTemplates) {
+        for (AbstractLocationResourceTemplate resourceTemplate : resourceTemplates) {
             if (!resourceTemplate.isService()) {
-                Set<String> locationResourceTypes = resourceTypesByLocationId.get(resourceTemplate.getLocationId());
-                if (locationResourceTypes == null) {
-                    locationResourceTypes = Sets.newHashSet();
-                    resourceTypesByLocationId.put(resourceTemplate.getLocationId(), locationResourceTypes);
-                }
-                locationResourceTypes.add(resourceTemplate.getTemplate().getType());
+                Set<String> locationResourceTypesSet = resourceTypesByLocationId.computeIfAbsent(resourceTemplate.getLocationId(), k -> Sets.newHashSet());
+                locationResourceTypesSet.add(resourceTemplate.getTemplate().getType());
             }
         }
-        LocationResourceTypes locationResourceTypes = new LocationResourceTypes();
         for (Map.Entry<String, Set<String>> resourceTypeByLocationIdEntry : resourceTypesByLocationId.entrySet()) {
             String locationId = resourceTypeByLocationIdEntry.getKey();
             Set<String> exposedTypes = resourceTypeByLocationIdEntry.getValue();
             Location location = locationService.getOrFail(locationId);
-            fillLocationResourceTypes(exposedTypes, locationResourceTypes, location.getDependencies());
+            resourceTypeFiller.process(exposedTypes, location.getDependencies());
         }
-        return locationResourceTypes;
     }
 
     /**
@@ -173,33 +201,40 @@ public class LocationResourceService implements ILocationResourceService {
      */
     public void fillLocationResourceTypes(Collection<String> exposedTypes, LocationResourceTypes locationResourceTypes,
             final Set<CSARDependency> dependencies) {
+        fillLocationResourceTypes(exposedTypes, locationResourceTypes, dependencies, (exposedType) -> {
+            NodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, exposedType, dependencies);
+            addExposedNodeType(locationResourceTypes, dependencies, nodeType);
+        });
+    }
+
+    private void fillLocationResourceTypes(Collection<String> exposedTypes, LocationResourceTypes locationResourceTypes, Set<CSARDependency> dependencies,
+            IResourceTypeAdder resourceTypeAdder) {
         if (CollectionUtils.isEmpty(exposedTypes) || CollectionUtils.isEmpty(dependencies)) {
             // Protect as in some case this method is called even if there's nothing to fill in
             return;
         }
-        for (String exposedType : exposedTypes) {
-            NodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, exposedType, dependencies);
 
-            if (exposedIndexedNodeType.isAbstract()) {
-                locationResourceTypes.getConfigurationTypes().put(exposedType, exposedIndexedNodeType);
-            } else {
-                locationResourceTypes.getNodeTypes().put(exposedType, exposedIndexedNodeType);
-            }
+        exposedTypes.forEach(exposedType -> resourceTypeAdder.process(exposedType));
 
-            if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
-                for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
-                    locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(),
-                            csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies));
-                }
-            }
-        }
         Map<String, DataType> allDataTypes = new HashMap<>(locationResourceTypes.getDataTypes());
         DataTypesFetcher.DataTypeFinder dataTypeFinder = (type, id) -> csarRepoSearchService.getElementInDependencies(type, id, dependencies);
         allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getNodeTypes().values(), dataTypeFinder));
         allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getCapabilityTypes().values(), dataTypeFinder));
         allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getOnDemandTypes().values(), dataTypeFinder));
         allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getConfigurationTypes().values(), dataTypeFinder));
+        allDataTypes.putAll(DataTypesFetcher.getDataTypesDependencies(locationResourceTypes.getPolicyTypes().values(), dataTypeFinder));
         locationResourceTypes.setDataTypes(allDataTypes);
+    }
+
+    private void addExposedNodeType(LocationResourceTypes locationResourceTypes, Set<CSARDependency> dependencies, NodeType exposedNodeType) {
+        if (exposedNodeType.isAbstract()) {
+            locationResourceTypes.getConfigurationTypes().put(exposedNodeType.getElementId(), exposedNodeType);
+        } else {
+            locationResourceTypes.getNodeTypes().put(exposedNodeType.getElementId(), exposedNodeType);
+        }
+
+        safe(exposedNodeType.getCapabilities()).forEach(capabilityDefinition -> locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(),
+                csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), dependencies)));
     }
 
     /**
@@ -239,7 +274,7 @@ public class LocationResourceService implements ILocationResourceService {
                 // Get all the location resources templates for the given type.
                 Map<String, String[]> filter = getLocationIdFilter(locationId);
                 filter.put("types", types);
-                return getResourcesTemplates(filter);
+                return getResourcesTemplates(LocationResourceTemplate.class, filter);
             }
 
             @Override
@@ -255,12 +290,11 @@ public class LocationResourceService implements ILocationResourceService {
     }
 
     private Map<String, String[]> getLocationIdFilter(String locationId) {
-        return MapUtil.newHashMap(new String[] { "locationId" }, new String[][] { new String[] { locationId } });
+        return FilterUtil.singleKeyFilter("locationId", locationId);
     }
 
-    private List<LocationResourceTemplate> getResourcesTemplates(Map<String, String[]> filter) {
-        // get all defined resources for this resource.
-        GetMultipleDataResult<LocationResourceTemplate> result = alienDAO.find(LocationResourceTemplate.class, filter, Integer.MAX_VALUE);
+    private <T extends AbstractLocationResourceTemplate> List<T> getResourcesTemplates(Class<T> clazz, Map<String, String[]> filter) {
+        GetMultipleDataResult<T> result = alienDAO.find(clazz, filter, Integer.MAX_VALUE);
         if (result.getData() == null) {
             return Lists.newArrayList();
         }
@@ -274,24 +308,7 @@ public class LocationResourceService implements ILocationResourceService {
      */
     @Override
     public List<LocationResourceTemplate> getResourcesTemplates(String locationId) {
-        return getResourcesTemplates(getLocationIdFilter(locationId));
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getMultiple(java.util.Collection)
-     */
-    @Override
-    public Map<String, LocationResourceTemplate> getMultiple(Collection<String> ids) {
-        Map<String, LocationResourceTemplate> result = Maps.newHashMap();
-        if (CollectionUtils.isNotEmpty(ids)) {
-            List<LocationResourceTemplate> templates = alienDAO.findByIds(LocationResourceTemplate.class, ids.toArray(new String[ids.size()]));
-            for (LocationResourceTemplate template : templates) {
-                result.put(template.getId(), template);
-            }
-        }
-        return result;
+        return getResourcesTemplates(LocationResourceTemplate.class, getLocationIdFilter(locationId));
     }
 
     /*
@@ -306,30 +323,34 @@ public class LocationResourceService implements ILocationResourceService {
     }
 
     private LocationResourceTemplate addResourceTemplate(Location location, String resourceName, String resourceTypeName) {
-        LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
         NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName, location.getDependencies());
-
-        NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(location.getDependencies(), resourceType, null);
+        NodeTemplate nodeTemplate = templateBuilder.buildNodeTemplate(location.getDependencies(), resourceType);
         // FIXME Workaround to remove default scalable properties from compute
         TopologyUtils.setNullScalingPolicy(nodeTemplate, resourceType);
+        LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
+        locationResourceTemplate.setGenerated(false);
+        fillAndSaveLocationResourceTemplate(location, resourceName, locationResourceTemplate, resourceType, nodeTemplate);
+        return locationResourceTemplate;
+    }
+
+    private <T extends AbstractTemplate> void fillAndSaveLocationResourceTemplate(Location location, String resourceName,
+            AbstractLocationResourceTemplate<T> locationResourceTemplate, AbstractInheritableToscaType resourceType, T template) {
         locationResourceTemplate.setName(resourceName);
         locationResourceTemplate.setEnabled(true);
-        locationResourceTemplate.setGenerated(false);
         locationResourceTemplate.setId(UUID.randomUUID().toString());
         locationResourceTemplate.setLocationId(location.getId());
         locationResourceTemplate.setService(false);
         locationResourceTemplate.setTypes(Lists.<String> newArrayList(resourceType.getElementId()));
         locationResourceTemplate.getTypes().addAll(resourceType.getDerivedFrom());
-        locationResourceTemplate.setTemplate(nodeTemplate);
+        locationResourceTemplate.setTemplate(template);
 
         LocationTemplateCreated event = new LocationTemplateCreated(this);
         event.setTemplate(locationResourceTemplate);
         event.setLocation(location);
-        event.setNodeType(resourceType);
+        event.setToscaType(resourceType);
         applicationContext.publishEvent(event);
 
         saveResource(location, locationResourceTemplate);
-        return locationResourceTemplate;
     }
 
     /*
@@ -340,16 +361,7 @@ public class LocationResourceService implements ILocationResourceService {
     @Override
     public LocationResourceTemplateWithDependencies addResourceTemplateFromArchive(String locationId, String resourceName, String resourceTypeName,
             String archiveName, String archiveVersion) {
-        Location location = locationService.getOrFail(locationId);
-
-        // If an archive is specified, update the location dependencies accordingly. Dependencies are in a Set so there is no duplication issue.
-        if (!(StringUtils.isEmpty(archiveName) && StringUtils.isEmpty(archiveVersion))) {
-            Optional.ofNullable(csarRepoSearchService.getArchive(archiveName, archiveVersion)).map(Csar::getDependencies)
-                    .ifPresent(csarDependencies -> location.getDependencies().addAll(csarDependencies));
-            // Add the archive as dependency too
-            final CSARDependency archive = new CSARDependency(archiveName, archiveVersion);
-            location.getDependencies().add(archive);
-        }
+        Location location = updateLocationDependencies(locationId, archiveName, archiveVersion);
 
         // Return a wrapper object with the template and location dependencies
         return new LocationResourceTemplateWithDependencies(this.addResourceTemplate(location, resourceName, resourceTypeName),
@@ -360,13 +372,13 @@ public class LocationResourceService implements ILocationResourceService {
     /*
      * (non-Javadoc)
      * 
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#deleteResourceTemplate(java.lang.String)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#deleteResourceTemplate(Class, String)
      */
     @Override
     public void deleteResourceTemplate(String resourceId) {
-        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        AbstractLocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
-        alienDAO.delete(LocationResourceTemplate.class, resourceId);
+        alienDAO.delete(resourceTemplate.getClass(), resourceId);
         refreshDependencies(location);
         alienDAO.save(location);
     }
@@ -377,12 +389,12 @@ public class LocationResourceService implements ILocationResourceService {
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getOrFail(java.lang.String)
      */
     @Override
-    public LocationResourceTemplate getOrFail(String resourceId) {
-        LocationResourceTemplate locationResourceTemplate = alienDAO.findById(LocationResourceTemplate.class, resourceId);
+    public <T extends AbstractLocationResourceTemplate> T getOrFail(String resourceId) {
+        AbstractLocationResourceTemplate locationResourceTemplate = alienDAO.findById(AbstractLocationResourceTemplate.class, resourceId);
         if (locationResourceTemplate == null) {
             throw new NotFoundException("Location Resource Template [" + resourceId + "] doesn't exists.");
         }
-        return locationResourceTemplate;
+        return (T) locationResourceTemplate;
     }
 
     /*
@@ -392,7 +404,7 @@ public class LocationResourceService implements ILocationResourceService {
      */
     @Override
     public void merge(Object mergeRequest, String resourceId) {
-        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        AbstractLocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         ReflectionUtil.mergeObject(mergeRequest, resourceTemplate);
         saveResource(resourceTemplate);
     }
@@ -400,31 +412,26 @@ public class LocationResourceService implements ILocationResourceService {
     /*
      * (non-Javadoc)
      * 
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateProperty(java.lang.String, java.lang.String, java.lang.Object)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateProperty(java.lang.String, java.lang.String,
+     * java.lang.Object)
      */
     @Override
     public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue)
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
-        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        AbstractLocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
-        NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTemplate.getTemplate().getType(),
-                location.getDependencies());
-        if (resourceType.getProperties() == null || !resourceType.getProperties().containsKey(propertyName)) {
+        AbstractInheritableToscaType resourceType = (AbstractInheritableToscaType) csarRepoSearchService
+                .getRequiredElementInDependencies(AbstractToscaType.class, resourceTemplate.getTemplate().getType(), location.getDependencies());
+        if (!safe(resourceType.getProperties()).containsKey(propertyName)) {
             throw new NotFoundException("Property [" + propertyName + "] is not found in type [" + resourceType.getElementId() + "]");
         }
+
         propertyService.setPropertyValue(location.getDependencies(), resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName),
                 propertyName, propertyValue);
         saveResource(resourceTemplate);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateCapabilityProperty(alien4cloud.model.orchestrators.locations.
-     * LocationResourceTemplate, java.lang.String, java.lang.String, java.lang.Object)
-     */
-    @Override
-    public void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName, Object propertyValue)
+    private void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName, Object propertyValue)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTemplate.getTemplate().getType(),
@@ -508,7 +515,7 @@ public class LocationResourceService implements ILocationResourceService {
      * alien4cloud.model.orchestrators.locations.LocationResourceTemplate)
      */
     @Override
-    public void saveResource(Location location, LocationResourceTemplate resourceTemplate) {
+    public void saveResource(Location location, AbstractLocationResourceTemplate resourceTemplate) {
         alienDAO.save(location);
         alienDAO.save(resourceTemplate);
     }
@@ -520,23 +527,87 @@ public class LocationResourceService implements ILocationResourceService {
      * alien4cloud.orchestrators.locations.services.ILocationResourceService#saveResource(alien4cloud.model.orchestrators.locations.LocationResourceTemplate)
      */
     @Override
-    public void saveResource(LocationResourceTemplate resourceTemplate) {
+    public void saveResource(AbstractLocationResourceTemplate resourceTemplate) {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         saveResource(location, resourceTemplate);
     }
 
     private void refreshDependencies(Location location) {
         ToscaTypeLoader toscaTypeLoader = new ToscaTypeLoader(csarDependencyLoader);
-        List<LocationResourceTemplate> resources = getResourcesTemplates(location.getId());
-        for (LocationResourceTemplate resource : resources) {
-            String type = resource.getTemplate().getType();
-            NodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, type, location.getDependencies());
-            toscaTypeLoader.loadType(resource.getTemplate().getType(),
-                    csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
-        }
+
+        loadResourcesTypes(getResourcesTemplates(location.getId()), location, toscaTypeLoader);
+        loadResourcesTypes(getPoliciesResourcesTemplates((location.getId())), location, toscaTypeLoader);
+
         location.setDependencies(toscaTypeLoader.getLoadedDependencies());
         // ALWAYS add native dependencies
         location.getDependencies().addAll(pluginArchiveIndexer.getNativeDependencies(orchestratorService.getOrFail(location.getOrchestratorId()), location));
     }
 
+    private <T extends AbstractLocationResourceTemplate> void loadResourcesTypes(List<T> resources, Location location, ToscaTypeLoader toscaTypeLoader) {
+        for (T resource : resources) {
+            String type = resource.getTemplate().getType();
+            AbstractToscaType toscaType = csarRepoSearchService.getRequiredElementInDependencies(AbstractToscaType.class, type, location.getDependencies());
+            toscaTypeLoader.loadType(resource.getTemplate().getType(),
+                    csarDependencyLoader.buildDependencyBean(toscaType.getArchiveName(), toscaType.getArchiveVersion()));
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#addPolicyTemplateFromArchive(java.lang.String, java.lang.String,
+     * java.lang.String)
+     */
+    @Override
+    public LocationResourceTemplateWithDependencies addPolicyTemplateFromArchive(String locationId, String resourceName, String policyType, String archiveName,
+            String archiveVersion) {
+        Location location = updateLocationDependencies(locationId, archiveName, archiveVersion);
+
+        // Return a wrapper object with the template and location dependencies
+        return new LocationResourceTemplateWithDependencies(this.addPolicyLocationResourceTemplate(location, resourceName, policyType),
+                Sets.newHashSet(location.getDependencies()));
+
+    }
+
+    private PolicyLocationResourceTemplate addPolicyLocationResourceTemplate(Location location, String resourceName, String resourceTypeName) {
+        PolicyLocationResourceTemplate policyLocationResourceTemplate = new PolicyLocationResourceTemplate();
+        PolicyType resourceType = csarRepoSearchService.getRequiredElementInDependencies(PolicyType.class, resourceTypeName, location.getDependencies());
+        PolicyTemplate policyTemplate = TemplateBuilder.buildPolicyTemplate(resourceType);
+        fillAndSaveLocationResourceTemplate(location, resourceName, policyLocationResourceTemplate, resourceType, policyTemplate);
+        return policyLocationResourceTemplate;
+    }
+
+    private Location updateLocationDependencies(String locationId, String archiveName, String archiveVersion) {
+        Location location = locationService.getOrFail(locationId);
+
+        // If an archive is specified, update the location dependencies accordingly. Dependencies are in a Set so there is no duplication issue.
+        if (!(StringUtils.isEmpty(archiveName) && StringUtils.isEmpty(archiveVersion))) {
+            Optional.ofNullable(csarRepoSearchService.getArchive(archiveName, archiveVersion)).map(Csar::getDependencies)
+                    .ifPresent(csarDependencies -> location.getDependencies().addAll(csarDependencies));
+            // Add the archive as dependency too
+            final CSARDependency archive = new CSARDependency(archiveName, archiveVersion);
+            location.getDependencies().add(archive);
+        }
+        return location;
+    }
+
+    private List<PolicyLocationResourceTemplate> getPoliciesResourcesTemplates(String locationId) {
+        return getResourcesTemplates(PolicyLocationResourceTemplate.class, getLocationIdFilter(locationId));
+    }
+
+    private void fillPoliciesLocationResourceTypes(Collection<String> exposedTypes, LocationResourceTypes locationResourceTypes,
+            Set<CSARDependency> dependencies) {
+        fillLocationResourceTypes(exposedTypes, locationResourceTypes, dependencies, (exposedType) -> {
+            PolicyType policyType = csarRepoSearchService.getRequiredElementInDependencies(PolicyType.class, exposedType, dependencies);
+            locationResourceTypes.getPolicyTypes().put(policyType.getElementId(), policyType);
+        });
+    }
+
+    private interface IResourceTypeAdder {
+        void process(String exposedType);
+    }
+
+    private interface IResourceTypeFiller {
+        void process(Collection<String> exposedTypes, Set<CSARDependency> dependencies);
+    }
 }
