@@ -1,12 +1,7 @@
 define(function (require) {
   'use strict';
 
-  var modules = require('modules');
   var states = require('states');
-  var angular = require('angular');
-  var _ = require('lodash');
-
-  require('scripts/layout/layout.js');
 
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_matching_nodes');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_matching_policies');
