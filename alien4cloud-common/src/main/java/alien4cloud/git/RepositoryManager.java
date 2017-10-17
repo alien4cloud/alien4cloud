@@ -6,10 +6,26 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jgit.api.*;
+import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.CleanCommand;
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.DeleteBranchCommand;
+import org.eclipse.jgit.api.FetchCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.RenameBranchCommand;
+import org.eclipse.jgit.api.TransportCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -18,7 +34,13 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteConfig;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import com.google.common.collect.Lists;
 
@@ -36,6 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RepositoryManager {
 
     private static final String REMOTE_ALIEN_CONFLICTS_PREFIX_BRANCH_NAME = "alien-conflicts-";
+    private static final String DEFAULT_EMAIL = "not.provided@alien4cloud.org";
 
     /**
      * Close a repository.
@@ -144,7 +167,9 @@ public class RepositoryManager {
         try {
             repository = Git.open(targetDirectory.toFile());
             repository.add().addFilepattern(".").call();
-            repository.commit().setCommitter(userName, userEmail).setMessage(commitMessage).call();
+            String name = defaultUsernameIfNull(userName);
+            String email = defaultEmailIfNull(name, userEmail);
+            repository.commit().setCommitter(name, email).setMessage(commitMessage).call();
         } catch (GitAPIException | IOException e) {
             throw new GitException("Unable to commit to the git repository", e);
         } finally {
@@ -779,5 +804,13 @@ public class RepositoryManager {
         default:
             throw new GitStateException(errorMessage, repositoryState.toString());
         }
+    }
+
+    private static String defaultEmailIfNull(String username, String email) {
+        return email == null ? username + "@undefined.org" : email;
+    }
+
+    private static String defaultUsernameIfNull(String username) {
+        return username == null ? "undefinedUser" : username;
     }
 }
