@@ -15,7 +15,6 @@ define(function(require) {
         return {
           process: function(deploymentTopology) {
             topologyJsonProcessor.process(deploymentTopology);
-            console.log(deploymentTopology);
             if (!_.isEmpty(deploymentTopology.topology.substitutedNodes) && _.defined(deploymentTopology.availableSubstitutions.substitutionsTemplates)) {
               for (var nodeId in deploymentTopology.topology.substitutedNodes) {
                 if (deploymentTopology.topology.substitutedNodes.hasOwnProperty(nodeId)) {
