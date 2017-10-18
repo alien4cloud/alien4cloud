@@ -8,6 +8,7 @@ import alien4cloud.exception.InvalidNameException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.*;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +25,7 @@ import alien4cloud.topology.TopologyUtils;
 @Component
 public class AddGroupMemberProcessor extends AbstractNodeProcessor<AddGroupMemberOperation> {
     @Override
-    protected void processNodeOperation(AddGroupMemberOperation operation, NodeTemplate nodeTemplate) {
-        Topology topology = EditionContextManager.getTopology();
+    protected void processNodeOperation(Csar csar, Topology topology, AddGroupMemberOperation operation, NodeTemplate nodeTemplate) {
         // Ensure that the group exist and create it if not.
         Map<String, NodeGroup> groups = topology.getGroups();
         if (groups == null) {

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.InvalidPathException;
 import org.alien4cloud.tosca.editor.operations.DeleteFileOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
@@ -28,10 +29,10 @@ import lombok.SneakyThrows;
 public class DeleteFileProcessor implements IEditorCommitableProcessor<DeleteFileOperation>, IEditorOperationProcessor<DeleteFileOperation> {
 
     @Override
-    public void process(DeleteFileOperation operation) {
-        Topology topology = EditionContextManager.get().getTopology();
+    public void process(Csar csar, Topology topology, DeleteFileOperation operation) {
+//        Topology topology = EditionContextManager.get().getTopology();
 
-        if (EditionContextManager.getCsar().getYamlFilePath().equals(operation.getPath())) {
+        if (csar.getYamlFilePath().equals(operation.getPath())) {
             throw new InvalidPathException("Topology yaml file cannot be removed.");
         }
         TreeNode target = FileProcessorHelper.getFileTreeNode(operation.getPath());

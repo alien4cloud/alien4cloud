@@ -7,6 +7,7 @@ import java.util.Arrays;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -27,9 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SetNodeCapabilityPropertyAsInputProcessor extends AbstractNodeProcessor<SetNodeCapabilityPropertyAsInputOperation> {
 
     @Override
-    protected void processNodeOperation(SetNodeCapabilityPropertyAsInputOperation operation, NodeTemplate nodeTemplate) {
-        Topology topology = EditionContextManager.getTopology();
-
+    protected void processNodeOperation(Csar csar, Topology topology, SetNodeCapabilityPropertyAsInputOperation operation, NodeTemplate nodeTemplate) {
         Capability capabilityTemplate = getOrFail(nodeTemplate.getCapabilities(), operation.getCapabilityName(), "Capability {} does not exist for node {}",
                 operation.getCapabilityName(), operation.getNodeName());
         PropertyDefinition inputPropertyDefinition = getOrFail(topology.getInputs(), operation.getInputName(), "Input {} not found in topology",
@@ -48,6 +47,6 @@ public class SetNodeCapabilityPropertyAsInputProcessor extends AbstractNodeProce
         capabilityTemplate.getProperties().put(operation.getPropertyName(), getInput);
 
         log.debug("Associate the property [ {} ] of capability template [ {} ] of node [ {} ] to an input of the topology [ {} ].", operation.getPropertyName(),
-                operation.getCapabilityName(), operation.getNodeName(), EditionContextManager.getTopology().getId());
+                operation.getCapabilityName(), operation.getNodeName(), topology.getId());
     }
 }

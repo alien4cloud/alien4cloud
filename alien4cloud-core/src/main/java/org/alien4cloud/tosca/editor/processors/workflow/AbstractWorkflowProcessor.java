@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.AbstractWorkflowOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 
@@ -20,10 +21,9 @@ public abstract class AbstractWorkflowProcessor<T extends AbstractWorkflowOperat
     protected WorkflowsBuilderService workflowBuilderService;
 
     @Override
-    public void process(T operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, T operation) {
         Workflow workflow = workflowBuilderService.getWorkflow(operation.getWorkflowName(), topology);
-        processWorkflowOperation(operation, workflow);
+        processWorkflowOperation(csar, topology, operation, workflow);
     }
 
     /**
@@ -52,5 +52,5 @@ public abstract class AbstractWorkflowProcessor<T extends AbstractWorkflowOperat
         }
     }
 
-    protected abstract void processWorkflowOperation(T operation, Workflow workflow);
+    protected abstract void processWorkflowOperation(Csar csar, Topology topology, T operation, Workflow workflow);
 }

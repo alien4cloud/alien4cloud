@@ -211,8 +211,10 @@ public class EditorService {
      * @param <T> Type of the operation to process
      */
     public <T extends AbstractEditorOperation> void process(T operation) {
+        Topology topology = EditionContextManager.getTopology();
+        Csar csar = EditionContextManager.getCsar();
         IEditorOperationProcessor<T> processor = (IEditorOperationProcessor<T>) processorMap.get(operation.getClass());
-        processor.process(operation);
+        processor.process(csar, topology, operation);
     }
 
     /**
@@ -241,10 +243,12 @@ public class EditorService {
             // TODO Improve this by avoiding dao query for (deep) cloning topology and keeping cache for TOSCA types that are required.
             editionContextManager.reset();
 
+            Topology topology = EditionContextManager.getTopology();
+            Csar csar = EditionContextManager.getCsar();
             for (int i = 0; i < at + 1; i++) {
                 AbstractEditorOperation operation = EditionContextManager.get().getOperations().get(i);
                 IEditorOperationProcessor processor = processorMap.get(operation.getClass());
-                processor.process(operation);
+                processor.process(csar, topology, operation);
             }
 
             EditionContextManager.get().setLastOperationIndex(at);
@@ -344,6 +348,8 @@ public class EditorService {
                 repositoryService.clean(tempPath);
             }
 
+            Topology topology = EditionContextManager.getTopology();
+
             repositoryService.pull(tempPath, EditionContextManager.getCsar(), username, password, remoteBranch);
             topologyUploadService.processTopologyDir(tempPath, EditionContextManager.get().getTopology().getWorkspace());
             try {
@@ -354,7 +360,7 @@ public class EditorService {
             FileUtil.copy(tempPath, topologyPath);
             repositoryService.updateArchiveZip(EditionContextManager.getCsar().getName(), EditionContextManager.getCsar().getVersion());
             // and finally save and commit
-            Topology topology = EditionContextManager.getTopology();
+
             topologyServiceCore.save(topology);
             // Topology has changed means that dependencies might have changed, must update the dependencies
             csarService.setDependencies(topology.getId(), topology.getDependencies());

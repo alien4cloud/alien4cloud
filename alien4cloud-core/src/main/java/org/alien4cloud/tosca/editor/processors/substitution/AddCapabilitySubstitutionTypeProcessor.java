@@ -5,6 +5,7 @@ import java.util.Map;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
@@ -22,8 +23,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 public class AddCapabilitySubstitutionTypeProcessor implements IEditorOperationProcessor<AddCapabilitySubstitutionTypeOperation> {
 
     @Override
-    public void process(AddCapabilitySubstitutionTypeOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, AddCapabilitySubstitutionTypeOperation operation) {
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(operation.getNodeTemplateName())) {
             throw new NotFoundException("Node " + operation.getNodeTemplateName() + " do not exist");
         }

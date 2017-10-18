@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
@@ -29,8 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOperation> {
     @Override
-    protected void processInputOperation(DeleteInputOperation operation, Map<String, PropertyDefinition> inputs) {
-        Topology topology = EditionContextManager.getTopology();
+    protected void processInputOperation(Csar csar, Topology topology, DeleteInputOperation operation, Map<String, PropertyDefinition> inputs) {
         if (!inputs.containsKey(operation.getInputName())) {
             throw new NotFoundException("Input " + operation.getInputName() + "not found in topology");
         }

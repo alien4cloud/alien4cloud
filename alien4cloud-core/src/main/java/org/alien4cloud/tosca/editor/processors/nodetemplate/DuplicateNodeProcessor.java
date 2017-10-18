@@ -48,9 +48,7 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
-    public void process(DuplicateNodeOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-
+    public void process(Csar csar, Topology topology, DuplicateNodeOperation operation) {
         Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
         // Retrieve existing node template
         NodeTemplate nodeTemplateToDuplicate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
@@ -59,10 +57,10 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
         Map<String, String> duplicatedNodesNameMappings = Maps.newHashMap();
 
         // first duplicate the node templates
-        duplicateNodeTemplate(nodeTemplateToDuplicate, duplicatedNodesNameMappings, nodeTemplates, topology, EditionContextManager.getCsar());
+        duplicateNodeTemplate(nodeTemplateToDuplicate, duplicatedNodesNameMappings, nodeTemplates, topology, csar);
 
         // then clean the relationships, discarding all that targets a node not in hostedNodes
-        processRelationships(duplicatedNodesNameMappings, nodeTemplates, topology, EditionContextManager.getCsar());
+        processRelationships(duplicatedNodesNameMappings, nodeTemplates, topology, csar);
     }
 
     /**

@@ -6,6 +6,7 @@ import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.ChangeDependencyVersionOperation;
 import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
@@ -25,8 +26,7 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
     private TopologyService topologyService;
 
     @Override
-    public void process(ChangeDependencyVersionOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, ChangeDependencyVersionOperation operation) {
         CSARDependency newDependency = new CSARDependency(operation.getDependencyName(), operation.getDependencyVersion());
 
         // Check for missing type and update the topology's dependencies

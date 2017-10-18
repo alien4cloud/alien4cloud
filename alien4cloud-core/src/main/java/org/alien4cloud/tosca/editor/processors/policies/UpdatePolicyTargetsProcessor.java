@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor.processors.policies;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.policies.UpdatePolicyTargetsOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
@@ -14,8 +15,7 @@ import alien4cloud.utils.AlienUtils;
 @Component
 public class UpdatePolicyTargetsProcessor extends AbstractPolicyProcessor<UpdatePolicyTargetsOperation> {
     @Override
-    protected void process(UpdatePolicyTargetsOperation operation, PolicyTemplate policyTemplate) {
-        Topology topology = EditionContextManager.getTopology();
+    protected void process(Csar csar, Topology topology, UpdatePolicyTargetsOperation operation, PolicyTemplate policyTemplate) {
 
         for (String target : operation.getTargets()) {
             AlienUtils.getOrFail(topology.getNodeTemplates(), target,

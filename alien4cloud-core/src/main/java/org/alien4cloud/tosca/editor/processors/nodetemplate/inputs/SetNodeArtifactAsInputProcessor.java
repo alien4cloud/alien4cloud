@@ -7,6 +7,7 @@ import java.util.Map;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeArtifactAsInputOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -23,13 +24,12 @@ import alien4cloud.utils.InputArtifactUtil;
 @Component
 public class SetNodeArtifactAsInputProcessor extends AbstractNodeProcessor<SetNodeArtifactAsInputOperation> {
     @Override
-    protected void processNodeOperation(SetNodeArtifactAsInputOperation operation, NodeTemplate nodeTemplate) {
+    protected void processNodeOperation(Csar csar, Topology topology, SetNodeArtifactAsInputOperation operation, NodeTemplate nodeTemplate) {
         if (safe(nodeTemplate.getArtifacts()).get(operation.getArtifactName()) == null) {
             throw new NotFoundException("The artifact <" + operation.getArtifactName() + "> cannot be found on node <" + operation.getNodeName() + ">");
         }
         DeploymentArtifact artifact = nodeTemplate.getArtifacts().get(operation.getArtifactName());
 
-        Topology topology = EditionContextManager.getTopology();
         if (!safe(topology.getInputArtifacts()).containsKey(operation.getInputName())) {
             // we have to create the artifact
             operation.setNewArtifact(true);

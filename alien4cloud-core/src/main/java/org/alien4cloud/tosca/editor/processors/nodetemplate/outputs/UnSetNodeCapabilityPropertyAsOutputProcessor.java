@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate.outputs;
 
 import alien4cloud.exception.NotFoundException;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -25,10 +26,7 @@ import org.springframework.stereotype.Component;
 public class UnSetNodeCapabilityPropertyAsOutputProcessor extends AbstractNodeProcessor<UnSetNodeCapabilityPropertyAsOutputOperation> {
 
     @Override
-    protected void processNodeOperation(UnSetNodeCapabilityPropertyAsOutputOperation operation, NodeTemplate nodeTemplate) {
-
-        Topology topology = EditionContextManager.getTopology();
-
+    protected void processNodeOperation(Csar csar, Topology topology, UnSetNodeCapabilityPropertyAsOutputOperation operation, NodeTemplate nodeTemplate) {
         // check if the capability / property exists
         check(operation, topology, nodeTemplate);
 

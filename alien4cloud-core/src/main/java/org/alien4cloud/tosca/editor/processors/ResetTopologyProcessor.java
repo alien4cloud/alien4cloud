@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
@@ -23,13 +24,12 @@ public class ResetTopologyProcessor implements IEditorOperationProcessor<ResetTo
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
-    public void process(ResetTopologyOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, ResetTopologyOperation operation) {
         Topology newTopology = new Topology();
         newTopology.setArchiveName(topology.getArchiveName());
         newTopology.setArchiveVersion(topology.getArchiveVersion());
         newTopology.setWorkspace(topology.getWorkspace());
-        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(newTopology, EditionContextManager.getCsar()));
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(newTopology, csar));
         try {
             EditionContextManager.get().reset(newTopology);
         } catch (IOException e) {
