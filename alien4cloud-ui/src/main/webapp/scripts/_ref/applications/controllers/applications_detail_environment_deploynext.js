@@ -30,26 +30,39 @@ define(function (require) {
     },
     resolve: {
       deploymentTopologyDTO: ['$stateParams', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor',
-        function($stateParams, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor) {
-          return _.catch(function() {
+        function ($stateParams, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor) {
+          return _.catch(function () {
             return deploymentTopologyServices.get({
               appId: $stateParams.id,
               envId: $stateParams.environmentId
-            }).$promise.then(function(response) {
+            }).$promise.then(function (response) {
               var deploymentTopologyDTO = response.data;
               deploymentTopologyProcessor.process(deploymentTopologyDTO);
               tasksProcessor.processAll(deploymentTopologyDTO.validation);
               return deploymentTopologyDTO;
             });
           });
-      }]
+        }],
+      // used by 'update' button
+      deployedTopology: ['$stateParams', 'deploymentServices',
+        function ($stateParams, deploymentServices) {
+          return _.catch(function () {
+            return deploymentServices.runtime.getTopology({
+              applicationId: $stateParams.id,
+              applicationEnvironmentId: $stateParams.environmentId
+            }).$promise.then(function (response) {
+              return response.data;
+            });
+          });
+        }]
     }
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployNextCtrl',
-    ['$scope', '$state', 'menu', 'deploymentTopologyDTO', 'deploymentTopologyProcessor', 'tasksProcessor', 'locationsMatchingServices',
-    function ($scope, $state, menu, deploymentTopologyDTO, deploymentTopologyProcessor, tasksProcessor, locationsMatchingServices) {
+    ['$scope', '$state', 'menu', 'deploymentTopologyDTO', 'deploymentTopologyProcessor', 'tasksProcessor', 'locationsMatchingServices', 'deployedTopology',
+    function ($scope, $state, menu, deploymentTopologyDTO, deploymentTopologyProcessor, tasksProcessor, locationsMatchingServices, deployedTopology) {
       $scope.deploymentTopologyDTO = deploymentTopologyDTO;
+      $scope.deployedTopology = deployedTopology;
 
       // Initialize menu by setting next step property.
       for(var i=0; i<menu.length-1; i++) {

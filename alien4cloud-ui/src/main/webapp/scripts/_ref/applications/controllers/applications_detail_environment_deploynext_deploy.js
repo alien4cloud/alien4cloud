@@ -139,8 +139,8 @@ define(function (require) {
       // - the current selectedlocation is the same as the one of the deployed topology
       $scope.isUpdatable = function() {
         return _.includes(['DEPLOYED', 'UPDATED'], $scope.environment.status) &&
-               _.definedPath($scope.deploymentContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') &&
-               _.get($scope.deploymentContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') === _.get($scope.deployedContext, 'dto.topology.locationGroups._A4C_ALL.policies[0].locationId');
+               _.definedPath($scope.deploymentTopologyDTO, 'locationPolicies._A4C_ALL') &&
+               _.get($scope.deploymentTopologyDTO, 'locationPolicies._A4C_ALL') === _.get($scope.deployedTopology, 'topology.locationGroups._A4C_ALL.policies[0].locationId');
       };
 
       $scope.$watch('deploymentTopologyDTO.topology.orchestratorId', function(newValue){
