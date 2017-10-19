@@ -1,9 +1,7 @@
-Feature: Node substitution in the deployment topology
+Feature: Update substituted Node property
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And There are these users in the system
-      | frodon |
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider" and bean name "mock-orchestrator-factory"
@@ -20,8 +18,6 @@ Feature: Node substitution in the deployment topology
     And I create a resource of type "org.alien4cloud.nodes.mock.Compute" named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     # Do not update the image Id as we want to be able to update it at deployment
     And I update the property "flavorId" to "1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-
-    And I grant access to the resource type "LOCATION" named "Thark location" to the user "frodon"
 
     And I create a new application with name "ALIEN" and description "desc" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
