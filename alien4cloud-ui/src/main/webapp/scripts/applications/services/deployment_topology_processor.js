@@ -19,20 +19,20 @@ define(function(require) {
               for (var nodeId in deploymentTopology.topology.substitutedNodes) {
                 if (deploymentTopology.topology.substitutedNodes.hasOwnProperty(nodeId)) {
                   var locationResourceTemplateId = deploymentTopology.topology.substitutedNodes[nodeId];
-                  deploymentTopology.topology.substitutedNodes[nodeId] = _.clone(deploymentTopology.availableSubstitutions.substitutionsTemplates[locationResourceTemplateId]);
+                  deploymentTopology.topology.substitutedNodes[nodeId] = _.cloneDeep(deploymentTopology.availableSubstitutions.substitutionsTemplates[locationResourceTemplateId]);
                   deploymentTopology.topology.substitutedNodes[nodeId].template = deploymentTopology.topology.nodeTemplates[nodeId];
                 }
               }
             }
 
+            //policies
             if (!_.isEmpty(deploymentTopology.topology.substitutedPolicies) && _.defined(deploymentTopology.availableSubstitutions.substitutionsPoliciesTemplates)) {
               _.forEach(deploymentTopology.topology.substitutedPolicies, function(templateId, policyId){
-                deploymentTopology.topology.substitutedPolicies[policyId] = _.clone(deploymentTopology.availableSubstitutions.substitutionsPoliciesTemplates[templateId]);
+                deploymentTopology.topology.substitutedPolicies[policyId] = _.cloneDeep(deploymentTopology.availableSubstitutions.substitutionsPoliciesTemplates[templateId]);
                 deploymentTopology.topology.substitutedPolicies[policyId].template = deploymentTopology.topology.policies[policyId];
-
               });
-
             }
+
             if (_.defined(deploymentTopology.availableSubstitutions)) {
               this.processSubstitutionResources(deploymentTopology.availableSubstitutions);
             }
@@ -50,11 +50,9 @@ define(function(require) {
             }
             listToMapService.processMap(substitutionResources.substitutionTypes.nodeTypes, 'properties');
             listToMapService.processMap(substitutionResources.substitutionTypes.capabilityTypes, 'properties');
-            for (var nodeId in substitutionResources.availableSubstitutions) {
-              if (substitutionResources.availableSubstitutions.hasOwnProperty(nodeId)) {
-                locationResourcesProcessor.processLocationResourceTemplates(substitutionResources.availableSubstitutions[nodeId]);
-              }
-            }
+            _.forEach(substitutionResources.availableSubstitutions, function(templates){
+              locationResourcesProcessor.processLocationResourceTemplates(templates);
+            });
 
             //policies
             var availablePoliciesSubstitutionsIds = substitutionResources.availablePoliciesSubstitutions;
@@ -65,7 +63,9 @@ define(function(require) {
               });
             });
             listToMapService.processMap(substitutionResources.substitutionTypes.policyTypes, 'properties');
-            locationResourcesProcessor.processTemplates(substitutionResources.availablePoliciesSubstitutions);
+            _.forEach(substitutionResources.availablePoliciesSubstitutions, function(templates){
+              locationResourcesProcessor.processTemplates(templates);
+            });
           }
         };
       } // function

@@ -1,0 +1,33 @@
+<a4c-node-template-edit
+  template="selectedResourceTemplate.template"
+  type="substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
+  node-capability-types="substitutionTypes.capabilityTypes"
+  resource-data-types="substitutionTypes.dataTypes"
+  dependencies="topology.dependencies"
+  is-property-editable="isPropertyEditable(propertyPath)"
+  on-property-update="updateSubstitutionProperty(propertyName, propertyValue)"
+  on-capability-property-update="updateSubstitutionCapabilityProperty(capabilityName, propertyName, propertyValue)">
+</a4c-node-template-edit>
+<!-- Attributes -->
+<div ng-if="_.isNotEmpty(selectedResourceTemplate.template.attributeValues)">
+  <div id="node-details-attributes" class="clickable topology-column-content-head" ng-click="isAttributesCollapsed = !isAttributesCollapsed">
+    <i class="fa" ng-class="isAttributesCollapsed ? 'fa-caret-right' : 'fa-caret-down'"></i>
+    {{'COMMON.ATTRIBUTES' | translate}}
+  </div>
+  <div id="node-details-attributes-panel" uib-collapse="isAttributesCollapsed" >
+    <table class="table table-condensed" id="nodeAttributes">
+      <tr ng-repeat="(key, value) in selectedResourceTemplate.template.attributeValues">
+        <td>
+          <label>{{key}}</label>
+        </td>
+        <td>
+          {{value}}
+        </td>
+        <td>
+          <simple-modal class="pull-right" title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{attrEntry.value.description}}"
+                        key="{{attrEntry.key}}"></simple-modal>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

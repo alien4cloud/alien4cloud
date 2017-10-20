@@ -50,28 +50,28 @@ define(function (require) {
           }
         },
 
+        getTag: function(tagName, tags) {
+          return _.get(_.find(tags, {name:tagName}),'value');
+        },
+
         /**
         * Return the icon from a TOSCA element's tags.
         *
-        * @param tags The map of tags.
+        * @param tags The list of tags.
         * @return the value of the icon tag.
         */
         getIcon: function(tags) {
-          for ( var i in tags) {
-            var tag = tags[i];
-            if (tag.name === 'icon') {
-              return tag.value;
-            }
-          }
+          return  _.get(_.find(tags, {name:'icon'}),'value');
         },
 
-        getTag: function(tagName, tags) {
-          for ( var i in tags) {
-            var tag = tags[i];
-            if (tag.name === tagName) {
-              return tag.value;
-            }
-          }
+        /**
+        * Return the icon from a TOSCA element's tags.
+        *
+        * @param element The element for which to retrieve the icon.
+        * @return the value of the icon tag.
+        */
+        getElementIcon: function(element) {
+          return this.getIcon(_.get(element, 'tags'));
         },
 
         /**
