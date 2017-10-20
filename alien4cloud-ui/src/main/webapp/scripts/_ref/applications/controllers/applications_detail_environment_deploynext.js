@@ -42,27 +42,27 @@ define(function (require) {
               return deploymentTopologyDTO;
             });
           });
-        }],
-      // used by 'update' button
-      deployedTopology: ['$stateParams', 'deploymentServices',
-        function ($stateParams, deploymentServices) {
-          return _.catch(function () {
-            return deploymentServices.runtime.getTopology({
-              applicationId: $stateParams.id,
-              applicationEnvironmentId: $stateParams.environmentId
-            }).$promise.then(function (response) {
-              return response.data;
-            });
-          });
         }]
     }
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployNextCtrl',
-    ['$scope', '$state', 'menu', 'deploymentTopologyDTO', 'deploymentTopologyProcessor', 'tasksProcessor', 'locationsMatchingServices', 'deployedTopology',
-    function ($scope, $state, menu, deploymentTopologyDTO, deploymentTopologyProcessor, tasksProcessor, locationsMatchingServices, deployedTopology) {
+    ['$scope', '$state', 'menu', 'deploymentTopologyDTO', 'deploymentTopologyProcessor', 'tasksProcessor', 'locationsMatchingServices', 'deploymentServices',
+    function ($scope, $state, menu, deploymentTopologyDTO, deploymentTopologyProcessor, tasksProcessor, locationsMatchingServices, deploymentServices) {
       $scope.deploymentTopologyDTO = deploymentTopologyDTO;
-      $scope.deployedTopology = deployedTopology;
+
+      $scope.$watch('environment.status', function (envStatus) {
+        if (_.includes(['DEPLOYED', 'UPDATED'], envStatus)) {
+          deploymentServices.runtime.getTopology({
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.environment.id
+          }).$promise.then(function (response) {
+            $scope.deployedTopology = response.data;
+          });
+        }else{
+          $scope.deployedTopology = null;
+        }
+      });
 
       // Initialize menu by setting next step property.
       for(var i=0; i<menu.length-1; i++) {
