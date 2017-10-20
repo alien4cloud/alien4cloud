@@ -55,20 +55,21 @@ define(function (require) {
 
         change: function(version) {
           this.setSelectedDefaultVersion(version);
-          this.managedRefreshTopology(true);
+          this.managedRefreshTopology(false);
         },
 
         changeTopologyVersion: function(selectedTopologyVersion) {
           this.setSelectedVersionVariant(this.scope.userSelection.version, selectedTopologyVersion);
-          this.managedRefreshTopology(true);
+          this.managedRefreshTopology(false);
         },
 
         managedRefreshTopology: function(forceReload){
           if(forceReload){
             // Con:
             // Flickering
+            // Conflict with userContextServices, cannot change template version
             // Pro:
-            // No known bug
+            // Fix: when 2 nodes have the same name, the image is not updated
             $state.reload();
           }else{
             // Pro:
