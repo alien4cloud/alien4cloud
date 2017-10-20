@@ -2,10 +2,7 @@ package alien4cloud.utils;
 
 import java.util.Map;
 
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.*;
 import org.apache.commons.collections4.MapUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -130,4 +127,42 @@ public final class PropertyUtil {
             return null;
         }
     }
+
+    /**
+     * Get the value of a given property at a given path. Doesn't manage lists (using spel could be usefull to manage lists index or advanced key selectors).
+     */
+    // TODO ALIEN-2589: see alien4cloud.paas.function.FunctionEvaluator.getPropertyValue()
+    public static AbstractPropertyValue getPropertyValueFromPath(Map<String, AbstractPropertyValue> values, String propertyPath) {
+        if (propertyPath.contains(".")) {
+            String[] paths = propertyPath.split("\\.");
+            AbstractPropertyValue apv = values.get(paths[0]);
+            if (apv instanceof ComplexPropertyValue) {
+                Map<String, Object> currentMap = ((ComplexPropertyValue)apv).getValue();
+                for (int i=1; i<paths.length; i++) {
+                    Object currentValue = currentMap.get(paths[i]);
+                    if (i == paths.length - 1) {
+                        // this is the last one, can be returned
+                        if (currentValue instanceof AbstractPropertyValue) {
+                            return (AbstractPropertyValue)currentValue;
+                        } else {
+                            return null;
+                        }
+                    } else {
+                        if (currentValue instanceof ComplexPropertyValue) {
+                            ComplexPropertyValue cpv = (ComplexPropertyValue)currentValue;
+                            currentMap = cpv.getValue();
+                        } else {
+                            return null;
+                        }
+                    }
+                }
+                return null;
+            } else {
+                return null;
+            }
+        } else {
+            return values.get(propertyPath);
+        }
+    }
+
 }

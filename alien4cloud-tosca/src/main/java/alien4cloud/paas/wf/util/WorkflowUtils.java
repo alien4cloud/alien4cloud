@@ -169,6 +169,7 @@ public class WorkflowUtils {
      * @param type the type name
      * @return true if the node type is equals or derived from the given type name
      */
+    // TODO ALIEN-2589: move elsewhere
     public static boolean isOfType(AbstractInheritableToscaType indexedNodeType, String type) {
         return indexedNodeType != null
                 && (indexedNodeType.getElementId().equals(type) || indexedNodeType.getDerivedFrom() != null && indexedNodeType.getDerivedFrom().contains(type));

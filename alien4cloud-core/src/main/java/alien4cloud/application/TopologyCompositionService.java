@@ -286,7 +286,9 @@ public class TopologyCompositionService {
         }
     }
 
-    private String ensureNodeNameIsUnique(Set<String> keys, String prefix, int suffixeNumber) {
+    // TODO ALIEN-2589: move elsewhere
+    @Deprecated
+    public static String ensureNodeNameIsUnique(Set<String> keys, String prefix, int suffixeNumber) {
         String name = (suffixeNumber > 0) ? prefix + suffixeNumber : prefix;
         if (keys.contains(name)) {
             return ensureNodeNameIsUnique(keys, prefix, ++suffixeNumber);
