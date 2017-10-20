@@ -26,8 +26,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextDeployCtrl',
-    ['$scope', '$alresource', '$translate', 'toaster', '$uibModal', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state', 'locationsMatchingServices',
-    function ($scope, $alresource, $translate, toaster, $uibModal, deploymentTopologyServices, applicationServices, breadcrumbsService, $state, locationsMatchingServices) {
+    ['$scope', '$alresource', '$translate', 'toaster', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state',
+    function ($scope, $alresource, $translate, toaster, deploymentTopologyServices, applicationServices, breadcrumbsService, $state) {
       breadcrumbsService.putConfig({
         state : 'applications.detail.environment.deploynext.deploy',
         text: function(){
