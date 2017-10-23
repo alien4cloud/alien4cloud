@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.common.MetaPropertyTarget;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.elasticsearch.common.collect.Maps;
@@ -71,5 +73,21 @@ public class MetaPropertiesService {
             configurationMap.put(configuration.getId(), configuration);
         }
         return configurationMap;
+    }
+
+    /**
+     *
+     * @param name
+     * @return the
+     */
+    public String getMetapropertykeyByName(String name, String target) {
+        Map<String, String[]> filters = Maps.newHashMap();
+        filters.put("name", new String[]{name});
+        filters.put("target", new String[]{target.toString()});
+        GetMultipleDataResult<MetaPropConfiguration> result = alienDAO.find(MetaPropConfiguration.class, filters, 1);
+        if (result.getTotalResults() > 0) {
+            return result.getData()[0].getId();
+        }
+        return null;
     }
 }

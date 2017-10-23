@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.model.common.MetaPropertyTarget;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
@@ -38,9 +40,11 @@ public class LocationMatchingModifier implements ITopologyModifier {
     @Inject
     private LocationService locationService;
     @Inject
+    private PluginModifierRegistry pluginModifierRegistry;
+    @Inject
     private LocationPolicyValidationService locationPolicyValidationService;
     @Inject
-    private PluginModifierRegistry pluginModifierRegistry;
+    private MetaPropertiesService metaPropertiesService;
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
@@ -60,7 +64,11 @@ public class LocationMatchingModifier implements ITopologyModifier {
             // FIXME this code is a temporary demo implementation for 2.0.0 SM2, it has to be removed and improved in favor of a clear definition of locaiton
             // modifiers.
             List<ILocationMatch> locationMatches = (List<ILocationMatch>) context.getExecutionCache().get(FlowExecutionContext.LOCATION_MATCH_CACHE_KEY);
-            String locationModifierDefinitionsStr = safe(locationMatches.get(0).getLocation().getMetaProperties()).get("loc_modifiers");
+            String metaPropKey = metaPropertiesService.getMetapropertykeyByName("loc_modifiers", MetaPropertyTarget.LOCATION);
+            if (metaPropKey == null) {
+                return;
+            }
+            String locationModifierDefinitionsStr = safe(locationMatches.get(0).getLocation().getMetaProperties()).get(metaPropKey);
             if (locationModifierDefinitionsStr == null) {
                 return;
             }
