@@ -55,12 +55,6 @@ define(function (require) {
       });
     });
 
-    // switch back to 'current deploy' when undeployed completed
-    $scope.$watch('environment', function () {
-      if ($scope.environment.status === 'UNDEPLOYED') {
-        $state.go('applications.detail.environment.deploynext');
-      }
-    }, true);
   }
 ]);
 });

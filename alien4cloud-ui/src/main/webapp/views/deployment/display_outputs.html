@@ -24,7 +24,8 @@
               <ul>
                 <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
                   {{outputPropertyKey}} :
-                  <span class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="outputPropertyValue.value | linky:'_blank'"></span>
+                  <span ng-if="!outputPropertyValue.value" class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="outputPropertyValue.value | linky:'_blank'"></span>
+                  <em class="text-primary" ng-if="!outputPropertyValue.value">N/A</em>
                 </li>
               </ul>
             </li>
@@ -39,7 +40,8 @@
                       <ul>
                         <li ng-repeat="(propertyId, propertyValue) in outputCapabilityPropertiesValue[nodeId][capabilityId]">
                           {{propertyId}} :
-                          <span class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="propertyValue.value | linky:'_blank'"></span>
+                          <span ng-if="propertyValue.value" class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="propertyValue.value | linky:'_blank'"></span>
+                          <em class="text-primary" ng-if="!propertyValue.value">N/A</em>
                         </li>
                       </ul>
                     </li>
@@ -57,7 +59,8 @@
                   <ul>
                     <li ng-repeat="(outputAttributeKey, outputAttributeValue) in instanceAttributes">
                       {{outputAttributeKey}} :
-                      <span class="text-primary" id="attribute-{{nodeId}}-{{instanceId}}-{{outputAttributeKey}}" ng-bind-html="outputAttributeValue | linky:'_blank'"></span>
+                      <span ng-if="outputAttributeValue" class="text-primary" id="attribute-{{nodeId}}-{{instanceId}}-{{outputAttributeKey}}" ng-bind-html="outputAttributeValue | linky:'_blank'"></span>
+                      <em class="text-primary" ng-if="!outputAttributeValue">N/A</em>
                     </li>
                   </ul>
                 </li>

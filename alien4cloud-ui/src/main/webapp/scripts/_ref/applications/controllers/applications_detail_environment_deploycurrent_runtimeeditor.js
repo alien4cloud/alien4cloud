@@ -127,10 +127,9 @@ define(function (require) {
       });
     }
 
-    $scope.$on('a4cRuntimeTopologyLoaded', function() {
-      refreshInstancesStatuses();
-      refreshNodeInstanceInMaintenanceMode();
-    });
+    // $scope.$on('a4cRuntimeTopologyLoaded', function() {
+    //   refreshInstancesStatuses();
+    // });
 
     $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
       if(event.rawType === 'paasmessagemonitorevent') {
@@ -143,7 +142,6 @@ define(function (require) {
           $scope.isWaitingForRefresh = false;
           refreshInstancesStatuses();
         }, 1000, 1);
-        refreshNodeInstanceInMaintenanceMode();
         $scope.$digest();
       }
     });
@@ -404,14 +402,15 @@ define(function (require) {
     /**
     * First load. This is necessary if we come on the runtime view state once the application is fully deployed
     **/
-    var firstLoad = function () {
-      if(_.defined($scope.topology) && _.undefined($scope.topology.instances)){
-        refreshInstancesStatuses();
+    var firstLoad = false;
+    $scope.$watch('topology.instances', function(newValue){
+      if( !firstLoad && _.defined(newValue)) {
+        refreshSelectedNodeInstancesCount();
         refreshNodeInstanceInMaintenanceMode();
+        $scope.triggerTopologyRefresh = {};
+        firstLoad=true;
       }
-    };
-
-    firstLoad();
+    });
   }
 ]);
 });
