@@ -4,6 +4,14 @@
 ## - template_author
 ## - application_description
 ## - topology
+#macro(serializeMetadata $template $indent)
+#if($utils.collectionIsNotEmpty($template.tags))
+${indent}metadata:
+#foreach($tag in ${template.tags})
+${indent}  ${tag.name} : ${tag.value}
+#end##foreach($tag in ${template.tags})
+#end##if($utils.collectionIsNotEmpty($template.tags))
+#end## macro(serializeMetadata
 ## --------------------------------------------
 ## BEGINNING OF DOCUMENT
 tosca_definitions_version: alien_dsl_2_0_0
@@ -89,6 +97,7 @@ ${utils.formatArtifact($artifactEntry.value, 4)}
   node_templates:
 #foreach($nodeTemplateEntry in ${topology.nodeTemplates.entrySet()})
     ${nodeTemplateEntry.key}:
+#serializeMetadata($nodeTemplateEntry.value, "      ")
       type: ${nodeTemplateEntry.value.type}
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.properties))
       properties:$propertyUtils.formatProperties(4, $nodeTemplateEntry.value.properties)
@@ -101,6 +110,7 @@ ${utils.formatArtifact($artifactEntry.value, 4)}
       requirements:
 #foreach($relationship in ${nodeTemplateEntry.value.relationships.values()})
         - ${relationship.name}:
+#serializeMetadata($relationship, "            ")
 #if(${relationship.name} != ${relationship.requirementName})
             type_requirement: ${relationship.requirementName}
 #end## if
