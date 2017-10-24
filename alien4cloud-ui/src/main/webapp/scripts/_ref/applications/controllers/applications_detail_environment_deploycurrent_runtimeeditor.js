@@ -10,6 +10,8 @@ define(function (require) {
   require('scripts/common/services/resize_services');
   require('scripts/topology/controllers/topology_editor_display');
   require('scripts/topology/controllers/topology_editor_workflows');
+  require('scripts/orchestrators/services/orchestrator_location_service');
+  require('scripts/orchestrators/services/orchestrator_service');
 
   states.state('applications.detail.environment.deploycurrent.runtimeeditor', {
     url: '/runtime_editor',
@@ -36,6 +38,8 @@ define(function (require) {
   'topoEditDisplay',
   'breadcrumbsService',
   '$state',
+  'locationService',
+  'orchestratorService',
   function($scope,
     applicationServices,
     $translate,
@@ -46,7 +50,9 @@ define(function (require) {
     toscaService,
     topoEditDisplay,
     breadcrumbsService,
-    $state) {
+    $state,
+    locationService,
+    orchestratorService) {
 
     breadcrumbsService.putConfig({
       state : 'applications.detail.environment.deploycurrent.runtimeeditor',
@@ -82,6 +88,13 @@ define(function (require) {
       $scope.selectedEventTypeFilter = filter;
     };
 
+    // check if docker type
+    function isDockerType(nodeTemplate) {
+      if (_.undefined($scope.topology) || _.undefined(nodeTemplate)) {
+        return false;
+      }
+      return toscaService.isDockerType(nodeTemplate.type, $scope.topology.nodeTypes);
+    }
 
     function refreshSelectedNodeInstancesCount() {
       if (_.defined($scope.selectedNodeTemplate)) {
@@ -111,40 +124,6 @@ define(function (require) {
       }
       $scope.hasNodeInstanceInMaintenanceMode = hasNodeInstanceInMaintenanceMode;
     };
-
-
-    function refreshInstancesStatuses() {
-      applicationServices.runtime.get({
-        applicationId: $scope.application.id,
-        applicationEnvironmentId: $scope.environment.id
-      }, function(successResult) {
-        if (!angular.equals($scope.topology.instances, successResult.data)) {
-          $scope.topology.instances = successResult.data;
-          refreshSelectedNodeInstancesCount();
-          refreshNodeInstanceInMaintenanceMode();
-          $scope.triggerTopologyRefresh = {};
-        }
-      });
-    }
-
-    // $scope.$on('a4cRuntimeTopologyLoaded', function() {
-    //   refreshInstancesStatuses();
-    // });
-
-    $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
-      if(event.rawType === 'paasmessagemonitorevent') {
-        return;
-      }
-      // topology has changed
-      if (!$scope.isWaitingForRefresh) {
-        $scope.isWaitingForRefresh = true;
-        $interval(function() {
-          $scope.isWaitingForRefresh = false;
-          refreshInstancesStatuses();
-        }, 1000, 1);
-        $scope.$digest();
-      }
-    });
 
     var injectPropertyDefinitionToInterfaces = function(interfaces) {
       if (_.defined(interfaces)) {
@@ -357,14 +336,6 @@ define(function (require) {
       return toscaService.isComputeType(nodeTemplate.type, $scope.topology.nodeTypes);
     };
 
-    // check if docker type
-    function isDockerType(nodeTemplate) {
-      if (_.undefined($scope.topology) || _.undefined(nodeTemplate)) {
-        return false;
-      }
-      return toscaService.isDockerType(nodeTemplate.type, $scope.topology.nodeTypes);
-    }
-
     $scope.switchNodeInstanceMaintenanceMode = function(nodeInstanceId) {
       switch ($scope.topology.instances[$scope.selectedNodeTemplate.name][nodeInstanceId].instanceStatus) {
       case 'SUCCESS':
@@ -400,15 +371,36 @@ define(function (require) {
     };
 
     /**
-    * First load. This is necessary if we come on the runtime view state once the application is fully deployed
+    * Watch over instances for refresh
     **/
-    var firstLoad = false;
-    $scope.$watch('topology.instances', function(newValue){
-      if( !firstLoad && _.defined(newValue)) {
+    //First load. This is necessary if we come on the runtime view state once the application is fully deployed
+    var firstLoad = true;
+    $scope.$watch('topology.instances', function(newValue, oldValue){
+      // refrsh if not yet loaded, or if oldValue # newValue
+      if( _.defined(newValue) && (firstLoad || !_.isEqual(oldValue, newValue)) ) {
         refreshSelectedNodeInstancesCount();
         refreshNodeInstanceInMaintenanceMode();
         $scope.triggerTopologyRefresh = {};
-        firstLoad=true;
+        firstLoad=false;
+      }
+    });
+
+    /**
+    * load orchestrator and location information
+    */
+    $scope.$watch('topology.topology', function(newValue){
+      if( _.defined(newValue) ) {
+        locationService.get({
+          orchestratorId: $scope.topology.topology.orchestratorId,
+          locationId: $scope.topology.topology.locationGroups._A4C_ALL.policies[0].locationId
+        }, function(response) {
+          $scope.location = response.data.location;
+        });
+        orchestratorService.get({
+          orchestratorId: $scope.topology.topology.orchestratorId
+        }, function(response) {
+          $scope.orchestrator = response.data;
+        });
       }
     });
   }

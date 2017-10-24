@@ -47,14 +47,6 @@ define(function (require) {
         $scope.deployedTime = new Date() - $scope.activeDeployment.startDate;
       }
     });
-
-    $scope.$on('a4cRuntimeTopologyLoaded', function() {
-      $scope.locationResources = {};
-      _.each(_.keys($scope.topology.topology.substitutedNodes), function (name) {
-        $scope.locationResources[name] = $scope.topology.topology.nodeTemplates[name];
-      });
-    });
-
   }
 ]);
 });

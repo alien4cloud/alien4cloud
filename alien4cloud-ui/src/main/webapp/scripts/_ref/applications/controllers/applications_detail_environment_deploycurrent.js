@@ -28,8 +28,8 @@ define(function (require) {
   states.forward('applications.detail.environment.deploycurrent', 'applications.detail.environment.deploycurrent.info');
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentCtrl',
-    ['$scope', 'menu', 'deploymentServices', 'topologyJsonProcessor', 'applicationServices', '$uibModal', 'a4cRuntimeEventService', '$state',
-      function ($scope, menu, deploymentServices, topologyJsonProcessor, applicationServices, $uibModal, a4cRuntimeEventService, $state) {
+    ['$scope', 'menu', 'deploymentServices', 'topologyJsonProcessor', 'applicationServices', '$uibModal', 'a4cRuntimeEventService', '$state', '$timeout',
+      function ($scope, menu, deploymentServices, topologyJsonProcessor, applicationServices, $uibModal, a4cRuntimeEventService, $state, $timeout) {
         $scope.menu = menu;
 
         function exitIfUndeployed(){
@@ -67,6 +67,17 @@ define(function (require) {
           });
         };
 
+        function refreshInstancesInfos() {
+          applicationServices.runtime.get({
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.environment.id
+          }, function(successResult) {
+            if (!_.isEqual($scope.topology.instances, successResult.data)) {
+              $scope.topology.instances = successResult.data;
+            }
+          });
+        }
+
         function loadTopologyRuntime() {
           delete $scope.topology;
           $scope.$broadcast('a4cRuntimeTopologyLoading');
@@ -79,19 +90,26 @@ define(function (require) {
             // dispatch an event through the scope
             $scope.$broadcast('a4cRuntimeTopologyLoaded');
 
-            //load instances informations if needed
-            applicationServices.runtime.get({
-              applicationId: $scope.application.id,
-              applicationEnvironmentId: $scope.environment.id
-            }, function(successResult) {
-              if (!_.isEqual($scope.topology.instances, successResult.data)) {
-                $scope.topology.instances = successResult.data;
-              }
-            });
+            //load instances informations. For output updates
+            refreshInstancesInfos();
           });
         }
 
         loadTopologyRuntime();
+
+        $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
+          if(event.rawType === 'paasmessagemonitorevent') {
+            return;
+          }
+          // topology has changed
+          if (!$scope.isWaitingForRefresh) {
+            $scope.isWaitingForRefresh = true;
+            $timeout(function() {
+              $scope.isWaitingForRefresh = false;
+              refreshInstancesInfos();
+            }, 1000);
+          }
+        });
       }
     ]);
 });

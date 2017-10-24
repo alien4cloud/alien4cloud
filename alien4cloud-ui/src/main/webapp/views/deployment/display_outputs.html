@@ -18,19 +18,19 @@
         </td>
         <td>
           <ul>
-            <!-- Output properties list -->
+            <!--Nodes Output properties list -->
             <li ng-if="outputPropertiesSize > 0 && outputPropertiesValue[nodeId]">
               <strong>{{ 'COMMON.PROPERTIES' | translate }}</strong>
               <ul>
                 <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
                   {{outputPropertyKey}} :
-                  <span ng-if="!outputPropertyValue.value" class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="outputPropertyValue.value | linky:'_blank'"></span>
+                  <span ng-if="outputPropertyValue.value" class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="outputPropertyValue.value | linky:'_blank'"></span>
                   <em class="text-primary" ng-if="!outputPropertyValue.value">N/A</em>
                 </li>
               </ul>
             </li>
 
-            <!-- Properties output properties list -->
+            <!-- capabilities output properties list -->
             <li ng-repeat="(capabilityId, outputCapabilityPropertyValue) in outputCapabilityPropertiesValue[nodeId]">
               <strong>{{ 'COMMON.CAPABILITIES' | translate }} :</strong>
               <ul>
