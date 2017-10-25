@@ -355,8 +355,8 @@ public class PluginManager {
             Path pluginUiPath = getPluginUiPath(plugin.getPluginPathId());
             loadPlugin(plugin, pluginPath, pluginUiPath);
         } catch (Exception e) {
-            log.error("Failed to load plugin <" + plugin.getId() + "> alien will ignore this plugin.", e);
-            throw new PluginLoadingException("Failed to load plugin <" + plugin.getId() + ">", e);
+            log.error("Failed to load plugin <" + plugin.getId() + ">. Alien will not enable this plugin.", e);
+            throw new PluginLoadingException("Failed to load plugin [ " + plugin.getId() + " ]. " + e.getMessage(), e);
         }
     }
 
