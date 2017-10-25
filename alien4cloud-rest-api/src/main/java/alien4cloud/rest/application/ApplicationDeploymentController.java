@@ -89,8 +89,6 @@ public class ApplicationDeploymentController {
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
-    private ApplicationEnvironmentService applicationEnvironmentService;
-    @Inject
     private DeploymentTopologyDTOBuilder deploymentTopologyDTOBuilder;
 
     /**
