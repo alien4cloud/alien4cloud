@@ -95,6 +95,8 @@ public class ApplicationDeploymentController {
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
+    private ApplicationEnvironmentService applicationEnvironmentService;
+    @Inject
     private DeploymentTopologyDTOBuilder deploymentTopologyDTOBuilder;
     @Inject
     private LocalGitManager localGitManager;
@@ -122,6 +124,8 @@ public class ApplicationDeploymentController {
         // Security check user must be authorized to deploy the environment (or be application manager)
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
 
+        // ensure deployment status is sync with underlying orchestrator
+        applicationEnvironmentService.getStatus(environment);
         // check that the environment is not already deployed
         boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
         if (isEnvironmentDeployed) {
