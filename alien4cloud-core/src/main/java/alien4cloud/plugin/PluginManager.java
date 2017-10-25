@@ -230,13 +230,10 @@ public class PluginManager {
             if (Files.exists(pluginUiSourcePath)) {
                 FileUtil.copy(pluginUiSourcePath, pluginUiPath);
             }
-            if (oldPlugin == null || oldPlugin.isEnabled()) {
-                loadPlugin(plugin);
-                plugin.setEnabled(true);
-                plugin.setConfigurable(isPluginConfigurable(plugin.getId()));
-            }
             alienDAO.save(plugin);
-            log.info("Plugin <" + plugin.getId() + "> has been enabled.");
+            if (oldPlugin == null || oldPlugin.isEnabled()) {
+                enablePlugin(plugin);
+            }
             return plugin;
         } finally {
             fs.close();
@@ -331,18 +328,20 @@ public class PluginManager {
             return;
         }
 
-        log.info("Loading plugin <" + pluginId + ">");
-
-        // save the plugin's file in the work directory
         Plugin plugin = alienDAO.findById(Plugin.class, pluginId);
         if (plugin == null) {
             throw new NotFoundException("The plugin <" + pluginId + "> doesn't exists in alien.");
         }
+        enablePlugin(plugin);
+    }
+
+    private void enablePlugin(Plugin plugin) throws PluginLoadingException {
+        log.info("Enabling plugin <" + plugin.getId() + ">");
         loadPlugin(plugin);
         plugin.setEnabled(true);
         plugin.setConfigurable(isPluginConfigurable(plugin.getId()));
         alienDAO.save(plugin);
-        log.info("Plugin <" + pluginId + "> has been enabled.");
+        log.info("Plugin <" + plugin.getId() + "> has been enabled.");
     }
 
     private void loadPlugin(Plugin plugin) throws PluginLoadingException {
