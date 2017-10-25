@@ -509,6 +509,7 @@
     },
     "CSAR" : {
       "ACTIVE_FILTERS" : "Filtre actifs",
+      "IMPORTSOURCE": "Source",
       "TEMPLATEAUTHOR" : "Auteur",
       "TITLE" : "CSARS",
       "WORKSPACE" : "Workspace"
@@ -528,8 +529,9 @@
     },
     "UPLOAD" : "Upload CSAR",
     "UPLOAD_ERROR" : {
-      "300" : "Erreur inattendue lors de l'écriture du plugin.",
+      "300" : "Erreur inattendue lors de l'upload du plugin. \n{{message}}",
       "353" : "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml.",
+      "354": "Impossible d'activer le plugin: \n{{message}}",
       "ALIEN_MAPPING_ERROR" : "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
       "CSAR_ALREADY_EXISTS" : "Une archive releasée ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
       "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE" : "Un CSAR avec le même nom et la même version existe déjà dans Alien.",
@@ -912,7 +914,7 @@
     "ALIEN_MANAGED" : "A4C",
     "USER_MANAGED": "Manuellement",
     "BRANCH": "Branche",
-    "MANAGED_BY": "Géré par" 
+    "MANAGED_BY": "Géré par"
   },
   "GROUPS" : {
     "AUTHORIZED" : "groupe autorisé",
