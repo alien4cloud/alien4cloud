@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Base class for topology modifiers that can helps adding nodes, setting properties, replacing nodes, adding relationships.
@@ -122,6 +123,27 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
             }
         }
         return result;
+    }
+
+    /**
+     * Get the policies that target this node template.
+     */
+    public static Set<PolicyTemplate> getTargetedPolicies(Topology topology, NodeTemplate nodeTemplate) {
+        return AlienUtils.safe(topology.getPolicies()).values().stream()
+                .filter(policyTemplate -> policyTemplate.getTargets() != null
+                        && policyTemplate.getTargets().contains(nodeTemplate.getName()))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Change policies that target the sourceTemplate and make them target the targetTemplate.
+     */
+    public static void changePolicyTarget(Topology topology, NodeTemplate sourceTemplate, NodeTemplate targetTemplate) {
+        Set<PolicyTemplate> policies = getTargetedPolicies(topology, sourceTemplate);
+        policies.forEach(policyTemplate -> {
+            policyTemplate.getTargets().remove(sourceTemplate.getName());
+            policyTemplate.getTargets().add(targetTemplate.getName());
+        });
     }
 
     /**
