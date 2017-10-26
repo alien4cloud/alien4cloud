@@ -78,7 +78,7 @@ define(function (require) {
       }
 
       function isNodePropertyEditable(propertyName) {
-        var originalNode =  $scope.topology.originalNodes[$scope.selectedNodeName] || {};
+        var originalNode =  $scope.originalNodes[$scope.selectedNodeName] || {};
         var locationTemplate = $scope.substitutedResources[$scope.selectedResourceTemplate.id].template || {};
         var originalProperty = _.result(_.find(originalNode.properties, {'key':propertyName}), 'value');
         var originalLocationTemplateProperty = _.result(_.find(locationTemplate.properties, {'key':propertyName}), 'value');
