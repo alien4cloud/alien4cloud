@@ -45,7 +45,7 @@ public class DefaultNodeMatcher extends AbstractTemplateMatcher<LocationResource
 
         for (Entry<String, Capability> candidateCapability : safe(candidate.getTemplate().getCapabilities()).entrySet()) {
             MatchingFilterDefinition configuredFilterDefinition = matchingConfiguration == null ? null
-                    : matchingConfiguration.getCapabilities().get(candidateCapability.getKey());
+                    : safe(matchingConfiguration.getCapabilities()).get(candidateCapability.getKey());
             Map<String, List<IMatchPropertyConstraint>> configuredFilters = configuredFilterDefinition == null ? null
                     : configuredFilterDefinition.getProperties();
             CapabilityType capabilityType = locationResources.getCapabilityTypes().get(candidateCapability.getValue().getType());

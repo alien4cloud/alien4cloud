@@ -24,12 +24,10 @@ public class CycleDetection implements Rule {
         }
         List<AbstractWorkflowError> result = Lists.newArrayList();
         // get all the paths
-        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(workflow);
+        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphCycles(workflow);
         for (Path path : paths) {
             // isolate cycles
-            if (path.isCycle()) {
-                result.add(new WorkflowHasCycleError(extractCycle(path.getStepNames())));
-            }
+            result.add(new WorkflowHasCycleError(extractCycle(path.getStepNames())));
         }
         return result;
     }

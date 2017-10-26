@@ -1,143 +1,16 @@
-<div class="row grp-margin">
-  <!--  Required Implementation tasks  -->
-  <div class="col-md-6" ng-if="(tasks = deploymentTopologyDTO.validation.taskList['IMPLEMENT']).length>0">
-    <div class="task-list-box">
-      <h4 class="clickable" ng-init="isToImplementNodesCollapsed = false"
-          ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
-        <i class="fa" ng-class="{'fa-caret-down' : !isToImplementNodesCollapsed, 'fa-caret-right': isToImplementNodesCollapsed}"></i>
-        <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
-      </h4>
-
-      <div uib-collapse="isToImplementNodesCollapsed" >
-        <table class="table table-condensed">
-          <tbody>
-            <tr ng-repeat=" toImplementNodeTask in tasks">
-              <td>
-                <span>{{toImplementNodeTask.nodeTemplateName}}</span>
-                <span>({{toImplementNodeTask.component.elementId}})</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <!-- End Error Implementation tasks -->
-
-  <!--  Required Replacement tasks  -->
-  <div class="col-md-6" ng-if="(repTasks = deploymentTopologyDTO.validation.taskList['REPLACE']).length>0">
-    <div class="task-list-box">
-      <h4 class="clickable" ng-init="isToReplaceNodesCollapsed = false"
-          ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
-        <i class="fa" ng-class="{'fa-caret-down' : !isToReplaceNodesCollapsed, 'fa-caret-right': isToReplaceNodesCollapsed}"></i>
-        <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
-      </h4>
-
-      <div uib-collapse="isToReplaceNodesCollapsed" >
-        <table class="table table-condensed">
-          <thead>
-            <tr>
-              <th></th>
-              <th>{{'SUGGESTIONS' | translate}}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="toReplaceNodeTask in repTasks">
-              <td>
-                <span>{{toReplaceNodeTask.nodeTemplateName}}</span>
-                <span>({{toReplaceNodeTask.component.elementId}})</span>
-              </td>
-              <td>
-                <ul class="td_list liste-no-style" ng-if="_.isNotEmpty(toReplaceNodeTask.suggestedNodeTypes)">
-                  <li ng-repeat="nodeType in toReplaceNodeTask.suggestedNodeTypes">
-                    {{nodeType.elementId}}
-                  </li>
-                </ul>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <!-- End Error Replacement tasks -->
-  </div>
-</div>
-<div class="row grp-margin">
-  <div class="col-md-6">
-    <empty-place-holder data="deploymentTopologyDTO.topology.policies"></empty-place-holder>
-    <uib-accordion>
-      <div uib-accordion-group is-open="status.open"
-                       ng-repeat="(nodeName, templates) in deploymentTopologyDTO.availableSubstitutions.availablePoliciesSubstitutions">
-        <uib-accordion-heading ng-init="substitutedNode = getSubstitutedTemplate(nodeName); nodeIcon = getIcon(substitutedNode, nodeName)">
-          <div class="row">
-            <div class="col-md-12">
-              <i ng-if="!nodeIcon" class="fa fa-cogs"></i>
-              <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
-              {{nodeName}} <i class="fa"
-                              ng-class="{'fa-caret-down': status.open && substitutedNode, 'fa-caret-right': !status.open && substitutedNode, 'fa-exclamation-triangle text-danger': !substitutedNode}"></i>
-            </div>
-          </div>
-        </uib-accordion-heading>
-        <p ng-if="!substitutedNode">
-          No substitution available for this node
-        </p>
-        <table ng-if="substitutedNode" class="table table-hover">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Name</th>
-              <th></th>
-              <th>Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="template in templates"
-                class="clickable"
-                ng-class="{'warning': selectedResourceTemplate.id === template.id && selectedNodeName === nodeName}">
-              <td ng-click="changeSubstitution(nodeName, template)" class="col-md-1">
-                <a>
-                  <i class="fa fa-fw"
-                    ng-class="getSubstitutedTemplate(nodeName).id === template.id ? 'fa-dot-circle-o text-success' : 'fa-circle-o'">
-                  </i>
-                </a>
-              </td>
-              <td class="col-md-4" ng-click="selectTemplate(nodeName, template)">
-                {{template.name}}
-              </td>
-              <td>
-                <i class="fa fa-fw" ng-class="template.service ? (isServiceRunning(template) ? 'fa-globe text-success' : 'fa-globe text-danger') : 'fa-cubes'"></i>
-              </td>
-              <td class="col-md-7" ng-click="selectTemplate(nodeName, template)">
-                {{template.template.type}}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </uib-accordion>
-  </div>
-  <div class="col-md-6">
-    <div ng-if="selectedResourceTemplate">
-      <fieldset class="field">
-        <legend>
-          <h4 ng-if="!selectedResourceTemplate.service"><i class="fa fa-wrench"></i> {{'APPLICATIONS.DEPLOYMENT.MATCHING.CONFIGURATION' | translate}}</h4>
-          <h4 ng-if="selectedResourceTemplate.service"><i class="fa fa-globe"></i> {{'APPLICATIONS.DEPLOYMENT.MATCHING.SERVICE' | translate}}</h4>
-        </legend>
-        <div ng-if="!selectedResourceTemplate.service" class="row-margin">{{'APPLICATIONS.DEPLOYMENT.MATCHING.CONFIGURATION_HELP' | translate}}</div>
-        <div ng-if="selectedResourceTemplate.service" class="row-margin">
-          <p ng-show="!isServiceRunning(selectedResourceTemplate)" class="text-danger">{{'APPLICATIONS.DEPLOYMENT.MATCHING.SERVICE_UNDEPLOYED_HELP' | translate}}</p>
-          <p>{{'APPLICATIONS.DEPLOYMENT.MATCHING.SERVICE_HELP' | translate}}</p>
-        </div>
-        <a4c-policy-template-edit
-          template="selectedResourceTemplate.template"
-          type="deploymentTopologyDTO.availableSubstitutions.substitutionTypes.policyTypes[selectedResourceTemplate.template.type]"
-          resource-data-types="deploymentTopologyDTO.availableSubstitutions.substitutionTypes.dataTypes"
-          dependencies="deploymentTopologyDTO.topology.dependencies"
-          is-property-editable="isPropertyEditable(propertyPath)"
-          on-property-update="updateSubstitutionProperty(propertyName, propertyValue)"
-          >
-        </a4c-policy-template-edit>
-      </fieldset>
-    </div>
-  </div>
-</div>
+<resources-matching
+  available-substitutions='deploymentTopologyDTO.availableSubstitutions.availablePoliciesSubstitutions'
+  substituted-resources='deploymentTopologyDTO.policyLocationResourceTemplates'
+  substituted-nodes='deploymentTopologyDTO.topology.substitutedPolicies'
+  templates='deploymentTopologyDTO.topology.policies'
+  original-nodes='deploymentTopologyDTO.topology.originalPolicies'
+  all-substitution-types='deploymentTopologyDTO.availableSubstitutions.substitutionTypes'
+  location-resources-types='deploymentTopologyDTO.availableSubstitutions.substitutionTypes.policyTypes'
+  templates-types='deploymentTopologyDTO.policyTypes'
+  topology='deploymentTopologyDTO.topology'
+  service-context='serviceContext'
+  application='application'
+  environment='environment'
+  template-edit-url='views/_ref/applications/includes/substituted_policy_template_edit.html'
+>
+</resources-matching>
