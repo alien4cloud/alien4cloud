@@ -129,40 +129,111 @@ public final class PropertyUtil {
     }
 
     /**
-     * Get the value of a given property at a given path. Doesn't manage lists (using spel could be usefull to manage lists index or advanced key selectors).
+     * Returns the object as a <code>Map&lt;String, Object&gt;</code> if it's a {@link ComplexPropertyValue} or already a <code>Map&lt;String, Object&gt;</code>.
      */
-    // TODO ALIEN-2589: see alien4cloud.paas.function.FunctionEvaluator.getPropertyValue()
-    public static AbstractPropertyValue getPropertyValueFromPath(Map<String, AbstractPropertyValue> values, String propertyPath) {
-        if (propertyPath.contains(".")) {
+    public static Map<String, Object> getMapProperty(Object value) {
+        if (value instanceof ComplexPropertyValue) {
+            return ((ComplexPropertyValue)value).getValue();
+        } else if (value instanceof Map<?, ?>) {
+            return (Map<String, Object>)value;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Crawls a complex and deep structure of <code>ComplexPropertyValue</code> and/or <code>Map&lt;String, Object&gt;</code> using a dot separated path (for example <code>my.deep.property</code> where 'my' and 'deep' are nested maps and 'property' an entry of 'deep').
+     * <p>Returns <code>null</code> if any item on the path (except the last one, ie. the property itself) is not a <code>ComplexPropertyValue</code> or <code>Map&lt;String, Object&gt;</code> (ie. doesn't manage nested lists).</p>
+     * <p>If the returned object of type {@link NestedPropertyWrapper} is not null, you are sure that the wrapped map contains the entry.</p>
+     */
+    public static NestedPropertyWrapper getNestedProperty(Object root, String propertyPath) {
+        Map<String, Object> map = getMapProperty(root);
+        if (map != null) {
             String[] paths = propertyPath.split("\\.");
-            AbstractPropertyValue apv = values.get(paths[0]);
-            if (apv instanceof ComplexPropertyValue) {
-                Map<String, Object> currentMap = ((ComplexPropertyValue)apv).getValue();
-                for (int i=1; i<paths.length; i++) {
-                    Object currentValue = currentMap.get(paths[i]);
-                    if (i == paths.length - 1) {
-                        // this is the last one, can be returned
-                        if (currentValue instanceof AbstractPropertyValue) {
-                            return (AbstractPropertyValue)currentValue;
-                        } else {
-                            return null;
-                        }
-                    } else {
-                        if (currentValue instanceof ComplexPropertyValue) {
-                            ComplexPropertyValue cpv = (ComplexPropertyValue)currentValue;
-                            currentMap = cpv.getValue();
-                        } else {
-                            return null;
-                        }
-                    }
+            for (int i = 0; i < paths.length - 1; i++) {
+                Object currentEntry = map.get(paths[i]);
+                Map<String, Object> currentEntryMap = getMapProperty(currentEntry);
+                if (currentEntryMap == null) {
+                    return null;
+                } else {
+                    map = currentEntryMap;
                 }
-                return null;
+            }
+            String key = paths[paths.length - 1];
+            if (map.containsKey(key)) {
+                return new NestedPropertyWrapper(map, key);
             } else {
                 return null;
             }
         } else {
-            return values.get(propertyPath);
+            return null;
         }
+    }
+
+    public static class NestedPropertyWrapper {
+        public final Map<String, Object> parent;
+        public final String key;
+
+        public NestedPropertyWrapper(Map<String, Object> parent, String key) {
+            this.parent = parent;
+            this.key = key;
+        }
+
+        public Object getValue() {
+            return parent.get(key);
+        }
+    }
+
+//    /**
+//     * Get the value of a given property at a given path. Doesn't manage lists (using spel could be usefull to manage lists index or advanced key selectors).
+//     */
+//    // TODO ALIEN-2589: see alien4cloud.paas.function.FunctionEvaluator.getPropertyValue()
+//    public static AbstractPropertyValue _getPropertyValueFromPath(Map<String, AbstractPropertyValue> values, String propertyPath) {
+//        if (propertyPath.contains(".")) {
+//            String[] paths = propertyPath.split("\\.");
+//            AbstractPropertyValue apv = values.get(paths[0]);
+//            if (apv instanceof ComplexPropertyValue) {
+//                Map<String, Object> currentMap = ((ComplexPropertyValue)apv).getValue();
+//                for (int i=1; i<paths.length; i++) {
+//                    Object currentValue = currentMap.get(paths[i]);
+//                    if (i == paths.length - 1) {
+//                        // this is the last one, can be returned
+//                        if (currentValue instanceof AbstractPropertyValue) {
+//                            return (AbstractPropertyValue)currentValue;
+//                        } else {
+//                            return null;
+//                        }
+//                    } else {
+//                        if (currentValue instanceof ComplexPropertyValue) {
+//                            ComplexPropertyValue cpv = (ComplexPropertyValue)currentValue;
+//                            currentMap = cpv.getValue();
+//                        } else {
+//                            return null;
+//                        }
+//                    }
+//                }
+//                return null;
+//            } else {
+//                return null;
+//            }
+//        } else {
+//            return values.get(propertyPath);
+//        }
+//    }
+
+    /**
+     * Get the value of a given property at a given path. For example, if you try to get <code>my.deep.property</code>,
+     * and if <code>my</code> and <code>deep</code> are both <code>ComplexPropertyValue</code> or <code>Map&lt;String, Object&gt;</code>,
+     * then will return the entry named <code>property</code> of <code>deep</code>, if it's an {@link AbstractPropertyValue}. In any other case, will return <code>null</code>.
+     *
+     * @return the found {@link AbstractPropertyValue} or <code>null</code> if any item on the path is not a {@link ComplexPropertyValue} or a <code>Map&lt;String, Object&gt;</code>, or if the property is not a {@link AbstractPropertyValue}.
+     */
+    public static AbstractPropertyValue getPropertyValueFromPath(Map<String, AbstractPropertyValue> values, String propertyPath) {
+        NestedPropertyWrapper npw = getNestedProperty(values, propertyPath);
+        if (npw != null && npw.getValue() instanceof AbstractPropertyValue) {
+            return (AbstractPropertyValue)npw.getValue();
+        }
+        return null;
     }
 
 }

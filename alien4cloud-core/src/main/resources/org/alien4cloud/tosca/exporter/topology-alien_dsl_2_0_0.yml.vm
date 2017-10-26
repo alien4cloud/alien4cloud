@@ -8,7 +8,7 @@
 #if($utils.collectionIsNotEmpty($template.tags))
 ${indent}metadata:
 #foreach($tag in ${template.tags})
-${indent}  ${tag.name} : ${tag.value}
+${indent}  ${tag.name} : $propertyUtils.renderScalar(${tag.value})
 #end##foreach($tag in ${template.tags})
 #end##if($utils.collectionIsNotEmpty($template.tags))
 #end## macro(serializeMetadata

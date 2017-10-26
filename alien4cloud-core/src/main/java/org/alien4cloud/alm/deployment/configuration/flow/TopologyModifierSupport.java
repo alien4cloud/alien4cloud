@@ -21,12 +21,14 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.*;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -232,7 +234,8 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         setNodePropertyPathValue(csar, topology, nodeTemplate, propertyPath, propertyValue, false);
     }
 
-    private void setNodePropertyPathValue(Csar csar, Topology topology, NodeTemplate nodeTemplate, String propertyPath, AbstractPropertyValue propertyValue, boolean lastPropertyIsAList) {
+    @Deprecated
+    private void _setNodePropertyPathValue(Csar csar, Topology topology, NodeTemplate nodeTemplate, String propertyPath, AbstractPropertyValue propertyValue, boolean lastPropertyIsAList) {
         Object nodePropertyValue = null;
         String nodePropertyName = null;
         if (propertyPath.contains(".")) {
@@ -287,6 +290,72 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         // TODO: can be necessary to serialize value before setting it in case of different types
         updateNodePropertyValueOperation.setPropertyValue(nodePropertyValue);
         updateNodePropertyValueProcessor.process(csar, topology, updateNodePropertyValueOperation);
+    }
+
+    private void setNodePropertyPathValue(Csar csar, Topology topology, NodeTemplate nodeTemplate, String propertyPath, AbstractPropertyValue propertyValue, boolean lastPropertyIsAList) {
+        Map<String, AbstractPropertyValue> propertyValues = nodeTemplate.getProperties();
+        String nodePropertyName = feedPropertyValue(propertyValues, propertyPath, propertyValue, lastPropertyIsAList);
+        Object nodePropertyValue = propertyValues.get(nodePropertyName);
+
+        UpdateNodePropertyValueOperation updateNodePropertyValueOperation = new UpdateNodePropertyValueOperation();
+        updateNodePropertyValueOperation.setNodeName(nodeTemplate.getName());
+        updateNodePropertyValueOperation.setPropertyName(nodePropertyName);
+        // TODO: can be necessary to serialize value before setting it in case of different types
+        updateNodePropertyValueOperation.setPropertyValue(nodePropertyValue);
+        updateNodePropertyValueProcessor.process(csar, topology, updateNodePropertyValueOperation);
+    }
+
+    protected String feedPropertyValue(Map<String, AbstractPropertyValue> propertyValues, String propertyPath, AbstractPropertyValue propertyValue, boolean lastPropertyIsAList) {
+//        Object nodePropertyValue = null;
+        String nodePropertyName = null;
+        if (propertyPath.contains(".")) {
+            String[] paths = propertyPath.split("\\.");
+            nodePropertyName = paths[0];
+//            Map<String, AbstractPropertyValue> propertyValues = nodeTemplate.getProperties();
+            Map<String, Object> currentMap = null;
+            for (int i = 0; i < paths.length; i++) {
+                if (i == 0) {
+                    AbstractPropertyValue currentPropertyValue = propertyValues.get(paths[i]);
+                    if (currentPropertyValue != null && currentPropertyValue instanceof ComplexPropertyValue) {
+                        currentMap = ((ComplexPropertyValue) currentPropertyValue).getValue();
+                    } else {
+                        currentMap = Maps.newHashMap();
+                        propertyValues.put(nodePropertyName, new ComplexPropertyValue(currentMap));
+                    }
+//                    nodePropertyValue = currentMap;
+                } else if (i == paths.length - 1) {
+                    // TODO: find a better way to manage this
+                    if (lastPropertyIsAList) {
+                        Object currentEntry = currentMap.get(paths[i]);
+                        ListPropertyValue listPropertyValue = null;
+                        if (currentEntry != null && currentEntry instanceof ListPropertyValue) {
+                            listPropertyValue = (ListPropertyValue) currentEntry;
+                        } else {
+                            listPropertyValue = new ListPropertyValue(Lists.newArrayList());
+                            currentMap.put(paths[i], listPropertyValue);
+                        }
+                        listPropertyValue.getValue().add(propertyValue);
+                    } else {
+                        currentMap.put(paths[i], propertyValue);
+                    }
+                } else {
+                    Map<String, Object> currentPropertyValue = null;
+                    Object currentPropertyValueObj = currentMap.get(paths[i]);
+                    if (currentPropertyValueObj != null && currentPropertyValueObj instanceof Map<?, ?>) {
+                        currentPropertyValue = (Map<String, Object>) currentPropertyValueObj;
+                    } else {
+                        currentPropertyValue = Maps.newHashMap();
+                        currentMap.put(paths[i], currentPropertyValue);
+                    }
+                    currentMap = currentPropertyValue;
+                }
+            }
+        } else {
+//            nodePropertyValue = propertyValue;
+            nodePropertyName = propertyPath;
+            propertyValues.put(nodePropertyName, propertyValue);
+        }
+        return nodePropertyName;
     }
 
     protected void setNodeTagValue(AbstractTemplate template, String name, String value) {
