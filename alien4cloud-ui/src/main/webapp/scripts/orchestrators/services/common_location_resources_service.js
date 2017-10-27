@@ -5,12 +5,12 @@ define(function (require) {
   var _ = require('lodash');
   var angular = require('angular');
 
-  require('scripts/tosca/services/node_template_service');
+  require('scripts/tosca/services/tosca_service');
   require('scripts/common/services/resource_security_factory');
   require('scripts/orchestrators/services/location_resources_processor');
 
-  modules.get('a4c-orchestrators').factory('commonLocationResourcesService', ['nodeTemplateService', 'resourceSecurityFactory', 'locationResourcesPortabilityService', 'locationResourcesProcessor',
-    function (nodeTemplateService, resourceSecurityFactory, locationResourcesPortabilityService, locationResourcesProcessor)  {
+  modules.get('a4c-orchestrators').factory('commonLocationResourcesService', ['toscaService', 'resourceSecurityFactory', 'locationResourcesPortabilityService', 'locationResourcesProcessor',
+    function (toscaService, resourceSecurityFactory, locationResourcesPortabilityService, locationResourcesProcessor)  {
 
       /**
       * subjectResource ==> resources, policies
@@ -47,7 +47,7 @@ define(function (require) {
 
         scope.getIcon = function(resourceType) {
           var templateType = scope.resourcesTypesMap[resourceType];
-          return nodeTemplateService.getNodeTypeIcon(templateType);
+          return toscaService.getElementIcon(templateType);
         };
 
         scope.updateLocationResource = function(propertyName, propertyValue) {

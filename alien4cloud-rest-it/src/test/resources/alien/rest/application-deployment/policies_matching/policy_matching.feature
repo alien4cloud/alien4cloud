@@ -26,10 +26,10 @@ Feature: Perform matching on policies
     And I create a new application with name "PolicyMatchingTest" and description "Application for policy matching test" and node templates
       | Compute   | tosca.nodes.Compute:1.0.0-SNAPSHOT |
       | Compute_1 | tosca.nodes.Compute:1.0.0-SNAPSHOT |
-    # Add an abstract placement policy to the topology with Compute and Compute_2 as targets
 
   @reset
   Scenario: Policy modifier should inject zone properties
+    # Add an abstract placement policy to the topology with Compute and Compute_2 as targets
     And I get the current topology
     And I execute the operation
       | type         | org.alien4cloud.tosca.editor.operations.policies.AddPolicyOperation |
@@ -41,6 +41,6 @@ Feature: Perform matching on policies
       | targets    | Compute, Compute_1                                                            |
     And I save the topology
     When I Set a unique location policy to "Mock orchestrator"/"Mock aws location" for all nodes
+    # Policy matching should have been done automatically, check that the matched node templates have zone defined
     Then The TopologyDTO SPEL expression "topology.nodeTemplates['Compute'].properties['zone'].value" should return "az_2"
     Then The TopologyDTO SPEL expression "topology.nodeTemplates['Compute_1'].properties['zone'].value" should return "az_1"
-    # Policy matching should be done automatically, check that the matched node templates have zone defined

@@ -1,5 +1,6 @@
 package alien4cloud.application;
 
+import static alien4cloud.common.ResourceUpdateInterceptor.TopologyVersionChangedInfo;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.common.ResourceUpdateInterceptor;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentLockService;
@@ -64,6 +66,8 @@ public class ApplicationEnvironmentService {
     private DeploymentService deploymentService;
     @Inject
     private DeploymentLockService deploymentLockService;
+    @Inject
+    private ResourceUpdateInterceptor resourceUpdateInterceptor;
 
     /**
      * Method used to create a default environment
@@ -105,6 +109,7 @@ public class ApplicationEnvironmentService {
         userRoles.put(user, Sets.newHashSet(ApplicationEnvironmentRole.DEPLOYMENT_MANAGER.toString()));
         applicationEnvironment.setUserRoles(userRoles);
         alienDAO.save(applicationEnvironment);
+        resourceUpdateInterceptor.runOnNewEnvironment(applicationEnvironment);
         return applicationEnvironment;
     }
 
@@ -357,6 +362,12 @@ public class ApplicationEnvironmentService {
         }
         publisher.publishEvent(new AfterEnvironmentTopologyVersionChanged(this, oldTopologyVersion, newTopologyVersion, applicationEnvironment.getId(),
                 applicationEnvironment.getApplicationId()));
+
+        resourceUpdateInterceptor.runOnEnvironmentTopologyVersionChanged(new TopologyVersionChangedInfo(
+                applicationEnvironment,
+                oldTopologyVersion,
+                newTopologyVersion
+        ));
     }
 
     private void failIfExposedAsService(ApplicationEnvironment environment) {

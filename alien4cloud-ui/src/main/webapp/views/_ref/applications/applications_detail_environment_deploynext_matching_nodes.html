@@ -1,0 +1,82 @@
+<div class="row grp-margin">
+  <!--  Required Implementation tasks  -->
+  <div class="col-md-6" ng-if="(tasks = deploymentTopologyDTO.validation.taskList['IMPLEMENT']).length>0">
+    <div class="task-list-box">
+      <h4 class="clickable" ng-init="isToImplementNodesCollapsed = false"
+          ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
+        <i class="fa" ng-class="{'fa-caret-down' : !isToImplementNodesCollapsed, 'fa-caret-right': isToImplementNodesCollapsed}"></i>
+        <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
+      </h4>
+
+      <div uib-collapse="isToImplementNodesCollapsed" >
+        <table class="table table-condensed">
+          <tbody>
+            <tr ng-repeat=" toImplementNodeTask in tasks">
+              <td>
+                <span>{{toImplementNodeTask.nodeTemplateName}}</span>
+                <span>({{toImplementNodeTask.component.elementId}})</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- End Error Implementation tasks -->
+
+  <!--  Required Replacement tasks  -->
+  <div class="col-md-6" ng-if="(repTasks = deploymentTopologyDTO.validation.taskList['REPLACE']).length>0">
+    <div class="task-list-box">
+      <h4 class="clickable" ng-init="isToReplaceNodesCollapsed = false"
+          ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
+        <i class="fa" ng-class="{'fa-caret-down' : !isToReplaceNodesCollapsed, 'fa-caret-right': isToReplaceNodesCollapsed}"></i>
+        <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
+      </h4>
+
+      <div uib-collapse="isToReplaceNodesCollapsed" >
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{'SUGGESTIONS' | translate}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="toReplaceNodeTask in repTasks">
+              <td>
+                <span>{{toReplaceNodeTask.nodeTemplateName}}</span>
+                <span>({{toReplaceNodeTask.component.elementId}})</span>
+              </td>
+              <td>
+                <ul class="td_list liste-no-style" ng-if="_.isNotEmpty(toReplaceNodeTask.suggestedNodeTypes)">
+                  <li ng-repeat="nodeType in toReplaceNodeTask.suggestedNodeTypes">
+                    {{nodeType.elementId}}
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- End Error Replacement tasks -->
+  </div>
+</div>
+
+<resources-matching
+  available-substitutions='deploymentTopologyDTO.availableSubstitutions.availableSubstitutions'
+  substituted-resources='deploymentTopologyDTO.locationResourceTemplates'
+  substituted-nodes='deploymentTopologyDTO.topology.substitutedNodes'
+  templates='deploymentTopologyDTO.topology.nodeTemplates'
+  original-nodes='deploymentTopologyDTO.topology.originalNodes'
+  all-substitution-types='deploymentTopologyDTO.availableSubstitutions.substitutionTypes'
+  location-resources-types='deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes'
+  templates-types='deploymentTopologyDTO.nodeTypes'
+  topology='deploymentTopologyDTO.topology'
+  service-context='serviceContext'
+  application='application'
+  environment='environment'
+  populate-scope='populate(scope)'
+  template-edit-url='views/_ref/applications/includes/substituted_node_template_edit.html'
+>
+</resources-matching>

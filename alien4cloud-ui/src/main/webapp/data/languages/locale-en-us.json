@@ -27,7 +27,9 @@
         "SERVICE": "Service information",
         "SERVICE_HELP": "Below are the defined properties and attributes of the matched service.",
         "SERVICE_UNDEPLOYED_HELP": "The selected servie is undeployed, this may cause issues on deployment if you select it as matched resource.",
-        "TITLE": "Matching"
+        "TITLE": "Matching",
+        "NODES_TITLE": "Nodes matching",
+        "POLICIES_TITLE": "Policies matching"
       },
       "HISTORY": {
         "DEPLOYER": "Deployer",
@@ -474,6 +476,8 @@
     "NO": "No",
     "NODE": "Node",
     "OR": "or",
+    "PATH": "Path",
+    "PASSWORD": "Password",
     "PROPERTIES": "Properties",
     "RELATIONSHIP": "Relationship",
     "RESOURCES": "Resources",
@@ -908,6 +912,13 @@
       "minLength": "Min value length is {{reference}}",
       "pattern": "Value must match the pattern {{reference}}"
     }
+  },
+  "GIT" : {
+    "CONFIGURE_TITLE" : "Git configuration",
+    "ALIEN_MANAGED" : "A4C",
+    "USER_MANAGED": "Manually",
+    "BRANCH": "Branch",
+    "MANAGED_BY": "Managed by" 
   },
   "GROUPS": {
     "AUTHORIZED": "group authorized",

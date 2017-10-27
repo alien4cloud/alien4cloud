@@ -18,6 +18,13 @@
         <context:exclude-filter type="regex" expression="alien4cloud.security.spring.SecurityConfiguration"/>
         <context:exclude-filter type="regex" expression="alien4cloud.rest.plugin.PluginRestMapper"/>
         <context:exclude-filter type="regex" expression="org.alien4cloud.tosca.editor.EditorStaticResourcesConfigurer"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.rest.application.*"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.rest.deployment.*"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.rest.websocket.*"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.rest.form.*"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.rest.form.*"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.rest.internal.AlienMaintenanceController.*"/>
+        <context:exclude-filter type="regex" expression="org.alien4cloud.alm.deployment.*"/>
     </context:component-scan>
 
     <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory"/>

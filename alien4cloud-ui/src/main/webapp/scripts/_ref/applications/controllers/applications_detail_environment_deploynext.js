@@ -30,26 +30,39 @@ define(function (require) {
     },
     resolve: {
       deploymentTopologyDTO: ['$stateParams', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor',
-        function($stateParams, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor) {
-          return _.catch(function() {
+        function ($stateParams, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor) {
+          return _.catch(function () {
             return deploymentTopologyServices.get({
               appId: $stateParams.id,
               envId: $stateParams.environmentId
-            }).$promise.then(function(response) {
+            }).$promise.then(function (response) {
               var deploymentTopologyDTO = response.data;
               deploymentTopologyProcessor.process(deploymentTopologyDTO);
               tasksProcessor.processAll(deploymentTopologyDTO.validation);
               return deploymentTopologyDTO;
             });
           });
-      }]
+        }]
     }
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployNextCtrl',
-    ['$scope', '$state', 'menu', 'deploymentTopologyDTO', 'deploymentTopologyProcessor', 'tasksProcessor', 'locationsMatchingServices',
-    function ($scope, $state, menu, deploymentTopologyDTO, deploymentTopologyProcessor, tasksProcessor, locationsMatchingServices) {
+    ['$scope', '$state', 'menu', 'deploymentTopologyDTO', 'deploymentTopologyProcessor', 'tasksProcessor', 'locationsMatchingServices', 'deploymentServices',
+    function ($scope, $state, menu, deploymentTopologyDTO, deploymentTopologyProcessor, tasksProcessor, locationsMatchingServices, deploymentServices) {
       $scope.deploymentTopologyDTO = deploymentTopologyDTO;
+
+      $scope.$watch('environment.status', function (envStatus) {
+        if (_.includes(['DEPLOYED', 'UPDATED'], envStatus)) {
+          deploymentServices.runtime.getTopology({
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.environment.id
+          }).$promise.then(function (response) {
+            $scope.deployedTopology = response.data;
+          });
+        }else{
+          $scope.deployedTopology = null;
+        }
+      });
 
       // Initialize menu by setting next step property.
       for(var i=0; i<menu.length-1; i++) {

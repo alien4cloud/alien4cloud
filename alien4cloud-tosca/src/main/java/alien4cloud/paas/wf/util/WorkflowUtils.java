@@ -31,6 +31,8 @@ import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.collect.Maps;
+
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
@@ -315,70 +317,75 @@ public class WorkflowUtils {
         }
     }
 
-    public static void processInlineWorkflows(Map<String, Workflow> workflowMap) {
-        workflowMap.forEach((workflowId, workflow) -> {
-            final Set<String> newInlinedStepNames = new HashSet<>();
-            Map<String, Map<String, WorkflowStep>> inlinedWorkflowSteps = workflow.getSteps().entrySet().stream()
-                    .filter(entry -> entry.getValue().getActivity() instanceof InlineWorkflowActivity)
-                    .collect(Collectors.toMap(Map.Entry::getKey, inlinedStepEntry -> {
-                        WorkflowStep step = inlinedStepEntry.getValue();
-                        InlineWorkflowActivity inlineWorkflowActivity = (InlineWorkflowActivity) inlinedStepEntry.getValue().getActivity();
-                        String inlinedName = inlineWorkflowActivity.getInline();
-                        Workflow inlined = workflowMap.get(inlinedName);
-                        if (inlined == null) {
-                            throw new NotFoundException("Inlined workflow " + inlinedName);
+    private static void processInlineWorkflow(Map<String, Workflow> workflowMap, Workflow workflow) {
+        final Set<String> newInlinedStepNames = new HashSet<>();
+        // Clone the map as we iterate and in the same time modify it
+        Maps.newHashMap(workflow.getSteps()).entrySet().stream().filter(entry -> entry.getValue().getActivity() instanceof InlineWorkflowActivity)
+                .forEach(inlinedStepEntry -> {
+                    String inlinedStepName = inlinedStepEntry.getKey();
+                    WorkflowStep inlinedStep = inlinedStepEntry.getValue();
+                    InlineWorkflowActivity inlineWorkflowActivity = (InlineWorkflowActivity) inlinedStep.getActivity();
+                    String inlinedName = inlineWorkflowActivity.getInline();
+                    Workflow inlined = workflowMap.get(inlinedName);
+                    if (inlined == null) {
+                        throw new NotFoundException("Inlined workflow " + inlinedName);
+                    }
+                    Map<String, WorkflowStep> generatedSteps = cloneSteps(inlined.getSteps());
+
+                    Map<String, WorkflowStep> generatedStepsWithNewNames = generatedSteps.entrySet().stream().collect(Collectors.toMap(entry -> {
+                        String newName = generateNewWfStepNameWithPrefix(inlinedStepEntry.getKey() + "_", workflow.getSteps().keySet(), newInlinedStepNames,
+                                entry.getKey());
+                        newInlinedStepNames.add(newName);
+                        if (!newName.equals(entry.getKey())) {
+                            entry.getValue().setName(newName);
+                            generatedSteps.forEach((generatedStepId, generatedStep) -> {
+                                if (generatedStep.getOnSuccess().remove(entry.getKey())) {
+                                    generatedStep.getOnSuccess().add(newName);
+                                }
+                                if (generatedStep.getPrecedingSteps().remove(entry.getKey())) {
+                                    generatedStep.getPrecedingSteps().add(newName);
+
+                                }
+                            });
                         }
-                        Map<String, WorkflowStep> generatedSteps = cloneSteps(inlined.getSteps());
+                        return newName;
+                    }, Map.Entry::getValue));
+                    // Find all root steps of the workflow and link them to the parent workflows
+                    final Map<String, WorkflowStep> rootInlinedSteps = generatedStepsWithNewNames.values().stream()
+                            .filter(generatedStepWithNewName -> generatedStepWithNewName.getPrecedingSteps().isEmpty())
+                            .peek(rootInlinedStep -> rootInlinedStep.getPrecedingSteps().addAll(inlinedStep.getPrecedingSteps()))
+                            .collect(Collectors.toMap(WorkflowStep::getName, rootInlinedStep -> rootInlinedStep));
 
-                        Map<String, WorkflowStep> generatedStepsWithNewNames = generatedSteps.entrySet().stream().collect(Collectors.toMap(entry -> {
-                            String newName = generateNewWfStepNameWithPrefix(inlinedStepEntry.getKey() + "_", workflow.getSteps().keySet(), newInlinedStepNames,
-                                    entry.getKey());
-                            newInlinedStepNames.add(newName);
-                            if (!newName.equals(entry.getKey())) {
-                                entry.getValue().setName(newName);
-                                generatedSteps.forEach((generatedStepId, generatedStep) -> {
-                                    if (generatedStep.getOnSuccess().remove(entry.getKey())) {
-                                        generatedStep.getOnSuccess().add(newName);
-                                    }
-                                    if (generatedStep.getPrecedingSteps().remove(entry.getKey())) {
-                                        generatedStep.getPrecedingSteps().add(newName);
+                    inlinedStep.getPrecedingSteps().forEach(precedingStepName -> {
+                        WorkflowStep precedingStep = workflow.getSteps().get(precedingStepName);
+                        precedingStep.getOnSuccess().remove(inlinedStepName);
+                        precedingStep.getOnSuccess().addAll(rootInlinedSteps.keySet());
+                    });
+                    // Find all leaf steps of the workflow and link them to the parent workflows
+                    final Map<String, WorkflowStep> leafInlinedSteps = generatedStepsWithNewNames.values().stream()
+                            .filter(generatedStepWithNewName -> generatedStepWithNewName.getOnSuccess().isEmpty())
+                            .peek(leafInlinedStep -> leafInlinedStep.getOnSuccess().addAll(inlinedStep.getOnSuccess()))
+                            .collect(Collectors.toMap(WorkflowStep::getName, leafInlinedStep -> leafInlinedStep));
 
-                                    }
-                                });
-                            }
-                            return newName;
-                        }, Map.Entry::getValue));
-                        // Find all root steps of the workflow and link them to the parent workflows
-                        final Map<String, WorkflowStep> rootInlinedSteps = generatedStepsWithNewNames.values().stream()
-                                .filter(inlinedStep -> inlinedStep.getPrecedingSteps().isEmpty())
-                                .peek(rootInlinedStep -> rootInlinedStep.getPrecedingSteps().addAll(step.getPrecedingSteps()))
-                                .collect(Collectors.toMap(WorkflowStep::getName, rootInlinedStep -> rootInlinedStep));
+                    inlinedStep.getOnSuccess().forEach(onSuccessStepName -> {
+                        WorkflowStep onSuccessStep = workflow.getSteps().get(onSuccessStepName);
+                        onSuccessStep.getPrecedingSteps().remove(inlinedStepName);
+                        onSuccessStep.getPrecedingSteps().addAll(leafInlinedSteps.keySet());
+                    });
+                    // Remove the inlined step and replace by other workflow's steps
+                    workflow.getSteps().remove(inlinedStepName);
+                    workflow.getSteps().putAll(generatedStepsWithNewNames);
+                });
+        // Check if the workflow contains inline activity event after processing
+        boolean processedWorkflowContainsInline = workflow.getSteps().values().stream().anyMatch(step -> step.getActivity() instanceof InlineWorkflowActivity);
+        if (processedWorkflowContainsInline) {
+            // Recursively process inline workflow until no step is inline workflow
+            processInlineWorkflow(workflowMap, workflow);
+        }
+    }
 
-                        step.getPrecedingSteps().forEach(precedingStepName -> {
-                            WorkflowStep precedingStep = workflow.getSteps().get(precedingStepName);
-                            precedingStep.getOnSuccess().remove(inlinedStepEntry.getKey());
-                            precedingStep.getOnSuccess().addAll(rootInlinedSteps.keySet());
-                        });
-                        // Find all leaf steps of the workflow and link them to the parent workflows
-                        final Map<String, WorkflowStep> leafInlinedSteps = generatedStepsWithNewNames.values().stream()
-                                .filter(inlinedStep -> inlinedStep.getOnSuccess().isEmpty())
-                                .peek(leafInlinedStep -> leafInlinedStep.getOnSuccess().addAll(step.getOnSuccess()))
-                                .collect(Collectors.toMap(WorkflowStep::getName, leafInlinedStep -> leafInlinedStep));
-
-                        step.getOnSuccess().forEach(onSuccessStepName -> {
-                            WorkflowStep onSuccessStep = workflow.getSteps().get(onSuccessStepName);
-                            onSuccessStep.getPrecedingSteps().remove(inlinedStepEntry.getKey());
-                            onSuccessStep.getPrecedingSteps().addAll(leafInlinedSteps.keySet());
-                        });
-
-                        // Remove the inlined step and replace by other workflow's steps
-                        return generatedStepsWithNewNames;
-                    }));
-            inlinedWorkflowSteps.forEach((inlinedStepName, generatedInlinedWorkflowSteps) -> {
-                workflow.getSteps().remove(inlinedStepName);
-                workflow.getSteps().putAll(generatedInlinedWorkflowSteps);
-            });
-        });
+    public static void processInlineWorkflows(Map<String, Workflow> workflowMap) {
+        workflowMap.forEach((workflowId, workflow) -> processInlineWorkflow(workflowMap, workflow));
     }
 
     private static Map<String, WorkflowStep> cloneSteps(Map<String, WorkflowStep> steps) {

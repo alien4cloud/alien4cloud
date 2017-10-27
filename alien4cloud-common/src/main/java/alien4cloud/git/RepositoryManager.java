@@ -6,10 +6,26 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jgit.api.*;
+import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.CleanCommand;
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.DeleteBranchCommand;
+import org.eclipse.jgit.api.FetchCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.RenameBranchCommand;
+import org.eclipse.jgit.api.TransportCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -18,7 +34,13 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteConfig;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import com.google.common.collect.Lists;
 
@@ -36,6 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RepositoryManager {
 
     private static final String REMOTE_ALIEN_CONFLICTS_PREFIX_BRANCH_NAME = "alien-conflicts-";
+    private static final String DEFAULT_EMAIL = "not.provided@alien4cloud.org";
 
     /**
      * Close a repository.
@@ -61,6 +84,49 @@ public class RepositoryManager {
             return true;
         } catch (IOException e) {
             return false;
+        } finally {
+            close(repository);
+        }
+    }
+
+    /**
+     * Check if a given directory is a git repository with a specific remote origin url
+     *
+     * @param targetDirectory The directory to check.
+     * @param remoteGitUrl expected remote origin url
+     * @return true if the directory is a git repository, false if not.
+     */
+    public static boolean isGitRepository(Path targetDirectory, String remoteGitUrl) {
+        Git repository = null;
+        try {
+            repository = Git.open(targetDirectory.toFile());
+            String originUrl = repository.getRepository().getConfig().getString("remote", "origin", "url");
+            return remoteGitUrl.equals(originUrl);
+        } catch (IOException e) {
+            return false;
+        } finally {
+            close(repository);
+        }
+    }
+
+    public static void deleteBranch(Path targetDirectory, String branch, boolean deleteRemoteBranch){
+        Git repository = null;
+        try {
+            repository = Git.open(targetDirectory.toFile());
+            //delete locally
+            if (branchExistsLocally(repository, branch)) {
+                repository.branchDelete().setBranchNames("refs/heads/" + branch).call();
+            }
+
+            // delete remote branch
+            if(deleteRemoteBranch){
+                RefSpec refSpec = new RefSpec()
+                        .setSource(null)
+                        .setDestination("refs/heads/" + branch);
+                repository.push().setRefSpecs(refSpec).setRemote("origin").call();
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Error while deleting branch <" + branch + ">", e);
         } finally {
             close(repository);
         }
@@ -101,7 +167,9 @@ public class RepositoryManager {
         try {
             repository = Git.open(targetDirectory.toFile());
             repository.add().addFilepattern(".").call();
-            repository.commit().setCommitter(userName, userEmail).setMessage(commitMessage).call();
+            String name = defaultUsernameIfNull(userName);
+            String email = defaultEmailIfNull(name, userEmail);
+            repository.commit().setCommitter(name, email).setMessage(commitMessage).call();
         } catch (GitAPIException | IOException e) {
             throw new GitException("Unable to commit to the git repository", e);
         } finally {
@@ -169,10 +237,7 @@ public class RepositoryManager {
     public static boolean isATag(Git repository, String branch) {
         String fullBranchReference = getFullReference(repository, branch);
         String[] segments = fullBranchReference.split("/");
-        if (segments.length > 2 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[segments.length - 2])) {
-            return true;
-        }
-        return false;
+        return segments.length > 2 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[segments.length - 2]);
     }
 
     private static String addPrefixOnTag(Git repository, String branch) {
@@ -182,8 +247,115 @@ public class RepositoryManager {
         return branch;
     }
 
-    private static  boolean branchExistsLocally(Git git, String branch) throws GitAPIException {
-        return  git.branchList().call().stream().anyMatch(ref -> ref.getName().replace("refs/heads/", "").equals(branch));
+    private static boolean branchExistsLocally(Git git, String branch) throws GitAPIException {
+        return git.branchList().call().stream().anyMatch(ref -> ref.getName().replace("refs/heads/", "").equals(branch));
+    }
+
+    public static void stash(Path repositoryDirectory, String stashId) {
+        Git git = null;
+        try {
+            log.debug("Stashing change from <" + repositoryDirectory + "> to stash <" + stashId + ">");
+            git = Git.open(repositoryDirectory.toFile());
+
+            Collection<RevCommit> stashes = git.stashList().call();
+            int stashIndex = 0;
+            for (RevCommit stash : stashes) {
+                if (stash.getFullMessage().equals(stashId)) {
+                    git.stashDrop().setStashRef(stashIndex).call();
+                    log.warn("Stash <" + stashId + "> was already existing in <" + repositoryDirectory + ">. It has been deleted.");
+                    break;
+                }
+                stashIndex++;
+            }
+
+            git.stashCreate().setIncludeUntracked(true).setWorkingDirectoryMessage(stashId).call();
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Failed to stash data", e);
+        } finally {
+            close(git);
+        }
+    }
+
+    public static void dropStash(Path repositoryDirectory, String stashId){
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            int stashIndex = 0;
+            Collection<RevCommit> stashes = git.stashList().call();
+            for (RevCommit stash : stashes) {
+                if (stash.getFullMessage().equals(stashId)) {
+                    git.stashDrop().setStashRef(stashIndex).call();
+                    log.debug("Stash <" + stashId + ">  has been dropped on <" + repositoryDirectory + ">");
+                }
+                stashIndex++;
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Failed to apply then drop stash", e);
+        } finally {
+            close(git);
+        }
+    }
+
+    public static void applyStashThenDrop(Path repositoryDirectory, String stashId) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            int stashIndex = 0;
+            Collection<RevCommit> stashes = git.stashList().call();
+            for (RevCommit stash : stashes) {
+                if (stash.getFullMessage().equals(stashId)) {
+                    git.stashApply().setStashRef(stash.getName()).call();
+                    git.stashDrop().setStashRef(stashIndex).call();
+                    log.debug("Stash <" + stashId + ">  applied/dropped on <" + repositoryDirectory + ">");
+                    break;
+                }
+                stashIndex++;
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Failed to apply then drop stash", e);
+        } finally {
+            close(git);
+        }
+    }
+
+    public static void checkoutExistingBranchOrCreateOrphan(Path repositoryDirectory, boolean isLocalOnly, String username, String password, String branch) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            if (!isLocalOnly) {
+                fetch(git, username, password);
+            }
+            // need to checkout branch ?
+            if (!branch.equals(git.getRepository().getBranch())) {
+                // HEAD is needed for creating a branch
+                try {
+                    git.log().setMaxCount(1).call();
+                } catch (NoHeadException e) {
+                    // no HEAD - commit for creating a HEAD
+                    git.add().addFilepattern(".").call();
+                    git.commit().setCommitter("a4c-bot", "a4c-bot@robot.org").setMessage("initial commit").call();
+                }
+
+                // checkout branch
+                CheckoutCommand checkoutCommand = git.checkout();
+                checkoutCommand.setName(branch);
+                if (!branchExistsLocally(git, branch)) {
+                    checkoutCommand.setCreateBranch(true);
+                    String fullReference = getFullReference(git, branch);
+                    boolean existRemotely = !fullReference.equals(branch);
+                    if (existRemotely) {
+                        checkoutCommand.setStartPoint(getFullReference(git, branch));
+                    } else {
+                        checkoutCommand.setOrphan(true);
+                    }
+                }
+                checkoutCommand.call();
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Git repository related issue", e);
+        } finally {
+            close(git);
+        }
     }
 
     private static String getFullReference(Git repository, String branch) {
@@ -242,10 +414,7 @@ public class RepositoryManager {
             PullResult result = pullCommand.call();
 
             MergeResult mergeResult = result.getMergeResult();
-            if (mergeResult != null && MergeResult.MergeStatus.ALREADY_UP_TO_DATE == mergeResult.getMergeStatus()) {
-                return false; // nothing has changed
-            }
-            return true;
+            return mergeResult == null || MergeResult.MergeStatus.ALREADY_UP_TO_DATE != mergeResult.getMergeStatus();
         } catch (GitAPIException e) {
             throw new GitException("Failed to pull git repository", e);
         }
@@ -351,6 +520,49 @@ public class RepositoryManager {
             close(git);
         }
     }
+
+    public static String getCurrentBranchName(Path repositoryDirectory) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            return git.getRepository().getBranch();
+        } catch (IOException e) {
+            throw new GitException("Unable to open the git repository", e);
+        } finally {
+            close(git);
+        }
+    }
+
+    public static boolean isOnBranch(Path repositoryDirectory, String branchName) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            return branchName.equals(git.getRepository().getBranch());
+        } catch (IOException e) {
+            throw new GitException("Unable to open the git repository", e);
+        } finally {
+            close(git);
+        }
+    }
+
+    public static void renameBranches(Path repositoryDirectory, Map<String, String> branchOldNameToNewName) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            for (Map.Entry<String, String> entry : branchOldNameToNewName.entrySet()) {
+                String oldBranchName = entry.getKey();
+                String newBranchName = entry.getValue();
+                if (branchExistsLocally(git, oldBranchName)) {
+                    git.branchRename().setOldName(oldBranchName).setNewName(newBranchName).call();
+                }
+            }
+        } catch (IOException | GitAPIException e) {
+            throw new GitException("Unable to rename all branches", e);
+        } finally {
+            close(git);
+        }
+    }
+
 
     /**
      * Git push to a remote.
@@ -592,5 +804,13 @@ public class RepositoryManager {
         default:
             throw new GitStateException(errorMessage, repositoryState.toString());
         }
+    }
+
+    private static String defaultEmailIfNull(String username, String email) {
+        return email == null ? username + "@undefined.org" : email;
+    }
+
+    private static String defaultUsernameIfNull(String username) {
+        return username == null ? "undefinedUser" : username;
     }
 }

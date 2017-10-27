@@ -15,5 +15,7 @@ public enum CSARSource {
     /** Git import. */
     GIT,
     /** Other source. */
-    OTHER
+    OTHER,
+    /** Plugin archives */
+    PLUGIN
 }

@@ -12,6 +12,8 @@ public final class FlowPhases {
     public static final String POST_POLICY_MATCH = "post-policy-match";
     public static final String PRE_NODE_MATCH = "pre-node-match";
     public static final String POST_NODE_MATCH = "post-node-match";
+    public static final String PRE_MATCHED_POLICY_SETUP = "pre-matched-policy-setup";
+    public static final String POST_MATCHED_POLICY_SETUP = "post-matched-policy-setup";
     public static final String PRE_MATCHED_NODE_SETUP = "pre-matched-node-setup";
     public static final String POST_MATCHED_NODE_SETUP = "post-matched-node-setup";
 }

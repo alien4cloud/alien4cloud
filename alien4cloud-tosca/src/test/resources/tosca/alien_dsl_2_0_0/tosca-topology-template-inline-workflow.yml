@@ -32,6 +32,9 @@ topology_template:
         Some_other_inline:
           activities:
             - inline: my_custom_wf
+        inception_inline:
+          activities:
+            - inline: inception
     # Here the definition of the workflow who will be reused by activities from other workflow
     my_custom_wf:
       steps:
@@ -45,3 +48,8 @@ topology_template:
           target: Compute
           activities:
             - delegate: uninstall
+    inception:
+      steps:
+        inception_inline:
+          activities:
+            - inline: my_custom_wf

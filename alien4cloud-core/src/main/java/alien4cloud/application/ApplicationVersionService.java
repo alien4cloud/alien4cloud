@@ -1,5 +1,6 @@
 package alien4cloud.application;
 
+import static alien4cloud.common.ResourceUpdateInterceptor.TopologyVersionUpdated;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienConstants.APP_WORKSPACE_PREFIX;
 
@@ -37,14 +38,10 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.common.ResourceUpdateInterceptor;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.DeleteLastApplicationVersionException;
-import alien4cloud.exception.DeleteReferencedObjectException;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.exception.ReferencedResourceException;
-import alien4cloud.exception.ReleaseReferencingSnapshotException;
+import alien4cloud.exception.*;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
@@ -79,6 +76,9 @@ public class ApplicationVersionService {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Inject
     private ICsarRepositry archiveRepositry;
+    @Inject
+    private ResourceUpdateInterceptor resourceUpdateInterceptor;
+
     private Path tempDirPath;
 
     /**
@@ -547,6 +547,8 @@ public class ApplicationVersionService {
 
             // save the new version
             alienDAO.save(newApplicationVersion);
+
+            resourceUpdateInterceptor.runOnTopologyVersionReleased(new TopologyVersionUpdated(applicationVersion, newApplicationVersion));
 
             // update topology versions on related objects: (environments, deploymentTopologies)
             updateTopologyVersion(relatedEnvironments, applicationVersion, newApplicationVersion);

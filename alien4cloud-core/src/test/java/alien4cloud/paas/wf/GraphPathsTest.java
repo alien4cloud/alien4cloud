@@ -26,7 +26,7 @@ public class GraphPathsTest {
         WorkflowStep a = wf.addStep(new SimpleStep("a"));
         WorkflowStep b = wf.addStep(new SimpleStep("b"));
         WorkflowUtils.linkSteps(a, b);
-        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(wf);
+        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphCycles(wf);
         log.info(paths.toString());
     }
 
@@ -40,7 +40,7 @@ public class GraphPathsTest {
         wf.setName(INSTALL);
         WorkflowStep a = wf.addStep(new SimpleStep("a"));
         WorkflowStep b = wf.addStep(new SimpleStep("b"));
-        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(wf);
+        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphCycles(wf);
         log.info(paths.toString());
     }
 
@@ -62,7 +62,7 @@ public class GraphPathsTest {
         WorkflowStep c = wf.addStep(new SimpleStep("c"));
         WorkflowUtils.linkSteps(a, b);
         WorkflowUtils.linkSteps(a, c);
-        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(wf);
+        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphCycles(wf);
         log.info(paths.toString());
     }
 
@@ -91,7 +91,7 @@ public class GraphPathsTest {
         WorkflowUtils.linkSteps(c, d);
         WorkflowUtils.linkSteps(d, e);
         WorkflowUtils.linkSteps(d, f);
-        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(wf);
+        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphCycles(wf);
         log.info(paths.toString());
     }
 
@@ -111,7 +111,7 @@ public class GraphPathsTest {
         WorkflowStep b = wf.addStep(new SimpleStep("b"));
         WorkflowUtils.linkSteps(a, b);
         WorkflowUtils.linkSteps(b, a);
-        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphPaths(wf);
+        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphCycles(wf);
         log.info(paths.toString());
     }
 }

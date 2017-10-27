@@ -21,6 +21,8 @@ define(function (require) {
           listToMapService.processMap(topology.capabilityTypes, 'properties');
 
           this.postProcess(topology.topology.nodeTemplates, ['properties', 'attributes', 'requirements', 'relationships', 'capabilities']);
+          this.postProcess(topology.topology.policies, ['properties']);
+          
           _.each(topology.topology.nodeTemplates, function(nodeTemplate) {
             nodeTemplate.metadata = {};
             _.each(nodeTemplate.tags, function(tag) {

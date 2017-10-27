@@ -25,8 +25,9 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -35,7 +36,9 @@ import alien4cloud.it.Context;
 import alien4cloud.it.utils.RegisteredStringUtils;
 import alien4cloud.it.utils.TestUtils;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.orchestrators.locations.AbstractLocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
 import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
 import alien4cloud.rest.deployment.DeploymentTopologyDTO;
@@ -45,12 +48,12 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
+import cucumber.api.DataTable;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
+import lombok.NoArgsConstructor;
 
 public class DeploymentTopologyStepDefinitions {
 
@@ -73,7 +76,7 @@ public class DeploymentTopologyStepDefinitions {
     }
 
     @Then("^the deployment topology shoud have the following location policies$")
-    public void The_deployment_topology_shoud_have_the_following_location_policies(List<LocationPolicySetting> expectedLocationPoliciesSettings)
+    public void The_deployment_topology_shoud_have_the_following_location_policies(DataTable expectedSettings)
             throws Throwable {
         String response = Context.getInstance().getRestResponse();
         RestResponse<DeploymentTopologyDTO> deploymentTopologyDTO = JsonUtil.read(response, DeploymentTopologyDTO.class, Context.getJsonMapper());
@@ -81,10 +84,25 @@ public class DeploymentTopologyStepDefinitions {
         Map<String, String> policies = deploymentTopologyDTO.getData().getLocationPolicies();
         assertNotNull(policies);
         Context context = Context.getInstance();
+        List<LocationPolicySetting> expectedLocationPoliciesSettings = convert(expectedSettings);
         for (LocationPolicySetting expected : expectedLocationPoliciesSettings) {
             String expectLocationId = context.getLocationId(context.getOrchestratorId(expected.getOrchestratorName()), expected.getLocationName());
             assertEquals(expectLocationId, policies.get(expected.getGroupName()));
         }
+    }
+
+    private List<LocationPolicySetting> convert(DataTable expectedSettings) {
+        List<List<String>> raw = Lists.newArrayList(expectedSettings.raw());
+        raw.add(0, Lists.newArrayList("groupName", "orchestratorName", "locationName"));
+        DataTable toCenvert = expectedSettings.toTable(raw);
+        return toCenvert.asList(LocationPolicySetting.class);
+    }
+
+    private List<SubstitutionSetting> convertSubtitution(DataTable expectedSettings) {
+        List<List<String>> raw = Lists.newArrayList(expectedSettings.raw());
+        raw.add(0, Lists.newArrayList("templateNme", "resourceName", "resourceType"));
+        DataTable toConvert = expectedSettings.toTable(raw);
+        return toConvert.asList(SubstitutionSetting.class);
     }
 
     @When("^I Set a unique location policy to \"([^\"]*)\"/\"([^\"]*)\" for all nodes$")
@@ -119,7 +137,18 @@ public class DeploymentTopologyStepDefinitions {
         String orchestratorId = context.getOrchestratorId(orchestratorName);
         String locationId = context.getLocationId(orchestratorId, locationName);
         String resourceId = context.getLocationResourceId(orchestratorId, locationId, resourceName);
-        doSubstitution(nodeName, resourceId);
+        doNodeSubstitution(nodeName, resourceId);
+    }
+
+    @When("^I substitute on the current application the policy \"(.*?)\" with the location resource \"(.*?)\"/\"(.*?)\"/\"(.*?)\"$")
+    public void I_substitute_on_the_current_application_the_policy_with_the_location_resource(String policyName, String orchestratorName, String locationName,
+            String resourceName) throws Throwable {
+
+        Context context = Context.getInstance();
+        String orchestratorId = context.getOrchestratorId(orchestratorName);
+        String locationId = context.getLocationId(orchestratorId, locationName);
+        String resourceId = context.getLocationResourceId(orchestratorId, locationId, resourceName);
+        doPolicySubstitution(policyName, resourceId);
     }
 
     private DeploymentTopologyDTO getDTOAndassertNotNull() throws IOException {
@@ -130,29 +159,70 @@ public class DeploymentTopologyStepDefinitions {
     }
 
     @Then("^The deployment topology should have the substituted nodes$")
-    public void The_deployment_topology_sould_have_the_substituted_nodes(List<NodeSubstitutionSetting> expectedSubstitutionSettings) throws Throwable {
+    public void The_deployment_topology_sould_have_the_substituted_nodes(DataTable expectedSubstitutionSettings) throws Throwable {
+        checkSubstitutions(convertSubtitution(expectedSubstitutionSettings), new ITemplateSubstitutionInfoAccessor() {
+            @Override
+            public Map<String, String> getSubstitutions(DeploymentTopologyDTO dto) {
+                return dto.getTopology().getSubstitutedNodes();
+            }
+
+            @Override
+            public Map<String, LocationResourceTemplate> getSubstitutionTemplates(DeploymentTopologyDTO dto) {
+                return dto.getLocationResourceTemplates();
+            }
+        });
+    }
+
+    @Then("^The deployment topology should have the substituted policies$")
+    public void The_deployment_topology_should_have_the_substituted_policy(List<SubstitutionSetting> expectedSubstitutionSettings) throws Throwable {
+        checkSubstitutions(expectedSubstitutionSettings, new ITemplateSubstitutionInfoAccessor() {
+            @Override
+            public Map<String, String> getSubstitutions(DeploymentTopologyDTO dto) {
+                return dto.getTopology().getSubstitutedPolicies();
+            }
+
+            @Override
+            public Map<String, PolicyLocationResourceTemplate> getSubstitutionTemplates(DeploymentTopologyDTO dto) {
+                return dto.getPolicyLocationResourceTemplates();
+            }
+        });
+    }
+
+    private void checkSubstitutions(List<SubstitutionSetting> expectedSubstitutionSettings, ITemplateSubstitutionInfoAccessor substitutionsAccessor)
+            throws IOException {
         DeploymentTopologyDTO dto = getDTOAndassertNotNull();
-        Map<String, String> substitutions = dto.getTopology().getSubstitutedNodes();
-        Map<String, LocationResourceTemplate> resources = dto.getLocationResourceTemplates();
+        Map<String, String> substitutions = substitutionsAccessor.getSubstitutions(dto);
+        Map<String, ? extends AbstractLocationResourceTemplate> resources = substitutionsAccessor.getSubstitutionTemplates(dto);
+
         assertTrue(MapUtils.isNotEmpty(substitutions));
         assertTrue(MapUtils.isNotEmpty(resources));
-        for (NodeSubstitutionSetting nodeSubstitutionSetting : expectedSubstitutionSettings) {
-            String substituteName = substitutions.get(nodeSubstitutionSetting.getNodeName());
-            assertEquals(nodeSubstitutionSetting.getResourceName(), substituteName);
-            LocationResourceTemplate substitute = resources.get(substituteName);
+        for (SubstitutionSetting substitutionSetting : expectedSubstitutionSettings) {
+            String substituteId = substitutions.get(substitutionSetting.getTemplateNme());
+            assertNotNull(substituteId);
+            AbstractLocationResourceTemplate substitute = resources.get(substituteId);
             assertNotNull(substitute);
-            assertEquals(nodeSubstitutionSetting.getResourceType(), substitute.getTypes());
+            assertEquals(substitutionSetting.getResourceName(), substitute.getName());
+            assertEquals(substitutionSetting.getResourceType(), substitute.getTemplate().getType());
         }
     }
 
     @When("^I update the property \"(.*?)\" to \"(.*?)\" for the subtituted node \"(.*?)\"$")
     public void I_update_the_property_to_for_the_subtituted_node(String propertyName, String propertyValue, String nodeName) throws Throwable {
+        updateProperty(propertyName, propertyValue, nodeName, "/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s/properties");
+    }
+
+    @When("^I update the property \"(.*?)\" to \"(.*?)\" for the substituted policy \"(.*?)\"$")
+    public void I_update_the_property_to_for_the_subtituted_policy(String propertyName, String propertyValue, String nodeName) throws Throwable {
+        updateProperty(propertyName, propertyValue, nodeName,
+                "/rest/v1/applications/%s/environments/%s/deployment-topology/policies/%s/substitution/properties");
+    }
+
+    private void updateProperty(String propertyName, Object propertyValue, String nodeName, String endpoint) throws IOException {
         Context context = Context.getInstance();
         Application application = context.getApplication();
         String envId = context.getDefaultApplicationEnvironmentId(application.getName());
         UpdatePropertyRequest request = new UpdatePropertyRequest(propertyName, propertyValue);
-        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s/properties", application.getId(), envId,
-                nodeName);
+        String restUrl = String.format(endpoint, application.getId(), envId, nodeName);
         String response = Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(request));
         context.registerRestResponse(response);
     }
@@ -241,7 +311,7 @@ public class DeploymentTopologyStepDefinitions {
         }
     }
 
-    private void executeUpdateDeploymentTopologyCall(UpdateDeploymentTopologyRequest request) throws IOException, JsonProcessingException {
+    private void executeUpdateDeploymentTopologyCall(UpdateDeploymentTopologyRequest request) throws IOException {
         Application application = Context.getInstance().getApplication();
         String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
         String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology", application.getId(), envId);
@@ -289,14 +359,22 @@ public class DeploymentTopologyStepDefinitions {
     @When("^I substitute on the current application the node \"([^\"]*)\" with the service resource \"([^\"]*)\"$")
     public void iSubstituteOnTheCurrentApplicationTheNodeWithTheServiceResource(String nodeName, String serviceName) throws Throwable {
         String resourceId = Context.getInstance().getServiceId(serviceName);
-        doSubstitution(nodeName, resourceId);
+        doNodeSubstitution(nodeName, resourceId);
     }
 
-    public void doSubstitution(String nodeName, String resourceId) throws IOException {
+    public void doNodeSubstitution(String nodeName, String resourceId) throws IOException {
+        doSubstitution(nodeName, resourceId, "/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s");
+    }
+
+    public void doPolicySubstitution(String nodeName, String resourceId) throws IOException {
+        doSubstitution(nodeName, resourceId, "/rest/v1/applications/%s/environments/%s/deployment-topology/policies/%s/substitution");
+    }
+
+    public void doSubstitution(String templateName, String resourceId, String restUrlFormat) throws IOException {
         Context context = Context.getInstance();
         Application application = context.getApplication();
         String envId = context.getDefaultApplicationEnvironmentId(application.getName());
-        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s", application.getId(), envId, nodeName);
+        String restUrl = String.format(restUrlFormat, application.getId(), envId, templateName);
         NameValuePair resourceParam = new BasicNameValuePair("locationResourceTemplateId", resourceId);
         String response = Context.getRestClientInstance().postUrlEncoded(restUrl, Lists.newArrayList(resourceParam));
         context.registerRestResponse(response);
@@ -368,9 +446,16 @@ public class DeploymentTopologyStepDefinitions {
 
     @Getter
     @AllArgsConstructor(suppressConstructorProperties = true)
-    private static class NodeSubstitutionSetting {
-        String nodeName;
+    @NoArgsConstructor
+    private static class SubstitutionSetting {
+        String templateNme;
         String resourceName;
         String resourceType;
+    }
+
+    private interface ITemplateSubstitutionInfoAccessor {
+        Map<String, String> getSubstitutions(DeploymentTopologyDTO dto);
+
+        Map<String, ? extends AbstractLocationResourceTemplate> getSubstitutionTemplates(DeploymentTopologyDTO dto);
     }
 }

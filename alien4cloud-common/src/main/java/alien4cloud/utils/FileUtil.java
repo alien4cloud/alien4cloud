@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
@@ -24,8 +26,6 @@ import com.google.common.io.Closeables;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
-import javax.xml.bind.DatatypeConverter;
 
 @Slf4j
 public final class FileUtil {
@@ -260,7 +260,7 @@ public final class FileUtil {
             deletePath.toFile().delete();
             return;
         }
-        Files.walkFileTree(deletePath, new EraserWalker());
+        Files.walkFileTree(deletePath, new EraserWalker(keepPath));
     }
 
     /**

@@ -41,12 +41,12 @@
           </div>
           <div class="content-body" style="overflow: auto; max-height: 300px;">
             <table class="table table-condensed" id="locationResources">
-              <tr ng-repeat="(key, value) in locationResources">
+              <tr ng-repeat="(key, value) in topology.topology.substitutedNodes">
                 <td>
                   {{key}}
                 </td>
                 <td>
-                  ( <i>{{value.type}}</i> )
+                  ( <i>{{topology.topology.nodeTemplates[key].type}}</i> )
                 </td>
               </tr>
             </table>

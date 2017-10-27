@@ -1,48 +1,38 @@
 package org.alien4cloud.alm.deployment.configuration.services;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
-import org.alien4cloud.alm.deployment.configuration.events.OnMatchedLocationChangedEvent;
-import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
-import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
-import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.AbstractPolicy;
-import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
-import org.alien4cloud.tosca.model.templates.NodeGroup;
-import org.apache.commons.collections4.MapUtils;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.utils.AlienConstants;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
+import org.alien4cloud.alm.deployment.configuration.events.OnMatchedLocationChangedEvent;
+import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.tosca.model.templates.AbstractPolicy;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
  * Service to manage location matching and location policies management.
  */
 @Service
 public class LocationMatchService {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    @Inject
+    private DeploymentConfigurationDao deploymentConfigurationDao;
     @Inject
     private LocationService locationService;
     @Resource
@@ -55,7 +45,7 @@ public class LocationMatchService {
             return;
         }
 
-        DeploymentMatchingConfiguration configuration = alienDAO.findById(DeploymentMatchingConfiguration.class,
+        DeploymentMatchingConfiguration configuration = deploymentConfigurationDao.findById(DeploymentMatchingConfiguration.class,
                 AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId()));
 
         if (configuration == null) {
@@ -103,7 +93,7 @@ public class LocationMatchService {
 
         publisher.publishEvent(new OnMatchedLocationChangedEvent(this, environment, orchestratorId, groupsLocationsMapping));
 
-        alienDAO.save(configuration);
+        deploymentConfigurationDao.save(configuration);
     }
 
     private void checkGroups(Map<String, String> groupsLocationsMapping) {
@@ -121,7 +111,7 @@ public class LocationMatchService {
     @Order(20) // We must process location copy before copy of elements that depends from the location.
     public void onCopyConfiguration(OnDeploymentConfigCopyEvent onDeploymentConfigCopyEvent) {
         ApplicationEnvironment source = onDeploymentConfigCopyEvent.getSourceEnvironment();
-        DeploymentMatchingConfiguration sourceConfiguration = alienDAO.findById(DeploymentMatchingConfiguration.class,
+        DeploymentMatchingConfiguration sourceConfiguration = deploymentConfigurationDao.findById(DeploymentMatchingConfiguration.class,
                 AbstractDeploymentConfig.generateId(source.getTopologyVersion(), source.getId()));
 
         if (sourceConfiguration == null || MapUtils.isEmpty(sourceConfiguration.getLocationGroups())) {
@@ -130,28 +120,5 @@ public class LocationMatchService {
 
         // Set the location policy to the target environment.
         setLocationPolicy(onDeploymentConfigCopyEvent.getTargetEnvironment(), sourceConfiguration.getOrchestratorId(), sourceConfiguration.getLocationIds());
-    }
-
-    /**
-     * This will clean up deployment setup when user promote to a new version.
-     *
-     * @param event the event fired
-     */
-    @EventListener
-    public void handleEnvironmentTopologyVersionChanged(AfterEnvironmentTopologyVersionChanged event) {
-        alienDAO.delete(DeploymentMatchingConfiguration.class,
-                QueryBuilders.boolQuery().must(QueryBuilders.termQuery("versionId", Csar.createId(event.getApplicationId(), event.getOldVersion())))
-                        .must(QueryBuilders.termQuery("environmentId", event.getEnvironmentId())));
-    }
-
-    @EventListener
-    public void handleDeleteTopologyVersion(BeforeApplicationTopologyVersionDeleted event) {
-        alienDAO.delete(DeploymentMatchingConfiguration.class,
-                QueryBuilders.termQuery("versionId", Csar.createId(event.getApplicationId(), event.getTopologyVersion())));
-    }
-
-    @EventListener
-    public void handleDeleteEnvironment(BeforeApplicationEnvironmentDeleted event) {
-        alienDAO.delete(DeploymentMatchingConfiguration.class, QueryBuilders.termQuery("environmentId", event.getApplicationEnvironmentId()));
     }
 }

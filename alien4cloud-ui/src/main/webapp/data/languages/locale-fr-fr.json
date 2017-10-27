@@ -27,7 +27,9 @@
         "SERVICE" : "Détails du service",
         "SERVICE_HELP" : "Les propriétés et attributs du service sélectioné sont affichées ci-dessous",
         "SERVICE_UNDEPLOYED_HELP" : "Le service sélectionné n'est pas déployé. Cela peut causer des problèmes lors du déploiement en cas de choix de ce service pour remplacer le noeud selectionné.",
-        "TITLE" : "Matching"
+        "TITLE" : "Matching",
+        "NODES_TITLE": "Matching de noeuds",
+        "POLICIES_TITLE": "Matching de policies"
       },
       "HISTORY": {
         "DEPLOYER": "Déploieur",
@@ -468,6 +470,8 @@
     "NO" : "Non",
     "NODE" : "Noeud",
     "OR": "ou",
+    "PATH": "Path",
+    "PASSWORD": "Mot de passe",
     "PROPERTIES" : "Propriétés",
     "RELATIONSHIP": "Relation",
     "SEARCH": "Rechercher...",
@@ -477,6 +481,7 @@
     "TARGET" : "Cible",
     "TYPE" : "Type",
     "USERNAME" : "Nom d'utilisateur",
+    "URL" : "URL",
     "VERSION" : "Version",
     "YES" : "Oui"
   },
@@ -901,6 +906,13 @@
       "minLength" : "La taille minimale de la valeur est {{reference}}",
       "pattern" : "La valeur doit respecter le modèle {{reference}}"
     }
+  },
+  "GIT" : {
+    "CONFIGURE_TITLE" : "Configurer Git",
+    "ALIEN_MANAGED" : "A4C",
+    "USER_MANAGED": "Manuellement",
+    "BRANCH": "Branche",
+    "MANAGED_BY": "Géré par" 
   },
   "GROUPS" : {
     "AUTHORIZED" : "groupe autorisé",

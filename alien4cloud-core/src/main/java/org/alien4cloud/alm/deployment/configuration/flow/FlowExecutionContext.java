@@ -5,12 +5,12 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
+import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.annotation.ESObject;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.ApplicationEnvironment;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +37,7 @@ public class FlowExecutionContext {
     public static final String MATCHING_ORIGINAL_POLICIES = "matching_original_policies";
 
     /** Injected dao for configuration retrieval management. */
-    private final IGenericSearchDAO alienDAO;
+    private final DeploymentConfigurationDao deploymentConfigurationDao;
     /** The topology after impact from the various topology modifiers. */
     private final Topology topology;
     /** Optional environment context for modifiers that runs in the context of an environment. */
@@ -52,8 +52,8 @@ public class FlowExecutionContext {
     /** Date of the last updated topology or configuration in the current processed flow. */
     private Date lastFlowParamUpdate;
 
-    public FlowExecutionContext(IGenericSearchDAO alienDAO, Topology topology, EnvironmentContext environmentContext) {
-        this.alienDAO = alienDAO;
+    public FlowExecutionContext(DeploymentConfigurationDao deploymentConfigurationDao, Topology topology, EnvironmentContext environmentContext) {
+        this.deploymentConfigurationDao = deploymentConfigurationDao;
         this.topology = topology;
         this.environmentContext = Optional.of(environmentContext);
         lastFlowParamUpdate = topology.getLastUpdateDate();
@@ -90,7 +90,7 @@ public class FlowExecutionContext {
         T config = (T) executionCache.get(configCacheId);
         // If the config object is annotated with ESObject then it may be cached in ElasticSearch
         if (config == null && cfgClass.isAnnotationPresent(ESObject.class)) {
-            config = alienDAO.findById(cfgClass, cfgId);
+            config = deploymentConfigurationDao.findById(cfgClass, cfgId);
             executionCache.put(configCacheId, config);
         }
         if (config == null) {
@@ -112,7 +112,7 @@ public class FlowExecutionContext {
         String configCacheId = configuration.getClass().getSimpleName() + "/" + configuration.getId();
         executionCache.put(configCacheId, configuration);
         if (configuration.getClass().isAnnotationPresent(ESObject.class)) {
-            alienDAO.save(configuration); // This also updates the date.
+            deploymentConfigurationDao.save(configuration); // This also updates the date.
         }
         lastFlowParamUpdate = configuration.getLastUpdateDate();
     }

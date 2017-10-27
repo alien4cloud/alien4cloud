@@ -190,7 +190,8 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
         substitutionConfiguration.setSubstitutionsTemplates(allLocationResourcesTemplates);
         // Fetch all required types associated with the location substitution templates.
         substitutionConfiguration
-                .setSubstitutionTypes(locationResourceService.getLocationResourceTypes(safe(substitutionConfiguration.getSubstitutionsTemplates()).values()));
+                .getSubstitutionTypes()
+                .addFrom(locationResourceService.getLocationResourceTypes(safe(substitutionConfiguration.getSubstitutionsTemplates()).values()));
         enrichSubstitutionTypesWithServicesDependencies(safe(substitutionConfiguration.getSubstitutionsTemplates()).values(),
                 substitutionConfiguration.getSubstitutionTypes());
     }

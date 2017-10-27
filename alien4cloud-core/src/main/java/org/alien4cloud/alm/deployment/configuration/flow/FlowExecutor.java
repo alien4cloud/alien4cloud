@@ -3,7 +3,6 @@ package org.alien4cloud.alm.deployment.configuration.flow;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.CfyMultirelationshipErrorModifier;
@@ -12,6 +11,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhaseModi
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.LocationMatchingModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingNodeSetupModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingPolicySetupModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PreDeploymentTopologyValidator;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.SubstitutionCompositionModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputArtifactsModifier;
@@ -28,12 +28,12 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.Poli
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingConfigAutoSelectModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingConfigCleanupModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingReplaceModifier;
+import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.tosca.context.ToscaContextual;
@@ -56,25 +56,25 @@ import alien4cloud.tosca.context.ToscaContextual;
  * <li>Apply node override configurations</li>
  * <li>Validation that no required properties are missing</li>
  * </ul>
- * 
+ *
  * Note that any flow element may interrupt the flow if some errors are triggered. Any flow element may also add some warnings.
  */
 @Component
 public class FlowExecutor {
-
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    
+    @Inject
+    private DeploymentConfigurationDao deploymentConfigurationDao;
     @Inject
     private SubstitutionCompositionModifier substitutionCompositionModifier;
     @Inject
     private EditorTopologyValidator editorTopologyValidator;
-
+    
     @Inject
     private LocationMatchingModifier locationMatchingModifier;
     // To be moved to location specific
     @Inject
     private CfyMultirelationshipErrorModifier cfyMultirelationshipErrorModifier;
-
+    
     @Inject
     private PreconfiguredInputsModifier preconfiguredInputsModifier;
     @Inject
@@ -83,7 +83,7 @@ public class FlowExecutor {
     private InputArtifactsModifier inputArtifactsModifier;
     @Inject
     private InputValidationModifier inputValidationModifier;
-
+    
     @Inject
     private PolicyMatchingCandidateModifier policyMatchingCandidateModifier;
     @Inject
@@ -92,7 +92,7 @@ public class FlowExecutor {
     private PolicyMatchingConfigAutoSelectModifier policyMatchingConfigAutoSelectModifier;
     @Inject
     private PolicyMatchingReplaceModifier policyMatchingReplaceModifier;
-
+    
     @Inject
     private NodeMatchingCandidateModifier nodeMatchingCandidateModifier;
     @Inject
@@ -101,22 +101,24 @@ public class FlowExecutor {
     private NodeMatchingConfigAutoSelectModifier nodeMatchingConfigAutoSelectModifier;
     @Inject
     private NodeMatchingReplaceModifier nodeMatchingReplaceModifier;
-
+    
+    @Inject
+    private PostMatchingPolicySetupModifier postMatchingPolicySetupModifier;
     @Inject
     private PostMatchingNodeSetupModifier postMatchingNodeSetupModifier;
     @Inject
     private PreDeploymentTopologyValidator preDeploymentTopologyValidator;
-
+    
     private List<ITopologyModifier> topologyModifiers;
-
+    
     @PostConstruct
     private void initModifiers() {
         topologyModifiers = getDefaultFlowModifiers();
     }
-
+    
     /**
      * Get the default list of topology modifiers.
-     * 
+     *
      * @return The default list of topology modifiers.
      */
     public List<ITopologyModifier> getDefaultFlowModifiers() {
@@ -146,19 +148,25 @@ public class FlowExecutor {
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_INJECT_INPUT));
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_POLICY_MATCH));
         topologyModifiers.add(new PolicyMatchingCompositeModifier(policyMatchingCandidateModifier, // Find candidate matches.
-                policyMatchingConfigCleanupModifier, // cleanup configuraiton in case some matches are not valid anymore.
+                policyMatchingConfigCleanupModifier, // cleanup configuriton in case some matches are not valid anymore.
                 policyMatchingConfigAutoSelectModifier, // performs auto-selection of policies impl.
                 policyMatchingReplaceModifier// Inject policy implementation modifiers in the flow and eventually add warnings.
         ));
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_POLICY_MATCH));
+
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_MATCHED_POLICY_SETUP));
+        // Overrides unspecified matched/substituted policies unset's properties with values provided by the deployer user
+        topologyModifiers.add(postMatchingPolicySetupModifier);
+        topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_MATCHED_POLICY_SETUP));
+
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_NODE_MATCH));
         // Future: Load specific pre-matching location specific modifiers (pre-matching policy handlers etc.)
         // Node matching is composed of multiple sub modifiers that performs the various steps of matching.
         topologyModifiers.add(new NodeMatchingCompositeModifier(nodeMatchingCandidateModifier, // find matching candidates (do not change topology)
-                nodeMatchingConfigCleanupModifier, // cleanup user configuration if some config are not valid anymore
-                nodeMatchingConfigAutoSelectModifier, // auto-select missing nodes
-                nodeMatchingReplaceModifier // Impact the topology to replace matched nodes as configured
-        ));
+                                                       nodeMatchingConfigCleanupModifier, // cleanup user configuration if some config are not valid anymore
+                                                       nodeMatchingConfigAutoSelectModifier, // auto-select missing nodes
+                                                       nodeMatchingReplaceModifier // Impact the topology to replace matched nodes as configured
+                                                       ));
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_NODE_MATCH));
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_MATCHED_NODE_SETUP));
         // Overrides unspecified matched/substituted nodes unset's properties with values provided by the deployer user
@@ -167,12 +175,12 @@ public class FlowExecutor {
         // Future: Load specific post-matching location specific modifiers (Security groups additions/ Auto-configuration, Pre-deployment policies handlers
         // etc..)
         // Check orchestrator properties configuration
-
+        
         // Perform full pre-deployment validation
         topologyModifiers.add(preDeploymentTopologyValidator);
         return topologyModifiers;
     }
-
+    
     /**
      * Execute deployment modifier flow in the context of an environment.
      *
@@ -183,16 +191,16 @@ public class FlowExecutor {
      */
     @ToscaContextual
     public FlowExecutionContext executeDeploymentFlow(Topology topology, Application application, ApplicationEnvironment environment) {
-        FlowExecutionContext executionContext = new FlowExecutionContext(alienDAO, topology, new EnvironmentContext(application, environment));
+        FlowExecutionContext executionContext = new FlowExecutionContext(deploymentConfigurationDao, topology, new EnvironmentContext(application, environment));
         execute(topologyModifiers, executionContext);
         return executionContext;
     }
-
+    
     @ToscaContextual
     public void execute(Topology topology, List<ITopologyModifier> modifiers, FlowExecutionContext context) {
         execute(modifiers, context);
     }
-
+    
     private void execute(List<ITopologyModifier> modifiers, FlowExecutionContext context) {
         for (int i = 0; i < modifiers.size(); i++) {
             modifiers.get(i).process(context.getTopology(), context);
