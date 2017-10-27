@@ -1,25 +1,5 @@
 package alien4cloud.tosca.parser.postprocess;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.workflow.Workflow;
-import org.alien4cloud.tosca.model.workflow.WorkflowStep;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.Node;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.context.ToscaContext;
@@ -29,6 +9,23 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.NameValidationUtils;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.Node;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class WorkflowPostProcessor {

@@ -1,19 +1,18 @@
 package org.alien4cloud.tosca.model.workflow;
 
+import alien4cloud.paas.wf.validation.AbstractWorkflowError;
+import lombok.Getter;
+import lombok.Setter;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.workflow.conditions.PreconditionDefinition;
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.workflow.conditions.PreconditionDefinition;
-import org.apache.commons.collections4.CollectionUtils;
-
-import alien4cloud.paas.wf.validation.AbstractWorkflowError;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Tosca Workflow that can be executed on a topology.
@@ -39,6 +38,10 @@ public class Workflow {
      * Everything underneath is non tosca, it does exist to facilitate implementation in Alien4Cloud
      * ________________________________________________________________________________________________
      */
+
+    /** We check this flag to decide if we should serialize this workflow in the YAML */
+    private boolean hasCustomModifications;
+
     private boolean isStandard;
     private Set<String> hosts = new HashSet<>();
     private List<AbstractWorkflowError> errors = new ArrayList<>();

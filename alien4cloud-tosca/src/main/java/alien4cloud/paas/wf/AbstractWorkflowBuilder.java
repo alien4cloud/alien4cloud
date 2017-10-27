@@ -1,10 +1,10 @@
 package alien4cloud.paas.wf;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
+import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
+import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
+import alien4cloud.paas.wf.util.WorkflowUtils;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
@@ -17,11 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
-import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
-import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
-import alien4cloud.paas.wf.util.WorkflowUtils;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public abstract class AbstractWorkflowBuilder {
 
@@ -339,6 +338,7 @@ public abstract class AbstractWorkflowBuilder {
     Workflow reinit(Workflow wf, TopologyContext toscaTypeFinder) {
         Map<String, WorkflowStep> steps = Maps.newHashMap();
         wf.setSteps(steps);
+        wf.setHasCustomModifications(false);
         if (toscaTypeFinder.getTopology().getNodeTemplates() != null) {
             // first stage : add the nodes
             for (Entry<String, NodeTemplate> entry : toscaTypeFinder.getTopology().getNodeTemplates().entrySet()) {

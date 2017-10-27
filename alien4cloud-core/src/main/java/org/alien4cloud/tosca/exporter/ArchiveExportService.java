@@ -1,23 +1,24 @@
 package org.alien4cloud.tosca.exporter;
 
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-
-import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.stereotype.Service;
-
 import alien4cloud.application.ApplicationService;
 import alien4cloud.model.application.Application;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.User;
 import alien4cloud.tosca.serializer.VelocityUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Tosca exporter contains methods to generate TOSCA from alien indexed model.
@@ -29,7 +30,8 @@ public class ArchiveExportService {
     private ApplicationService applicationService;
 
     public String getYaml(Csar csar, Topology topology) {
-        return getYaml(csar, topology, true);
+        boolean generateWorkflow = hasCustomWorkflows(topology);
+        return getYaml(csar, topology, generateWorkflow);
     }
 
     /**
@@ -86,5 +88,15 @@ public class ArchiveExportService {
             log.error("Exception while templating YAML for topology " + topology.getId(), e);
             return ExceptionUtils.getFullStackTrace(e);
         }
+    }
+
+    // check the presence of at least one custom workflow
+    private boolean hasCustomWorkflows(Topology topology) {
+        for (Workflow wf : safe(topology.getWorkflows()).values()) {
+            if (wf.isHasCustomModifications()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

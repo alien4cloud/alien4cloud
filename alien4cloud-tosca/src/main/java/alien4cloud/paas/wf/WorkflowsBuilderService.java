@@ -1,18 +1,15 @@
 package alien4cloud.paas.wf;
 
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
+import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.paas.wf.validation.WorkflowValidator;
+import alien4cloud.topology.task.TaskCode;
+import alien4cloud.topology.task.WorkflowTask;
+import alien4cloud.tosca.parser.ToscaParser;
+import alien4cloud.utils.YamlParserUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -25,16 +22,17 @@ import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
-import alien4cloud.paas.wf.util.WorkflowUtils;
-import alien4cloud.paas.wf.validation.WorkflowValidator;
-import alien4cloud.topology.task.TaskCode;
-import alien4cloud.topology.task.WorkflowTask;
-import alien4cloud.tosca.parser.ToscaParser;
-import alien4cloud.utils.YamlParserUtil;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 
 @Component
 @Slf4j
@@ -91,6 +89,7 @@ public class WorkflowsBuilderService {
         Workflow workflow = new Workflow();
         workflow.setName(name);
         workflow.setStandard(true);
+        workflow.setHasCustomModifications(false);
         wfs.put(name, workflow);
         reinitWorkflow(name, topologyContext);
     }

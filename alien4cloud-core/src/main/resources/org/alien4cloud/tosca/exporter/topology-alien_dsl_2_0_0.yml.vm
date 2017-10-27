@@ -224,6 +224,7 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #if($utils.mapIsNotEmpty($topology.workflows) && $generateWorkflow)
   workflows:
 #foreach($wfEntry in ${topology.workflows.entrySet()})
+#if(${wfEntry.value.hasCustomModifications})
     ${wfEntry.key}:
 #if(${wfEntry.value.description})
       description: ${utils.renderDescription(${wfEntry.value.description}, "        ")}
@@ -253,5 +254,6 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #end## if taskEntry.value.followingSteps not empty
 #end## foreach wfEntry.value.steps
 #end## if map wfEntry.value.steps not empty
+#end## if(${wfEntry.value.hasCustomModifications})
 #end## foreach topology.workflows.entrySet
 #end## if map topology.workflows not empty
