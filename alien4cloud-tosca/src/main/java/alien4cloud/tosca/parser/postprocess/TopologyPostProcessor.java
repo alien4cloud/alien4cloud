@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
@@ -29,6 +28,8 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 public class TopologyPostProcessor implements IPostProcessor<Topology> {
     @Resource
     private NodeTemplatePostProcessor nodeTemplatePostProcessor;
+    @Resource
+    private PolicyTemplatePostProcessor policyTemplatePostProcessor;
     @Resource
     private NodeTemplateRelationshipPostProcessor nodeTemplateRelationshipPostProcessor;
     @Resource
@@ -74,7 +75,12 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
             groupPostProcessor.process(nodeGroup);
         }
 
-        checkPolicies(instance);
+        // Policies templates validation
+        safe(instance.getPolicies()).forEach((policyName, policyTemplate) -> {
+            // set the templateName
+            policyTemplate.setName(policyName);
+            policyTemplatePostProcessor.process(policyTemplate);
+        });
 
         // Node templates validation
         for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : safe(instance.getNodeTemplates()).entrySet()) {
@@ -97,21 +103,6 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
             return;
         }
         instance.setDependencies(Sets.newHashSet(archiveRoot.getArchive().getDependencies()));
-    }
-
-    private void checkPolicies(Topology topology) {
-        // Policies post processing
-        for (PolicyTemplate policyTemplate : safe(topology.getPolicies()).values()) {
-            for (String target : safe(policyTemplate.getTargets())) {
-                // check that the target is an exiting node template
-                if (!safe((topology.getNodeTemplates())).containsKey(target)) {
-                    // Dispatch an error.
-                    Node node = ParsingContextExecution.getObjectToNodeMap().get(policyTemplate.getTargets());
-                    ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.POLICY_TARGET_NOT_FOUND, null,
-                            node.getStartMark(), null, node.getEndMark(), policyTemplate.getName()));
-                }
-            }
-        }
     }
 
 }

@@ -17,6 +17,7 @@ import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 
 import com.google.common.collect.Lists;
@@ -232,6 +233,7 @@ public class ToscaContext {
             register(DataType.class, root.getDataTypes());
             register(NodeType.class, root.getNodeTypes());
             register(RelationshipType.class, root.getRelationshipTypes());
+            register(PolicyType.class, root.getPolicyTypes());
         }
 
         private <T extends AbstractToscaType> void register(Class<T> elementClass, Map<String, T> elementMap) {

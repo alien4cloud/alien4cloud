@@ -118,6 +118,13 @@ public class TemplateBuilder {
         return policyTemplate;
     }
 
+    public static PolicyTemplate buildPolicyTemplate(PolicyType policyType, PolicyTemplate templateToMerge, boolean adaptToType) {
+        policyType = CloneUtil.clone(policyType);
+        PolicyTemplate policyTemplate = new PolicyTemplate();
+        fillAbstractTemplate(policyTemplate, policyType, templateToMerge, !adaptToType);
+        return policyTemplate;
+    }
+
     private static void fillAbstractTemplate(AbstractTemplate template, AbstractInheritableToscaType type, AbstractTemplate templateToMerge,
             boolean mergeUndefinedProps) {
         template.setType(type.getElementId());
