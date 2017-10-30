@@ -190,4 +190,8 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         tags.add(new Tag(name, value));
     }
 
+    // remove the node and all nested nodes (recursivelly)
+    protected void removeNode(NodeTemplate deploymentNode) {
+        // TODO
+    }
 }
