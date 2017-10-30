@@ -6,7 +6,6 @@ define(function(require) {
   var d3 = require('d3');
   const COMPONENT_VERSION = 'component_version';
 
-
   require('scripts/tosca/services/tosca_service');
   require('scripts/topology/services/common_node_renderer_service');
   require('scripts/common/services/list_to_map_service');
@@ -139,6 +138,7 @@ define(function(require) {
           }
           d3Service.rect(nodeGroup, 0, 0, node.bbox.width(), node.bbox.height(), 0, 0).attr('class', 'selector').attr('node-template-id', node.id)
             .attr('id', 'rect_' + node.id).on('click', actions.click).on('mouseover', actions.mouseover).on('mouseout', actions.mouseout);
+          nodeGroup.call(actions.nodeDrag);
 
           this.requirementRenderer.actions = actions;
           this.capabilityRenderer.actions = actions;
@@ -187,18 +187,18 @@ define(function(require) {
           }
           if(_.defined(nodeTemplate.policies)) {
             // If there is policies defined for this node let's display icon(s)
-            var policySelection = nodeGroup.selectAll('.policy').data(nodeTemplate.policies, function(policyTemplate) { return policyTemplate.name; });
+            var policySelection = nodeGroup.selectAll('.policy-template').data(nodeTemplate.policies, function(policyTemplate) { return policyTemplate.name; });
             var newPolicySelection = policySelection.enter().append('g').attr('class', 'policy-template').attr('id', function(policyTemplate) { return 'a4c_svgp_' + policyTemplate.name; });
             newPolicySelection.each(function(policyTemplate) {
               var policyTemplateGroup = d3.select(this);
               var index = _.findIndex(nodeTemplate.policies, 'name', policyTemplate.name);
               var policyX = node.bbox.width() - 12 - 18 * ( index );
-              // append ce policy circle
+              // append policy circle
               d3Service.circle(policyTemplateGroup, policyX, 0, 8).attr('class', 'connector');
               var svgChar = toscaService.getTag('a4c_svg_char', topology.policyTypes[policyTemplate.type].tags);
               if(_.defined(svgChar)) {
                 var rotate = toscaService.getTag('a4c_svg_rotate', topology.policyTypes[policyTemplate.type].tags);
-                // append ce policy icon
+                // append policy icon
                 var policyIconBuilder = policyTemplateGroup.append('text').attr('class', 'topology-svg-icon topology-svg-icon-center');
                 if(_.defined(rotate)) {
                   policyIconBuilder.attr('transform', 'rotate(' + rotate + ' ' + policyX + ' 0)');
@@ -325,16 +325,6 @@ define(function(require) {
           } else {
             groupSelection.attr('width', width);
           }
-          // var groupSelection = runtimeGroup.select('#' + id);
-          // // improve that...
-          // var counter = (count || '?') + '/' + (instanceCount || '?');
-          // if (groupSelection.empty()) {
-          //   groupSelection = runtimeGroup.append('g').attr('id', id);
-          //   groupSelection.append('text').attr('class', 'topology-svg-icon').attr('text-anchor', 'start').attr('x', rectOriginX + 60).attr('y', currentY).text(iconCode);
-          //   groupSelection.append('text').attr('id', 'count-text').attr('text-anchor', 'start').attr('x', rectOriginX + 80).attr('y', currentY).text(counter);
-          // } else {
-          //   groupSelection.select('#count-text').text(counter);
-          // }
         },
 
         // common services

@@ -55,6 +55,7 @@ define(function (require) {
 
       // now create the cell array
       this.cells = [];
+      this.obstacles = [];
       var i, j;
       for(i = 0; i < this.gridWidth; i++) {
         var line = [];
@@ -85,6 +86,7 @@ define(function (require) {
       * @param bbox The bounding box of the obstacle.
       */
       addObstacle: function(bbox) {
+        this.obstacles.push(bbox);
         var topLeft = this.getCellCoordinates({x: bbox.minX, y: bbox.minY});
         var bottomRight = this.getCellCoordinates({x: bbox.maxX, y: bbox.maxY});
         // iterate over target cells to add obstacle weight

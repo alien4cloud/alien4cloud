@@ -44,7 +44,6 @@ define(function (require) {
           var sourceNodeTemplate = scope.topology.topology.nodeTemplates[sourceNodeTemplateName];
           var requirement = sourceNodeTemplate.requirementsMap[requirementName].value;
           instance.previousRelationshipName = previousRelationshipName;
-
           if (!instance.previousRelationshipName && !requirement.canAddRel.yes) {
             // TODO we must display an error message...
             return;
@@ -86,7 +85,9 @@ define(function (require) {
           if (_.defined(sourceNodeTemplate) && _.defined(targetNodeTemplate)) {
             // let's try to find the requirement / for now we just support hosted on but we should improve that...
             var requirementName = nodeTemplateService.getContainerRequirement(sourceNodeTemplate, scope.topology.nodeTypes, scope.topology.relationshipTypes, scope.topology.capabilityTypes);
-            this.openSearchRelationshipModal(sourceNodeTemplateName, requirementName, targetNodeTemplateName);
+            if(_.defined(requirementName)) {
+              this.openSearchRelationshipModal(sourceNodeTemplateName, requirementName, targetNodeTemplateName);
+            }
           }
         },
 

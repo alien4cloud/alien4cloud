@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.editor.Constants;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -13,8 +14,11 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.exception.CyclicReferenceException;
+import alien4cloud.model.common.Tag;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
@@ -70,6 +74,11 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
 
         NodeTemplate nodeTemplate = TemplateBuilder.buildNodeTemplate(loadedIndexedNodeType);
         nodeTemplate.setName(operation.getNodeName());
+        if (operation.getCoords() != null) {
+            // Set the position information of the node as meta-data.
+            nodeTemplate.setTags(Lists.newArrayList(new Tag(Constants.X_META, String.valueOf(operation.getCoords().getX())),
+                    new Tag(Constants.Y_META, String.valueOf(operation.getCoords().getY()))));
+        }
         topology.getNodeTemplates().put(operation.getNodeName(), nodeTemplate);
 
         log.debug("Adding a new Node template <" + operation.getNodeName() + "> bound to the node type <" + operation.getIndexedNodeTypeId()
