@@ -29,6 +29,7 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 
 /**
  * Created by lucboutier on 12/04/2017.
@@ -122,7 +123,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
-    public void policyParsingWithUnknownTypeShouldFail() throws FileNotFoundException, ParsingException {
+    public void policyParsingWithUnknownTargetTypeShouldFail() throws FileNotFoundException, ParsingException {
         Mockito.reset(csarRepositorySearchService);
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
         PolicyType mockRoot = Mockito.mock(PolicyType.class);
@@ -202,6 +203,32 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
+    public void policyTemplateParsingWithUnknownTypesShouldFail() throws FileNotFoundException, ParsingException {
+        Mockito.reset(csarRepositorySearchService);
+        Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
+
+        NodeType nodeType = new NodeType();
+        nodeType.setElementId("tosca.nodes.Compute");
+        nodeType.setArchiveName("tosca-normative-types");
+        nodeType.setArchiveVersion("1.0.0-ALIEN14");
+        nodeType.setDerivedFrom(Lists.newArrayList("tosca.nodes.Root"));
+        Mockito.when(
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                .thenReturn(nodeType);
+
+        nodeType = new NodeType();
+        nodeType.setElementId("tosca.nodes.Root");
+        nodeType.setArchiveName("tosca-normative-types");
+        nodeType.setArchiveVersion("1.0.0-ALIEN14");
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(nodeType);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-policy-template-fail.yml"));
+        assertEquals(1, parsingResult.getContext().getParsingErrors().size());
+        assertEquals(1, countErrorByLevelAndCode(parsingResult, ParsingErrorLevel.ERROR, ErrorCode.TYPE_NOT_FOUND));
+    }
+
+    @Test
     public void policyTemplateParsingWithUnknownTargetShouldFail() throws FileNotFoundException, ParsingException {
         Mockito.reset(csarRepositorySearchService);
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
@@ -224,15 +251,17 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
 
         PolicyType policyType = new PolicyType();
         policyType.setAbstract(true);
-        policyType.setElementId("tosca.policies.Root");
-        policyType.setArchiveName("tosca-normative-types");
-        policyType.setArchiveVersion("1.0.0-ALIEN14");
+        policyType.setElementId("org.alien4cloud.sample.SamplePolicy");
+        policyType.setArchiveName("org.alien4cloud.test.policies.PolicyTemplate");
+        policyType.setArchiveVersion("2.0.0-SNAPSHOT");
         Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("tosca.policies.Root"), Mockito.any(Set.class)))
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("org.alien4cloud.sample.SamplePolicy"),
+                        Mockito.any(Set.class)))
                 .thenReturn(policyType);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-policy-template-fail.yml"));
         assertEquals(1, parsingResult.getContext().getParsingErrors().size());
+        assertEquals(1, countErrorByLevelAndCode(parsingResult, ParsingErrorLevel.ERROR, ErrorCode.POLICY_TARGET_NOT_FOUND));
     }
 
     @Test
