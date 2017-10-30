@@ -10,7 +10,7 @@ define(function(require) {
     return {
       templateUrl: 'views/applications/directives/topology_init_from_select.html',
       restrict: 'E',
-      link: function (scope){
+      link: function (scope) {
         scope.fromVersion = {};
         scope.topologyTemplate = {};
         scope.selectTemplate = function (topology) {

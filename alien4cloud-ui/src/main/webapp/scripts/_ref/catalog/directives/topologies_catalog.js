@@ -14,6 +14,7 @@ define(function (require) {
       controller: 'a4cSearchTopologyCtrl',
       scope: {
         'onSelectItem': '&',
+        'selectOnVersionChange': '=',
         'globalContext': '=',
         'defaultFilters': '=',
         'staticFacets': '=',

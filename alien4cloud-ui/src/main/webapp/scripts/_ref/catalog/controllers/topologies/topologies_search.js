@@ -85,6 +85,10 @@ define(function (require) {
             response.data.olderVersions = topology.olderVersions;
             response.data.selectedVersion = newVersion.version;
             $scope.queryManager.searchResult.data[index] = response.data;
+            // optionally trigger selection
+            if($scope.selectOnVersionChange) {
+              $scope.onSelectItem({topology: response.data});
+            }
           });
         }
       };
