@@ -3,14 +3,11 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DuplicateNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.Csar;
@@ -18,9 +15,7 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
-import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
+import org.alien4cloud.tosca.utils.TopologyNavigationUtil;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
@@ -102,14 +97,9 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
         workflowBuilderService.addNode(topologyContext, newNodeTemplate.getName());
 
         // copy hosted nodes
-        safe(getHostedNodes(nodeTemplates, nodeTemplateToDuplicate.getName()))
+        safe(TopologyNavigationUtil.getHostedNodes(topology, nodeTemplateToDuplicate.getName()))
                 .forEach(nodeTemplate -> duplicateNodeTemplate(nodeTemplate, duplicatedNodesNameMappings, nodeTemplates, topology, csar));
 
-    }
-
-    private List<NodeTemplate> getHostedNodes(Map<String, NodeTemplate> nodeTemplates, String nodeName) {
-        return nodeTemplates.values().stream().filter(nodeTemplate -> safe(nodeTemplate.getRelationships()).values().stream()
-                .anyMatch(relTemp -> relTemp.getTarget().equals(nodeName) && isHostedOn(relTemp.getType()))).collect(Collectors.toList());
     }
 
     /**
@@ -193,11 +183,6 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
                 map.put(copyKeyName, null);
             }
         }
-    }
-
-    private boolean isHostedOn(String type) {
-        RelationshipType relationshipType = ToscaContext.getOrFail(RelationshipType.class, type);
-        return ToscaNormativeUtil.isFromType(NormativeRelationshipConstants.HOSTED_ON, relationshipType);
     }
 
     private String copyName(String name, Collection<String> existingSet) {

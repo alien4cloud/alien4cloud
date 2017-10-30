@@ -1,15 +1,20 @@
 package org.alien4cloud.alm.deployment.configuration.flow;
 
-import alien4cloud.application.TopologyCompositionService;
-import alien4cloud.model.common.Tag;
-import alien4cloud.tosca.context.ToscaContext;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import static alien4cloud.utils.AlienUtils.safe;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AddNodeProcessor;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.DeleteNodeProcessor;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.ReplaceNodeProcessor;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.UpdateNodePropertyValueProcessor;
 import org.alien4cloud.tosca.editor.processors.relationshiptemplate.AddRelationshipProcessor;
@@ -17,16 +22,20 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
-import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.utils.TopologyNavigationUtil;
 
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
-import static alien4cloud.utils.AlienUtils.safe;
+import alien4cloud.application.TopologyCompositionService;
+import alien4cloud.model.common.Tag;
+import alien4cloud.tosca.context.ToscaContext;
 
 /**
  * Base class for topology modifiers that can helps adding nodes, setting properties, replacing nodes, adding relationships.
@@ -44,6 +53,9 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
 
     @Resource
     protected UpdateNodePropertyValueProcessor updateNodePropertyValueProcessor;
+
+    @Resource
+    protected DeleteNodeProcessor deleteNodeProcessor;
 
     /**
      * Add a node template in the topology.
@@ -190,8 +202,15 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         tags.add(new Tag(name, value));
     }
 
-    // remove the node and all nested nodes (recursivelly)
-    protected void removeNode(NodeTemplate deploymentNode) {
-        // TODO
+    // remove the node and all nested nodes (recursively)
+    protected void removeNode(Topology topology, NodeTemplate nodeTemplate) {
+        // keep track of the hosted nodes
+        List<NodeTemplate> hostedNodes = TopologyNavigationUtil.getHostedNodes(topology, nodeTemplate.getName());
+        Csar csar = new Csar(topology.getArchiveName(), topology.getArchiveVersion());
+        DeleteNodeOperation deleteNodeOperation = new DeleteNodeOperation();
+        deleteNodeOperation.setNodeName(nodeTemplate.getName());
+        deleteNodeProcessor.process(csar, topology, deleteNodeOperation);
+        // remove all hosted node also
+        safe(hostedNodes).forEach(hostedNodeTemplate -> removeNode(topology, hostedNodeTemplate));
     }
 }

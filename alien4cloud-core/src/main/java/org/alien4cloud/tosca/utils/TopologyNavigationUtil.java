@@ -2,22 +2,29 @@ package org.alien4cloud.tosca.utils;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
-import alien4cloud.paas.wf.util.WorkflowUtils;
-import alien4cloud.utils.PropertyUtil;
-import com.google.common.collect.Sets;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.templates.*;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
-
-import alien4cloud.tosca.context.ToscaContext;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
-
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
+import org.apache.commons.collections4.CollectionUtils;
+
+import com.google.common.collect.Sets;
+
+import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.utils.PropertyUtil;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * Utility class for navigation purpose operations on node templates.
@@ -171,6 +178,16 @@ public final class TopologyNavigationUtil {
             return PropertyUtil.getPropertyValueFromPath(safe(capability.getProperties()), propertyPath);
         }
         return null;
+    }
+
+    public static List<NodeTemplate> getHostedNodes(Topology topology, String nodeName) {
+        return safe(topology.getNodeTemplates()).values().stream().filter(nodeTemplate -> safe(nodeTemplate.getRelationships()).values().stream()
+                .anyMatch(relTemp -> relTemp.getTarget().equals(nodeName) && isHostedOnRelationship(relTemp.getType()))).collect(Collectors.toList());
+    }
+
+    private static boolean isHostedOnRelationship(String type) {
+        RelationshipType relationshipType = ToscaContext.getOrFail(RelationshipType.class, type);
+        return ToscaNormativeUtil.isFromType(NormativeRelationshipConstants.HOSTED_ON, relationshipType);
     }
 
 }
