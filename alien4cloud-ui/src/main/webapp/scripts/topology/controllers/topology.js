@@ -243,6 +243,9 @@ define(function (require) {
           fillNodeSelectionVars(newSelected);
           $scope.$broadcast('editorSelectionChangedEvent', { nodeNames: [ newSelectedName ] });
           $scope.$digest();
+        },
+        updateNodePosition: function(name, x, y) {
+          $scope.nodes.updatePosition(name, x, y);
         }
       };
 

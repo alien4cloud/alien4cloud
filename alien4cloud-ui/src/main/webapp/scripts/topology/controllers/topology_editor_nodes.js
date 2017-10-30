@@ -130,6 +130,16 @@ define(function (require) {
           } // if end
           scope.display.set('nodetemplate', true);
         },
+        updatePosition: function(nodeName, x, y) {
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePositionOperation',
+              nodeName: nodeName,
+              coords: {
+                x: Math.round(x),
+                y: Math.round(y)
+              }
+            }, null);
+        },
         delete: function(nodeTemplName) {
           var scope = this.scope;
           scope.execute({

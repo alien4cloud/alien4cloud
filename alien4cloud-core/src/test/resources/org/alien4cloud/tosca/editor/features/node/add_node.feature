@@ -13,6 +13,19 @@ Feature: Topology editor: add node template
     And The SPEL expression "nodeTemplates.size()" should return 1
     And The SPEL expression "nodeTemplates['Template1'].type" should return "tosca.nodes.Compute"
 
+  Scenario: Add a node that exists in the repository at a specified canvas position should succeed
+    When I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Template1                                                             |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
+      | coords.x          | 10                                                                    |
+      | coords.y          | 20                                                                    |
+    Then No exception should be thrown
+    And The SPEL expression "nodeTemplates.size()" should return 1
+    And The SPEL expression "nodeTemplates['Template1'].type" should return "tosca.nodes.Compute"
+    And The SPEL expression "nodeTemplates['Template1'].tags[0].value" should return "10"
+    And The SPEL expression "nodeTemplates['Template1'].tags[1].value" should return "20"
+
   Scenario: Add a node that does not exists in the repository should fail
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |

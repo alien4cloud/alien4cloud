@@ -14,9 +14,10 @@ define(function (require) {
 
   require('scripts/topology/services/topology_layout_services');
   require('scripts/topology/services/connector_drag_service');
+  require('scripts/topology/services/node_drag_service');
 
-  modules.get('a4c-topology-editor', ['a4c-tosca', 'a4c-common-graph']).factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService', 'd3Service', 'connectorDragFactoryService',
-    function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService, d3Service, connectorDragFactoryService) {
+  modules.get('a4c-topology-editor', ['a4c-tosca', 'a4c-common-graph']).factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService', 'd3Service', 'nodeDragFactoryService', 'connectorDragFactoryService',
+    function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService, d3Service, nodeDragFactoryService, connectorDragFactoryService) {
       function TopologySvg (callbacks, containerElement, isRuntime, nodeRenderer) {
         this.isGridDisplayed = false;
         this.firstRender = true;
@@ -40,6 +41,7 @@ define(function (require) {
 
         // capabilities drag and drop manager
         this.connectorDrag = connectorDragFactoryService.create(this);
+        this.nodeDrag = nodeDragFactoryService.create(this);
       }
 
       TopologySvg.prototype = {
@@ -97,10 +99,11 @@ define(function (require) {
         },
 
         updateNodeSelection: function(topology, selectedNodeNames) {
-          var nodes = [];
+          var nodes = [], self = this;
           _.each(topology.topology.nodeTemplates, function(nodeTemplate) {
-            nodes.push({template: nodeTemplate, id: nodeTemplate.name});
+            nodes.push(self.layout.nodeMap[nodeTemplate.name]);
           });
+
           var nodeSelection = this.svg.selectAll('.node-template').data(nodes, function(node) { return node.id; });
 
           // update existing nodes
@@ -189,13 +192,12 @@ define(function (require) {
           var actions = {
             click: function() {
               // un-select last node and select the new one on click
-              self.callbacks.click({
-                'newSelectedName': node.id
-              });
+              self.callbacks.click(node.id);
             },
             mouseover: this.tip.show,
             mouseout: this.tip.hide,
             connectorDrag: this.connectorDrag,
+            nodeDrag: this.nodeDrag,
             callbacks: this.callbacks
           };
 

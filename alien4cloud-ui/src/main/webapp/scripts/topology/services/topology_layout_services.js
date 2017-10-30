@@ -90,7 +90,6 @@ define(function (require) {
           node.nodeSize.halfWidth = node.nodeSize.width / 2;
           node.nodeSize.halfHeight = node.nodeSize.height / 2;
           node.bbox = bboxFactory.create(position.x, position.y, node.nodeSize.width, node.nodeSize.height);
-          node.coordinate = {x: position.x, y: position.y};
 
           if(node.children.length > 0) {
             for(var i = 0; i < node.children.length; i++) {
@@ -113,7 +112,6 @@ define(function (require) {
             attached.nodeSize.halfWidth = attached.nodeSize.width / 2;
             attached.nodeSize.halfHeight = attached.nodeSize.height / 2;
             attached.bbox = bboxFactory.create(node.bbox.minX, attachedY, attached.nodeSize.width, attached.nodeSize.height);
-            attached.coordinate = {x: attached.bbox.minX, y: attached.bbox.minY};
             attachedY = attached.bbox.maxY;
 
             // process the capabilites and requirements of the attached node as we don't perform recursive layout for these nodes
@@ -130,12 +128,12 @@ define(function (require) {
         requirementAndCapabilitiesLayout: function(node) {
           _.each(node.requirements, function(requirement) {
             requirement.coordinate.relative.x = node.bbox.width();
-            requirement.coordinate.x = node.coordinate.x + requirement.coordinate.relative.x;
-            requirement.coordinate.y = node.coordinate.y + requirement.coordinate.relative.y;
+            requirement.coordinate.x = node.bbox.x() + requirement.coordinate.relative.x;
+            requirement.coordinate.y = node.bbox.y() + requirement.coordinate.relative.y;
           });
           _.each(node.capabilities, function(capability) {
-            capability.coordinate.x = node.coordinate.x + capability.coordinate.relative.x;
-            capability.coordinate.y = node.coordinate.y + capability.coordinate.relative.y;
+            capability.coordinate.x = node.bbox.x() + capability.coordinate.relative.x;
+            capability.coordinate.y = node.bbox.y() + capability.coordinate.relative.y;
           });
         },
 
@@ -149,15 +147,15 @@ define(function (require) {
           var netYSpacing = 40;
           for(var i=0; i<tree.networks.length; i++) {
             var node = tree.networks[i];
-            node.coordinate = {
+            var nodeCoordinate = {
               x: networkX,
               y: graph.bbox.minY - node.nodeSize.height - netYSpacing
             };
             netYSpacing = 0;
             node.networkId = i;
-            node.bbox = bboxFactory.create(node.coordinate.x , node.coordinate.y , node.nodeSize.width, node.nodeSize.height);
+            node.bbox = bboxFactory.create(nodeCoordinate.x , nodeCoordinate.y , node.nodeSize.width, node.nodeSize.height);
             graph.addNode(node);
-            graph.bbox.addPoint(node.coordinate.x, node.coordinate.y);
+            graph.bbox.addPoint(node.bbox.x(), node.bbox.y());
           }
         },
 
@@ -191,26 +189,26 @@ define(function (require) {
               if(toscaService.isNetworkType(relationship.type, relationshipTypes)){
                 isNetwork = true;
                 networkCount++;
-                source.x = node.coordinate.x + 14 * networkCount;
-                source.y = node.coordinate.y;
+                source.x = node.bbox.x() + 14 * networkCount;
+                source.y = node.bbox.y();
                 target.x = source.x;
-                target.y = targetNode.coordinate.y + targetNode.bbox.height() / 2;
+                target.y = targetNode.bbox.y() + targetNode.bbox.height() / 2;
                 networkId = graph.nodeMap[relationship.target].networkId;
               } else {
                 // find the target capabilities / requirements
                 var sourceRequirement = node.requirementsMap[relationship.requirementName];
-                source.x = node.coordinate.x + node.bbox.width() + 5;
+                source.x = node.bbox.x() + node.bbox.width() + 5;
                 if(_.defined(sourceRequirement)) {
-                  source.y = node.coordinate.y + sourceRequirement.coordinate.relative.y;
+                  source.y = node.bbox.y() + sourceRequirement.coordinate.relative.y;
                 } else {
-                  source.y = node.coordinate.y;
+                  source.y = node.bbox.y();
                 }
                 var targetCapability = targetNode.capabilitiesMap[relationship.targetedCapabilityName];
-                target.x = targetNode.coordinate.x - 5;
+                target.x = targetNode.bbox.x() - 5;
                 if(_.defined(targetCapability)) {
-                  target.y = targetNode.coordinate.y + targetCapability.coordinate.relative.y;
+                  target.y = targetNode.bbox.y() + targetCapability.coordinate.relative.y;
                 } else {
-                  target.y = targetNode.coordinate.y;
+                  target.y = targetNode.bbox.y();
                 }
                 source.direction = routerFactoryService.directions.right;
                 target.direction = routerFactoryService.directions.left;

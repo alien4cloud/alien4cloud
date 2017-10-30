@@ -136,30 +136,9 @@ define(function(require) {
             var path = 'M ' + netX + ',' + netY + ' ' + netMaxX + ',' + netY;
             nodeGroup.append('path').attr('d', path).attr('class', 'link-network link-network-' + netStyle + ' link-selected');
           }
-          var selectorRect = d3Service.rect(nodeGroup, 0, 0, node.bbox.width(), node.bbox.height(), 0, 0).attr('class', 'selector').attr('node-template-id', node.id)
+          d3Service.rect(nodeGroup, 0, 0, node.bbox.width(), node.bbox.height(), 0, 0).attr('class', 'selector').attr('node-template-id', node.id)
             .attr('id', 'rect_' + node.id).on('click', actions.click).on('mouseover', actions.mouseover).on('mouseout', actions.mouseout);
-          var draggedNode = false;
-          var dragB = d3.behavior.drag()
-            .origin(function(d) { console.log('origin', d); return { x: d.bbox.x(), y: d.bbox.y() }; })
-            .on('dragstart', function() {
-              d3.event.sourceEvent.stopPropagation();
-            })
-            .on('drag', function() {
-              d3.event.sourceEvent.stopPropagation();
-              draggedNode = true;
-              // nodeGroup.attr('transform', function() {
-              //   return 'translate(' + d3.event.x + ',' + d3.event.y + ')';
-              // });
-            })
-            .on('dragend', function() {
-              d3.event.sourceEvent.stopPropagation();
-              if(draggedNode) {
-                // actions.updateLfocation();
-                console.log('Update node location', d3.event.x, d3.event.y);
-              }
-              draggedNode = false;
-            });
-          selectorRect.call(dragB);
+          nodeGroup.call(actions.nodeDrag);
 
           this.requirementRenderer.actions = actions;
           this.capabilityRenderer.actions = actions;

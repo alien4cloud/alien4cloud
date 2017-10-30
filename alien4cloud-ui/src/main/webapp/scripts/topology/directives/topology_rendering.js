@@ -4,6 +4,7 @@ define(function (require) {
 
   var modules = require('modules');
   var d3 = require('d3');
+  var _ = require('lodash');
 
   require('scripts/common-graph/services/svg_service');
   require('scripts/topology/services/topology_svg_service');
@@ -15,8 +16,7 @@ define(function (require) {
       return {
         restrict: 'E',
         scope: {
-          selectCallback: '&',
-          addRelationshipCallback: '&',
+          callbacks: '=',
           graphControl: '=',
           topology: '=',
           dimensions: '=',
@@ -26,8 +26,9 @@ define(function (require) {
           // Default parent svg markup to render the topology
           var topologyElement = d3.select(element[0]);
           var callbacks = {
-            click: scope.selectCallback,
-            addRelationship: scope.addRelationshipCallback,
+            click: _.get(scope, 'callbacks.selectNodeTemplate'),
+            updateNodePosition: _.get(scope, 'callbacks.updateNodePosition'),
+            addRelationship: _.get(scope, 'callbacks.addRelationship'),
             graphControl: scope.graphControl
           };
           defaultNodeRendererService.setRuntime(scope.runtime);

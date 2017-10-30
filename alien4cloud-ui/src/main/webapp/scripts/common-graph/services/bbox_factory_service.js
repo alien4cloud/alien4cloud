@@ -28,7 +28,7 @@ define(function (require) {
           this.minX = x;
           this.minY = y;
           this.maxX = x;
-          this.maxX = y;
+          this.maxY = y;
         } else {
           if(x < this.minX) {
             this.minX = x;
@@ -77,6 +77,14 @@ define(function (require) {
 
       height: function() {
         return this.maxY - this.minY;
+      },
+
+      move: function(x, y) {
+        var tx = x - this.minX, ty = y - this.minY;
+        this.minX = x;
+        this.minY = y;
+        this.maxX += tx;
+        this.maxY += ty;
       },
 
       clone: function() {
