@@ -80,7 +80,12 @@ public class WorkflowPostProcessor {
                 Map<String, WorkflowStep> stepsToAdd = new HashMap<>();
                 Map<String, LinkedList<String>> newStepsNames = new HashMap<>();
                 for (WorkflowStep step : wf.getSteps().values()) {
-                    if (step.getActivities().size() < 2) {
+                    if (step.getActivities() == null) {
+                        Node node = ParsingContextExecution.getObjectToNodeMap().get(step);
+                        ParsingContextExecution.getParsingErrors()
+                                .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.WORKFLOW_HAS_ERRORS, null, node.getStartMark(), "Step should have at least one activity", node.getEndMark(), step.getName()));
+                        continue;
+                    } else if (step.getActivities().size() < 2) {
                         continue;
                     }
                     // We have a step with multiple activities we'll call it old step
