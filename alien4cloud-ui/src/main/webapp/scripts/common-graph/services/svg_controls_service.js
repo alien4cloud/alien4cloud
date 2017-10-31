@@ -88,9 +88,10 @@ define(function (require) {
         if(_.defined(graphControl)) {
           graphControl.toRealCoords = function(coords) {
             var translate = instance.zoom.translate();
-            coords.x = (coords.x / instance.zoom.scale()) - translate[0];
-            coords.y = (coords.y / instance.zoom.scale()) - translate[1];
-            return coords;
+            return {
+              x: (coords.x - translate[0]) / instance.zoom.scale(),
+              y: (coords.y - translate[1]) / instance.zoom.scale()
+            };
           };
         }
         svgElement.call(this.zoom);
@@ -124,6 +125,7 @@ define(function (require) {
           }
           this.zoom.scale(scale);
           this.zoom.translate([x, y]);
+
           this.zoom.event(this.svgGroup);
         },
 
