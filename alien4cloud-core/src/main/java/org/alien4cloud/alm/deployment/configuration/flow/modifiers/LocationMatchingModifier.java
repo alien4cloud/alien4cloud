@@ -8,8 +8,6 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import alien4cloud.common.MetaPropertiesService;
-import alien4cloud.model.common.MetaPropertyTarget;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
@@ -20,10 +18,12 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.deployment.matching.services.location.LocationMatchingService;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.orchestrators.locations.LocationModifierReference;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.plugin.exception.MissingPluginException;
 import alien4cloud.topology.validation.LocationPolicyValidationService;
@@ -48,7 +48,6 @@ public class LocationMatchingModifier implements ITopologyModifier {
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
-
         // first process
         processLocationMatching(topology, context);
 
@@ -61,43 +60,25 @@ public class LocationMatchingModifier implements ITopologyModifier {
 
         // No errors from validation let's inject location topology modifiers if any.
         if (context.log().isValid()) {
-            // FIXME this code is a temporary demo implementation for 2.0.0 SM2, it has to be removed and improved in favor of a clear definition of locaiton
-            // modifiers.
             List<ILocationMatch> locationMatches = (List<ILocationMatch>) context.getExecutionCache().get(FlowExecutionContext.LOCATION_MATCH_CACHE_KEY);
-            String metaPropKey = metaPropertiesService.getMetapropertykeyByName("loc_modifiers", MetaPropertyTarget.LOCATION);
-            if (metaPropKey == null) {
-                return;
-            }
-            String locationModifierDefinitionsStr = safe(locationMatches.get(0).getLocation().getMetaProperties()).get(metaPropKey);
-            if (locationModifierDefinitionsStr == null) {
-                return;
-            }
-            String[] locationModifierDefinitions = locationModifierDefinitionsStr.split(",");
-            for (String locationModifierDefinition : locationModifierDefinitions) {
-                injectLocationTopologyModfier(context, locationMatches.get(0).getLocation().getName(), locationModifierDefinition);
+            for (LocationModifierReference modifierReference : safe(locationMatches.get(0).getLocation().getModifiers())) {
+                injectLocationTopologyModfier(context, locationMatches.get(0).getLocation().getName(), modifierReference);
             }
         }
     }
 
-    private void injectLocationTopologyModfier(FlowExecutionContext context, String locationName, String locationModifierDefinition) {
-        String[] locationModifierImpl = locationModifierDefinition.split(":");
-        if (locationModifierImpl.length != 3) {
-            context.log().error(
-                    "Matched location {} defines an invalid modifier implementation {}, format should be policy_plugin_id:policy_plugin_bean:injection_phase",
-                    locationName, locationModifierDefinition);
-        }
-
+    private void injectLocationTopologyModfier(FlowExecutionContext context, String locationName, LocationModifierReference modifierReference) {
         try {
-            ITopologyModifier modifier = pluginModifierRegistry.getPluginBean(locationModifierImpl[0], locationModifierImpl[1]);
-            List<ITopologyModifier> phaseModifiers = (List<ITopologyModifier>) context.getExecutionCache().get(locationModifierImpl[2]);
+            ITopologyModifier modifier = pluginModifierRegistry.getPluginBean(modifierReference.getPluginId(), modifierReference.getBeanName());
+            List<ITopologyModifier> phaseModifiers = (List<ITopologyModifier>) context.getExecutionCache().get(modifierReference.getPhase());
             if (phaseModifiers == null) {
                 phaseModifiers = Lists.newArrayList();
-                context.getExecutionCache().put(locationModifierImpl[2], phaseModifiers);
+                context.getExecutionCache().put(modifierReference.getPhase(), phaseModifiers);
             }
             phaseModifiers.add(modifier);
         } catch (MissingPluginException e) {
-            context.log().error("Location {} defines modifier that refers to plugin bean {}, {} cannot be found.", locationName, locationModifierImpl[0],
-                    locationModifierImpl[1]);
+            context.log().error("Location {} defines modifier that refers to plugin bean {}, {} cannot be found.", locationName,
+                    modifierReference.getPluginId(), modifierReference.getBeanName());
         }
     }
 
