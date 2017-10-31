@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate.outputs;
 
 import alien4cloud.exception.NotFoundException;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.IValue;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -24,9 +25,7 @@ import java.util.Set;
 public class SetNodeAttributeAsOutputProcessor extends AbstractNodeProcessor<SetNodeAttributeAsOutputOperation> {
 
     @Override
-    protected void processNodeOperation(SetNodeAttributeAsOutputOperation operation, NodeTemplate nodeTemplate) {
-
-        Topology topology = EditionContextManager.getTopology();
+    protected void processNodeOperation(Csar csar, Topology topology, SetNodeAttributeAsOutputOperation operation, NodeTemplate nodeTemplate) {
 
         // check if the attribute exists
         Map<String, IValue> attributes = nodeTemplate.getAttributes();

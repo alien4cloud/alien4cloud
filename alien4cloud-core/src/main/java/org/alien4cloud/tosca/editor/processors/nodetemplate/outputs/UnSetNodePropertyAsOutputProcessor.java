@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate.outputs;
 
 import alien4cloud.exception.NotFoundException;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -22,9 +23,7 @@ import org.springframework.stereotype.Component;
 public class UnSetNodePropertyAsOutputProcessor extends AbstractNodeProcessor<UnSetNodePropertyAsOutputOperation> {
 
     @Override
-    protected void processNodeOperation(UnSetNodePropertyAsOutputOperation operation, NodeTemplate nodeTemplate) {
-
-        Topology topology = EditionContextManager.getTopology();
+    protected void processNodeOperation(Csar csar, Topology topology, UnSetNodePropertyAsOutputOperation operation, NodeTemplate nodeTemplate) {
 
         // check if the property exists
         check(operation, topology, nodeTemplate);

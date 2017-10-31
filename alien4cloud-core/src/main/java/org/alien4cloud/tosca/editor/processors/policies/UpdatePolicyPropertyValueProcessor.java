@@ -6,6 +6,7 @@ import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.PropertyValueException;
 import org.alien4cloud.tosca.editor.operations.policies.UpdatePolicyPropertyValueOperation;
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -27,9 +28,7 @@ public class UpdatePolicyPropertyValueProcessor extends AbstractPolicyProcessor<
     private PropertyService propertyService;
 
     @Override
-    protected void process(UpdatePolicyPropertyValueOperation operation, PolicyTemplate policyTemplate) {
-        Topology topology = EditionContextManager.getTopology();
-
+    protected void process(Csar csar, Topology topology, UpdatePolicyPropertyValueOperation operation, PolicyTemplate policyTemplate) {
         PolicyType policyType = ToscaContext.getOrFail(PolicyType.class, policyTemplate.getType());
         PropertyDefinition propertyDefinition = AlienUtils.getOrFail(policyType.getProperties(), operation.getPropertyName(),
                 "Property [ {} ] doesn't exists in type [ {} ] for policy [ {} ].", operation.getPropertyName(), policyTemplate.getType(), operation.getPolicyName());

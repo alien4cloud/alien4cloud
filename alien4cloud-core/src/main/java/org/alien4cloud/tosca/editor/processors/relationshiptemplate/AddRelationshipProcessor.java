@@ -12,6 +12,7 @@ import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
 import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -51,7 +52,7 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
     private TopologyCapabilityBoundsValidationServices topologyCapabilityBoundsValidationServices;
 
     @Override
-    protected void processNodeOperation(AddRelationshipOperation operation, NodeTemplate sourceNode) {
+    protected void processNodeOperation(Csar csar, Topology topology, AddRelationshipOperation operation, NodeTemplate sourceNode) {
         if (operation.getRelationshipName() == null || operation.getRelationshipName().isEmpty()) {
             throw new InvalidNameException("relationshipName", operation.getRelationshipName(), "Not null or empty");
         }
@@ -65,7 +66,6 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
                     "Unable to find requirement with name <" + operation.getRequirementName() + "> on the source node" + operation.getNodeName());
         }
 
-        Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
         // ensure that the target node exists
         TopologyUtils.getNodeTemplate(topology.getId(), operation.getTarget(), nodeTemplates);
@@ -114,7 +114,7 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         relationshipTemplate.setProperties(properties);
 
         relationships.put(operation.getRelationshipName(), relationshipTemplate);
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, EditionContextManager.getCsar());
+        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         workflowBuilderService.addRelationship(topologyContext, operation.getNodeName(), operation.getRelationshipName());
         log.debug("Added relationship to the topology [" + topology.getId() + "], node name [" + operation.getNodeName() + "], relationship name ["
                 + operation.getRelationshipName() + "]");

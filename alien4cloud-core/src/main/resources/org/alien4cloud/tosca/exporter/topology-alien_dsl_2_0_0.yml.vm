@@ -4,6 +4,19 @@
 ## - template_author
 ## - application_description
 ## - topology
+#macro(serializeMetadata $template $indent)
+#if($utils.collectionIsNotEmpty($template.tags))
+${indent}metadata:
+#foreach($tag in ${template.tags})
+${indent}  ${tag.name}: $propertyUtils.renderScalar(${tag.value})
+#end##foreach($tag in ${template.tags})
+#end##if($utils.collectionIsNotEmpty($template.tags))
+#end## macro(serializeMetadata
+#macro(description $element $indent)
+#if($element.description)
+${indent}description: ${utils.renderDescription(${element.description}, "${indent}  ")}
+#end##if($element.description)
+#end## macro(description)
 ## --------------------------------------------
 ## BEGINNING OF DOCUMENT
 tosca_definitions_version: alien_dsl_2_0_0
@@ -92,6 +105,7 @@ ${utils.formatArtifact($artifactEntry.value, 4)}
 #if(!$utils.isNull(${nodeTemplateEntry.value.description}))
       description: ${utils.renderDescription(${nodeTemplateEntry.value.description}, "        ")}
 #end## description
+#serializeMetadata($nodeTemplateEntry.value, "      ")
       type: ${nodeTemplateEntry.value.type}
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.properties))
       properties:$propertyUtils.formatProperties(4, $nodeTemplateEntry.value.properties)
@@ -104,6 +118,7 @@ ${utils.formatArtifact($artifactEntry.value, 4)}
       requirements:
 #foreach($relationship in ${nodeTemplateEntry.value.relationships.values()})
         - ${relationship.name}:
+#serializeMetadata($relationship, "            ")
 #if(${relationship.name} != ${relationship.requirementName})
             type_requirement: ${relationship.requirementName}
 #end## if
@@ -201,6 +216,19 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #end## if $groupEntry.value.policies not empty
 #end## of groupEntry iteration
 #end## if $topology.groups not empty
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.policies))
+  policies:
+#foreach($policyEntry in ${topology.policies.entrySet()})
+    - ${policyEntry.key}:
+        type: ${policyEntry.value.type}
+#description($policyEntry.value, "        ")
+#serializeMetadata($policyEntry.value, "        ")
+        targets: [ $utils.getCsvToString($policyEntry.value.targets) ]
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($policyEntry.value.properties))
+        properties:$propertyUtils.formatProperties(5, $policyEntry.value.properties)
+#end## if policyEntry.value.properties not empty
+#end## of policyEntry iteration
+#end## if $topology.policies not empty
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputProperties) || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputAttributes)  || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputCapabilityProperties))
   outputs:
 #foreach($outputPropertyEntry in ${topology.outputProperties.entrySet()})

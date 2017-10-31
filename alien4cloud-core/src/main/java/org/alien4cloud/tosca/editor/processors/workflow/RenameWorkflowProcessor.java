@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor.processors.workflow;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.RenameWorkflowOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
@@ -20,8 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RenameWorkflowProcessor extends AbstractWorkflowProcessor<RenameWorkflowOperation> {
 
     @Override
-    protected void processWorkflowOperation(RenameWorkflowOperation operation, Workflow workflow) {
-        Topology topology = EditionContextManager.getTopology();
+    protected void processWorkflowOperation(Csar csar, Topology topology, RenameWorkflowOperation operation, Workflow workflow) {
         ensureNotStandard(workflow, "standard workflow <" + workflow.getName() + "> can not be renamed");
         String oldName = workflow.getName();
         WorkflowUtils.validateName(operation.getNewName());

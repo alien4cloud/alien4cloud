@@ -8,6 +8,7 @@ import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.PropertyValueException;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateCapabilityPropertyValueOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
@@ -34,9 +35,7 @@ public class UpdateCapabilityPropertyValueProcessor implements IEditorOperationP
 
     @Override
     @SneakyThrows
-    public void process(UpdateCapabilityPropertyValueOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-
+    public void process(Csar csar, Topology topology, UpdateCapabilityPropertyValueOperation operation) {
         String propertyName = operation.getPropertyName();
         Object propertyValue = operation.getPropertyValue();
         Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);

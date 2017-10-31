@@ -5,6 +5,7 @@ import alien4cloud.topology.TopologyService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.SetSubstitutionCapabilityServiceRelationshipOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -21,9 +22,7 @@ public abstract class SetSubstitutionTargetServiceRelationshipProcessor {
     @Inject
     private TopologyService topologyService;
 
-    public void process(SubstitutionTarget substitutionTarget, String relationshipType, String relationshipVersion) {
-        Topology topology = EditionContextManager.getTopology();
-
+    public void process(Csar csar, Topology topology, SubstitutionTarget substitutionTarget, String relationshipType, String relationshipVersion) {
         if (StringUtils.isBlank(relationshipType)) {
             substitutionTarget.setServiceRelationshipType(null);
             return;

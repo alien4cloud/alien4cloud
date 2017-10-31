@@ -14,8 +14,8 @@ public enum CSARSource {
     UPLOAD,
     /** Git import. */
     GIT,
+    /** Archive embedded in plugin. */
+    PLUGIN,
     /** Other source. */
-    OTHER,
-    /** Plugin archives */
-    PLUGIN
+    OTHER
 }

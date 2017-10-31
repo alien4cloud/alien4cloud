@@ -7,6 +7,7 @@ import org.alien4cloud.tosca.editor.exception.PropertyValueException;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.UpdateRelationshipPropertyValueOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -29,8 +30,7 @@ public class UpdateRelationshipPropertyValueProcessor implements IEditorOperatio
     private PropertyService propertyService;
 
     @Override
-    public void process(UpdateRelationshipPropertyValueOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, UpdateRelationshipPropertyValueOperation operation) {
 
         NodeTemplate nodeTemplate = AlienUtils.getOrFail(topology.getNodeTemplates(), operation.getNodeName(),
                 "The node with name [ {} ] cannot be found in the topology.", operation.getNodeName());

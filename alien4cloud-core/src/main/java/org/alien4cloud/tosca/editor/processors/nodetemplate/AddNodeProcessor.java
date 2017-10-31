@@ -9,6 +9,7 @@ import org.alien4cloud.tosca.editor.Constants;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -45,9 +46,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
-    public void process(AddNodeOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-
+    public void process(Csar csar, Topology topology, AddNodeOperation operation) {
         NameValidationUtils.validateNodeName(operation.getNodeName());
         AlienUtils.failIfExists(topology.getNodeTemplates(), operation.getNodeName(),
                 "A node template with the given name {} already exists in the topology {}.", operation.getNodeName(), topology.getId());
@@ -84,7 +83,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         log.debug("Adding a new Node template <" + operation.getNodeName() + "> bound to the node type <" + operation.getIndexedNodeTypeId()
                 + "> to the topology <" + topology.getId() + "> .");
 
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, EditionContextManager.getCsar());
+        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         workflowBuilderService.addNode(topologyContext, operation.getNodeName());
     }
 }

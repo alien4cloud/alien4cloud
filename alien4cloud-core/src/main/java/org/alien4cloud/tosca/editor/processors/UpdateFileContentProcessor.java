@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.alien4cloud.tosca.editor.operations.UpdateFileContentOperation;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,11 +14,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class UpdateFileContentProcessor extends AbstractUpdateFileProcessor<UpdateFileContentOperation> {
     @Override
-    public void process(UpdateFileContentOperation operation) {
+    public void process(Csar csar, Topology topology, UpdateFileContentOperation operation) {
         if (operation.getTempFileId() == null) {
             operation.setArtifactStream(new ByteArrayInputStream(operation.getContent().getBytes(StandardCharsets.UTF_8)));
         }
-        super.process(operation);
+        super.process(csar, topology, operation);
         // content is store in a temp file on disk, no need to keep data in memory.
         operation.setContent(null);
     }

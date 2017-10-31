@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
@@ -19,12 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation> {
     @Override
-    protected void processInputOperation(AddInputOperation operation, Map<String, PropertyDefinition> inputs) {
+    protected void processInputOperation(Csar csar, Topology topology, AddInputOperation operation, Map<String, PropertyDefinition> inputs) {
         if (operation.getInputName() == null || operation.getInputName().isEmpty() || !operation.getInputName().matches("\\w+")) {
             throw new InvalidNameException("newInputName", operation.getInputName(), "\\w+");
         }
-
-        Topology topology = EditionContextManager.getTopology();
 
         if (inputs.containsKey(operation.getInputName())) {
             throw new AlreadyExistException("An input with the id " + operation.getInputName() + "already exist in the topology " + topology.getId());

@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor.processors.policies;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.policies.RenamePolicyOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
@@ -17,8 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class RenamePolicyProcessor extends AbstractPolicyProcessor<RenamePolicyOperation> {
     @Override
-    protected void process(RenamePolicyOperation operation, PolicyTemplate policyTemplate) {
-        Topology topology = EditionContextManager.getTopology();
+    protected void process(Csar csar, Topology topology, RenamePolicyOperation operation, PolicyTemplate policyTemplate) {
 
         NameValidationUtils.validateNodeName(operation.getNewName());
         AlienUtils.failIfExists(topology.getPolicies(), operation.getNewName(), "A node template with the given name {} already exists in the topology {}.",

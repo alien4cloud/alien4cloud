@@ -9,19 +9,6 @@ description: This template contains tests of policy templates parsing.
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-
-policy_types:
-  org.alien4cloud.sample.SamplePolicy:
-    derived_from: tosca.policies.Root
-    description: This is a sample policy type with simple definition
-    metadata:
-      sample_meta: a meta data
-      anoter_meta: another meta data
-    properties:
-      sample_property:
-        type: string
-    targets: ["tosca.nodes.Compute", "tosca.nodes.Root"]
-
 topology_template:
   node_templates:
     my_node:

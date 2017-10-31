@@ -5,6 +5,7 @@ import java.util.Map;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.UpdateCapabilitySubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.AlreadyExistException;
@@ -19,8 +20,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 public class UpdateCapabilitySubstitutionTypeProcessor implements IEditorOperationProcessor<UpdateCapabilitySubstitutionTypeOperation> {
 
     @Override
-    public void process(UpdateCapabilitySubstitutionTypeOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, UpdateCapabilitySubstitutionTypeOperation operation) {
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
             throw new NotFoundException("No substitution type has been found");
         }

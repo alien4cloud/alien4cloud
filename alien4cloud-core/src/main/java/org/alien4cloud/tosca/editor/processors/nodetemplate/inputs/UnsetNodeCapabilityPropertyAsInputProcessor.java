@@ -6,6 +6,8 @@ import static alien4cloud.utils.AlienUtils.getOrFail;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.UnsetNodeCapabilityPropertyAsInputOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
@@ -25,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class UnsetNodeCapabilityPropertyAsInputProcessor extends AbstractNodeProcessor<UnsetNodeCapabilityPropertyAsInputOperation> {
     @Override
-    protected void processNodeOperation(UnsetNodeCapabilityPropertyAsInputOperation operation, NodeTemplate nodeTemplate) {
+    protected void processNodeOperation(Csar csar, Topology topology, UnsetNodeCapabilityPropertyAsInputOperation operation, NodeTemplate nodeTemplate) {
         Capability capabilityTemplate = getOrFail(nodeTemplate.getCapabilities(), operation.getCapabilityName(), "Capability {} do not exist for node {}",
                 operation.getCapabilityName(), operation.getNodeName());
 
@@ -43,6 +45,6 @@ public class UnsetNodeCapabilityPropertyAsInputProcessor extends AbstractNodePro
         capabilityTemplate.getProperties().put(operation.getPropertyName(), defaultPropertyValue);
 
         log.debug("Remove association from property [ {} ] of capability template [ {} ] of node [ {} ] to an input of the topology [ {} ].",
-                operation.getPropertyName(), operation.getCapabilityName(), operation.getNodeName(), EditionContextManager.getTopology().getId());
+                operation.getPropertyName(), operation.getCapabilityName(), operation.getNodeName(), topology.getId());
     }
 }

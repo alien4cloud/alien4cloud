@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -19,8 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RebuildNodeProcessor extends AbstractNodeProcessor<RebuildNodeOperation> {
     @Override
-    protected void processNodeOperation(RebuildNodeOperation operation, NodeTemplate nodeTemplate) {
-        Topology topology = EditionContextManager.getTopology();
+    protected void processNodeOperation(Csar csar, Topology topology, RebuildNodeOperation operation, NodeTemplate nodeTemplate) {
         log.debug("Rebuilding the node template [ {} ] of topology [ {} ] .", operation.getNodeName(), topology.getId());
         NodeType type = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
         NodeTemplate rebuiltNodeTemplate = TemplateBuilder.buildNodeTemplate(type, nodeTemplate);

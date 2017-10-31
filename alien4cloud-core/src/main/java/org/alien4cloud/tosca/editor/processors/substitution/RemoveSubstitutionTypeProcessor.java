@@ -30,8 +30,7 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
     private IGenericSearchDAO alienDAO;
 
     @Override
-    public void process(RemoveSubstitutionTypeOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, RemoveSubstitutionTypeOperation operation) {
 
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
             throw new NotFoundException("No substitution type has been found");
@@ -40,7 +39,6 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
         // FIXME check also on live edited topologies.
 
         // the substitute type os within the topology's archive
-        Csar csar = EditionContextManager.getCsar();
         if (hasArchiveUsing(csar.getName(), csar.getVersion())) {
             throw new DeleteReferencedObjectException("The substitution can not be removed since it's type is already used in at least another topology");
         }

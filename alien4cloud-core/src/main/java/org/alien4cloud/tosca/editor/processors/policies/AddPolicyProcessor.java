@@ -8,6 +8,7 @@ import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.policies.AddPolicyOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.PolicyType;
@@ -31,9 +32,7 @@ public class AddPolicyProcessor implements IEditorOperationProcessor<AddPolicyOp
     private TopologyService topologyService;
 
     @Override
-    public void process(AddPolicyOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-
+    public void process(Csar csar, Topology topology, AddPolicyOperation operation) {
         NameValidationUtils.validate("policy", operation.getPolicyName());
         AlienUtils.failIfExists(topology.getPolicies(), operation.getPolicyName(), "A policy with the given name {} already exists in the topology {}.",
                 operation.getPolicyName(), topology.getId());

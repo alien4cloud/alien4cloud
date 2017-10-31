@@ -6,6 +6,7 @@ import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
 import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -28,9 +29,7 @@ public class RecoverTopologyProcessor implements IEditorOperationProcessor<Recov
     private TopologyService topologyService;
 
     @Override
-    public void process(RecoverTopologyOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-
+    public void process(Csar csar, Topology topology, RecoverTopologyOperation operation) {
         checkOperation(operation, topology);
 
         // process every recovery operation

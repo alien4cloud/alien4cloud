@@ -6,6 +6,7 @@ import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.RenameGroupOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.AlreadyExistException;
@@ -22,8 +23,7 @@ import alien4cloud.topology.TopologyUtils;
 @Component
 public class RenameGroupProcessor implements IEditorOperationProcessor<RenameGroupOperation> {
     @Override
-    public void process(RenameGroupOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, RenameGroupOperation operation) {
 
         if (operation.getNewGroupName() == null || !operation.getNewGroupName().matches("\\w+")) {
             throw new InvalidNameException("groupName", operation.getGroupName(), "\\w+");

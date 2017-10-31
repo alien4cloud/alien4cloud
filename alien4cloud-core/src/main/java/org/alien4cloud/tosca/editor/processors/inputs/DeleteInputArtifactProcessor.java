@@ -5,6 +5,7 @@ import static alien4cloud.utils.AlienUtils.safe;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.DeleteInputArtifactOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -19,8 +20,7 @@ import alien4cloud.utils.InputArtifactUtil;
 @Component
 public class DeleteInputArtifactProcessor implements IEditorOperationProcessor<DeleteInputArtifactOperation> {
     @Override
-    public void process(DeleteInputArtifactOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, DeleteInputArtifactOperation operation) {
         if (!safe(topology.getInputArtifacts()).containsKey(operation.getInputName())) {
             throw new NotFoundException("Input artifact <" + operation.getInputName() + "> can not be found in the topology.");
         }
