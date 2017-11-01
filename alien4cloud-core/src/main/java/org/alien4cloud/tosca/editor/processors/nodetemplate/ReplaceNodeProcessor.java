@@ -48,7 +48,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         // Build the new one
         NodeTemplate newNodeTemplate = TemplateBuilder.buildNodeTemplate(newType, oldNodeTemplate, false);
         newNodeTemplate.setName(operation.getNodeName());
-
+        newNodeTemplate.setTags(oldNodeTemplate.getTags());
         newNodeTemplate.setName(oldNodeTemplate.getName());
         newNodeTemplate.setRelationships(oldNodeTemplate.getRelationships());
         // Put the new one in the topology
