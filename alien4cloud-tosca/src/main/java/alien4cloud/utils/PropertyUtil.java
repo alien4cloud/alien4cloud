@@ -230,8 +230,12 @@ public final class PropertyUtil {
      */
     public static AbstractPropertyValue getPropertyValueFromPath(Map<String, AbstractPropertyValue> values, String propertyPath) {
         NestedPropertyWrapper npw = getNestedProperty(values, propertyPath);
-        if (npw != null && npw.getValue() instanceof AbstractPropertyValue) {
-            return (AbstractPropertyValue)npw.getValue();
+        if (npw != null) {
+            if (npw.getValue() instanceof AbstractPropertyValue) {
+                return (AbstractPropertyValue) npw.getValue();
+            } else if (npw.getValue() != null) {
+                return new ScalarPropertyValue(npw.getValue().toString());
+            }
         }
         return null;
     }
