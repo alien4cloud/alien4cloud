@@ -110,6 +110,7 @@
           {{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate }}
         </uib-tab-heading>
         <ul class="list-group" style="overflow: auto; height: {{ dimensions.height + 'px' }};">
+          <empty-place-holder class="center" data="favorites"></empty-place-holder>
           <li class="list-group-item media clickable-media favorite"
               ng-repeat="resource in favorites | orderBy : ['-provided', 'elementId']"
               alien-draggable drag-enabled="true" drag-data="resource">

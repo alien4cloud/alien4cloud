@@ -3,11 +3,13 @@ package alien4cloud.orchestrators.services;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -201,7 +203,9 @@ public class OrchestratorStateService {
 
     private void indexLocationsArchives(Orchestrator orchestrator) {
         locationService.getAll(orchestrator.getId()).forEach(location -> {
-            archiveIndexer.indexLocationArchives(orchestrator, location);
+            Set<CSARDependency> dependencies = archiveIndexer.indexLocationArchives(orchestrator, location);
+            location.getDependencies().addAll(dependencies);
+            alienDAO.save(location);
         });
     }
 
