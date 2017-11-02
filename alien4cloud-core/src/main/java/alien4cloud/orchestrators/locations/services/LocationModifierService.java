@@ -24,81 +24,62 @@ public class LocationModifierService {
 
     /**
      * Add a locationModifierReference to an location
+     * 
      * @param location
      * @param locationModifierReference to add
-     * @return true if added
      */
-    public boolean add(Location location, LocationModifierReference locationModifierReference) {
+    public void add(Location location, LocationModifierReference locationModifierReference) {
         if (location.getModifiers() == null) {
             location.setModifiers(Lists.newArrayList());
         }
-        boolean added = location.getModifiers().add(locationModifierReference);
-        if (added) {
-            alienDAO.save(location);
-        }
-        return added;
+        location.getModifiers().add(locationModifierReference);
+        alienDAO.save(location);
     }
 
     /**
      * Add a locationModifierReference to an location at the specific index
+     * 
      * @param location
      * @param locationModifierReference to add
      * @param index
-     * @return true if added or throw an IndexOutOfBoundsException
      */
-    public boolean add(Location location, LocationModifierReference locationModifierReference, int index) {
+    public void add(Location location, LocationModifierReference locationModifierReference, int index) {
         if (location.getModifiers() == null) {
             location.setModifiers(Lists.newArrayList());
         }
+        // TODO check index => Not found if index incorrect.
         location.getModifiers().add(index, locationModifierReference);
         alienDAO.save(location);
-        return true;
     }
 
     /**
      * Remove a locationModifierReference
+     * 
      * @param location
      * @param index of the locationModifierReference to remove
      * @return
      */
-    public boolean remove(Location location, int index) {
-        if (location.getModifiers() == null) {
-            return false;
+    public void remove(Location location, int index) {
+        if (location.getModifiers() == null) { // TODO && check index => Not found if index incorrect.
+            // Throw not found
         }
-        boolean removed = location.getModifiers().remove(location.getModifiers().get(index));
-        if (removed) {
-            alienDAO.save(location);
-        }
-        return removed;
+        location.getModifiers().remove(index);
+        alienDAO.save(location);
     }
 
     /**
      * Move a locationModifierReference to a position to another
+     * 
      * @param location
      * @param from
      * @param to
-     * @return true if moved or throw an IndexOutOfBoundsException
      */
-    public boolean move(Location location, int from, int to) {
+    public void move(Location location, int from, int to) {
         LocationModifierReference modifier = location.getModifiers().remove(from);
-        if (modifier == null) {
-            return false;
+        if (modifier == null) { // TODO && check index => throw not found
+
         }
         location.getModifiers().add(to, modifier);
         alienDAO.save(location);
-        return true;
-    }
-
-    /**
-     * Get all supported bean names by modifiers for a given location
-     * @param location
-     * @return
-     */
-    public Set<String> getAllBeanNames(Location location) {
-        Set<String> beanNames = Sets.newHashSet();
-        for (LocationModifierReference modifier : safe(location.getModifiers())) {
-            beanNames.add(modifier.getBeanName());
-        }
-        return beanNames;
     }
 }

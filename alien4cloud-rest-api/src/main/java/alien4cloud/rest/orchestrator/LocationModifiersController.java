@@ -80,12 +80,4 @@ public class LocationModifiersController {
         }
         return RestResponseBuilder.<List<LocationModifierReference>> builder().data(modifiers).build();
     }
-
-    @ApiOperation(value = "Get all modifier bean names for a given location.")
-    @RequestMapping(value = "/beans", method = RequestMethod.GET)
-    public RestResponse<Set<String>> getAll(
-            @ApiParam(value = "Id of the location for which to get all modifier bean names.") @PathVariable String locationId) {
-        Location location = locationService.getOrFail(locationId);
-        return RestResponseBuilder.<Set<String>> builder().data(locationModifierService.getAllBeanNames(location)).build();
-    }
 }
