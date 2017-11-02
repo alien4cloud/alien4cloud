@@ -1,14 +1,17 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
-import org.alien4cloud.tosca.model.types.NodeType;
+import java.util.Objects;
+
+import org.alien4cloud.tosca.editor.EditionContextManager;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.RebuildNodeOperation;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.stereotype.Component;
+
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.topology.TemplateBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.RebuildNodeOperation;
-import org.springframework.stereotype.Component;
 
 /**
  * Process an {@link RebuildNodeOperation}
@@ -23,6 +26,11 @@ public class RebuildNodeProcessor extends AbstractNodeProcessor<RebuildNodeOpera
         Topology topology = EditionContextManager.getTopology();
         log.debug("Rebuilding the node template [ {} ] of topology [ {} ] .", operation.getNodeName(), topology.getId());
         NodeType type = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
+        // Artifacts are copied from the type to the template
+        // In case of an update of version, we must remove old artifacts copied from old types
+        // FIXME This is very tricky, we must think about stopping copying artifact from types to templates
+        nodeTemplate.getArtifacts().entrySet().removeIf(artifactEntry -> Objects.equals(type.getArchiveName(), artifactEntry.getValue().getArchiveName())
+                && !Objects.equals(type.getArchiveVersion(), artifactEntry.getValue().getArchiveVersion()));
         NodeTemplate rebuiltNodeTemplate = TemplateBuilder.buildNodeTemplate(type, nodeTemplate);
         rebuiltNodeTemplate.setName(operation.getNodeName());
         topology.getNodeTemplates().put(operation.getNodeName(), rebuiltNodeTemplate);
