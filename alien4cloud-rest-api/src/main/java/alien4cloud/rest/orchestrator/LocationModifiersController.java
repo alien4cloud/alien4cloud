@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,23 +46,24 @@ public class LocationModifiersController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Boolean> add(@ApiParam(value = "Id of the location", required = true) @PathVariable String locationId,
-            LocationModifierReference locationModifierReference) {
+                                     @ApiParam(value = "The location modifier to add", required = true) @RequestBody LocationModifierReference locationModifierReference) {
         Location location = locationService.getOrFail(locationId);
         boolean added = locationModifierService.add(location, locationModifierReference);
         return RestResponseBuilder.<Boolean> builder().data(added).build();
     }
 
-    @RequestMapping(method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Update the order of a modifier.", authorizations = { @Authorization("ADMIN") })
-    public RestResponse<Boolean> move(@ApiParam(value = "Id of the location", required = true) @PathVariable String locationId, int from, int to) {
+    @RequestMapping(value = "/from/{from}/to/{to}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Boolean> move(@ApiParam(value = "Id of the location", required = true) @PathVariable String locationId,
+                                        @ApiParam(value = "From index", required = true) @PathVariable int from, @ApiParam(value = "To index", required = true) @PathVariable int to) {
         Location location = locationService.getOrFail(locationId);
         boolean moved = locationModifierService.move(location, from, to);
         return RestResponseBuilder.<Boolean> builder().data(moved).build();
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Delete a location modifier at the given index.", authorizations = { @Authorization("ADMIN") })
-    public RestResponse<Boolean> delete(@ApiParam(value = "Id of the location", required = true) @PathVariable String locationId, int index) {
+    @RequestMapping(value = "/{index}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Boolean> delete(@ApiParam(value = "Id of the location", required = true) @PathVariable String locationId, @ApiParam(value = "Index of the location modifier to delete", required = true) @PathVariable int index) {
         Location location = locationService.getOrFail(locationId);
         boolean removed = locationModifierService.remove(location, index);
         return RestResponseBuilder.<Boolean> builder().data(removed).build();
@@ -80,7 +82,7 @@ public class LocationModifiersController {
     }
 
     @ApiOperation(value = "Get all modifier bean names for a given location.")
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "/beans", method = RequestMethod.GET)
     public RestResponse<Set<String>> getAll(
             @ApiParam(value = "Id of the location for which to get all modifier bean names.") @PathVariable String locationId) {
         Location location = locationService.getOrFail(locationId);

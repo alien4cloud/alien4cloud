@@ -2,12 +2,14 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import org.alien4cloud.tosca.editor.Constants;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePositionOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
 import alien4cloud.model.common.Tag;
-import org.springframework.stereotype.Component;
 
 /**
  * Process an update node position operation and set position metadata to the node.
@@ -15,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UpdateNodePositionProcessor extends AbstractNodeProcessor<UpdateNodePositionOperation> {
     @Override
-    protected void processNodeOperation(UpdateNodePositionOperation operation, NodeTemplate nodeTemplate) {
+    protected void processNodeOperation(Csar csar, Topology topology, UpdateNodePositionOperation operation, NodeTemplate nodeTemplate) {
         // Set the position information of the node as meta-data.
         if (nodeTemplate.getTags() == null) {
             nodeTemplate.setTags(Lists.newArrayList(new Tag(Constants.X_META, String.valueOf(operation.getCoords().getX())),
