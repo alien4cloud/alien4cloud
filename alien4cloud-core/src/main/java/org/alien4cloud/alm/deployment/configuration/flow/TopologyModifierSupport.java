@@ -117,6 +117,8 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
 
     /**
      * Change policies that target the sourceTemplate and make them target the targetTemplate.
+     *
+     * TODO: move elsewhere ?
      */
     public static void changePolicyTarget(Topology topology, NodeTemplate sourceTemplate, NodeTemplate targetTemplate) {
         Set<PolicyTemplate> policies = TopologyNavigationUtil.getTargetedPolicies(topology, sourceTemplate);
@@ -139,7 +141,8 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         updateNodePropertyValueProcessor.process(csar, topology, updateNodePropertyValueOperation);
     }
 
-    protected String feedPropertyValue(Map propertyValues, String propertyPath, Object propertyValue, boolean lastPropertyIsAList) {
+    // TODO: move elsewhere ?
+    public static String feedPropertyValue(Map propertyValues, String propertyPath, Object propertyValue, boolean lastPropertyIsAList) {
         String nodePropertyName = null;
         if (propertyPath.contains(".")) {
             String[] paths = propertyPath.split("\\.");
