@@ -1,6 +1,7 @@
 package alien4cloud.orchestrators.locations.services;
 
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationModifierReference;
@@ -8,6 +9,22 @@ import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.POST_INJECT_INPUT;
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.POST_LOCATION_MATCH;
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.POST_MATCHED_NODE_SETUP;
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.POST_MATCHED_POLICY_SETUP;
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.POST_NODE_MATCH;
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.POST_POLICY_MATCH;
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.PRE_INJECT_INPUT;
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.PRE_MATCHED_NODE_SETUP;
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.PRE_MATCHED_POLICY_SETUP;
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.PRE_NODE_MATCH;
+import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases.PRE_POLICY_MATCH;
 
 /**
  * Manages locations modifiers.
@@ -17,6 +34,18 @@ public class LocationModifierService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
+    private static final List<String> validPhases = Arrays.asList(POST_LOCATION_MATCH, PRE_INJECT_INPUT, POST_INJECT_INPUT, PRE_POLICY_MATCH,POST_POLICY_MATCH,
+            PRE_NODE_MATCH, POST_NODE_MATCH, PRE_MATCHED_POLICY_SETUP, POST_MATCHED_POLICY_SETUP, PRE_MATCHED_NODE_SETUP, POST_MATCHED_NODE_SETUP);
+
+    private void sort(Location location) {
+        Collections.sort(location.getModifiers(), new Comparator<LocationModifierReference>() {
+            @Override
+            public int compare(LocationModifierReference mofidier1, LocationModifierReference mofidier2) {
+                return validPhases.indexOf(mofidier1.getPhase()) - validPhases.indexOf(mofidier2.getPhase());
+            }
+        });
+    }
+
     /**
      * Add a locationModifierReference to an location
      * 
@@ -24,10 +53,14 @@ public class LocationModifierService {
      * @param locationModifierReference to add
      */
     public void add(Location location, LocationModifierReference locationModifierReference) {
+        if (!validPhases.contains(locationModifierReference.getPhase())) {
+            throw new InvalidArgumentException(locationModifierReference.getPhase() + " is not a valid phase for location matcher");
+        }
         if (location.getModifiers() == null) {
             location.setModifiers(Lists.newArrayList());
         }
         location.getModifiers().add(locationModifierReference);
+        sort(location);
         alienDAO.save(location);
     }
 
@@ -62,6 +95,7 @@ public class LocationModifierService {
         }
         LocationModifierReference modifier = location.getModifiers().remove(from);
         location.getModifiers().add(to, modifier);
+        sort(location);
         alienDAO.save(location);
     }
 }

@@ -10,16 +10,23 @@ Feature: Location management
 
   @reset
   Scenario: Create a location modifier
-    When I create a location modifier with plugin id "myId" and bean name "myBean" and phase "myPhase" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    When I create a location modifier with plugin id "myId" and bean name "myBean" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
       Then I should receive a RestResponse with no error
     When I list location modifiers of the location "Thark location" of the orchestrator "Mount doom orchestrator"
       Then I should receive a RestResponse with no error
       And Response should contains 1 location modifier
-      And Response should contains a location modifier with plugin id "myId" and bean name "myBean" and phase "myPhase"
+      And Response should contains a location modifier with plugin id "myId" and bean name "myBean" and phase "pre-policy-match"
+
+  @reset
+  Scenario: Create a location modifier with an invalid phase should failed
+    When I create a location modifier with plugin id "myId" and bean name "myBean" and phase "pre-location-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+      Then I should receive a RestResponse with an error code 501
+    When I create a location modifier with plugin id "myId" and bean name "myBean" and phase "shouldFailed" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+      Then I should receive a RestResponse with an error code 501
 
   @reset
   Scenario: Delete a location modifier
-    When I create a location modifier with plugin id "myId" and bean name "myBean" and phase "myPhase" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    When I create a location modifier with plugin id "myId" and bean name "myBean" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
       Then I should receive a RestResponse with no error
     When I delete a location modifier at index 0 on the location "Thark location" to the orchestrator "Mount doom orchestrator"
       Then I should receive a RestResponse with no error
@@ -33,9 +40,9 @@ Feature: Location management
 
   @reset
   Scenario: Move a location modifier
-    When I create a location modifier with plugin id "myId_1" and bean name "myBean" and phase "myPhase" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
-    And I create a location modifier with plugin id "myId_2" and bean name "myBean" and phase "myPhase" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
-    And I create a location modifier with plugin id "myId_3" and bean name "myBean" and phase "myPhase" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    When I create a location modifier with plugin id "myId_1" and bean name "myBean" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I create a location modifier with plugin id "myId_2" and bean name "myBean" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I create a location modifier with plugin id "myId_3" and bean name "myBean" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
     And I list location modifiers of the location "Thark location" of the orchestrator "Mount doom orchestrator"
       Then I should receive a RestResponse with no error
       And Response should contains 3 location modifier
@@ -52,9 +59,22 @@ Feature: Location management
 
   @reset
   Scenario: Move a location modifier with wrong index should failed
-    When I create a location modifier with plugin id "myId_1" and bean name "myBean" and phase "myPhase" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
-    And I create a location modifier with plugin id "myId_2" and bean name "myBean" and phase "myPhase" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    When I create a location modifier with plugin id "myId_1" and bean name "myBean" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I create a location modifier with plugin id "myId_2" and bean name "myBean" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
     When I move a location modifier from index 0 to index 5 for the location "Thark location" of the orchestrator "Mount doom orchestrator"
       Then I should receive a RestResponse with an error code 504
     When I move a location modifier from index 500 to index 1 for the location "Thark location" of the orchestrator "Mount doom orchestrator"
       Then I should receive a RestResponse with an error code 504
+
+  @reset
+  Scenario: Location modifier should be order by phase
+    When I create a location modifier with plugin id "myId_1" and bean name "myBean" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I create a location modifier with plugin id "myId_2" and bean name "myBean" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I create a location modifier with plugin id "myId_3" and bean name "myBean" and phase "post-node-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I create a location modifier with plugin id "myId_4" and bean name "myBean" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I create a location modifier with plugin id "myId_5" and bean name "myBean" and phase "post-location-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I list location modifiers of the location "Thark location" of the orchestrator "Mount doom orchestrator"
+      Then I should receive a RestResponse with no error
+      And Response should contains 5 location modifier
+      And the location at index 0 should have the plugin id "myId_5"
+      And the location at index 4 should have the plugin id "myId_3"
