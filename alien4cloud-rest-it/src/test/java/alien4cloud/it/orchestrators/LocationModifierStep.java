@@ -86,6 +86,14 @@ public class LocationModifierStep {
         Assert.assertEquals(phase, modifier.getPhase());
     }
 
+    @And("^the location at index (\\d+) should have the bean name \"([^\"]*)\"$")
+    public void theLocationAtIndexShouldHaveTheBeanName(int index, String beanName) throws Throwable {
+        RestResponse<List> response = JsonUtil.read(Context.getInstance().getRestResponse(), List.class);
+        Object obj = response.getData().get(index);
+        LocationModifierReference modifier = Context.getInstance().getJsonMapper().readValue(Context.getInstance().getJsonMapper().writeValueAsString(obj), LocationModifierReference.class);
+        Assert.assertEquals(beanName, modifier.getBeanName());
+    }
+
     @When("^I move a location modifier from index (\\d+) to index (\\d+) for the location \"([^\"]*)\" of the orchestrator \"([^\"]*)\"$")
     public void iMoveALocationModifierFromIndexToIndexForTheLocationOfTheOrchestrator(int from, int to, String locationName, String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);

@@ -45,25 +45,24 @@ Feature: Location management
     When I delete a location modifier at index 5 on the location "Thark location" to the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with an error code 504
 
-# todo: add an other modifier to the mock to test this scenario
-#  @reset
-#  Scenario: Move a location modifier
-#    When I create a location modifier with plugin id "alien4cloud-mock-paas-provider" and bean name "mock-anti-affinity-modifier" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
-#    And I create a location modifier with plugin id "alien4cloud-mock-paas-provider" and bean name "mock-anti-affinity-modifier" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
-#    And I create a location modifier with plugin id "alien4cloud-mock-paas-provider" and bean name "mock-anti-affinity-modifier" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
-#    And I list location modifiers of the location "Thark location" of the orchestrator "Mount doom orchestrator"
-#      Then I should receive a RestResponse with no error
-#      And Response should contains 3 location modifier
-#      And the location at index 0 should have the plugin id "alien4cloud-mock-paas-provider_1"
-#      And the location at index 1 should have the plugin id "alien4cloud-mock-paas-provider_2"
-#      And the location at index 2 should have the plugin id "alien4cloud-mock-paas-provider_3"
-#    When I move a location modifier from index 0 to index 2 for the location "Thark location" of the orchestrator "Mount doom orchestrator"
-#      And I list location modifiers of the location "Thark location" of the orchestrator "Mount doom orchestrator"
-#      Then I should receive a RestResponse with no error
-#      And Response should contains 3 location modifier
-#      And the location at index 0 should have the plugin id "alien4cloud-mock-paas-provider_2"
-#      And the location at index 1 should have the plugin id "alien4cloud-mock-paas-provider_3"
-#      And the location at index 2 should have the plugin id "alien4cloud-mock-paas-provider_1"
+  @reset
+  Scenario: Move a location modifier
+    When I create a location modifier with plugin id "alien4cloud-mock-paas-provider" and bean name "mock-anti-affinity-modifier" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I create a location modifier with plugin id "alien4cloud-mock-paas-provider" and bean name "mock-fake-modifier" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I create a location modifier with plugin id "alien4cloud-mock-paas-provider" and bean name "mock-anti-affinity-modifier" and phase "pre-policy-match" to the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    And I list location modifiers of the location "Thark location" of the orchestrator "Mount doom orchestrator"
+      Then I should receive a RestResponse with no error
+      And Response should contains 3 location modifier
+      And the location at index 0 should have the bean name "mock-anti-affinity-modifier"
+      And the location at index 1 should have the bean name "mock-fake-modifier"
+      And the location at index 2 should have the bean name "mock-anti-affinity-modifier"
+    When I move a location modifier from index 1 to index 0 for the location "Thark location" of the orchestrator "Mount doom orchestrator"
+      And I list location modifiers of the location "Thark location" of the orchestrator "Mount doom orchestrator"
+      Then I should receive a RestResponse with no error
+      And Response should contains 3 location modifier
+    And the location at index 0 should have the bean name "mock-fake-modifier"
+    And the location at index 1 should have the bean name "mock-anti-affinity-modifier"
+    And the location at index 2 should have the bean name "mock-anti-affinity-modifier"
 
   @reset
   Scenario: Move a location modifier with wrong index should failed
