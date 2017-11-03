@@ -93,6 +93,8 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
         Set<String> topologyNotMergedProps = Sets.newHashSet();
         // Merge properties from the topology node but prevent any override.
         replacingNode.setProperties(CollectionUtils.merge(replacedTopologyNode.getProperties(), replacingNode.getProperties(), true, topologyNotMergedProps));
+        // We need to keep tags (metadata) in the replaced node
+        replacingNode.setTags(replacedTopologyNode.getTags());
 
         processSpecificReplacement(replacingNode, replacedTopologyNode, topologyNotMergedProps);
     }
