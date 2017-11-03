@@ -140,9 +140,20 @@ public final class TopologyNavigationUtil {
      */
     public static Set<NodeTemplate> getTargetNodes(Topology topology, NodeTemplate nodeTemplate, String requirementName) {
         Set<NodeTemplate> result = Sets.newHashSet();
+        for (RelationshipTemplate relationshipTemplate : getTargetRelationships(nodeTemplate, requirementName)) {
+            result.add(topology.getNodeTemplates().get(relationshipTemplate.getTarget()));
+        }
+        return result;
+    }
+
+    /**
+     * Returns all the relationships wired since this this node template's requirement.
+     */
+    public static Set<RelationshipTemplate> getTargetRelationships(NodeTemplate nodeTemplate, String requirementName) {
+        Set<RelationshipTemplate> result = Sets.newHashSet();
         for (RelationshipTemplate relationshipTemplate : safe(nodeTemplate.getRelationships()).values()) {
             if (relationshipTemplate.getRequirementName().equals(requirementName)) {
-                result.add(topology.getNodeTemplates().get(relationshipTemplate.getTarget()));
+                result.add(relationshipTemplate);
             }
         }
         return result;

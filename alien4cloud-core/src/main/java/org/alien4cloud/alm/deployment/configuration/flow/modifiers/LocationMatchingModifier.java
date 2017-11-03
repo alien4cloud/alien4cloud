@@ -60,9 +60,10 @@ public class LocationMatchingModifier implements ITopologyModifier {
 
         // No errors from validation let's inject location topology modifiers if any.
         if (context.log().isValid()) {
-            List<ILocationMatch> locationMatches = (List<ILocationMatch>) context.getExecutionCache().get(FlowExecutionContext.LOCATION_MATCH_CACHE_KEY);
-            for (LocationModifierReference modifierReference : safe(locationMatches.get(0).getLocation().getModifiers())) {
-                injectLocationTopologyModfier(context, locationMatches.get(0).getLocation().getName(), modifierReference);
+            Map<String, Location> selectedLocations = (Map<String, Location>) context.getExecutionCache()
+                    .get(FlowExecutionContext.DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY);
+            for (LocationModifierReference modifierReference : safe(selectedLocations.values().iterator().next().getModifiers())) {
+                injectLocationTopologyModfier(context, selectedLocations.values().iterator().next().getName(), modifierReference);
             }
         }
     }
