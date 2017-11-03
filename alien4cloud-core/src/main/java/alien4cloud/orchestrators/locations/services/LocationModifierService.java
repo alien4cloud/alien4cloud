@@ -6,9 +6,11 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationModifierReference;
 import com.google.common.collect.Lists;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +35,8 @@ import static org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPh
 public class LocationModifierService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Inject
+    private PluginModifierRegistry pluginModifierRegistry;
 
     private static final List<String> validPhases = Arrays.asList(POST_LOCATION_MATCH, PRE_INJECT_INPUT, POST_INJECT_INPUT, PRE_POLICY_MATCH,POST_POLICY_MATCH,
             PRE_NODE_MATCH, POST_NODE_MATCH, PRE_MATCHED_POLICY_SETUP, POST_MATCHED_POLICY_SETUP, PRE_MATCHED_NODE_SETUP, POST_MATCHED_NODE_SETUP);
@@ -40,8 +44,8 @@ public class LocationModifierService {
     private void sort(Location location) {
         Collections.sort(location.getModifiers(), new Comparator<LocationModifierReference>() {
             @Override
-            public int compare(LocationModifierReference mofidier1, LocationModifierReference mofidier2) {
-                return validPhases.indexOf(mofidier1.getPhase()) - validPhases.indexOf(mofidier2.getPhase());
+            public int compare(LocationModifierReference modifier1, LocationModifierReference modifier2) {
+                return validPhases.indexOf(modifier1.getPhase()) - validPhases.indexOf(modifier2.getPhase());
             }
         });
     }
@@ -53,6 +57,7 @@ public class LocationModifierService {
      * @param locationModifierReference to add
      */
     public void add(Location location, LocationModifierReference locationModifierReference) {
+        pluginModifierRegistry.getPluginBean(locationModifierReference.getPluginId(), locationModifierReference.getBeanName());
         if (!validPhases.contains(locationModifierReference.getPhase())) {
             throw new InvalidArgumentException(locationModifierReference.getPhase() + " is not a valid phase for location matcher");
         }

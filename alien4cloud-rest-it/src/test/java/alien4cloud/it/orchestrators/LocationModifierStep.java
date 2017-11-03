@@ -4,13 +4,18 @@ import alien4cloud.it.Context;
 import alien4cloud.model.orchestrators.locations.LocationModifierReference;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
+import com.google.common.collect.Lists;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
 import org.junit.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LocationModifierStep {
+
+    private ArrayList<String> previousModifiersOrder;
+
     @When("^I create a location modifier with plugin id \"([^\"]*)\" and bean name \"([^\"]*)\" and phase \"([^\"]*)\" to the location \"([^\"]*)\" of the orchestrator \"([^\"]*)\"$")
     public void iCreateALocationModifierWithPluginIdAndBeanNameAndPhaseToTheLocationOfTheOrchestrator(String pluginId, String beanName, String phase, String locationName, String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
@@ -37,6 +42,20 @@ public class LocationModifierStep {
         Assert.assertEquals(count, response.getData().size());
     }
 
+    @And("^Save location modifier order$")
+    public void saveLocationModifierOrder() throws Throwable {
+        if (this.previousModifiersOrder == null) {
+            this.previousModifiersOrder = Lists.newArrayList();
+        } else {
+            this.previousModifiersOrder.clear();
+        }
+        RestResponse<List> response = JsonUtil.read(Context.getInstance().getRestResponse(), List.class);
+        for (Object obj : response.getData()) {
+            LocationModifierReference modifier = Context.getInstance().getJsonMapper().readValue(Context.getInstance().getJsonMapper().writeValueAsString(obj), LocationModifierReference.class);
+            this.previousModifiersOrder.add(modifier.toString());
+        }
+    }
+
     @And("^Response should contains a location modifier with plugin id \"([^\"]*)\" and bean name \"([^\"]*)\" and phase \"([^\"]*)\"$")
     public void responseShouldContainsALocationModifierWithPluginIdAndBeanNameAndPhase(String pluginId, String beanName, String phase) throws Throwable {
         RestResponse<List> response = JsonUtil.read(Context.getInstance().getRestResponse(), List.class);
@@ -59,12 +78,12 @@ public class LocationModifierStep {
         Context.getInstance().registerRestResponse(resp);
     }
 
-    @And("^the location at index (\\d+) should have the plugin id \"([^\"]*)\"$")
-    public void theLocationAtIndexShouldHaveThePluginId(int index, String pluginId) throws Throwable {
+    @And("^the location at index (\\d+) should have the phase \"([^\"]*)\"$")
+    public void theLocationAtIndexShouldHaveThePluginId(int index, String phase) throws Throwable {
         RestResponse<List> response = JsonUtil.read(Context.getInstance().getRestResponse(), List.class);
         Object obj = response.getData().get(index);
         LocationModifierReference modifier = Context.getInstance().getJsonMapper().readValue(Context.getInstance().getJsonMapper().writeValueAsString(obj), LocationModifierReference.class);
-        Assert.assertEquals(pluginId, modifier.getPluginId());
+        Assert.assertEquals(phase, modifier.getPhase());
     }
 
     @When("^I move a location modifier from index (\\d+) to index (\\d+) for the location \"([^\"]*)\" of the orchestrator \"([^\"]*)\"$")
