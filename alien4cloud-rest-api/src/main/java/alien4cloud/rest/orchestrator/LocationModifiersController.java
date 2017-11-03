@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -43,7 +44,7 @@ public class LocationModifiersController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> add(@ApiParam(value = "Id of the location", required = true) @PathVariable String locationId,
-            @ApiParam(value = "The location modifier to add", required = true) @RequestBody LocationModifierReference locationModifierReference) {
+            @ApiParam(value = "The location modifier to add", required = true) @Valid @RequestBody LocationModifierReference locationModifierReference) {
         Location location = locationService.getOrFail(locationId);
         locationModifierService.add(location, locationModifierReference);
         return RestResponseBuilder.<Void> builder().build();

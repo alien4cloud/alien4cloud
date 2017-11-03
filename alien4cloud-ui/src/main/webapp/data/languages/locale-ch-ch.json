@@ -892,7 +892,7 @@
     "ALIEN_MANAGED" : "A4C",
     "USER_MANAGED": "Manually",
     "BRANCH": "Branch",
-    "MANAGED_BY": "Managed by" 
+    "MANAGED_BY": "Managed by"
   },
   "GROUPS": {
     "AUTHORIZED": "被授权的组",
@@ -1031,7 +1031,14 @@
         "TYPE": "资源类型"
       },
       "SECURITY": "安全",
-      "SERVICES": "服务"
+      "SERVICES": "服务",
+      "MODIFIER": {
+        "PLUGIN": "Plugin id",
+        "PLUGIN_BEAN": "Plugin bean",
+        "PHASE": "Deployment phase",
+        "DROP": "Drop new modifier here or on the table above",
+        "INFO": "Location topology modifiers are pieces of code that will change a topology when assigned to this location. It may perform various things but should always respect the original topology contract. You can read more on topology modifiers and the deployment lifecycle here"
+      }
     },
     "NAV": {
       "ARTIFACTS": "工件",

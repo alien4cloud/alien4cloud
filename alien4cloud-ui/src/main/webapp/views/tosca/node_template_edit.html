@@ -15,7 +15,7 @@
               dependencies="dependencies"
               property-name="propEntry.key"
               property-value="propEntry.value"
-              editable = "canEditProperty(propEntry.key)"
+              editable="canEditProperty(propEntry.key)"
               on-save="updateProperty(propertyName, propertyValue)"
               condensed="condensed">
           </property-display>
@@ -63,7 +63,7 @@
                   dependencies="dependencies"
                   property-name="propertyEntry.key"
                   property-value="propertyEntry.value"
-                  editable = "canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
+                  editable="canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                   on-save="updateCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
                   condensed="condensed">
               </property-display>
@@ -81,7 +81,7 @@
             </label>
           </div>
           <div class="col-md-8">
-            <span ng-if = "isRelEditable()"
+            <span ng-if="isRelEditable()"
                   class="typeahead"
                   ng-click="switchLongTextChoice(true)"
                   editable-text="capabilitiesRelationshipTypes[capabilityEntry.key]"

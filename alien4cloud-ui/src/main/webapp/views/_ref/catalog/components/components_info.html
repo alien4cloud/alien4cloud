@@ -33,7 +33,7 @@
               </div>
               <div class="col-md-4">{{component.creationDate | date:'medium'}}</div>
             </div>
-            <div class="row" style="margin-top: 10px;">
+            <div class="row grp-margin">
               <div class="col-md-2">
                 <strong>{{'COMPONENTS.ARCHIVE_VERSION' | translate }}</strong>
               </div>
@@ -45,7 +45,7 @@
             </div>
 
             <!-- derived from -->
-            <div class="row" style="margin-top: 10px;">
+            <div class="row grp-margin">
               <div class="col-md-2">
                 <strong>{{'COMPONENTS.DERIVEDFROM' | translate }}</strong>
               </div>
@@ -200,12 +200,12 @@
                 </td>
                 <td>
                   <a class=" btn btn-success btn-xs  pull-right"
-                    id = "{{capability.id}}_flagRecommended"
+                    id="{{capability.id}}_flagRecommended"
                     uib-tooltip="{{'COMPONENTS.COMPONENT.RECOMMEND_MESSAGE' | translate}}" tooltip-placement="bottom" ng-click="recommendForThisCapability(capability.type)" ng-if="!isDefaultCapability && isManager">
                       &nbsp;&nbsp;<i class="fa fa-star" ></i>&nbsp;&nbsp;
                   </a>
                   <a class=" btn btn-danger btn-xs  pull-right"
-                    id = "{{capability.id}}_unflagRecommended"
+                    id="{{capability.id}}_unflagRecommended"
                     uib-tooltip="{{'COMPONENTS.COMPONENT.UNRECOMMEND_MESSAGE' | translate}}" tooltip-placement="bottom" ng-click="unflagAsDefaultForThisCapability(capability.type)" ng-if="isDefaultCapability && isManager">
                       &nbsp;&nbsp;<i class="fa fa-star-o"></i>&nbsp;&nbsp;
                   </a>

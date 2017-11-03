@@ -1,5 +1,5 @@
 <div ng-controller="AppsAuthorizationDirectiveCtrl">
-  <div class="row" style="margin-top: 10px;">
+  <div class="row grp-margin">
     <div class="col-md-4">
       <div class="input-group">
         <input type="text" class="form-control" placeholder="..." ng-model="searchText">
@@ -12,14 +12,14 @@
       <button class="pull-right btn btn-sm btn-success"
         alien-authorize-apps
         on-close="onModalClose(result)"
-        authorized-subjects = "authorizedEnvironmentsPerApplication"
+        authorized-subjects="authorizedEnvironmentsPerApplication"
         search-config-builder="searchConfigBuilder()"
         display-custom-search="displayCustomSearch">
         <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}
       </button>
     </div>
   </div>
-  <div class="row" style="margin-top: 10px;">
+  <div class="row grp-margin">
     <div class="col-md-12">
       <empty-place-holder
           data="authorizedEnvironmentsPerApplication">
@@ -58,7 +58,7 @@
               <button class="pull-left btn btn-xs btn-info"
                 alien-authorize-apps
                 on-close="onModalClose(result)"
-                authorized-subjects = "authorizedEnvironmentsPerApplication"
+                authorized-subjects="authorizedEnvironmentsPerApplication"
                 application="application.application"
                 display-custom-search="displayCustomSearch">
                 <i class="fa fa-edit"></i>

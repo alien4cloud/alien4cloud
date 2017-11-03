@@ -1063,10 +1063,18 @@
         "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés du template de la resource. Les propriétés définies sont immutable, les propriétés non définies pourront être définie par l'utilisateur avant le déploiement.",
         "DROP" : "Déposez des ressources ici ou dans le tableau au dessus",
         "PROVIDED" : "Type fourni par l'orchestrateur",
-        "TYPE" : "Type de ressources"
+        "TYPE" : "Type de ressources",
+        "INFO": "Les modificateurs de topologie sont des éléments de code executés avant le déploiement d'une topologie sur celle-ci permettant de la modifier. Ils peuvent effectuer différentes choses mais doivent respecter le contrat de la topologie initiale. Vous pouvez avoir plus d'informations sur les modificateurs de topologie ici"
       },
       "SECURITY" : "Sécurité",
-      "SERVICES" : "Services"
+      "SERVICES" : "Services",
+      "MODIFIER": {
+        "MODIFIER": "Modificateur de topology",
+        "PLUGIN": "Plugin id",
+        "PLUGIN_BEAN": "Plugin bean",
+        "PHASE": "Phase de déploiement",
+        "DROP": "Drop new modifier here or on the table above"
+      }
     },
     "NAV" : {
       "ARTIFACTS" : "Artefacts",

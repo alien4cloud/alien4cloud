@@ -3,7 +3,6 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
-  var angular = require('angular');
 
   require('scripts/common/services/alien_resource');
   require('scripts/orchestrators/controllers/orchestrator_new');
@@ -22,7 +21,7 @@ define(function (require) {
       priority: 301
     }
   });
- 
+
   states.forward('admin.orchestrators', 'admin.orchestrators.list');
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorsCtrl',
@@ -36,5 +35,4 @@ define(function (require) {
         });
       }
     ]);
-
 }); // define

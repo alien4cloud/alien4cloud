@@ -1,7 +1,7 @@
 <div class="meta-properties-display-div row grp-margin" ng-controller="MetaPropertiesCtrl">
   <div class="col-md-12" ng-init="collapseObj = {collapsed: false}" ng-if="_.isNotEmpty(properties)">
     <div id="toogle-meta-properties"
-      ng-if = "titled"
+      ng-if="titled"
       ng-class="{'clickable': collapsable }"
       ng-click="collapseObj.collapsed = !collapseObj.collapsed">
       <i class="pull-left fa" ng-if="collapsable"  ng-class="{'fa-caret-down' : !collapseObj.collapsed, 'fa-caret-right': collapseObj.collapsed}"></i>

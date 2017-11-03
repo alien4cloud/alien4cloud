@@ -76,9 +76,6 @@ define(function(require) {
           $scope.uiModel.locationDTO = location;
           $scope.context.location = location.location;
           $scope.context.locationResources = location.resources;
-          // $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
-          // $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
-          // $scope.context.policyTypes = _.values(location.resource.policyTypes);
         };
 
         $scope.deleteLocation = function(location){
