@@ -1,50 +1,47 @@
-<empty-place-holder data="context.locationResources.policyTypes">
-</empty-place-holder>
-<div ng-if="_.isNotEmpty(context.locationResources.policyTypes)">
-  <div class="btn-sm btn-group" uib-dropdown>
-    <button ng-disabled="_.isEmpty(context.selectedResourceTemplates)" id="multi-authorization" type="button" class="btn btn-default" uib-dropdown-toggle>
-      {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.AUTHORIZATIONS' | translate}} <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="btn-append-to-body">
-      <li role="menuitem">
-        <a alien-authorize-users
-           on-close="processUserAction('create', result)"
-           search-config-builder="buildSecuritySearchConfig('users')"
-           display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD' | translate}}</a></li>
-      <li role="menuitem">
-        <a alien-authorize-users
-           on-close="processUserAction('delete', result)"
-           search-config-builder="buildSecuritySearchConfig('users')"
-           display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.REVOKE' | translate}}</a></li>
-      <li class="divider"></li>
-      <li role="menuitem">
-        <a alien-authorize-groups
-           on-close="processGroupAction('create', result)"
-           search-config-builder="buildSecuritySearchConfig('groups')"
-           display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD' | translate}}</a></li>
-      <li role="menuitem">
-        <a alien-authorize-groups
-           on-close="processGroupAction('delete', result)"
-           search-config-builder="buildSecuritySearchConfig('groups')"
-           display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.REVOKE' | translate}}</a></li>
-      <li class="divider"></li>
-      <li role="menuitem">
-        <a alien-authorize-apps
-           on-close="processAppsAction('grant', result)"
-           search-config-builder="buildSecuritySearchConfig('applications')"
-           display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}</a></li>
-      <li role="menuitem">
-        <a alien-authorize-apps
-           on-close="processAppsAction('revoke', result)"
-           search-config-builder="buildSecuritySearchConfig('applications')"
-           display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.REVOKE' | translate}}</a></li>
-    </ul>
-  </div>
-
-  <orchestrator-location-policies
-    resources-types-map="context.locationResources.policyTypes"
-    resources-templates="context.locationResources.policyTemplates"
-    context="context"
-    show-multi-select="true">
-  </orchestrator-location-policies>
+<div class="btn-sm btn-group" uib-dropdown>
+  <button ng-disabled="_.isEmpty(context.selectedResourceTemplates)" id="multi-authorization" type="button" class="btn btn-default" uib-dropdown-toggle>
+    {{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.AUTHORIZATIONS' | translate}} <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="btn-append-to-body">
+    <li role="menuitem">
+      <a alien-authorize-users
+         on-close="processUserAction('create', result)"
+         search-config-builder="buildSecuritySearchConfig('users')"
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD' | translate}}</a></li>
+    <li role="menuitem">
+      <a alien-authorize-users
+         on-close="processUserAction('delete', result)"
+         search-config-builder="buildSecuritySearchConfig('users')"
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.REVOKE' | translate}}</a></li>
+    <li class="divider"></li>
+    <li role="menuitem">
+      <a alien-authorize-groups
+         on-close="processGroupAction('create', result)"
+         search-config-builder="buildSecuritySearchConfig('groups')"
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD' | translate}}</a></li>
+    <li role="menuitem">
+      <a alien-authorize-groups
+         on-close="processGroupAction('delete', result)"
+         search-config-builder="buildSecuritySearchConfig('groups')"
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.REVOKE' | translate}}</a></li>
+    <li class="divider"></li>
+    <li role="menuitem">
+      <a alien-authorize-apps
+         on-close="processAppsAction('grant', result)"
+         search-config-builder="buildSecuritySearchConfig('applications')"
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD' | translate}}</a></li>
+    <li role="menuitem">
+      <a alien-authorize-apps
+         on-close="processAppsAction('revoke', result)"
+         search-config-builder="buildSecuritySearchConfig('applications')"
+         display-custom-search="true">{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.REVOKE' | translate}}</a></li>
+  </ul>
 </div>
+
+<orchestrator-location-policies
+  resources-types-map="context.locationResources.policyTypes"
+  resources-templates="context.locationResources.policyTemplates"
+  context="context"
+  show-catalog="true"
+  show-multi-select="true">
+</orchestrator-location-policies>
