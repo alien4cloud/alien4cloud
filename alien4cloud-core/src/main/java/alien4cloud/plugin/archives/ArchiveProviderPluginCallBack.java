@@ -6,14 +6,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.Csar;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,11 +20,9 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARSource;
-import alien4cloud.orchestrators.locations.services.PluginArchiveIndexer;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
 import alien4cloud.plugin.IPluginLoadingCallback;
 import alien4cloud.plugin.exception.PluginArchiveException;
@@ -41,18 +37,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class ArchiveProviderPluginCallBack implements IPluginLoadingCallback {
-
-    @Resource
-    private PluginArchiveIndexer pluginArchiveIndexer;
-
     @Inject
     private CsarService csarService;
     @Inject
     private ArchiveIndexer archiveIndexer;
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
-    @Inject
-    private ApplicationContext applicationContext;
 
     private void indexArchives(Collection<PluginArchive> archives) {
         for (PluginArchive pluginArchive : safe(archives)) {
@@ -88,7 +76,6 @@ public class ArchiveProviderPluginCallBack implements IPluginLoadingCallback {
     @Override
     @SneakyThrows(JsonProcessingException.class)
     public synchronized void onPluginClosed(ManagedPlugin managedPlugin) {
-
         Map<String, IArchiveProviderPlugin> archiveProviderBeans = managedPlugin.getPluginContext().getBeansOfType(IArchiveProviderPlugin.class);
         for (Map.Entry<String, IArchiveProviderPlugin> archiveProvider : safe(archiveProviderBeans).entrySet()) {
             try {
@@ -116,5 +103,4 @@ public class ArchiveProviderPluginCallBack implements IPluginLoadingCallback {
         }
         return usages.isEmpty() ? null : usages;
     }
-
 }
