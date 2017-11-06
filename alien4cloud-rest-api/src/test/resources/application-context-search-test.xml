@@ -37,4 +37,5 @@
     <mockito:mock id="wstemplate" class="org.springframework.messaging.simp.SimpMessagingTemplate"/>
 
     <mockito:mock id="requestMappingHandlerMapping" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+    <mockito:mock id="pluginmodifierregistry" class="org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry"/>
 </beans>
