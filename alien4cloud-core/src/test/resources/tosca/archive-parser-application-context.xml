@@ -42,4 +42,5 @@
 
   <mockito:mock id="group-dao" class="alien4cloud.security.groups.IAlienGroupDao"/>
   <mockito:mock id="user-dao" class="alien4cloud.security.users.IAlienUserDao"/>
+  <mockito:mock id="pluginmodifierregistry" class="org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry"/>
 </beans>
