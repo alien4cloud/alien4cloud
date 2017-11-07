@@ -6,8 +6,10 @@ define(function (require) {
   var _ = require('lodash');
 
   modules.get('a4c-catalog', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('a4cSearchTopologyCtrl',
-    ['$scope', '$translate', 'searchServiceFactory', '$alresource',
-    function($scope, $translate, searchServiceFactory, $alresource) {
+    ['$scope', '$translate', 'searchServiceFactory', '$alresource', 'toscaService',
+    function($scope, $translate, searchServiceFactory, $alresource, toscaService) {
+      //get the icon
+      $scope.getIcon = toscaService.getIcon;
 
       $scope.queryManager = {
         labelPrefix: 'TOPOLOGY.',
