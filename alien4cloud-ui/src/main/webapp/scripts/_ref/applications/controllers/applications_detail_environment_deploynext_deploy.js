@@ -49,6 +49,7 @@ define(function (require) {
           // the deployed version is the current one
           $scope.environment.deployedVersion = $scope.environment.currentVersionName;
           $scope.setEnvironment($scope.environment);
+          $state.go('applications.detail.environment.deploycurrent');
         }, function() {
           $scope.reloadEnvironment();
         });
