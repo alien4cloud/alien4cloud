@@ -4,8 +4,8 @@
     <div id="topology" class="topology-column">
       <div class="topology topology-column-box" alien-droppable drag-data="" drag-on-drop="nodes.onDragged(data)" ng-init="visual = true;">
         <topology-rendering ng-if="topology" dimensions="visualDimensions" topology="topology"
-                            select-callback="editorCallback.selectNodeTemplate(newSelectedName, oldSelectedName)"
-                            add-relationship-callback="editorCallback.addRelationship(sourceId, requirementName, requirementType, targetId, capabilityName, relationship)"
+                            callbacks="editorCallback"
+                            graph-control="graphControl"
                             runtime="false"></topology-rendering>
       </div>
     </div>
@@ -27,7 +27,7 @@
     <div id="catalog-box" ng-show="displays.catalog.active" class="topology-column" style="width: {{displays.catalog.size}}px;">
       <div class="topology-column-box">
         <resizable-bar
-          id = "catalog-box-handler"
+          id="catalog-box-handler"
           classes="topology-column-menu-left">
         </resizable-bar>
         <div class="topology-column-content" ng-if="displays.catalog.active">
@@ -47,7 +47,7 @@
                 default-filters="defaultFilters"
                 height-info="dimensions"
                 static-facets="staticFacets"
-                badges = "badges">
+                badges="badges">
               </a4c-component-catalog>
           </div>
         </div>

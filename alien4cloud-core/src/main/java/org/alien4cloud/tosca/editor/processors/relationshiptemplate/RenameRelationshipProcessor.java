@@ -2,8 +2,10 @@ package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.RenameRelationshipOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.AlreadyExistException;
@@ -17,12 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class RenameRelationshipProcessor extends AbstractRelationshipProcessor<RenameRelationshipOperation> {
     @Override
-    protected void processRelationshipOperation(RenameRelationshipOperation operation, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate) {
+    protected void processRelationshipOperation(Csar csar, Topology topology, RenameRelationshipOperation operation, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate) {
         if (operation.getNewRelationshipName() == null || operation.getNewRelationshipName().isEmpty()) {
             throw new InvalidNameException("relationshipName", operation.getNewRelationshipName(), "Not null or empty");
         }
 
-        String topologyId = EditionContextManager.getTopology().getId();
+        String topologyId = topology.getId();
 
         // check that the node has not another relation with this name.
         if (nodeTemplate.getRelationships().keySet().contains(operation.getNewRelationshipName())) {

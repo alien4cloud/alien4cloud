@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.RenameNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
@@ -27,15 +28,13 @@ public class RenameNodeProcessor implements IEditorOperationProcessor<RenameNode
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
-    public void process(RenameNodeOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-
+    public void process(Csar csar, Topology topology, RenameNodeOperation operation) {
         NameValidationUtils.validateNodeName(operation.getNewName());
         AlienUtils.failIfExists(topology.getNodeTemplates(), operation.getNewName(),
                 "A node template with the given name {} already exists in the topology {}.", operation.getNodeName(), topology.getId());
 
         log.debug("Renaming the Node template [ {} ] with [ {} ] in the topology [ {} ] .", operation.getNodeName(), operation.getNewName(), topology.getId());
         TopologyUtils.renameNodeTemplate(topology, operation.getNodeName(), operation.getNewName());
-        workflowBuilderService.renameNode(topology, EditionContextManager.getCsar(), operation.getNodeName(), operation.getNewName());
+        workflowBuilderService.renameNode(topology, csar, operation.getNodeName(), operation.getNewName());
     }
 }

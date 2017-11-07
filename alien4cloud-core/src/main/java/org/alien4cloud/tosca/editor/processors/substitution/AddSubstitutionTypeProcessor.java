@@ -7,6 +7,7 @@ import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -25,8 +26,7 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
     private TopologyService topologyService;
 
     @Override
-    public void process(AddSubstitutionTypeOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, AddSubstitutionTypeOperation operation) {
 
         if (topology.getSubstitutionMapping() == null) {
             topology.setSubstitutionMapping(new SubstitutionMapping());

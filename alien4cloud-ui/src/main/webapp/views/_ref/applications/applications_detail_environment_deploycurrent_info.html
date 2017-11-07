@@ -21,18 +21,18 @@
       <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
         <i class="fa fa-cog"></i> Reminder of current deployment
       </div>
-      <div class = "row" style="margin-top: 10px">
-        <div class = "col-md-6">
-          <span class = "detail-term"> {{'APPLICATIONS.APPLICATION' | translate }} : </span> <span class = "inline-block">{{application.name}}</span>
+      <div class="row grp-margin">
+        <div class="col-md-6">
+          <span class="detail-term"> {{'APPLICATIONS.APPLICATION' | translate }} : </span> <span class="inline-block">{{application.name}}</span>
         </div>
-        <div class = "col-md-6">
-          <span class = "detail-term"> {{'COMMON.VERSION' | translate }} : </span> <span class = "inline-block">{{topology.topology.archiveVersion}}</span>
+        <div class="col-md-6">
+          <span class="detail-term"> {{'COMMON.VERSION' | translate }} : </span> <span class="inline-block">{{topology.topology.archiveVersion}}</span>
         </div>
-        <div class = "col-md-6">
-          <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate }} : </span> <span class = "inline-block">{{environment.name}}</span>
+        <div class="col-md-6">
+          <span class="detail-term"> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate }} : </span> <span class="inline-block">{{environment.name}}</span>
         </div>
-        <div class = "col-md-6">
-          <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate }} : </span> <span class = "inline-block">{{environment.environmentType}}</span>
+        <div class="col-md-6">
+          <span class="detail-term"> {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate }} : </span> <span class="inline-block">{{environment.environmentType}}</span>
         </div>
 
         <div class="col-md-12" style="margin-top: 20px;">
@@ -41,12 +41,12 @@
           </div>
           <div class="content-body" style="overflow: auto; max-height: 300px;">
             <table class="table table-condensed" id="locationResources">
-              <tr ng-repeat="(key, value) in locationResources">
+              <tr ng-repeat="(key, value) in topology.topology.substitutedNodes">
                 <td>
                   {{key}}
                 </td>
                 <td>
-                  ( <i>{{value.type}}</i> )
+                  ( <i>{{topology.topology.nodeTemplates[key].type}}</i> )
                 </td>
               </tr>
             </table>
@@ -60,14 +60,14 @@
     <div class=col-md-6>
         <!-- Description -->
         <div class="col-md-12" style="margin-top: 20px;">
-            <div class="row" style="margin-top: 10px;">
+            <div class="row grp-margin">
                 <div class="col-md-4">
                     <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DEPLOYED_AT' | translate }}</strong>
                 </div>
                 <div class="col-md-8">{{ activeDeployment.startDate | date:'medium' || 'loading'}}</div>
             </div>
 
-            <div class="row" style="margin-top: 10px;">
+            <div class="row grp-margin">
                 <div class="col-md-4">
                     <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DURATION' | translate }}</strong>
                 </div>

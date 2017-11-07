@@ -100,15 +100,15 @@
         </span>
       </span>
 
-      <span ng-switch-when="date" ng-init = "opened={}">
+      <span ng-switch-when="date" ng-init="opened={}">
         <!-- Case : Timestamp (date) -->
         <a href="#" editable-bsdate="definitionObject.uiValue" e-datepicker-popup="dd-MMMM-yyyy" onbeforesave="propertySave($data)" ng-if="editable"
           onshow="opened.do = true"
           buttons="no"
-          blur = "submit"
+          blur="submit"
           e-is-open="opened.do"
           e-ng-click="opened.do = !opened.do"
-          e-class = "input-sm"
+          e-class="input-sm"
           e-show-calendar-button="false">
           {{definitionObject.uiValue | date:"dd/MM/yyyy"}} <i class="fa fa-pencil-square-o"></i>
         </a>

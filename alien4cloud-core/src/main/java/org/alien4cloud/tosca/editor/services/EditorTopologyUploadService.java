@@ -1,10 +1,12 @@
 package org.alien4cloud.tosca.editor.services;
 
-import java.nio.file.Path;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.tosca.parser.ToscaArchiveParser;
 import org.alien4cloud.tosca.catalog.ArchiveParserUtil;
 import org.alien4cloud.tosca.catalog.IArchivePostProcessor;
 import org.alien4cloud.tosca.editor.EditionContextManager;
@@ -13,16 +15,15 @@ import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.tosca.parser.ToscaArchiveParser;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.nio.file.Path;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Process the upload of a topology in the context of the editor.
@@ -112,6 +113,9 @@ public class EditorTopologyUploadService {
                         return ToscaContext.get(clazz, id);
                     }
                 });
+        for (Workflow wf : safe(topologyContext.getTopology().getWorkflows()).values()) {
+            wf.setHasCustomModifications(true);
+        }
         workflowBuilderService.initWorkflows(topologyContext);
 
         // update the topology in the edition context with the new one

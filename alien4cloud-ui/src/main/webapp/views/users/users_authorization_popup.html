@@ -4,7 +4,7 @@
   </div>
   <div class="modal-body">
     <div>
-      <div style="margin-top: 10px;">
+      <div class="grp-margin">
         <div class="form-horizontal">
           <form role="search" ng-submit="search($event)">
             <div class="input-group">
@@ -24,7 +24,7 @@
           </a>
         </div>
       </div>
-      <div class="row" style="margin-top: 10px;">
+      <div class="row grp-margin">
         <div class="col-md-12">
           <empty-place-holder ng-if="customSearchActive"
               for="'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.USERS.ADD_POPUP.EMPTY_PLACEHOLDER'"
@@ -50,13 +50,13 @@
               </tr>
               </thead>
               <tbody>
-              <tr ng-repeat="user in searchedData.data" ng-init = "isAuthorized = isAuthorized(user)" ng-class="{'option-selected text-muted': isAuthorized}">
+              <tr ng-repeat="user in searchedData.data" ng-init="isAuthorized = isAuthorized(user)" ng-class="{'option-selected text-muted': isAuthorized}">
                 <td class="text-center">
-                  <a ng-if = "!isAuthorized" ng-click="toggleSelection(user)">
+                  <a ng-if="!isAuthorized" ng-click="toggleSelection(user)">
                     <i class="fa fa-fw"
                        ng-class="{'fa-check-square-o' : isSelected(user),  'fa-square-o': !isSelected(user)}"></i>
                   </a>
-                  <i ng-if = "isAuthorized" class="fa fa-fw fa-check-square-o"></i>
+                  <i ng-if="isAuthorized" class="fa fa-fw fa-check-square-o"></i>
                 </td>
                 <td>
                   <i class="fa fa-user fa-2x" ng-if="!user.imageId"></i>
@@ -74,7 +74,7 @@
       </div>
     </div>
   </div>
-  <div class="modal-footer" style="margin-top: 10px;">
+  <div class="modal-footer grp-margin">
     <a ng-disabled="selectedSubjects.length === 0" class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}</a>
     <a class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</a>
   </div>

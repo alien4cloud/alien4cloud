@@ -18,7 +18,7 @@ public class PluginModifierRegistry extends AbstractPluginLinker<ITopologyModifi
     @Override
     public List<PluginUsage> usage(String pluginId) {
         // FIXME look for policies that leverages ITopologyModifiers as implementations
-        // And eventually locations
+        // FIXME look for locations that leverages the modifier in their modifier list
         return Lists.newArrayList();
     }
 }

@@ -86,10 +86,13 @@ public class PluginController {
             return RestResponseBuilder.<Void> builder().error(
                     new RestError(RestErrorCode.MISSING_PLUGIN_DESCRIPTOR_FILE_EXCEPTION.getCode(), "Your plugin don't have the META-INF/plugin.yml file."))
                     .build();
-        } catch (IOException | PluginLoadingException e) {
+        } catch (IOException e) {
             log.error("Unexpected IO error on plugin upload.", e);
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.INDEXING_SERVICE_ERROR.getCode(),
-                    "A technical issue occured during the plugin upload <" + e.getMessage() + ">.")).build();
+                    "A technical issue occurred during the plugin upload <" + e.getMessage() + ">.")).build();
+        } catch (PluginLoadingException e) {
+            log.error("Fail to enable and load the plugin. The plugin will remain disabled", e);
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.ENABLE_PLUGIN_ERROR.getCode(), e.getMessage())).build();
         } finally {
             if (pluginPath != null) {
                 try {

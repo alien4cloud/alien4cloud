@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
@@ -43,8 +44,7 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
-    protected void processNodeOperation(DeleteNodeOperation operation, NodeTemplate template) {
-        Topology topology = EditionContextManager.getTopology();
+    protected void processNodeOperation(Csar csar, Topology topology, DeleteNodeOperation operation, NodeTemplate template) {
         Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
 
         // Prepare to cleanup files (store artifacts reference in the operation and process deletion on before commit operation).
@@ -53,7 +53,7 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
 
         List<String> typesTobeUnloaded = Lists.newArrayList();
         // Clean up dependencies of the topology
-        removeRelationShipReferences(operation.getNodeName(), topology, typesTobeUnloaded);
+        removeRelationShipReferences(operation.getNodeName(), csar, topology, typesTobeUnloaded);
         topologyService.unloadType(topology, typesTobeUnloaded.toArray(new String[typesTobeUnloaded.size()]));
 
         // Cleanup from policies
@@ -69,7 +69,7 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
         // group members removal
         TopologyUtils.updateGroupMembers(topology, template, operation.getNodeName(), null);
         // update the workflows
-        workflowBuilderService.removeNode(topology, EditionContextManager.getCsar(), operation.getNodeName());
+        workflowBuilderService.removeNode(topology, csar, operation.getNodeName());
         log.debug("Removed node template [ {} ] from the topology [ {} ] .", operation.getNodeName(), topology.getId());
     }
 
@@ -108,7 +108,7 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
      * @param topology The topology in which to remove the references.
      * @param typesTobeUnloaded List of types to remove from the topology (when relationships are removed)
      */
-    private void removeRelationShipReferences(String removedNode, Topology topology, List<String> typesTobeUnloaded) {
+    private void removeRelationShipReferences(String removedNode, Csar csar, Topology topology, List<String> typesTobeUnloaded) {
         List<String> relationshipsToRemove = Lists.newArrayList();
 
         for (NodeTemplate nodeTemplate : safe(topology.getNodeTemplates()).values()) {
@@ -116,7 +116,7 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
                 // remove all relationships
                 for (Entry<String, RelationshipTemplate> relationshipTemplateEntry : safe(nodeTemplate.getRelationships()).entrySet()) {
                     typesTobeUnloaded.add(relationshipTemplateEntry.getValue().getType());
-                    workflowBuilderService.removeRelationship(topology, EditionContextManager.getCsar(), nodeTemplate.getName(),
+                    workflowBuilderService.removeRelationship(topology, csar, nodeTemplate.getName(),
                             relationshipTemplateEntry.getKey(), relationshipTemplateEntry.getValue());
                 }
             } else {
@@ -125,7 +125,7 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
                     if (removedNode.equals(relationshipTemplate.getTarget())) {
                         relationshipsToRemove.add(relationshipTemplate.getName());
                         typesTobeUnloaded.add(relationshipTemplate.getType());
-                        workflowBuilderService.removeRelationship(topology, EditionContextManager.getCsar(), nodeTemplate.getName(),
+                        workflowBuilderService.removeRelationship(topology, csar, nodeTemplate.getName(),
                                 relationshipTemplate.getName(), relationshipTemplate);
                     }
                 }

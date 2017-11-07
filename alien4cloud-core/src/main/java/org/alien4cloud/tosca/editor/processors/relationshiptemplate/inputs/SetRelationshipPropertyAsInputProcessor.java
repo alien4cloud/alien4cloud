@@ -7,6 +7,7 @@ import java.util.Arrays;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.inputs.SetRelationshipPropertyAsInputOperation;
 import org.alien4cloud.tosca.editor.processors.relationshiptemplate.AbstractRelationshipProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -26,9 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class SetRelationshipPropertyAsInputProcessor extends AbstractRelationshipProcessor<SetRelationshipPropertyAsInputOperation> {
     @Override
-    protected void processRelationshipOperation(SetRelationshipPropertyAsInputOperation operation, NodeTemplate nodeTemplate,
-            RelationshipTemplate relationshipTemplate) {
-        Topology topology = EditionContextManager.getTopology();
+    protected void processRelationshipOperation(Csar csar, Topology topology, SetRelationshipPropertyAsInputOperation operation, NodeTemplate nodeTemplate,
+                                                RelationshipTemplate relationshipTemplate) {
         PropertyDefinition inputPropertyDefinition = getOrFail(topology.getInputs(), operation.getInputName(), "Input {} not found in topology",
                 operation.getInputName());
 
@@ -46,6 +46,6 @@ public class SetRelationshipPropertyAsInputProcessor extends AbstractRelationshi
         relationshipTemplate.getProperties().put(operation.getPropertyName(), getInput);
 
         log.debug("Associate the property [ {} ] of relationship template [ {} ] of node [ {} ] to an input of the topology [ {} ].", operation.getPropertyName(),
-                operation.getRelationshipName(), operation.getNodeName(), EditionContextManager.getTopology().getId());
+                operation.getRelationshipName(), operation.getNodeName(), topology.getId());
     }
 }

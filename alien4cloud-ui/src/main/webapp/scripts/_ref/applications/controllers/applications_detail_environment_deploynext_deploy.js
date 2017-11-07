@@ -26,8 +26,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextDeployCtrl',
-    ['$scope', '$alresource', '$translate', 'toaster', '$uibModal', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state', 'locationsMatchingServices',
-    function ($scope, $alresource, $translate, toaster, $uibModal, deploymentTopologyServices, applicationServices, breadcrumbsService, $state, locationsMatchingServices) {
+    ['$scope', '$alresource', '$translate', 'toaster', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state',
+    function ($scope, $alresource, $translate, toaster, deploymentTopologyServices, applicationServices, breadcrumbsService, $state) {
       breadcrumbsService.putConfig({
         state : 'applications.detail.environment.deploynext.deploy',
         text: function(){
@@ -36,13 +36,6 @@ define(function (require) {
         onClick: function(){
           $state.go('applications.detail.environment.deploynext.deploy');
         }
-      });
-
-      $scope.$watch('deploymentContext.deploymentTopologyDTO', function() {
-        locationsMatchingServices.getLocationsMatches({topologyId: $scope.deploymentTopologyDTO.topology.id, environmentId: $scope.environment.id}, function(result) {
-          locationsMatchingServices.processLocationMatches($scope, result.data);
-          $scope.orchestrator = _.get(_.find($scope.locationMatches, {orchestrator: {id: $scope.deploymentTopologyDTO.topology.orchestratorId}}), 'orchestrator');
-        });
       });
 
       $scope.doDeploy = function() {
@@ -139,8 +132,8 @@ define(function (require) {
       // - the current selectedlocation is the same as the one of the deployed topology
       $scope.isUpdatable = function() {
         return _.includes(['DEPLOYED', 'UPDATED'], $scope.environment.status) &&
-               _.definedPath($scope.deploymentContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') &&
-               _.get($scope.deploymentContext, 'deploymentTopologyDTO.locationPolicies._A4C_ALL') === _.get($scope.deployedContext, 'dto.topology.locationGroups._A4C_ALL.policies[0].locationId');
+               _.definedPath($scope.deploymentTopologyDTO, 'locationPolicies._A4C_ALL') &&
+               _.get($scope.deploymentTopologyDTO, 'locationPolicies._A4C_ALL') === _.get($scope.deployedTopology, 'topology.locationGroups._A4C_ALL.policies[0].locationId');
       };
 
       $scope.$watch('deploymentTopologyDTO.topology.orchestratorId', function(newValue){

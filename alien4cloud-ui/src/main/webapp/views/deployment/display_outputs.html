@@ -1,5 +1,5 @@
 <div class="{{classes}}" ng-class="{'col-md-12': !classes}">
-  <div class="content-head" ng-class = "{'clickable': collapsable}" ng-click=" collapsable && (isoutputsCollapsed = !isoutputsCollapsed)">
+  <div class="content-head" ng-class="{'clickable': collapsable}" ng-click=" collapsable && (isoutputsCollapsed = !isoutputsCollapsed)">
     <span>
       <i class="fa fa-sign-out"> </i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}
     </span>
@@ -18,18 +18,19 @@
         </td>
         <td>
           <ul>
-            <!-- Output properties list -->
+            <!--Nodes Output properties list -->
             <li ng-if="outputPropertiesSize > 0 && outputPropertiesValue[nodeId]">
               <strong>{{ 'COMMON.PROPERTIES' | translate }}</strong>
               <ul>
                 <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
                   {{outputPropertyKey}} :
-                  <span class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="outputPropertyValue.value | linky:'_blank'"></span>
+                  <span ng-if="outputPropertyValue.value" class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="outputPropertyValue.value | linky:'_blank'"></span>
+                  <em class="text-primary" ng-if="!outputPropertyValue.value">N/A</em>
                 </li>
               </ul>
             </li>
 
-            <!-- Properties output properties list -->
+            <!-- capabilities output properties list -->
             <li ng-repeat="(capabilityId, outputCapabilityPropertyValue) in outputCapabilityPropertiesValue[nodeId]">
               <strong>{{ 'COMMON.CAPABILITIES' | translate }} :</strong>
               <ul>
@@ -39,7 +40,8 @@
                       <ul>
                         <li ng-repeat="(propertyId, propertyValue) in outputCapabilityPropertiesValue[nodeId][capabilityId]">
                           {{propertyId}} :
-                          <span class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="propertyValue.value | linky:'_blank'"></span>
+                          <span ng-if="propertyValue.value" class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="propertyValue.value | linky:'_blank'"></span>
+                          <em class="text-primary" ng-if="!propertyValue.value">N/A</em>
                         </li>
                       </ul>
                     </li>
@@ -57,7 +59,8 @@
                   <ul>
                     <li ng-repeat="(outputAttributeKey, outputAttributeValue) in instanceAttributes">
                       {{outputAttributeKey}} :
-                      <span class="text-primary" id="attribute-{{nodeId}}-{{instanceId}}-{{outputAttributeKey}}" ng-bind-html="outputAttributeValue | linky:'_blank'"></span>
+                      <span ng-if="outputAttributeValue" class="text-primary" id="attribute-{{nodeId}}-{{instanceId}}-{{outputAttributeKey}}" ng-bind-html="outputAttributeValue | linky:'_blank'"></span>
+                      <em class="text-primary" ng-if="!outputAttributeValue">N/A</em>
                     </li>
                   </ul>
                 </li>

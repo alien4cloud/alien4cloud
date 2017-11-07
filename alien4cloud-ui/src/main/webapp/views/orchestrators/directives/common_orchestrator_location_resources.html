@@ -1,8 +1,8 @@
-<div class="row" style="margin-top: 10px">
+<div class="row grp-margin">
   <div class="col-md-6">
     <div class="drop-container" alien-droppable drag-on-drop="addResourceTemplate(data)">
       <empty-place-holder data="resourcesTemplates"></empty-place-holder>
-      <table ng-if = "resourcesTemplates.length > 0" class="table table-hover">
+      <table ng-if="resourcesTemplates.length > 0" class="table table-hover">
         <thead>
           <tr>
             <th ng-if="showMultiSelect">
@@ -110,6 +110,7 @@
           {{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate }}
         </uib-tab-heading>
         <ul class="list-group" style="overflow: auto; height: {{ dimensions.height + 'px' }};">
+          <empty-place-holder class="center" data="favorites"></empty-place-holder>
           <li class="list-group-item media clickable-media favorite"
               ng-repeat="resource in favorites | orderBy : ['-provided', 'elementId']"
               alien-draggable drag-enabled="true" drag-data="resource">

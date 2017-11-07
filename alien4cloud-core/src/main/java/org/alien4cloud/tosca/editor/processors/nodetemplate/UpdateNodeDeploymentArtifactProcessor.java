@@ -6,6 +6,7 @@ import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodeDeploymentArtifactOperation;
 import org.alien4cloud.tosca.editor.processors.FileProcessorHelper;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
@@ -22,9 +23,7 @@ import alien4cloud.topology.TopologyUtils;
 @Component
 public class UpdateNodeDeploymentArtifactProcessor implements IEditorOperationProcessor<UpdateNodeDeploymentArtifactOperation> {
     @Override
-    public void process(UpdateNodeDeploymentArtifactOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-
+    public void process(Csar csar, Topology topology, UpdateNodeDeploymentArtifactOperation operation) {
         // Get the node template's artifacts to update
         Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);

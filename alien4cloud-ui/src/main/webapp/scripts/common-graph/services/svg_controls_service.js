@@ -11,7 +11,7 @@ define(function (require) {
       *
       * @param containerElement Container element is the element that must contains the svg element.
       */
-      function SvgControls (svgElement, toolbarElement) {
+      function SvgControls (svgElement, toolbarElement, graphControl) {
         this.moveStep = 50; // px shift on move
 
         var instance = this;
@@ -85,6 +85,15 @@ define(function (require) {
             function() {
               self.svgGroup.attr('transform', 'translate(' + d3.event.translate + ')' + 'scale(' + d3.event.scale + ')');
             });
+        if(_.defined(graphControl)) {
+          graphControl.toRealCoords = function(coords) {
+            var translate = instance.zoom.translate();
+            return {
+              x: (coords.x - translate[0]) / instance.zoom.scale(),
+              y: (coords.y - translate[1]) / instance.zoom.scale()
+            };
+          };
+        }
         svgElement.call(this.zoom);
       }
 
@@ -116,6 +125,7 @@ define(function (require) {
           }
           this.zoom.scale(scale);
           this.zoom.translate([x, y]);
+
           this.zoom.event(this.svgGroup);
         },
 
@@ -164,8 +174,8 @@ define(function (require) {
       };
 
       return {
-        create: function(svgElement, toolbarElement) {
-          return new SvgControls(svgElement, toolbarElement);
+        create: function(svgElement, toolbarElement, graphControl) {
+          return new SvgControls(svgElement, toolbarElement, graphControl);
         }
       };
     } // function

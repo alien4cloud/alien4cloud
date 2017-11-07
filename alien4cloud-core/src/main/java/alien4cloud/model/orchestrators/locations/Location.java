@@ -3,6 +3,7 @@ package alien4cloud.model.orchestrators.locations;
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,6 +62,8 @@ public class Location extends AbstractSecurityEnabledResource implements IMetaPr
 
     @StringField(indexType = IndexType.analyzed, includeInAll = true)
     private Map<String, String> metaProperties;
+
+    private List<LocationModifierReference> modifiers;
 
     private Date creationDate;
 

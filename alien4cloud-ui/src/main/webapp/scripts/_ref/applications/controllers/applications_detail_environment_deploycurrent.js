@@ -3,6 +3,7 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
+  var _ = require('lodash');
 
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_info');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_runtimeeditor');
@@ -27,9 +28,26 @@ define(function (require) {
   states.forward('applications.detail.environment.deploycurrent', 'applications.detail.environment.deploycurrent.info');
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentCtrl',
-    ['$scope', 'menu', 'deploymentServices', 'topologyJsonProcessor', 'applicationServices', '$uibModal', 'a4cRuntimeEventService', '$state',
-      function ($scope, menu, deploymentServices, topologyJsonProcessor, applicationServices, $uibModal, a4cRuntimeEventService, $state) {
+    ['$scope', 'menu', 'deploymentServices', 'topologyJsonProcessor', 'applicationServices', '$uibModal', 'a4cRuntimeEventService', '$state', '$timeout',
+      function ($scope, menu, deploymentServices, topologyJsonProcessor, applicationServices, $uibModal, a4cRuntimeEventService, $state, $timeout) {
         $scope.menu = menu;
+
+        function exitIfUndeployed(){
+          if ($scope.environment.status === 'UNDEPLOYED') {
+            $state.go('applications.detail.environment.deploynext');
+            return true;
+          }
+        }
+
+        // We should not process any further if the env is undeployed
+        if (exitIfUndeployed()) {
+          return;
+        }
+
+        // Add watcher to switch back to 'deploy next' when undeployed completed
+        $scope.$watch('environment', function () {
+          exitIfUndeployed();
+        }, true);
 
         // register for deployment events.
         var pageStateId = $state.current.name;
@@ -49,6 +67,17 @@ define(function (require) {
           });
         };
 
+        function refreshInstancesInfos() {
+          applicationServices.runtime.get({
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.environment.id
+          }, function(successResult) {
+            if (!_.isEqual($scope.topology.instances, successResult.data)) {
+              $scope.topology.instances = successResult.data;
+            }
+          });
+        }
+
         function loadTopologyRuntime() {
           delete $scope.topology;
           $scope.$broadcast('a4cRuntimeTopologyLoading');
@@ -60,10 +89,27 @@ define(function (require) {
             topologyJsonProcessor.process($scope.topology);
             // dispatch an event through the scope
             $scope.$broadcast('a4cRuntimeTopologyLoaded');
+
+            //load instances informations. For output updates
+            refreshInstancesInfos();
           });
         }
 
         loadTopologyRuntime();
+
+        $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
+          if(event.rawType === 'paasmessagemonitorevent') {
+            return;
+          }
+          // topology has changed
+          if (!$scope.isWaitingForRefresh) {
+            $scope.isWaitingForRefresh = true;
+            $timeout(function() {
+              $scope.isWaitingForRefresh = false;
+              refreshInstancesInfos();
+            }, 1000);
+          }
+        });
       }
     ]);
 });

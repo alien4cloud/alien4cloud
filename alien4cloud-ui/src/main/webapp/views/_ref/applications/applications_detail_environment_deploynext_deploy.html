@@ -1,10 +1,10 @@
 <!-- DEPLOYMENT TOPO CONFIGURATION ERRORS -->
-<div class="row grp-margin" ng-if = "_.isNotEmpty(deploymentTopologyDTO.validation.taskList)">
+<div class="row grp-margin" ng-if="_.isNotEmpty(deploymentTopologyDTO.validation.taskList)">
   <!-- NODE FILTERS-->
   <div class="col-md-6" ng-if="deploymentTopologyDTO.validation.taskList['NODE_FILTER_INVALID']">
     <div class="task-list-box">
       <node-filters-errors-display
-        tasks = "deploymentTopologyDTO.validation.taskList['NODE_FILTER_INVALID']"
+        tasks="deploymentTopologyDTO.validation.taskList['NODE_FILTER_INVALID']"
         input-column=true>
       </node-filters-errors-display>
     </div>
@@ -21,7 +21,7 @@
   <div class="col-md-6" ng-if="deploymentTopologyDTO.validation.taskList['PROPERTIES']">
     <div class="task-list-box">
       <properties-errors-display
-        tasks = "deploymentTopologyDTO.validation.taskList['PROPERTIES']">
+        tasks="deploymentTopologyDTO.validation.taskList['PROPERTIES']">
       </properties-errors-display>
 
     </div>
@@ -108,24 +108,24 @@
     <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
       <i class="fa fa-cog"></i> {{'APPLICATIONS.DEPLOYMENT_INFO' | translate}}
     </div>
-    <div class = "row" style="margin-top: 10px">
-      <div class = "col-md-6">
-        <span class = "detail-term"> {{'APPLICATIONS.APPLICATION' | translate }} : </span> <span class = "detail-description">{{application.name}}</span>
+    <div class="row grp-margin">
+      <div class="col-md-6">
+        <span class="detail-term"> {{'APPLICATIONS.APPLICATION' | translate }} : </span> <span class="detail-description">{{application.name}}</span>
       </div>
-      <div class = "col-md-6">
-        <span class = "detail-term"> {{'COMMON.VERSION' | translate }} : </span> <span class = "detail-description">{{environment.currentVersionName}}</span>
+      <div class="col-md-6">
+        <span class="detail-term"> {{'COMMON.VERSION' | translate }} : </span> <span class="detail-description">{{environment.currentVersionName}}</span>
       </div>
-      <div class = "col-md-6">
-        <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate }} : </span> <span class = "detail-description">{{environment.name}}</span>
+      <div class="col-md-6">
+        <span class="detail-term"> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate }} : </span> <span class="detail-description">{{environment.name}}</span>
       </div>
-      <div class = "col-md-6">
-        <span class = "detail-term"> {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate }} : </span> <span class = "detail-description">{{environment.environmentType}}</span>
+      <div class="col-md-6">
+        <span class="detail-term"> {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate }} : </span> <span class="detail-description">{{environment.environmentType}}</span>
       </div>
-      <div class = "col-md-6">
-        <span class = "detail-term"> {{'ORCHESTRATORS.ORCHESTRATOR' | translate }} : </span> <span class = "detail-description">{{orchestrator.name}}</span>
+      <div class="col-md-6">
+        <span class="detail-term"> {{'ORCHESTRATORS.ORCHESTRATOR' | translate }} : </span> <span class="detail-description">{{orchestrator.name}}</span>
       </div>
-      <div class = "col-md-6">
-        <span class = "detail-term"> {{'ORCHESTRATORS.LOCATIONS.LOCATION' | translate }} : </span> <span class = "detail-description">{{selectedLocation.name}}</span>
+      <div class="col-md-6">
+        <span class="detail-term"> {{'ORCHESTRATORS.LOCATIONS.LOCATION' | translate }} : </span> <span class="detail-description">{{selectedLocation.name}}</span>
       </div>
 
       <!-- Resources -->
@@ -141,7 +141,7 @@
               </td>
               <td>
                 <span style=" font-weight: 500; padding-right: 0.5em;">{{value.name}}</span> ( <i>{{value.template.type}}</i> )
-                <i ng-if = "value.service"
+                <i ng-if="value.service"
                   class="fa fa-globe text-info"
                   uib-tooltip="{{'SERVICES.SERVICE' | translate}}">
                 </i>

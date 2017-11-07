@@ -4,6 +4,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import alien4cloud.tosca.parser.ToscaParser;
+import org.alien4cloud.tosca.exporter.ArchiveExportService;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.ScalingPolicy;
@@ -30,14 +33,22 @@ import alien4cloud.topology.TopologyUtils;
 import alien4cloud.utils.MapUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.inject.Inject;
+
 @Slf4j
 public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<ProviderConfig> {
     private ReentrantReadWriteLock providerLock = new ReentrantReadWriteLock();
+
+    @Inject
+    private ArchiveExportService archiveExportService;
 
     @Override
     public void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
         String deploymentId = deploymentContext.getDeploymentPaaSId();
         DeploymentTopology deploymentTopology = deploymentContext.getDeploymentTopology();
+        String yaml = archiveExportService.getYaml(new Csar(deploymentTopology.getArchiveName(), deploymentTopology.getArchiveVersion()), deploymentTopology, false, ToscaParser.LATEST_DSL);
+
+        log.info("Attempting to deploy the following topology: " + yaml);
         try {
             providerLock.writeLock().lock();
 

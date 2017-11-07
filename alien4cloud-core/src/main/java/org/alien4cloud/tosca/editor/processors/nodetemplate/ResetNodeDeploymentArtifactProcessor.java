@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ResetNodeDeploymentArtifactOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -26,9 +27,7 @@ public class ResetNodeDeploymentArtifactProcessor implements IEditorOperationPro
     private TopologyServiceCore topologyServiceCore;
 
     @Override
-    public void process(ResetNodeDeploymentArtifactOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
-
+    public void process(Csar csar, Topology topology, ResetNodeDeploymentArtifactOperation operation) {
         // Get the node template's artifacts to reset
         Map<String, NodeTemplate> nodeTemplates = TopologyUtils.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);

@@ -10,7 +10,7 @@
 <div class="row">
   <!-- nodeTemplateName div -->
   <div id="nodetemplate-titles" class="col-md-7">
-    <h3 class="pull-left" style="margin-top: 10px; margin-bottom: 20px;">
+    <h3 class="pull-left grp-margin" style="margin-bottom: 20px;">
     <span editable-text="nodeNameObj.val" buttons="no" e-required onbeforesave="nodes.updateName($data)" blur="submit">
       {{ selectedNodeTemplate.name | split }}
       <i class="fa fa-pencil-square-o"></i>
@@ -89,7 +89,7 @@
         <span class="btn btn-xs info-xs"
           uib-popover-template="'views/common/type_info.html'"
           popover-trigger="'mouseenter'"
-          popover-placement = "left"
+          popover-placement="left"
           popover-class="info-popover info-popover-xs"
           popover-append-to-body="true">
           <i class="fa fa-info-circle text-info"></i>

@@ -102,7 +102,7 @@ define(function(require) {
         var saveResult = $scope.onSave(propertyRequest);
         // If the callback return a promise
         if (_.defined(saveResult) && _.defined(saveResult.then)) {
-          saveResult.catch(function(cat) { console.log('cat', cat);});
+          saveResult.catch(function(cat) { console.error('cat', cat);});
           return saveResult.then(function(saveResult) {
             if (_.defined(saveResult.error)) {
               // Constraint error display + translation

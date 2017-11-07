@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.CreateWorkflowOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +24,7 @@ public class CreateWorkflowProcessor implements IEditorOperationProcessor<Create
     private WorkflowsBuilderService workflowsBuilderService;
 
     @Override
-    public void process(CreateWorkflowOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, CreateWorkflowOperation operation) {
         if (log.isDebugEnabled()) {
             log.debug("creating new workflow [ {} ] in topology [ {} ]", operation.getWorkflowName(), topology.getId());
         }

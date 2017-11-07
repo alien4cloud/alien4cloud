@@ -4,7 +4,7 @@
   </div>
   <div class="modal-body">
     <div>
-      <div style="margin-top: 10px;">
+      <div class="grp-margin">
         <div class="form-horizontal">
           <form role="search" ng-submit="search($event)">
             <div class="input-group">
@@ -24,9 +24,9 @@
           </a>
         </div>
       </div>
-      <div class="row" style="margin-top: 10px;">
+      <div class="row grp-margin">
         <div class="col-md-12">
-          <empty-place-holder ng-if = "customSearchActive"
+          <empty-place-holder ng-if="customSearchActive"
               for="'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.GROUPS.ADD_POPUP.EMPTY_PLACEHOLDER'"
               data="searchedData.data">
           </empty-place-holder>
@@ -49,13 +49,13 @@
               </tr>
               </thead>
               <tbody>
-              <tr ng-repeat="group in searchedData.data" ng-init = "isAuthorized = isAuthorized(group)" ng-class="{'option-selected text-muted': isAuthorized}">
+              <tr ng-repeat="group in searchedData.data" ng-init="isAuthorized = isAuthorized(group)" ng-class="{'option-selected text-muted': isAuthorized}">
                 <td class="text-center">
-                  <a ng-if = "!isAuthorized" ng-click="toggleSelection(group)">
+                  <a ng-if="!isAuthorized" ng-click="toggleSelection(group)">
                     <i class="fa fa-fw"
                        ng-class="{'fa-check-square-o' : isSelected(group),  'fa-square-o': !isSelected(group)}"></i>
                   </a>
-                  <i ng-if = "isAuthorized" class="fa fa-fw fa-check-square-o"></i>
+                  <i ng-if="isAuthorized" class="fa fa-fw fa-check-square-o"></i>
                 </td>
                 <td>
                   <i class="fa fa-group fa-2x" ng-if="!group.imageId"></i>
@@ -72,7 +72,7 @@
       </div>
     </div>
   </div>
-  <div class="modal-footer" style="margin-top: 10px;">
+  <div class="modal-footer grp-margin">
     <button ng-disabled="selectedSubjects.length === 0" class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}</button>
     <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
   </div>

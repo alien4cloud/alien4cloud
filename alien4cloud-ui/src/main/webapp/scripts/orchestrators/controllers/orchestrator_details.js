@@ -69,8 +69,8 @@ define(function (require) {
 
 
   modules.get('a4c-orchestrators').controller('OrchestratorDetailsInfoCtrl',
-    ['$scope', '$uibModal', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'globalRestErrorHandler', 'breadcrumbsService',
-    function($scope, $uibModal, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, globalRestErrorHandler, breadcrumbsService) {
+    ['$scope', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'globalRestErrorHandler', 'breadcrumbsService',
+    function($scope, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, globalRestErrorHandler, breadcrumbsService) {
 
       breadcrumbsService.putConfig({
         state: 'admin.orchestrators.details.info',

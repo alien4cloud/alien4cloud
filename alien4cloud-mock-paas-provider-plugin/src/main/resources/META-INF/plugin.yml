@@ -16,6 +16,10 @@ component_descriptors:
     name: Mock Anti affinity modifier
     description: >
       Sample implementation of an anti-affinity policy through an alien modifier that will inject zones into compute nodes.
+  - bean_name: mock-fake-modifier
+    name: Mock fake modifier
+    description: >
+      Fake modifier used for the test.
 #  - bean_name: mock-location-matcher
 #    name: Mock location matcher
 #    description: >

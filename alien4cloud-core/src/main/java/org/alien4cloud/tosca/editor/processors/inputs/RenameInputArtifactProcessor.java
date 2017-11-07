@@ -9,6 +9,7 @@ import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -21,8 +22,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RenameInputArtifactProcessor implements IEditorOperationProcessor<RenameInputArtifactOperation> {
     @Override
-    public void process(RenameInputArtifactOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, RenameInputArtifactOperation operation) {
         if (operation.getNewInputName() == null || operation.getNewInputName().isEmpty() || !operation.getNewInputName().matches("\\w+")) {
             throw new InvalidNameException("newInputName", operation.getNewInputName(), "\\w+");
         }

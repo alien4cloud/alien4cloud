@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.RenameInputOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
@@ -31,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOperation> {
     @Override
-    protected void processInputOperation(RenameInputOperation operation, Map<String, PropertyDefinition> inputs) {
+    protected void processInputOperation(Csar csar, Topology topology, RenameInputOperation operation, Map<String, PropertyDefinition> inputs) {
         if (!inputs.containsKey(operation.getInputName())) {
             throw new NotFoundException("Input " + operation.getInputName() + " not found");
         }
@@ -48,7 +49,6 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
         PropertyDefinition propertyDefinition = inputs.remove(operation.getInputName());
         inputs.put(operation.getNewInputName(), propertyDefinition);
 
-        Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         for (NodeTemplate nodeTemp : safe(nodeTemplates).values()) {
             renameInputInProperties(nodeTemp.getProperties(), operation.getInputName(), operation.getNewInputName());

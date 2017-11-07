@@ -3,7 +3,7 @@
     <h3>{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD_POPUP.TITLE' | translate}}</h3>
   </div>
   <div class="modal-body">
-    <div ng-if = "!editionMode">
+    <div ng-if="!editionMode">
       <div class="form-horizontal">
           <form role="search" ng-submit="searchApp($event)">
             <div class="input-group">
@@ -26,13 +26,13 @@
         <p>{{'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD_POPUP.MESSAGE' | translate}}</p>
       </div>
     </div>
-    <div class="row" style="margin-top: 10px;">
+    <div class="row grp-margin">
       <div class="col-md-12">
-        <empty-place-holder ng-if = "customSearchActive"
+        <empty-place-holder ng-if="customSearchActive"
             for="'ORCHESTRATORS.LOCATIONS.AUTHORIZATIONS.APPS.ADD_POPUP.EMPTY_PLACEHOLDER'"
             data="appsData.data">
         </empty-place-holder>
-        <empty-place-holder ng-if = "!customSearchActive"
+        <empty-place-holder ng-if="!customSearchActive"
             for="'APPLICATIONS.APPLICATION'"
             data="appsData.data">
         </empty-place-holder>
@@ -166,7 +166,7 @@
       </div>
     </div>
   </div>
-  <div class="modal-footer" style="margin-top: 10px;">
+  <div class="modal-footer grp-margin">
     <button  class="btn btn-primary" ng-click="ok()">{{'OK' | translate}}</button>
     <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
   </div>

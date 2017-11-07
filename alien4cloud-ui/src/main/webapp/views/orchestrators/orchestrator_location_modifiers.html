@@ -1,0 +1,57 @@
+<div class="row">
+  <div class="col-md-12 text-muted">
+    {{'ORCHESTRATORS.LOCATIONS.MODIFIER.INFO' | translate}}: <a href="">documentation</a>.
+  </div>
+</div>
+<div class="row grp-margin">
+  <div class="col-md-6">
+    <div class="drop-container" alien-droppable drag-on-drop="addModifier(data)">
+      <empty-place-holder data="locationModifiers"></empty-place-holder>
+      <table ng-if="locationModifiers.length > 0" class="table table-hover">
+        <thead>
+          <tr>
+            <th>{{'ORCHESTRATORS.LOCATIONS.MODIFIER.PLUGIN' | translate}}</th>
+            <th>{{'ORCHESTRATORS.LOCATIONS.MODIFIER.PLUGIN_BEAN' | translate}}</th>
+            <th>{{'ORCHESTRATORS.LOCATIONS.MODIFIER.PHASE' | translate}}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="modifier in locationModifiers">
+            <td>{{modifier.pluginId}}</td>
+            <td>{{modifier.beanName}}</td>
+            <td>{{modifier.phase}}</td>
+            <td>
+              <delete-confirm id="delete-modif_{{$index}}" func="deleteModifier($index)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+              </delete-confirm>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="drop-container-label">
+        <i class="fa fa-plus"></i>&nbsp;{{ 'ORCHESTRATORS.LOCATIONS.MODIFIER.DROP' | translate }}
+      </div>
+    </div>
+  </div>
+
+  <!-- catalog -->
+  <div id="modifier-catalog" class="col-md-6">
+    <ul class="list-group" style="overflow: auto; height: {{ dimensions.height + 'px' }};">
+      <li class="list-group-item media clickable-media favorite"
+          ng-repeat="modifier in availableModifiers"
+          alien-draggable drag-enabled="true" drag-data="modifier">
+        <div class="media-left">
+          <i class="fa fa-random fa-3x"></i>
+        </div>
+        <div class="media-body">
+          <h4 class="media-heading" style="word-break: break-all;">
+            {{modifier.componentDescriptor.name}}
+          </h4>
+          <p>
+            {{modifier.componentDescriptor.description}}
+          </p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>

@@ -1,5 +1,7 @@
 package alien4cloud.orchestrators.locations.services;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -109,11 +111,8 @@ public class PluginArchiveIndexer {
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
         List<PluginArchive> allPluginArchives = configuratorPlugin.pluginArchives();
         Set<PluginArchive> archivesToIndex = Sets.newHashSet();
-        if (allPluginArchives == null) {
-            return new ArchiveToIndex(dependencies, archivesToIndex);
-        }
 
-        for (PluginArchive pluginArchive : allPluginArchives) {
+        for (PluginArchive pluginArchive : safe(allPluginArchives)) {
             ArchiveRoot archive = pluginArchive.getArchive();
             Csar csar = csarService.get(archive.getArchive().getName(), archive.getArchive().getVersion());
             String lastParsedHash = null;
@@ -274,7 +273,7 @@ public class PluginArchiveIndexer {
             for (Location location : locations) {
                 ILocationConfiguratorPlugin configuratorPlugin = getConfiguratorPlugin(location);
                 List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
-                for (PluginArchive pluginArchive : pluginArchives) {
+                for (PluginArchive pluginArchive : safe(pluginArchives)) {
                     String archiveId = pluginArchive.getArchive().getArchive().getId();
                     List<Location> locationsPerArchive = archiveIds.get(archiveId);
                     if (locationsPerArchive == null) {

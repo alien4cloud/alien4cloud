@@ -10,6 +10,7 @@ define(function(require) {
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationPoliciesTemplateCtrl',
     ['$scope', 'commonLocationResourcesService', 'locationPoliciesService', 'locationPoliciesPropertyService',
       function($scope, commonLocationResourcesService, locationPoliciesService, locationPoliciesPropertyService) {
+        $scope.catalogType = 'POLICY_TYPE';
 
         $scope.resourceTemplateEditDisplayUrl = 'views/orchestrators/includes/location_policy_template_edit.html';
 

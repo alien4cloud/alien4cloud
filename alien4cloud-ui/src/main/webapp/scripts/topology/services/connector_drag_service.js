@@ -20,6 +20,7 @@ define(function (require) {
             .on('dragstart', function(element) {
               // reinit the target selection
               selectedTarget = null;
+              // find relationship valid targets
               relationshipMatchingService.getTargets(element.node.id, element.template, element.id, topologySvg.topology.topology.nodeTemplates,
                 topologySvg.topology.nodeTypes, topologySvg.topology.relationshipTypes, topologySvg.topology.capabilityTypes, topologySvg.topology.topology.dependencies).then(function(result) {
                 var connectTargets = [];
@@ -57,7 +58,6 @@ define(function (require) {
                 y: element.coordinate.y
               };
 
-              // find relationship valid targets
               d3.event.sourceEvent.stopPropagation();
             }).on('drag', function(element) {
               var data = [];
@@ -73,9 +73,8 @@ define(function (require) {
               var link = topologySvg.svg.selectAll('.connectorlink').data(data);
               link.enter().append('path')
                   .attr('class', 'connectorlink')
-                  .attr('d', d3.svg.diagonal())
                   .attr('pointer-events', 'none');
-              link.attr('d', d3.svg.diagonal());
+              link.attr('d', d3.svg.diagonal()); // this compute the path
               link.exit().remove();
             }).on('dragend', function(element) {
               // remove all drag line and drag targets
@@ -85,14 +84,13 @@ define(function (require) {
 
               if(_.defined(selectedTarget)) {
                 var target = selectedTarget.target;
-                topologySvg.addRelationship({
-                  sourceId: element.node.id,
-                  requirementName: element.id,
-                  requirementType: element.template.type,
-                  targetId: target.node.id,
-                  capabilityName: target.id,
-                  relationship: selectedTarget.relationship
-                });
+                topologySvg.callbacks.addRelationship(
+                  element.node.id,
+                  element.id,
+                  element.template.type,
+                  target.node.id,
+                  target.id,
+                  selectedTarget.relationship);
               }
             });
 

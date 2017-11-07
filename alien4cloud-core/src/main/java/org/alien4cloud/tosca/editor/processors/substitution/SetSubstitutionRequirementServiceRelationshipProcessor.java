@@ -3,6 +3,7 @@ package org.alien4cloud.tosca.editor.processors.substitution;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.SetSubstitutionRequirementServiceRelationshipOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 
@@ -19,8 +20,7 @@ public class SetSubstitutionRequirementServiceRelationshipProcessor extends SetS
         implements IEditorOperationProcessor<SetSubstitutionRequirementServiceRelationshipOperation> {
 
     @Override
-    public void process(SetSubstitutionRequirementServiceRelationshipOperation operation) {
-        Topology topology = EditionContextManager.getTopology();
+    public void process(Csar csar, Topology topology, SetSubstitutionRequirementServiceRelationshipOperation operation) {
         if (topology.getSubstitutionMapping() == null) {
             throw new NotFoundException("The substitution requirement with id <" + operation.getSubstitutionRequirementId() + "> cannot be found.");
         }
@@ -28,6 +28,6 @@ public class SetSubstitutionRequirementServiceRelationshipProcessor extends SetS
         if (substitutionTarget == null) {
             throw new NotFoundException("The substitution requirement with id <" + operation.getSubstitutionRequirementId() + "> cannot be found.");
         }
-        super.process(substitutionTarget, operation.getRelationshipType(), operation.getRelationshipVersion());
+        super.process(csar, topology, substitutionTarget, operation.getRelationshipType(), operation.getRelationshipVersion());
     }
 }

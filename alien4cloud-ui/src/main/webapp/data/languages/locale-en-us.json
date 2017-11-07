@@ -515,6 +515,7 @@
     },
     "CSAR": {
       "ACTIVE_FILTERS": "Active filters",
+      "IMPORTSOURCE": "Source",
       "TEMPLATEAUTHOR": "Author",
       "TITLE": "CSARS",
       "WORKSPACE": "Workspace"
@@ -534,7 +535,8 @@
     },
     "UPLOAD": "Upload CSAR",
     "UPLOAD_ERROR": {
-      "300": "Unexpected IO error on plugin upload.",
+      "300": "Unexpected error on plugin upload. \n{{message}}",
+      "354": "Unable to load and enable the plugin: \n{{message}}",
       "353": "The META-INF/plugin.yml file is missing in your plugin.",
       "ALIEN_MAPPING_ERROR": "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
       "CSAR_ALREADY_EXISTS": "A released archive with the same name and version already exists in Alien4Cloud repository. In order to ensure stability for user using it, Alien4Cloud doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive, if not used in a deployed topology.",
@@ -918,7 +920,7 @@
     "ALIEN_MANAGED" : "A4C",
     "USER_MANAGED": "Manually",
     "BRANCH": "Branch",
-    "MANAGED_BY": "Managed by" 
+    "MANAGED_BY": "Managed by"
   },
   "GROUPS": {
     "AUTHORIZED": "group authorized",
@@ -1070,7 +1072,15 @@
         "TYPE": "Resource types"
       },
       "SECURITY": "Security",
-      "SERVICES": "Services"
+      "SERVICES": "Services",
+      "MODIFIER": {
+        "MODIFIER": "Topology modifier",
+        "PLUGIN": "Plugin id",
+        "PLUGIN_BEAN": "Plugin bean",
+        "PHASE": "Deployment phase",
+        "DROP": "Drop new modifier here or on the table above",
+        "INFO": "Location topology modifiers are pieces of code that will change a topology when assigned to this location. It may perform various things but should always respect the original topology contract. You can read more on topology modifiers and the deployment lifecycle here"
+      }
     },
     "NAV": {
       "ARTIFACTS": "Artifacts",

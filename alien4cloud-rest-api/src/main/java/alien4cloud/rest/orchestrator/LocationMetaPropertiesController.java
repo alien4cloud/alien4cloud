@@ -36,7 +36,9 @@ import io.swagger.annotations.Authorization;
  */
 @Slf4j
 @RestController
-@RequestMapping(value = {"/rest/orchestrators/{orchestratorId}/locations/{locationId}/properties", "/rest/v1/orchestrators/{orchestratorId}/locations/{locationId}/properties", "/rest/latest/orchestrators/{orchestratorId}/locations/{locationId}/properties", "/rest/latest/orchestrators/{orchestratorId}/locations/{locationId}/properties", "/rest/latest/orchestrators/{orchestratorId}/locations/{locationId}/properties"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = { "/rest/orchestrators/{orchestratorId}/locations/{locationId}/properties",
+        "/rest/v1/orchestrators/{orchestratorId}/locations/{locationId}/properties",
+        "/rest/latest/orchestrators/{orchestratorId}/locations/{locationId}/properties" }, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Location meta properties", description = "Update values for meta-properties associated with locations.", authorizations = {
         @Authorization("ADMIN") })
 public class LocationMetaPropertiesController {
@@ -60,7 +62,7 @@ public class LocationMetaPropertiesController {
             @ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to get", required = true) @PathVariable String locationId,
             @ApiParam(value = "Id of the location to get", required = true) @RequestBody PropertyRequest propertyRequest)
-                    throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
+            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Location location = locationService.getOrFail(locationId);
 

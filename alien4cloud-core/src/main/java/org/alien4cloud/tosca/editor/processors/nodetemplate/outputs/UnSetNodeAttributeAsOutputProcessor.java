@@ -6,6 +6,7 @@ import java.util.Set;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.UnSetNodeAttributeAsOutputOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
@@ -24,9 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UnSetNodeAttributeAsOutputProcessor extends AbstractNodeProcessor<UnSetNodeAttributeAsOutputOperation> {
 
     @Override
-    protected void processNodeOperation(UnSetNodeAttributeAsOutputOperation operation, NodeTemplate nodeTemplate) {
-
-        Topology topology = EditionContextManager.getTopology();
+    protected void processNodeOperation(Csar csar, Topology topology, UnSetNodeAttributeAsOutputOperation operation, NodeTemplate nodeTemplate) {
 
         // check if the attribute exists
         check(operation, topology, nodeTemplate);

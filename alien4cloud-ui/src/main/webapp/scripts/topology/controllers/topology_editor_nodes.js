@@ -6,6 +6,7 @@ define(function (require) {
   var modules = require('modules');
   var angular = require('angular');
   var _ = require('lodash');
+  var $ = require('jquery');
 
   require('scripts/common/controllers/confirm_modal');
 
@@ -34,14 +35,20 @@ define(function (require) {
         onDragged: function(e) {
           var nodeType = angular.fromJson(e.source);
           var evt = e.event;
-          var hostNodeName = null;
           if (evt.target.hasAttribute('node-template-id')) {
-            hostNodeName = evt.target.getAttribute('node-template-id');
+            var hostNodeName = evt.target.getAttribute('node-template-id');
+            this.add(nodeType, hostNodeName);
+          } else {
+            var targetCoord = $(evt.currentTarget).offset();
+            var dropCoord = {
+              x: evt.originalEvent.clientX - targetCoord.left,
+              y: evt.originalEvent.clientY - targetCoord.top
+            };
+            this.add(nodeType, null, this.scope.graphControl.toRealCoords(dropCoord));
           }
-          this.add(nodeType, hostNodeName);
         },
         /** this has to be exposed to the scope as we cannot rely on drag and drop callbacks for ui tests */
-        add: function(nodeType, hostNodeName) {
+        add: function(nodeType, hostNodeName, dropCoord) {
           var self = this;
           var nodeTemplateName = toscaService.generateTemplateName(nodeType.elementId, this.scope.topology.topology.nodeTemplates);
           // Add node operation automatically change dependency version to higher so if different warn the user.
@@ -64,20 +71,21 @@ define(function (require) {
               }
             });
             modalInstance.result.then(function () {
-              self.doAddNodeTemplate(nodeTemplateName, nodeType, hostNodeName);
+              self.doAddNodeTemplate(nodeTemplateName, nodeType, hostNodeName, dropCoord);
             });
           } else {
-            this.doAddNodeTemplate(nodeTemplateName, nodeType, hostNodeName);
+            this.doAddNodeTemplate(nodeTemplateName, nodeType, hostNodeName, dropCoord);
           }
         },
         /** Actually trigger the node template addition. */
-        doAddNodeTemplate: function(nodeTemplateName, selectedNodeType, targetNodeTemplateName) {
+        doAddNodeTemplate: function(nodeTemplateName, selectedNodeType, targetNodeTemplateName, dropCoord) {
           var scope = this.scope;
           // Add node operation automatically change dependency version to higher so if different warn the user.
           scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation',
             nodeName: nodeTemplateName,
-            indexedNodeTypeId: selectedNodeType.id
+            indexedNodeTypeId: selectedNodeType.id,
+            coords: dropCoord
           }, function(result) {
             if (_.undefined(result.error) && targetNodeTemplateName) {
               // drag a node on another node
@@ -121,6 +129,16 @@ define(function (require) {
             );
           } // if end
           scope.display.set('nodetemplate', true);
+        },
+        updatePosition: function(nodeName, x, y) {
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePositionOperation',
+              nodeName: nodeName,
+              coords: {
+                x: Math.round(x),
+                y: Math.round(y)
+              }
+            }, null);
         },
         delete: function(nodeTemplName) {
           var scope = this.scope;

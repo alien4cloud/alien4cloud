@@ -15,7 +15,7 @@ define(function(require) {
         'resourcesTemplates': '=',
         // 'providedTypes': '=?',
         'context': '=?',
-        // 'showCatalog': '=?',
+        'showCatalog': '=?',
         'showMultiSelect': '=?',
       },
       link: {}

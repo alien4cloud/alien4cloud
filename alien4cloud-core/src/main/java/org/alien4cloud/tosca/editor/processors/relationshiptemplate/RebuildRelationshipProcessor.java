@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.RebuildRelationshipOperation;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -27,8 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class RebuildRelationshipProcessor extends AbstractRelationshipProcessor<RebuildRelationshipOperation> {
     @Override
-    protected void processRelationshipOperation(RebuildRelationshipOperation operation, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate) {
-        Topology topology = EditionContextManager.getTopology();
+    protected void processRelationshipOperation(Csar csar, Topology topology, RebuildRelationshipOperation operation, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate) {
         // rebuild a relationship template based on the current relationship type
         log.debug("Rebuilding the relationship [ {} ] in the node template [ {} ] of topology [ {} ] .", operation.getRelationshipName(), operation.getNodeName(),
                 topology.getId());

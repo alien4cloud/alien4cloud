@@ -3,6 +3,9 @@ package alien4cloud.orchestrators.plugin;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
@@ -17,7 +20,9 @@ public interface ILocationConfiguratorPlugin {
      *
      * @return The archives provided by the plugin.
      */
-    List<PluginArchive> pluginArchives();
+    default List<PluginArchive> pluginArchives() {
+        return Lists.newArrayList();
+    };
 
     /**
      * Get a list of the location resources types. If a type is abstract it won't be used for matching but only as a helper for plugin auto-configuration.
@@ -25,14 +30,18 @@ public interface ILocationConfiguratorPlugin {
      *
      * @return A list of location resources types.
      */
-    List<String> getResourcesTypes();
+    default List<String> getResourcesTypes() {
+        return Lists.newArrayList();
+    };
 
     /**
      * Return the list of matching configurations used to match the nodes provided by the location.
      * 
      * @return A list of MatchingConfigurations for the types provided by the location.
      */
-    Map<String, MatchingConfiguration> getMatchingConfigurations();
+    default Map<String, MatchingConfiguration> getMatchingConfigurations() {
+        return Maps.newHashMap();
+    };
 
     /**
      * Auto-configure the instances of location resources.
@@ -41,7 +50,9 @@ public interface ILocationConfiguratorPlugin {
      *            indeed require access to some manually configured resources.
      * @return A list of locations resources templates that users can define or null if the plugin doesn't support auto-configuration of resources..
      */
-    List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor) throws UnsupportedOperationException;
+    default List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor) throws UnsupportedOperationException {
+        return null;
+    };
 
     /**
      * Get a list of the policies types supported by the location.
@@ -49,6 +60,6 @@ public interface ILocationConfiguratorPlugin {
      * @return A list of location policies types.
      */
     default List<String> getPoliciesTypes() {
-        return null;
+        return Lists.newArrayList();
     }
 }

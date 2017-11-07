@@ -196,7 +196,7 @@
                       <em ng-if="!stateDisabled">{{selectedService.requirementsRelationshipTypes[requirementEntry.key] || '...'}}</em>
                     </div>
                     <div class="col-md-1">
-                      <info content = "'SERVICE.RELATIONSHIP.REQUIREMENT_DESCRIPTION'"></info>
+                      <info content="'SERVICE.RELATIONSHIP.REQUIREMENT_DESCRIPTION'"></info>
                     </div>
                   </div>
                 </div>
@@ -216,7 +216,7 @@
                     <label>{{attrEntry.key}}</label>
                   </td>
                   <td>
-                    <span ng-if = "isPropertyEditable()" editable-text="selectedService.nodeInstance.attributeValues[attrEntry.key]" buttons="no" onbeforesave="updateAttribute(attrEntry.key, $data)" blur="submit" class="editable editable-click">
+                    <span ng-if="isPropertyEditable()" editable-text="selectedService.nodeInstance.attributeValues[attrEntry.key]" buttons="no" onbeforesave="updateAttribute(attrEntry.key, $data)" blur="submit" class="editable editable-click">
                       {{selectedService.nodeInstance.attributeValues[attrEntry.key]}} <i class="fa fa-pencil-square-o"></i>
                     </span>
                     <em ng-if="!isPropertyEditable()">
@@ -233,7 +233,7 @@
                     <label>{{attrEntry.key}}</label>
                   </td>
                   <td>
-                    <span ng-if = "isPropertyEditable()" editable-text="selectedService.nodeInstance.attributeValues[attrEntry.key]" buttons="no" onbeforesave="updateAttribute(attrEntry.key, $data)" blur="submit" class="editable editable-click">
+                    <span ng-if="isPropertyEditable()" editable-text="selectedService.nodeInstance.attributeValues[attrEntry.key]" buttons="no" onbeforesave="updateAttribute(attrEntry.key, $data)" blur="submit" class="editable editable-click">
                       {{selectedService.nodeInstance.attributeValues[attrEntry.key]}} <i class="fa fa-pencil-square-o"></i>
                     </span>
                     <em ng-if="!isPropertyEditable()">

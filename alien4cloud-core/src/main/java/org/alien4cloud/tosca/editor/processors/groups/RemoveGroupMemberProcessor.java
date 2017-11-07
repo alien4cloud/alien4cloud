@@ -4,6 +4,7 @@ import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.RemoveGroupMemberOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import org.alien4cloud.tosca.model.templates.NodeGroup;
@@ -16,9 +17,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 @Component
 public class RemoveGroupMemberProcessor extends AbstractNodeProcessor<RemoveGroupMemberOperation> {
     @Override
-    protected void processNodeOperation(RemoveGroupMemberOperation operation, NodeTemplate nodeTemplate) {
-        Topology topology = EditionContextManager.getTopology();
-
+    protected void processNodeOperation(Csar csar, Topology topology, RemoveGroupMemberOperation operation, NodeTemplate nodeTemplate) {
         NodeGroup nodeGroup = topology.getGroups().get(operation.getGroupName());
         if (nodeGroup != null && nodeGroup.getMembers() != null) {
             boolean removed = nodeGroup.getMembers().remove(operation.getNodeName());
