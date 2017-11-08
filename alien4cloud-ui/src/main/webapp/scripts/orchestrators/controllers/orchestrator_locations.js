@@ -10,6 +10,7 @@ define(function(require) {
   require('scripts/orchestrators/controllers/orchestrator_location_config');
   require('scripts/orchestrators/controllers/orchestrator_location_nodes');
   require('scripts/orchestrators/controllers/orchestrator_location_policies');
+  require('scripts/orchestrators/controllers/orchestrator_location_secret');
   require('scripts/orchestrators/controllers/orchestrator_location_modifiers');
   require('scripts/orchestrators/controllers/orchestrator_location_metaprops');
   require('scripts/orchestrators/controllers/orchestrator_location_security');
@@ -62,7 +63,7 @@ define(function(require) {
             if ($scope.locationsDTOs.length > 0) {
               var toSelect = toSelectName ? _.find($scope.locationsDTOs, {'location':{'name':toSelectName}}): undefined;
               $scope.selectLocation(toSelect|| $scope.locationsDTOs[0]);
-              $state.go('admin.orchestrators.details.locations.config');
+              $state.go('admin.orchestrators.details.locations.secret');
             }
           });
         }
