@@ -3,8 +3,10 @@
           <!-- TOPOLOGY display -->
           <div id="topology" class="topology-column">
             <div class="topology topology-column-box">
-              <topology-rendering ng-if="topology" topology="topology" dimensions="visualDimensions"
-                select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true">
+              <topology-rendering ng-if="topology" dimensions="visualDimensions" topology="topology"
+                callbacks="callbacks"
+                graph-control="graphControl"
+                runtime="true">
               </topology-rendering>
             </div>
           </div>

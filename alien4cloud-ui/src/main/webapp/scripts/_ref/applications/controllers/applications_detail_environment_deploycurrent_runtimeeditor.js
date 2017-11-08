@@ -167,47 +167,50 @@ define(function (require) {
       }).$promise;
     };
 
-    $scope.selectNodeTemplate = function(newSelectedName, oldSelectedName) {
-      var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName] || $scope.selectedNodeTemplate;
-      if (oldSelected) {
-        oldSelected.selected = false;
-      }
-
-      var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
-      newSelected.selected = true;
-
-      $scope.selectedNodeTemplate = newSelected;
-      $scope.triggerTopologyRefresh = {};
-      $scope.selectedNodeTemplate.name = newSelectedName;
-      if ($scope.isComputeType($scope.selectedNodeTemplate) || isDockerType($scope.selectedNodeTemplate)) {
-        $scope.selectedNodeTemplate.scalingPolicy = toscaService.getScalingPolicy($scope.selectedNodeTemplate);
-      }
-      // custom interface if exists
-      var nodetype = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type];
-      delete $scope.selectedNodeCustomInterfaces;
-      if (nodetype.interfaces) {
-        $scope.selectedNodeCustomInterfaces = {};
-        angular.forEach(nodetype.interfaces, function(interfaceObj, interfaceName) {
-          if (interfaceName !== toscaService.standardInterfaceName) {
-            $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
-          }
-        });
-        angular.forEach($scope.selectedNodeTemplate.interfaces, function(interfaceObj, interfaceName) {
-          if (interfaceName !== toscaService.standardInterfaceName) {
-            $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
-          }
-        });
-        if (_.isNotEmpty($scope.selectedNodeCustomInterfaces)) {
-          // create and inject property definition in order to use <property-display> directive for input parameters
-          injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterfaces);
-        } else {
-          delete $scope.selectedNodeCustomInterfaces;
+    $scope.graphControl = {};
+    $scope.callbacks = {
+      selectNodeTemplate: function(newSelectedName, oldSelectedName) {
+        var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName] || $scope.selectedNodeTemplate;
+        if (oldSelected) {
+          oldSelected.selected = false;
         }
+
+        var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
+        newSelected.selected = true;
+
+        $scope.selectedNodeTemplate = newSelected;
+        $scope.triggerTopologyRefresh = {};
+        $scope.selectedNodeTemplate.name = newSelectedName;
+        if ($scope.isComputeType($scope.selectedNodeTemplate) || isDockerType($scope.selectedNodeTemplate)) {
+          $scope.selectedNodeTemplate.scalingPolicy = toscaService.getScalingPolicy($scope.selectedNodeTemplate);
+        }
+        // custom interface if exists
+        var nodetype = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type];
+        delete $scope.selectedNodeCustomInterfaces;
+        if (nodetype.interfaces) {
+          $scope.selectedNodeCustomInterfaces = {};
+          angular.forEach(nodetype.interfaces, function(interfaceObj, interfaceName) {
+            if (interfaceName !== toscaService.standardInterfaceName) {
+              $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
+            }
+          });
+          angular.forEach($scope.selectedNodeTemplate.interfaces, function(interfaceObj, interfaceName) {
+            if (interfaceName !== toscaService.standardInterfaceName) {
+              $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
+            }
+          });
+          if (_.isNotEmpty($scope.selectedNodeCustomInterfaces)) {
+            // create and inject property definition in order to use <property-display> directive for input parameters
+            injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterfaces);
+          } else {
+            delete $scope.selectedNodeCustomInterfaces;
+          }
+        }
+        refreshSelectedNodeInstancesCount();
+        $scope.clearInstanceSelection();
+        $scope.display.set('details', true);
+        $scope.$apply();
       }
-      refreshSelectedNodeInstancesCount();
-      $scope.clearInstanceSelection();
-      $scope.display.set('details', true);
-      $scope.$apply();
     };
 
     $scope.selectInstance = function(id) {
