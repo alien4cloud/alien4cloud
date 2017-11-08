@@ -41,6 +41,9 @@ define(function (require) {
 
     function refreshOutputAttributes(scope){
       scope.outputAttributesValue = {};
+      if(_.undefined(scope.outputAttributes)) {
+        scope.outputAttributes = {};
+      }
       _.forEach(scope.topology.instances, function(instancesInfo, nodeId){
         scope.outputAttributesValue[nodeId] = {};
         _.forEach(instancesInfo, function(instanceInfo, instanceId){
