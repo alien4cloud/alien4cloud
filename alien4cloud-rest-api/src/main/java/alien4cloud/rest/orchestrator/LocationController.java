@@ -1,21 +1,21 @@
 package alien4cloud.rest.orchestrator;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import org.alien4cloud.secret.services.SecretProviderService;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.collect.Lists;
 
@@ -28,6 +28,8 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.CreateLocationRequest;
 import alien4cloud.rest.orchestrator.model.LocationDTO;
 import alien4cloud.rest.orchestrator.model.UpdateLocationRequest;
+import alien4cloud.rest.secret.model.SecretProviderConfigurationsDTO;
+import alien4cloud.ui.form.PojoFormDescriptorGenerator;
 import alien4cloud.utils.ReflectionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,6 +50,10 @@ public class LocationController {
     private LocationService locationService;
     @Resource(name = "location-resource-service")
     private ILocationResourceService locationResourceService;
+    @Resource
+    private SecretProviderService secretProviderService;
+    @Resource
+    private PojoFormDescriptorGenerator pojoFormDescriptorGenerator;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a new location.", authorizations = { @Authorization("ADMIN") })
@@ -105,10 +111,26 @@ public class LocationController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
+    private SecretProviderConfigurationsDTO getSecretConfigurations(Location location) {
+        Set<String> availablePlugins = secretProviderService.getAvailablePlugins();
+        Map<String, Map<String, Object>> genericFormDescriptionByPluginName = availablePlugins.stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        pluginName -> pojoFormDescriptorGenerator.generateDescriptor(secretProviderService.getPluginConfigurationDescriptor(pluginName)))
+                );
+
+        SecretProviderConfigurationsDTO dto = new SecretProviderConfigurationsDTO();
+        dto.setCurrentConfiguration(location.getSecretProviderConfiguration());
+        dto.setGenericFormByPluginName(genericFormDescriptionByPluginName);
+
+        return dto;
+    }
+
     private LocationDTO buildLocationDTO(Location location) {
         LocationDTO locationDTO = new LocationDTO();
         locationDTO.setResources(locationResourceService.getLocationResources(location));
         locationDTO.setLocation(location);
+        locationDTO.setSecretProviderConfigurations(getSecretConfigurations(location));
         return locationDTO;
     }
 }

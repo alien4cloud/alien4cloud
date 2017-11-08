@@ -1068,6 +1068,14 @@
       },
       "SECURITY" : "Sécurité",
       "SERVICES" : "Services",
+      "SECRETS" : {
+        "SECRET": "Secret",
+        "NO_SECRET_PLUGIN": "Aucun plugin de gestion de secret n'a été trouvé",
+        "TOKEN": "Token",
+        "LDAP": "LDAP",
+        "AUTHENTICATION_METHOD": "Méthode d'authentification",
+        "VAULT_URL": "URL du coffre fort"
+      },
       "MODIFIER": {
         "MODIFIER": "Modificateur de topology",
         "PLUGIN": "Plugin id",

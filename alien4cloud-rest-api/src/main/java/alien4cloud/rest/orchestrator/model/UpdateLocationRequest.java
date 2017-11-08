@@ -1,5 +1,6 @@
 package alien4cloud.rest.orchestrator.model;
 
+import alien4cloud.model.secret.SecretProviderConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,4 +9,5 @@ import lombok.Setter;
 public class UpdateLocationRequest {
     private String name;
     private String environmentType;
+    private SecretProviderConfiguration secretProviderConfiguration;
 }
