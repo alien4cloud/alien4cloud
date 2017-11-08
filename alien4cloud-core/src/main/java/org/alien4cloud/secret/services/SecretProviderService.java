@@ -5,10 +5,10 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.secret.ISecretProvider;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
+import org.alien4cloud.secret.ISecretProvider;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
