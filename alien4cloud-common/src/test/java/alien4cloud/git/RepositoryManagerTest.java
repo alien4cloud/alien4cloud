@@ -48,8 +48,20 @@ public class RepositoryManagerTest {
     public void checkoutLocalBranchFromEmptyRepo() throws Exception {
         FileUtil.delete(localGitPath);
         RepositoryManager.create(localGitPath, null);
-        RepositoryManager.checkoutExistingBranchOrCreateOrphan(localGitPath, true,null, null, "newBranch");
+        RepositoryManager.checkoutExistingBranchOrCreateOrphan(localGitPath, true, null, null, "newBranch");
         assertThat(RepositoryManager.isOnBranch(localGitPath, "newBranch")).isTrue();
+    }
+
+    @Test
+    public void deleteCurrentBranch() throws Exception {
+        FileUtil.delete(localGitPath);
+        RepositoryManager.create(localGitPath, null);
+        RepositoryManager.checkoutExistingBranchOrCreateOrphan(localGitPath, true, null, null, "newBranch");
+
+        // as the current branch is "newBranch" the deletion will go to tmp branch
+        RepositoryManager.deleteBranch(localGitPath, "newBranch", false);
+
+        assertThat(RepositoryManager.isOnBranch(localGitPath, "tmp")).isTrue();
     }
 
 }
