@@ -150,13 +150,11 @@ relationship_workflows:
     operations:
       add_source:
         source:
-          preceding_operations: [ start ]
-          following_state: started
+          preceding_state: started
         operation_host: TARGET
       add_target:
         source:
-          preceding_operations: [ start ]
-          following_state: started
+          preceding_state: started
         operation_host: SOURCE
   stop:
     operations:
