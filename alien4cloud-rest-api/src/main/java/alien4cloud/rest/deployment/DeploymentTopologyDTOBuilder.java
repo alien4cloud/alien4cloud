@@ -3,6 +3,7 @@ package alien4cloud.rest.deployment;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -16,6 +17,7 @@ import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
 import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
 import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -166,6 +168,8 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
                 .getConfiguration(OrchestratorDeploymentProperties.class, this.getClass().getSimpleName())
                 .orElse(new OrchestratorDeploymentProperties(environment.getTopologyVersion(), environment.getId(), matchingConfiguration.getOrchestratorId()));
         deploymentTopology.setProviderDeploymentProperties(orchestratorDeploymentProperties.getProviderDeploymentProperties());
+
+        deploymentTopologyDTO.setSecretCredentialInfos((List<SecretCredentialInfo>) executionContext.getExecutionCache().get(FlowExecutionContext.SECRET_CREDENTIAL));
 
         return deploymentTopologyDTO;
     }

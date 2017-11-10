@@ -5,14 +5,18 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
+import org.alien4cloud.secret.services.SecretProviderService;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -26,8 +30,10 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationModifierReference;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.plugin.exception.MissingPluginException;
+import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.validation.LocationPolicyValidationService;
 import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.ui.form.PojoFormDescriptorGenerator;
 
 /**
  * This processor actually does not change the topology but check that location settings are defined and up-to-date in order to allow other processors to
@@ -45,6 +51,10 @@ public class LocationMatchingModifier implements ITopologyModifier {
     private LocationPolicyValidationService locationPolicyValidationService;
     @Inject
     private MetaPropertiesService metaPropertiesService;
+    @Inject
+    private SecretProviderService secretProviderService;
+    @Inject
+    private PojoFormDescriptorGenerator pojoFormDescriptorGenerator;
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
@@ -62,10 +72,42 @@ public class LocationMatchingModifier implements ITopologyModifier {
         if (context.log().isValid()) {
             Map<String, Location> selectedLocations = (Map<String, Location>) context.getExecutionCache()
                     .get(FlowExecutionContext.DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY);
+
+            List<Location> locationsWithVault = selectedLocations.values().stream().filter(
+                    location -> location.getSecretProviderConfiguration() != null && location.getSecretProviderConfiguration().getConfiguration() != null)
+                    .collect(Collectors.toList());
+            boolean needVaultCredential = locationsWithVault.size() > 0;
+            if (needVaultCredential) {
+                List<SecretCredentialInfo> secretCredentialInfos = locationsWithVault.stream().map(location -> {
+                    SecretCredentialInfo info = new SecretCredentialInfo();
+                    String pluginName = location.getSecretProviderConfiguration().getPluginName();
+                    Object rawSecretConfiguration = location.getSecretProviderConfiguration().getConfiguration();
+                    Object secretConfiguration = JsonUtil.toObject(rawSecretConfiguration, secretProviderService.getPluginConfigurationDescriptor(pluginName));
+                    Class<?> pluginAuthenticationConfigurationDescriptor = secretProviderService.getPluginAuthenticationConfigurationDescriptor(pluginName,
+                            secretConfiguration);
+                    info.setCredentialDescriptor(pojoFormDescriptorGenerator.generateDescriptor(pluginAuthenticationConfigurationDescriptor));
+                    info.setPluginName(pluginName);
+                    return info;
+                }).collect(Collectors.toList());
+                context.getExecutionCache().put(FlowExecutionContext.SECRET_CREDENTIAL, secretCredentialInfos);
+            } else {
+                context.getExecutionCache().remove(FlowExecutionContext.SECRET_CREDENTIAL);
+            }
+
             for (LocationModifierReference modifierReference : safe(selectedLocations.values().iterator().next().getModifiers())) {
                 injectLocationTopologyModfier(context, selectedLocations.values().iterator().next().getName(), modifierReference);
             }
         }
+    }
+
+    private boolean needVaultCredential(Map<String, Location> selectedLocations) {
+        for (Location location : selectedLocations.values()) {
+            boolean needVaultKey = StringUtils.isNotBlank(location.getSecretProviderConfiguration().getPluginName());
+            if (needVaultKey) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void injectLocationTopologyModfier(FlowExecutionContext context, String locationName, LocationModifierReference modifierReference) {
