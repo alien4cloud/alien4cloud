@@ -13,7 +13,7 @@
                 <include>**/**</include>
             </includes>
             <excludes>
-                <exclude>alien4cloud/plugin/mock/MockOrchestratorFactory.class</exclude>
+                <exclude>alien4cloud/plugin/mock/ProviderConfig.class</exclude>
                 <exclude>META-INF/**</exclude>
                 <exclude>aws/mock-resources/mock-resources.yaml</exclude>
                 <exclude>openstack/mock-resources/mock-resources.yaml</exclude>
@@ -25,7 +25,7 @@
             <lineEnding>keep</lineEnding>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>alien4cloud/plugin/mock/MockOrchestratorFactory.class</include>
+                <include>alien4cloud/plugin/mock/ProviderConfig.class</include>
             </includes>
         </fileSet>
     </fileSets>
