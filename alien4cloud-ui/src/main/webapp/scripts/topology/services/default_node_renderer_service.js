@@ -265,7 +265,7 @@ define(function(require) {
             var failureCount = this.getNumberOfInstanceByStatus(nodeInstances, 'FAILURE');
             deletedCount = this.getNumberOfInstanceByStatus(nodeInstances, null, 'stopped');
 
-            var runtimeStateIndicatorWidth = node.bbox.width() - 48 - 40;
+            var runtimeStateIndicatorWidth = node.bbox.width() - 48 - 30;
             var indicatorWidth;
             if (successCount > 0) {
               indicatorWidth = runtimeStateIndicatorWidth * successCount / nodeInstancesCount;

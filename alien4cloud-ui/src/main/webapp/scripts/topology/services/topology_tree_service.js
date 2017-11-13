@@ -9,13 +9,12 @@ define(function (require) {
   var _ = require('lodash');
 
   require('scripts/tosca/services/tosca_service');
-  require('scripts/tosca/services/tosca_relationships_service');
 
   require('scripts/common-graph/services/router_factory_service');
   require('scripts/common-graph/services/bbox_factory_service');
 
-  modules.get('a4c-topology-editor', ['a4c-tosca']).factory('topologyTreeService', ['toscaService', 'toscaRelationshipsService',
-    function(toscaService, toscaRelationshipsService) {
+  modules.get('a4c-topology-editor', ['a4c-tosca']).factory('topologyTreeService', ['toscaService',
+    function(toscaService) {
       return {
         /**
         * Create an enriched node that we will use to render the topology.
@@ -98,7 +97,7 @@ define(function (require) {
           }
           node.weight = 0;
           // get relationships that we want to display as hosted on.
-          var relationships = toscaRelationshipsService.getHostedOnRelationships(node.template, relationshipTypes);
+          var relationships = toscaService.getHostedOnRelationships(node.template, relationshipTypes);
           if (relationships.length > 0) {
             // TODO we should not have more than a single hosted on actually. Manage if not.
             var parent = nodes[relationships[0].target];
@@ -106,7 +105,7 @@ define(function (require) {
             node.parent = parent;
           } else {
             // Manage the attach relationship in a specific way in order to display the storage close to the compute.
-            relationships = toscaRelationshipsService.getAttachedToRelationships(node.template, relationshipTypes);
+            relationships = toscaService.getAttachedToRelationships(node.template, relationshipTypes);
             if (relationships.length > 0) {
               var target = nodes[relationships[0].target];
               _.safePush(target, 'attached', node);
@@ -190,7 +189,7 @@ define(function (require) {
             self.nodeWeight(tree, topology, node);
           });
           // process current node
-          var relationships = toscaRelationshipsService.getDependsOnRelationships(node.template, topology.relationshipTypes);
+          var relationships = toscaService.getDependsOnRelationships(node.template, topology.relationshipTypes);
           _.each(relationships, function(relationship){
             var commonParentInfo = self.getCommonParentInfo(tree, node, tree.nodeMap[relationship.target]);
             if(commonParentInfo !== null) {

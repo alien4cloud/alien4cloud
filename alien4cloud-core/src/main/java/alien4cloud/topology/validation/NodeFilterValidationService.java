@@ -39,6 +39,8 @@ import alien4cloud.topology.task.NodeFilterToSatisfy.Violations;
 import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.TaskCode;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 /**
  * Performs validation of node filters for all relationship of topology.
  */
@@ -220,7 +222,7 @@ public class NodeFilterValidationService {
     }
 
     private CapabilityDefinition getCapabilityDefinition(NodeType targetType, String filterCapabilityKey) {
-        for (CapabilityDefinition capabilityDefinition : targetType.getCapabilities()) {
+        for (CapabilityDefinition capabilityDefinition : safe(targetType.getCapabilities())) {
             if (filterCapabilityKey.equals(capabilityDefinition.getId()) || filterCapabilityKey.equals(capabilityDefinition.getType())) {
                 return capabilityDefinition;
             }
