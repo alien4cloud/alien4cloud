@@ -43,8 +43,6 @@ public class LocationMatchingModifier implements ITopologyModifier {
     private PluginModifierRegistry pluginModifierRegistry;
     @Inject
     private LocationPolicyValidationService locationPolicyValidationService;
-    @Inject
-    private MetaPropertiesService metaPropertiesService;
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
