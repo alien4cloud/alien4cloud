@@ -1,8 +1,8 @@
 package org.alien4cloud.tosca.model.definitions;
 
-import org.alien4cloud.tosca.normative.types.IPropertyType;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.normative.types.IPropertyType;
 
 public interface PropertyConstraint {
 

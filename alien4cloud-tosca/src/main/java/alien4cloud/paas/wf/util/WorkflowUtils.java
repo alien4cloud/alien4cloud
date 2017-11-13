@@ -18,7 +18,6 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.Workflow;
@@ -28,7 +27,7 @@ import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
-import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
+import org.alien4cloud.tosca.utils.TopologyNavigationUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Maps;
@@ -42,27 +41,17 @@ public class WorkflowUtils {
     public static final Pattern WORKFLOW_NAME_PATTERN = Pattern.compile("^\\w+$");
 
     private static final String NETWORK_TYPE = "tosca.nodes.Network";
-    private static final String DOCKER_TYPE = "tosca.nodes.Container.Application.DockerContainer";
 
     private static String getRootHostNode(String nodeId, TopologyContext topologyContext) {
         NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
         if (nodeTemplate == null) {
             return null;
         }
-        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTemplate.getType());
-        if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, DOCKER_TYPE)) {
+        NodeTemplate hostTemplate = TopologyNavigationUtil.getImmediateHostTemplate(topologyContext.getTopology(), nodeTemplate);
+        if (hostTemplate == null) {
             return nodeId;
-        } else {
-            if (nodeTemplate.getRelationships() != null) {
-                for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                    RelationshipType relationshipType = topologyContext.findElement(RelationshipType.class, relationshipTemplate.getType());
-                    if (isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
-                        return getRootHostNode(relationshipTemplate.getTarget(), topologyContext);
-                    }
-                }
-            }
-            return null;
         }
+        return getRootHostNode(hostTemplate.getName(), topologyContext);
     }
 
     private static String getRelationshipTarget(String source, String relationshipId, TopologyContext topologyContext) {

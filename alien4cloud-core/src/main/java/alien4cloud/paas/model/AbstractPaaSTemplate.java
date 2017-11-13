@@ -3,6 +3,7 @@ package alien4cloud.paas.model;
 import java.util.List;
 import java.util.Map;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -12,6 +13,7 @@ import alien4cloud.paas.IPaaSTemplate;
 
 @Getter
 @Setter
+@EqualsAndHashCode(of = "id")
 public abstract class AbstractPaaSTemplate<V extends AbstractToscaType, T extends AbstractInstantiableTemplate> implements IPaaSTemplate<V> {
 
     /** The unique id for the template within the topology. */

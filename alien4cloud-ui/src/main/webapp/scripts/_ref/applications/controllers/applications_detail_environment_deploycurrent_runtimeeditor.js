@@ -88,14 +88,6 @@ define(function (require) {
       $scope.selectedEventTypeFilter = filter;
     };
 
-    // check if docker type
-    function isDockerType(nodeTemplate) {
-      if (_.undefined($scope.topology) || _.undefined(nodeTemplate)) {
-        return false;
-      }
-      return toscaService.isDockerType(nodeTemplate.type, $scope.topology.nodeTypes);
-    }
-
     function refreshSelectedNodeInstancesCount() {
       if (_.defined($scope.selectedNodeTemplate)) {
         if (_.defined($scope.topology.instances) && _.defined($scope.topology.instances[$scope.selectedNodeTemplate.name])) {
@@ -181,7 +173,8 @@ define(function (require) {
         $scope.selectedNodeTemplate = newSelected;
         $scope.triggerTopologyRefresh = {};
         $scope.selectedNodeTemplate.name = newSelectedName;
-        if ($scope.isComputeType($scope.selectedNodeTemplate) || isDockerType($scope.selectedNodeTemplate)) {
+
+        if (_.isEmpty(toscaService.getHostedOnRelationships($scope.selectedNodeTemplate, $scope.topology.relationshipTypes))) {
           $scope.selectedNodeTemplate.scalingPolicy = toscaService.getScalingPolicy($scope.selectedNodeTemplate);
         }
         // custom interface if exists

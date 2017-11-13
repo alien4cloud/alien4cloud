@@ -83,7 +83,7 @@
                   </div>
                 </div>
                 <!-- Node -->
-                <div ng-show="selectedNodeTemplate && !selectedInstance">
+                <div ng-if="selectedNodeTemplate && !selectedInstance">
                   <div>
                     <div class="pull-left">
                       <h5>
@@ -143,7 +143,6 @@
                               <th>{{ 'APPLICATIONS.RUNTIME.INSTANCE' | translate }}</th>
                               <th>{{ 'COMMON.STATE' | translate }}</th>
                               <th>{{ 'APPLICATIONS.RUNTIME.STATUS' | translate }}</th>
-                              <th></th>
                             </tr>
                           </thead>
                           <tbody>
@@ -152,26 +151,12 @@
                               class="clickable"
                               title="details"
                               ng-click="selectInstance(id)" >
-                              <td class="col-md-2">{{id}}</td>
-                              <td class="col-md-7">{{'STATES.'+info.state | translate}}</td>
+                              <td class="col-md-4">{{id}}</td>
+                              <td class="col-md-6">{{'STATES.'+info.state | translate}}</td>
                               <td class="col-md-1">
                                 <i class="fa" ng-class="{'fa-check text-success': info.instanceStatus === 'SUCCESS',
                                 'fa-times text-danger': info.instanceStatus === 'FAILURE',
                                 'fa-spinner fa-spin' : info.instanceStatus === 'PROCESSING'}"></i>
-                                <!-- 'fa-wrench text-warning' : info.instanceStatus === 'MAINTENANCE'}"></i> -->
-                              </td>
-                              <td class="col-md-1">
-                                <!-- <div ng-if="isComputeType(selectedNodeTemplate) && (info.instanceStatus === 'SUCCESS' || info.instanceStatus === 'MAINTENANCE')" >
-                                  <a class="{{info.instanceStatus === 'SUCCESS' ? 'btn btn-success btn-xs' : 'btn btn-danger btn-xs'}}"
-                                     id="instanceMaintenanceButton"
-                                     confirm="{{info.instanceStatus === 'SUCCESS' ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate}}"
-                                     confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
-                                     confirm-placement="left"
-                                     confirm-handler="switchNodeInstanceMaintenanceMode(id)"
-                                     ng-click="$event.stopPropagation();">
-                                    <i class="fa fa-wrench"></i>
-                                  </a>
-                                </div> -->
                               </td>
                             </tr>
                           </tbody>

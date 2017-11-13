@@ -234,6 +234,50 @@ define(function (require) {
           }
 
           return founds;
+        },
+
+        /**
+        * Get all hosted on relationships on a given node template.
+        */
+        getHostedOnRelationships: function(nodeTemplate, relationshipTypes) {
+          var self = this;
+          var hostedOnRelationships = self.getRelationships(nodeTemplate, function(relationship) {
+            return self.isHostedOnType(relationship.type, relationshipTypes);
+          });
+          return hostedOnRelationships;
+        },
+
+        /**
+        * Get all attached to relationships on a given node template.
+        */
+        getAttachedToRelationships: function(nodeTemplate, relationshipTypes) {
+          var self = this;
+          var relationships = self.getRelationships(nodeTemplate, function(relationship) {
+            return self.isAttachedToType(relationship.type, relationshipTypes);
+          });
+          return relationships;
+        },
+
+        /**
+        * Get all attached to relationships on a given node template.
+        */
+        getNetworkRelationships: function(nodeTemplate, relationshipTypes) {
+          var self = this;
+          var relationships = self.getRelationships(nodeTemplate, function(relationship) {
+            return self.isNetworkType(relationship.type, relationshipTypes);
+          });
+          return relationships;
+        },
+
+        /**
+        * Get all depends on to relationships on a given node template.
+        */
+        getDependsOnRelationships: function(nodeTemplate, relationshipTypes) {
+          var self = this;
+          var dependsOnRelationships = self.getRelationships(nodeTemplate, function(relationship) {
+            return !self.isHostedOnType(relationship.type, relationshipTypes) && !self.isNetworkType(relationship.type, relationshipTypes);
+          });
+          return dependsOnRelationships;
         }
       };
     } // function
