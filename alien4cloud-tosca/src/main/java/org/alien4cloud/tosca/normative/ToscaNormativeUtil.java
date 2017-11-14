@@ -30,13 +30,6 @@ public final class ToscaNormativeUtil {
         return interfaceName;
     }
 
-    /**
-     * Verify that the given <code>type</code> is or inherits the given <code>expectedType</code>.
-     */
-    public static boolean isFromType(String expectedType, String type, List<String> typeHierarchy) {
-        return expectedType.equals(type) || (typeHierarchy != null && typeHierarchy.contains(expectedType));
-    }
-
     public static String formatedOperationOutputName(String nodeName, String interfaceName, String operationName, String output) {
         return AlienUtils.prefixWith(AlienConstants.OPERATION_NAME_SEPARATOR, output, new String[] { nodeName, interfaceName, operationName });
     }
