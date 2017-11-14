@@ -1043,6 +1043,8 @@
       "SERVICES" : "Services",
       "SECRETS" : {
         "SECRET": "Secret",
+        "PLUGIN_NAME": "Plugin name",
+        "VAULT_CREDENTIALS": "Vaut Credentials",
         "NO_SECRET_PLUGIN": "No secret plugin found.",
         "TOKEN": "Token",
         "LDAP": "LDAP",

@@ -41,6 +41,7 @@ define(function (require) {
         
         $scope.openSecretCredentialModal = function () {
           // credentialDescriptor
+          var promise;
           switch (_.size($scope.deploymentTopologyDTO.secretCredentialInfos)) {
             case 1:
               return $uibModal.open({
@@ -49,7 +50,7 @@ define(function (require) {
                 scope: $scope
               }).result;
             case 0:
-              var promise = $q.defer();
+              promise = $q.defer();
               promise.resolve();
               return promise.promise;
             default:
@@ -61,7 +62,7 @@ define(function (require) {
         };
         
         $scope.doDeploy = function () {
-          $scope.openSecretCredentialModal().then(function () {
+          $scope.openSecretCredentialModal().then(function (vaultCredentials) {
             var deployApplicationRequest = {
               applicationId: $scope.application.id,
               applicationEnvironmentId: $scope.environment.id
@@ -75,7 +76,7 @@ define(function (require) {
               $state.go('applications.detail.environment.deploycurrent');
             }, function () {
               $scope.reloadEnvironment();
-            })
+            });
           });
         };
         

@@ -1070,6 +1070,8 @@
       "SERVICES" : "Services",
       "SECRETS" : {
         "SECRET": "Secret",
+        "PLUGIN_NAME": "Nom du plugin",
+        "VAULT_CREDENTIALS": "Identifiant du coffre-fort",
         "NO_SECRET_PLUGIN": "Aucun plugin de gestion de secret n'a été trouvé",
         "TOKEN": "Token",
         "LDAP": "LDAP",

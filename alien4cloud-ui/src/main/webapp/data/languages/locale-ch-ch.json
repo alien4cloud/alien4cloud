@@ -1034,6 +1034,8 @@
       "SERVICES": "服务",
       "SECRETS" : {
         "SECRET": "Secret",
+        "VAULT_CREDENTIALS": "Vaut Credentials",
+        "PLUGIN_NAME": "Plugin name",
         "NO_SECRET_PLUGIN": "No secret plugin found.",
         "TOKEN": "Token",
         "LDAP": "LDAP",

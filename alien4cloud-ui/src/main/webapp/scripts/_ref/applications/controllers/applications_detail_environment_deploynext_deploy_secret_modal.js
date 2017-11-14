@@ -7,9 +7,11 @@ define(function (require) {
   modules.get('a4c-applications', ['ui.bootstrap']).controller('SecretCredentialsController', ['$scope', '$uibModalInstance',
     function ($scope, $uibModalInstance) {
       $scope.pluginName = $scope.deploymentTopologyDTO.secretCredentialInfos[0].pluginName;
+      $scope.pluginConfigurationDescriptor = $scope.deploymentTopologyDTO.secretCredentialInfos[0].credentialDescriptor;
+      $scope.pluginConfigurationValues = {};
+
       $scope.ok = function (valid) {
-        console.log(valid);
-        $uibModalInstance.close();
+        $uibModalInstance.close($scope.pluginConfigurationValues);
       };
       
       $scope.cancel = function () {
