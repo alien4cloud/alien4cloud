@@ -60,7 +60,7 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;

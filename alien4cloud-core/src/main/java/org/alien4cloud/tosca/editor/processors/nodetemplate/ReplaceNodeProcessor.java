@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.Csar;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.topology.TemplateBuilder;
 import lombok.extern.slf4j.Slf4j;
 

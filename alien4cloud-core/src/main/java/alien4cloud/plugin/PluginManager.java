@@ -54,6 +54,8 @@ import alien4cloud.utils.YamlParserUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 /**
  * Manages plugins.
  */
@@ -300,7 +302,7 @@ public class PluginManager {
         ManagedPlugin managedPlugin = pluginContexts.get(pluginId);
         if (managedPlugin != null) {
             for (PluginLinker linker : linkers) {
-                usages.addAll(linker.linker.usage(pluginId));
+                usages.addAll(safe(linker.linker.usage(pluginId)));
             }
         }
 

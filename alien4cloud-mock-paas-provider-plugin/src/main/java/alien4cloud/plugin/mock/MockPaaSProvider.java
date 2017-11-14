@@ -17,6 +17,7 @@ import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
+import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.elasticsearch.common.collect.Maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,7 +30,7 @@ import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.*;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.utils.MapUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -114,7 +115,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
             if (nodeTemplates.get(id).getRelationships() != null) {
                 for (RelationshipTemplate rel : nodeTemplates.get(id).getRelationships().values()) {
                     RelationshipType relType = getRelationshipType(rel.getType());
-                    if (ToscaNormativeUtil.isFromType(NormativeRelationshipConstants.HOSTED_ON, relType)) {
+                    if (ToscaTypeUtils.isOfType(relType, NormativeRelationshipConstants.HOSTED_ON)) {
                         return getScalingPolicy(rel.getTarget(), nodeTemplates);
                     }
                 }
@@ -381,7 +382,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
             if (nEntry.getValue().getRelationships() != null) {
                 for (Entry<String, RelationshipTemplate> rt : nEntry.getValue().getRelationships().entrySet()) {
                     RelationshipType relType = getRelationshipType(rt.getValue().getType());
-                    if (nodeTemplateId.equals(rt.getValue().getTarget()) && ToscaNormativeUtil.isFromType(NormativeRelationshipConstants.HOSTED_ON, relType)) {
+                    if (nodeTemplateId.equals(rt.getValue().getTarget()) && ToscaTypeUtils.isOfType(relType, NormativeRelationshipConstants.HOSTED_ON)) {
                         doScaledUpNode(scalingVisitor, nEntry.getKey(), nodeTemplates);
                     }
                 }
@@ -518,7 +519,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
             if (nodeInstances != null && !nodeInstances.isEmpty()) {
                 NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
                 NodeType nodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
-                if (ToscaNormativeUtil.isFromType(NormativeComputeConstants.COMPUTE_TYPE, nodeType)) {
+                if (ToscaTypeUtils.isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE)) {
                     for (Entry<String, InstanceInformation> nodeInstanceEntry : nodeInstances.entrySet()) {
                         String instanceId = nodeInstanceEntry.getKey();
                         InstanceInformation instanceInformation = nodeInstanceEntry.getValue();

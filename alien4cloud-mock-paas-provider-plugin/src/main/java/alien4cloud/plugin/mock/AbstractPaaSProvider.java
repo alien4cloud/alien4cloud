@@ -29,7 +29,7 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.utils.MapUtil;
 import lombok.extern.slf4j.Slf4j;
 

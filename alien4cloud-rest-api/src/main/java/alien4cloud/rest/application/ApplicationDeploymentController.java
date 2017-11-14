@@ -148,7 +148,7 @@ public class ApplicationDeploymentController {
         User deployer = AuthorizationUtil.getCurrentUser();
         // commit and push the deployment configuration data
         GitLocation location = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environmentId);
-        localGitManager.commitAndPush(location,  deployer.getUsername(), deployer.getEmail(), "Deployment " + DateTime.now(DateTimeZone.UTC));
+        localGitManager.commitAndPush(location, deployer.getUsername(), deployer.getEmail(), "Deployment " + DateTime.now(DateTimeZone.UTC));
 
         // process with the deployment
         deployService.deploy(deployer, deploymentTopologyDTO.getTopology(), application);
@@ -336,7 +336,7 @@ public class ApplicationDeploymentController {
     }
 
     /**
-     * Get detailed informations for every instances of every node of the application on the PaaS.
+     * Get detailed information for every instances of every node of the application on the PaaS.
      *
      * @param applicationId The id of the application to be deployed.
      * @return A {@link RestResponse} that contains detailed informations (See {@link InstanceInformation}) of the application on the PaaS it is deployed.

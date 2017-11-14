@@ -44,7 +44,7 @@ import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.topology.task.ArtifactTask;

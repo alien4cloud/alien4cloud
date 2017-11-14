@@ -24,7 +24,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.CloneUtil;
 import lombok.extern.slf4j.Slf4j;

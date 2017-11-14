@@ -8,6 +8,7 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
+import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
@@ -41,7 +42,7 @@ public class CapabilityMatcherService implements ICapabilityMatcherService {
             String capabilityTypeName = capabilityEntry.getValue().getType();
             CapabilityType capabilityType = toscaContextFinder.find(CapabilityType.class, capabilityTypeName);
 
-            if (capabilityType != null && ToscaNormativeUtil.isFromType(type, capabilityType)) {
+            if (ToscaTypeUtils.isOfType(capabilityType, type)) {
                 targetCapabilitiesMatch.put(capabilityEntry.getKey(), capabilityEntry.getValue());
             }
         }

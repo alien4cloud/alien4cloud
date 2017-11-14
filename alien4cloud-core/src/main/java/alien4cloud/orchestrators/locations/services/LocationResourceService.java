@@ -63,7 +63,7 @@ import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.tosca.topology.TemplateBuilder;
 import alien4cloud.utils.ReflectionUtil;
