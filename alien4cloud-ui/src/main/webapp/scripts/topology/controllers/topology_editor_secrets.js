@@ -18,9 +18,20 @@ define(function (require) {
 
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
-        toggleSecret: function() {
+        toggleGetSecret: function(property) {
           // tranform the property as get secret function
           //  ==> ui shlould display the getSecret label, the input field for the path and a button to add a plugin configuration
+          var scope = this.scope;
+          if (scope.properties.isGetSecretProperty(property.value)) {
+            // reset the secret to originalValue
+            property.value.is_secret = false;
+            property.value = property.originalValue;
+            property.originalValue = undefined;
+          } else {
+            property.originalValue = property.value;
+            property.value = {function:"get_secret", path:"", value:"get_secret", is_secret:true};  // short version
+          }
+
         },
         updateSecretPath: function(property) {
           // sent the get function property with the path secret to Alien backend

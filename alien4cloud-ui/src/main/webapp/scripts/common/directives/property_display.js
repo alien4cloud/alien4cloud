@@ -22,7 +22,8 @@ define(function (require) {
         'onDelete': '&',
         'editable': '=',
         'condensed': '=',
-        'deletable': '=?'
+        'deletable': '=?',
+        'isSecret': '='
       },
       link: {}
     };
