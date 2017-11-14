@@ -89,6 +89,9 @@ public class DeploymentTopology extends Topology {
     @ObjectField(enabled = false)
     private Map<String, NodeTemplate> originalNodes = Maps.newHashMap();
 
+    @ObjectField(enabled = false)
+    private Map<String, NodeTemplate> matchReplacedNodes = Maps.newHashMap();
+
     /** Configuration of the deployment properties specific to the orchestrator if any. */
     @ObjectField(enabled = false)
     private Map<String, String> providerDeploymentProperties;

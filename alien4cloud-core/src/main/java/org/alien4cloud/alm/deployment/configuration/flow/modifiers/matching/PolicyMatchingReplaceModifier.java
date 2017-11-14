@@ -74,6 +74,11 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
     }
 
     @Override
+    protected String getReplacedTemplateCacheKey() {
+        return FlowExecutionContext.MATCHING_REPLACED_POLICIES;
+    }
+
+    @Override
     protected Map<String, PolicyLocationResourceTemplate> getMatchesById(FlowExecutionContext context) {
         return (Map<String, PolicyLocationResourceTemplate>) context.getExecutionCache().get(FlowExecutionContext.MATCHED_POLICY_LOCATION_TEMPLATES_BY_ID_MAP);
     }

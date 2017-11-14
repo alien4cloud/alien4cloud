@@ -57,6 +57,7 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
         Map<String, T> topologyTemplateMap = getTopologyTemplates(topology);
 
         Map<String, T> originalTemplates = Maps.newHashMap();
+        Map<String, T> replacedTemplates = Maps.newHashMap();
         // Now modify the topology to replace nodes with the one selected during matching
         for (Map.Entry<String, String> substitutedNodeEntry : lastUserSubstitutions.entrySet()) {
             // Substitute the node template of the topology by those matched
@@ -64,8 +65,10 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
             String matchedLocationResourceId = substitutedNodeEntry.getValue();
             originalTemplates.put(templateId, topologyTemplateMap.get(templateId));
             processReplacement(topology, topologyTemplateMap, matchesById, templateId, matchedLocationResourceId);
+            replacedTemplates.put(templateId, topologyTemplateMap.get(templateId));
         }
         context.getExecutionCache().put(getOriginalTemplateCacheKey(), originalTemplates);
+        context.getExecutionCache().put(getReplacedTemplateCacheKey(), replacedTemplates);
     }
 
     public void processReplacement(Topology topology, Map<String, T> topologyTemplateMap, Map<String, V> allAvailableResourceTemplate, String nodeId,
@@ -100,6 +103,8 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
     }
 
     protected abstract String getOriginalTemplateCacheKey();
+
+    protected abstract String getReplacedTemplateCacheKey();
 
     protected abstract Map<String, V> getMatchesById(FlowExecutionContext context);
 

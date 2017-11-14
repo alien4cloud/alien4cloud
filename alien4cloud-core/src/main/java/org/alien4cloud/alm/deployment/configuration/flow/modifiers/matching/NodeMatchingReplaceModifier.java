@@ -35,6 +35,11 @@ public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier
     }
 
     @Override
+    protected String getReplacedTemplateCacheKey() {
+        return FlowExecutionContext.MATCHING_REPLACED_NODES;
+    }
+
+    @Override
     protected Map<String, LocationResourceTemplate> getMatchesById(FlowExecutionContext context) {
         return (Map<String, LocationResourceTemplate>) context.getExecutionCache().get(FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP);
     }
@@ -55,8 +60,7 @@ public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier
     }
 
     @Override
-    protected void processSpecificReplacement(NodeTemplate replacingNode, NodeTemplate replacedTopologyNode,
-                                              Set<String> topologyNotMergedProps) {
+    protected void processSpecificReplacement(NodeTemplate replacingNode, NodeTemplate replacedTopologyNode, Set<String> topologyNotMergedProps) {
         // Also merge relationships
         replacingNode.setRelationships(replacedTopologyNode.getRelationships());
         // The location node is the node from orchestrator which must be a child type of the abstract topology node so should loop on this node to do
