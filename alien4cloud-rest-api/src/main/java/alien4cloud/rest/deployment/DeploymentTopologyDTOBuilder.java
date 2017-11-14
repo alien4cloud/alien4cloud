@@ -176,6 +176,8 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
         // used by ui to know if a property is editable. This should however be done differently with a better v2 api.
         deploymentTopology.setOriginalNodes((Map<String, NodeTemplate>) executionContext.getExecutionCache().get(FlowExecutionContext.MATCHING_ORIGINAL_NODES));
         deploymentTopology.setSubstitutedNodes(matchingConfiguration.getMatchedLocationResources());
+        deploymentTopology
+                .setMatchReplacedNodes((Map<String, NodeTemplate>) executionContext.getExecutionCache().get(FlowExecutionContext.MATCHING_REPLACED_NODES));
 
         // Restrict the map of LocationResourceTemplate to the ones that are actually substituted after matching.
         Map<String, LocationResourceTemplate> allLocationResourcesTemplates = (Map<String, LocationResourceTemplate>) executionContext.getExecutionCache()
@@ -189,8 +191,7 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
                 (Map<String, Set<String>>) executionContext.getExecutionCache().get(FlowExecutionContext.SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP));
         substitutionConfiguration.setSubstitutionsTemplates(allLocationResourcesTemplates);
         // Fetch all required types associated with the location substitution templates.
-        substitutionConfiguration
-                .getSubstitutionTypes()
+        substitutionConfiguration.getSubstitutionTypes()
                 .addFrom(locationResourceService.getLocationResourceTypes(safe(substitutionConfiguration.getSubstitutionsTemplates()).values()));
         enrichSubstitutionTypesWithServicesDependencies(safe(substitutionConfiguration.getSubstitutionsTemplates()).values(),
                 substitutionConfiguration.getSubstitutionTypes());

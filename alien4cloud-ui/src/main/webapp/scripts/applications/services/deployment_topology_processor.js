@@ -20,12 +20,12 @@ define(function(require) {
                 if (deploymentTopology.topology.substitutedNodes.hasOwnProperty(nodeId)) {
                   var locationResourceTemplateId = deploymentTopology.topology.substitutedNodes[nodeId];
                   deploymentTopology.topology.substitutedNodes[nodeId] = _.cloneDeep(deploymentTopology.availableSubstitutions.substitutionsTemplates[locationResourceTemplateId]);
-                  deploymentTopology.topology.substitutedNodes[nodeId].template = deploymentTopology.topology.nodeTemplates[nodeId];
+                  deploymentTopology.topology.substitutedNodes[nodeId].template = deploymentTopology.topology.matchReplacedNodes[nodeId];
                 }
               }
             }
 
-            //policies
+            // policies
             if (!_.isEmpty(deploymentTopology.topology.substitutedPolicies) && _.defined(deploymentTopology.availableSubstitutions.substitutionsPoliciesTemplates)) {
               _.forEach(deploymentTopology.topology.substitutedPolicies, function(templateId, policyId){
                 deploymentTopology.topology.substitutedPolicies[policyId] = _.cloneDeep(deploymentTopology.availableSubstitutions.substitutionsPoliciesTemplates[templateId]);
