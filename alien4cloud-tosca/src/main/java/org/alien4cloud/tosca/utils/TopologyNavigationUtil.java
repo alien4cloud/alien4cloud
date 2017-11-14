@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.utils;
 
 import static alien4cloud.utils.AlienUtils.safe;
+import static org.alien4cloud.tosca.utils.ToscaTypeUtils.isOfType;
 
 import java.util.List;
 import java.util.Set;
@@ -14,13 +15,11 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
 import lombok.AccessLevel;
@@ -77,10 +76,10 @@ public final class TopologyNavigationUtil {
         if (nodeTemplate.getRelationships() != null) {
             for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
                 RelationshipType relationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplate.getType());
-                if (WorkflowUtils.isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
+                if (isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
                     NodeTemplate hostNode = topology.getNodeTemplates().get(relationshipTemplate.getTarget());
                     NodeType hostNodeType = ToscaContext.get(NodeType.class, hostNode.getType());
-                    if (WorkflowUtils.isOfType(hostNodeType, hostType)) {
+                    if (isOfType(hostNodeType, hostType)) {
                         return hostNode;
                     } else {
                         return getHostOfTypeInHostingHierarchy(topology, hostNode, hostType);
@@ -198,7 +197,7 @@ public final class TopologyNavigationUtil {
 
     private static boolean isHostedOnRelationship(String type) {
         RelationshipType relationshipType = ToscaContext.getOrFail(RelationshipType.class, type);
-        return ToscaNormativeUtil.isFromType(NormativeRelationshipConstants.HOSTED_ON, relationshipType);
+        return ToscaTypeUtils.isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON);
     }
 
 }

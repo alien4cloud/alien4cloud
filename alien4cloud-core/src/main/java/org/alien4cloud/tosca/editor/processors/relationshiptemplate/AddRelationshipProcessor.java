@@ -7,7 +7,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
 import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
@@ -27,7 +26,7 @@ import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.topology.validation.TopologyCapabilityBoundsValidationServices;
 import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import alien4cloud.tosca.topology.TemplateBuilder;

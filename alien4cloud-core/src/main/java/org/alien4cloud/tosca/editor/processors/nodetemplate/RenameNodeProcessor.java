@@ -2,7 +2,6 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.RenameNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.Csar;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.NameValidationUtils;
 import lombok.extern.slf4j.Slf4j;

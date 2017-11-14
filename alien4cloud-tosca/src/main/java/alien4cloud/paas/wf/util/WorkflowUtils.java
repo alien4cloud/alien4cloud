@@ -5,6 +5,7 @@ import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameCon
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+import static org.alien4cloud.tosca.utils.ToscaTypeUtils.isOfType;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -16,7 +17,6 @@ import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep;
@@ -149,19 +149,6 @@ public class WorkflowUtils {
 
     public static boolean isNodeStep(WorkflowStep step, String nodeId) {
         return step instanceof NodeWorkflowStep && nodeId.equals(step.getTarget());
-    }
-
-    /**
-     * Check whether the node type is equals or derived from the given type name
-     * 
-     * @param indexedNodeType the node type
-     * @param type the type name
-     * @return true if the node type is equals or derived from the given type name
-     */
-    // TODO ALIEN-2589: move elsewhere
-    public static boolean isOfType(AbstractInheritableToscaType indexedNodeType, String type) {
-        return indexedNodeType != null
-                && (indexedNodeType.getElementId().equals(type) || indexedNodeType.getDerivedFrom() != null && indexedNodeType.getDerivedFrom().contains(type));
     }
 
     public static boolean isComputeOrNetwork(String nodeId, TopologyContext topologyContext) {

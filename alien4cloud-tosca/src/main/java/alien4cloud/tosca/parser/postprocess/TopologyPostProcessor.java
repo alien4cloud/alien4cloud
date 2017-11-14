@@ -14,7 +14,7 @@ import org.yaml.snakeyaml.nodes.Node;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;

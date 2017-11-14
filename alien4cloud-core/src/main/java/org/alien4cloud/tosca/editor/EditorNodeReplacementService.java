@@ -7,7 +7,7 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 
 /**
  * Helper service for editor context that allows to get possible replacement indexedNodeTypes for a node template.

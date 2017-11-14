@@ -1,4 +1,4 @@
-package alien4cloud.topology;
+package org.alien4cloud.tosca.utils;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
@@ -20,7 +20,6 @@ import org.alien4cloud.tosca.model.templates.ScalingPolicy;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -100,7 +99,7 @@ public class TopologyUtils {
 
     public static void setNullScalingPolicy(NodeTemplate nodeTemplate, NodeType resourceType) {
         // FIXME Workaround to remove default scalable properties from compute
-        if (ToscaNormativeUtil.isFromType(NormativeComputeConstants.COMPUTE_TYPE, resourceType)) {
+        if (ToscaTypeUtils.isOfType(resourceType, NormativeComputeConstants.COMPUTE_TYPE)) {
             if (nodeTemplate.getCapabilities() != null) {
                 Capability scalableCapability = nodeTemplate.getCapabilities().get(NormativeComputeConstants.SCALABLE);
                 if (scalableCapability != null && scalableCapability.getProperties() != null) {
@@ -158,21 +157,9 @@ public class TopologyUtils {
                 return null;
             }
         }
-        Map<String, Capability> capabilities = node.getCapabilities();
-        if (MapUtils.isEmpty(capabilities)) {
-            if (throwNotFoundException) {
-                throw new NotFoundException("Node " + nodeTemplateId + " does not have any capability");
-            } else {
-                return null;
-            }
-        }
-        Capability capability = node.getCapabilities().get(capabilityName);
-        if (capability == null) {
-            if (throwNotFoundException) {
-                throw new NotFoundException("Node " + nodeTemplateId + " does not have the capability scalable");
-            } else {
-                return null;
-            }
+        Capability capability = safe(node.getCapabilities()).get(capabilityName);
+        if (capability == null && throwNotFoundException) {
+            throw new NotFoundException("Node " + nodeTemplateId + " does not have the capability scalable");
         }
         return capability;
     }

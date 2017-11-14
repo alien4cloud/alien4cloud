@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 
 import alien4cloud.exception.InvalidNameException;
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.alien4cloud.tosca.model.Csar;
@@ -17,7 +16,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 
 /**
  * Process the addition to a node template to a group. If the group does not exists, it is created.

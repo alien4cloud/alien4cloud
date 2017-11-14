@@ -2,6 +2,7 @@ package org.alien4cloud.secret.services;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.plugin.AbstractPluginLinker;

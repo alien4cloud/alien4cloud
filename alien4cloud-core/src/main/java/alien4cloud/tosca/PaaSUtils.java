@@ -16,6 +16,7 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
+import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Maps;
@@ -52,7 +53,7 @@ public class PaaSUtils {
 
     public static PaaSNodeTemplate getHostTemplate(PaaSNodeTemplate paaSNodeTemplate) {
         while (paaSNodeTemplate != null) {
-            if (ToscaNormativeUtil.isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedToscaElement())) {
+            if (ToscaTypeUtils.isOfType(paaSNodeTemplate.getIndexedToscaElement(), NormativeComputeConstants.COMPUTE_TYPE)) {
                 // Found the compute
                 return paaSNodeTemplate;
             } else {
