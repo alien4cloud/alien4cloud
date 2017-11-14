@@ -242,7 +242,18 @@
       <table ng-if="!isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
         <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
           <td class="topology-props-td-inp">
-            <div class="btn-group" uib-dropdown>
+            <span class="">
+              <a id="p_secret_cap_{{propertyEntry.key}}"
+                 ng-click="toggleGetSecret(propertyEntry)"
+                 class="btn btn-default btn-xs"
+                 uib-dropdown-toggle
+                 ng-class="{'active' : properties.isGetSecretProperty(propertyEntry.value)}"
+                 uib-tooltip="Add secret"
+                 tooltip-append-to-body="true">
+                <i class="fa fa-user-secret"></i>
+              </a>
+            </span>
+            <span class="btn-group" uib-dropdown>
               <a id="p_input_cap_{{propertyEntry.key}}"
                  ng-click="inputs.getCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                  class="btn btn-default btn-xs"
@@ -271,7 +282,7 @@
                   </a>
                 </li>
               </ul>
-            </div>
+            </span>
           </td>
           <td>
             <property-display

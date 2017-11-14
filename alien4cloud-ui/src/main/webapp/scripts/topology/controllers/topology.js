@@ -24,6 +24,7 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_nodesswap');
   require('scripts/topology/controllers/topology_editor_outputs');
   require('scripts/topology/controllers/topology_editor_policies');
+  require('scripts/topology/controllers/topology_editor_secrets');
   require('scripts/topology/controllers/topology_editor_properties');
   require('scripts/topology/controllers/topology_editor_relationships');
   require('scripts/topology/controllers/topology_editor_substitution');
@@ -47,6 +48,7 @@ define(function (require) {
     'topoEditNodesSwap',
     'topoEditOutputs',
     'topoEditPolicies',
+    'topoEditSecrets',
     'topoEditProperties',
     'topoEditRelationships',
     'topoEditSubstitution',
