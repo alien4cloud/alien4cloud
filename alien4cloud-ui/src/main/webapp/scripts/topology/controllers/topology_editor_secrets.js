@@ -28,8 +28,9 @@ define(function (require) {
             property.value = property.originalValue;
             property.originalValue = undefined;
           } else {
+            // set the secret
             property.originalValue = property.value;
-            property.value = {function:"get_secret", path:"", value:"get_secret", is_secret:true};  // short version
+            property.value = {function:"get_secret", parameters: {path: "", configuration:{}}};  // short version
           }
 
         },

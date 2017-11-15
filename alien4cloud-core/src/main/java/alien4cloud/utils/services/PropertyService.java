@@ -35,8 +35,12 @@ public class PropertyService {
             properties.put(propertyName, (T) propertyDefinition.getDefault());
             return;
         }
-
-        ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+        // Secret Management: If the value is about the get_secret function, we ignore this check.
+        if (propertyValue instanceof Map && ((Map) propertyValue).get("function").equals("get_secret")) {
+            // Do nothing
+        } else {
+            ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+        }
         properties.put(propertyName, asPropertyValue(propertyValue));
     }
 

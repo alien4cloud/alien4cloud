@@ -142,6 +142,10 @@ define(function(require) {
           propertyDefinition: $scope.definition,
           propertyValue: data
         };
+        // If the data is complex, we need to replace the propertyValue with the recreated object
+        $scope.definitionObject.uiValue.parameters.path = data;
+        propertyRequest.propertyValue = $scope.definitionObject.uiValue;
+
         if (_.defined($scope.definition.suggestionId) && _.defined(data) && data !== null) {
           return propertySuggestionServices.get({
             input: data,
@@ -247,10 +251,14 @@ define(function(require) {
           // Here handle scalar value
           return propertyValue.value;
         } else if (propertyValue.hasOwnProperty('function') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
-          // And here a function (get_input / get_property)
-          $scope.editable = false;
-          return propertyValue.function + ': ' + _(propertyValue.parameters).toString();
-
+          if (propertyValue.function === 'get_secret') {
+            // To handle the function (get_secret)
+            return propertyValue.parameters.path;
+          } else {
+            // And here a function (get_input / get_property)
+            $scope.editable = false;
+            return propertyValue.function + ': ' + _(propertyValue.parameters).toString();
+          }
         } else if (propertyValue.hasOwnProperty('function_concat') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
           // And here a concat
           $scope.editable = false;
@@ -270,6 +278,9 @@ define(function(require) {
         if (!_.defined($scope.definition)) {
           return;
         }
+
+        // Juge if it is a secret
+        $scope.definitionObject.uiSecret = _.defined($scope.propertyValue) && _.defined($scope.propertyValue.function) && $scope.propertyValue.function === 'get_secret';
 
         // Now a property is an AbstractPropertyValue : (Scalar or Function)
         var shownValue = $scope.propertyValue;
@@ -329,8 +340,13 @@ define(function(require) {
           type = $scope.propertyType.derivedFrom[0];
         }
 
+        // Check if it is a function
+        if ($scope.definitionObject.uiSecret) {
+          type = 'complex';
+        }
+
         $scope.definitionObject.uiEmpty = false;
-        if(_.undefined(shownValue) || _.isEmpty(shownValue)) {
+        if(!$scope.definitionObject.uiSecret && _.undefined(shownValue) || _.isEmpty(shownValue)) {
           $scope.definitionObject.uiEmpty = true;
         }
 

@@ -11,8 +11,15 @@
     ng-init="isStringDisplayType = (definitionObject.uiName === 'scalar-unit' || definitionObject.uiName === 'string');">
     <!-- Property Value -->
     <div id="div_{{propertyName}}"  ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required && definitionObject.uiEmpty}">
+      <!-- Case: Secret -->
+      <label ng-if="definitionObject.uiSecret">get_secret: </label>
+      <span id="p_{{propertyName}}" ng-if="definitionObject.uiSecret && editable" editable-text="definitionObject.uiValue.parameters.path" buttons="no" e-required
+            onbeforesave="propertySave($data)" blur="submit">
+        {{ definitionObject.uiValue.parameters.path }} <i class="fa fa-pencil-square-o"></i>
+      </span>
+
       <!-- Case : string -->
-      <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && !definitionObject.units && editable">
+      <span id="p_{{propertyName}}" ng-if="!definitionObject.uiSecret && !definitionObject.uiPassword && !definitionObject.units && editable">
         <span ng-if="!isLongText"
               ng-click="switchLongTextChoice(true)"
               editable-text="definitionObject.uiValue" buttons="no"
@@ -69,6 +76,7 @@
 
       <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
       <label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label>
+
       <!-- Reset button for any property definition -->
       <span class="pull-right">
         <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs" ng-click="resetProperty();">
