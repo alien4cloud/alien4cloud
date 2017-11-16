@@ -12,6 +12,9 @@ define(function (require) {
       var attachedToType = 'tosca.relationships.AttachTo';
       var computeType = 'tosca.nodes.Compute';
       var dockerType = 'tosca.nodes.Container.Application.DockerContainer';
+      var capabilityScalableName = 'tosca.capabilities.Scalable';
+      var capabilityClusterControllerName = 'org.alien4cloud.capabilities.ClusterController';
+
 
       var getScalingProperty = function(scalableCapability, propertyName) {
         var propertyEntry = scalableCapability.propertiesMap[propertyName];
@@ -33,9 +36,19 @@ define(function (require) {
       return {
         standardInterfaceName: 'tosca.interfaces.node.lifecycle.Standard',
 
-        getScalingPolicy: function(node) {
-          if (_.defined(node.capabilitiesMap) && _.defined(node.capabilitiesMap.scalable)) {
-            var scalableCapability = node.capabilitiesMap.scalable.value;
+        getScalingPolicy: function(node, capabilityTypes) {
+          var scalableCapability = this.getCapabilityByType(node, capabilityScalableName, capabilityTypes);
+          return this.getScalableInfo(scalableCapability);
+        },
+
+        getClusterControllerPolicy: function(node, capabilityTypes) {
+          var scalableCapabilityEntry = this.getCapabilityByType(node, capabilityClusterControllerName, capabilityTypes);
+          return this.getScalableInfo(scalableCapabilityEntry);
+        },
+
+        getScalableInfo: function(scalableCapabilityEntry) {
+          if (_.defined(scalableCapabilityEntry)) {
+            var scalableCapability = scalableCapabilityEntry.value;
             var min = getScalingProperty(scalableCapability, 'min_instances');
             var max = getScalingProperty(scalableCapability, 'max_instances');
             var init = getScalingProperty(scalableCapability, 'default_instances');
@@ -48,6 +61,21 @@ define(function (require) {
               };
             }
           }
+        },
+
+        /**
+        * Get the first capability matching the requested type.
+        */
+        getCapabilityByType: function(node, expectedType, capabilityTypes) {
+          var self = this;
+          var matchingCapability;
+          _.each(node.capabilities, function(capability) {
+            if(self.isOneOfType([expectedType], capability.value.type, capabilityTypes)) {
+              matchingCapability = capability;
+              return false;
+            }
+          });
+          return matchingCapability;
         },
 
         getTag: function(tagName, tags) {

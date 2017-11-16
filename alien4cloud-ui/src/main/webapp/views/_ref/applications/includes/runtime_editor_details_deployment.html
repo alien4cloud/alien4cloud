@@ -1,0 +1,53 @@
+<div class="row">
+  <div class="col-md-5">
+    <h5 class="text-primary">{{'APPLICATIONS.RUNTIME.DEPLOYMENT' | translate}}</h5>
+  </div>
+</div>
+<div class="row form-horizontal">
+  <div class="col-md-12">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{'COMMON.NAME' | translate}}</th>
+          <th>{{'VALUE' | translate}}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.APP_NAME' | translate}}</strong></td>
+          <td class="col-md-7">{{application.name}}</td>
+          <td class="col-md-1"></td>
+        </tr>
+        <tr>
+          <td class="col-md-4"><strong>{{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</strong></td>
+          <td class="col-md-8" colspan="2">{{environment.name}}</td>
+        </tr>
+        <tr>
+          <td class="col-md-4"><strong>{{'APPLICATIONS.VERSION.TOPOLOGY.LABEL' | translate}}</strong></td>
+          <td class="col-md-8" colspan="2">{{topology.topology.archiveVersion}}</td>
+        </tr>
+        <tr>
+          <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.DEPLOYMENT_ID' | translate}}</strong></td>
+          <td class="col-md-8" colspan="2">{{topology.topology.id}}</td>
+        </tr>
+        <tr>
+          <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.ORCHESTRATOR_NAME' | translate}}</strong></td>
+          <td class="col-md-8" colspan="2">{{orchestrator.name}}</td>
+        </tr>
+        <tr>
+          <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.ORCHESTRATOR_ID' | translate}}</strong></td>
+          <td class="col-md-8" colspan="2">{{orchestrator.id}}</td>
+        </tr>
+        <tr>
+          <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.LOCATION_NAME' | translate}}</strong></td>
+          <td class="col-md-8" colspan="2">{{location.name}}</td>
+        </tr>
+        <tr>
+          <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.LOCATION_ID' | translate}}</strong></td>
+          <td class="col-md-8" colspan="2">{{location.id}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

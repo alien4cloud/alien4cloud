@@ -1,407 +1,68 @@
 <div id="topology-editor" class="topology-editor" style="height: {{dimensions.height}}px; width: {{dimensions.width}}px;">
-        <div class="topology-row" style="height: {{dimensions.height}}px;">
-          <!-- TOPOLOGY display -->
-          <div id="topology" class="topology-column">
-            <div class="topology topology-column-box">
-              <topology-rendering ng-if="topology" dimensions="visualDimensions" topology="topology"
-                callbacks="callbacks"
-                graph-control="graphControl"
-                runtime="true">
-              </topology-rendering>
-            </div>
-          </div>
-          <!-- runtime details -->
-          <div id="runtime-details-box" ng-show="displays.details.active" class="topology-column" style="width: {{displays.details.size}}px;">
-            <div class="topology-column-box">
-              <resizable-bar
-                id="runtime-details-box-handler"
-                classes="topology-column-menu-left">
-              </resizable-bar>
-              <div class="topology-column-content">
-                <div class="topology-column-content-head">
-                  <span>
-                    <i class="fa fa-info"></i> {{'DETAILS' | translate}}
-                  </span>
-                  <span id='closeDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.set('details', false)">
-                    <i class="fa fa-remove close-panel"></i>
-                  </span>
-                </div>
-                <!-- Main -->
-                <div ng-show="!selectedNodeTemplate">
-                  <div class="row">
-                    <div class="col-md-5">
-                      <h5 class="text-primary">{{'APPLICATIONS.RUNTIME.DEPLOYMENT' | translate}}</h5>
-                    </div>
-                  </div>
-                  <div class="row form-horizontal">
-                    <div class="col-md-12">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>{{'COMMON.NAME' | translate}}</th>
-                            <th>{{'VALUE' | translate}}</th>
-                            <th></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.APP_NAME' | translate}}</strong></td>
-                            <td class="col-md-7">{{application.name}}</td>
-                            <td class="col-md-1"></td>
-                          </tr>
-                          <tr>
-                            <td class="col-md-4"><strong>{{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</strong></td>
-                            <td class="col-md-8" colspan="2">{{environment.name}}</td>
-                          </tr>
-                          <tr>
-                            <td class="col-md-4"><strong>{{'APPLICATIONS.VERSION.TOPOLOGY.LABEL' | translate}}</strong></td>
-                            <td class="col-md-8" colspan="2">{{topology.topology.archiveVersion}}</td>
-                          </tr>
-                          <tr>
-                            <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.DEPLOYMENT_ID' | translate}}</strong></td>
-                            <td class="col-md-8" colspan="2">{{topology.topology.id}}</td>
-                          </tr>
-                          <tr>
-                            <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.ORCHESTRATOR_NAME' | translate}}</strong></td>
-                            <td class="col-md-8" colspan="2">{{orchestrator.name}}</td>
-                          </tr>
-                          <tr>
-                            <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.ORCHESTRATOR_ID' | translate}}</strong></td>
-                            <td class="col-md-8" colspan="2">{{orchestrator.id}}</td>
-                          </tr>
-                          <tr>
-                            <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.LOCATION_NAME' | translate}}</strong></td>
-                            <td class="col-md-8" colspan="2">{{location.name}}</td>
-                          </tr>
-                          <tr>
-                            <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.LOCATION_ID' | translate}}</strong></td>
-                            <td class="col-md-8" colspan="2">{{location.id}}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-                <!-- Node -->
-                <div ng-if="selectedNodeTemplate && !selectedInstance">
-                  <div>
-                    <div class="pull-left">
-                      <h5>
-                        <a ng-click="clearNodeSelection()">{{'APPLICATIONS.RUNTIME.DEPLOYMENT' | translate}}</a>
-                        <span class="text-primary"> / {{selectedNodeTemplate.name | split:39}}</span>
-                      </h5>
-                    </div>
-                    <div class="pull-right">
-                      <button id="backToDeploymentButton" type="button" class="btn btn-default btn-xs" ng-click="clearNodeSelection()"
-                              uib-tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
-                        <i class="fa fa-arrow-left"></i>
-                      </button>
-                    </div>
-                    <span class="clearfix"></span>
-                  </div>
-                  <div id="scaleEditableInput" ng-show="isScalable()">
-                    <div id="node-scale-command" class="clickable"
-                         ng-click="isNodeScaleCollapsed = !isNodeScaleCollapsed">
-                      <h4>
-                        <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeScaleCollapsed, 'fa-caret-right': isNodeScaleCollapsed}"></i>
-                        {{'APPLICATIONS.RUNTIME.SCALE' | translate}}
-                      </h4>
-                    </div>
-                    <div
-                      class="editable-discreet"
-                      editable-number="selectedNodeTemplate.newInstancesCount"
-                      buttons="yes"
-                      onbeforesave="scale($data)"
-                      e-step="1"
-                      e-min="{{selectedNodeTemplate.scalingPolicy.minInstances}}"
-                      e-max="{{selectedNodeTemplate.scalingPolicy.maxInstances}}"
-                      e-required
-                      e-onkeypress="if (event.which==13) {$('#scaleEditableInput button.btn-primary').click(); event.preventDefault();}"
-                      uib-collapse="isNodeScaleCollapsed">
-                      <h4>
-                        {{selectedNodeTemplate.newInstancesCount || selectedNodeTemplate.instancesCount}}
-                        <span id="scaleEditableButton" class="btn btn-primary btn-xs"
-                                uib-tooltip="{{ 'APPLICATIONS.RUNTIME.SCALE_BUTTON' | translate }}">
-                          <i class="fa fa-signal"></i>
-                        </span>
-                      </h4>
-                    </div>
-                  </div>
-                  <div ng-show="selectedNodeTemplate.type != 'tosca.nodes.Network'">
-                    <div id="node-instance-list-command" class="clickable"
-                         ng-click="isNodeInstanceListCollapsed = !isNodeInstanceListCollapsed">
-                      <h4>
-                        <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstanceListCollapsed, 'fa-caret-right': isNodeInstanceListCollapsed}"></i>
-                        {{'APPLICATIONS.RUNTIME.INSTANCES' | translate}}
-                      </h4>
-                    </div>
-                    <div id="node-instance-list" uib-collapse="isNodeInstanceListCollapsed" class="row">
-                      <div class="col-md-12">
-                        <table class="table">
-                          <thead>
-                            <tr>
-                              <th>{{ 'APPLICATIONS.RUNTIME.INSTANCE' | translate }}</th>
-                              <th>{{ 'COMMON.STATE' | translate }}</th>
-                              <th>{{ 'APPLICATIONS.RUNTIME.STATUS' | translate }}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr ng-repeat="(id, info) in topology.instances[selectedNodeTemplate.name]"
-                              id="instanceDetailButton_{{id}}"
-                              class="clickable"
-                              title="details"
-                              ng-click="selectInstance(id)" >
-                              <td class="col-md-4">{{id}}</td>
-                              <td class="col-md-6">{{'STATES.'+info.state | translate}}</td>
-                              <td class="col-md-1">
-                                <i class="fa" ng-class="{'fa-check text-success': info.instanceStatus === 'SUCCESS',
-                                'fa-times text-danger': info.instanceStatus === 'FAILURE',
-                                'fa-spinner fa-spin' : info.instanceStatus === 'PROCESSING'}"></i>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Instance -->
-                <div ng-show="selectedNodeTemplate && selectedInstance">
-                  <div>
-                    <div class="pull-left">
-                      <h5>
-                        <a ng-click="clearNodeSelection()">{{'APPLICATIONS.RUNTIME.DEPLOYMENT' | translate}}</a>
-                        <span class="text-primary"> / </span>
-                        <a ng-click="clearInstanceSelection()">{{selectedNodeTemplate.name}}</a>
-                        <span class="text-primary"> / {{selectedInstance.id}}</span>
-                      </h5>
-                    </div>
-                    <div class="pull-right">
-                      <button id="backToInstanceListButton" type="button" class="btn btn-default btn-xs" ng-click="clearInstanceSelection()"
-                              uib-tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
-                        <i class="fa fa-arrow-left"></i>
-                      </button>
-                    </div>
-                    <span class="clearfix"></span>
-                  </div>
-                  <div id="node-instance-properties-command" class="clickable" ng-click="isNodeInstancePropertiesCollapsed = !isNodeInstancePropertiesCollapsed">
-                    <h4>
-                      <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstancePropertiesCollapsed, 'fa-caret-right': isNodeInstancePropertiesCollapsed}"></i>
-                      {{'COMMON.PROPERTIES' | translate}}
-                    </h4>
-                  </div>
-                  <div class="row" uib-collapse="isNodeInstancePropertiesCollapsed">
-                    <div class="col-md-12">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>{{ 'APPLICATIONS.RUNTIME.KEY' | translate }}</th>
-                            <th>{{ 'APPLICATIONS.RUNTIME.VALUE' | translate }}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <!-- properties are the same for all instances of a node template -->
-                          <tr ng-repeat="property in selectedNodeTemplate.properties">
-                            <td>{{property.key}}</td>
-                            <td>{{property.value.value}}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div id="node-instance-attributes-command" class="clickable" ng-click="isNodeInstanceAttributesCollapsed = !isNodeInstanceAttributesCollapsed">
-                    <h4>
-                      <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstanceAttributesCollapsed, 'fa-caret-right': isNodeInstanceAttributesCollapsed}"></i>
-                      {{'COMMON.ATTRIBUTES' | translate}}
-                    </h4>
-                  </div>
-                  <div class="row" uib-collapse="isNodeInstanceAttributesCollapsed">
-                    <div class="col-md-12">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>{{ 'APPLICATIONS.RUNTIME.KEY' | translate }}</th>
-                            <th>{{ 'APPLICATIONS.RUNTIME.VALUE' | translate }}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr ng-repeat="(propKey, propVal) in selectedInstance.attributes">
-                            <td>{{propKey}}</td>
-                            <td>{{propVal}}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div id="node-instance-runtimeprops-command" class="clickable" ng-click="isNodeInstanceRuntimePropsCollapsed = !isNodeInstanceRuntimePropsCollapsed">
-                    <h4>
-                      <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstanceRuntimePropsCollapsed, 'fa-caret-right': isNodeInstanceRuntimePropsCollapsed}"></i>
-                      {{'APPLICATIONS.RUNTIME.RUNTIMEPROPS' | translate}}
-                    </h4>
-                  </div>
-                  <div class="row" uib-collapse="isNodeInstanceRuntimePropsCollapsed">
-                    <div class="col-md-12">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>{{ 'APPLICATIONS.RUNTIME.KEY' | translate }}</th>
-                            <th>{{ 'APPLICATIONS.RUNTIME.VALUE' | translate }}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr ng-repeat="(propKey, propVal) in selectedInstance.runtimeProperties">
-                            <td>{{propKey}}</td>
-                            <td>{{propVal}}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Operations -->
-
-                <div ng-show="(selectedNodeTemplate || selectedInstance) && isMapNotNullOrEmpty(selectedNodeCustomInterfaces)">
-                  <div id="node-instance-attributes-command" class="clickable" ng-click="isNodeOperationsCollapsed = !isNodeOperationsCollapsed">
-                    <h4>
-                      <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeOperationsCollapsed, 'fa-caret-right': isNodeOperationsCollapsed}"></i>
-                      {{'operations' | translate}}
-                    </h4>
-                  </div>
-                  <div uib-collapse="isNodeOperationsCollapsed">
-                    <div ng-repeat="(interfaceName, interface) in selectedNodeCustomInterfaces">
-                      <div ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{interfaceName}}_{{operationName}}" ng-repeat="(operationName, operation) in interface.operations">
-                        <!-- Operation div with "execute" button -->
-                        <div ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
-                          <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-caret-down' : !isOpCollapsed[operationName], 'fa-caret-right': isOpCollapsed[operationName]}"></i>
-                          <span>{{interfaceName}}.{{operationName}}</span>
-                          <span class="pull-right" uib-tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
-                            <button class="btn btn-success btn-xs"
-                                ng-click="executeOperation(interfaceName, operationName, operation.inputParameters, $event)"
-                                ng-disabled="operationLoading[selectedNodeTemplate.name][interfaceName][operationName]"
-                                id="btn-submit-operation-{{interfaceName}}-{{operationName}}">
-                              <i class="fa" ng-class="{' fa-spin fa-spinner' : operationLoading[selectedNodeTemplate.name][interfaceName][operationName], 'fa-play-circle': !operationLoading[selectedNodeTemplate.name][interfaceName][operationName]}"></i>
-                            </button>
-                          </span>
-                          <span class="clearfix"></span>
-                        </div>
-                        <!-- Operation inputs in collapsed div (if exists) -->
-                        <div uib-collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
-                          <table class="table table-condensed" id="op_{{operationName}}_inputParams">
-                            <tr ng-repeat="(inputParameterName, inputParameter) in operation.inputParameters">
-                              <td class="col-md-11" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
-                                <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
-                                <property-display ng-init="condensed = true"
-                                                  definition="inputParameter"
-                                                  property-name="inputParameterName"
-                                                  property-value="inputParameter.paramValue"
-                                                  on-save="checkProperty(propertyDefinition, propertyValue, propertyName)"
-                                                  editable="true"
-                                                  condensed="condensed">
-                                </property-display>
-                              </td>
-                            </tr>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- runtime events -->
-          <div id="runtime-events-box" ng-show="view === 'RENDERED' && displays.events.active" class="topology-column" style="width: {{displays.events.size}}px;">
-            <div class="topology-column-box">
-              <resizable-bar
-                id="runtime-events-box-handler"
-                classes="topology-column-menu-left">
-              </resizable-bar>
-              <div class="topology-column-content">
-                <div class="topology-column-content-head">
-                  <span>
-                    <i class="fa fa-tasks"></i> {{'APPLICATIONS.RUNTIME.EVENTS_TAB' | translate}}
-                  </span>
-                  <span id='closeEvents' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.set('events', false)">
-                    <i class="fa fa-remove close-panel"></i>
-                  </span>
-                </div>
-                <div>
-                  <div class="row form-horizontal">
-                    <div class="col-md-12">
-                      <div class="form-group">
-                        <label class="col-md-2 control-label">{{'COMMON.TYPE' | translate}}</label>
-                        <div class="col-md-10">
-                          <div class="btn-group" uib-dropdown>
-                            <button id="eventTypeSelection" type="button" class="btn btn-default" uib-dropdown-toggle>
-                              {{eventTypeLabels[selectedEventTypeFilter.value] | translate}}
-                              <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" uib-dropdown-menu role="menu">
-                              <li ng-repeat="eventTypeFilter in eventTypeFilters | filter: {value: '!' + selectedEventTypeFilter.value}"><a id="{{eventTypeFilter.value + 'Select'}}" ng-click="filterEvents(eventTypeFilter)">{{eventTypeLabels[eventTypeFilter.value]
-                                | translate}}</a>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-12">
-                      <div style="overflow: auto; height: {{eventsDivHeight}}px">
-                        <table class="table table-hover runtime-events-table">
-                          <thead>
-                            <tr>
-                              <th>{{ 'APPLICATIONS.RUNTIME.EVENTS.DATE' | translate}}</th>
-                              <th>{{ 'COMMON.TYPE' | translate}}</th>
-                              <th>{{ 'APPLICATIONS.RUNTIME.EVENTS.MESSAGE' | translate}}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr ng-repeat="event in events.data | orderBy:'date':true" ng-if="selectedEventTypeFilter.value === 'ALL' || eventTypeLabels[selectedEventTypeFilter.value] === event.type">
-                              <td>{{event.date | date:'d/M/yy H:mm:ss'}}</td>
-                              <td>{{event.type | translate }}</td>
-                              <td>{{event.message.template | translate:event.message.data }}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- exposed service information -->
-          <div id="runtime-service-box" ng-show="view === 'RENDERED' && displays.service.active" class="topology-column" style="width: {{displays.service.size}}px;">
-            <div class="topology-column-box">
-              <resizable-bar
-                id="runtime-service-box-handler"
-                classes="topology-column-menu-left">
-              </resizable-bar>
-              <div class="topology-column-content">
-                <managed-service
-                  application="application"
-                  topology="topology.topology"
-                  environment="environment"
-                  runtime="true",
-                  close="display.set('service', false)">
-                </managed-service>
-              </div>
-            </div>
-          </div>
-          <!-- Right vertical menu -->
-          <div id="topology-vertical-menu" class="topology-column">
-            <ul>
-              <li ng-repeat="(menuName, menuDetail) in displays" ng-show="view === 'RENDERED' && !menuDetail.active">
-                <span id="topology-{{menuName}}" ng-click="display.toggle(menuName)">
-                  <i class="fa {{menuDetail.fa}}"></i> {{menuDetail.title | translate}}
-                </span>
-              </li>
-            </ul>
-          </div>
+  <div class="topology-row" style="height: {{dimensions.height}}px;">
+    <!-- TOPOLOGY display -->
+    <div id="topology" class="topology-column">
+      <div class="topology topology-column-box">
+        <topology-rendering ng-if="topology" dimensions="visualDimensions" topology="topology"
+          callbacks="callbacks"
+          graph-control="graphControl"
+          runtime="true">
+        </topology-rendering>
+      </div>
+    </div>
+    <!-- runtime details -->
+    <div id="runtime-details-box" ng-show="displays.details.active" class="topology-column" style="width: {{displays.details.size}}px;">
+      <div class="topology-column-box">
+        <resizable-bar
+          id="runtime-details-box-handler"
+          classes="topology-column-menu-left">
+        </resizable-bar>
+        <div class="topology-column-content" ng-if="displays.details.active">
+          <ng-include src="'views/_ref/applications/includes/runtime_editor_details.html'"></ng-include>
         </div>
       </div>
+    </div>
+
+    <!-- runtime events -->
+    <div id="runtime-events-box" ng-show="view === 'RENDERED' && displays.events.active" class="topology-column" style="width: {{displays.events.size}}px;">
+      <div class="topology-column-box">
+        <resizable-bar
+          id="runtime-events-box-handler"
+          classes="topology-column-menu-left">
+        </resizable-bar>
+        <div class="topology-column-content">
+          <ng-include src="'views/_ref/applications/includes/runtime_editor_events.html'"></ng-include>
+        </div>
+      </div>
+    </div>
+
+    <!-- exposed service information -->
+    <div id="runtime-service-box" ng-show="view === 'RENDERED' && displays.service.active" class="topology-column" style="width: {{displays.service.size}}px;">
+      <div class="topology-column-box">
+        <resizable-bar
+          id="runtime-service-box-handler"
+          classes="topology-column-menu-left">
+        </resizable-bar>
+        <div class="topology-column-content">
+          <managed-service
+            application="application"
+            topology="topology.topology"
+            environment="environment"
+            runtime="true",
+            close="display.set('service', false)">
+          </managed-service>
+        </div>
+      </div>
+    </div>
+    <!-- Right vertical menu -->
+    <div id="topology-vertical-menu" class="topology-column">
+      <ul>
+        <li ng-repeat="(menuName, menuDetail) in displays" ng-show="view === 'RENDERED' && !menuDetail.active">
+          <span id="topology-{{menuName}}" ng-click="display.toggle(menuName)">
+            <i class="fa {{menuDetail.fa}}"></i> {{menuDetail.title | translate}}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

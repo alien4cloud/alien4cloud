@@ -73,7 +73,6 @@ define(function (require) {
     };
     topoEditDisplay($scope, '#topology-editor');
     $scope.view = 'RENDERED';
-    $scope.triggerTopologyRefresh = null;
 
     $scope.eventTypeFilters = [
       { 'value': 'ALL' },
@@ -89,15 +88,21 @@ define(function (require) {
     };
 
     function refreshSelectedNodeInstancesCount() {
-      if (_.defined($scope.selectedNodeTemplate)) {
-        if (_.defined($scope.topology.instances) && _.defined($scope.topology.instances[$scope.selectedNodeTemplate.name])) {
-          $scope.selectedNodeTemplate.instancesCount = Object.keys($scope.topology.instances[$scope.selectedNodeTemplate.name]).length;
-        } else {
-          $scope.selectedNodeTemplate.instancesCount = 0;
-        }
-        if (_.undefined($scope.selectedNodeTemplate.newInstancesCount)) {
-          $scope.selectedNodeTemplate.newInstancesCount = $scope.selectedNodeTemplate.instancesCount;
-        }
+      if (_.undefined($scope.selectedNodeTemplate)) {
+        return;
+      }
+
+      if (_.defined($scope.topology.instances) && _.defined($scope.topology.instances[$scope.selectedNodeTemplate.name])) {
+        var selectedNodeInstances = $scope.topology.instances[$scope.selectedNodeTemplate.name];
+        $scope.selectedNodeTemplate.instancesCount = _.size(selectedNodeInstances);
+      } else {
+        $scope.selectedNodeTemplate.instancesCount = 0;
+      }
+      if (_.undefined($scope.selectedNodeTemplate.newInstancesCount)) {
+        $scope.selectedNodeTemplate.newInstancesCount = $scope.selectedNodeTemplate.instancesCount;
+      }
+      if(_.defined($scope.selectedNodeTemplate.clusterScalingControll)) {
+        $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount = $scope.selectedNodeTemplate.clusterScalingControll.initialInstances;
       }
     }
 
@@ -139,9 +144,7 @@ define(function (require) {
             }
           });
         });
-
       }
-
     };
 
     $scope.checkProperty = function(definition, value, propertyName) {
@@ -171,11 +174,12 @@ define(function (require) {
         newSelected.selected = true;
 
         $scope.selectedNodeTemplate = newSelected;
-        $scope.triggerTopologyRefresh = {};
+        $scope.$broadcast('editorSelectionChangedEvent', { nodeNames: [ newSelectedName ] });
         $scope.selectedNodeTemplate.name = newSelectedName;
 
         if (_.isEmpty(toscaService.getHostedOnRelationships($scope.selectedNodeTemplate, $scope.topology.relationshipTypes))) {
-          $scope.selectedNodeTemplate.scalingPolicy = toscaService.getScalingPolicy($scope.selectedNodeTemplate);
+          $scope.selectedNodeTemplate.scalingPolicy = toscaService.getScalingPolicy($scope.selectedNodeTemplate, $scope.topology.capabilityTypes);
+          $scope.selectedNodeTemplate.clusterScalingControll = toscaService.getClusterControllerPolicy($scope.selectedNodeTemplate, $scope.topology.capabilityTypes);
         }
         // custom interface if exists
         var nodetype = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type];
@@ -222,6 +226,10 @@ define(function (require) {
 
     $scope.isScalable = function() {
       return $scope.selectedNodeTemplate && $scope.selectedNodeTemplate.scalingPolicy;
+    };
+
+    $scope.isClusterController = function() {
+      return $scope.selectedNodeTemplate && $scope.selectedNodeTemplate.clusterScalingControll;
     };
 
     $scope.scale = function(newValue) {
@@ -376,7 +384,9 @@ define(function (require) {
       if( _.defined(newValue) && (firstLoad || !_.isEqual(oldValue, newValue)) ) {
         refreshSelectedNodeInstancesCount();
         refreshNodeInstanceInMaintenanceMode();
-        $scope.triggerTopologyRefresh = {};
+        $scope.$broadcast('topologyRefreshedEvent', {
+          topology: $scope.topology
+        });
         firstLoad=false;
       }
     });
