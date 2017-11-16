@@ -35,7 +35,7 @@ define(function (require) {
 
         },
         updateSecretPath: function(property) {
-          // sent the get function property with the path secret to Alien backend
+          // send the get function property with the path secret to Alien backend
         }
       };
 

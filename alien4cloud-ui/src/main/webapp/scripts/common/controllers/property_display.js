@@ -143,8 +143,10 @@ define(function(require) {
           propertyValue: data
         };
         // If the data is complex, we need to replace the propertyValue with the recreated object
-        $scope.definitionObject.uiValue.parameters.path = data;
-        propertyRequest.propertyValue = $scope.definitionObject.uiValue;
+        if (_.defined($scope.definitionObject.uiSecret)) {
+          $scope.definitionObject.uiValue.parameters.path = data;
+          propertyRequest.propertyValue = $scope.definitionObject.uiValue;
+        }
 
         if (_.defined($scope.definition.suggestionId) && _.defined(data) && data !== null) {
           return propertySuggestionServices.get({
