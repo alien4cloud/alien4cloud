@@ -24,7 +24,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -37,9 +39,11 @@ import alien4cloud.tosca.context.ToscaContextualAspect;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+@ActiveProfiles("org.alien4cloud.tosca.utils.NodeTemplateUtilsTest")
 @DirtiesContext
 public class NodeTemplateUtilsTest {
     @Configuration
+    @Profile("org.alien4cloud.tosca.utils.NodeTemplateUtilsTest")
     @EnableAutoConfiguration(exclude = { HypermediaAutoConfiguration.class })
     @EnableAspectJAutoProxy(proxyTargetClass = true)
     @ComponentScan(basePackages = { "alien4cloud.tosca.context" })
