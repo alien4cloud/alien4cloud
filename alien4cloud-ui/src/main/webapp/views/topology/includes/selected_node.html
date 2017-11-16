@@ -146,6 +146,13 @@
       <tr ng-repeat="propEntry in selectedNodeTemplate.properties">
         <td class="topology-props-td-inp">
           <div class="btn-group" uib-dropdown>
+            <a id="p_secret_pro_{{propEntry.key}}"
+               ng-click="secrets.toggleGetSecret(propEntry.value)"
+               class="btn btn-default btn-xs"
+               ng-class="{'active' : properties.isSecret(propEntry.value)}"
+               tooltip-append-to-body="true">
+              <i class="fa fa-user-secret "></i>
+            </a>
             <a id="p_input_pro_{{propEntry.key}}"
                ng-click="inputs.getCandidatesForProperty(propEntry.key)"
                class="btn btn-default btn-xs"
@@ -177,7 +184,11 @@
           </div>
         </td>
         <td>
+          <secret-display
+            ng-if="isSecret(propEntry.value)">
+          </secret-display>
           <property-display
+            ng-if="!isSecret(propEntry.value)"
             ng-init="condensed = true"
             definition="properties.getFormatedProperty(propEntry.key)"
             property-type="topology.dataTypes[properties.getFormatedProperty(propEntry.key).type]"

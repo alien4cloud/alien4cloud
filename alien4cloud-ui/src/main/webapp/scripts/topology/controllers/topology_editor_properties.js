@@ -57,6 +57,11 @@ define(function(require) {
           return scope.topology.topology.outputAttributes[scope.selectedNodeTemplate.name].indexOf(attributeName) >= 0;
         },
 
+        isSecret: function(propertyValue) {
+          console.log(propertyValue);
+          return _.defined(propertyValue.value) && _.defined(propertyValue.value.function) && propertyValue.value.function === 'get_secret';
+        },
+
         getFormatedProperty: function(propertyKey) {
           var scope = this.scope;
           return scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyKey].value;
