@@ -144,7 +144,7 @@ define(function(require) {
         };
         // If the data is complex, we need to replace the propertyValue with the recreated object
         if (_.defined($scope.definitionObject.uiSecret)) {
-          $scope.definitionObject.uiValue.parameters.path = data;
+          $scope.definitionObject.uiValue.parameters[0] = data;
           propertyRequest.propertyValue = $scope.definitionObject.uiValue;
         }
 
@@ -250,14 +250,15 @@ define(function(require) {
 
       var getPropValueDisplay = function($scope, propertyValue) {
         if (propertyValue.hasOwnProperty('value')) {
-          // Handle the get_secret function
-          if (_.defined(propertyValue.value.function) && propertyValue.value.function === 'get_secret') {
-            return propertyValue.value.parameters.path;
-          } else {
-            // Here handle scalar value
-            return propertyValue.value;
+          // Here handle scalar value
+          if (propertyValue.value.hasOwnProperty('parameters')) {
+            return propertyValue.value.parameters[0];
           }
+          return propertyValue.value;
         } else if (propertyValue.hasOwnProperty('function') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
+          if (propertyValue.function === 'get_secret') {
+            return propertyValue.parameters[0];
+          }
           // And here a function (get_input / get_property)
           $scope.editable = false;
           return propertyValue.function + ': ' + _(propertyValue.parameters).toString();
@@ -282,6 +283,9 @@ define(function(require) {
         }
 
         // Juge if it is a secret
+        if (_.defined($scope.propertyValue) && _.defined($scope.propertyValue.value) && _.defined($scope.propertyValue.value.function) && $scope.propertyValue.value.function === 'get_secret') {
+          $scope.propertyValue = $scope.propertyValue.value;
+        }
         $scope.definitionObject.uiSecret = _.defined($scope.propertyValue) && _.defined($scope.propertyValue.function) && $scope.propertyValue.function === 'get_secret';
 
         // Now a property is an AbstractPropertyValue : (Scalar or Function)

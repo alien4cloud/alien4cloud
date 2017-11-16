@@ -1,14 +1,14 @@
 package alien4cloud.utils.services;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.tosca.context.ToscaContextual;
+import com.google.common.collect.Maps;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
@@ -17,10 +17,9 @@ import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Maps;
-
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.tosca.context.ToscaContextual;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Service to set and check constraints on properties.
@@ -37,11 +36,14 @@ public class PropertyService {
         }
         // Secret Management: If the value is about the get_secret function, we ignore this check.
         if (propertyValue instanceof Map && ((Map) propertyValue).get("function").equals("get_secret")) {
-            // Do nothing
+            Map propertyAsMap = (Map) propertyValue;
+            String functionName = (String) propertyAsMap.get("function");
+            List parameters = (List) propertyAsMap.get("parameters");
+            properties.put(propertyName, (T) new FunctionPropertyValue(functionName, parameters));
         } else {
             ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+            properties.put(propertyName, asPropertyValue(propertyValue));
         }
-        properties.put(propertyName, asPropertyValue(propertyValue));
     }
 
     public static <T extends AbstractPropertyValue> T asPropertyValue(Object propertyValue) {

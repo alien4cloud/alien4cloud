@@ -13,9 +13,9 @@
     <div id="div_{{propertyName}}"  ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required && definitionObject.uiEmpty}">
       <!-- Case: Secret -->
       <label ng-if="definitionObject.uiSecret">get_secret: </label>
-      <span id="p_{{propertyName}}" ng-if="definitionObject.uiSecret && editable" editable-text="definitionObject.uiValue.parameters.path" buttons="no" e-required
+      <span id="p_{{propertyName}}" ng-if="definitionObject.uiSecret && editable" editable-text="definitionObject.uiValue.parameters[0]" buttons="no" e-required
             onbeforesave="propertySave($data)" blur="submit">
-        {{ definitionObject.uiValue.parameters.path }} <i class="fa fa-pencil-square-o"></i>
+        {{ definitionObject.uiValue.parameters[0] }} <i class="fa fa-pencil-square-o"></i>
       </span>
 
       <!-- Case : string -->

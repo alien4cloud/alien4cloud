@@ -24,18 +24,14 @@ define(function (require) {
           var scope = this.scope;
           if (scope.properties.isGetSecretProperty(property.value)) {
             // reset the secret to originalValue
-            property.value.is_secret = false;
             property.value = property.originalValue;
             property.originalValue = undefined;
           } else {
             // set the secret
             property.originalValue = property.value;
-            property.value = {function:"get_secret", parameters: {path: "", configuration:{}}};  // short version
+            property.value = {function:"get_secret", parameters: ['']};
           }
 
-        },
-        updateSecretPath: function(property) {
-          // send the get function property with the path secret to Alien backend
         }
       };
 
