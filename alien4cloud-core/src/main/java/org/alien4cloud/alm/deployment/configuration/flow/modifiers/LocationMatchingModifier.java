@@ -2,13 +2,12 @@ package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
@@ -39,6 +38,7 @@ import alien4cloud.ui.form.PojoFormDescriptorGenerator;
  * This processor actually does not change the topology but check that location settings are defined and up-to-date in order to allow other processors to
  * continue.
  */
+@Slf4j
 @Component
 public class LocationMatchingModifier implements ITopologyModifier {
     @Inject
@@ -78,17 +78,26 @@ public class LocationMatchingModifier implements ITopologyModifier {
                     .collect(Collectors.toList());
             boolean needVaultCredential = locationsWithVault.size() > 0;
             if (needVaultCredential) {
-                List<SecretCredentialInfo> secretCredentialInfos = locationsWithVault.stream().map(location -> {
-                    SecretCredentialInfo info = new SecretCredentialInfo();
-                    String pluginName = location.getSecretProviderConfiguration().getPluginName();
-                    Object rawSecretConfiguration = location.getSecretProviderConfiguration().getConfiguration();
-                    Object secretConfiguration = JsonUtil.toObject(rawSecretConfiguration, secretProviderService.getPluginConfigurationDescriptor(pluginName));
-                    Class<?> pluginAuthenticationConfigurationDescriptor = secretProviderService.getPluginAuthenticationConfigurationDescriptor(pluginName,
-                            secretConfiguration);
-                    info.setCredentialDescriptor(pojoFormDescriptorGenerator.generateDescriptor(pluginAuthenticationConfigurationDescriptor));
-                    info.setPluginName(pluginName);
-                    return info;
-                }).collect(Collectors.toList());
+                List<SecretCredentialInfo> secretCredentialInfos = new LinkedList<>();
+                for (Location location : locationsWithVault) {
+                    try {
+                        SecretCredentialInfo info = new SecretCredentialInfo();
+                        String pluginName = location.getSecretProviderConfiguration().getPluginName();
+                        Object rawSecretConfiguration = location.getSecretProviderConfiguration().getConfiguration();
+                        Object secretConfiguration = JsonUtil.toObject(rawSecretConfiguration, secretProviderService.getPluginConfigurationDescriptor(pluginName));
+
+                        Class<?> pluginAuthenticationConfigurationDescriptor = secretProviderService.getPluginAuthenticationConfigurationDescriptor(pluginName,
+                                secretConfiguration);
+                        info.setCredentialDescriptor(pojoFormDescriptorGenerator.generateDescriptor(pluginAuthenticationConfigurationDescriptor));
+                        info.setPluginName(pluginName);
+
+
+                        secretCredentialInfos.add(info);
+                    }
+                    catch (Exception e){
+                        log.error("Cannot process secret provider configuration",e);
+                    }
+                }
                 context.getExecutionCache().put(FlowExecutionContext.SECRET_CREDENTIAL, secretCredentialInfos);
             } else {
                 context.getExecutionCache().remove(FlowExecutionContext.SECRET_CREDENTIAL);

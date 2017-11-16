@@ -1,10 +1,6 @@
 package alien4cloud.deployment;
 
-import javax.inject.Inject;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
+import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
@@ -12,6 +8,10 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
 
 /**
  * Manages topology un-deployment.
@@ -33,15 +33,15 @@ public class UndeployService {
      *
      * @param deploymentId deployment id to deploy
      */
-    public void undeploy(String deploymentId) {
+    public void undeploy(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, String deploymentId) {
         Deployment deployment = deploymentService.getOrfail(deploymentId);
-        undeploy(deployment);
+        undeploy(secretProviderConfigurationAndCredentials, deployment);
     }
 
-    public void undeployEnvironment(String environmentId) {
+    public void undeployEnvironment(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, String environmentId) {
         Deployment deployment = deploymentService.getActiveDeployment(environmentId);
         if (deployment != null) {
-            undeploy(deployment);
+            undeploy(secretProviderConfigurationAndCredentials, deployment);
         } else {
             log.warn("No deployment found for environment " + environmentId);
         }
@@ -52,17 +52,17 @@ public class UndeployService {
      *
      * @param deploymentTopology setup object containing information to deploy
      */
-    public void undeploy(DeploymentTopology deploymentTopology) {
+    public void undeploy(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, DeploymentTopology deploymentTopology) {
         Deployment activeDeployment = deploymentService.getActiveDeploymentOrFail(deploymentTopology.getEnvironmentId());
-        undeploy(activeDeployment);
+        undeploy(secretProviderConfigurationAndCredentials, activeDeployment);
     }
 
-    private void undeploy(final Deployment deployment) {
+    private void undeploy(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, final Deployment deployment) {
         deploymentLockService.doWithDeploymentWriteLock(deployment.getOrchestratorDeploymentId(), () -> {
             log.info("Un-deploying deployment [{}] on orchestrator [{}]", deployment.getId(), deployment.getOrchestratorId());
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
             DeploymentTopology deployedTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
-            PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deployedTopology);
+            PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deployedTopology, secretProviderConfigurationAndCredentials);
             orchestratorPlugin.undeploy(deploymentContext, new IPaaSCallback<ResponseEntity>() {
                 @Override
                 public void onSuccess(ResponseEntity data) {

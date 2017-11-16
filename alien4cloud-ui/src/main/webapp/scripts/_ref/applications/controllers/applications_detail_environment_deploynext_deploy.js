@@ -62,10 +62,12 @@ define(function (require) {
         };
         
         $scope.doDeploy = function () {
-          $scope.openSecretCredentialModal().then(function (vaultCredentials) {
+          $scope.openSecretCredentialModal().then(function (secretProviderInfo) {
             var deployApplicationRequest = {
-              applicationId: $scope.application.id,
-              applicationEnvironmentId: $scope.environment.id
+              'applicationId': $scope.application.id,
+              'applicationEnvironmentId': $scope.environment.id,
+              'secretProviderPluginName': secretProviderInfo.pluginName,
+              'secretProviderCredentials': secretProviderInfo.credentials
             };
             $scope.setState('INIT_DEPLOYMENT');
             applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function () {

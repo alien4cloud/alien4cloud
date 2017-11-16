@@ -1,36 +1,12 @@
 package alien4cloud.rest.application;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.validation.Valid;
-
-import org.alien4cloud.git.GitLocationDao;
-import org.alien4cloud.git.LocalGitManager;
-import org.alien4cloud.git.model.GitLocation;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
-import org.elasticsearch.common.joda.time.DateTime;
-import org.elasticsearch.common.joda.time.DateTimeZone;
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
-
-import com.google.common.collect.Maps;
-
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.deployment.*;
+import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
+import alien4cloud.deployment.model.SecretProviderCredentials;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
@@ -59,11 +35,35 @@ import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyValidationResult;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.git.GitLocationDao;
+import org.alien4cloud.git.LocalGitManager;
+import org.alien4cloud.git.model.GitLocation;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.common.joda.time.DateTime;
+import org.elasticsearch.common.joda.time.DateTimeZone;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -150,8 +150,16 @@ public class ApplicationDeploymentController {
         GitLocation location = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environmentId);
         localGitManager.commitAndPush(location, deployer.getUsername(), deployer.getEmail(), "Deployment " + DateTime.now(DateTimeZone.UTC));
 
+        // the request contains secret provider credentials?
+        SecretProviderCredentials secretProviderCredentials = null;
+        if(deployApplicationRequest.getSecretProviderCredentials() != null) {
+            secretProviderCredentials = new SecretProviderCredentials();
+            secretProviderCredentials.setCredentials(deployApplicationRequest.getSecretProviderCredentials());
+            secretProviderCredentials.setPluginName(deployApplicationRequest.getSecretProviderPluginName());
+        }
+
         // process with the deployment
-        deployService.deploy(deployer, deploymentTopologyDTO.getTopology(), application);
+        deployService.deploy(deployer, secretProviderCredentials, deploymentTopologyDTO.getTopology(), application);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -170,7 +178,8 @@ public class ApplicationDeploymentController {
         Application application = applicationService.checkAndGetApplication(applicationId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
         try {
-            undeployService.undeployEnvironment(applicationEnvironmentId);
+            // TODO: SECRET NEED CREDENTIALS
+            undeployService.undeployEnvironment(null, applicationEnvironmentId);
         } catch (OrchestratorDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
@@ -239,7 +248,8 @@ public class ApplicationDeploymentController {
         }
 
         // process with the deployment
-        deployService.update(deploymentTopologyDTO.getTopology(), application, deployment, new IPaaSCallback<Object>() {
+        // TODO: SECRET NEED CREDENTIALS
+        deployService.update(null, deploymentTopologyDTO.getTopology(), application, deployment, new IPaaSCallback<Object>() {
             @Override
             public void onSuccess(Object data) {
                 result.setResult(RestResponseBuilder.<Void> builder().build());
@@ -463,7 +473,7 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
 
         try {
-            deploymentRuntimeService.scale(environment.getId(), nodeTemplateId, instances, new IPaaSCallback<Object>() {
+            deploymentRuntimeService.scale(null, environment.getId(), nodeTemplateId, instances, new IPaaSCallback<Object>() {
                 @Override
                 public void onSuccess(Object data) {
                     result.setResult(RestResponseBuilder.<Void> builder().build());
@@ -501,7 +511,8 @@ public class ApplicationDeploymentController {
         Map<String, Object> params = Maps.newHashMap();
 
         try {
-            workflowExecutionService.launchWorkflow(environment.getId(), workflowName, params, new IPaaSCallback<Object>() {
+            // TODO: SECRET NEED CREDENTIALS
+            workflowExecutionService.launchWorkflow(null, environment.getId(), workflowName, params, new IPaaSCallback<Object>() {
                 @Override
                 public void onSuccess(Object data) {
                     result.setResult(RestResponseBuilder.<Void> builder().build());
