@@ -250,17 +250,17 @@ define(function(require) {
 
       var getPropValueDisplay = function($scope, propertyValue) {
         if (propertyValue.hasOwnProperty('value')) {
-          // Here handle scalar value
-          return propertyValue.value;
-        } else if (propertyValue.hasOwnProperty('function') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
-          if (propertyValue.function === 'get_secret') {
-            // To handle the function (get_secret)
-            return propertyValue.parameters.path;
+          // Handle the get_secret function
+          if (_.defined(propertyValue.value.function) && propertyValue.value.function === 'get_secret') {
+            return propertyValue.value.parameters.path;
           } else {
-            // And here a function (get_input / get_property)
-            $scope.editable = false;
-            return propertyValue.function + ': ' + _(propertyValue.parameters).toString();
+            // Here handle scalar value
+            return propertyValue.value;
           }
+        } else if (propertyValue.hasOwnProperty('function') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
+          // And here a function (get_input / get_property)
+          $scope.editable = false;
+          return propertyValue.function + ': ' + _(propertyValue.parameters).toString();
         } else if (propertyValue.hasOwnProperty('function_concat') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
           // And here a concat
           $scope.editable = false;
