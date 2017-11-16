@@ -10,16 +10,17 @@
   <div ng-class="{'col-md-5': deletable, 'col-md-8': !deletable, 'form-editable': !condensed}"
     ng-init="isStringDisplayType = (definitionObject.uiName === 'scalar-unit' || definitionObject.uiName === 'string');">
     <!-- Property Value -->
-    <div id="div_{{propertyName}}"  ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required && definitionObject.uiEmpty}">
-      <!-- Case: Secret -->
-      <label ng-if="definitionObject.uiSecret">get_secret: </label>
-      <span id="p_{{propertyName}}" ng-if="definitionObject.uiSecret && editable" editable-text="definitionObject.uiValue.parameters[0]" buttons="no" e-required
-            onbeforesave="propertySave($data)" blur="submit">
-        {{ definitionObject.uiValue.parameters[0] }} <i class="fa fa-pencil-square-o"></i>
-      </span>
+    <!-- Case: Secret -->
+    <label ng-if="definitionObject.uiSecret">get_secret: </label>
+    <span id="p_{{propertyName}}" ng-if="definitionObject.uiSecret" editable-text="definitionObject.uiValue.parameters[0]" buttons="no" e-required
+          onbeforesave="propertySave($data)" blur="submit">
+      {{ definitionObject.uiValue.parameters[0] }} <i class="fa fa-pencil-square-o"></i>
+    </span>
+
+    <div id="div_{{propertyName}}"  ng-if="isStringDisplayType && !definitionObject.uiSecret" ng-class="{'property-required' : definition.required && definitionObject.uiEmpty}">
 
       <!-- Case : string -->
-      <span id="p_{{propertyName}}" ng-if="!definitionObject.uiSecret && !definitionObject.uiPassword && !definitionObject.units && editable">
+      <span id="p_{{propertyName}}" ng-if=" !definitionObject.uiPassword && !definitionObject.units && editable">
         <span ng-if="!isLongText"
               ng-click="switchLongTextChoice(true)"
               editable-text="definitionObject.uiValue" buttons="no"
@@ -46,7 +47,7 @@
         </span>
         <span class="fa clickable" ng-class="{'fa-expand': !isLongText, 'fa-compress': isLongText}" ng-if="showLongTextChoice" ng-click="switchToLongText($event)"></span>
       </span>
-      <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
+      <span id="p_{{propertyName}}" ng-if=" !definitionObject.uiPassword && definitionObject.units && editable">
         <!-- Property with unit -->
         <span editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm"
               ng-click="scalarForm.$show()" class="editable editable-click">
@@ -68,13 +69,13 @@
       <em ng-if="!definitionObject.uiPassword && !editable">{{definitionObject.uiValue || '...'}}</em>
 
       <!-- Case : password -->
-      <span id="p_{{propertyName}}" ng-if="definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" e-type="password" buttons="no" e-required
+      <span id="p_{{propertyName}}" ng-if=" definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" e-type="password" buttons="no" e-required
             onbeforesave="propertySave($data)" blur="submit">
         {{ definitionObject.uiValue | password:'*' }} <i class="fa fa-pencil-square-o"></i>
       </span>
-      <em ng-if="definitionObject.uiPassword && !editable">{{ definitionObject.uiValue | password:'*' }}</em>
+      <em ng-if=" definitionObject.uiPassword && !editable">{{ definitionObject.uiValue | password:'*' }}</em>
 
-      <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
+      <em ng-if=" definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
       <label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label>
 
       <!-- Reset button for any property definition -->
@@ -87,7 +88,7 @@
         <info content="definition.description"></info>
       </span>
     </div>
-    <div ng-if="!isStringDisplayType" ng-switch="definitionObject.uiName" ng-class="{'property-required' : definition.required}">
+    <div ng-if="!isStringDisplayType && !definitionObject.uiSecret" ng-switch="definitionObject.uiName" ng-class="{'property-required' : definition.required}">
 
       <span ng-switch-when="select">
         <!-- Case : validValues  -->

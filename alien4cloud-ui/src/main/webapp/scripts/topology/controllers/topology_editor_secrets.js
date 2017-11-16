@@ -1,16 +1,14 @@
 /**
-*  Service that provides functionalities to edit nodes in a topology.
+*  Service that provides functionalities to edit nodes secret in a topology.
 */
 define(function (require) {
   'use strict';
   var modules = require('modules');
-  var angular = require('angular');
-  var _ = require('lodash');
 
   require('scripts/common/controllers/confirm_modal');
 
-  modules.get('a4c-topology-editor').factory('topoEditSecrets', ['toscaService', '$filter', '$uibModal', '$translate',
-    function(toscaService, $filter, $uibModal, $translate) {
+  modules.get('a4c-topology-editor').factory('topoEditSecrets', [
+    function() {
 
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
@@ -29,7 +27,7 @@ define(function (require) {
           } else {
             // set the secret
             property.originalValue = property.value;
-            property.value = {function:"get_secret", parameters: ['']};
+            property.value = {function:'get_secret', parameters: ['']};
           }
 
         }
