@@ -1,7 +1,15 @@
 package alien4cloud.plugin.mock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -11,12 +19,16 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.ScalingPolicy;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.elasticsearch.common.collect.Maps;
 
@@ -27,10 +39,21 @@ import alien4cloud.deployment.DeploymentLoggingService;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.InstanceStatus;
+import alien4cloud.paas.model.NodeOperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSDeploymentLog;
+import alien4cloud.paas.model.PaaSDeploymentLogLevel;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
-import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.utils.MapUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -108,15 +131,15 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
         return new InstanceInformation(ToscaNodeLifecycleConstants.INITIAL, InstanceStatus.PROCESSING, attributes, runtimeProperties, outputs);
     }
 
-    private ScalingPolicy getScalingPolicy(String id, Map<String, NodeTemplate> nodeTemplates) {
+    private ScalingPolicy getScalingPolicy(String nodeTemplateId, Map<String, NodeTemplate> nodeTemplates, Topology topology) {
         // Get the scaling of parent if not exist
-        Capability scalableCapability = TopologyUtils.getScalableCapability(nodeTemplates, id, false);
+        Capability scalableCapability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, false);
         if (scalableCapability == null) {
-            if (nodeTemplates.get(id).getRelationships() != null) {
-                for (RelationshipTemplate rel : nodeTemplates.get(id).getRelationships().values()) {
+            if (nodeTemplates.get(nodeTemplateId).getRelationships() != null) {
+                for (RelationshipTemplate rel : nodeTemplates.get(nodeTemplateId).getRelationships().values()) {
                     RelationshipType relType = getRelationshipType(rel.getType());
                     if (ToscaTypeUtils.isOfType(relType, NormativeRelationshipConstants.HOSTED_ON)) {
-                        return getScalingPolicy(rel.getTarget(), nodeTemplates);
+                        return getScalingPolicy(rel.getTarget(), nodeTemplates, topology);
                     }
                 }
             } else {
@@ -141,7 +164,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
         for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : nodeTemplates.entrySet()) {
             Map<String, InstanceInformation> instanceInformations = Maps.newHashMap();
             currentInformations.put(nodeTemplateEntry.getKey(), instanceInformations);
-            ScalingPolicy policy = getScalingPolicy(nodeTemplateEntry.getKey(), nodeTemplates);
+            ScalingPolicy policy = getScalingPolicy(nodeTemplateEntry.getKey(), nodeTemplates, topology);
             int initialInstances = policy != null ? policy.getInitialInstances() : 1;
             for (int i = 1; i <= initialInstances; i++) {
                 InstanceInformation newInstanceInformation = newInstance(i);
