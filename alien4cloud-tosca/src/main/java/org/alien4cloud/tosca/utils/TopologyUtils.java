@@ -20,6 +20,7 @@ import org.alien4cloud.tosca.model.templates.ScalingPolicy;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -165,11 +166,12 @@ public class TopologyUtils {
     }
 
     public static Capability getScalableCapability(Topology topology, String nodeTemplateId, boolean throwNotFoundException) {
-        return getCapability(topology, nodeTemplateId, NormativeComputeConstants.SCALABLE, throwNotFoundException);
-    }
-
-    public static Capability getScalableCapability(Map<String, NodeTemplate> nodes, String nodeTemplateId, boolean throwNotFoundException) {
-        return getCapability(nodes, nodeTemplateId, NormativeComputeConstants.SCALABLE, throwNotFoundException);
+        NodeTemplate nodeTemplate = throwNotFoundException ? getNodeTemplate(topology, nodeTemplateId) : safe(topology.getNodeTemplates()).get(nodeTemplateId);
+        if (nodeTemplate == null) {
+            return null;
+        }
+        return throwNotFoundException ? NodeTemplateUtils.getCapabilityByTypeOrFail(nodeTemplate, NormativeCapabilityTypes.SCALABLE)
+                : NodeTemplateUtils.getCapabilityByType(nodeTemplate, NormativeCapabilityTypes.SCALABLE);
     }
 
     public static int getAvailableGroupIndex(Topology topology) {
