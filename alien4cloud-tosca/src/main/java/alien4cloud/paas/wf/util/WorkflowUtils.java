@@ -47,7 +47,7 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return null;
         }
-        NodeTemplate hostTemplate = TopologyNavigationUtil.getImmediateHostTemplate(topologyContext.getTopology(), nodeTemplate);
+        NodeTemplate hostTemplate = TopologyNavigationUtil.getImmediateHostTemplate(topologyContext.getTopology(), nodeTemplate, topologyContext);
         if (hostTemplate == null) {
             return nodeId;
         }

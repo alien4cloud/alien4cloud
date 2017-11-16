@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
-import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.IValue;
@@ -23,7 +22,6 @@ import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.apache.commons.lang3.StringUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -32,7 +30,6 @@ import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
-import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
@@ -259,9 +256,29 @@ public final class FunctionEvaluator {
      */
     public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam,
             IPaaSTemplate<? extends AbstractInheritableToscaType> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+        AbstractPropertyValue propertyValue = processGetPropertyFunction(functionParam, basePaaSTemplate, builtPaaSTemplates);
+        if (propertyValue == null) {
+            return null;
+        } else if (!(propertyValue instanceof PropertyValue)) {
+            throw new NotSupportedException("Not a property value " + propertyValue);
+        } else {
+            return PropertyUtil.serializePropertyValue(propertyValue);
+        }
+    }
+
+    /**
+     * Instead of evaluate get property function to a scalar value, this method will just evaluate to the value that the get_property points to
+     * 
+     * @param functionParam the function
+     * @param basePaaSTemplate the template
+     * @param builtPaaSTemplates all templates
+     * @return the value (which can be a function and not only scalar value)
+     */
+    public static AbstractPropertyValue processGetPropertyFunction(FunctionPropertyValue functionParam,
+            IPaaSTemplate<? extends AbstractInheritableToscaType> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
         for (IPaaSTemplate paaSTemplate : paaSTemplates) {
-            String propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
+            AbstractPropertyValue propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
                     functionParam.getElementNameToFetch());
             // return the first value found
             if (propertyValue != null) {
@@ -271,13 +288,13 @@ public final class FunctionEvaluator {
         return null;
     }
 
-    private static String getPropertyValue(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertyDefinitions,
+    private static AbstractPropertyValue getPropertyValue(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertyDefinitions,
             String propertyAccessPath) {
         if (properties == null || !properties.containsKey(propertyAccessPath)) {
             String propertyName = PropertyUtil.getPropertyNameFromComplexPath(propertyAccessPath);
             if (propertyName == null) {
                 // Non complex
-                return PropertyUtil.getDefaultValueFromPropertyDefinitions(propertyAccessPath, propertyDefinitions);
+                return PropertyUtil.getDefaultFromPropertyDefinitions(propertyAccessPath, propertyDefinitions);
 
             } else {
                 // Complex
@@ -293,26 +310,13 @@ public final class FunctionEvaluator {
                         throw new NotSupportedException("Only support static value in a get_property");
                     }
                     Object value = MapUtil.get(((PropertyValue) rawValue).getValue(), propertyAccessPath.substring(propertyName.length() + 1));
-                    return PropertyUtil.serializePropertyValue(value);
+                    return new ScalarPropertyValue(PropertyUtil.serializePropertyValue(value));
                 } else {
                     return null;
                 }
             }
         } else {
-            AbstractPropertyValue abstractPropertyValue = properties.get(propertyAccessPath);
-            if (abstractPropertyValue == null) {
-                return null;
-            } else if (!(abstractPropertyValue instanceof PropertyValue)) {
-                throw new NotSupportedException("Not a property value " + abstractPropertyValue);
-            } else if (abstractPropertyValue instanceof ScalarPropertyValue) {
-                return PropertyUtil.getScalarValue(properties.get(propertyAccessPath));
-            } else {
-                try {
-                    return JsonUtil.toString(((PropertyValue) abstractPropertyValue).getValue());
-                } catch (JsonProcessingException e) {
-                    return null;
-                }
-            }
+            return properties.get(propertyAccessPath);
         }
     }
 
@@ -325,7 +329,7 @@ public final class FunctionEvaluator {
      * @param elementName
      * @return
      */
-    private static String getPropertyFromTemplateOrCapability(IPaaSTemplate<? extends AbstractInheritableToscaType> paaSTemplate,
+    private static AbstractPropertyValue getPropertyFromTemplateOrCapability(IPaaSTemplate<? extends AbstractInheritableToscaType> paaSTemplate,
             String capabilityOrRequirementName, String elementName) {
 
         // if no capability or requirement provided, return the value from the template property
@@ -354,11 +358,7 @@ public final class FunctionEvaluator {
                 }
             }
 
-            if (propertyValue instanceof ComplexPropertyValue) {
-                return PropertyUtil.serializePropertyValue(propertyValue);
-            } else {
-                return PropertyUtil.getScalarValue(propertyValue);
-            }
+            return propertyValue;
         }
 
         log.warn("The keyword <" + ToscaFunctionConstants.SELF
