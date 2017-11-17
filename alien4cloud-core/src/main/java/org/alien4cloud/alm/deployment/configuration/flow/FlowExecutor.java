@@ -10,6 +10,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.EditorTopolog
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhaseModifiersExecutor;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.LocationMatchingModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingAbstractValidator;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingNodeSetupModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingPolicySetupModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PreDeploymentTopologyValidator;
@@ -105,6 +106,9 @@ public class FlowExecutor {
     private NodeMatchingReplaceModifier nodeMatchingReplaceModifier;
 
     @Inject
+    private PostMatchingAbstractValidator postMatchingAbstractValidator;
+
+    @Inject
     private PostMatchingPolicySetupModifier postMatchingPolicySetupModifier;
     @Inject
     private PostMatchingNodeSetupModifier postMatchingNodeSetupModifier;
@@ -171,6 +175,9 @@ public class FlowExecutor {
                 nodeMatchingReplaceModifier // Impact the topology to replace matched nodes as configured
         ));
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_NODE_MATCH));
+
+        topologyModifiers.add(postMatchingAbstractValidator);
+
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_MATCHED_NODE_SETUP));
         // Overrides unspecified matched/substituted nodes unset's properties with values provided by the deployer user
         topologyModifiers.add(postMatchingNodeSetupModifier);

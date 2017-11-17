@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.tosca.context.ToscaContextualAspect;
 import org.alien4cloud.git.GitLocationDao;
 import org.alien4cloud.git.LocalGitManager;
 import org.alien4cloud.git.model.GitLocation;
@@ -100,6 +101,8 @@ public class ApplicationDeploymentController {
     private LocalGitManager localGitManager;
     @Inject
     private GitLocationDao gitLocationDao;
+    @Inject
+    private ToscaContextualAspect toscaContextualAspect;
 
     /**
      * Trigger deployment of the application on the current configured PaaS.
@@ -134,6 +137,10 @@ public class ApplicationDeploymentController {
         ApplicationTopologyVersion topologyVersion = applicationVersionService
                 .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
         Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
+        return toscaContextualAspect.execInToscaContext(() -> doDeploy(application, environment, topology), false, topology);
+    }
+
+    private RestResponse<?> doDeploy(Application application, ApplicationEnvironment environment, Topology topology) {
         DeploymentTopologyDTO deploymentTopologyDTO = deploymentTopologyDTOBuilder.prepareDeployment(topology, application, environment);
         TopologyValidationResult validation = deploymentTopologyDTO.getValidation();
 
@@ -147,7 +154,7 @@ public class ApplicationDeploymentController {
 
         User deployer = AuthorizationUtil.getCurrentUser();
         // commit and push the deployment configuration data
-        GitLocation location = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environmentId);
+        GitLocation location = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environment.getId());
         localGitManager.commitAndPush(location, deployer.getUsername(), deployer.getEmail(), "Deployment " + DateTime.now(DateTimeZone.UTC));
 
         // process with the deployment
