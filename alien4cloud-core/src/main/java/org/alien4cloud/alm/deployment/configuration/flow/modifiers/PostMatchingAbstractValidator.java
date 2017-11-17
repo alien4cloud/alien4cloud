@@ -1,5 +1,7 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
@@ -26,8 +28,8 @@ public class PostMatchingAbstractValidator implements ITopologyModifier {
                 .getConfiguration(DeploymentMatchingConfiguration.class, PreDeploymentTopologyValidator.class.getSimpleName())
                 .orElseThrow(() -> new NotFoundException("Failed to find deployment configuration for pre-deployment validation."));
 
-        for (AbstractTask task : topologyAbstractNodeValidationService.findReplacementForAbstracts(topology,
-                matchingConfiguration.getMatchedLocationResources())) {
+        for (AbstractTask task : safe(
+                topologyAbstractNodeValidationService.findReplacementForAbstracts(topology, matchingConfiguration.getMatchedLocationResources()))) {
             context.log().error(task);
         }
     }
