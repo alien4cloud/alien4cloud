@@ -1,4 +1,4 @@
-package alien4cloud.rest.deployment;
+package alien4cloud.deployment;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
@@ -42,7 +42,6 @@ import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationResourceTypes;
-import alien4cloud.rest.deployment.DeploymentTopologyController.IDeploymentConfigAction;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.tosca.context.ToscaContext;
@@ -169,7 +168,8 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
                 .orElse(new OrchestratorDeploymentProperties(environment.getTopologyVersion(), environment.getId(), matchingConfiguration.getOrchestratorId()));
         deploymentTopology.setProviderDeploymentProperties(orchestratorDeploymentProperties.getProviderDeploymentProperties());
 
-        deploymentTopologyDTO.setSecretCredentialInfos((List<SecretCredentialInfo>) executionContext.getExecutionCache().get(FlowExecutionContext.SECRET_CREDENTIAL));
+        deploymentTopologyDTO
+                .setSecretCredentialInfos((List<SecretCredentialInfo>) executionContext.getExecutionCache().get(FlowExecutionContext.SECRET_CREDENTIAL));
 
         return deploymentTopologyDTO;
     }

@@ -1,4 +1,4 @@
-package alien4cloud.rest.deployment;
+package alien4cloud.deployment;
 
 import java.util.List;
 import java.util.Map;
