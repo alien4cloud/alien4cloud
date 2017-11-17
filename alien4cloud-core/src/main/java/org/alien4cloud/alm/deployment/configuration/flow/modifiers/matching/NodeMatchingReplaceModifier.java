@@ -5,6 +5,7 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.tosca.context.ToscaContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -13,6 +14,9 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
+import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
@@ -67,11 +71,19 @@ public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier
         // not miss any capability
         for (Map.Entry<String, Capability> locationCapabilityEntry : safe(replacingNode.getCapabilities()).entrySet()) {
             // Merge capabilities properties from the topology into the substituted node un-set properties
+            CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, locationCapabilityEntry.getValue().getType());
+
             Capability locationCapability = locationCapabilityEntry.getValue();
             Capability abstractCapability = safe(replacedTopologyNode.getCapabilities()).get(locationCapabilityEntry.getKey());
+
+            // Ignore injection of location values for scalable capability
             if (abstractCapability != null && MapUtils.isNotEmpty(abstractCapability.getProperties())) {
-                locationCapability.setProperties(
-                        CollectionUtils.merge(abstractCapability.getProperties(), locationCapability.getProperties(), true, topologyNotMergedProps));
+                if (capabilityType != null && !ToscaTypeUtils.isOfType(capabilityType, NormativeCapabilityTypes.SCALABLE)) {
+                    locationCapability.setProperties(
+                            CollectionUtils.merge(abstractCapability.getProperties(), locationCapability.getProperties(), true, topologyNotMergedProps));
+                }
+            } else {
+                locationCapability.setProperties(abstractCapability.getProperties());
             }
         }
     }
