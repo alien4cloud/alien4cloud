@@ -10,8 +10,11 @@ define(function (require) {
       $scope.pluginConfigurationDescriptor = $scope.deploymentTopologyDTO.secretCredentialInfos[0].credentialDescriptor;
       $scope.pluginConfigurationValues = {};
 
-      $scope.ok = function (valid) {
-        $uibModalInstance.close($scope.pluginConfigurationValues);
+      $scope.ok = function () {
+        $uibModalInstance.close({
+          pluginName: $scope.pluginName,
+          credentials: $scope.pluginConfigurationValues
+        });
       };
       
       $scope.cancel = function () {

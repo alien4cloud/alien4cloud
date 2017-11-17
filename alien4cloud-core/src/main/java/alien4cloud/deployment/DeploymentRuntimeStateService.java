@@ -1,16 +1,5 @@
 package alien4cloud.deployment;
 
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import org.elasticsearch.mapping.QueryHelper;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.SettableFuture;
-
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.deployment.Deployment;
@@ -19,17 +8,17 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.PaaSDeploymentContext;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.model.*;
 import alien4cloud.utils.MapUtil;
+import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.SettableFuture;
 import lombok.SneakyThrows;
+import org.elasticsearch.mapping.QueryHelper;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Map;
 
 /**
  * Manage runtime operations on deployments.
@@ -124,7 +113,7 @@ public class DeploymentRuntimeStateService {
             }
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
 
-            PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, getRuntimeTopology(deployment.getId()));
+            PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, getRuntimeTopology(deployment.getId()), null);
             IPaaSCallback<DeploymentStatus> esCallback = new IPaaSCallback<DeploymentStatus>() {
                 @Override
                 public void onSuccess(DeploymentStatus data) {
@@ -156,7 +145,7 @@ public class DeploymentRuntimeStateService {
             return;
         }
         DeploymentTopology runtimeTopology = alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
-        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment,
+        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(null, deployment,
                 deploymentTopologyService.getLocations(runtimeTopology), runtimeTopology);
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
         orchestratorPlugin.getInstancesInformation(deploymentContext, callback);

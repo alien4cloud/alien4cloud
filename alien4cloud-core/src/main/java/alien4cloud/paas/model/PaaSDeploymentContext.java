@@ -1,15 +1,9 @@
 package alien4cloud.paas.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
-import org.elasticsearch.annotation.ESObject;
-
+import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
+import lombok.*;
 
 @Getter
 @Setter
@@ -21,6 +15,8 @@ public class PaaSDeploymentContext {
     private Deployment deployment;
 
     private DeploymentTopology deploymentTopology;
+
+    private SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials;
 
     /**
      * Id to be used by the orchestration technology (PaaS) for the deployment.
@@ -39,4 +35,5 @@ public class PaaSDeploymentContext {
     public String getDeploymentId() {
         return deployment.getId();
     }
+
 }
