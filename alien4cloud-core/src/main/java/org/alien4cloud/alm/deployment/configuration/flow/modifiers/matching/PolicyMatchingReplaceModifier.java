@@ -55,12 +55,12 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
 
             try {
                 ITopologyModifier modifier = pluginModifierRegistry.getPluginBean(policyImpl[0], policyImpl[1]);
-                List<ITopologyModifier> phaseModifiers = (List<ITopologyModifier>) context.getExecutionCache().get(policyImpl[2]);
-                if (phaseModifiers == null) {
-                    phaseModifiers = Lists.newArrayList();
-                    context.getExecutionCache().put(policyImpl[2], phaseModifiers);
+                List<ITopologyModifier> phaseModifiers = (List<ITopologyModifier>) context.getExecutionCache().computeIfAbsent(policyImpl[2],
+                        s -> Lists.<ITopologyModifier> newArrayList());
+                // No need to add a modifier more than once for a phase
+                if (!phaseModifiers.contains(modifier)) {
+                    phaseModifiers.add(modifier);
                 }
-                phaseModifiers.add(modifier);
             } catch (MissingPluginException e) {
                 context.log().error("Implementation specified for policy type {} that refers to plugin bean {}, {} cannot be found.", policyTemplate.getType(),
                         policyImpl[0], policyImpl[1]);
