@@ -69,6 +69,14 @@ define(function(require) {
           return scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret;
         },
 
+        // isSecretCapabilityProperty: function(propertyName) {
+        //   var scope = this.scope;
+        //   if (_.undefined(scope.topology.nodeTypes[scope.selectedNodeTemplate.type].capabilitiesMap[propertyName].value.secret)) {
+        //     scope.topology.nodeTypes[scope.selectedNodeTemplate.type].capabilitiesMap[propertyName].value.secret = false;
+        //   }
+        //   return scope.topology.nodeTypes[scope.selectedNodeTemplate.type].capabilitiesMap[propertyName].value.secret;
+        // },
+
         getFormatedProperty: function(propertyKey) {
           var scope = this.scope;
           return scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyKey].value;
