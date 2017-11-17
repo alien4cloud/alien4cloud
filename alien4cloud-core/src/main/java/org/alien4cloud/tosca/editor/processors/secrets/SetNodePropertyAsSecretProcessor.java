@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor.processors.secrets;
 
 import alien4cloud.tosca.context.ToscaContext;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.editor.exception.UnsupportedSecretException;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodePropertyAsSecretOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.alien4cloud.tosca.model.Csar;
@@ -22,11 +23,18 @@ import static alien4cloud.utils.AlienUtils.getOrFail;
 @Slf4j
 @Component
 public class SetNodePropertyAsSecretProcessor extends AbstractNodeProcessor<SetNodePropertyAsSecretOperation> {
+
+    private final String forbiddenProperty = "component_version";
+
     @Override
     protected void processNodeOperation(Csar csar, Topology topology, SetNodePropertyAsSecretOperation operation, NodeTemplate nodeTemplate) {
         NodeType indexedNodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
         getOrFail(indexedNodeType.getProperties(), operation.getPropertyName(),
                 "Property {} do not exist for node {}", operation.getPropertyName(), operation.getNodeName());
+
+        if (operation.getPropertyName().equals(forbiddenProperty)) {
+            throw new UnsupportedSecretException("We cannot set a secret on the property " + operation.getPropertyName());
+        }
 
         FunctionPropertyValue getSecret = new FunctionPropertyValue();
         getSecret.setFunction(ToscaFunctionConstants.GET_SECRET);

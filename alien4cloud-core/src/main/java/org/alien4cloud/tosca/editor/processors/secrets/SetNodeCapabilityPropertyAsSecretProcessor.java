@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor.processors.secrets;
 
 import alien4cloud.tosca.context.ToscaContext;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.editor.exception.UnsupportedSecretException;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodeCapabilityPropertyAsSecretOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.alien4cloud.tosca.model.Csar;
@@ -24,6 +25,8 @@ import static alien4cloud.utils.AlienUtils.getOrFail;
 @Component
 public class SetNodeCapabilityPropertyAsSecretProcessor extends AbstractNodeProcessor<SetNodeCapabilityPropertyAsSecretOperation> {
 
+    private final String forbiddenCapability = "component_version";
+
     @Override
     protected void processNodeOperation(Csar csar, Topology topology, SetNodeCapabilityPropertyAsSecretOperation operation, NodeTemplate nodeTemplate) {
         Capability capabilityTemplate = getOrFail(nodeTemplate.getCapabilities(), operation.getCapabilityName(), "Capability {} does not exist for node {}",
@@ -31,6 +34,10 @@ public class SetNodeCapabilityPropertyAsSecretProcessor extends AbstractNodeProc
         CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capabilityTemplate.getType());
         getOrFail(capabilityType.getProperties(), operation.getPropertyName(),
                 "Property {} do not exist for capability {} of node {}", operation.getPropertyName(), operation.getCapabilityName(), operation.getNodeName());
+
+        if (operation.getCapabilityName().equals(forbiddenCapability)) {
+            throw new UnsupportedSecretException("We cannot set a secret on the capability " + operation.getCapabilityName());
+        }
 
         FunctionPropertyValue getSecret = new FunctionPropertyValue();
         getSecret.setFunction(ToscaFunctionConstants.GET_SECRET);
