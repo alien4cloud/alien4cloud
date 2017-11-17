@@ -9,8 +9,6 @@
   </label>
   <div ng-class="{'col-md-5': deletable, 'col-md-8': !deletable, 'form-editable': !condensed}"
     ng-init="isStringDisplayType = (definitionObject.uiName === 'scalar-unit' || definitionObject.uiName === 'string');">
-    <!-- Property Value -->
-    <secret-display></secret-display>
 
     <div id="div_{{propertyName}}"  ng-if="isStringDisplayType && !definitionObject.uiSecret" ng-class="{'property-required' : definition.required && definitionObject.uiEmpty}">
 

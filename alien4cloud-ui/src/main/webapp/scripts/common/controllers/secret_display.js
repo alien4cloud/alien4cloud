@@ -8,6 +8,9 @@ define(function(require) {
 
   modules.get('a4c-common').controller('SecretDisplay', ['$scope', '$translate', '$uibModal',
     function($scope, $translate, $uibModal) {
+      if (_.undefined($scope.translated)) {
+        $scope.translated = false;
+      }
 
       $scope.secretSave = function(secretPath) {
         return $scope.execute({

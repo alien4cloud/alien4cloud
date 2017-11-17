@@ -58,8 +58,7 @@ define(function(require) {
         },
 
         isSecret: function(propertyValue) {
-          console.log(propertyValue);
-          return _.defined(propertyValue.value) && _.defined(propertyValue.value.function) && propertyValue.value.function === 'get_secret';
+          return _.defined(propertyValue) && _.defined(propertyValue.value) && _.defined(propertyValue.value.function) && propertyValue.value.function === 'get_secret';
         },
 
         getFormatedProperty: function(propertyKey) {

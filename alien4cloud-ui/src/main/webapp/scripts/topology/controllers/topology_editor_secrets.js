@@ -4,6 +4,7 @@
 define(function (require) {
   'use strict';
   var modules = require('modules');
+  var _ = require('lodash');
 
   require('scripts/common/controllers/confirm_modal');
 
@@ -20,7 +21,7 @@ define(function (require) {
           // tranform the property as get secret function
           //  ==> ui shlould display the getSecret label, the input field for the path and a button to add a plugin configuration
           var scope = this.scope;
-          if (scope.properties.isSecret(property.value)) {
+          if (scope.properties.isSecret(property)) {
             // reset the secret to originalValue
             if (_.defined(property.originalValue)) {
               property.value = property.originalValue;

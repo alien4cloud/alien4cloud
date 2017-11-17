@@ -11,6 +11,11 @@ define(function (require) {
       templateUrl: 'views/common/secret_display.html',
       restrict: 'E',
       scope: {
+        'translated': '=',
+        'definition': '=',
+        'propertyType': '=?',
+        'propertyName': '=',
+        'propertyValue': '='
       },
       link: {}
     };

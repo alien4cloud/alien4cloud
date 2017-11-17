@@ -185,10 +185,13 @@
         </td>
         <td>
           <secret-display
-            ng-if="isSecret(propEntry.value)">
+            ng-if="properties.isSecret(propEntry.value)"
+            property-name="propEntry.key"
+            property-value="propEntry.value"
+            definition="properties.getFormatedProperty(propEntry.key)">
           </secret-display>
           <property-display
-            ng-if="!isSecret(propEntry.value)"
+            ng-if="!properties.isSecret(propEntry.value)"
             ng-init="condensed = true"
             definition="properties.getFormatedProperty(propEntry.key)"
             property-type="topology.dataTypes[properties.getFormatedProperty(propEntry.key).type]"
