@@ -188,7 +188,9 @@
             ng-if="properties.isSecret(propEntry.value)"
             property-name="propEntry.key"
             property-value="propEntry.value"
-            definition="properties.getFormatedProperty(propEntry.key)">
+            definition="properties.getFormatedProperty(propEntry.key)"
+            selected-node-template="selectedNodeTemplate"
+            execute="execute">
           </secret-display>
           <property-display
             ng-if="!properties.isSecret(propEntry.value)"

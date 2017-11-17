@@ -9,13 +9,16 @@ define(function (require) {
   modules.get('a4c-common').directive('secretDisplay', function() {
     return {
       templateUrl: 'views/common/secret_display.html',
+      controller: 'SecretDisplayCtrl',
       restrict: 'E',
       scope: {
         'translated': '=',
         'definition': '=',
         'propertyType': '=?',
         'propertyName': '=',
-        'propertyValue': '='
+        'propertyValue': '=',
+        'selectedNodeTemplate': '=',
+        'execute': '&'
       },
       link: {}
     };
