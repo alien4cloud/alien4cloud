@@ -58,16 +58,16 @@ define(function(require) {
         },
 
         isSecretValue: function(propertyValue) {
-          return _.defined(propertyValue) && _.defined(propertyValue.value) && _.defined(propertyValue.value.function) && propertyValue.value.function === 'get_secret';
+          return _.defined(propertyValue) && _.defined(propertyValue.function) && propertyValue.function === 'get_secret';
         },
-
-        isSecretProperty: function(propertyName) {
-          var scope = this.scope;
-          if (_.undefined(scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret)) {
-            scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret = false;
-          }
-          return scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret;
-        },
+        //
+        // isSecretProperty: function(propertyName) {
+        //   var scope = this.scope;
+        //   if (_.undefined(scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret)) {
+        //     scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret = false;
+        //   }
+        //   return scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret;
+        // },
 
         // isSecretCapabilityProperty: function(propertyName) {
         //   var scope = this.scope;

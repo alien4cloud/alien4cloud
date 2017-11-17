@@ -147,7 +147,7 @@
         <td class="topology-props-td-inp">
           <div class="btn-group" uib-dropdown>
             <a id="p_secret_pro_{{propEntry.key}}"
-               ng-click="secrets.togglePropertySecret(propEntry.key, propEntry.value)"
+               ng-click="secrets.togglePropertySecret(propEntry)"
                class="btn btn-default btn-xs"
                ng-class="{'active' : properties.isSecretValue(propEntry.value)}"
                tooltip-append-to-body="true">
@@ -185,7 +185,7 @@
         </td>
         <td>
           <secret-display
-            ng-if="properties.isSecretProperty(propEntry.key)"
+            ng-if="properties.isSecretValue(propEntry.value)"
             property-name="propEntry.key"
             property-value="propEntry.value"
             definition="properties.getFormatedProperty(propEntry.key)"
@@ -193,7 +193,7 @@
             execute="execute">
           </secret-display>
           <property-display
-            ng-if="!properties.isSecretProperty(propEntry.key)"
+            ng-if="!properties.isSecretValue(propEntry.value)"
             ng-init="condensed = true"
             definition="properties.getFormatedProperty(propEntry.key)"
             property-type="topology.dataTypes[properties.getFormatedProperty(propEntry.key).type]"
@@ -259,13 +259,6 @@
         <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
           <td class="topology-props-td-inp">
             <div class="btn-group" uib-dropdown>
-              <a id="p_secret_cap_{{propEntry.key}}"
-                 ng-click="secrets.toggleCapabilityPropertySecret(propertyEntry.key, propertyEntry.value)"
-                 class="btn btn-default btn-xs"
-                 ng-class="{'active' : properties.isSecretValue(propertyEntry.value)}"
-                 tooltip-append-to-body="true">
-                <i class="fa fa-user-secret "></i>
-              </a>
               <a id="p_input_cap_{{propertyEntry.key}}"
                  ng-click="inputs.getCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                  class="btn btn-default btn-xs"
