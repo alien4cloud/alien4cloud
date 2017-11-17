@@ -17,20 +17,23 @@ define(function (require) {
 
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
-        toggleGetSecret: function(property) {
-          // tranform the property as get secret function
-          //  ==> ui shlould display the getSecret label, the input field for the path and a button to add a plugin configuration
+        toggleGetSecret: function(propertyName, propertyValue) {
+          // valid for the property
           var scope = this.scope;
-          if (scope.properties.isSecret(property)) {
+          if (scope.properties.isSecretProperty(propertyName)) {
             // reset the secret to originalValue
-            if (_.defined(property.originalValue)) {
-              property.value = property.originalValue;
+            if (_.defined(propertyValue) && _.defined(propertyValue.originalValue)) {
+              propertyValue.value = propertyValue.originalValue;
+              propertyValue.originalValue = undefined;
             }
-            property.originalValue = undefined;
+            scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret = false;
           } else {
             // set the secret
-            property.originalValue = property.value;
-            property.value = {function:'get_secret', parameters: ['']};
+            if (_.defined(propertyValue)) {
+              propertyValue.value = propertyValue.originalValue;
+            }
+            scope.topology.nodeTypes[scope.selectedNodeTemplate.type].properties[propertyName] = {function:'get_secret', parameters: ['']};
+            scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret = true;
           }
         }
       };

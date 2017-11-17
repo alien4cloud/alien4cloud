@@ -57,8 +57,16 @@ define(function(require) {
           return scope.topology.topology.outputAttributes[scope.selectedNodeTemplate.name].indexOf(attributeName) >= 0;
         },
 
-        isSecret: function(propertyValue) {
+        isSecretValue: function(propertyValue) {
           return _.defined(propertyValue) && _.defined(propertyValue.value) && _.defined(propertyValue.value.function) && propertyValue.value.function === 'get_secret';
+        },
+
+        isSecretProperty: function(propertyName) {
+          var scope = this.scope;
+          if (_.undefined(scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret)) {
+            scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret = false;
+          }
+          return scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret;
         },
 
         getFormatedProperty: function(propertyKey) {
