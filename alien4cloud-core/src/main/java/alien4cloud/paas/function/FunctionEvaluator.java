@@ -1,8 +1,17 @@
 package alien4cloud.paas.function;
 
-import java.util.List;
-import java.util.Map;
-
+import alien4cloud.paas.IPaaSTemplate;
+import alien4cloud.paas.exception.NotSupportedException;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.paas.model.PaaSRelationshipTemplate;
+import alien4cloud.utils.AlienConstants;
+import alien4cloud.utils.AlienUtils;
+import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.PropertyUtil;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
@@ -22,19 +31,8 @@ import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import alien4cloud.paas.IPaaSTemplate;
-import alien4cloud.paas.exception.NotSupportedException;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.model.PaaSRelationshipTemplate;
-import alien4cloud.utils.AlienConstants;
-import alien4cloud.utils.AlienUtils;
-import alien4cloud.utils.MapUtil;
-import alien4cloud.utils.PropertyUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class to process functions defined in attributes or operations input level:
@@ -444,5 +442,19 @@ public final class FunctionEvaluator {
 
     public static boolean isGetInput(FunctionPropertyValue function) {
         return ToscaFunctionConstants.GET_INPUT.equals(function.getFunction());
+    }
+
+    /**
+     * Check if the given property value is a get_secret function.
+     *
+     * @param propertyValue The property value to evaluate.
+     * @return True if the property is a TOSCA get_secret function, false if not.
+     */
+    public static boolean isGetSecret(AbstractPropertyValue propertyValue) {
+        return propertyValue instanceof FunctionPropertyValue && isGetSecret((FunctionPropertyValue) propertyValue);
+    }
+
+    public static boolean isGetSecret(FunctionPropertyValue function) {
+        return ToscaFunctionConstants.GET_SECRET.equals(function.getFunction());
     }
 }

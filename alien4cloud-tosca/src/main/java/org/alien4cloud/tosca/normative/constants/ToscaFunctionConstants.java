@@ -12,6 +12,9 @@ public final class ToscaFunctionConstants {
     public static final String GET_INPUT = "get_input";
     public static final String GET_OPERATION_OUTPUT = "get_operation_output";
 
+    /* unofficial TOSCA function */
+    public static final String GET_SECRET = "get_secret";
+
     /* reserved keywords */
     public static final String SELF = "SELF";
     public static final String TARGET = "TARGET";
