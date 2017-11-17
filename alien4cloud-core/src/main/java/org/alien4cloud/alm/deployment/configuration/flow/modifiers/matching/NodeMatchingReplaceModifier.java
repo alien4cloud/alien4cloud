@@ -81,9 +81,9 @@ public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier
                 if (capabilityType != null && !ToscaTypeUtils.isOfType(capabilityType, NormativeCapabilityTypes.SCALABLE)) {
                     locationCapability.setProperties(
                             CollectionUtils.merge(abstractCapability.getProperties(), locationCapability.getProperties(), true, topologyNotMergedProps));
+                } else {
+                    locationCapability.setProperties(abstractCapability.getProperties());
                 }
-            } else {
-                locationCapability.setProperties(abstractCapability.getProperties());
             }
         }
     }

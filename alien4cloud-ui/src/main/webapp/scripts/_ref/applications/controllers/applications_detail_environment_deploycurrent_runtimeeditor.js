@@ -233,16 +233,25 @@ define(function (require) {
     };
 
     $scope.scale = function(newValue) {
-      if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
-        applicationServices.scale({
-          applicationId: $scope.application.id,
-          nodeTemplateId: $scope.selectedNodeTemplate.name,
-          instances: (newValue - $scope.selectedNodeTemplate.instancesCount),
-          applicationEnvironmentId: $scope.environment.id
-        }, undefined, function success() {
-          $scope.loadTopologyRuntime();
-        });
+      var targetInstanceDiff;
+      if(_.defined($scope.selectedNodeTemplate.clusterScalingControll)) {
+        targetInstanceDiff = newValue - $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount;
+      } else {
+        if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
+            return;
+        }
+        targetInstanceDiff = newValue - $scope.selectedNodeTemplate.instancesCount;
       }
+
+      applicationServices.scale({
+        applicationId: $scope.application.id,
+        nodeTemplateId: $scope.selectedNodeTemplate.name,
+        instances: targetInstanceDiff,
+        applicationEnvironmentId: $scope.environment.id
+      }, undefined, function success() {
+        $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount = newValue;
+        $scope.loadTopologyRuntime();
+      });
     };
 
     $scope.filter = null;
