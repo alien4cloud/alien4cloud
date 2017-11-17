@@ -325,8 +325,6 @@ public class LocationResourceService implements ILocationResourceService {
     private LocationResourceTemplate addResourceTemplate(Location location, String resourceName, String resourceTypeName) {
         NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName, location.getDependencies());
         NodeTemplate nodeTemplate = templateBuilder.buildNodeTemplate(location.getDependencies(), resourceType);
-        // FIXME Workaround to remove default scalable properties from compute
-        TopologyUtils.setNullScalingPolicy(nodeTemplate, resourceType);
         LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
         locationResourceTemplate.setGenerated(false);
         fillAndSaveLocationResourceTemplate(location, resourceName, locationResourceTemplate, resourceType, nodeTemplate);

@@ -98,20 +98,6 @@ public class TopologyUtils {
         return interfaces;
     }
 
-    public static void setNullScalingPolicy(NodeTemplate nodeTemplate, NodeType resourceType) {
-        // FIXME Workaround to remove default scalable properties from compute
-        if (ToscaTypeUtils.isOfType(resourceType, NormativeComputeConstants.COMPUTE_TYPE)) {
-            if (nodeTemplate.getCapabilities() != null) {
-                Capability scalableCapability = nodeTemplate.getCapabilities().get(NormativeComputeConstants.SCALABLE);
-                if (scalableCapability != null && scalableCapability.getProperties() != null) {
-                    scalableCapability.getProperties().put(NormativeComputeConstants.SCALABLE_MIN_INSTANCES, null);
-                    scalableCapability.getProperties().put(NormativeComputeConstants.SCALABLE_MAX_INSTANCES, null);
-                    scalableCapability.getProperties().put(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, null);
-                }
-            }
-        }
-    }
-
     public static ScalingPolicy getScalingPolicy(Capability capability) {
         int initialInstances = getScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, capability);
         int minInstances = getScalingProperty(NormativeComputeConstants.SCALABLE_MIN_INSTANCES, capability);

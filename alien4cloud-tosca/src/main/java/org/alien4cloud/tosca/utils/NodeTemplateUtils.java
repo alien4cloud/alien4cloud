@@ -6,6 +6,8 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 
+import com.google.common.collect.Maps;
+
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.tosca.context.ToscaContext;
 
@@ -51,5 +53,19 @@ public final class NodeTemplateUtils {
             throw new NotFoundException("");
         }
         return capability;
+    }
+
+    /**
+     * Set a capabiltiy on the node template (and initialize the capability maps if null).
+     * 
+     * @param nodeTemplate The node template in which to add the capability.
+     * @param name The name of the capability to add.
+     * @param capability The capability.
+     */
+    public static void setCapability(NodeTemplate nodeTemplate, String name, Capability capability) {
+        if (nodeTemplate.getCapabilities() == null) {
+            nodeTemplate.setCapabilities(Maps.newHashMap());
+        }
+        nodeTemplate.getCapabilities().put(name, capability);
     }
 }
