@@ -54,6 +54,11 @@ define(function (require) {
       $scope.queryManager.facetIdConverter = {};
     }
 
+    $scope.queryManager.facetIdConverter.toFilter = $scope.queryManager.facetIdConverter.toFilter ||
+      function(termId, facetId){
+        return facetId;
+      };
+
     $scope.queryManager.facetIdConverter.toDisplay = $scope.queryManager.facetIdConverter.toDisplay ||
       function (termId, facetId) {
         var self = this;
@@ -133,6 +138,7 @@ define(function (require) {
     };
 
     $scope.addFilterValue = function(key, value) {
+      value = $scope.queryManager.facetIdConverter.toFilter(key, value);
       var filter = _.get($scope.queryManager, ['filters', key]);
       if(_.defined(filter) && !_.includes(filter, value)) {
         filter.push(value);

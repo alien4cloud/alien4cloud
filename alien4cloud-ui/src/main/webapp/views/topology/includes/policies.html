@@ -58,7 +58,7 @@
               <td colspan="3">
                 <form name="formAddTarget" class="form-inline" ng-submit="policies.addTarget(newPolicyTarget.name)">
                   <div ng-class="{'form-group':true, 'has-error': formAddTarget.policyNewTarget.$invalid}">
-                    <input type="text" class="form-control" id="policies-target" name="policyNewTarget" ng-model="newPolicyTarget.name"
+                    <input type="text" class="form-control input-sm" id="policies-target" name="policyNewTarget" ng-model="newPolicyTarget.name"
                       uib-typeahead="item for item in policies.edit.targetSuggestions" typeahead-min-length="1" required/>
                   </div>
                   <div class="form-group">

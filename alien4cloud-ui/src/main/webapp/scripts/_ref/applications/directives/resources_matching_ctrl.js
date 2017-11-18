@@ -12,7 +12,6 @@ define(function (require) {
     function ($scope, toscaService) {
 
       $scope.getIcon = function(template, templateName) {
-        console.log(template);
         var templateType;
         if (_.undefined(template)) {
           var templateTypeName = $scope.templates[templateName].type;
