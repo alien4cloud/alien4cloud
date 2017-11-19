@@ -40,6 +40,11 @@ define(function (require) {
           } else {
             property.originalValue = property.value;
             property.value = {function:'get_secret', parameters: ['']};
+            // Trigger the editor to enter the secret
+            setTimeout(function () {
+              $('#p_secret_' + property.key).trigger('click');
+            }, 0);
+
           }
         },
         toggleCapabilitySecret: function(capability) {
@@ -67,6 +72,10 @@ define(function (require) {
           } else {
             capability.originalValue = capability.value;
             capability.value = {function:'get_secret', parameters: ['']};
+            // Trigger the editor to enter the secret
+            setTimeout(function () {
+              $('#p_secret_' + capability.key).trigger('click');
+            }, 0);
           }
         }
 

@@ -185,7 +185,7 @@
         </td>
         <td>
           <secret-display
-            ng-if="properties.isSecretValue(propEntry.value)"
+            ng-show="properties.isSecretValue(propEntry.value)"
             property-name="propEntry.key"
             property-value="propEntry.value"
             definition="properties.getFormatedProperty(propEntry.key)"
@@ -193,7 +193,7 @@
             execute="execute">
           </secret-display>
           <property-display
-            ng-if="!properties.isSecretValue(propEntry.value)"
+            ng-show="!properties.isSecretValue(propEntry.value)"
             ng-init="condensed = true"
             definition="properties.getFormatedProperty(propEntry.key)"
             property-type="topology.dataTypes[properties.getFormatedProperty(propEntry.key).type]"
@@ -298,7 +298,7 @@
           </td>
           <td>
             <secret-display
-              ng-if="properties.isSecretValue(propertyEntry.value)"
+              ng-show="properties.isSecretValue(propertyEntry.value)"
               property-name="propertyEntry.key"
               property-value="propertyEntry.value"
               definition="properties.getFormatedProperty(propertyEntry.key)"
@@ -306,7 +306,7 @@
               execute="execute">
             </secret-display>
             <property-display
-              ng-if="!properties.isSecretValue(propertyEntry.value)"
+              ng-show="!properties.isSecretValue(propertyEntry.value)"
               ng-init="condensed = true"
               definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
               property-type="topology.dataTypes[properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key).type]"
