@@ -6,8 +6,6 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  require('scripts/common/controllers/confirm_modal');
-
   modules.get('a4c-topology-editor').factory('topoEditSecrets', [
     function() {
 
@@ -17,8 +15,8 @@ define(function (require) {
 
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
+        init: function() {},
         togglePropertySecret: function(property) {
-          // valid for the property
           var scope = this.scope;
           if (scope.properties.isSecretValue(property.value)) {
             // reset the secret to originalValue
@@ -26,28 +24,49 @@ define(function (require) {
               property.value = property.originalValue;
               property.originalValue = undefined;
             }
+            // Send the operation request to unset the property
+            scope.execute({
+                type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodePropertyAsSecretOperation',
+                nodeName: scope.selectedNodeTemplate.name,
+                propertyName: property.key
+              },
+              function(result){
+                // successful callback
+              },
+              null,
+              scope.selectedNodeTemplate.name,
+              true
+            );
           } else {
             property.originalValue = property.value;
             property.value = {function:'get_secret', parameters: ['']};
           }
         },
-        toggleCapabilityPropertySecret: function(propertyName, propertyValue) {
-          // valid for the property
+        toggleCapabilitySecret: function(capability) {
           var scope = this.scope;
-          if (scope.properties.isSecretValue(propertyValue)) {
+          if (scope.properties.isSecretValue(capability.value)) {
             // reset the secret to originalValue
-            if (_.defined(propertyValue) && _.defined(propertyValue.originalValue)) {
-              propertyValue.value = propertyValue.originalValue;
-              propertyValue.originalValue = undefined;
+            if (_.defined(capability.value)) {
+              capability.value = capability.originalValue;
+              capability.originalValue = undefined;
             }
-            // scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret = false;
+            // Send the operation request to unset the property
+            scope.execute({
+                type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodeCapabilityPropertyAsSecretOperation',
+                nodeName: scope.selectedNodeTemplate.name,
+                propertyName: "",
+                capabilityName: capability.key
+              },
+              function(result){
+                // successful callback
+              },
+              null,
+              scope.selectedNodeTemplate.name,
+              true
+            );
           } else {
-            // set the secret
-            if (_.defined(propertyValue)) {
-              propertyValue.value = propertyValue.originalValue;
-            }
-            scope.topology.nodeTypes[scope.selectedNodeTemplate.type].capabilities[propertyName] = {function:'get_secret', parameters: ['']};
-            // scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyName].value.secret = true;
+            capability.originalValue = capability.value;
+            capability.value = {function:'get_secret', parameters: ['']};
           }
         }
 
