@@ -27,7 +27,7 @@ public class UnsetNodePropertyAsSecretProcessor extends AbstractNodeProcessor<Un
     protected void processNodeOperation(Csar csar, Topology topology, UnsetNodePropertyAsSecretOperation operation, NodeTemplate nodeTemplate) {
         // check if the node property value is a get_secret
         AbstractPropertyValue currentValue = nodeTemplate.getProperties().get(operation.getPropertyName());
-        if (!isGetSecret(currentValue)) {
+        if (currentValue != null && !isGetSecret(currentValue)) {
             throw new NotFoundException("Property {} of node {} is not associated to an secret.", operation.getPropertyName(), operation.getNodeName());
         }
 

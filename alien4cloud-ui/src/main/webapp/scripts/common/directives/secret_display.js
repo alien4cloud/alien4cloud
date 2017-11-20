@@ -17,6 +17,7 @@ define(function (require) {
         'propertyType': '=?',
         'propertyName': '=',
         'propertyValue': '=',
+        'capabilityName': '=?',
         'selectedNodeTemplate': '=',
         'execute': '&'
       },

@@ -260,7 +260,7 @@
           <td class="topology-props-td-inp">
             <div class="btn-group" uib-dropdown>
               <a id="p_secret_cap_{{propertyEntry.key}}"
-                 ng-click="secrets.toggleCapabilitySecret(propertyEntry)"
+                 ng-click="secrets.toggleCapabilitySecret(propertyEntry, capabilityEntry.key)"
                  class="btn btn-default btn-xs"
                  ng-class="{'active' : properties.isSecretValue(propertyEntry.value)}"
                  tooltip-append-to-body="true">
@@ -299,9 +299,10 @@
           <td>
             <secret-display
               ng-show="properties.isSecretValue(propertyEntry.value)"
+              capability-name="capabilityEntry.key"
               property-name="propertyEntry.key"
               property-value="propertyEntry.value"
-              definition="properties.getFormatedProperty(propertyEntry.key)"
+              definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
               selected-node-template="selectedNodeTemplate"
               execute="execute">
             </secret-display>

@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor.processors.secrets;
 
 import alien4cloud.tosca.context.ToscaContext;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.editor.exception.InvalidSecretPathException;
 import org.alien4cloud.tosca.editor.exception.UnsupportedSecretException;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodePropertyAsSecretOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
@@ -34,6 +35,10 @@ public class SetNodePropertyAsSecretProcessor extends AbstractNodeProcessor<SetN
 
         if (operation.getPropertyName().equals(forbiddenProperty)) {
             throw new UnsupportedSecretException("We cannot set a secret on the property " + operation.getPropertyName());
+        }
+
+        if ("".equals(operation.getSecretPath())) {
+            throw new InvalidSecretPathException("The secret path to the property " + operation.getPropertyName() + "is null.");
         }
 
         FunctionPropertyValue getSecret = new FunctionPropertyValue();

@@ -31,7 +31,7 @@ public class UnsetNodeCapabilityPropertyAsSecretProcessor extends AbstractNodePr
 
         // check if the node property value is a get_secret
         AbstractPropertyValue currentValue = capabilityTemplate.getProperties().get(operation.getPropertyName());
-        if (!isGetSecret(currentValue)) {
+        if (currentValue != null && !isGetSecret(currentValue)) {
             throw new NotFoundException("Property {} of node {} is not an secret.", operation.getPropertyName(), operation.getNodeName());
         }
 

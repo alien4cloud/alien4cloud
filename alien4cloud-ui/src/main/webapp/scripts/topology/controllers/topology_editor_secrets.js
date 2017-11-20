@@ -19,24 +19,28 @@ define(function (require) {
         togglePropertySecret: function(property) {
           var scope = this.scope;
           if (scope.properties.isSecretValue(property.value)) {
+            if (property.value.parameters[0] !== "") {
+              setTimeout(function () {
+                // Send the operation request to unset the property
+                scope.execute({
+                    type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodePropertyAsSecretOperation',
+                    nodeName: scope.selectedNodeTemplate.name,
+                    propertyName: property.key
+                  },
+                  function(result){
+                    // successful callback
+                  },
+                  null,
+                  scope.selectedNodeTemplate.name,
+                  true
+                );
+              }, 0);
+            }
             // reset the secret to originalValue
             if (_.defined(property.value)) {
               property.value = property.originalValue;
               property.originalValue = undefined;
             }
-            // Send the operation request to unset the property
-            scope.execute({
-                type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodePropertyAsSecretOperation',
-                nodeName: scope.selectedNodeTemplate.name,
-                propertyName: property.key
-              },
-              function(result){
-                // successful callback
-              },
-              null,
-              scope.selectedNodeTemplate.name,
-              true
-            );
           } else {
             property.originalValue = property.value;
             property.value = {function:'get_secret', parameters: ['']};
@@ -47,34 +51,39 @@ define(function (require) {
 
           }
         },
-        toggleCapabilitySecret: function(capability) {
+        toggleCapabilitySecret: function(property, capabilityName) {
           var scope = this.scope;
-          if (scope.properties.isSecretValue(capability.value)) {
-            // reset the secret to originalValue
-            if (_.defined(capability.value)) {
-              capability.value = capability.originalValue;
-              capability.originalValue = undefined;
+          if (scope.properties.isSecretValue(property.value)) {
+            if (property.value.parameters[0] !== "") {
+              setTimeout(function () {
+                // Send the operation request to unset the capability
+                scope.execute({
+                    type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodeCapabilityPropertyAsSecretOperation',
+                    nodeName: scope.selectedNodeTemplate.name,
+                    propertyName: property.key,
+                    capabilityName: capabilityName
+                  },
+                  function(result){
+                    // successful callback
+                  },
+                  null,
+                  scope.selectedNodeTemplate.name,
+                  true
+                );
+              }, 0);
             }
-            // Send the operation request to unset the property
-            scope.execute({
-                type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodeCapabilityPropertyAsSecretOperation',
-                nodeName: scope.selectedNodeTemplate.name,
-                propertyName: "",
-                capabilityName: capability.key
-              },
-              function(result){
-                // successful callback
-              },
-              null,
-              scope.selectedNodeTemplate.name,
-              true
-            );
+            // reset the secret to originalValue
+            if (_.defined(property.value)) {
+              property.value = property.originalValue;
+              property.originalValue = undefined;
+            }
+
           } else {
-            capability.originalValue = capability.value;
-            capability.value = {function:'get_secret', parameters: ['']};
+            property.originalValue = property.value;
+            property.value = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
             setTimeout(function () {
-              $('#p_secret_' + capability.key).trigger('click');
+              $('#p_secret_' + property.key).trigger('click');
             }, 0);
           }
         }
