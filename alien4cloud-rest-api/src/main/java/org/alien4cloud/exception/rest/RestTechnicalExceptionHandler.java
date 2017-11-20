@@ -510,14 +510,6 @@ public class RestTechnicalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(value = UnsupportedSecretException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public RestResponse<Void> handleEditionConcurrencyException(UnsupportedSecretException e) {
-        return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_SECRET_EXCEPTION).message(e.getMessage()).build()).build();
-    }
-
     @ExceptionHandler(value = EditorToscaYamlParsingException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
