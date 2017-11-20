@@ -1,15 +1,15 @@
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
   var _ = require('lodash');
-  
+
   require('scripts/services/directives/managed_service');
   require('scripts/applications/services/application_services');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_deploy_secret_modal');
-  
+
   states.state('applications.detail.environment.deploynext.deploy', {
     url: '/deploy',
     templateUrl: 'views/_ref/applications/applications_detail_environment_deploynext_deploy.html',
@@ -25,7 +25,7 @@ define(function (require) {
       }
     }
   });
-  
+
   modules.get('a4c-applications').controller('AppEnvDeployNextDeployCtrl',
     ['$scope', '$alresource', '$translate', 'toaster', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state', '$uibModal', '$q',
       function ($scope, $alresource, $translate, toaster, deploymentTopologyServices, applicationServices, breadcrumbsService, $state, $uibModal, $q) {
@@ -38,7 +38,7 @@ define(function (require) {
             $state.go('applications.detail.environment.deploynext.deploy');
           }
         });
-        
+
         $scope.openSecretCredentialModal = function () {
           // credentialDescriptor
           var promise;
@@ -60,15 +60,17 @@ define(function (require) {
               return promise.promise;
           }
         };
-        
+
         $scope.doDeploy = function () {
           $scope.openSecretCredentialModal().then(function (secretProviderInfo) {
             var deployApplicationRequest = {
               'applicationId': $scope.application.id,
-              'applicationEnvironmentId': $scope.environment.id,
-              'secretProviderPluginName': secretProviderInfo.pluginName,
-              'secretProviderCredentials': secretProviderInfo.credentials
+              'applicationEnvironmentId': $scope.environment.id
             };
+            if (_.defined(secretProviderInfo)) {
+              deployApplicationRequest.secretProviderPluginName = secretProviderInfo.pluginName;
+              deployApplicationRequest.secretProviderCredentials = secretProviderInfo.credentials;
+            }
             $scope.setState('INIT_DEPLOYMENT');
             applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function () {
               $scope.environment.status = 'INIT_DEPLOYMENT';
@@ -81,10 +83,10 @@ define(function (require) {
             });
           });
         };
-        
+
         $scope.doUpdate = function () {
           $scope.setState('INIT_DEPLOYMENT');
-          
+
           applicationServices.deploymentUpdate({
             applicationId: $scope.application.id,
             applicationEnvironmentId: $scope.environment.id
@@ -109,7 +111,7 @@ define(function (require) {
             $scope.reloadEnvironment();
           });
         };
-        
+
         /**
          * DEPLOYMENT PROPERTIES
          **/
@@ -121,7 +123,7 @@ define(function (require) {
               }
             });
         }
-        
+
         $scope.updateDeploymentProperty = function (propertyDefinition, propertyName, propertyValue) {
           if ((_.defined($scope.deploymentTopologyDTO.topology.providerDeploymentProperties) && propertyValue === $scope.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName]) || (_.undefined($scope.deploymentTopologyDTO.topology.providerDeploymentProperties) && _.undefined(propertyValue))) {
             return; // no change
@@ -130,7 +132,7 @@ define(function (require) {
             'definitionId': propertyName,
             'value': propertyValue
           };
-          
+
           return applicationServices.checkProperty({
             orchestratorId: $scope.deploymentTopologyDTO.topology.orchestratorId
           }, angular.toJson(deploymentPropertyObject), function (data) {
@@ -154,7 +156,7 @@ define(function (require) {
             }
           }).$promise;
         };
-        
+
         // the topology deployment is updatable if:
         // - the status is one of DEPLOYED , UPDATED,
         // - the current selectedlocation is the same as the one of the deployed topology
@@ -163,7 +165,7 @@ define(function (require) {
             _.definedPath($scope.deploymentTopologyDTO, 'locationPolicies._A4C_ALL') &&
             _.get($scope.deploymentTopologyDTO, 'locationPolicies._A4C_ALL') === _.get($scope.deployedTopology, 'topology.locationGroups._A4C_ALL.policies[0].locationId');
         };
-        
+
         $scope.$watch('deploymentTopologyDTO.topology.orchestratorId', function (newValue) {
           if (_.undefined(newValue)) {
             return;
