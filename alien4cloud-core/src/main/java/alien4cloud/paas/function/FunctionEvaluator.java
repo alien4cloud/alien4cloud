@@ -1,17 +1,8 @@
 package alien4cloud.paas.function;
 
-import alien4cloud.paas.IPaaSTemplate;
-import alien4cloud.paas.exception.NotSupportedException;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.model.PaaSRelationshipTemplate;
-import alien4cloud.utils.AlienConstants;
-import alien4cloud.utils.AlienUtils;
-import alien4cloud.utils.MapUtil;
-import alien4cloud.utils.PropertyUtil;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Map;
+
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
@@ -31,8 +22,19 @@ import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import alien4cloud.paas.IPaaSTemplate;
+import alien4cloud.paas.exception.NotSupportedException;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.paas.model.PaaSRelationshipTemplate;
+import alien4cloud.utils.AlienConstants;
+import alien4cloud.utils.AlienUtils;
+import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.PropertyUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class to process functions defined in attributes or operations input level:
@@ -40,12 +42,30 @@ import java.util.Map;
  *
  * <pre>
  * attributes:
- *   url: "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super"
+ *   url: "http://get_property: [the_node_template_1, the_property_name_1]:get_property: [the_node_template_2, the_property_name_2 ]/super"
  * </pre>
  */
 @Slf4j
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public final class FunctionEvaluator {
+
+    /**
+     * Check whether the value contains a get_secret
+     * 
+     * @param propertyValue the value of the property
+     * @return true if the property's value is a function and contains a get_secret
+     */
+    public static boolean containGetSecretFunction(AbstractPropertyValue propertyValue) {
+        if (propertyValue instanceof FunctionPropertyValue) {
+            if (ToscaFunctionConstants.GET_SECRET.equals(((FunctionPropertyValue) propertyValue).getFunction())) {
+                return true;
+            }
+        } else if (propertyValue instanceof ConcatPropertyValue) {
+            return ((ConcatPropertyValue) propertyValue).getParameters().stream().anyMatch(FunctionEvaluator::containGetSecretFunction);
+        }
+        return false;
+    }
+
     /**
      * Parse an attribute value that can be : {@link ConcatPropertyValue} / {@link AttributeDefinition}
      *
