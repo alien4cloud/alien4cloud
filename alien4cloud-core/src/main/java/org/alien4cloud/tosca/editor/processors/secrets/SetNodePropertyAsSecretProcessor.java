@@ -38,7 +38,7 @@ public class SetNodePropertyAsSecretProcessor extends AbstractNodeProcessor<SetN
         }
 
         if ("".equals(operation.getSecretPath())) {
-            throw new InvalidSecretPathException("The secret path to the property " + operation.getPropertyName() + "is null.");
+            throw new InvalidSecretPathException("The secret path to the property " + operation.getPropertyName() + " is null.");
         }
 
         FunctionPropertyValue getSecret = new FunctionPropertyValue();
