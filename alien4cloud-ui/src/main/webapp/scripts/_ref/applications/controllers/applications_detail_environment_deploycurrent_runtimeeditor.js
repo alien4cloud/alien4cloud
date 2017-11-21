@@ -72,7 +72,6 @@ define(function (require) {
       service: { active: false, size: 500, selector: '#runtime-service-box', only: ['topology', 'service'], title: 'SERVICES.MANAGED.TITLE', fa: 'fa-globe' }
     };
     topoEditDisplay($scope, '#topology-editor');
-    $scope.view = 'RENDERED';
 
     $scope.eventTypeFilters = [
       { 'value': 'ALL' },
