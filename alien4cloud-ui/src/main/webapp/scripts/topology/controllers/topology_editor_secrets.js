@@ -17,52 +17,28 @@ define(function (require) {
         constructor: TopologyEditorMixin,
         init: function() {},
         togglePropertySecret: function(property) {
-          var scope = this.scope;
-          if (scope.properties.isSecretValue(property.value)) {
-            if (property.value.parameters[0] !== "") {
-              setTimeout(function () {
-                // Send the operation request to unset the property
-                scope.execute({
-                    type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodePropertyAsSecretOperation',
-                    nodeName: scope.selectedNodeTemplate.name,
-                    propertyName: property.key
-                  },
-                  function(result){
-                    // successful callback
-                  },
-                  null,
-                  scope.selectedNodeTemplate.name,
-                  true
-                );
-              }, 0);
-            }
-            // reset the secret to originalValue
-            if (_.defined(property.value)) {
-              property.value = property.originalValue;
-              property.originalValue = undefined;
-            }
-          } else {
-            property.originalValue = property.value;
-            property.value = {function:'get_secret', parameters: ['']};
-            // Trigger the editor to enter the secret
-            setTimeout(function () {
-              $('#p_secret_' + property.key).trigger('click');
-            }, 0);
-
-          }
+          var requestObject = {
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodePropertyAsSecretOperation',
+              nodeName: this.scope.selectedNodeTemplate.name,
+              propertyName: property.key
+            };
+          this.toggleSecret(property, requestObject);
         },
         toggleCapabilitySecret: function(property, capabilityName) {
+          var requestObject = {
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodeCapabilityPropertyAsSecretOperation',
+              nodeName: this.scope.selectedNodeTemplate.name,
+              propertyName: property.key,
+              capabilityName: capabilityName
+            };
+          this.toggleSecret(property, requestObject);
+        },
+        toggleSecret: function(self, requestObject) {
           var scope = this.scope;
-          if (scope.properties.isSecretValue(property.value)) {
-            if (property.value.parameters[0] !== "") {
+          if (scope.properties.isSecretValue(self.value)) {
+            if (self.value.parameters[0] !== "") {
               setTimeout(function () {
-                // Send the operation request to unset the capability
-                scope.execute({
-                    type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodeCapabilityPropertyAsSecretOperation',
-                    nodeName: scope.selectedNodeTemplate.name,
-                    propertyName: property.key,
-                    capabilityName: capabilityName
-                  },
+                scope.execute(requestObject,
                   function(result){
                     // successful callback
                   },
@@ -73,21 +49,19 @@ define(function (require) {
               }, 0);
             }
             // reset the secret to originalValue
-            if (_.defined(property.value)) {
-              property.value = property.originalValue;
-              property.originalValue = undefined;
+            if (_.defined(self.value)) {
+              self.value = self.originalValue;
+              self.originalValue = undefined;
             }
-
           } else {
-            property.originalValue = property.value;
-            property.value = {function:'get_secret', parameters: ['']};
+            self.originalValue = self.value;
+            self.value = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
             setTimeout(function () {
-              $('#p_secret_' + property.key).trigger('click');
+              $('#p_secret_' + self.key).trigger('click');
             }, 0);
           }
         }
-
       };
 
       return function(scope) {
