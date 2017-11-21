@@ -36,7 +36,7 @@ define(function (require) {
       searchAuthorizedSubjects();
 
       $scope.onModalClose = function(result) {
-          $scope.service.save(_.map(result.subjects, $scope.getId), refreshAuthorizedSubjects);
+        $scope.service.save(_.map(result.subjects, $scope.getId), refreshAuthorizedSubjects);
       };
 
       $scope.revoke = function (subject) {

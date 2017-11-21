@@ -73,5 +73,5 @@ define(function (require) {
           $state.go('applications.detail', { id: application.data.id });
         }
       });
-  }]);
+    }]);
 });

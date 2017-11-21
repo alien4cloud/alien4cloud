@@ -238,7 +238,7 @@ define(function (require) {
         targetInstanceDiff = newValue - $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount;
       } else {
         if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
-            return;
+          return;
         }
         targetInstanceDiff = newValue - $scope.selectedNodeTemplate.instancesCount;
       }

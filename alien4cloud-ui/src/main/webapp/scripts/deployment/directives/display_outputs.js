@@ -49,7 +49,7 @@ define(function (require) {
         _.forEach(instancesInfo, function(instanceInfo, instanceId){
           scope.outputAttributesValue[nodeId][instanceId] = {};
           _.forEach(scope.outputAttributes[nodeId], function(outputAttr){
-              scope.outputAttributesValue[nodeId][instanceId][outputAttr] = _.get(instanceInfo.attributes, outputAttr);
+            scope.outputAttributesValue[nodeId][instanceId][outputAttr] = _.get(instanceInfo.attributes, outputAttr);
           });
           if (_.isEmpty(scope.outputAttributesValue[nodeId][instanceId])) {
             delete scope.outputAttributesValue[nodeId][instanceId];

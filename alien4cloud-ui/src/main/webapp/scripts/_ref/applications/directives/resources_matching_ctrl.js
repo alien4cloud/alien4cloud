@@ -97,7 +97,7 @@ define(function (require) {
           return false;
         }
         if($scope.getSubstitutedTemplate($scope.selectedNodeName).id === $scope.selectedResourceTemplate.id){
-            return isNodePropertyEditable(propertyPath.propertyName);
+          return isNodePropertyEditable(propertyPath.propertyName);
         }
         return false;
       };

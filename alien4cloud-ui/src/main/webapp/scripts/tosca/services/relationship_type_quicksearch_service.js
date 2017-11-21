@@ -25,15 +25,6 @@ define(function (require) {
         $state.go('applications.detail.info', { id: applicationId });
       };
 
-      function getComponentIcon(tags){
-        for ( var i in tags) {
-          var tag = tags[i];
-          if(tag.name === 'icon'){
-            return tag.value;
-          }
-        }
-      }
-
       var quickSearch={};
 
       quickSearch.doQuickSearch= function(keyword) {

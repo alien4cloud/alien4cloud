@@ -31,7 +31,7 @@ define(function (require) {
           },
           onClick: function(){
             $state.go('applications.detail.environment.deploycurrent.workflow');
-          } 
+          }
         });
 
         $scope.displays = {

@@ -37,8 +37,8 @@ define(function (require) {
         });
       }
 
-       $scope.queryManager = {labelPrefix: 'COMPONENTS.CSAR.'};
-       $scope.searchService = searchServiceFactory('rest/latest/csars/search', false, $scope.queryManager, 20);
+      $scope.queryManager = {labelPrefix: 'COMPONENTS.CSAR.'};
+      $scope.searchService = searchServiceFactory('rest/latest/csars/search', false, $scope.queryManager, 20);
 
       $scope.openCsar = function (csarId) {
         $state.go('catalog.archives.detail', {id: csarId});
@@ -65,7 +65,7 @@ define(function (require) {
 
       //go to git import management
       $scope.goToGitImportManagement = function() {
-       $state.go('catalog.archives.git');
+        $state.go('catalog.archives.git');
       };
 
       var createTopologyArchiveResource = $alresource('/rest/latest/catalog/topologies/template');

@@ -38,7 +38,7 @@ define(function(require) {
 
       $scope.updateHalfRelationshipType = function(name, relationshipTypeId) {
         if(relationshipTypeId === '') {
-            relationshipTypeId = null;
+          relationshipTypeId = null;
         }
         var updatePromise = $scope.onHalfRelationshipTypeUpdate({
           type: 'capability',

@@ -24,5 +24,6 @@ define(function (require) {
   });
 
   regsterDeploymentHistoryStates('applications.detail.environment.history',function($stateParams) {
-    return {environmentId: $stateParams.environmentId};});
+    return { environmentId: $stateParams.environmentId };
+  });
 });

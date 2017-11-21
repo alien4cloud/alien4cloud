@@ -3,7 +3,7 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
-
+  var _ = require('lodash');
 
   states.state('admin.orchestrators.details.locations.secret', {
     url: '/secret',

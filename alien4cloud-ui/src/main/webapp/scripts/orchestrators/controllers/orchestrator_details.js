@@ -113,7 +113,7 @@ define(function (require) {
         })
         .then(anyway => {
           $state.reload();
-        })
+        });
       };
 
       $scope.disable = function(force) {
