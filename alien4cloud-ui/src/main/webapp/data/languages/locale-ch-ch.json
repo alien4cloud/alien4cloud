@@ -1035,6 +1035,7 @@
       "SECRETS" : {
         "SECRET": "Secret",
         "VAULT_CREDENTIALS": "Vaut Credentials",
+        "NEED_SECRET": " might need credentials to resolve secret",
         "PLUGIN_NAME": "Plugin name",
         "NO_SECRET_PLUGIN": "No secret plugin found.",
         "TOKEN": "Token",

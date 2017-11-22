@@ -19,6 +19,8 @@ define(function(require) {
         rootName: '=?',
         rootObject: '=?',
         formTitle: '@',
+        saveLabel: '@',
+        cancelLabel: '@',
         type: '=',
         /* Form styling options */
         formStyle: '@',
@@ -31,6 +33,7 @@ define(function(require) {
         showTree: '=',
         showPath: '=',
         automaticSave: '=',
+        disableToasterOnSuccess: '=',
         partialUpdate: '=',
         useXeditable: '=',
         configuration: '=?',
@@ -123,6 +126,9 @@ define(function(require) {
       scope: {
         rootObject: '=',
         formTitle: '@',
+        disableToasterOnSuccess: '=',
+        saveLabel: '@',
+        cancelLabel: '@',
         type: '=',
         labelSize: '=',
         suggest: '&',
@@ -134,6 +140,7 @@ define(function(require) {
         scope.automaticSave = false;
         scope.partialUpdate = false;
         scope.useXeditable = false;
+        scope.disableToasterOnSuccess = true;
         FORMS.initGenericForm(scope, toaster, $filter, element);
         $interval(function() {
           FORMS.initComplexProperties(scope, scope.type, element.find('.genericformpropertiescontainer'), $compile);
@@ -209,17 +216,15 @@ define(function(require) {
               scope.configuration.validationErrors = errors;
               scope.configuration.showErrorsAlert = true;
             } else {
-              if (!scope.configuration.automaticSave) {
+              if (!scope.configuration.automaticSave  && !scope.disableToasterOnSuccess) {
                 toaster.pop('success', $filter('translate')(scope.formTitle), $filter('translate')('GENERIC_FORM.SAVE_IS_DONE'), 4000, 'trustedHtml', null);
               }
               cleanUpAfterSave();
             }
-
           }
-
         });
       } else {
-        if (!scope.configuration.automaticSave) {
+        if (!scope.configuration.automaticSave && !scope.disableToasterOnSuccess) {
           toaster.pop('success', $filter('translate')(scope.formTitle), $filter('translate')('GENERIC_FORM.SAVE_IS_DONE'), 4000, 'trustedHtml', null);
         }
         cleanUpAfterSave();

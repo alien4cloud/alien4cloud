@@ -1075,6 +1075,7 @@
       "SERVICES": "Services",
       "SECRETS" : {
         "SECRET": "Secret",
+        "NEED_SECRET": " might need credentials to resolve secret",
         "PLUGIN_NAME": "Plugin name",
         "VAULT_CREDENTIALS": "Vaut Credentials",
         "NO_SECRET_PLUGIN": "No secret plugin found.",
