@@ -9,7 +9,7 @@ define(function (require) {
       $scope.pluginName = $scope.deploymentTopologyDTO.secretCredentialInfos[0].pluginName;
       $scope.pluginConfigurationDescriptor = $scope.deploymentTopologyDTO.secretCredentialInfos[0].credentialDescriptor;
       $scope.pluginConfigurationValues = {};
-
+      
       $scope.ok = function () {
         $uibModalInstance.close({
           pluginName: $scope.pluginName,
@@ -18,7 +18,9 @@ define(function (require) {
       };
       
       $scope.cancel = function () {
-        $uibModalInstance.close();
+        $uibModalInstance.close({
+          pluginName: $scope.pluginName
+        });
       };
     }
   ]);
