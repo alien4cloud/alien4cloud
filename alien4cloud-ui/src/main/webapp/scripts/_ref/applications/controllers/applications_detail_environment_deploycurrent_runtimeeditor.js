@@ -36,6 +36,8 @@ define(function (require) {
   '$interval',
   'toscaService',
   'topoEditDisplay',
+  'topoEditSecrets',
+  'topoEditProperties',
   'breadcrumbsService',
   '$state',
   'locationService',
@@ -49,6 +51,8 @@ define(function (require) {
     $interval,
     toscaService,
     topoEditDisplay,
+    topoEditSecrets,
+    topoEditProperties,
     breadcrumbsService,
     $state,
     locationService,
@@ -72,6 +76,8 @@ define(function (require) {
       service: { active: false, size: 500, selector: '#runtime-service-box', only: ['topology', 'service'], title: 'SERVICES.MANAGED.TITLE', fa: 'fa-globe' }
     };
     topoEditDisplay($scope, '#topology-editor');
+    topoEditSecrets($scope);
+    topoEditProperties($scope);
     $scope.view = 'RENDERED';
     $scope.triggerTopologyRefresh = null;
 
@@ -399,6 +405,16 @@ define(function (require) {
         });
       }
     });
+
+    // For saving the secret path
+    $scope.saveSecret = function(secretPath) {
+      if (_.undefined(secretPath)) {
+        return "";
+      }
+      if (secretPath === "") {
+        return "The path can not be null.";
+      }
+    }
   }
 ]);
 });

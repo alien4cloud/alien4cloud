@@ -27,7 +27,7 @@ define(function(require) {
         return undefined;
       };
 
-      $scope.secretSave = function(secretPath) {
+      var secretSaveDefault = function(secretPath) {
         // Check the secretPath
         var error = check($scope, secretPath);
         if (_.defined(error)) {
@@ -65,6 +65,16 @@ define(function(require) {
             $scope.selectedNodeTemplate.name,
             true
           );
+        }
+      }
+
+      $scope.secretSave = function(secretPath) {
+        if (_.defined($scope.customSaveSecret)) {
+          // use the custom secret save function
+          return $scope.customSaveSecret()(secretPath);
+        } else {
+          // use the default secret save function
+          return secretSaveDefault(secretPath);
         }
       }
     }

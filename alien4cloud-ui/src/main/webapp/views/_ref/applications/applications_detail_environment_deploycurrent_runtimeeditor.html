@@ -290,15 +290,34 @@
                         <div uib-collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
                           <table class="table table-condensed" id="op_{{operationName}}_inputParams">
                             <tr ng-repeat="(inputParameterName, inputParameter) in operation.inputParameters">
+                              <td>
+                                <a id="p_secret_pro_{{inputParameterName}}"
+                                   ng-click="secrets.toggleInputSecret(inputParameterName, inputParameter)"
+                                   class="btn btn-default btn-xs"
+                                   ng-class="{'active' : properties.isSecretValue(inputParameter.paramValue)}"
+                                   tooltip-append-to-body="true">
+                                  <i class="fa fa-user-secret "></i>
+                                </a>
+                              </td>
                               <td class="col-md-11" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
                                 <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
-                                <property-display ng-init="condensed = true"
-                                                  definition="inputParameter"
-                                                  property-name="inputParameterName"
-                                                  property-value="inputParameter.paramValue"
-                                                  on-save="checkProperty(propertyDefinition, propertyValue, propertyName)"
-                                                  editable="true"
-                                                  condensed="condensed">
+                                <secret-display
+                                  ng-show="properties.isSecretValue(inputParameter.paramValue)"
+                                  property-name="inputParameterName"
+                                  property-value="inputParameter.paramValue"
+                                  definition="inputParameter"
+                                  selected-node-template="selectedNodeTemplate"
+                                  custom-save-secret="saveSecret">
+                                </secret-display>
+                                <property-display
+                                  ng-show="!properties.isSecretValue(inputParameter.paramValue)"
+                                  ng-init="condensed = true"
+                                  definition="inputParameter"
+                                  property-name="inputParameterName"
+                                  property-value="inputParameter.paramValue"
+                                  on-save="checkProperty(propertyDefinition, propertyValue, propertyName)"
+                                  editable="true"
+                                  condensed="condensed">
                                 </property-display>
                               </td>
                             </tr>

@@ -61,6 +61,24 @@ define(function (require) {
               $('#p_secret_' + self.key).trigger('click');
             }, 0);
           }
+        },
+        // It's a function only for custom operation
+        toggleInputSecret: function(inputParameterName, inputParameter) {
+          var scope = this.scope;
+          if (scope.properties.isSecretValue(inputParameter.paramValue)) {
+            // reset the secret to originalValue
+            if (_.defined(inputParameter.paramValue)) {
+              inputParameter.paramValue = inputParameter.originalValue;
+              inputParameter.originalValue = undefined;
+            }
+          } else {
+            inputParameter.originalValue = inputParameter.paramValue;
+            inputParameter.paramValue = {function:'get_secret', parameters: ['']};
+            // Trigger the editor to enter the secret
+            setTimeout(function () {
+              $('#p_secret_' + inputParameterName).trigger('click');
+            }, 0);
+          }
         }
       };
 

@@ -19,7 +19,8 @@ define(function (require) {
         'propertyValue': '=',
         'capabilityName': '=?',
         'selectedNodeTemplate': '=',
-        'execute': '&'
+        'execute': '&?',
+        'customSaveSecret': '&?'
       },
       link: {}
     };
