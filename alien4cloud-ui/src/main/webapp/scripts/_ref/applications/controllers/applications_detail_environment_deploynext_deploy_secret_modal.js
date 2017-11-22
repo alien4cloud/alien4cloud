@@ -18,7 +18,7 @@ define(function (require) {
       };
       
       $scope.cancel = function () {
-        $uibModalInstance.dismiss('cancel');
+        $uibModalInstance.close();
       };
     }
   ]);
