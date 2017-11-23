@@ -8,9 +8,12 @@ define(function(require) {
 
   require('scripts/tosca/controllers/template_edit_ctrl');
 
-  modules.get('a4c-tosca').controller('a4cNodeTemplateEditCtrl', ['$controller', '$scope', 'a4cToscaProcessor', 'relationshipTypeQuickSearchService',
-    function($controller, $scope, a4cToscaProcessor, relationshipTypeQuickSearchService) {
-      
+  modules.get('a4c-tosca').controller('a4cNodeTemplateEditCtrl', ['$controller', '$scope', 'a4cToscaProcessor', 'relationshipTypeQuickSearchService', 'topoEditSecrets', 'topoEditProperties',
+    function($controller, $scope, a4cToscaProcessor, relationshipTypeQuickSearchService, topoEditSecrets, topoEditProperties) {
+
+      topoEditSecrets($scope);
+      topoEditProperties($scope);
+
       // first load default template edit controller
       $controller('a4cTemplateEditCtrl', {
         $scope: $scope,
