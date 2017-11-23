@@ -39,8 +39,13 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
 
+    protected void init(Topology topology, FlowExecutionContext context) {
+        // No default implementation
+    }
+
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
+        this.init(topology, context);
         Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
                 this.getClass().getSimpleName());
 

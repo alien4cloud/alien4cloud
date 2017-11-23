@@ -129,12 +129,6 @@ public class LocationMatchingModifier implements ITopologyModifier {
             }
         }
 
-        // Add the dependencies of the location(s) to the topology
-        for (Location location : locations.values()) {
-            // FIXME manage conflicting dependencies by fetching types from latest version
-            topology.getDependencies().addAll(location.getDependencies());
-        }
-
         // update the TOSCA context with the new dependencies so that next step runs with an up-to-date context
         ToscaContext.get().resetDependencies(topology.getDependencies());
     }

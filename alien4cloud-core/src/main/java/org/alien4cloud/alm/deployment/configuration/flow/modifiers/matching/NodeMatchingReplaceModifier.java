@@ -2,11 +2,16 @@ package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import alien4cloud.model.deployment.matching.ILocationMatch;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.tosca.context.ToscaContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.LocationMatchingModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -32,6 +37,19 @@ import alien4cloud.utils.CollectionUtils;
  */
 @Component
 public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier<NodeTemplate, LocationResourceTemplate> {
+
+    /**
+     * Add locations dependencies
+     */
+    @Override
+    protected void init(Topology topology, FlowExecutionContext context) {
+        List<ILocationMatch> locations = (List<ILocationMatch>) context.getExecutionCache().get(FlowExecutionContext.LOCATION_MATCH_CACHE_KEY);
+        for (ILocationMatch location : locations) {
+            // FIXME manage conflicting dependencies by fetching types from latest version
+            topology.getDependencies().addAll(location.getLocation().getDependencies());
+        }
+        ToscaContext.get().resetDependencies(topology.getDependencies());
+    }
 
     @Override
     protected String getOriginalTemplateCacheKey() {
