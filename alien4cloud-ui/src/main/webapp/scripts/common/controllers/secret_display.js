@@ -71,7 +71,7 @@ define(function(require) {
       $scope.secretSave = function(secretPath) {
         if (_.defined($scope.customSaveSecret)) {
           // use the custom secret save function
-          return $scope.customSaveSecret()(secretPath);
+          return $scope.customSaveSecret()($scope, secretPath);
         } else {
           // use the default secret save function
           return secretSaveDefault(secretPath);

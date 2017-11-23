@@ -73,7 +73,7 @@
 
       <!-- Reset button for any property definition -->
       <span class="pull-right">
-        <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs" ng-click="resetProperty();">
+        <span id='reset-property-{{propertyName}}' ng-show="editable" class="btn btn-xs" ng-click="resetProperty();">
           <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"
             tooltip-append-to-body="true"
             tooltip-placement="left"></i>
@@ -125,7 +125,7 @@
       <label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label>
       <!-- Reset button for any property definition -->
       <span class="pull-right">
-        <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs" ng-click="resetProperty();">
+        <span id='reset-property-{{propertyName}}' ng-show="editable" class="btn btn-xs" ng-click="resetProperty();">
           <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"
             tooltip-append-to-body="true"
             tooltip-placement="left"></i>

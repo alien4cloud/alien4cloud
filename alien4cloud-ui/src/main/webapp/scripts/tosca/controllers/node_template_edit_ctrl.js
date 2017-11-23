@@ -10,7 +10,7 @@ define(function(require) {
 
   modules.get('a4c-tosca').controller('a4cNodeTemplateEditCtrl', ['$controller', '$scope', 'a4cToscaProcessor', 'relationshipTypeQuickSearchService',
     function($controller, $scope, a4cToscaProcessor, relationshipTypeQuickSearchService) {
-
+      
       // first load default template edit controller
       $controller('a4cTemplateEditCtrl', {
         $scope: $scope,
@@ -78,5 +78,76 @@ define(function(require) {
           }
         });
       };
+
+      $scope.updateSecretProperty = function(propertyName, propertyValue) {
+        var updatePromise = $scope.onPropertyUpdate({
+          propertyName: propertyName,
+          propertyValue: propertyValue
+        });
+        return updatePromise.then(function(response) {
+          if (_.undefined(response.error)) { // update was performed on server side - impact js data.
+            $scope.template.propertiesMap[propertyName].value = propertyValue;
+          }
+          return response; // dispatch response to property display
+        });
+      };
+
+      $scope.updateSecretCapability = function(capabilityName, propertyName, propertyValue) {
+        var updatePromise = $scope.onCapabilityPropertyUpdate({
+          capabilityName: capabilityName,
+          propertyName: propertyName,
+          propertyValue: propertyValue
+        });
+        return updatePromise.then(function(response) {
+          if (_.undefined(response.error)) {
+            $scope.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = propertyValue;
+          }
+          return response;
+        });
+      };
+
+      $scope.savePropertySecret = function(scope, secretPath) {
+        // check the secretPath
+        if (_.undefined(secretPath)) {
+          return "";
+        }
+        if (secretPath === "") {
+          return "The path can not be null.";
+        }
+        // set the path
+        scope.propertyValue.parameters[0] = secretPath;
+        // Update the secret property value
+        $scope.updateSecretProperty(scope.propertyName, scope.propertyValue);
+      };
+
+      $scope.saveCapabilitySecret = function(scope, secretPath) {
+        // check the secretPath
+        if (_.undefined(secretPath)) {
+          return "";
+        }
+        if (secretPath === "") {
+          return "The path can not be null.";
+        }
+        // set the path
+        scope.propertyValue.parameters[0] = secretPath;
+        // Update the secret capability value
+        $scope.updateSecretCapability(scope.capabilityName, scope.propertyName, scope.propertyValue);
+      };
+
+      $scope.canEditSecretProperty = function(propertyName){
+        return $scope.isSecretEditable({
+          propertyPath: {
+            propertyName: propertyName
+        }});
+      };
+
+      $scope.canEditSecretCapability = function(capabilityName, propertyName){
+        return $scope.isSecretEditable({
+          propertyPath: {
+            capabilityName: capabilityName,
+            propertyName: propertyName
+        }});
+      };
+
     }]);
 });

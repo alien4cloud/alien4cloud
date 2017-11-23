@@ -79,6 +79,54 @@ define(function (require) {
               $('#p_secret_' + inputParameterName).trigger('click');
             }, 0);
           }
+        },
+
+        //It's a function for managing property secret in the location resource
+        toggleResourcePropertySecret: function(self) {
+          var scope = this.scope;
+          if (scope.properties.isSecretValue(self.value)) {
+            if (self.value.parameters[0] !== "") {
+              // Unset the property
+              setTimeout(function () {
+                $('#reset-property-' + self.key).trigger('click');
+              }, 0);
+              // scope.updateProperty(self.key, self.originalValue);
+            }
+            // reset the secret to originalValue
+            if (_.defined(self.value)) {
+              self.value = self.originalValue;
+              self.originalValue = undefined;
+            }
+          } else {
+            self.originalValue = self.value;
+            self.value = {function:'get_secret', parameters: ['']};
+            // Trigger the editor to enter the secret
+            setTimeout(function () {
+              $('#p_secret_' + self.key).trigger('click');
+            }, 0);
+          }
+        },
+
+        toggleResourceCapabilitySecret: function(capabilityName, property) {
+          var scope = this.scope;
+          if (scope.properties.isSecretValue(property.value)) {
+            if (property.value.parameters[0] !== "") {
+              // Unset the property
+              scope.updateCapabilityProperty(capabilityName, property.key, property.originalValue);
+            }
+            // reset the secret to originalValue
+            if (_.defined(property.value)) {
+              property.value = property.originalValue;
+              property.originalValue = undefined;
+            }
+          } else {
+            property.originalValue = property.value;
+            property.value = {function:'get_secret', parameters: ['']};
+            // Trigger the editor to enter the secret
+            setTimeout(function () {
+              $('#p_secret_' + property.key).trigger('click');
+            }, 0);
+          }
         }
       };
 

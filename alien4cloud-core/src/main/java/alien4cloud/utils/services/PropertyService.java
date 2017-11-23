@@ -8,12 +8,14 @@ import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.utils.FunctionEvaluator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +35,22 @@ public class PropertyService {
             properties.put(propertyName, (T) propertyDefinition.getDefault());
             return;
         }
+        // try to set a get_secret function
+        if (propertyValue instanceof Map) {
+            Map valueAsMap = (Map) propertyValue;
+            if (valueAsMap.keySet().contains("function") && valueAsMap.keySet().contains("parameters")) {
+                FunctionPropertyValue myFunction = new FunctionPropertyValue();
+                myFunction.setFunction((String) valueAsMap.get("function"));
+                myFunction.setParameters((List<String>) valueAsMap.get("parameters"));
+                if (FunctionEvaluator.containGetSecretFunction(myFunction)) {
+                    // we should try to checSk property on get_secret function
+                    properties.put(propertyName, (T) myFunction);
+                    return;
+                }
+            }
+
+        }
+
 
         ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
         properties.put(propertyName, asPropertyValue(propertyValue));

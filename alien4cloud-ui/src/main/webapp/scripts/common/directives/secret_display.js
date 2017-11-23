@@ -14,6 +14,7 @@ define(function (require) {
       scope: {
         'translated': '=',
         'definition': '=',
+        'editable': '=?',
         'propertyType': '=?',
         'propertyName': '=',
         'propertyValue': '=',

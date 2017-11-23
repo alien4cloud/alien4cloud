@@ -8,7 +8,27 @@
     <table class="table table-condensed" id="nodeTemplateProperties">
       <tr ng-repeat="propEntry in template.properties">
         <td>
+          <button id="p_secret_pro_{{propEntry.key}}"
+             ng-click="secrets.toggleResourcePropertySecret(propEntry)"
+             class="btn btn-default btn-xs"
+             ng-disabled="!canEditProperty(propEntry.key) || !canEditSecretProperty(propEntry.key)"
+             ng-class="{'active' : properties.isSecretValue(propEntry.value)}"
+             tooltip-append-to-body="true">
+            <i class="fa fa-user-secret "></i>
+          </button>
+        </td>
+        <td>
+          <secret-display
+            ng-show="properties.isSecretValue(propEntry.value)"
+            property-name="propEntry.key"
+            property-value="propEntry.value"
+            definition="getPropertyDefinition(propEntry.key)"
+            selected-node-template="selectedNodeTemplate"
+            editable="properties.isSecretValue(propEntry.value) && canEditSecretProperty(propEntry.key)"
+            custom-save-secret="savePropertySecret">
+          </secret-display>
           <property-display
+              ng-show="!properties.isSecretValue(propEntry.value)"
               ng-init="condensed = true"
               definition="getPropertyDefinition(propEntry.key)"
               property-type="getDataTypeForProperty(propEntry.key)"
@@ -56,8 +76,29 @@
         <table ng-if="!emptyProps" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
           <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
             <td>
+              <button id="p_secret_pro_{{propertyEntry.key}}"
+                 ng-click="secrets.toggleResourceCapabilitySecret(capabilityEntry.key, propertyEntry)"
+                 class="btn btn-default btn-xs"
+                 ng-disabled="!canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key) || !canEditSecretCapability(capabilityEntry.key, propertyEntry.key)"
+                 ng-class="{'active' : properties.isSecretValue(propertyEntry.value)}"
+                 tooltip-append-to-body="true">
+                <i class="fa fa-user-secret "></i>
+              </button>
+            </td>
+            <td>
+              <secret-display
+                ng-show="properties.isSecretValue(propertyEntry.value)"
+                property-name="propertyEntry.key"
+                property-value="propertyEntry.value"
+                capability-name="capabilityEntry.key"
+                definition="getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key)"
+                selected-node-template="selectedNodeTemplate"
+                editable="properties.isSecretValue(propertyEntry.value) && canEditSecretCapability(capabilityEntry.key, propertyEntry.key)"
+                custom-save-secret="saveCapabilitySecret">
+              </secret-display>
               <property-display
                   ng-init="condensed = true"
+                  ng-show="!properties.isSecretValue(propertyEntry.value)"
                   definition="getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key)"
                   property-type="getDataTypeForCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
                   dependencies="dependencies"

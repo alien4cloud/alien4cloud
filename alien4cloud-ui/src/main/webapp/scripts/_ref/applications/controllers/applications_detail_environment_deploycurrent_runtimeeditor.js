@@ -407,7 +407,7 @@ define(function (require) {
     });
 
     // For saving the secret path
-    $scope.saveSecret = function(secretPath) {
+    $scope.saveSecret = function(scope, secretPath) {
       if (_.undefined(secretPath)) {
         return "";
       }
