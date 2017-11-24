@@ -43,7 +43,7 @@ public class PropertyService {
                 myFunction.setFunction((String) valueAsMap.get("function"));
                 myFunction.setParameters((List<String>) valueAsMap.get("parameters"));
                 if (FunctionEvaluator.containGetSecretFunction(myFunction)) {
-                    // we should try to checSk property on get_secret function
+                    // we should try to check property on get_secret function
                     properties.put(propertyName, (T) myFunction);
                     return;
                 }
