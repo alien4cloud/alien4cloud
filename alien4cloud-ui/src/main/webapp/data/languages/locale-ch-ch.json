@@ -1041,7 +1041,8 @@
         "TOKEN": "Token",
         "LDAP": "LDAP",
         "AUTHENTICATION_METHOD": "Authentication method",
-        "VAULT_URL": "Vault URL"
+        "VAULT_URL": "Vault URL",
+        "VAULT_CERTIFICATE": "Vault Certificate"
       },
       "MODIFIER": {
         "PLUGIN": "Plugin id",

@@ -1077,7 +1077,8 @@
         "TOKEN": "Token",
         "LDAP": "LDAP",
         "AUTHENTICATION_METHOD": "Méthode d'authentification",
-        "VAULT_URL": "URL du coffre fort"
+        "VAULT_URL": "URL du coffre fort",
+        "VAULT_CERTIFICATE": "Certificat du coffre fort"
       },
       "MODIFIER": {
         "MODIFIER": "Modificateur de topology",
