@@ -14,7 +14,7 @@
              ng-disabled="!canEditProperty(propEntry.key) || !canEditSecretProperty(propEntry.key)"
              ng-class="{'active' : properties.isSecretValue(propEntry.value)}"
              tooltip-append-to-body="true">
-            <i class="fa fa-user-secret "></i>
+            <i class="fa fa-key "></i>
           </button>
         </td>
         <td>
@@ -82,7 +82,7 @@
                  ng-disabled="!canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key) || !canEditSecretCapability(capabilityEntry.key, propertyEntry.key)"
                  ng-class="{'active' : properties.isSecretValue(propertyEntry.value)}"
                  tooltip-append-to-body="true">
-                <i class="fa fa-user-secret "></i>
+                <i class="fa fa-key "></i>
               </button>
             </td>
             <td>
