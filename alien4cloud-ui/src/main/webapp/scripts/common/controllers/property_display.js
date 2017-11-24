@@ -407,7 +407,8 @@ define(function(require) {
           defaultValue = _.get($scope.definition, 'default');
         }
         $scope.saveReset(defaultValue);
-
+        $scope.editable = true;
+        
         if (_.has($scope.propertyValue, 'value')) {
           $scope.propertyValue.value = defaultValue; // if same value affected, no watch applied
         } else {

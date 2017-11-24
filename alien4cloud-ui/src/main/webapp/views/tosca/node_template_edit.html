@@ -77,7 +77,7 @@
           <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
             <td>
               <button id="p_secret_pro_{{propertyEntry.key}}"
-                 ng-click="secrets.toggleResourceCapabilitySecret(capabilityEntry.key, propertyEntry)"
+                 ng-click="secrets.toggleResourcePropertySecret(propertyEntry)"
                  class="btn btn-default btn-xs"
                  ng-disabled="!canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key) || !canEditSecretCapability(capabilityEntry.key, propertyEntry.key)"
                  ng-class="{'active' : properties.isSecretValue(propertyEntry.value)}"
