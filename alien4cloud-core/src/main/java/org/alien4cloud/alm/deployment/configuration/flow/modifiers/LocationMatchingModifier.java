@@ -1,12 +1,17 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
+import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.deployment.matching.services.location.LocationMatchingService;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.deployment.matching.ILocationMatch;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.orchestrators.locations.LocationModifierReference;
+import alien4cloud.orchestrators.locations.services.LocationService;
+import alien4cloud.plugin.exception.MissingPluginException;
+import alien4cloud.topology.validation.LocationPolicyValidationService;
+import alien4cloud.tosca.context.ToscaContext;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
@@ -18,21 +23,14 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import javax.inject.Inject;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import alien4cloud.common.MetaPropertiesService;
-import alien4cloud.deployment.matching.services.location.LocationMatchingService;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.deployment.matching.ILocationMatch;
-import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.orchestrators.locations.LocationModifierReference;
-import alien4cloud.orchestrators.locations.services.LocationService;
-import alien4cloud.plugin.exception.MissingPluginException;
-import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.topology.validation.LocationPolicyValidationService;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.ui.form.PojoFormDescriptorGenerator;
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * This processor actually does not change the topology but check that location settings are defined and up-to-date in order to allow other processors to
@@ -53,8 +51,6 @@ public class LocationMatchingModifier implements ITopologyModifier {
     private MetaPropertiesService metaPropertiesService;
     @Inject
     private SecretProviderService secretProviderService;
-    @Inject
-    private PojoFormDescriptorGenerator pojoFormDescriptorGenerator;
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
@@ -84,15 +80,7 @@ public class LocationMatchingModifier implements ITopologyModifier {
                         SecretCredentialInfo info = new SecretCredentialInfo();
                         String pluginName = location.getSecretProviderConfiguration().getPluginName();
                         Object rawSecretConfiguration = location.getSecretProviderConfiguration().getConfiguration();
-                        Object secretConfiguration = JsonUtil.toObject(rawSecretConfiguration, secretProviderService.getPluginConfigurationDescriptor(pluginName));
-
-                        Class<?> pluginAuthenticationConfigurationDescriptor = secretProviderService.getPluginAuthenticationConfigurationDescriptor(pluginName,
-                                secretConfiguration);
-                        info.setCredentialDescriptor(pojoFormDescriptorGenerator.generateDescriptor(pluginAuthenticationConfigurationDescriptor));
-                        info.setPluginName(pluginName);
-
-
-                        secretCredentialInfos.add(info);
+                        secretCredentialInfos.add(secretProviderService.getSecretCredentialInfo(pluginName, rawSecretConfiguration));
                     }
                     catch (Exception e){
                         log.error("Cannot process secret provider configuration",e);

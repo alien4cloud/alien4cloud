@@ -1,15 +1,17 @@
 package org.alien4cloud.secret.services;
 
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.ui.form.PojoFormDescriptorGenerator;
+import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
+import org.alien4cloud.secret.ISecretProvider;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.secret.ISecretProvider;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -17,6 +19,8 @@ public class SecretProviderService {
 
     @Resource
     private SecretProviderRegistry secretProviderRegistry;
+    @Inject
+    private PojoFormDescriptorGenerator pojoFormDescriptorGenerator;
 
     public Set<String> getAvailablePlugins() {
         return secretProviderRegistry.getInstancesByPlugins().keySet();
@@ -37,5 +41,14 @@ public class SecretProviderService {
 
     public Class<?> getPluginAuthenticationConfigurationDescriptor(String pluginName, Object pluginConfiguration) {
         return getPluginBean(pluginName).getAuthenticationConfigurationDescriptor(pluginConfiguration);
+    }
+
+    public SecretCredentialInfo getSecretCredentialInfo(String pluginName, Object rawSecretConfiguration) {
+        SecretCredentialInfo info = new SecretCredentialInfo();
+        Object secretConfiguration = JsonUtil.toObject(rawSecretConfiguration, getPluginConfigurationDescriptor(pluginName));
+        Class<?> pluginAuthenticationConfigurationDescriptor = getPluginAuthenticationConfigurationDescriptor(pluginName, secretConfiguration);
+        info.setCredentialDescriptor(pojoFormDescriptorGenerator.generateDescriptor(pluginAuthenticationConfigurationDescriptor));
+        info.setPluginName(pluginName);
+        return info;
     }
 }

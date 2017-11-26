@@ -47,6 +47,7 @@ define(function (require) {
         $scope.deployedTime = new Date() - $scope.activeDeployment.startDate;
       }
     });
+
   }
 ]);
 });

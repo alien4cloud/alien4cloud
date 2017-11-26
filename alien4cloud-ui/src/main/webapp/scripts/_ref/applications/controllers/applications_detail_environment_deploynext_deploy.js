@@ -8,7 +8,7 @@ define(function (require) {
 
   require('scripts/services/directives/managed_service');
   require('scripts/applications/services/application_services');
-  require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_deploy_secret_modal');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_secret_modal');
 
   states.state('applications.detail.environment.deploynext.deploy', {
     url: '/deploy',
@@ -45,9 +45,13 @@ define(function (require) {
           switch (_.size($scope.deploymentTopologyDTO.secretCredentialInfos)) {
             case 1:
               return $uibModal.open({
-                templateUrl: 'views/_ref/applications/applications_detail_environment_deploynext_deploy_secret_modal.html',
+                templateUrl: 'views/_ref/applications/applications_detail_environment_secret_modal.html',
                 controller: 'SecretCredentialsController',
-                scope: $scope
+                resolve: {
+                  secretCredentialInfos : function() {
+                    return $scope.deploymentTopologyDTO.secretCredentialInfos;
+                  }
+                }
               }).result;
             case 0:
               promise = $q.defer();
@@ -85,30 +89,40 @@ define(function (require) {
         };
 
         $scope.doUpdate = function () {
-          $scope.setState('INIT_DEPLOYMENT');
-
-          applicationServices.deploymentUpdate({
-            applicationId: $scope.application.id,
-            applicationEnvironmentId: $scope.environment.id
-          }, undefined, function (data) {
-            if (data.error === null) {
-              $scope.environment.status = 'UPDATE_IN_PROGRESS';
-              $scope.setEnvironment($scope.environment);
-            } else {
-              $scope.environment.status = 'UPDATE_FAILURE';
-              $scope.setEnvironment($scope.environment);
-              toaster.pop(
-                'error',
-                $translate.instant('DEPLOYMENT.STATUS.UPDATE_FAILURE'),
-                $translate.instant('DEPLOYMENT.TOASTER_STATUS.UPDATE_FAILURE', {
-                  envName: $scope.environment.name,
-                  appName: $scope.application.name
-                }),
-                0, 'trustedHtml', null
-              );
+          $scope.openSecretCredentialModal().then(function (secretProviderInfo) {
+            var deployApplicationRequest = {
+              'applicationId': $scope.application.id,
+              'applicationEnvironmentId': $scope.environment.id
+            };
+            if (_.defined(secretProviderInfo)) {
+              deployApplicationRequest.secretProviderPluginName = secretProviderInfo.pluginName;
+              deployApplicationRequest.secretProviderCredentials = secretProviderInfo.credentials;
             }
-          }, function () {
-            $scope.reloadEnvironment();
+            $scope.setState('INIT_DEPLOYMENT');
+
+            applicationServices.deploymentUpdate({
+              applicationId: $scope.application.id,
+              applicationEnvironmentId: $scope.environment.id
+            }, undefined, function (data) {
+              if (data.error === null) {
+                $scope.environment.status = 'UPDATE_IN_PROGRESS';
+                $scope.setEnvironment($scope.environment);
+              } else {
+                $scope.environment.status = 'UPDATE_FAILURE';
+                $scope.setEnvironment($scope.environment);
+                toaster.pop(
+                  'error',
+                  $translate.instant('DEPLOYMENT.STATUS.UPDATE_FAILURE'),
+                  $translate.instant('DEPLOYMENT.TOASTER_STATUS.UPDATE_FAILURE', {
+                    envName: $scope.environment.name,
+                    appName: $scope.application.name
+                  }),
+                  0, 'trustedHtml', null
+                );
+              }
+            }, function () {
+              $scope.reloadEnvironment();
+            });
           });
         };
 
