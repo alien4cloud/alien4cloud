@@ -146,21 +146,23 @@
       <tr ng-repeat="propEntry in selectedNodeTemplate.properties">
         <td class="topology-props-td-inp">
           <div class="btn-group" uib-dropdown>
-            <a id="p_secret_pro_{{propEntry.key}}"
+            <button id="p_secret_pro_{{propEntry.key}}"
                ng-click="secrets.togglePropertySecret(propEntry)"
                class="btn btn-default btn-xs"
+               ng-disabled="properties.isInputProperty(propEntry.key) || properties.isOutputProperty(propEntry.key)"
                ng-class="{'active' : properties.isSecretValue(propEntry.value)}"
                tooltip-append-to-body="true">
-              <i class="fa fa-user-secret "></i>
-            </a>
-            <a id="p_input_pro_{{propEntry.key}}"
+              <i class="fa fa-key "></i>
+            </button>
+            <button id="p_input_pro_{{propEntry.key}}"
                ng-click="inputs.getCandidatesForProperty(propEntry.key)"
                class="btn btn-default btn-xs"
                uib-dropdown-toggle
+               ng-disabled="properties.isSecretValue(propEntry.value)"
                ng-class="{'active' : properties.isInputProperty(propEntry.key)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                tooltip-append-to-body="true">
               <i class="fa fa-sign-in"></i>
-            </a>
+            </button>
             <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu">
               <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
               <li>
@@ -176,11 +178,15 @@
                 </a>
               </li>
             </ul>
-            <a id="p_output_pro_{{propEntry.key}}" ng-click="outputs.toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
-               ng-class="{'active' : properties.isOutputProperty(propEntry.key)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
-               tooltip-append-to-body="true">
+            <button id="p_output_pro_{{propEntry.key}}"
+                ng-click="outputs.toggleOutputProperty(propEntry.key)"
+                class="btn btn-default btn-xs"
+                ng-disabled="properties.isSecretValue(propEntry.value)"
+                ng-class="{'active' : properties.isOutputProperty(propEntry.key)}"
+                uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
+                tooltip-append-to-body="true">
               <i class="fa fa-sign-out"></i>
-            </a>
+            </button>
           </div>
         </td>
         <td>
@@ -260,26 +266,32 @@
         <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
           <td class="topology-props-td-inp">
             <div class="btn-group" uib-dropdown>
-              <a id="p_secret_cap_{{propertyEntry.key}}"
+              <button id="p_secret_cap_{{propertyEntry.key}}"
                  ng-click="secrets.toggleCapabilitySecret(propertyEntry, capabilityEntry.key)"
                  class="btn btn-default btn-xs"
+                 ng-disabled="properties.isInputPropertyValue(propertyEntry.value) || properties.isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                  ng-class="{'active' : properties.isSecretValue(propertyEntry.value)}"
                  tooltip-append-to-body="true">
-                <i class="fa fa-user-secret "></i>
-              </a>
-              <a id="p_input_cap_{{propertyEntry.key}}"
+                <i class="fa fa-key "></i>
+              </button>
+              <button id="p_input_cap_{{propertyEntry.key}}"
                  ng-click="inputs.getCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                  class="btn btn-default btn-xs"
                  uib-dropdown-toggle
+                 ng-disabled="properties.isSecretValue(propertyEntry.value)"
                  ng-class="{'active' : properties.isInputPropertyValue(propertyEntry.value)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                  tooltip-append-to-body="true">
                 <i class="fa fa-sign-in"></i>
-              </a>
-              <a id="p_output_cap_{{propertyEntry.key}}" ng-click="outputs.toggleOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
-                 ng-class="{'active' : properties.isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
-                 tooltip-append-to-body="true">
+              </button>
+              <button id="p_output_cap_{{propertyEntry.key}}"
+                  ng-click="outputs.toggleOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
+                  class="btn btn-default btn-xs"
+                  ng-class="{'active' : properties.isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}"
+                  ng-disabled="properties.isSecretValue(propertyEntry.value)"
+                  uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
+                  tooltip-append-to-body="true">
                 <i class="fa fa-sign-out"></i>
-              </a>
+              </button>
               <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu">
                 <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                 <li>
