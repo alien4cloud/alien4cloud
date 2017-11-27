@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
@@ -99,11 +100,11 @@ public class DeploymentTopology extends Topology {
     /** Migration Note: all data previously stored into 'inputProperties' should be moved into 'deployerInputProperties' */
     @ObjectField(enabled = false)
     @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
-    private Map<String, PropertyValue> deployerInputProperties;
+    private Map<String, AbstractPropertyValue> deployerInputProperties;
 
     @JsonIgnore
-    public Map<String, PropertyValue> getAllInputProperties() {
-        HashMap<String, PropertyValue> map = Maps.newHashMap();
+    public Map<String, AbstractPropertyValue> getAllInputProperties() {
+        HashMap<String, AbstractPropertyValue> map = Maps.newHashMap();
         if (deployerInputProperties != null) {
             map.putAll(deployerInputProperties);
         }

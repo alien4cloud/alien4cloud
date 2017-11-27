@@ -70,7 +70,7 @@ public class InputsModifier implements ITopologyModifier {
         PreconfiguredInputsConfiguration preconfiguredInputsConfiguration = context.getConfiguration(PreconfiguredInputsConfiguration.class,
                 InputsModifier.class.getSimpleName()).orElseThrow(() -> new IllegalStateException("PreconfiguredInputsConfiguration must be in the context"));
 
-        Map<String, PropertyValue> inputValues = Maps.newHashMap(deploymentInputs.getInputs());
+        Map<String, AbstractPropertyValue> inputValues = Maps.newHashMap(deploymentInputs.getInputs());
         inputValues.putAll(applicationInputs);
         inputValues.putAll(locationInputs);
         inputValues.putAll(preconfiguredInputsConfiguration.getInputs());

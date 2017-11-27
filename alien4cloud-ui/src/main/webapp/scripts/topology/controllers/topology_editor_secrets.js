@@ -66,7 +66,7 @@ define(function (require) {
         },
 
         // It's a function only for custom operation
-        toggleInputSecret: function(inputParameterName, inputParameter) {
+        toggleInputParametersSecret: function(inputParameterName, inputParameter) {
           var scope = this.scope;
           if (scope.properties.isSecretValue(inputParameter.paramValue)) {
             // reset the secret to originalValue
@@ -97,6 +97,64 @@ define(function (require) {
             // Trigger the editor to enter the secret
             setTimeout(function () {
               $('#p_secret_' + self.key).trigger('click');
+            }, 0);
+          }
+        },
+
+        /*
+        * It's a function for toggling input secret.
+          Here we consider the value as a reference.
+        */
+        toggleInputSecret: function(topology, inputId) {
+          if (_.undefined(topology.deployerInputProperties[inputId])) {
+            topology.deployerInputProperties[inputId] = {};
+          }
+          var property = topology.deployerInputProperties[inputId];
+          var scope = this.scope;
+          if (scope.properties.isSecretValue(property)) {
+            // Unset the property
+            property = null;
+            setTimeout(function () {
+              $('#reset-property-' + inputId).trigger('click');
+            }, 0);
+          } else {
+            _.forEach(_.keys(property), function(key){
+              delete property[key];
+            });
+            property['function'] = 'get_secret';
+            property['parameters'] = [''];
+            // Trigger the editor to enter the secret
+            setTimeout(function () {
+              $('#p_secret_' + inputId).trigger('click');
+            }, 0);
+          }
+        },
+
+        /*
+        * It's a function for toggling preconfigured input secret.
+          Here we consider the value as a reference.
+        */
+        togglePreconfiguredInputSecret: function(topology, inputId) {
+          if (_.undefined(topology.preconfiguredInputProperties[inputId])) {
+            topology.preconfiguredInputProperties[inputId] = {};
+          }
+          var property = topology.preconfiguredInputProperties[inputId];
+          var scope = this.scope;
+          if (scope.properties.isSecretValue(property)) {
+            // Unset the property
+            property = null;
+            setTimeout(function () {
+              $('#reset-property-' + inputId).trigger('click');
+            }, 0);
+          } else {
+            _.forEach(_.keys(property), function(key){
+              delete property[key];
+            });
+            property['function'] = 'get_secret';
+            property['parameters'] = [''];
+            // Trigger the editor to enter the secret
+            setTimeout(function () {
+              $('#p_secret_' + inputId).trigger('click');
             }, 0);
           }
         }

@@ -18,7 +18,7 @@ public class FunctionEvaluatorContext {
     /** The topology on which to evaluate the function. */
     private Topology topology;
     /** The inputs as provided by the user. */
-    private Map<String, PropertyValue> inputs;
+    private Map<String, AbstractPropertyValue> inputs;
 
     /**
      * Function evaluation context for pre-deployment get_inputs and get_property resolving.
@@ -26,7 +26,7 @@ public class FunctionEvaluatorContext {
      * @param topology The topology on which to evaluate the function.
      * @param inputs The inputs as provided by the user.
      */
-    public FunctionEvaluatorContext(Topology topology, Map<String, PropertyValue> inputs) {
+    public FunctionEvaluatorContext(Topology topology, Map<String, AbstractPropertyValue> inputs) {
         this.topology = topology;
         this.inputs = inputs;
     }

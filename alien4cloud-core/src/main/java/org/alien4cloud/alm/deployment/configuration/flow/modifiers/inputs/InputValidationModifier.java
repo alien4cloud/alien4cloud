@@ -10,6 +10,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsConfiguration;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -48,7 +49,7 @@ public class InputValidationModifier implements ITopologyModifier {
         task.setCode(TaskCode.INPUT_PROPERTY);
         task.setProperties(Maps.newHashMap());
         task.getProperties().put(TaskLevel.REQUIRED, Lists.newArrayList());
-        Map<String, PropertyValue> inputValues = safe(inputsOptional.orElse(new DeploymentInputs()).getInputs());
+        Map<String, AbstractPropertyValue> inputValues = safe(inputsOptional.orElse(new DeploymentInputs()).getInputs());
         Map<String, PropertyValue> predefinedInputValues = safe(preconfiguredInputsConfiguration.getInputs());
 
         // override deployer inputValues with predefinedInputValues
