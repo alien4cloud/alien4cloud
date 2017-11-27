@@ -26,6 +26,7 @@
         <context:exclude-filter type="regex" expression="alien4cloud.rest.form.*"/>
         <context:exclude-filter type="regex" expression="alien4cloud.rest.internal.AlienMaintenanceController.*"/>
         <context:exclude-filter type="regex" expression="org.alien4cloud.alm.deployment.*"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.deployment.DeploymentTopologyDTOBuilder"/>
     </context:component-scan>
 
     <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory"/>
