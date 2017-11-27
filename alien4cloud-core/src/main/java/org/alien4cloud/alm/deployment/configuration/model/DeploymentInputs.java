@@ -3,6 +3,7 @@ package org.alien4cloud.alm.deployment.configuration.model;
 import java.util.Map;
 
 import lombok.NoArgsConstructor;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.elasticsearch.annotation.ESObject;
@@ -25,7 +26,7 @@ import lombok.Setter;
 public class DeploymentInputs extends AbstractDeploymentConfig {
     @ObjectField(enabled = false)
     @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
-    private Map<String, PropertyValue> inputs = Maps.newHashMap();
+    private Map<String, AbstractPropertyValue> inputs = Maps.newHashMap();
     @ObjectField(enabled = false)
     private Map<String, DeploymentArtifact> inputArtifacts = Maps.newHashMap();
 

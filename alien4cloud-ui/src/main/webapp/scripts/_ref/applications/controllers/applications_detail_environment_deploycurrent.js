@@ -12,7 +12,7 @@ define(function (require) {
 
   require('scripts/applications/services/application_event_services');
   require('scripts/applications/services/runtime_event_service');
-  require('scripts/_ref/applications/controllers/applications_detail_environment_secret_modal');
+  require('scripts/_ref/applications/services/secret_display_modal');
 
   states.state('applications.detail.environment.deploycurrent', {
     url: '/deploy_current',
@@ -30,8 +30,8 @@ define(function (require) {
   states.forward('applications.detail.environment.deploycurrent', 'applications.detail.environment.deploycurrent.info');
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentCtrl',
-    ['$scope', 'menu', 'deploymentServices', 'topologyJsonProcessor', 'applicationServices', '$uibModal', 'a4cRuntimeEventService', '$state', 'toaster', '$timeout', '$q',
-      function ($scope, menu, deploymentServices, topologyJsonProcessor, applicationServices, $uibModal, a4cRuntimeEventService, $state, toaster, $timeout, $q) {
+    ['$scope', 'menu', 'deploymentServices', 'topologyJsonProcessor', 'applicationServices', '$uibModal', 'a4cRuntimeEventService', '$state', 'toaster', '$timeout', 'secretDisplayModal',
+      function ($scope, menu, deploymentServices, topologyJsonProcessor, applicationServices, $uibModal, a4cRuntimeEventService, $state, toaster, $timeout, secretDisplayModal) {
         $scope.menu = menu;
 
         function exitIfUndeployed(){
@@ -64,34 +64,8 @@ define(function (require) {
           }
         });
 
-        $scope.openSecretCredentialModal = function () {
-          // credentialDescriptor
-          var promise;
-          switch (_.size($scope.secretProviderConfigurations)) {
-            case 1:
-              return $uibModal.open({
-                templateUrl: 'views/_ref/applications/applications_detail_environment_secret_modal.html',
-                controller: 'SecretCredentialsController',
-                resolve: {
-                  secretCredentialInfos : function() {
-                    return $scope.secretProviderConfigurations;
-                  }
-                }
-              }).result;
-            case 0:
-              promise = $q.defer();
-              promise.resolve();
-              return promise.promise;
-            default:
-              toaster.pop('error', 'Multi locations', 'is not yet supported', 0, 'trustedHtml', null);
-              promise = $q.defer();
-              promise.resolve();
-              return promise.promise;
-          }
-        };
-
         $scope.doUndeploy = function() {
-          $scope.openSecretCredentialModal().then(function (secretProviderInfo) {
+          secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
             var secretProviderInfoRequest = {};
             if (_.defined(secretProviderInfo)) {
               secretProviderInfoRequest.secretProviderConfiguration = secretProviderInfo;

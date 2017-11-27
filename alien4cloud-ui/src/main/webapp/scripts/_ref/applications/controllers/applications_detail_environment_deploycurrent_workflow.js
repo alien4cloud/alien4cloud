@@ -8,7 +8,7 @@ define(function (require) {
 
   require('scripts/topology/controllers/topology_editor_workflows');
   require('scripts/topology/directives/workflow_rendering');
-  require('scripts/_ref/applications/controllers/applications_detail_environment_secret_modal');
+  require('scripts/_ref/applications/services/secret_display_modal');
 
   states.state('applications.detail.environment.deploycurrent.workflow', {
     url: '/runtime_editor',
@@ -24,8 +24,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentWorkflowCtrl',
-    ['$scope', 'topoEditDisplay', 'topoEditWf', 'applicationServices', 'breadcrumbsService', '$translate', '$state', 'toaster', '$uibModal', '$q',
-      function ($scope, topoEditDisplay, topoEditWf, applicationServices, breadcrumbsService, $translate, $state, toaster, $uibModal, $q) {
+    ['$scope', 'topoEditDisplay', 'topoEditWf', 'applicationServices', 'breadcrumbsService', '$translate', '$state', 'secretDisplayModal',
+      function ($scope, topoEditDisplay, topoEditWf, applicationServices, breadcrumbsService, $translate, $state, secretDisplayModal) {
 
         breadcrumbsService.putConfig({
           state : 'applications.detail.environment.deploycurrent.workflow',
@@ -36,41 +36,6 @@ define(function (require) {
             $state.go('applications.detail.environment.deploycurrent.workflow');
           }
         });
-
-        applicationServices.getSecretProviderConfigurationsForCurrentDeployment.get({
-          applicationId: $scope.application.id,
-          applicationEnvironmentId: $scope.environment.id
-        }, undefined, function(success) {
-          if (_.defined(success.data)) {
-            $scope.secretProviderConfigurations = success.data;
-          }
-        });
-
-        $scope.openSecretCredentialModal = function () {
-          // credentialDescriptor
-          var promise;
-          switch (_.size($scope.secretProviderConfigurations)) {
-            case 1:
-              return $uibModal.open({
-                templateUrl: 'views/_ref/applications/applications_detail_environment_secret_modal.html',
-                controller: 'SecretCredentialsController',
-                resolve: {
-                  secretCredentialInfos : function() {
-                    return $scope.secretProviderConfigurations;
-                  }
-                }
-              }).result;
-            case 0:
-              promise = $q.defer();
-              promise.resolve();
-              return promise.promise;
-            default:
-              toaster.pop('error', 'Multi locations', 'is not yet supported', 0, 'trustedHtml', null);
-              promise = $q.defer();
-              promise.resolve();
-              return promise.promise;
-          }
-        };
 
         $scope.displays = {
           workflows: { active: true, size: 400, selector: '#workflow-menu-box', only: ['workflows'] }
@@ -83,8 +48,17 @@ define(function (require) {
         });
         $scope.workflows.setCurrentWorkflowName('install');
 
+        applicationServices.getSecretProviderConfigurationsForCurrentDeployment.get({
+          applicationId: $scope.application.id,
+          applicationEnvironmentId: $scope.environment.id
+        }, undefined, function(success) {
+          if (_.defined(success.data)) {
+            $scope.secretProviderConfigurations = success.data;
+          }
+        });
+
         $scope.launchWorkflow = function () {
-          $scope.openSecretCredentialModal().then(function (secretProviderInfo) {
+          secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
             var secretProviderInfoRequest = {};
             if (_.defined(secretProviderInfo)) {
               secretProviderInfoRequest.secretProviderConfiguration = $scope.secretProviderConfigurations[0];
@@ -102,7 +76,5 @@ define(function (require) {
 
           });
         };
-
-
       }]);
 });
