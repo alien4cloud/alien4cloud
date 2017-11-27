@@ -2,7 +2,11 @@ package alien4cloud.utils;
 
 import java.util.Map;
 
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.apache.commons.collections4.MapUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -236,6 +240,14 @@ public final class PropertyUtil {
             } else if (npw.getValue() != null) {
                 return new ScalarPropertyValue(npw.getValue().toString());
             }
+        }
+        return null;
+    }
+
+    public static Object getPropertyRawValueFromPath(Map<String, AbstractPropertyValue> values, String propertyPath) {
+        NestedPropertyWrapper npw = getNestedProperty(values, propertyPath);
+        if (npw != null) {
+            return npw.getValue();
         }
         return null;
     }

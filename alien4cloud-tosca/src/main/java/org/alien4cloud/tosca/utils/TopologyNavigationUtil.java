@@ -14,6 +14,7 @@ import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 import org.apache.commons.collections4.CollectionUtils;
@@ -105,6 +106,27 @@ public final class TopologyNavigationUtil {
                 NodeType nodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
                 if (nodeType.getDerivedFrom().contains(type)) {
                     result.add(nodeTemplate);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @param topology
+     * @param type
+     * @param manageInheritance true if you also want to consider type hierarchy (ie. include that inherit the given type).
+     * @return a set of nodes that are of the given type (or inherit the given type if <code>manageInheritance</code> is true).
+     */
+    public static Set<PolicyTemplate> getPoliciesOfType(Topology topology, String type, boolean manageInheritance) {
+        Set<PolicyTemplate> result = Sets.newHashSet();
+        for (PolicyTemplate policyTemplate : safe(topology.getPolicies()).values()) {
+            if (policyTemplate.getType().equals(type)) {
+                result.add(policyTemplate);
+            } else if (manageInheritance) {
+                PolicyType policyType = ToscaContext.get(PolicyType.class, policyTemplate.getType());
+                if (policyType.getDerivedFrom().contains(type)) {
+                    result.add(policyTemplate);
                 }
             }
         }
