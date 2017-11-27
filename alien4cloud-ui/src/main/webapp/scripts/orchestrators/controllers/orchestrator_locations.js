@@ -63,7 +63,7 @@ define(function(require) {
             if ($scope.locationsDTOs.length > 0) {
               var toSelect = toSelectName ? _.find($scope.locationsDTOs, {'location':{'name':toSelectName}}): undefined;
               $scope.selectLocation(toSelect|| $scope.locationsDTOs[0]);
-              $state.go('admin.orchestrators.details.locations.secret');
+              $state.go('admin.orchestrators.details.locations.config');
             }
           });
         }
