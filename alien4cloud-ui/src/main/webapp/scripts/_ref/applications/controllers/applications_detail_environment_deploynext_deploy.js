@@ -8,7 +8,7 @@ define(function (require) {
 
   require('scripts/services/directives/managed_service');
   require('scripts/applications/services/application_services');
-  require('scripts/_ref/applications/controllers/applications_detail_environment_secret_modal');
+  require('scripts/_ref/applications/services/secret_display_modal');
 
   states.state('applications.detail.environment.deploynext.deploy', {
     url: '/deploy',
@@ -27,8 +27,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextDeployCtrl',
-    ['$scope', '$alresource', '$translate', 'toaster', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state', '$uibModal', '$q',
-      function ($scope, $alresource, $translate, toaster, deploymentTopologyServices, applicationServices, breadcrumbsService, $state, $uibModal, $q) {
+    ['$scope', '$alresource', '$translate', 'toaster', 'deploymentTopologyServices', 'applicationServices', 'breadcrumbsService', '$state', 'secretDisplayModal',
+      function ($scope, $alresource, $translate, toaster, deploymentTopologyServices, applicationServices, breadcrumbsService, $state, secretDisplayModal) {
         breadcrumbsService.putConfig({
           state: 'applications.detail.environment.deploynext.deploy',
           text: function () {
@@ -39,34 +39,8 @@ define(function (require) {
           }
         });
 
-        $scope.openSecretCredentialModal = function () {
-          // credentialDescriptor
-          var promise;
-          switch (_.size($scope.deploymentTopologyDTO.secretCredentialInfos)) {
-            case 1:
-              return $uibModal.open({
-                templateUrl: 'views/_ref/applications/applications_detail_environment_secret_modal.html',
-                controller: 'SecretCredentialsController',
-                resolve: {
-                  secretCredentialInfos : function() {
-                    return $scope.deploymentTopologyDTO.secretCredentialInfos;
-                  }
-                }
-              }).result;
-            case 0:
-              promise = $q.defer();
-              promise.resolve();
-              return promise.promise;
-            default:
-              toaster.pop('error', 'Multi locations', 'is not yet supported', 0, 'trustedHtml', null);
-              promise = $q.defer();
-              promise.resolve();
-              return promise.promise;
-          }
-        };
-
         $scope.doDeploy = function () {
-          $scope.openSecretCredentialModal().then(function (secretProviderInfo) {
+          secretDisplayModal($scope.deploymentTopologyDTO.secretCredentialInfos).then(function (secretProviderInfo) {
             var deployApplicationRequest = {
               'applicationId': $scope.application.id,
               'applicationEnvironmentId': $scope.environment.id
@@ -89,21 +63,18 @@ define(function (require) {
         };
 
         $scope.doUpdate = function () {
-          $scope.openSecretCredentialModal().then(function (secretProviderInfo) {
-            var deployApplicationRequest = {
-              'applicationId': $scope.application.id,
-              'applicationEnvironmentId': $scope.environment.id
-            };
+          secretDisplayModal($scope.deploymentTopologyDTO.secretCredentialInfos).then(function (secretProviderInfo) {
+            var secretProviderCredentials = {};
             if (_.defined(secretProviderInfo)) {
-              deployApplicationRequest.secretProviderPluginName = secretProviderInfo.pluginName;
-              deployApplicationRequest.secretProviderCredentials = secretProviderInfo.credentials;
+              secretProviderCredentials.pluginName = secretProviderInfo.pluginName;
+              secretProviderCredentials.credentials = secretProviderInfo.credentials;
             }
             $scope.setState('INIT_DEPLOYMENT');
 
             applicationServices.deploymentUpdate({
               applicationId: $scope.application.id,
               applicationEnvironmentId: $scope.environment.id
-            }, undefined, function (data) {
+            }, angular.toJson(secretProviderCredentials), function (data) {
               if (data.error === null) {
                 $scope.environment.status = 'UPDATE_IN_PROGRESS';
                 $scope.setEnvironment($scope.environment);

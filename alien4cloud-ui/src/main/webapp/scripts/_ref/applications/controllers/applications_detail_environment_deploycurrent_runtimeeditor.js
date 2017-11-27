@@ -12,6 +12,7 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_workflows');
   require('scripts/orchestrators/services/orchestrator_location_service');
   require('scripts/orchestrators/services/orchestrator_service');
+  require('scripts/_ref/applications/services/secret_display_modal');
 
   states.state('applications.detail.environment.deploycurrent.runtimeeditor', {
     url: '/runtime_editor',
@@ -42,6 +43,7 @@ define(function (require) {
   '$state',
   'locationService',
   'orchestratorService',
+  'secretDisplayModal',
   function($scope,
     applicationServices,
     $translate,
@@ -56,7 +58,8 @@ define(function (require) {
     breadcrumbsService,
     $state,
     locationService,
-    orchestratorService) {
+    orchestratorService,
+    secretDisplayModal) {
 
     breadcrumbsService.putConfig({
       state : 'applications.detail.environment.deploycurrent.runtimeeditor',
@@ -237,6 +240,15 @@ define(function (require) {
       return $scope.selectedNodeTemplate && $scope.selectedNodeTemplate.clusterScalingControll;
     };
 
+    applicationServices.getSecretProviderConfigurationsForCurrentDeployment.get({
+      applicationId: $scope.application.id,
+      applicationEnvironmentId: $scope.environment.id
+    }, undefined, function(success) {
+      if (_.defined(success.data)) {
+        $scope.secretProviderConfigurations = success.data;
+      }
+    });
+
     $scope.scale = function(newValue) {
       var targetInstanceDiff;
       if(_.defined($scope.selectedNodeTemplate.clusterScalingControll)) {
@@ -247,15 +259,21 @@ define(function (require) {
         }
         targetInstanceDiff = newValue - $scope.selectedNodeTemplate.instancesCount;
       }
-
-      applicationServices.scale({
-        applicationId: $scope.application.id,
-        nodeTemplateId: $scope.selectedNodeTemplate.name,
-        instances: targetInstanceDiff,
-        applicationEnvironmentId: $scope.environment.id
-      }, undefined, function success() {
-        $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount = newValue;
-        $scope.loadTopologyRuntime();
+      secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
+        var secretProviderInfoRequest = {};
+        if (_.defined(secretProviderInfo)) {
+          secretProviderInfoRequest.secretProviderConfiguration = $scope.secretProviderConfigurations[0];
+          secretProviderInfoRequest.credentials = secretProviderInfo.credentials;
+        }
+        applicationServices.scale({
+          applicationId: $scope.application.id,
+          nodeTemplateId: $scope.selectedNodeTemplate.name,
+          instances: targetInstanceDiff,
+          applicationEnvironmentId: $scope.environment.id
+        }, angular.toJson(secretProviderInfoRequest), function success() {
+          $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount = newValue;
+          $scope.loadTopologyRuntime();
+        });
       });
     };
 
