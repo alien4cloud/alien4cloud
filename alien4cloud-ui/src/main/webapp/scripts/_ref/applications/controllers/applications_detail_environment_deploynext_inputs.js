@@ -142,7 +142,7 @@ define(function (require) {
       }; // openInputArtifactModal function
 
       $scope.saveInputSecret = function(scope, data){
-        if (data === "") {
+        if (_.undefined(data)) {
           return "The secret path cannot be null."
         }
         if (scope.propertyName === "component_version") {
