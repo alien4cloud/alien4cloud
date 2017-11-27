@@ -25,8 +25,11 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextInputsCtrl',
-    ['$scope', '$filter', '$resource', '$uibModal', 'deploymentTopologyServices', 'topologyServices', 'breadcrumbsService','$translate',
-    function ($scope, $filter, $resource, $uibModal, deploymentTopologyServices, topologyServices, breadcrumbsService, $translate) {
+    ['$scope', '$filter', '$resource', '$uibModal', 'deploymentTopologyServices', 'topologyServices', 'breadcrumbsService','$translate', 'topoEditSecrets', 'topoEditProperties',
+    function ($scope, $filter, $resource, $uibModal, deploymentTopologyServices, topologyServices, breadcrumbsService, $translate, topoEditSecrets, topoEditProperties) {
+
+      topoEditSecrets($scope);
+      topoEditProperties($scope);
 
       breadcrumbsService.putConfig({
         state : 'applications.detail.environment.deploynext.inputs',
@@ -35,7 +38,7 @@ define(function (require) {
         },
         onClick: function(){
           $state.go('applications.detail.environment.deploynext.inputs');
-        } 
+        }
       });
 
       // Filter inputs to remove the internal inputs
@@ -137,6 +140,18 @@ define(function (require) {
           });
         }); // availableRepositories callback
       }; // openInputArtifactModal function
+
+      $scope.saveInputSecret = function(scope, data){
+        if (data === "") {
+          return "The secret path cannot be null."
+        }
+        if (scope.propertyName === "component_version") {
+          return "The property component_version cannot be set as a secret."
+        }
+        scope.propertyValue.parameters[0] = data;
+        $scope.updateInputValue(null, scope.propertyValue, scope.propertyName);
+      };
+
     }
   ]);
 });
