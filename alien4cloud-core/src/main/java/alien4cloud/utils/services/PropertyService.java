@@ -4,17 +4,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.alien4cloud.tosca.editor.exception.UnsupportedSecretException;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.utils.FunctionEvaluator;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -27,6 +30,9 @@ import alien4cloud.tosca.context.ToscaContextual;
  */
 @Service
 public class PropertyService {
+
+    private static final String FORBIDDEN_PROPERTY = "component_version";
+
     public <T extends AbstractPropertyValue> void setPropertyValue(Map<String, T> properties, PropertyDefinition propertyDefinition, String propertyName,
             Object propertyValue) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         // take the default value
@@ -34,6 +40,24 @@ public class PropertyService {
             // no check here, the default value has to be valid at parse time
             properties.put(propertyName, (T) propertyDefinition.getDefault());
             return;
+        }
+        // try to set a get_secret function
+        if (propertyValue instanceof Map) {
+            Map valueAsMap = (Map) propertyValue;
+            if (valueAsMap.keySet().contains("function") && valueAsMap.keySet().contains("parameters")) {
+                FunctionPropertyValue myFunction = new FunctionPropertyValue();
+                myFunction.setFunction((String) valueAsMap.get("function"));
+                myFunction.setParameters((List<String>) valueAsMap.get("parameters"));
+                if (FunctionEvaluator.containGetSecretFunction(myFunction)) {
+                    if (propertyName.equals(FORBIDDEN_PROPERTY)) {
+                        throw new UnsupportedSecretException("We cannot set a secret on the property " + FORBIDDEN_PROPERTY);
+                    }
+                    // we should try to check property on get_secret function
+                    properties.put(propertyName, (T) myFunction);
+                    return;
+                }
+            }
+
         }
 
         ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);

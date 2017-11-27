@@ -1,12 +1,15 @@
 package alien4cloud.topology.validation;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
+import alien4cloud.paas.exception.NotSupportedException;
+import alien4cloud.topology.task.PropertiesTask;
+import alien4cloud.topology.task.ScalableTask;
+import alien4cloud.topology.task.TaskCode;
+import alien4cloud.topology.task.TaskLevel;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.utils.PropertyUtil;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -21,23 +24,19 @@ import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
+import org.alien4cloud.tosca.utils.FunctionEvaluator;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
-import alien4cloud.paas.exception.NotSupportedException;
-import alien4cloud.topology.task.PropertiesTask;
-import alien4cloud.topology.task.ScalableTask;
-import alien4cloud.topology.task.TaskCode;
-import alien4cloud.topology.task.TaskLevel;
-import alien4cloud.tosca.context.ToscaContext;
-import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
-import alien4cloud.utils.PropertyUtil;
-import lombok.extern.slf4j.Slf4j;
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Performs validation of the properties
@@ -232,6 +231,9 @@ public class TopologyPropertiesValidationService {
                     if (listValue.isEmpty()) {
                         addRequiredPropertyError(task, propertyErrorKey);
                     }
+                } else if (FunctionEvaluator.containGetSecretFunction(value)) {
+                    // this is a get_secret function, we should not validate the get_secret here
+                     continue;
                 } else if (skipInputProperties) {
                     // this is a get_input funtion.
                     // get_input Will be validated later on

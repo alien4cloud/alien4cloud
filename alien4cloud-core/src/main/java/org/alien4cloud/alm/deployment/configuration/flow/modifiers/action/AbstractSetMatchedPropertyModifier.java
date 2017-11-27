@@ -1,6 +1,7 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers.action;
 
 import java.beans.IntrospectionException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
@@ -96,8 +98,16 @@ public abstract class AbstractSetMatchedPropertyModifier<T extends AbstractInher
         if (propertyValue == null) {
             nodePropsOverride.getProperties().remove(propertyName);
         } else {
-            ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
-            nodePropsOverride.getProperties().put(propertyName, PropertyService.asPropertyValue(propertyValue));
+            //Bobo's workaround for get_secret function
+            if (propertyValue instanceof Map && "get_secret".equals(((Map)propertyValue).get("function"))) {
+                FunctionPropertyValue functionPropertyValue = new FunctionPropertyValue();
+                functionPropertyValue.setFunction("get_secret");
+                functionPropertyValue.setParameters(((List)(((Map)propertyValue).get("parameters"))));
+                nodePropsOverride.getProperties().put(propertyName, functionPropertyValue);
+            } else {
+                ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+                nodePropsOverride.getProperties().put(propertyName, PropertyService.asPropertyValue(propertyValue));
+            }
         }
 
         context.saveConfiguration(matchingConfiguration);

@@ -46,6 +46,15 @@ public final class TopologyNavigationUtil {
         return topology.getNodeTemplates().get(host.getTarget());
     }
 
+    public static NodeTemplate getImmediateHostTemplate(Topology topology, NodeTemplate template, IToscaTypeFinder toscaTypeFinder) {
+        RelationshipTemplate host = getRelationshipFromType(template, NormativeRelationshipConstants.HOSTED_ON,
+                id -> toscaTypeFinder.findElement(RelationshipType.class, id));
+        if (host == null) {
+            return null;
+        }
+        return topology.getNodeTemplates().get(host.getTarget());
+    }
+
     /**
      * Get all incoming relationships of a node that match the requested type.
      * 
@@ -54,8 +63,12 @@ public final class TopologyNavigationUtil {
      * @return
      */
     public static RelationshipTemplate getRelationshipFromType(NodeTemplate template, String type) {
+        return getRelationshipFromType(template, type, id -> ToscaContext.getOrFail(RelationshipType.class, type));
+    }
+
+    public static RelationshipTemplate getRelationshipFromType(NodeTemplate template, String type, IRelationshipTypeFinder toscaTypeFinder) {
         for (RelationshipTemplate relationshipTemplate : safe(template.getRelationships()).values()) {
-            RelationshipType relationshipType = ToscaContext.getOrFail(RelationshipType.class, relationshipTemplate.getType());
+            RelationshipType relationshipType = toscaTypeFinder.findElement(relationshipTemplate.getType());
             if (relationshipType != null && (relationshipType.getElementId().equals(type) || relationshipType.getDerivedFrom().contains(type))) {
                 return relationshipTemplate;
             }
@@ -138,8 +151,7 @@ public final class TopologyNavigationUtil {
      */
     public static Set<PolicyTemplate> getTargetedPolicies(Topology topology, NodeTemplate nodeTemplate) {
         return safe(topology.getPolicies()).values().stream()
-                .filter(policyTemplate -> policyTemplate.getTargets() != null
-                        && policyTemplate.getTargets().contains(nodeTemplate.getName()))
+                .filter(policyTemplate -> policyTemplate.getTargets() != null && policyTemplate.getTargets().contains(nodeTemplate.getName()))
                 .collect(Collectors.toSet());
     }
 
@@ -149,7 +161,7 @@ public final class TopologyNavigationUtil {
     public static Set<NodeTemplate> getTargetedMembers(Topology topology, PolicyTemplate policyTemplate) {
         return CollectionUtils.isEmpty(policyTemplate.getTargets()) ? Sets.newHashSet()
                 : safe(topology.getNodeTemplates()).values().stream().filter(nodeTemplate -> isPolicyTarget(nodeTemplate, policyTemplate))
-                .collect(Collectors.toSet());
+                        .collect(Collectors.toSet());
     }
 
     public static boolean isPolicyTarget(NodeTemplate nodeTemplate, PolicyTemplate policyTemplate) {
@@ -187,7 +199,8 @@ public final class TopologyNavigationUtil {
         Set<NodeTemplate> result = Sets.newHashSet();
         for (NodeTemplate node : topology.getNodeTemplates().values()) {
             for (RelationshipTemplate relationshipTemplate : safe(node.getRelationships()).values()) {
-                if (relationshipTemplate.getTargetedCapabilityName().equals(capabilityName) && relationshipTemplate.getTarget().equals(nodeTemplate.getName())) {
+                if (relationshipTemplate.getTargetedCapabilityName().equals(capabilityName)
+                        && relationshipTemplate.getTarget().equals(nodeTemplate.getName())) {
                     result.add(node);
                 }
             }
@@ -197,7 +210,8 @@ public final class TopologyNavigationUtil {
 
     public static boolean hasRelationship(NodeTemplate sourceNode, String targetNodeName, String requirementName, String capabilityName) {
         for (RelationshipTemplate relationshipTemplate : safe(sourceNode.getRelationships()).values()) {
-            if (relationshipTemplate.getTarget().equals(targetNodeName) && relationshipTemplate.getRequirementName().equals(requirementName) && relationshipTemplate.getTargetedCapabilityName().equals(capabilityName)) {
+            if (relationshipTemplate.getTarget().equals(targetNodeName) && relationshipTemplate.getRequirementName().equals(requirementName)
+                    && relationshipTemplate.getTargetedCapabilityName().equals(capabilityName)) {
                 return true;
             }
         }

@@ -1,5 +1,6 @@
-package alien4cloud.rest.deployment;
+package alien4cloud.deployment;
 
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -12,6 +13,7 @@ import alien4cloud.topology.AbstractTopologyDTO;
 import alien4cloud.topology.TopologyValidationResult;
 import lombok.Getter;
 import lombok.Setter;
+import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
 
 @Getter
 @Setter
@@ -30,6 +32,9 @@ public class DeploymentTopologyDTO extends AbstractTopologyDTO<DeploymentTopolog
 
     /** Information about which node can be substituted by which orchestrator's location's resource. */
     private DeploymentSubstitutionConfiguration availableSubstitutions;
+
+    /** Information about the vault credentials **/
+    private List<SecretCredentialInfo> secretCredentialInfos;
 
     public DeploymentTopologyDTO() {
     }

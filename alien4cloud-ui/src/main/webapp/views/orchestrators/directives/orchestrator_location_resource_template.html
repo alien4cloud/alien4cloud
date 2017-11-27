@@ -1,6 +1,5 @@
 <!-- header: name, delete button-->
 <ng-include src="'views/orchestrators/includes/location_resource_header_edit.html'"></ng-include>
-
 <a4c-node-template-edit
   template="resourceTemplate.template"
   type="resourceType"
@@ -8,6 +7,7 @@
   resource-data-types="resourceDataTypes"
   dependencies="dependencies"
   is-property-editable="isPropertyEditable()"
+  is-secret-editable="isSecretEditable()"
   on-property-update="updateResourceProperty(propertyName, propertyValue)"
   on-capability-property-update="updateResourceCapabilityProperty(capabilityName, propertyName, propertyValue)">
 </a4c-node-template-edit>

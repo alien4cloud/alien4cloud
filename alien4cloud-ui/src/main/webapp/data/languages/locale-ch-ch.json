@@ -1034,11 +1034,15 @@
       "SERVICES": "服务",
       "SECRETS" : {
         "SECRET": "Secret",
+        "VAULT_CREDENTIALS": "Vaut Credentials",
+        "NEED_SECRET": " might need credentials to resolve secret",
+        "PLUGIN_NAME": "Plugin name",
         "NO_SECRET_PLUGIN": "No secret plugin found.",
         "TOKEN": "Token",
         "LDAP": "LDAP",
         "AUTHENTICATION_METHOD": "Authentication method",
-        "VAULT_URL": "Vault URL"
+        "VAULT_URL": "Vault URL",
+        "VAULT_CERTIFICATE": "Vault Certificate"
       },
       "MODIFIER": {
         "PLUGIN": "Plugin id",

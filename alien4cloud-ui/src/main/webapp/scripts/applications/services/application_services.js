@@ -19,11 +19,13 @@ define(function (require) {
 
       var applicationActiveDeploymentDAO = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/active-deployment');
 
+      var applicationSecretProviderConfigurationDAO = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/current-secret-provider-configurations');
+
       var applicationRuntimeTopologyDAO = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/runtime-topology');
 
       var applicationDeploymentDAO = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/deployment', {}, {
         'undeploy': {
-          method: 'DELETE'
+          method: 'PUT'
         }
       });
 
@@ -170,6 +172,7 @@ define(function (require) {
         'remove': applicationDAO.remove,
         'update': applicationDAO.update,
         'getActiveDeployment': applicationActiveDeploymentDAO,
+        'getSecretProviderConfigurationsForCurrentDeployment': applicationSecretProviderConfigurationDAO,
         'getRuntimeTopology': applicationRuntimeTopologyDAO,
         'deployment': applicationDeploymentDAO,
         'deploymentUpdate': applicationDeploymentUpdate.update,

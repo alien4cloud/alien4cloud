@@ -1,10 +1,7 @@
 package org.alien4cloud.tosca.utils;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.List;
-import java.util.Map;
-
+import alien4cloud.utils.MapUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
@@ -19,16 +16,19 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Requirement;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 
-import alien4cloud.utils.MapUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Map;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Utility class to perform function evaluation on a topology template.
  */
 @Slf4j
 public class FunctionEvaluator {
+
     /**
-     * Resolve the actual value of a property.
+     * Try to resolve the actual property value
      *
      * @param evaluatorContext The evaluation context, Topology and Inputs.
      * @param template The template that owns the given properties (node template properties or relationship properties) or the Capability/Requirement that ows
@@ -37,7 +37,7 @@ public class FunctionEvaluator {
      * @param evaluatedProperty The property to resolve (should be one of the properties element but this won't be checked here).
      * @return The evaluated value for the property.
      */
-    public static PropertyValue resolveValue(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
+    public static AbstractPropertyValue tryResolveValue(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
             Map<String, AbstractPropertyValue> properties, AbstractPropertyValue evaluatedProperty) {
         if (evaluatedProperty == null) {
             // There is nothing to be evaluated.
@@ -45,7 +45,10 @@ public class FunctionEvaluator {
         }
         if (evaluatedProperty instanceof PropertyValue) {
             // This is a value already so just return it.
-            return (PropertyValue) evaluatedProperty;
+            return evaluatedProperty;
+        }
+        if (containGetSecretFunction(evaluatedProperty)) {
+            return evaluatedProperty;
         }
         if (evaluatedProperty instanceof FunctionPropertyValue) {
             FunctionPropertyValue evaluatedFunction = (FunctionPropertyValue) evaluatedProperty;
@@ -64,7 +67,7 @@ public class FunctionEvaluator {
             // Perform the concat evaluation
             return concat(evaluatorContext, template, properties, (ConcatPropertyValue) evaluatedProperty);
         }
-        throw new IllegalArgumentException("AbstractPropertyValue must be one of null, PropertyValue, FunctionPropertyValue or ConcatPropertyValue");
+        throw new IllegalArgumentException("AbstractPropertyValue must be one of null, a secret, PropertyValue, FunctionPropertyValue or ConcatPropertyValue");
     }
 
     /**
@@ -77,21 +80,21 @@ public class FunctionEvaluator {
      * @param function The function (must be a get property).
      * @return The abstract property value associated with the get_property function.
      */
-    private static PropertyValue getProperty(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
+    private static AbstractPropertyValue getProperty(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
             Map<String, AbstractPropertyValue> properties, FunctionPropertyValue function) {
         switch (function.getTemplateName()) {
         case ToscaFunctionConstants.SELF:
             if (properties != null) {
                 AbstractPropertyValue propertyValue = getFromPath(evaluatorContext, template, properties, function.getElementNameToFetch());
                 if (propertyValue != null) {
-                    return resolveValue(evaluatorContext, template, properties, propertyValue);
+                    return tryResolveValue(evaluatorContext, template, properties, propertyValue);
                 }
             }
             return doGetProperty(evaluatorContext, template, function);
         case ToscaFunctionConstants.HOST:
             if (template instanceof NodeTemplate) {
-                return doGetProperty(evaluatorContext, TopologyNavigationUtil.getImmediateHostTemplate(evaluatorContext.getTopology(), (NodeTemplate) template),
-                        function);
+                return doGetProperty(evaluatorContext,
+                        TopologyNavigationUtil.getImmediateHostTemplate(evaluatorContext.getTopology(), (NodeTemplate) template), function);
             } else {
                 throw new IllegalArgumentException("HOST keyname cannot be used if not in a node template context (or capability/requirement).");
             }
@@ -106,7 +109,8 @@ public class FunctionEvaluator {
         }
     }
 
-    private static PropertyValue doGetProperty(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate targetTemplate, FunctionPropertyValue function) {
+    private static AbstractPropertyValue doGetProperty(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate targetTemplate,
+            FunctionPropertyValue function) {
         if (targetTemplate == null) {
             return null;
         }
@@ -136,7 +140,7 @@ public class FunctionEvaluator {
                         TopologyNavigationUtil.getImmediateHostTemplate(evaluatorContext.getTopology(), (NodeTemplate) targetTemplate), function);
             }
 
-            return resolveValue(evaluatorContext, targetTemplate, targetTemplate.getProperties(), propertyValue);
+            return tryResolveValue(evaluatorContext, targetTemplate, targetTemplate.getProperties(), propertyValue);
         }
         // Try to fetch from the node.
         AbstractPropertyValue propertyValue = getFromPath(evaluatorContext, targetTemplate, targetTemplate.getProperties(), function.getElementNameToFetch());
@@ -146,7 +150,7 @@ public class FunctionEvaluator {
         }
 
         // if the property refers to a function (get_input/get_property then try to resolve it).
-        return resolveValue(evaluatorContext, targetTemplate, targetTemplate.getProperties(), propertyValue);
+        return tryResolveValue(evaluatorContext, targetTemplate, targetTemplate.getProperties(), propertyValue);
     }
 
     private static AbstractPropertyValue getFromPath(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate targetTemplate,
@@ -156,7 +160,7 @@ public class FunctionEvaluator {
             AbstractPropertyValue propertyValue = properties.get(propertyName);
             if (!(propertyValue instanceof PropertyValue)) {
                 // if the value is not a property value resolve it first
-                propertyValue = resolveValue(evaluatorContext, targetTemplate, properties, propertyValue);
+                propertyValue = tryResolveValue(evaluatorContext, targetTemplate, properties, propertyValue);
                 if (propertyValue == null) {
                     return null;
                 }
@@ -178,12 +182,12 @@ public class FunctionEvaluator {
         return safe(properties).get(propertyPath);
     }
 
-    private static ScalarPropertyValue concat(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
+    private static AbstractPropertyValue concat(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
             Map<String, AbstractPropertyValue> properties, ConcatPropertyValue concatPropertyValue) {
         StringBuilder sb = new StringBuilder();
 
         for (AbstractPropertyValue abstractPropertyValue : concatPropertyValue.getParameters()) {
-            AbstractPropertyValue propertyValue = resolveValue(evaluatorContext, template, properties, abstractPropertyValue);
+            AbstractPropertyValue propertyValue = tryResolveValue(evaluatorContext, template, properties, abstractPropertyValue);
             if (propertyValue instanceof ScalarPropertyValue) {
                 sb.append(((ScalarPropertyValue) propertyValue).getValue());
             } else if (propertyValue instanceof ListPropertyValue) {
@@ -204,5 +208,22 @@ public class FunctionEvaluator {
         }
 
         return new ScalarPropertyValue(sb.toString());
+    }
+
+    /**
+     * Check whether the value contains a get_secret
+     *
+     * @param propertyValue the value of the property
+     * @return true if the property's value is a function and contains a get_secret
+     */
+    public static boolean containGetSecretFunction(AbstractPropertyValue propertyValue) {
+        if (propertyValue instanceof FunctionPropertyValue) {
+            if (ToscaFunctionConstants.GET_SECRET.equals(((FunctionPropertyValue) propertyValue).getFunction())) {
+                return true;
+            }
+        } else if (propertyValue instanceof ConcatPropertyValue) {
+            return ((ConcatPropertyValue) propertyValue).getParameters().stream().anyMatch(FunctionEvaluator::containGetSecretFunction);
+        }
+        return false;
     }
 }

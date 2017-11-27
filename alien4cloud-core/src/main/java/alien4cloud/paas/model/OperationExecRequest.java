@@ -19,4 +19,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class OperationExecRequest extends NodeOperationExecRequest {
     @NotBlank
     String applicationEnvironmentId;
+
+    private Object secretProviderCredentials;
+    private String secretProviderPluginName;
 }

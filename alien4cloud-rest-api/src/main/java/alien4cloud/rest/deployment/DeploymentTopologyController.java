@@ -32,6 +32,9 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
+import alien4cloud.deployment.DeploymentTopologyDTO;
+import alien4cloud.deployment.DeploymentTopologyDTOBuilder;
+import alien4cloud.deployment.IDeploymentConfigAction;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
@@ -362,12 +365,5 @@ public class DeploymentTopologyController {
 
         // This method prepares the deployment and create a Deployment Topology DTO object.
         return deploymentTopologyDTOBuilder.prepareDeployment(topology, application, environment, topologyVersion, action);
-    }
-
-    /**
-     * A configuration action to execute prior to the execution of the deployment flow.
-     */
-    public interface IDeploymentConfigAction {
-        void execute(Application application, ApplicationEnvironment environment, ApplicationTopologyVersion topologyVersion, Topology topology);
     }
 }

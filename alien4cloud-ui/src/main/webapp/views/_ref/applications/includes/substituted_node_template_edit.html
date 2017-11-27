@@ -5,6 +5,7 @@
   resource-data-types="substitutionTypes.dataTypes"
   dependencies="topology.dependencies"
   is-property-editable="isPropertyEditable(propertyPath)"
+  is-secret-editable="isSecretEditable(propertyPath)"
   on-property-update="updateSubstitutionProperty(propertyName, propertyValue)"
   on-capability-property-update="updateSubstitutionCapabilityProperty(capabilityName, propertyName, propertyValue)">
 </a4c-node-template-edit>
@@ -16,6 +17,7 @@
   </div>
   <div id="node-details-attributes-panel" uib-collapse="isAttributesCollapsed" >
     <table class="table table-condensed" id="nodeAttributes">
+      apapap
       <tr ng-repeat="(key, value) in selectedResourceTemplate.template.attributeValues">
         <td>
           <label>{{key}}</label>
