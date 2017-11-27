@@ -1,10 +1,8 @@
 package alien4cloud.utils.services;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.alien4cloud.tosca.editor.exception.UnsupportedSecretException;
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.tosca.context.ToscaContextual;
+import com.google.common.collect.Maps;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -17,21 +15,18 @@ import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.utils.FunctionEvaluator;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Maps;
-
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.tosca.context.ToscaContextual;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Service to set and check constraints on properties.
  */
 @Service
 public class PropertyService {
-
-    private static final String FORBIDDEN_PROPERTY = "component_version";
 
     public <T extends AbstractPropertyValue> void setPropertyValue(Map<String, T> properties, PropertyDefinition propertyDefinition, String propertyName,
             Object propertyValue) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
@@ -41,26 +36,12 @@ public class PropertyService {
             properties.put(propertyName, (T) propertyDefinition.getDefault());
             return;
         }
-        // try to set a get_secret function
-        if (propertyValue instanceof Map) {
-            Map valueAsMap = (Map) propertyValue;
-            if (valueAsMap.keySet().contains("function") && valueAsMap.keySet().contains("parameters")) {
-                FunctionPropertyValue myFunction = new FunctionPropertyValue();
-                myFunction.setFunction((String) valueAsMap.get("function"));
-                myFunction.setParameters((List<String>) valueAsMap.get("parameters"));
-                if (FunctionEvaluator.containGetSecretFunction(myFunction)) {
-                    if (propertyName.equals(FORBIDDEN_PROPERTY)) {
-                        throw new UnsupportedSecretException("We cannot set a secret on the property " + FORBIDDEN_PROPERTY);
-                    }
-                    // we should try to check property on get_secret function
-                    properties.put(propertyName, (T) myFunction);
-                    return;
-                }
-            }
 
+        AbstractPropertyValue abstractPropertyValue = asPropertyValue(propertyValue);
+        if (! (abstractPropertyValue instanceof FunctionPropertyValue)) {
+            ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
         }
 
-        ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
         properties.put(propertyName, asPropertyValue(propertyValue));
     }
 
@@ -70,12 +51,28 @@ public class PropertyService {
         } else if (propertyValue instanceof String) {
             return (T) new ScalarPropertyValue((String) propertyValue);
         } else if (propertyValue instanceof Map) {
-            return (T) new ComplexPropertyValue((Map<String, Object>) propertyValue);
+            return asFunctionPropertyValue(propertyValue);
         } else if (propertyValue instanceof List) {
             return (T) new ListPropertyValue((List<Object>) propertyValue);
         } else {
             throw new InvalidArgumentException("Property type " + propertyValue.getClass().getName() + " is invalid");
         }
+    }
+
+    public static <T extends AbstractPropertyValue> T asFunctionPropertyValue(Object propertyValue) {
+        if (propertyValue instanceof Map) {
+            Map valueAsMap = (Map) propertyValue;
+            if (valueAsMap.keySet().contains("function") && valueAsMap.keySet().contains("parameters")) {
+                if (!ToscaFunctionConstants.GET_SECRET.equals(valueAsMap.get("function"))) {
+                    throw new InvalidArgumentException("Property function " + valueAsMap.get("function") + " is invalid");
+                }
+                FunctionPropertyValue functionPropertyValue = new FunctionPropertyValue();
+                functionPropertyValue.setFunction((String) valueAsMap.get("function"));
+                functionPropertyValue.setParameters((List<String>) valueAsMap.get("parameters"));
+                return (T) functionPropertyValue;
+            }
+        }
+        return (T) new ComplexPropertyValue((Map<String, Object>) propertyValue);
     }
 
     /**
