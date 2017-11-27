@@ -226,7 +226,7 @@
       list: parameters
       type: scalar
 
-- get_attribute: alien4cloud.tosca.parser.impl.v14.GetAttributeParser
+- get_attribute: alien4cloud.tosca.parser.impl.advanced.GetAttributeParser
 
 - scalar_property_value: org.alien4cloud.tosca.model.definitions.ScalarPropertyValue
 

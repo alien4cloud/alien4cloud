@@ -265,7 +265,7 @@
       list: parameters
       type: scalar
 
-- get_attribute: alien4cloud.tosca.parser.impl.v14.GetAttributeParser
+- get_attribute: alien4cloud.tosca.parser.impl.advanced.GetAttributeParser
 
 - scalar_property_value: org.alien4cloud.tosca.model.definitions.ScalarPropertyValue
 
@@ -283,6 +283,7 @@
     type: property_definition
     get_input: tosca_function
     get_property: tosca_function
+    get_secret: tosca_function
     get_attribute: get_attribute
     concat: tosca_concat
   default: abstract_property_value
@@ -293,6 +294,7 @@
     get_artifact: fail_get_artifact
     get_input: tosca_function
     get_property: tosca_function
+    get_secret: tosca_function
     get_attribute: get_attribute
     get_operation_output: tosca_function
     concat: tosca_concat
@@ -305,6 +307,7 @@
     get_operation_output: tosca_function
     get_attribute: get_attribute
     get_property: tosca_function
+    get_secret: tosca_function
   default: attribute_definition
 
 - deployment_artifact: org.alien4cloud.tosca.model.definitions.DeploymentArtifact

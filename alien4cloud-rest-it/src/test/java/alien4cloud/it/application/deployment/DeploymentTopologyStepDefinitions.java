@@ -41,7 +41,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
 import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
-import alien4cloud.rest.deployment.DeploymentTopologyDTO;
+import alien4cloud.deployment.DeploymentTopologyDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;

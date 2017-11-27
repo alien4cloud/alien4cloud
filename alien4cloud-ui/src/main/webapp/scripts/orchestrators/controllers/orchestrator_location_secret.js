@@ -13,7 +13,7 @@ define(function (require) {
       id: 'menu.orchestrators.locations.secret',
       state: 'admin.orchestrators.details.locations.secret',
       key: 'ORCHESTRATORS.LOCATIONS.SECRETS.SECRET',
-      icon: 'fa fa-user-secret',
+      icon: 'fa fa-key',
       priority: 500,
       active: true
     }
@@ -26,10 +26,12 @@ define(function (require) {
         pluginName: _.get($scope, 'uiModel.locationDTO.secretProviderConfigurations.currentConfiguration.pluginName'),
         configuration: _.get($scope, 'uiModel.locationDTO.secretProviderConfigurations.currentConfiguration.configuration')
       };
+      
       // populate the scope with the ncessary for location policies resources security
       //locationResourcesSecurity('rest/latest/orchestrators/:orchestratorId/locations/:locationId/policies', $scope);
       $scope.saveConfiguration = function() {
         $scope.updateLocation({'secretProviderConfiguration': $scope.currentPluginConfiguration});
+        $scope.uiModel.locationDTO.secretProviderConfigurations.currentConfiguration = $scope.currentPluginConfiguration;
       };
     }
   ]);

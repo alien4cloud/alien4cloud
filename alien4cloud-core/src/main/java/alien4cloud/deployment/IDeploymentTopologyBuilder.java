@@ -1,4 +1,4 @@
-package alien4cloud.rest.deployment;
+package alien4cloud.deployment;
 
 import java.util.function.Supplier;
 
@@ -8,7 +8,6 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
-import alien4cloud.rest.deployment.DeploymentTopologyController.IDeploymentConfigAction;
 
 /**
  * Interface for the deployment topology dto builder that allows to map a deployment flow execution to a deployment topology dto.

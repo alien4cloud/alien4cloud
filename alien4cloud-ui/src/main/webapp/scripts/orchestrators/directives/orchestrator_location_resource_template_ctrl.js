@@ -79,5 +79,10 @@ define(function(require) {
           return response; // dispatch response to property display
         });
       };
+
+      $scope.isSecretEditable = function() {
+        return true;
+      };
+
     }]);
 });

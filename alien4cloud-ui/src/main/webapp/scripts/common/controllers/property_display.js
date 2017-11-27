@@ -250,7 +250,6 @@ define(function(require) {
           // And here a function (get_input / get_property)
           $scope.editable = false;
           return propertyValue.function + ': ' + _(propertyValue.parameters).toString();
-
         } else if (propertyValue.hasOwnProperty('function_concat') && propertyValue.hasOwnProperty('parameters') && propertyValue.parameters.length > 0) {
           // And here a concat
           $scope.editable = false;
@@ -408,7 +407,8 @@ define(function(require) {
           defaultValue = _.get($scope.definition, 'default');
         }
         $scope.saveReset(defaultValue);
-
+        $scope.editable = true;
+        
         if (_.has($scope.propertyValue, 'value')) {
           $scope.propertyValue.value = defaultValue; // if same value affected, no watch applied
         } else {

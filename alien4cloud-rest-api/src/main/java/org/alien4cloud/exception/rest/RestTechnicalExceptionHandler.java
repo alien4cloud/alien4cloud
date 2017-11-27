@@ -1,39 +1,28 @@
 package org.alien4cloud.exception.rest;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
-import org.alien4cloud.alm.service.exceptions.ServiceUsageException;
-import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
-import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
-import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
-import org.alien4cloud.tosca.editor.exception.PropertyValueException;
-import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
-import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
-import org.alien4cloud.tosca.editor.exception.UnmatchedElementPatternException;
-import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
-import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
-import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
-import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.expression.ExpressionException;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-import com.google.common.collect.Lists;
-
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
-import alien4cloud.exception.*;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.ApplicationVersionNotFoundException;
+import alien4cloud.exception.CyclicReferenceException;
+import alien4cloud.exception.DeleteDeployedException;
+import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
+import alien4cloud.exception.DeleteLastApplicationVersionException;
+import alien4cloud.exception.DeleteReferencedObjectException;
+import alien4cloud.exception.GitConflictException;
+import alien4cloud.exception.GitException;
+import alien4cloud.exception.GitMergingStateException;
+import alien4cloud.exception.GitStateException;
+import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.exception.InvalidNameException;
+import alien4cloud.exception.LocationSupportException;
+import alien4cloud.exception.MissingCSARDependenciesException;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.ReferencedResourceException;
+import alien4cloud.exception.ReleaseReferencingSnapshotException;
+import alien4cloud.exception.VersionConflictException;
+import alien4cloud.exception.VersionRenameNotPossibleException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
@@ -57,7 +46,36 @@ import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
+import org.alien4cloud.alm.service.exceptions.ServiceUsageException;
+import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
+import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
+import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
+import org.alien4cloud.tosca.editor.exception.PropertyValueException;
+import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
+import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
+import org.alien4cloud.tosca.editor.exception.UnmatchedElementPatternException;
+import org.alien4cloud.tosca.editor.exception.UnsupportedSecretException;
+import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.expression.ExpressionException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * All technical (runtime) exception handler goes here. It's unexpected exception and is in general back-end exception or bug in our code
