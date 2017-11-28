@@ -121,53 +121,42 @@ define(function (require) {
             }
             // reset the secret to originalValue
             self.value = null;
-            //Send an event to reset???
-            //$rootScope.$broadcast('reset-property-' + self.key);
-            // setTimeout(function () {
-            //   $('#reset-property-' + self.key).trigger('click');
-            // }, 0);
           } else {
             self.value = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
-            setTimeout(function () {
-              $('#p_secret_' + self.key).trigger('click');
-            }, 0);
+            scope.$root.$broadcast('focus-on-' + self.key);
           }
         },
 
-        // It's a function only for custom operation
-        toggleInputSecret: function(inputParameterName, inputParameter) {
+        /*
+        * It's a function only for custom operation
+        */
+        toggleInputParameterSecret: function(inputParameterName, inputParameter) {
           var scope = this.scope;
           if (scope.properties.isSecretValue(inputParameter.paramValue)) {
             // reset the secret to originalValue
             inputParameter.paramValue = null;
-            setTimeout(function () {
-              $('#reset-property-' + inputParameterName).trigger('click');
-            }, 0);
+            scope.$root.$broadcast('reset-property-' + inputParameterName);
           } else {
             inputParameter.paramValue = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
-            setTimeout(function () {
-              $('#p_secret_' + inputParameterName).trigger('click');
-            }, 0);
+            scope.$root.$broadcast('focus-on-' + inputParameterName);;
           }
         },
 
-        //It's a function for managing property secret in the location resource
+        /*
+        *It's a function for managing property secret in the location resource
+        */
         toggleResourcePropertySecret: function(self) {
           var scope = this.scope;
           if (scope.properties.isSecretValue(self.value)) {
             // Unset the property
             self.value = null;
-            setTimeout(function () {
-              $('#reset-property-' + self.key).trigger('click');
-            }, 0);
+            scope.$root.$broadcast('reset-property-' + self.key);
           } else {
             self.value = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
-            setTimeout(function () {
-              $('#p_secret_' + self.key).trigger('click');
-            }, 0);
+            scope.$root.$broadcast('focus-on-' + self.key);
           }
         },
 
@@ -184,9 +173,7 @@ define(function (require) {
           if (scope.properties.isSecretValue(property)) {
             // Unset the property
             property = null;
-            setTimeout(function () {
-              $('#reset-property-' + inputId).trigger('click');
-            }, 0);
+            scope.$root.$broadcast('reset-property-' + inputId);
           } else {
             _.forEach(_.keys(property), function(key){
               delete property[key];
@@ -194,9 +181,7 @@ define(function (require) {
             property['function'] = 'get_secret';
             property['parameters'] = [''];
             // Trigger the editor to enter the secret
-            setTimeout(function () {
-              $('#p_secret_' + inputId).trigger('click');
-            }, 0);
+            scope.$root.$broadcast('focus-on-' + inputId);
           }
         },
 
@@ -213,9 +198,7 @@ define(function (require) {
           if (scope.properties.isSecretValue(property)) {
             // Unset the property
             property = null;
-            setTimeout(function () {
-              $('#reset-property-' + inputId).trigger('click');
-            }, 0);
+            scope.$root.$broadcast('reset-property-' + inputId);
           } else {
             _.forEach(_.keys(property), function(key){
               delete property[key];
@@ -234,9 +217,7 @@ define(function (require) {
           if (scope.properties.isSecretValue(property.value)) {
             // Unset the property
             property.value = null;
-            setTimeout(function () {
-              $('#reset-property-' + property.key).trigger('click');
-            }, 0);
+            scope.$root.$broadcast('reset-property-' + property.key);
           } else {
             property.value = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret

@@ -35,6 +35,17 @@ define(function(require) {
         return $scope.onSave({secretPath: secretPath, propertyName: $scope.propertyName, propertyValue: $scope.propertyValue, capabilityName: $scope.capabilityName});
       };
 
+      /*
+      * A listener for focusing on the text editor.
+      */
+      $scope.$on('focus-on-' + $scope.propertyName, function(event) {
+        var propertyName = event.currentScope.propertyName;
+        setTimeout(function () {
+          // Because the UI element is not yet loaded in the page.
+          $('#p_secret_' + propertyName).trigger('click');
+        }, 0);
+      });
+
     }
   ]); // controller
 }); // define

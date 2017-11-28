@@ -408,13 +408,20 @@ define(function(require) {
         }
         $scope.saveReset(defaultValue);
         $scope.editable = true;
-        
+
         if (_.has($scope.propertyValue, 'value')) {
           $scope.propertyValue.value = defaultValue; // if same value affected, no watch applied
         } else {
           $scope.propertyValue = defaultValue;
         }
       };
+
+      /*
+      * Add an event listener to reset the property value
+      */
+      $scope.$on('reset-property-' + $scope.propertyName, function(event) {
+        event.currentScope.resetProperty();
+      });
 
       // Init managed property
       $scope.init();

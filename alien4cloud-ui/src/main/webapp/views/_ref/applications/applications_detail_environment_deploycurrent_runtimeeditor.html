@@ -292,7 +292,7 @@
                             <tr ng-repeat="(inputParameterName, inputParameter) in operation.inputParameters">
                               <td>
                                 <a id="p_secret_pro_{{inputParameterName}}"
-                                   ng-click="secrets.toggleInputSecret(inputParameterName, inputParameter)"
+                                   ng-click="secrets.toggleInputParameterSecret(inputParameterName, inputParameter)"
                                    class="btn btn-default btn-xs"
                                    ng-class="{'active' : properties.isSecretValue(inputParameter.paramValue)}"
                                    tooltip-append-to-body="true">
