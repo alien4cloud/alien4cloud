@@ -63,7 +63,7 @@ public final class TopologyNavigationUtil {
      * @return
      */
     public static RelationshipTemplate getRelationshipFromType(NodeTemplate template, String type) {
-        return getRelationshipFromType(template, type, id -> ToscaContext.getOrFail(RelationshipType.class, type));
+        return getRelationshipFromType(template, type, id -> ToscaContext.getOrFail(RelationshipType.class, id));
     }
 
     public static RelationshipTemplate getRelationshipFromType(NodeTemplate template, String type, IRelationshipTypeFinder toscaTypeFinder) {
