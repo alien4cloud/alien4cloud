@@ -216,7 +216,7 @@ public class FlowExecutor {
         for (int i = 0; i < modifiers.size(); i++) {
             long start = System.currentTimeMillis();
             modifiers.get(i).process(context.getTopology(), context);
-            log.info("Processed <" + modifiers.get(i).getClass().getSimpleName() + "> in " + (System.currentTimeMillis() - start));
+            log.debug("Processed <" + modifiers.get(i).getClass().getSimpleName() + "> in " + (System.currentTimeMillis() - start) + " ms");
             if (!context.log().isValid()) {
                 // In case of errors we don't process the flow further.
                 return;
