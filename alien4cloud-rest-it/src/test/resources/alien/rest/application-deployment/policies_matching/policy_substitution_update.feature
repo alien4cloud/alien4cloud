@@ -29,7 +29,7 @@ Feature: Update substituted policy property
     And I should receive a RestResponse with no error
     When I update the property "sample_property" to "toto" for the substituted policy "MyPolicy"
     Then I should receive a RestResponse with no error
-    When I register the rest response data as SPEL context of type "alien4cloud.rest.deployment.DeploymentTopologyDTO"
+    When I register the rest response data as SPEL context of type "alien4cloud.deployment.DeploymentTopologyDTO"
     Then The SPEL expression "topology.policies['MyPolicy'].properties['sample_property'].value" should return "toto"
 
   @reset
@@ -38,6 +38,6 @@ Feature: Update substituted policy property
     When I update the property "sample_property" to "toto" for the substituted policy "MyPolicy"
     Then I should receive a RestResponse with an error code 800
     When I ask for the deployment topology of the application "ALIEN"
-    And I register the rest response data as SPEL context of type "alien4cloud.rest.deployment.DeploymentTopologyDTO"
+    And I register the rest response data as SPEL context of type "alien4cloud.deployment.DeploymentTopologyDTO"
     Then The SPEL expression "topology.policies['MyPolicy'].properties['sample_property'].value" should return "doNotUpdate"
 
