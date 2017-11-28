@@ -109,32 +109,18 @@ define(function(require) {
         });
       };
 
-      $scope.savePropertySecret = function(scope, secretPath) {
-        // check the secretPath
-        if (_.undefined(secretPath)) {
-          return "";
-        }
-        if (secretPath === "") {
-          return "The path can not be null.";
-        }
+      $scope.savePropertySecret = function(secretPath, propertyName, propertyValue) {
         // set the path
-        scope.propertyValue.parameters[0] = secretPath;
+        propertyValue.parameters[0] = secretPath;
         // Update the secret property value
-        $scope.updateSecretProperty(scope.propertyName, scope.propertyValue);
+        $scope.updateSecretProperty(propertyName, propertyValue);
       };
 
-      $scope.saveCapabilitySecret = function(scope, secretPath) {
-        // check the secretPath
-        if (_.undefined(secretPath)) {
-          return "";
-        }
-        if (secretPath === "") {
-          return "The path can not be null.";
-        }
+      $scope.saveCapabilitySecret = function(secretPath, propertyName, propertyValue, capabilityName) {
         // set the path
-        scope.propertyValue.parameters[0] = secretPath;
+        propertyValue.parameters[0] = secretPath;
         // Update the secret capability value
-        $scope.updateSecretCapability(scope.capabilityName, scope.propertyName, scope.propertyValue);
+        $scope.updateSecretCapability(capabilityName, propertyName, propertyValue);
       };
 
       $scope.canEditSecretProperty = function(propertyName){

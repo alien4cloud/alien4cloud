@@ -141,15 +141,9 @@ define(function (require) {
         }); // availableRepositories callback
       }; // openInputArtifactModal function
 
-      $scope.saveInputSecret = function(scope, data){
-        if (data === "") {
-          return "The secret path cannot be null."
-        }
-        if (scope.propertyName === "component_version") {
-          return "The property component_version cannot be set as a secret."
-        }
-        scope.propertyValue.parameters[0] = data;
-        $scope.updateInputValue(null, scope.propertyValue, scope.propertyName);
+      $scope.saveInputSecret = function(secretPath, propertyValue, propertyName){
+        propertyValue.parameters[0] = secretPath;
+        $scope.updateInputValue(null, propertyValue, propertyName);
       };
 
     }

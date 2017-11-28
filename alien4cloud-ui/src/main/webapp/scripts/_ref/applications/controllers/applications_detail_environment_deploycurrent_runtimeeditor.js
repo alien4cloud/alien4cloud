@@ -407,13 +407,8 @@ define(function (require) {
     });
 
     // For saving the secret path
-    $scope.saveSecret = function(scope, secretPath) {
-      if (_.undefined(secretPath)) {
-        return "";
-      }
-      if (secretPath === "") {
-        return "The path can not be null.";
-      }
+    $scope.saveSecret = function(secretPath, propertyValue) {
+      propertyValue.parameters[0] = secretPath;
     }
   }
 ]);

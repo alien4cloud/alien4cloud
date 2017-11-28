@@ -25,7 +25,7 @@
             definition="getPropertyDefinition(propEntry.key)"
             selected-node-template="selectedNodeTemplate"
             editable="properties.isSecretValue(propEntry.value) && canEditSecretProperty(propEntry.key)"
-            custom-save-secret="savePropertySecret">
+            on-save="savePropertySecret(secretPath, propertyName, propertyValue)">
           </secret-display>
           <property-display
               ng-show="!properties.isSecretValue(propEntry.value)"
@@ -94,7 +94,7 @@
                 definition="getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key)"
                 selected-node-template="selectedNodeTemplate"
                 editable="properties.isSecretValue(propertyEntry.value) && canEditSecretCapability(capabilityEntry.key, propertyEntry.key)"
-                custom-save-secret="saveCapabilitySecret">
+                on-save="saveCapabilitySecret(secretPath, propertyName, propertyValue, capabilityName)">
               </secret-display>
               <property-display
                   ng-init="condensed = true"

@@ -43,7 +43,7 @@
               definition="inputDefinition"
               selected-node-template="selectedNodeTemplate"
               editable="true"
-              custom-save-secret="saveInputSecret">
+              on-save="saveInputSecret(secretPath, propertyValue, propertyName)">
             </secret-display>
             <property-display
               ng-show="!properties.isSecretValue(deploymentTopologyDTO.topology.deployerInputProperties[inputId])"
@@ -112,6 +112,7 @@
         ng-if="_.isNotEmpty(predefiniedInputs)">
         <tr ng-repeat="(inputId, inputDefinition) in predefiniedInputs">
           <td>
+            Bobo's TODO
             <property-display
               definition="inputDefinition"
               property-type="deploymentTopologyDTO.dataTypes[inputDefinition.type]"

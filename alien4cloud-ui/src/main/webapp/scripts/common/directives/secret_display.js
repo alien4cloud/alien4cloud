@@ -20,8 +20,7 @@ define(function (require) {
         'propertyValue': '=',
         'capabilityName': '=?',
         'selectedNodeTemplate': '=',
-        'execute': '&?',
-        'customSaveSecret': '&?'
+        'onSave': '&'
       },
       link: {}
     };

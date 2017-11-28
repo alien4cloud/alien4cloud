@@ -27,56 +27,14 @@ define(function(require) {
         return undefined;
       };
 
-      var secretSaveDefault = function(secretPath) {
-        // Check the secretPath
+      $scope.save = function(secretPath) {
         var error = check($scope, secretPath);
         if (_.defined(error)) {
           return error;
         }
+        return $scope.onSave({secretPath: secretPath, propertyName: $scope.propertyName, propertyValue: $scope.propertyValue, capabilityName: $scope.capabilityName});
+      };
 
-        if (_.defined($scope.capabilityName)) {
-          // It is the operation for capablity
-          return $scope.execute()({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodeCapabilityPropertyAsSecretOperation',
-              nodeName: $scope.selectedNodeTemplate.name,
-              propertyName: $scope.propertyName,
-              capabilityName: $scope.capabilityName,
-              secretPath: secretPath
-            },
-            function(result){
-              // successful callback
-            },
-            null,
-            $scope.selectedNodeTemplate.name,
-            true
-          );
-        } else {
-          // It is an operation for property
-          return $scope.execute()({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodePropertyAsSecretOperation',
-              nodeName: $scope.selectedNodeTemplate.name,
-              propertyName: $scope.propertyName,
-              secretPath: secretPath
-            },
-            function(result){
-              // successful callback
-            },
-            null,
-            $scope.selectedNodeTemplate.name,
-            true
-          );
-        }
-      }
-
-      $scope.secretSave = function(secretPath) {
-        if (_.defined($scope.customSaveSecret)) {
-          // use the custom secret save function
-          return $scope.customSaveSecret()($scope, secretPath);
-        } else {
-          // use the default secret save function
-          return secretSaveDefault(secretPath);
-        }
-      }
     }
   ]); // controller
 }); // define

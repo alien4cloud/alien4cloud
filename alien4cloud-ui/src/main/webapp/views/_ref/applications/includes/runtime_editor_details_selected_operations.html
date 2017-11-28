@@ -1,0 +1,63 @@
+<!-- Operations -->
+<div ng-if="isMapNotNullOrEmpty(selectedNodeCustomInterfaces)">
+  <div id="node-instance-attributes-command" class="clickable topology-column-content-head" ng-click="isNodeOperationsCollapsed = !isNodeOperationsCollapsed">
+    <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeOperationsCollapsed, 'fa-caret-right': isNodeOperationsCollapsed}"></i>
+    {{'operations' | translate}}
+  </div>
+  <div uib-collapse="isNodeOperationsCollapsed">
+    <div ng-repeat="(interfaceName, interface) in selectedNodeCustomInterfaces">
+      <div ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{interfaceName}}_{{operationName}}" ng-repeat="(operationName, operation) in interface.operations">
+        <!-- Operation div with "execute" button -->
+        <div ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
+          <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-caret-down' : !isOpCollapsed[operationName], 'fa-caret-right': isOpCollapsed[operationName]}"></i>
+          <span>{{interfaceName}}.{{operationName}}</span>
+          <span class="pull-right" uib-tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
+            <button class="btn btn-success btn-xs"
+                ng-click="executeOperation(interfaceName, operationName, operation.inputParameters, $event)"
+                ng-disabled="operationLoading[selectedNodeTemplate.name][interfaceName][operationName]"
+                id="btn-submit-operation-{{interfaceName}}-{{operationName}}">
+              <i class="fa" ng-class="{' fa-spin fa-spinner' : operationLoading[selectedNodeTemplate.name][interfaceName][operationName], 'fa-play-circle': !operationLoading[selectedNodeTemplate.name][interfaceName][operationName]}"></i>
+            </button>
+          </span>
+          <span class="clearfix"></span>
+        </div>
+        <!-- Operation inputs in collapsed div (if exists) -->
+        <div uib-collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
+          <table class="table table-condensed" id="op_{{operationName}}_inputParams">
+            <tr ng-repeat="(inputParameterName, inputParameter) in operation.inputParameters">
+              <td>
+                <a id="p_secret_pro_{{inputParameterName}}"
+                   ng-click="secrets.toggleInputParametersSecret(inputParameterName, inputParameter)"
+                   class="btn btn-default btn-xs"
+                   ng-class="{'active' : properties.isSecretValue(inputParameter.paramValue)}"
+                   tooltip-append-to-body="true">
+                  <i class="fa fa-key "></i>
+                </a>
+              </td>
+              <td class="col-md-11" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
+                <secret-display
+                        ng-show="properties.isSecretValue(inputParameter.paramValue)"
+                        property-name="inputParameterName"
+                        property-value="inputParameter.paramValue"
+                        definition="inputParameter"
+                        selected-node-template="selectedNodeTemplate"
+                        on-save="saveSecret(secretPath, propertyValue)"
+                        editable="true">
+                <property-display
+                        ng-show="!properties.isSecretValue(inputParameter.paramValue)"
+                        ng-init="condensed = true"
+                        definition="inputParameter"
+                        property-name="inputParameterName"
+                        property-value="inputParameter.paramValue"
+                        on-save="checkProperty(propertyDefinition, propertyValue, propertyName)"
+                        editable="true"
+                        condensed="condensed">
+                </property-display>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -197,7 +197,7 @@
             definition="properties.getFormatedProperty(propEntry.key)"
             selected-node-template="selectedNodeTemplate"
             editable="true"
-            execute="execute">
+            on-save="secrets.saveNodePropertySecret(secretPath, propertyName)">
           </secret-display>
           <property-display
             ng-show="!properties.isSecretValue(propEntry.value)"
@@ -318,7 +318,7 @@
               definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
               editable="true"
               selected-node-template="selectedNodeTemplate"
-              execute="execute">
+              on-save="secrets.saveNodeCapabilityPropertySecret(secretPath, propertyName, capabilityName)">
             </secret-display>
             <property-display
               ng-show="!properties.isSecretValue(propertyEntry.value)"
@@ -492,8 +492,18 @@
           <div class="col-md-12">
             <table class="table table-condensed" id="relationshipProperties_{{relationshipEntry.key}}">
               <tr ng-repeat="propertyEntry in topology.relationshipTypes[relationshipEntry.value.type].properties">
-                <td class="col-md-1">
+                <td class="col-md-2">
                   <div class="btn-group" uib-dropdown>
+                    <!-- button for secret -->
+                    <button id="p_secret_rel_{{propertyEntry.key}}"
+                       ng-click="secrets.toggleRelationshipPropertySecret(propertyEntry)"
+                       class="btn btn-default btn-xs"
+                       ng-disabled="properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
+                       ng-class="{'active' : properties.isSecretValue(propertyEntry.value)}"
+                       tooltip-append-to-body="true">
+                      <i class="fa fa-key "></i>
+                    </button>
+                    <!-- button for input -->
                     <a id="p_input_rel_{{propertyEntry.key}}"
                        ng-click="inputs.getCandidatesForRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                        class="btn btn-default btn-xs"
@@ -520,8 +530,19 @@
                     </ul>
                   </div>
                 </td>
-                <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-10">
+                <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-8">
+                  Bobo's TODO
+                  <secret-display
+                    ng-show="properties.isSecretValue(propertyEntry.value)"
+                    property-name="propertyEntry.key"
+                    property-value="propertyEntry.value"
+                    definition="propertyEntry.value"
+                    selected-node-template="selectedNodeTemplate"
+                    editable="true"
+                    on-save="secrets.saveNodeRelationshipPropertySecret()">
+                  </secret-display>
                   <property-display
+                    ng-show="!properties.isSecretValue(propertyEntry.value)"
                     ng-init="condensed = true"
                     dependencies="topology.topology.dependencies"
                     definition="propertyEntry.value"
