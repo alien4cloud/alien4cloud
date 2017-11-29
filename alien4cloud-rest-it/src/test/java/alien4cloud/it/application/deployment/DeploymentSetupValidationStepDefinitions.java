@@ -14,7 +14,7 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.it.Context;
 import alien4cloud.it.utils.RegisteredStringUtils;
-import alien4cloud.rest.deployment.DeploymentTopologyDTO;
+import alien4cloud.deployment.DeploymentTopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.task.InputArtifactTask;

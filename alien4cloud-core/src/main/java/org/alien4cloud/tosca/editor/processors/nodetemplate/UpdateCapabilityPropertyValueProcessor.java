@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.PropertyValueException;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateCapabilityPropertyValueOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -17,7 +16,7 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
 import alien4cloud.utils.services.PropertyService;

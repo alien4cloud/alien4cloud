@@ -35,6 +35,7 @@ import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -54,7 +55,7 @@ import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.PaaSUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
@@ -142,9 +143,9 @@ public class TopologyTreeBuilderService {
             for (Entry<String, NodeTemplate> templateEntry : topology.getNodeTemplates().entrySet()) {
                 NodeTemplate template = templateEntry.getValue();
                 NodeType indexedToscaElement = ToscaContext.getOrFail(NodeType.class, template.getType());
-                boolean isCompute = ToscaNormativeUtil.isFromType(NormativeComputeConstants.COMPUTE_TYPE, indexedToscaElement);
-                boolean isNetwork = ToscaNormativeUtil.isFromType(NormativeNetworkConstants.NETWORK_TYPE, indexedToscaElement);
-                boolean isVolume = ToscaNormativeUtil.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, indexedToscaElement);
+                boolean isCompute = ToscaTypeUtils.isOfType(indexedToscaElement, NormativeComputeConstants.COMPUTE_TYPE);
+                boolean isNetwork = ToscaTypeUtils.isOfType(indexedToscaElement, NormativeNetworkConstants.NETWORK_TYPE);
+                boolean isVolume = ToscaTypeUtils.isOfType(indexedToscaElement, NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE);
                 if (!isCompute && !isNetwork && !isVolume) {
                     nonNativesNode.put(templateEntry.getKey(), template);
                 }
@@ -202,9 +203,9 @@ public class TopologyTreeBuilderService {
         Map<String, List<PaaSNodeTemplate>> groups = Maps.newHashMap();
         for (Entry<String, PaaSNodeTemplate> entry : nodeTemplates.entrySet()) {
             PaaSNodeTemplate paaSNodeTemplate = entry.getValue();
-            boolean isCompute = ToscaNormativeUtil.isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedToscaElement());
-            boolean isNetwork = ToscaNormativeUtil.isFromType(NormativeNetworkConstants.NETWORK_TYPE, paaSNodeTemplate.getIndexedToscaElement());
-            boolean isVolume = ToscaNormativeUtil.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedToscaElement());
+            boolean isCompute = ToscaTypeUtils.isOfType(paaSNodeTemplate.getIndexedToscaElement(), NormativeComputeConstants.COMPUTE_TYPE);
+            boolean isNetwork = ToscaTypeUtils.isOfType(paaSNodeTemplate.getIndexedToscaElement(), NormativeNetworkConstants.NETWORK_TYPE);
+            boolean isVolume = ToscaTypeUtils.isOfType(paaSNodeTemplate.getIndexedToscaElement(), NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE);
             if (isVolume) {
                 // manage block storage
                 processBlockStorage(paaSNodeTemplate, nodeTemplates);
@@ -320,7 +321,7 @@ public class TopologyTreeBuilderService {
 
     @SuppressWarnings("unchecked")
     private <V extends AbstractInheritableToscaType> void fillType(Topology topology, AbstractInstantiableTemplate template, IPaaSTemplate<V> paaSTemplate,
-                                                                   Class<V> clazz) {
+            Class<V> clazz) {
         V indexedToscaElement = ToscaContext.getOrFail(clazz, template.getType());
         paaSTemplate.setIndexedToscaElement(indexedToscaElement);
         List<String> derivedFroms = indexedToscaElement.getDerivedFrom();

@@ -5,19 +5,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.utils.CloneUtil;
 import alien4cloud.utils.FileUtil;
 import com.google.common.collect.Sets;
-import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
 import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
-import org.alien4cloud.tosca.editor.EditionContext;
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.events.SubstitutionTypeChangedEvent;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
@@ -38,7 +34,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 
 import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;

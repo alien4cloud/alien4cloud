@@ -8,7 +8,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.junit.Assert;
 import org.junit.Test;
 
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.utils.AlienConstants;
 
 public class TopologyServiceTest {

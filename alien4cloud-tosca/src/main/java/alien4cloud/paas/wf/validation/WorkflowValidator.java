@@ -10,7 +10,7 @@ import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 
 @Component
 public class WorkflowValidator {
-
+    public static ThreadLocal<Boolean> disableValidationThreadLocal = new ThreadLocal<>();
     private List<Rule> rules;
 
     public WorkflowValidator() {
@@ -21,6 +21,10 @@ public class WorkflowValidator {
     }
 
     public int validate(TopologyContext topologyContext, Workflow workflow) {
+        if (disableValidationThreadLocal.get() != null && disableValidationThreadLocal.get().booleanValue()) {
+            // we just skip workflow validation.
+            return 0;
+        }
         workflow.clearErrors();
         int errorCount = 0;
         for (Rule rule : rules) {

@@ -10,6 +10,6 @@ import cucumber.api.junit.Cucumber;
         //
         "src/test/resources/org/alien4cloud/tosca/catalog/"
         //
-})
+}, glue = "org.alien4cloud.tosca.editor")
 public class CatalogTest {
 }

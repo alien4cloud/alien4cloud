@@ -1,20 +1,18 @@
 package alien4cloud.deployment.matching.services.location;
 
-import alien4cloud.model.orchestrators.ArtifactSupport;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
-
-import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
-import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-
-import org.alien4cloud.tosca.normative.ToscaNormativeUtil;
-
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.utils.ToscaTypeUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
+
+import alien4cloud.model.orchestrators.ArtifactSupport;
 
 /**
  * LocationMatch Elector based on supported artifacts. Checks if the artifacts of a given {@link NodeTemplate} are supported by the location's orchestrator.
@@ -82,7 +80,7 @@ public class LocationMatchNodesArtifactsElector {
 
     private boolean isFromOneOfTypes(String[] supportedArtifacts, ArtifactType artifactType) {
         for (String supportedArtifact : supportedArtifacts) {
-            if (ToscaNormativeUtil.isFromType(supportedArtifact, artifactType)) {
+            if (ToscaTypeUtils.isOfType(artifactType, supportedArtifact)) {
                 return true;
             }
         }

@@ -227,7 +227,10 @@ define(function(require) {
               this.drawRuntimeInfos(node, runtimeGroup, nodeInstances, nodeInstancesCount, 0, 0);
             }
           } else { // scaling policy
-            var scalableCapability = toscaService.getScalingPolicy(nodeTemplate);
+            var scalableCapability = toscaService.getScalingPolicy(nodeTemplate, topology.capabilityTypes);
+            if(_.undefined(scalableCapability)) {
+              scalableCapability = toscaService.getClusterControllerPolicy(nodeTemplate, topology.capabilityTypes);
+            }
             var scalableSelection = nodeGroup.select('#scalable_' + node.id);
             if (_.defined(scalableCapability)) {
               scalableSelection.classed('hidden', function(){ return false; });
@@ -265,7 +268,7 @@ define(function(require) {
             var failureCount = this.getNumberOfInstanceByStatus(nodeInstances, 'FAILURE');
             deletedCount = this.getNumberOfInstanceByStatus(nodeInstances, null, 'stopped');
 
-            var runtimeStateIndicatorWidth = node.bbox.width() - 48 - 40;
+            var runtimeStateIndicatorWidth = node.bbox.width() - 48 - 30;
             var indicatorWidth;
             if (successCount > 0) {
               indicatorWidth = runtimeStateIndicatorWidth * successCount / nodeInstancesCount;

@@ -29,7 +29,7 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

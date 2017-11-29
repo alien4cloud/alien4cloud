@@ -54,7 +54,9 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
     @Override
     public ArtifactSupport getArtifactSupport() {
         // support all type of implementations artifacts
-        return new ArtifactSupport(new String[] { "alien.artifacts.BatchScript", "tosca.artifacts.Implementation.Bash" });
+        return new ArtifactSupport(new String[] { "tosca.artifacts.Deployment.Image.Container.Docker", "tosca.artifacts.Implementation.Bash",
+                "org.alien4cloud.artifacts.BatchScript", "alien.artifacts.BatchScript", "tosca.artifacts.Implementation.Python",
+                "org.alien4cloud.artifacts.AnsiblePlaybook" });
     }
 
     @Override

@@ -18,6 +18,8 @@ import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
@@ -182,13 +184,15 @@ public class InputService {
 
         if (MapUtils.isNotEmpty(topology.getInputs())) {
             Map<String, PropertyDefinition> inputsDefinitions = topology.getInputs();
-            Map<String, PropertyValue> inputsToCopy = deploymentInputs.getInputs().entrySet().stream()
+            Map<String, AbstractPropertyValue> inputsToCopy = deploymentInputs.getInputs().entrySet().stream()
                     // Copy only inputs which exist in new topology's definition
                     .filter(inputEntry -> inputsDefinitions.containsKey(inputEntry.getKey())).filter(inputEntry -> {
                         // Copy only inputs which satisfy the new input definition
                         try {
-                            ConstraintPropertyService.checkPropertyConstraint(inputEntry.getKey(), inputEntry.getValue().getValue(),
-                                    inputsDefinitions.get(inputEntry.getKey()));
+                            if (! (inputEntry.getValue() instanceof FunctionPropertyValue)) {
+                                ConstraintPropertyService.checkPropertyConstraint(inputEntry.getKey(), PropertyService.asPropertyValue(inputEntry.getValue()),
+                                        inputsDefinitions.get(inputEntry.getKey()));
+                            }
                             return true;
                         } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
                             return false;

@@ -48,7 +48,8 @@ define(function (require) {
             $state.go('applications.detail.environment', {
               id: $scope.application.id,
               environmentId: $scope.environment.id
-            });          }
+            });
+          }
         });
 
         breadcrumbsService.putConfig({

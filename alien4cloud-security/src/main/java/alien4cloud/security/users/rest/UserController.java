@@ -42,7 +42,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @Component
 @RestController
-@RequestMapping({"/rest/users", "/rest/v1/users", "/rest/latest/users"})
+@RequestMapping({ "/rest/users", "/rest/v1/users", "/rest/latest/users" })
 public class UserController {
     @Resource
     private IAlienUserDao alienUserDao;
@@ -197,12 +197,14 @@ public class UserController {
         if (username == null || username.isEmpty()) {
             return RestResponseBuilder.<Void> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("username cannot be null or empty").build()).build();
-        } else if (userService.isAdmin(username) && userService.countAdminUser() == 1) {
+        }
+        // This checks that the role exists
+        String goodRoleToAdd = Role.getStringFormatedRole(role);
+        if (Role.ADMIN.equals(Role.valueOf(role)) && userService.isAdmin(username) && userService.countAdminUser() == 1) {
             servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.DELETE_LAST_ADMIN_ROLE_ERROR)
                     .message("It's forbidden to remove the admin role of the last admin user.").build()).build();
         }
-        String goodRoleToAdd = Role.getStringFormatedRole(role);
         User user = userService.retrieveUser(username);
         String[] roles = user.getRoles();
         roles = ArrayUtils.removeElement(roles, goodRoleToAdd);

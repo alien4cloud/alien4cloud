@@ -1,14 +1,11 @@
 package alien4cloud.paas.model;
 
-import java.util.Map;
-
+import alien4cloud.model.orchestrators.locations.Location;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import org.elasticsearch.annotation.ESObject;
-
-import alien4cloud.model.orchestrators.locations.Location;
+import java.util.Map;
 
 /**
  * The context of the deployment

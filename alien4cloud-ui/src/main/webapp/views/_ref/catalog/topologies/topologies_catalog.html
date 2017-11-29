@@ -13,8 +13,10 @@
     id="li_{{topology.id}}"
     ng-click="handleItemSelection(topology)">
     <div class="catalog-element-info">
-      <div style="float: left; width: 64px; height: 64px; margin: 5px; text-align: center;">
-        <i class="fa fa-sitemap fa-4x"></i>
+      <div style="float: left; width: 64px; height: 64px; margin: 5px; text-align: center;"
+        ng-init="iconId=getIcon(topology.tags)">
+        <i ng-if="!iconId" class="fa fa-sitemap fa-4x"></i>
+        <img ng-if="iconId" ng-src="img?id={{getIcon(topology.tags)}}&quality=QUALITY_64" />
       </div>
       <div style="display: inline-block; vertical-align: top" ng-init="topologyNameId= (topology.archiveName | splitAndGet:'.':'last')">
         <h5 style="width: 120px; ">

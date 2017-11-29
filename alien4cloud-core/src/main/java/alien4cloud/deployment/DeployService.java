@@ -1,33 +1,12 @@
 package alien4cloud.deployment;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.security.model.User;
-import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
-import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
-
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
+import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
+import alien4cloud.deployment.model.SecretProviderCredentials;
 import alien4cloud.events.DeploymentCreatedEvent;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -38,19 +17,33 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.secret.SecretProviderConfiguration;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
-import alien4cloud.paas.model.PaaSDeploymentLog;
-import alien4cloud.paas.model.PaaSDeploymentLogLevel;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.model.*;
+import alien4cloud.security.model.User;
 import alien4cloud.utils.PropertyUtil;
+import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
+import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Service responsible for deployment of an application.
@@ -94,7 +87,7 @@ public class DeployService {
      * @param deploymentSource Application to be deployed or the Csar that contains test toplogy to be deployed
      * @return The id of the generated deployment.
      */
-    public String deploy(final User deployer, final DeploymentTopology deploymentTopology, IDeploymentSource deploymentSource) {
+    public String deploy(final User deployer, final SecretProviderCredentials secretProviderCredentials, final DeploymentTopology deploymentTopology, IDeploymentSource deploymentSource) {
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
         final Location firstLocation = locations.values().iterator().next();
@@ -128,7 +121,7 @@ public class DeployService {
             // publish an event for the eventual managed service
             eventPublisher.publishEvent(new DeploymentCreatedEvent(this, deployment.getId()));
 
-            PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, deployment, locations);
+            PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(secretProviderCredentials, deploymentTopology, deployment, locations);
 
             // Build the context for deployment and deploy
             orchestratorPlugin.deploy(deploymentContext, new IPaaSCallback<Object>() {
@@ -151,7 +144,7 @@ public class DeployService {
         });
     }
 
-    public void update(final DeploymentTopology deploymentTopology, final IDeploymentSource deploymentSource, final Deployment existingDeployment,
+    public void update(SecretProviderCredentials secretProviderCredentials, final DeploymentTopology deploymentTopology, final IDeploymentSource deploymentSource, final Deployment existingDeployment,
             final IPaaSCallback<Object> callback) {
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
@@ -161,7 +154,7 @@ public class DeployService {
             // Get the orchestrator that will perform the deployment
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
 
-            PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, existingDeployment,
+            PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(secretProviderCredentials, deploymentTopology, existingDeployment,
                     locations);
 
             // After update we allow running a post_update workflow automatically, however as adding workflow in update depends on orchestrator we have to check
@@ -268,17 +261,38 @@ public class DeployService {
 
     }
 
-    private PaaSTopologyDeploymentContext saveDeploymentTopologyAndGenerateDeploymentContext(final DeploymentTopology deploymentTopology,
+    private PaaSTopologyDeploymentContext saveDeploymentTopologyAndGenerateDeploymentContext(final SecretProviderCredentials secretProviderCredentials, final DeploymentTopology deploymentTopology,
             final Deployment deployment, final Map<String, Location> locations) {
         String deploymentTopologyId = deploymentTopology.getId();
         // save the topology as a deployed topology.
         // change the Id before saving
         deploymentTopology.setId(deployment.getId());
         deploymentTopology.setDeployed(true);
+
         alienMonitorDao.save(deploymentTopology);
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
-        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology);
+
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = null;
+        if (secretProviderCredentials != null) {
+            secretProviderConfigurationAndCredentials = new SecretProviderConfigurationAndCredentials();
+            secretProviderConfigurationAndCredentials.setCredentials(secretProviderCredentials.getCredentials());
+
+            Optional<Location> firstLocation = locations.values().stream().filter(location -> Objects.equals(secretProviderCredentials.getPluginName(), location.getSecretProviderConfiguration().getPluginName())).findFirst();
+            if(!firstLocation.isPresent()){
+                log.error("Plugin name <" + secretProviderCredentials.getPluginName() + "> is not configured by the current location.");
+                secretProviderConfigurationAndCredentials = null;
+            }else{
+                SecretProviderConfiguration configuration = new SecretProviderConfiguration();
+                configuration.setConfiguration(firstLocation.get().getSecretProviderConfiguration());
+                configuration.setPluginName(secretProviderCredentials.getPluginName());
+                secretProviderConfigurationAndCredentials.setSecretProviderConfiguration(configuration);
+                secretProviderConfigurationAndCredentials.setCredentials(secretProviderCredentials.getCredentials());
+            }
+
+        }
+
+        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials, deployment, locations, deploymentTopology);
         // Process services relationships to inject the service side based on the service resource.
         serviceResourceRelationshipService.process(deploymentContext);
         // Download and process all remote artifacts before deployment

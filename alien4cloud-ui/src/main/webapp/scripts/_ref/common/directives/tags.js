@@ -103,6 +103,6 @@ define(function (require) {
         get: getTagNameSuggestions,
         waitBeforeRequest: 0,
         minLength: 2
-    };
-  }]);
+      };
+    }]);
 });

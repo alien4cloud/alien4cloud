@@ -5,10 +5,10 @@ metadata:
   template_author: alien4cloud
   template_version: ${project.version}
 
-description: "Defines resources for the mock plugin, mocking openstack configuration."
+description: "Defines resources for the mock plugin, mocking aws configuration."
 
 imports:
-  - tosca-normative-types:1.0.0-SNAPSHOT
+  - tosca-normative-types:${normative.version}
 
 node_types:
   org.alien4cloud.nodes.mock.aws.Compute:

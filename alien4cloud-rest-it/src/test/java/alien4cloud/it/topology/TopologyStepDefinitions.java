@@ -29,6 +29,7 @@ import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.collect.Maps;
@@ -44,7 +45,6 @@ import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyUtils;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.topology.task.ArtifactTask;
@@ -208,6 +208,25 @@ public class TopologyStepDefinitions {
     @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with property \"([^\"]*)\" set to null$")
     public void The_topology_should_contain_a_nodetemplate_named_with_property_set_to_null(String nodeTemplateName, String propertyName) throws Throwable {
         The_topology_should_contain_a_nodetemplate_named_with_property_set_to(nodeTemplateName, propertyName, null);
+    }
+
+    @And("^The topology should contain a nodetemplate named \"([^\"]*)\" with property \"([^\"]*)\" of capability \"([^\"]*)\" set to \"([^\"]*)\"$")
+    public void theTopologyShouldContainANodetemplateNamedWithPropertyOfCapabilitySetToNull(String nodeTemplateName, String propertyName, String capabilityName, String propertyValue) throws Throwable {
+        The_topology_should_contain_a_nodetemplate_named(nodeTemplateName);
+
+        String topologyResponseText = Context.getInstance().getRestResponse();
+        NodeTemplate nodeTemp = JsonUtil.read(topologyResponseText, TopologyDTO.class, Context.getJsonMapper()).getData().getTopology().getNodeTemplates()
+                .get(nodeTemplateName);
+        assertNotNull(nodeTemp.getCapabilities().get(capabilityName).getProperties());
+        if (propertyValue != null) {
+            assertNotNull(nodeTemp.getCapabilities().get(capabilityName).getProperties().get(propertyName));
+        }
+        assertEquals(propertyValue, PropertyUtil.getScalarValue(nodeTemp.getCapabilities().get(capabilityName).getProperties().get(propertyName)));
+    }
+
+    @And("^The topology should contain a nodetemplate named \"([^\"]*)\" with property \"([^\"]*)\" of capability \"([^\"]*)\" set to null$")
+    public void theTopologyShouldContainANodetemplateNamedWithPropertyOfCapabilitySetToNull(String nodeTemplateName, String propertyName, String capabilityName) throws Throwable {
+        theTopologyShouldContainANodetemplateNamedWithPropertyOfCapabilitySetToNull(nodeTemplateName, propertyName, capabilityName, null);
     }
 
     @Then("^I should have a relationship with type \"([^\"]*)\" from \"([^\"]*)\" to \"([^\"]*)\" in ALIEN$")
@@ -612,4 +631,5 @@ public class TopologyStepDefinitions {
         List<CatalogVersionResult> versionResults = JsonUtil.toList(JsonUtil.toString(response.getData()), CatalogVersionResult.class);
         assertEquals(expectedVersionCount, versionResults.size());
     }
+
 }

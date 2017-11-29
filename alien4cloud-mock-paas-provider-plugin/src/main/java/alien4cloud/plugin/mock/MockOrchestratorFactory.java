@@ -5,20 +5,20 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.stereotype.Component;
-
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.constraints.GreaterOrEqualConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
-import alien4cloud.model.orchestrators.ArtifactSupport;
-import alien4cloud.model.orchestrators.locations.LocationSupport;
-import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import alien4cloud.model.orchestrators.ArtifactSupport;
+import alien4cloud.model.orchestrators.locations.LocationSupport;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 
 /**
  * Factory for Mock implementation of orchestrator instance.
@@ -60,7 +60,9 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
     @Override
     public ArtifactSupport getArtifactSupport() {
         // support all type of implementations artifacts
-        return new ArtifactSupport(new String[] { "alien.artifacts.BatchScript", "tosca.artifacts.Implementation.Bash" });
+        return new ArtifactSupport(new String[] { "tosca.artifacts.Deployment.Image.Container.Docker", "tosca.artifacts.Implementation.Bash",
+                "org.alien4cloud.artifacts.BatchScript", "alien.artifacts.BatchScript", "tosca.artifacts.Implementation.Python",
+                "org.alien4cloud.artifacts.AnsiblePlaybook" });
     }
 
     @Override

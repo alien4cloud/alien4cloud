@@ -11,6 +11,8 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
+import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
@@ -50,11 +52,14 @@ public class DefaultNodeMatcher extends AbstractTemplateMatcher<LocationResource
                     : configuredFilterDefinition.getProperties();
             CapabilityType capabilityType = locationResources.getCapabilityTypes().get(candidateCapability.getValue().getType());
 
-            Capability templateCapability = safe(abstractTemplate.getCapabilities()).get(candidateCapability.getKey());
+            // Ignore scalable capabiltiy for matching.
+            if (!ToscaTypeUtils.isOfType(capabilityType, NormativeCapabilityTypes.SCALABLE)) {
+                Capability templateCapability = safe(abstractTemplate.getCapabilities()).get(candidateCapability.getKey());
 
-            if (templateCapability != null && !isValidTemplatePropertiesMatch(templateCapability.getProperties(),
-                    candidateCapability.getValue().getProperties(), capabilityType.getProperties(), configuredFilters)) {
-                return false;
+                if (templateCapability != null && !isValidTemplatePropertiesMatch(templateCapability.getProperties(),
+                        candidateCapability.getValue().getProperties(), capabilityType.getProperties(), configuredFilters)) {
+                    return false;
+                }
             }
         }
 

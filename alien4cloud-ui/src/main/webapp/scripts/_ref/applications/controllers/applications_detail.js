@@ -62,8 +62,8 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-applications').controller('ApplicationDetailCtrl',['$scope','application', 'breadcrumbsService','$state',
-    function($scope, application, breadcrumbsService, $state) {
+  modules.get('a4c-applications').controller('ApplicationDetailCtrl',['$scope','application', 'applicationEnvironmentsManager', 'breadcrumbsService','$state',
+    function($scope, application, applicationEnvironmentsManager, breadcrumbsService, $state) {
       breadcrumbsService.putConfig({
         state : 'applications.detail',
         text: function(){
@@ -73,5 +73,10 @@ define(function (require) {
           $state.go('applications.detail', { id: application.data.id });
         }
       });
-  }]);
+
+      $scope.$on('$destroy', function() {
+        // We must stop all event registrations
+        applicationEnvironmentsManager.stopEvents();
+      });
+    }]);
 });

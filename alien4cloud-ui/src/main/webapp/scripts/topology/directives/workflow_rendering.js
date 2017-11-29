@@ -1,17 +1,17 @@
 // Directive allowing to display a workflow (tosca plan)
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
   var _ = require('lodash');
   var d3Tip = require('d3-tip');
   var d3 = require('d3');
-  
+
   require('scripts/common-graph/services/runtime_color_service');
   require('scripts/common-graph/services/svg_service');
   require('scripts/topology/services/workflow_shapes');
   require('scripts/topology/services/workflow_render');
-  
+
   modules.get('a4c-topology-editor', ['a4c-common', 'a4c-common-graph', 'ui.bootstrap', 'a4c-styles']).directive('topologyPlan',
     ['$filter', '$http', '$uibModal', '$interval', '$translate', 'svgServiceFactory', 'runtimeColorsService', 'listToMapService',
       'workflowShapes', 'planRender',
@@ -28,41 +28,41 @@ define(function (require) {
             var svgGroup = svgGraph.svgGroup;
             // add markers for arrows
             workflowShapes.initMarkers(svgGraph.svg);
-            
+
             scope.$watch('triggerRefresh', function () {
               scope.workflows.topologyChanged();
             });
-            
+
             scope.$watch('visualDimensions', function (visualDimensions) {
               onResize(visualDimensions.width, visualDimensions.height);
             });
-            
+
             function onResize(width, height) {
               svgGraph.onResize(width, height);
             }
-            
+
             function centerGraph() {
               svgGraph.controls.reset();
             }
-            
+
             // Create the input graph
             var g = planRender.createGraph();
-            
+
             function render(layout) {
               planRender.render(svgGroup, g, layout);
               svgGraph.controls.updateBBox(planRender.bbox);
             }
-            
+
             // Add our custom shapes
             workflowShapes.scope = scope;
-            
+
             // the hosts (graph clusters)
             var hosts = [];
             // the steps
             var steps = [];
             // data used to render errors
             var errorRenderingData = {cycles: {}, errorSteps: {}};
-            
+
             function appendStepNode(g, stepName, step, hostId) {
               var shortActivityType = scope.workflows.getStepActivityType(step);
               var width, height;
@@ -90,7 +90,7 @@ define(function (require) {
                 });
               }
             }
-            
+
             function appendEdge(g, from, to) {
               var style = {
                 lineInterpolate: 'basis',
@@ -111,25 +111,25 @@ define(function (require) {
               }
               g.setEdge(from, to, style);
             }
-            
+
             function refresh() {
               // remove remaining popups
               d3.selectAll('.d3-tip').remove();
               g.nodes().forEach(function (node) {
                 g.removeNode(node);
               });
-              
+
               if (!scope.currentWorkflowName || !scope.topology.topology.workflows || !scope.topology.topology.workflows[scope.currentWorkflowName]) {
                 // TODO clear SVG
                 return;
               }
               errorRenderingData = scope.workflows.getErrorRenderingData();
               workflowShapes.errorRenderingData = errorRenderingData;
-              
+
               hosts = scope.topology.topology.workflows[scope.currentWorkflowName].hosts;
               steps = scope.topology.topology.workflows[scope.currentWorkflowName].steps;
               workflowShapes.steps = steps;
-              
+
               var hostsMap = {};
               // add the hosts
               if (hosts) {
@@ -139,7 +139,7 @@ define(function (require) {
                   g.setNode(host, {label: host, clusterLabelPos: 'top'});
                 }
               }
-              
+
               g.nodes().forEach(function (nodeKey) {
                 // if the node doesn't exists anymore let's remove it
                 if (_.undefined(hostsMap[nodeKey]) && _.undefined(steps[nodeKey]) &&
@@ -147,10 +147,10 @@ define(function (require) {
                   g.removeNode(nodeKey);
                 }
               });
-              
+
               g.setNode('start', {label: '', width: 20, height: 20, shape: 'start'});
               g.setNode('end', {label: '', width: 20, height: 20, shape: 'stop'});
-              
+
               var hasSteps = false;
               if (steps) {
                 for (var stepName in steps) {
@@ -175,10 +175,10 @@ define(function (require) {
               if (!hasSteps) {
                 appendEdge(g, 'start', 'end');
               }
-              
+
               // Rendering
               render(true);
-              
+
               // tooltip
               var tip = d3Tip().attr('class', 'd3-tip wf-tip').offset([-10, 0]).html(function (d) {
                 return styleTooltip(d.id);
@@ -186,7 +186,7 @@ define(function (require) {
               svgGroup.call(tip);
               d3.selectAll('g.node').on('mouseover', tip.show).on('mouseout', tip.hide);
             }
-            
+
             // render an styled html tool tip for a given step
             var styleTooltip = function (nodeId) {
               var step = steps[nodeId];
@@ -197,7 +197,7 @@ define(function (require) {
               html += '<h5 class="pull-left break-word">' + step.name + '</h5>';
               html += '<i class="fa pull-right">' + scope.workflows.getStepActivityTypeIcon(step) + '</i>';
               html += '<span class="clearfix"></span>';
-              
+
               if (_.isEmpty(step.targetRelationship)) {
                 if (!_.isEmpty(step.target)) {
                   html += '<div class="row"><div class="col-md-3">Node' + ': </div><div class="col-md-9"><b>' + step.target + '</b></div></div>';
@@ -221,8 +221,8 @@ define(function (require) {
               html += '</div>';
               return html;
             };
-            
-            
+
+
             scope.$on('WfRefresh', function (event, args) {
               if (args.layout) {
                 refresh();
@@ -233,7 +233,7 @@ define(function (require) {
                 centerGraph();
               }
             });
-            
+
             // preview events registering
             function setPreviewEdge(g, from, to) {
               g.setEdge(from, to, {
@@ -242,16 +242,17 @@ define(function (require) {
                 marker: 'arrow-preview'
               });
             }
-            
+
             function setPreviewNode(g) {
               g.setNode('a4cPreviewNewStep', {
                 style: 'stroke: blue',
                 shape: 'operationPreviewStep',
                 labelStyle: 'fill: blue; font-weight: bold; font-size: 2em',
-                width: 60, height: 45
+                width: 60,
+                height: 45
               });
             }
-            
+
             scope.$on('WfRemoveEdgePreview', function (event, from, to) {
               console.debug('WfRemoveEdgePreview event received : ' + event + ', from:' + from + ', to:' + to);
               g.removeEdge(from, to);
@@ -344,7 +345,7 @@ define(function (require) {
               }
               render(true);
             });
-            
+
             function swapLinks(from, to) {
               // from's preceding become preceding of to
               var precedingSteps;
@@ -373,7 +374,7 @@ define(function (require) {
                 }
               }
             }
-            
+
             // swap steps : connections between both is inversed and each other connections are swapped
             scope.$on('WfSwapPreview', function (event, from, to) {
               console.debug('WfSwapPreview event received : ' + event + ', from:' + from + ', to:' + from);

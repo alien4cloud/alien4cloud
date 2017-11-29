@@ -2,8 +2,6 @@ package org.alien4cloud.tosca.normative;
 
 import java.util.List;
 
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
-
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.utils.AlienConstants;
@@ -30,24 +28,6 @@ public final class ToscaNormativeUtil {
             return ToscaRelationshipLifecycleConstants.CONFIGURE;
         }
         return interfaceName;
-    }
-
-    /**
-     * Verify that the given {@link AbstractInheritableToscaType} is from the given type.
-     *
-     * @param indexedInheritableToscaElement The {@link AbstractInheritableToscaType} to verify.
-     * @param type The type to match
-     * @return <code>true</code> if the {@link AbstractInheritableToscaType} is from the given type.
-     */
-    public static boolean isFromType(String type, AbstractInheritableToscaType indexedInheritableToscaElement) {
-        return isFromType(type, indexedInheritableToscaElement.getElementId(), indexedInheritableToscaElement.getDerivedFrom());
-    }
-
-    /**
-     * Verify that the given <code>type</code> is or inherits the given <code>expectedType</code>.
-     */
-    public static boolean isFromType(String expectedType, String type, List<String> typeHierarchy) {
-        return expectedType.equals(type) || (typeHierarchy != null && typeHierarchy.contains(expectedType));
     }
 
     public static String formatedOperationOutputName(String nodeName, String interfaceName, String operationName, String output) {

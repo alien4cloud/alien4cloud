@@ -6,26 +6,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jgit.api.CheckoutCommand;
-import org.eclipse.jgit.api.CleanCommand;
-import org.eclipse.jgit.api.CloneCommand;
-import org.eclipse.jgit.api.DeleteBranchCommand;
-import org.eclipse.jgit.api.FetchCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.PullCommand;
-import org.eclipse.jgit.api.PullResult;
-import org.eclipse.jgit.api.PushCommand;
-import org.eclipse.jgit.api.RenameBranchCommand;
-import org.eclipse.jgit.api.TransportCommand;
+import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -34,13 +18,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.FetchResult;
-import org.eclipse.jgit.transport.PushResult;
-import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.transport.RemoteConfig;
-import org.eclipse.jgit.transport.RemoteRefUpdate;
-import org.eclipse.jgit.transport.URIish;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.transport.*;
 
 import com.google.common.collect.Lists;
 
@@ -115,7 +93,11 @@ public class RepositoryManager {
             repository = Git.open(targetDirectory.toFile());
             //delete locally
             if (branchExistsLocally(repository, branch)) {
-                repository.branchDelete().setBranchNames("refs/heads/" + branch).call();
+                // is current branch?
+                if(repository.getRepository().getBranch().equals(branch)){
+                    checkoutExistingBranchOrCreateOrphan(repository, true, null,null, "tmp");
+                }
+                repository.branchDelete().setForce(true).setBranchNames("refs/heads/" + branch).call();
             }
 
             // delete remote branch
@@ -318,10 +300,7 @@ public class RepositoryManager {
         }
     }
 
-    public static void checkoutExistingBranchOrCreateOrphan(Path repositoryDirectory, boolean isLocalOnly, String username, String password, String branch) {
-        Git git = null;
-        try {
-            git = Git.open(repositoryDirectory.toFile());
+    private static void checkoutExistingBranchOrCreateOrphan(Git git, boolean isLocalOnly, String username, String password, String branch) throws IOException, GitAPIException {
             if (!isLocalOnly) {
                 fetch(git, username, password);
             }
@@ -351,6 +330,13 @@ public class RepositoryManager {
                 }
                 checkoutCommand.call();
             }
+    }
+
+    public static void checkoutExistingBranchOrCreateOrphan(Path repositoryDirectory, boolean isLocalOnly, String username, String password, String branch) {
+        Git git = null;
+        try {
+            git = Git.open(repositoryDirectory.toFile());
+            checkoutExistingBranchOrCreateOrphan(git, isLocalOnly, username, password, branch);
         } catch (IOException | GitAPIException e) {
             throw new GitException("Git repository related issue", e);
         } finally {

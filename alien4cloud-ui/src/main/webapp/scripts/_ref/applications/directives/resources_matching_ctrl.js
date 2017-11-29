@@ -8,8 +8,10 @@ define(function (require) {
   require('scripts/tosca/services/tosca_service');
 
   modules.get('a4c-applications').controller('ResourcesMatchingCtrl',
-    ['$scope', 'toscaService',
-    function ($scope, toscaService) {
+    ['$scope', 'toscaService', 'topoEditProperties',
+    function ($scope, toscaService, topoEditProperties) {
+
+      topoEditProperties($scope);
 
       $scope.getIcon = function(template, templateName) {
         var templateType;
@@ -97,11 +99,36 @@ define(function (require) {
           return false;
         }
         if($scope.getSubstitutedTemplate($scope.selectedNodeName).id === $scope.selectedResourceTemplate.id){
-            return isNodePropertyEditable(propertyPath.propertyName);
+          return isNodePropertyEditable(propertyPath.propertyName);
         }
         return false;
       };
 
+      //secret is editable only when not set in topology or in locationResource
+      $scope.isSecretEditable = function(propertyPath) {
+        if($scope.selectedResourceTemplate.service) {
+          // do not edit servis properties
+          return false;
+        }
+        if($scope.getSubstitutedTemplate($scope.selectedNodeName).id === $scope.selectedResourceTemplate.id){
+          return $scope.isSecretPropertyEditable(propertyPath.propertyName);
+        }
+        return false;
+      };
+
+      $scope.isSecretPropertyEditable = function(propertyName) {
+        var originalNode =  $scope.originalNodes[$scope.selectedNodeName] || {};
+        var locationTemplate = $scope.substitutedResources[$scope.selectedResourceTemplate.id].template || {};
+        var originalProperty = _.result(_.find(originalNode.properties, {'key':propertyName}), 'value');
+        var originalLocationTemplateProperty = _.result(_.find(locationTemplate.properties, {'key':propertyName}), 'value');
+
+        if(!$scope.properties.isSecretValue(originalProperty) && !$scope.properties.isSecretValue(originalLocationTemplateProperty)){
+          return true;
+        }
+        return false;
+      };
+
+      //Put this code always in the end for loading the populate scope
       if(_.isFunction($scope.populateScope)){
         $scope.populateScope({scope:$scope});
       }

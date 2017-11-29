@@ -1,0 +1,107 @@
+<div>
+  <div class="pull-left">
+    <h5>
+      <a ng-click="clearNodeSelection()">{{'APPLICATIONS.RUNTIME.DEPLOYMENT' | translate}}</a>
+      <span class="text-primary"> / {{selectedNodeTemplate.name | split:39}}</span>
+    </h5>
+  </div>
+  <div class="pull-right">
+    <button id="backToDeploymentButton" type="button" class="btn btn-default btn-xs" ng-click="clearNodeSelection()"
+            uib-tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
+      <i class="fa fa-arrow-left"></i>
+    </button>
+  </div>
+  <span class="clearfix"></span>
+</div>
+
+<div id="scaleEditableInput" ng-show="isScalable()">
+  <div id="node-scale-command" class="clickable topology-column-content-head" ng-click="isNodeScaleCollapsed = !isNodeScaleCollapsed">
+    <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeScaleCollapsed, 'fa-caret-right': isNodeScaleCollapsed}"></i>
+    {{'APPLICATIONS.RUNTIME.SCALE' | translate}}
+  </div>
+  <div
+    class="editable-discreet"
+    editable-number="selectedNodeTemplate.newInstancesCount"
+    buttons="yes"
+    onbeforesave="scale($data)"
+    e-step="1"
+    e-min="{{selectedNodeTemplate.scalingPolicy.minInstances}}"
+    e-max="{{selectedNodeTemplate.scalingPolicy.maxInstances}}"
+    e-required
+    e-onkeypress="if (event.which==13) {$('#scaleEditableInput button.btn-primary').click(); event.preventDefault();}"
+    uib-collapse="isNodeScaleCollapsed">
+    <h4>
+      {{selectedNodeTemplate.newInstancesCount || selectedNodeTemplate.instancesCount}}
+      <span id="scaleEditableButton" class="btn btn-primary btn-xs"
+              uib-tooltip="{{ 'APPLICATIONS.RUNTIME.SCALE_BUTTON' | translate }}">
+        <i class="fa fa-signal"></i>
+      </span>
+    </h4>
+  </div>
+</div>
+
+<div id="clusterScaleEditableInput" ng-show="isClusterController()">
+  <div id="node-scale-command" class="clickable topology-column-content-head" ng-click="isNodeScaleCollapsed = !isNodeScaleCollapsed">
+    <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeScaleCollapsed, 'fa-caret-right': isNodeScaleCollapsed}"></i>
+    {{'APPLICATIONS.RUNTIME.SCALE' | translate}}
+  </div>
+  <div class="text-muted">
+    This node is a controller node that manages a cluster of elements. Usage of cluster scaling does not scale the node but it's managed nodes.
+  </div>
+  <div
+    class="editable-discreet"
+    editable-number="selectedNodeTemplate.clusterScalingControll.plannedInstanceCount"
+    buttons="yes"
+    onbeforesave="scale($data)"
+    e-step="1"
+    e-min="{{selectedNodeTemplate.clusterScalingControll.minInstances}}"
+    e-max="{{selectedNodeTemplate.clusterScalingControll.maxInstances}}"
+    e-required
+    e-onkeypress="if (event.which==13) {$('#scaleEditableInput button.btn-primary').click(); event.preventDefault();}"
+    uib-collapse="isNodeScaleCollapsed">
+    <h4>
+      {{selectedNodeTemplate.clusterScalingControll.plannedInstanceCount}}
+      <span id="scaleEditableButton" class="btn btn-primary btn-xs"
+              uib-tooltip="{{ 'APPLICATIONS.RUNTIME.SCALE_BUTTON' | translate }}">
+        <i class="fa fa-signal"></i>
+      </span>
+    </h4>
+  </div>
+</div>
+
+<div ng-show="selectedNodeTemplate.type != 'tosca.nodes.Network'">
+  <div id="node-instance-list-command" class="clickable topology-column-content-head" ng-click="isNodeInstanceListCollapsed = !isNodeInstanceListCollapsed">
+    <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstanceListCollapsed, 'fa-caret-right': isNodeInstanceListCollapsed}"></i>
+    {{'APPLICATIONS.RUNTIME.INSTANCES' | translate}}
+  </div>
+  <div id="node-instance-list" uib-collapse="isNodeInstanceListCollapsed" class="row">
+    <div class="col-md-12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{{ 'APPLICATIONS.RUNTIME.INSTANCE' | translate }}</th>
+            <th>{{ 'COMMON.STATE' | translate }}</th>
+            <th>{{ 'APPLICATIONS.RUNTIME.STATUS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="(id, info) in topology.instances[selectedNodeTemplate.name]"
+            id="instanceDetailButton_{{id}}"
+            class="clickable"
+            title="details"
+            ng-click="selectInstance(id)" >
+            <td class="col-md-4">{{id}}</td>
+            <td class="col-md-6">{{'STATES.'+info.state | translate}}</td>
+            <td class="col-md-1">
+              <i class="fa" ng-class="{'fa-check text-success': info.instanceStatus === 'SUCCESS',
+              'fa-times text-danger': info.instanceStatus === 'FAILURE',
+              'fa-spinner fa-spin' : info.instanceStatus === 'PROCESSING'}"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<ng-include src="'views/_ref/applications/includes/runtime_editor_details_selected_operations.html'"></ng-include>

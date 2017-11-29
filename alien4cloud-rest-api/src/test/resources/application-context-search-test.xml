@@ -12,6 +12,7 @@
 		alien4cloud.*,
 		org.alien4cloud.alm.*
 		org.alien4cloud.tosca.*,
+		org.alien4cloud.secret.*,
 		org.elasticsearch.mapping">
         <!-- alien4cloud.security.* to exclude ldap package is not working in component-scan -->
         <context:exclude-filter type="regex" expression="alien4cloud\.ldap.*|alien4cloud\.initialization.*|alien4cloud\.webconfiguration.*"/>
@@ -25,6 +26,7 @@
         <context:exclude-filter type="regex" expression="alien4cloud.rest.form.*"/>
         <context:exclude-filter type="regex" expression="alien4cloud.rest.internal.AlienMaintenanceController.*"/>
         <context:exclude-filter type="regex" expression="org.alien4cloud.alm.deployment.*"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.deployment.DeploymentTopologyDTOBuilder"/>
     </context:component-scan>
 
     <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory"/>

@@ -1,0 +1,87 @@
+<div>
+  <div class="pull-left">
+    <h5>
+      <a ng-click="clearNodeSelection()">{{'APPLICATIONS.RUNTIME.DEPLOYMENT' | translate}}</a>
+      <span class="text-primary"> / </span>
+      <a ng-click="clearInstanceSelection()">{{selectedNodeTemplate.name}}</a>
+      <span class="text-primary"> / {{selectedInstance.id}}</span>
+    </h5>
+  </div>
+  <div class="pull-right">
+    <button id="backToInstanceListButton" type="button" class="btn btn-default btn-xs" ng-click="clearInstanceSelection()"
+            uib-tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
+      <i class="fa fa-arrow-left"></i>
+    </button>
+  </div>
+  <span class="clearfix"></span>
+</div>
+
+<div id="node-instance-properties-command" class="clickable topology-column-content-head" ng-click="isNodeInstancePropertiesCollapsed = !isNodeInstancePropertiesCollapsed">
+  <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstancePropertiesCollapsed, 'fa-caret-right': isNodeInstancePropertiesCollapsed}"></i>
+  {{'COMMON.PROPERTIES' | translate}}
+</div>
+<div class="row" uib-collapse="isNodeInstancePropertiesCollapsed">
+  <div class="col-md-12">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ 'APPLICATIONS.RUNTIME.KEY' | translate }}</th>
+          <th>{{ 'APPLICATIONS.RUNTIME.VALUE' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- properties are the same for all instances of a node template -->
+        <tr ng-repeat="property in selectedNodeTemplate.properties">
+          <td>{{property.key}}</td>
+          <td>{{property.value.value}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div id="node-instance-attributes-command" class="clickable topology-column-content-head" ng-click="isNodeInstanceAttributesCollapsed = !isNodeInstanceAttributesCollapsed">
+  <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstanceAttributesCollapsed, 'fa-caret-right': isNodeInstanceAttributesCollapsed}"></i>
+  {{'COMMON.ATTRIBUTES' | translate}}
+</div>
+<div class="row" uib-collapse="isNodeInstanceAttributesCollapsed">
+  <div class="col-md-12">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ 'APPLICATIONS.RUNTIME.KEY' | translate }}</th>
+          <th>{{ 'APPLICATIONS.RUNTIME.VALUE' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="(propKey, propVal) in selectedInstance.attributes">
+          <td>{{propKey}}</td>
+          <td>{{propVal}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div id="node-instance-runtimeprops-command" class="clickable topology-column-content-head" ng-click="isNodeInstanceRuntimePropsCollapsed = !isNodeInstanceRuntimePropsCollapsed">
+  <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstanceRuntimePropsCollapsed, 'fa-caret-right': isNodeInstanceRuntimePropsCollapsed}"></i>
+  {{'APPLICATIONS.RUNTIME.RUNTIMEPROPS' | translate}}
+</div>
+<div class="row" uib-collapse="isNodeInstanceRuntimePropsCollapsed">
+  <div class="col-md-12">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ 'APPLICATIONS.RUNTIME.KEY' | translate }}</th>
+          <th>{{ 'APPLICATIONS.RUNTIME.VALUE' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="(propKey, propVal) in selectedInstance.runtimeProperties">
+          <td>{{propKey}}</td>
+          <td>{{propVal}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<ng-include src="'views/_ref/applications/includes/runtime_editor_details_selected_operations.html'"></ng-include>

@@ -29,7 +29,7 @@ define(function () {
           return 'fa-warning text-warning';
 
         case 'FAILURE':
-        return 'fa-circle text-danger';
+          return 'fa-circle text-danger';
 
         case 'UNKNOWN':
           return 'fa-question-circle text-muted';
@@ -38,9 +38,9 @@ define(function () {
         case 'DEPLOYMENT_IN_PROGRESS':
         case 'UPDATE_IN_PROGRESS':
         case 'UNDEPLOYMENT_IN_PROGRESS':
-            return 'fa-spinner fa-spin text-primary';
+          return 'fa-spinner fa-spin text-primary';
         default:
-         return '';
+          return '';
       }
     },
     getStatusTextCss: function(environmentDTO) {
@@ -57,7 +57,7 @@ define(function () {
           return 'text-warning';
 
         case 'FAILURE':
-        return 'text-danger';
+          return 'text-danger';
 
         case 'UNKNOWN':
           return 'fa-question-circle text-muted';
@@ -66,9 +66,9 @@ define(function () {
         case 'DEPLOYMENT_IN_PROGRESS':
         case 'UPDATE_IN_PROGRESS':
         case 'UNDEPLOYMENT_IN_PROGRESS':
-            return 'text-primary';
+          return 'text-primary';
         default:
-         return '';
+          return '';
       }
     },
     getStatusColor: function(environmentDTO) {

@@ -24,17 +24,17 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextVersionCtrl',
-    ['$scope', '$translate', 'archiveVersions', 'applicationEnvironmentServices', 'deploymentTopologyServices', 'breadcrumbsService',
-      function ($scope, $translate, archiveVersionsResponse, applicationEnvironmentServices, deploymentTopologyServices, breadcrumbsService) {
+    ['$scope', '$state', '$translate', 'archiveVersions', 'applicationEnvironmentServices', 'deploymentTopologyServices', 'breadcrumbsService',
+      function ($scope, $state, $translate, archiveVersionsResponse, applicationEnvironmentServices, deploymentTopologyServices, breadcrumbsService) {
 
         breadcrumbsService.putConfig({
           state : 'applications.detail.environment.deploynext.version',
           text: function(){
             return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.VERSION');
           },
-          onClick: function(){
+          onClick: function() {
             $state.go('applications.detail.environment.deploynext.version');
-          } 
+          }
         });
 
         $scope.loading = false;

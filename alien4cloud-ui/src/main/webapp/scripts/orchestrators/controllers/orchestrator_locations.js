@@ -10,6 +10,7 @@ define(function(require) {
   require('scripts/orchestrators/controllers/orchestrator_location_config');
   require('scripts/orchestrators/controllers/orchestrator_location_nodes');
   require('scripts/orchestrators/controllers/orchestrator_location_policies');
+  require('scripts/orchestrators/controllers/orchestrator_location_secret');
   require('scripts/orchestrators/controllers/orchestrator_location_modifiers');
   require('scripts/orchestrators/controllers/orchestrator_location_metaprops');
   require('scripts/orchestrators/controllers/orchestrator_location_security');

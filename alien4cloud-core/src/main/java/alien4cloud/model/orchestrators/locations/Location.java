@@ -8,10 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alien4cloud.tosca.model.CSARDependency;
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.NestedObject;
-import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
@@ -22,6 +19,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.model.common.IDatableResource;
 import alien4cloud.model.common.IMetaProperties;
+import alien4cloud.model.secret.SecretProviderConfiguration;
 import alien4cloud.security.AbstractSecurityEnabledResource;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
@@ -68,4 +66,7 @@ public class Location extends AbstractSecurityEnabledResource implements IMetaPr
     private Date creationDate;
 
     private Date lastUpdateDate = new Date();
+
+    @ObjectField(enabled = false)
+    private SecretProviderConfiguration secretProviderConfiguration;
 }

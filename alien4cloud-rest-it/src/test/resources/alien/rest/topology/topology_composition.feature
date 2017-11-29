@@ -312,7 +312,7 @@ Feature: Topology composition
     And The application's deployment must succeed
     When I get the deployment topology for the current application
     Then I should receive a RestResponse with no error
-    When I register the rest response data as SPEL context of type "alien4cloud.rest.deployment.DeploymentTopologyDTO"
+    When I register the rest response data as SPEL context of type "alien4cloud.deployment.DeploymentTopologyDTO"
     Then The SPEL int expression "topology.nodeTemplates.size()" should return 5
     # the properties of the node MyCompute of the embeded topology are fed by the input -> the properties of the proxy node
     #And The SPEL expression "topology.nodeTemplates['myLAMP_MyCompute'].properties['os_arch'].value" should return "x86_64"
@@ -571,7 +571,7 @@ Feature: Topology composition
     And The application's deployment must succeed
     When I get the deployment topology for the current application
     Then I should receive a RestResponse with no error
-    When I register the rest response data as SPEL context of type "alien4cloud.rest.deployment.DeploymentTopologyDTO"
+    When I register the rest response data as SPEL context of type "alien4cloud.deployment.DeploymentTopologyDTO"
     Then The SPEL int expression "topology.nodeTemplates.size()" should return 6
     # the properties of the node MyCompute of the embeded topology are fed by the input -> the properties of the proxy node
     And The SPEL expression "topology.nodeTemplates['myLAMP_WWW_MyCompute'].capabilities['os'].properties['architecture'].value" should return "x86_64"
@@ -804,7 +804,7 @@ Feature: Topology composition
     And The application's deployment must succeed
     When I get the deployment topology for the current application
     Then I should receive a RestResponse with no error
-    When I register the rest response data as SPEL context of type "alien4cloud.rest.deployment.DeploymentTopologyDTO"
+    When I register the rest response data as SPEL context of type "alien4cloud.deployment.DeploymentTopologyDTO"
     Then The SPEL int expression "topology.nodeTemplates.size()" should return 5
     # the properties of the node MyCompute of the embeded topology are fed by the input -> the properties of the proxy node
     And The SPEL expression "topology.nodeTemplates['myLAMP_WWW_MyCompute'].capabilities['os'].properties['architecture'].value" should return "x86_64"

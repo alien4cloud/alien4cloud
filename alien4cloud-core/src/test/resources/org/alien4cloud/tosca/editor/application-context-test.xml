@@ -44,6 +44,7 @@
         <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap"/>
         <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap"/>
         <context:exclude-filter type="regex" expression="alien4cloud.security.groups.DefaultGroup"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.deployment.DeploymentTopologyDTOBuilder"/>
     </context:component-scan>
 
     <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory"/>

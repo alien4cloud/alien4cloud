@@ -63,7 +63,7 @@ import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.tosca.topology.TemplateBuilder;
 import alien4cloud.utils.ReflectionUtil;
@@ -325,8 +325,6 @@ public class LocationResourceService implements ILocationResourceService {
     private LocationResourceTemplate addResourceTemplate(Location location, String resourceName, String resourceTypeName) {
         NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName, location.getDependencies());
         NodeTemplate nodeTemplate = templateBuilder.buildNodeTemplate(location.getDependencies(), resourceType);
-        // FIXME Workaround to remove default scalable properties from compute
-        TopologyUtils.setNullScalingPolicy(nodeTemplate, resourceType);
         LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
         locationResourceTemplate.setGenerated(false);
         fillAndSaveLocationResourceTemplate(location, resourceName, locationResourceTemplate, resourceType, nodeTemplate);

@@ -43,8 +43,8 @@ define(function (require) {
     }
   ];
 
-  var EditGitByEnvCtrl = ['$scope', '$uibModalInstance', 'environmentsGitService', 'gitLocation', 'environmentId', 'toaster', '$translate',
-    function($scope, $uibModalInstance, environmentsGitService, gitLocation, environmentId, toaster, $translate) {
+  var EditGitByEnvCtrl = ['$scope', '$uibModalInstance', 'environmentsGitService', 'gitLocation', 'environmentId',
+    function($scope, $uibModalInstance, environmentsGitService, gitLocation, environmentId) {
       $scope.originalGitLocation = gitLocation;
       $scope.gitLocation = _.cloneDeep(gitLocation);
       $scope.gitOwner = $scope.gitLocation.alienManaged ? 'alien' : 'user';
@@ -67,7 +67,7 @@ define(function (require) {
               password: _.get($scope.gitLocation, 'credential.password'),
               path: $scope.gitLocation.path,
               branch: $scope.gitLocation.branch
-            }
+            };
             environmentsGitService.updateDeploymentConfigGitToCustom({}, angular.toJson(request));
           }
           $uibModalInstance.close($scope.gitLocation);
@@ -174,7 +174,7 @@ define(function (require) {
 
       // Modal to configure a custom git
       $scope.editGit = function(environmentId) {
-        var modalInstance = $uibModal.open({
+        $uibModal.open({
           templateUrl: 'views/_ref/applications/applications_detail_environments_git.html',
           controller: EditGitByEnvCtrl,
           scope: $scope,

@@ -12,4 +12,6 @@ import lombok.Setter;
 public class DeployApplicationRequest {
     private String applicationId;
     private String applicationEnvironmentId;
+    private Object secretProviderCredentials;
+    private String secretProviderPluginName;
 }

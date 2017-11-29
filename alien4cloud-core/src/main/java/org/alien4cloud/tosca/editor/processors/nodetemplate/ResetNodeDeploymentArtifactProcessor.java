@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ResetNodeDeploymentArtifactOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.Csar;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 
 /**
  * Process an {@link ResetNodeDeploymentArtifactOperation}.

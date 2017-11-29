@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import alien4cloud.model.deployment.matching.ILocationMatch;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry;
@@ -32,6 +33,19 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
     @Inject
     private PluginModifierRegistry pluginModifierRegistry;
 
+    /**
+     * Add locations dependencies
+     */
+    @Override
+    protected void init(Topology topology, FlowExecutionContext context) {
+        List<ILocationMatch> locations = (List<ILocationMatch>) context.getExecutionCache().get(FlowExecutionContext.LOCATION_MATCH_CACHE_KEY);
+        for (ILocationMatch location : locations) {
+            // FIXME manage conflicting dependencies by fetching types from latest version
+            topology.getDependencies().addAll(location.getLocation().getDependencies());
+        }
+        ToscaContext.get().resetDependencies(topology.getDependencies());
+    }
+
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
         super.process(topology, context);
@@ -55,12 +69,12 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
 
             try {
                 ITopologyModifier modifier = pluginModifierRegistry.getPluginBean(policyImpl[0], policyImpl[1]);
-                List<ITopologyModifier> phaseModifiers = (List<ITopologyModifier>) context.getExecutionCache().get(policyImpl[2]);
-                if (phaseModifiers == null) {
-                    phaseModifiers = Lists.newArrayList();
-                    context.getExecutionCache().put(policyImpl[2], phaseModifiers);
+                List<ITopologyModifier> phaseModifiers = (List<ITopologyModifier>) context.getExecutionCache().computeIfAbsent(policyImpl[2],
+                        s -> Lists.<ITopologyModifier> newArrayList());
+                // No need to add a modifier more than once for a phase
+                if (!phaseModifiers.contains(modifier)) {
+                    phaseModifiers.add(modifier);
                 }
-                phaseModifiers.add(modifier);
             } catch (MissingPluginException e) {
                 context.log().error("Implementation specified for policy type {} that refers to plugin bean {}, {} cannot be found.", policyTemplate.getType(),
                         policyImpl[0], policyImpl[1]);
@@ -71,6 +85,11 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
     @Override
     protected String getOriginalTemplateCacheKey() {
         return FlowExecutionContext.MATCHING_ORIGINAL_POLICIES;
+    }
+
+    @Override
+    protected String getReplacedTemplateCacheKey() {
+        return FlowExecutionContext.MATCHING_REPLACED_POLICIES;
     }
 
     @Override

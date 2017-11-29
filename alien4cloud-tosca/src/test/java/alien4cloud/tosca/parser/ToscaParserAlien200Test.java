@@ -46,6 +46,24 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         return "alien_dsl_2_0_0";
     }
 
+    private void mockNormativeTypes() {
+        Mockito.reset(csarRepositorySearchService);
+        Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
+        NodeType nodeType = new NodeType();
+        nodeType.setElementId("tosca.nodes.Root");
+        nodeType.setArchiveName("tosca-normative-types");
+        nodeType.setArchiveVersion("1.0.0-ALIEN14");
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(nodeType);
+    }
+
+    @Test
+    public void testParseSimpleSecret() throws FileNotFoundException, ParsingException {
+        mockNormativeTypes();
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "get-secret.yml"));
+        assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+    }
+
     @Test
     public void testPolicyTypeParsing() throws FileNotFoundException, ParsingException {
         Mockito.reset(csarRepositorySearchService);
@@ -254,10 +272,8 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         policyType.setElementId("org.alien4cloud.sample.SamplePolicy");
         policyType.setArchiveName("org.alien4cloud.test.policies.PolicyTemplate");
         policyType.setArchiveVersion("2.0.0-SNAPSHOT");
-        Mockito.when(
-                csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("org.alien4cloud.sample.SamplePolicy"),
-                        Mockito.any(Set.class)))
-                .thenReturn(policyType);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(PolicyType.class), Mockito.eq("org.alien4cloud.sample.SamplePolicy"),
+                Mockito.any(Set.class))).thenReturn(policyType);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-policy-template-fail.yml"));
         assertEquals(1, parsingResult.getContext().getParsingErrors().size());
@@ -337,8 +353,10 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertTrue(wf.getSteps().get("Some_other_inline_Compute_stop").getOnSuccess().contains("Some_other_inline_Compute_uninstall"));
         assertTrue(wf.getSteps().get("Some_other_inline_Compute_uninstall").getPrecedingSteps().contains("Some_other_inline_Compute_stop"));
 
-        assertTrue(wf.getSteps().get("inception_inline_inception_inline_Compute_stop").getOnSuccess().contains("inception_inline_inception_inline_Compute_uninstall"));
-        assertTrue(wf.getSteps().get("inception_inline_inception_inline_Compute_uninstall").getPrecedingSteps().contains("inception_inline_inception_inline_Compute_stop"));
+        assertTrue(wf.getSteps().get("inception_inline_inception_inline_Compute_stop").getOnSuccess()
+                .contains("inception_inline_inception_inline_Compute_uninstall"));
+        assertTrue(wf.getSteps().get("inception_inline_inception_inline_Compute_uninstall").getPrecedingSteps()
+                .contains("inception_inline_inception_inline_Compute_stop"));
     }
 
     @Test

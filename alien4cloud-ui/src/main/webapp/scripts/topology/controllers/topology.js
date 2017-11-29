@@ -11,6 +11,7 @@ define(function (require) {
 
   require('scripts/common/directives/drag_drop');
   require('scripts/common/directives/property_display');
+  require('scripts/common/directives/secret_display');
   require('scripts/common/directives/simple_modal');
   require('scripts/components/services/component_services');
   require('scripts/tosca/services/tosca_service');
@@ -25,6 +26,7 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_outputs');
   require('scripts/topology/controllers/topology_editor_policies');
   require('scripts/topology/controllers/topology_editor_properties');
+  require('scripts/topology/controllers/topology_editor_secrets');
   require('scripts/topology/controllers/topology_editor_relationships');
   require('scripts/topology/controllers/topology_editor_substitution');
   require('scripts/topology/controllers/topology_editor_dependencies');
@@ -48,6 +50,7 @@ define(function (require) {
     'topoEditOutputs',
     'topoEditPolicies',
     'topoEditProperties',
+    'topoEditSecrets',
     'topoEditRelationships',
     'topoEditSubstitution',
     'topoEditDependencies',
@@ -63,6 +66,7 @@ define(function (require) {
     topoEditOutputs,
     topoEditPolicies,
     topoEditProperties,
+    topoEditSecrets,
     topoEditRelationships,
     topoEditSubstitution,
     topoEditDependencies) {
@@ -98,6 +102,7 @@ define(function (require) {
       topoEditOutputs($scope);
       topoEditPolicies($scope);
       topoEditProperties($scope);
+      topoEditSecrets($scope);
       topoEditRelationships($scope);
       topoEditSubstitution($scope);
       topoEditDependencies($scope);

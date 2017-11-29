@@ -1,11 +1,21 @@
 package alien4cloud.model.deployment;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
+import alien4cloud.json.deserializer.NodeTemplateDeserializer;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
@@ -19,17 +29,10 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Deployment topology is the topology for a given environment.
@@ -89,6 +92,11 @@ public class DeploymentTopology extends Topology {
     @ObjectField(enabled = false)
     private Map<String, NodeTemplate> originalNodes = Maps.newHashMap();
 
+    @ObjectField(enabled = false)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = NodeTemplateDeserializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
+    private Map<String, NodeTemplate> matchReplacedNodes = Maps.newHashMap();
+
     /** Configuration of the deployment properties specific to the orchestrator if any. */
     @ObjectField(enabled = false)
     private Map<String, String> providerDeploymentProperties;
@@ -96,11 +104,11 @@ public class DeploymentTopology extends Topology {
     /** Migration Note: all data previously stored into 'inputProperties' should be moved into 'deployerInputProperties' */
     @ObjectField(enabled = false)
     @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
-    private Map<String, PropertyValue> deployerInputProperties;
+    private Map<String, AbstractPropertyValue> deployerInputProperties;
 
     @JsonIgnore
-    public Map<String, PropertyValue> getAllInputProperties() {
-        HashMap<String, PropertyValue> map = Maps.newHashMap();
+    public Map<String, AbstractPropertyValue> getAllInputProperties() {
+        HashMap<String, AbstractPropertyValue> map = Maps.newHashMap();
         if (deployerInputProperties != null) {
             map.putAll(deployerInputProperties);
         }

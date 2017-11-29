@@ -2,10 +2,16 @@ package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import alien4cloud.model.deployment.matching.ILocationMatch;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.tosca.context.ToscaContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.LocationMatchingModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -13,6 +19,9 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
+import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
@@ -29,9 +38,27 @@ import alien4cloud.utils.CollectionUtils;
 @Component
 public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier<NodeTemplate, LocationResourceTemplate> {
 
+    /**
+     * Add locations dependencies
+     */
+    @Override
+    protected void init(Topology topology, FlowExecutionContext context) {
+        List<ILocationMatch> locations = (List<ILocationMatch>) context.getExecutionCache().get(FlowExecutionContext.LOCATION_MATCH_CACHE_KEY);
+        for (ILocationMatch location : locations) {
+            // FIXME manage conflicting dependencies by fetching types from latest version
+            topology.getDependencies().addAll(location.getLocation().getDependencies());
+        }
+        ToscaContext.get().resetDependencies(topology.getDependencies());
+    }
+
     @Override
     protected String getOriginalTemplateCacheKey() {
         return FlowExecutionContext.MATCHING_ORIGINAL_NODES;
+    }
+
+    @Override
+    protected String getReplacedTemplateCacheKey() {
+        return FlowExecutionContext.MATCHING_REPLACED_NODES;
     }
 
     @Override
@@ -55,19 +82,26 @@ public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier
     }
 
     @Override
-    protected void processSpecificReplacement(NodeTemplate replacingNode, NodeTemplate replacedTopologyNode,
-                                              Set<String> topologyNotMergedProps) {
+    protected void processSpecificReplacement(NodeTemplate replacingNode, NodeTemplate replacedTopologyNode, Set<String> topologyNotMergedProps) {
         // Also merge relationships
         replacingNode.setRelationships(replacedTopologyNode.getRelationships());
         // The location node is the node from orchestrator which must be a child type of the abstract topology node so should loop on this node to do
         // not miss any capability
         for (Map.Entry<String, Capability> locationCapabilityEntry : safe(replacingNode.getCapabilities()).entrySet()) {
             // Merge capabilities properties from the topology into the substituted node un-set properties
+            CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, locationCapabilityEntry.getValue().getType());
+
             Capability locationCapability = locationCapabilityEntry.getValue();
             Capability abstractCapability = safe(replacedTopologyNode.getCapabilities()).get(locationCapabilityEntry.getKey());
+
+            // Ignore injection of location values for scalable capability
             if (abstractCapability != null && MapUtils.isNotEmpty(abstractCapability.getProperties())) {
-                locationCapability.setProperties(
-                        CollectionUtils.merge(abstractCapability.getProperties(), locationCapability.getProperties(), true, topologyNotMergedProps));
+                if (capabilityType != null && !ToscaTypeUtils.isOfType(capabilityType, NormativeCapabilityTypes.SCALABLE)) {
+                    locationCapability.setProperties(
+                            CollectionUtils.merge(abstractCapability.getProperties(), locationCapability.getProperties(), true, topologyNotMergedProps));
+                } else {
+                    locationCapability.setProperties(abstractCapability.getProperties());
+                }
             }
         }
     }

@@ -26,6 +26,6 @@ define(function (require) {
   });
 
   regsterDeploymentHistoryStates('admin.orchestrators.details.deployments',function($stateParams) {
-    return {orchestratorId: $stateParams.id,};});
-
+    return { orchestratorId: $stateParams.id };
+  });
 }); // define

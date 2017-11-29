@@ -2,18 +2,11 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import alien4cloud.utils.AlienUtils;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-
-import alien4cloud.topology.TopologyUtils;
-
-import org.alien4cloud.tosca.editor.EditionContextManager;
 
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AbstractNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
-
-import java.util.Map;
 
 /**
  * Abstract operation to get a required node template.

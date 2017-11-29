@@ -28,13 +28,15 @@ public class FlowExecutionContext {
     public static final String MATCHED_NODE_LOCATION_TEMPLATES_BY_NODE_ID_MAP = "matched_node_location_templates_by_node_id_map";
     public static final String MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP = "matched_node_location_templates_by_id_map";
     public static final String SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP = "selected_match_node_location_template_by_node_id_map";
-    public static final String MATCHING_ORIGINAL_NODES = "matching_original_nodes";
-    public static final String MATCHING_SUBSTITUTION_REQUEST = "matching_substitution_request";
+    public static final String MATCHING_ORIGINAL_NODES = "matching_original_nodes"; // Nodes before matching.
+    public static final String MATCHING_REPLACED_NODES = "matching_replaced_nodes"; // Nodes after matching.
     /** Location resource template candidates per policy template key. */
     public static final String MATCHED_POLICY_LOCATION_TEMPLATES_BY_NODE_ID_MAP = "matched_policy_location_templates_by_node_id_map";
     public static final String MATCHED_POLICY_LOCATION_TEMPLATES_BY_ID_MAP = "matched_policy_location_templates_by_id_map";
     public static final String SELECTED_MATCH_POLICY_LOCATION_TEMPLATE_BY_NODE_ID_MAP = "selected_match_policy_location_template_by_node_id_map";
     public static final String MATCHING_ORIGINAL_POLICIES = "matching_original_policies";
+    public static final String SECRET_CREDENTIAL = "secret_credential";
+    public static final String MATCHING_REPLACED_POLICIES = "matching_replaced_policies";
 
     /** Injected dao for configuration retrieval management. */
     private final DeploymentConfigurationDao deploymentConfigurationDao;

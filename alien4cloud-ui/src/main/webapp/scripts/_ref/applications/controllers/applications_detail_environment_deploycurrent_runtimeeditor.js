@@ -12,6 +12,7 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_workflows');
   require('scripts/orchestrators/services/orchestrator_location_service');
   require('scripts/orchestrators/services/orchestrator_service');
+  require('scripts/_ref/applications/services/secret_display_modal');
 
   states.state('applications.detail.environment.deploycurrent.runtimeeditor', {
     url: '/runtime_editor',
@@ -36,10 +37,13 @@ define(function (require) {
   '$interval',
   'toscaService',
   'topoEditDisplay',
+  'topoEditSecrets',
+  'topoEditProperties',
   'breadcrumbsService',
   '$state',
   'locationService',
   'orchestratorService',
+  'secretDisplayModal',
   function($scope,
     applicationServices,
     $translate,
@@ -49,10 +53,13 @@ define(function (require) {
     $interval,
     toscaService,
     topoEditDisplay,
+    topoEditSecrets,
+    topoEditProperties,
     breadcrumbsService,
     $state,
     locationService,
-    orchestratorService) {
+    orchestratorService,
+    secretDisplayModal) {
 
     breadcrumbsService.putConfig({
       state : 'applications.detail.environment.deploycurrent.runtimeeditor',
@@ -72,8 +79,8 @@ define(function (require) {
       service: { active: false, size: 500, selector: '#runtime-service-box', only: ['topology', 'service'], title: 'SERVICES.MANAGED.TITLE', fa: 'fa-globe' }
     };
     topoEditDisplay($scope, '#topology-editor');
-    $scope.view = 'RENDERED';
-    $scope.triggerTopologyRefresh = null;
+    topoEditSecrets($scope);
+    topoEditProperties($scope);
 
     $scope.eventTypeFilters = [
       { 'value': 'ALL' },
@@ -88,24 +95,22 @@ define(function (require) {
       $scope.selectedEventTypeFilter = filter;
     };
 
-    // check if docker type
-    function isDockerType(nodeTemplate) {
-      if (_.undefined($scope.topology) || _.undefined(nodeTemplate)) {
-        return false;
-      }
-      return toscaService.isDockerType(nodeTemplate.type, $scope.topology.nodeTypes);
-    }
-
     function refreshSelectedNodeInstancesCount() {
-      if (_.defined($scope.selectedNodeTemplate)) {
-        if (_.defined($scope.topology.instances) && _.defined($scope.topology.instances[$scope.selectedNodeTemplate.name])) {
-          $scope.selectedNodeTemplate.instancesCount = Object.keys($scope.topology.instances[$scope.selectedNodeTemplate.name]).length;
-        } else {
-          $scope.selectedNodeTemplate.instancesCount = 0;
-        }
-        if (_.undefined($scope.selectedNodeTemplate.newInstancesCount)) {
-          $scope.selectedNodeTemplate.newInstancesCount = $scope.selectedNodeTemplate.instancesCount;
-        }
+      if (_.undefined($scope.selectedNodeTemplate)) {
+        return;
+      }
+
+      if (_.defined($scope.topology.instances) && _.defined($scope.topology.instances[$scope.selectedNodeTemplate.name])) {
+        var selectedNodeInstances = $scope.topology.instances[$scope.selectedNodeTemplate.name];
+        $scope.selectedNodeTemplate.instancesCount = _.size(selectedNodeInstances);
+      } else {
+        $scope.selectedNodeTemplate.instancesCount = 0;
+      }
+      if (_.undefined($scope.selectedNodeTemplate.newInstancesCount)) {
+        $scope.selectedNodeTemplate.newInstancesCount = $scope.selectedNodeTemplate.instancesCount;
+      }
+      if(_.defined($scope.selectedNodeTemplate.clusterScalingControll)) {
+        $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount = $scope.selectedNodeTemplate.clusterScalingControll.initialInstances;
       }
     }
 
@@ -147,9 +152,7 @@ define(function (require) {
             }
           });
         });
-
       }
-
     };
 
     $scope.checkProperty = function(definition, value, propertyName) {
@@ -167,47 +170,52 @@ define(function (require) {
       }).$promise;
     };
 
-    $scope.selectNodeTemplate = function(newSelectedName, oldSelectedName) {
-      var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName] || $scope.selectedNodeTemplate;
-      if (oldSelected) {
-        oldSelected.selected = false;
-      }
-
-      var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
-      newSelected.selected = true;
-
-      $scope.selectedNodeTemplate = newSelected;
-      $scope.triggerTopologyRefresh = {};
-      $scope.selectedNodeTemplate.name = newSelectedName;
-      if ($scope.isComputeType($scope.selectedNodeTemplate) || isDockerType($scope.selectedNodeTemplate)) {
-        $scope.selectedNodeTemplate.scalingPolicy = toscaService.getScalingPolicy($scope.selectedNodeTemplate);
-      }
-      // custom interface if exists
-      var nodetype = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type];
-      delete $scope.selectedNodeCustomInterfaces;
-      if (nodetype.interfaces) {
-        $scope.selectedNodeCustomInterfaces = {};
-        angular.forEach(nodetype.interfaces, function(interfaceObj, interfaceName) {
-          if (interfaceName !== toscaService.standardInterfaceName) {
-            $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
-          }
-        });
-        angular.forEach($scope.selectedNodeTemplate.interfaces, function(interfaceObj, interfaceName) {
-          if (interfaceName !== toscaService.standardInterfaceName) {
-            $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
-          }
-        });
-        if (_.isNotEmpty($scope.selectedNodeCustomInterfaces)) {
-          // create and inject property definition in order to use <property-display> directive for input parameters
-          injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterfaces);
-        } else {
-          delete $scope.selectedNodeCustomInterfaces;
+    $scope.graphControl = {};
+    $scope.callbacks = {
+      selectNodeTemplate: function(newSelectedName, oldSelectedName) {
+        var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName] || $scope.selectedNodeTemplate;
+        if (oldSelected) {
+          oldSelected.selected = false;
         }
+
+        var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
+        newSelected.selected = true;
+
+        $scope.selectedNodeTemplate = newSelected;
+        $scope.$broadcast('editorSelectionChangedEvent', { nodeNames: [ newSelectedName ] });
+        $scope.selectedNodeTemplate.name = newSelectedName;
+
+        if (_.isEmpty(toscaService.getHostedOnRelationships($scope.selectedNodeTemplate, $scope.topology.relationshipTypes))) {
+          $scope.selectedNodeTemplate.scalingPolicy = toscaService.getScalingPolicy($scope.selectedNodeTemplate, $scope.topology.capabilityTypes);
+          $scope.selectedNodeTemplate.clusterScalingControll = toscaService.getClusterControllerPolicy($scope.selectedNodeTemplate, $scope.topology.capabilityTypes);
+        }
+        // custom interface if exists
+        var nodetype = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type];
+        delete $scope.selectedNodeCustomInterfaces;
+        if (nodetype.interfaces) {
+          $scope.selectedNodeCustomInterfaces = {};
+          angular.forEach(nodetype.interfaces, function(interfaceObj, interfaceName) {
+            if (interfaceName !== toscaService.standardInterfaceName) {
+              $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
+            }
+          });
+          angular.forEach($scope.selectedNodeTemplate.interfaces, function(interfaceObj, interfaceName) {
+            if (interfaceName !== toscaService.standardInterfaceName) {
+              $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
+            }
+          });
+          if (_.isNotEmpty($scope.selectedNodeCustomInterfaces)) {
+            // create and inject property definition in order to use <property-display> directive for input parameters
+            injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterfaces);
+          } else {
+            delete $scope.selectedNodeCustomInterfaces;
+          }
+        }
+        refreshSelectedNodeInstancesCount();
+        $scope.clearInstanceSelection();
+        $scope.display.set('details', true);
+        $scope.$apply();
       }
-      refreshSelectedNodeInstancesCount();
-      $scope.clearInstanceSelection();
-      $scope.display.set('details', true);
-      $scope.$apply();
     };
 
     $scope.selectInstance = function(id) {
@@ -228,17 +236,45 @@ define(function (require) {
       return $scope.selectedNodeTemplate && $scope.selectedNodeTemplate.scalingPolicy;
     };
 
+    $scope.isClusterController = function() {
+      return $scope.selectedNodeTemplate && $scope.selectedNodeTemplate.clusterScalingControll;
+    };
+
+    applicationServices.getSecretProviderConfigurationsForCurrentDeployment.get({
+      applicationId: $scope.application.id,
+      applicationEnvironmentId: $scope.environment.id
+    }, undefined, function(success) {
+      if (_.defined(success.data)) {
+        $scope.secretProviderConfigurations = success.data;
+      }
+    });
+
     $scope.scale = function(newValue) {
-      if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
+      var targetInstanceDiff;
+      if(_.defined($scope.selectedNodeTemplate.clusterScalingControll)) {
+        targetInstanceDiff = newValue - $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount;
+      } else {
+        if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
+          return;
+        }
+        targetInstanceDiff = newValue - $scope.selectedNodeTemplate.instancesCount;
+      }
+      secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
+        var secretProviderInfoRequest = {};
+        if (_.defined(secretProviderInfo)) {
+          secretProviderInfoRequest.secretProviderConfiguration = $scope.secretProviderConfigurations[0];
+          secretProviderInfoRequest.credentials = secretProviderInfo.credentials;
+        }
         applicationServices.scale({
           applicationId: $scope.application.id,
           nodeTemplateId: $scope.selectedNodeTemplate.name,
-          instances: (newValue - $scope.selectedNodeTemplate.instancesCount),
+          instances: targetInstanceDiff,
           applicationEnvironmentId: $scope.environment.id
-        }, undefined, function success() {
+        }, angular.toJson(secretProviderInfoRequest), function success() {
+          $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount = newValue;
           $scope.loadTopologyRuntime();
         });
-      }
+      });
     };
 
     $scope.filter = null;
@@ -380,7 +416,9 @@ define(function (require) {
       if( _.defined(newValue) && (firstLoad || !_.isEqual(oldValue, newValue)) ) {
         refreshSelectedNodeInstancesCount();
         refreshNodeInstanceInMaintenanceMode();
-        $scope.triggerTopologyRefresh = {};
+        $scope.$broadcast('topologyRefreshedEvent', {
+          topology: $scope.topology
+        });
         firstLoad=false;
       }
     });
@@ -403,6 +441,16 @@ define(function (require) {
         });
       }
     });
+
+    // For saving the secret path
+    $scope.saveSecret = function(scope, secretPath) {
+      if (_.undefined(secretPath)) {
+        return "";
+      }
+      if (secretPath === "") {
+        return "The path can not be null.";
+      }
+    }
   }
 ]);
 });

@@ -16,7 +16,8 @@ define(function (require) {
         'pre-matched-policy-setup',
         'post-matched-policy-setup',
         'pre-matched-node-setup',
-        'post-matched-node-setup' ];
+        'post-matched-node-setup'
+      ];
 
       $scope.modifierReference = modifierReference;
 

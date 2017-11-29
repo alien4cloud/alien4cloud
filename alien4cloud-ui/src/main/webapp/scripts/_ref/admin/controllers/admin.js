@@ -34,6 +34,7 @@ define(function (require) {
   require('scripts/_ref/admin/controllers/admin_server');
   require('scripts/_ref/admin/controllers/admin_audit');
   require('scripts/meta-props/controllers/meta_props_list');
+  require('scripts/_ref/admin/controllers/admin_repositories');
 
   return admin;
 });

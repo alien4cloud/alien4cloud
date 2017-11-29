@@ -3,7 +3,6 @@ package org.alien4cloud.tosca.editor.processors.groups;
 import java.util.Map;
 
 import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.RenameGroupOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.Csar;
@@ -15,7 +14,7 @@ import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 
-import alien4cloud.topology.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 
 /**
  * Rename a group in the topology under edition.

@@ -60,7 +60,6 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
-import alien4cloud.topology.TopologyUtils;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
@@ -245,9 +244,6 @@ public class LocationService {
                         location.getDependencies());
                 nodeType.getDerivedFrom().add(0, template.getTemplate().getType());
                 template.setTypes(nodeType.getDerivedFrom());
-                // TODO improve this as it is a workaround to remove default scalable properties from compute
-                TopologyUtils.setNullScalingPolicy(template.getTemplate(), nodeType);
-
                 LocationTemplateCreated event = new LocationTemplateCreated(this);
                 event.setTemplate(template);
                 event.setLocation(location);

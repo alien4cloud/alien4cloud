@@ -41,7 +41,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
 import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
-import alien4cloud.rest.deployment.DeploymentTopologyDTO;
+import alien4cloud.deployment.DeploymentTopologyDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
@@ -339,7 +339,7 @@ public class DeploymentTopologyStepDefinitions {
         }
     }
 
-    private void assertPropMapContains(Map<String, PropertyValue> map, Map<String, AbstractPropertyValue> expectedMap) {
+    private void assertPropMapContains(Map<String, AbstractPropertyValue> map, Map<String, AbstractPropertyValue> expectedMap) {
         map = safe(map);
         for (Entry<String, AbstractPropertyValue> entry : expectedMap.entrySet()) {
             assertEquals(entry.getValue(), map.get(entry.getKey()));

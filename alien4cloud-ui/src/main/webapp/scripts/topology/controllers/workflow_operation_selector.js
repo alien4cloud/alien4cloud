@@ -1,29 +1,30 @@
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
+  var _ = require('lodash');
   require('angular-ui-ace');
-  
+
   require('angular-tree-control');
-  
+
   modules.get('a4c-topology-editor').controller('WfOperationSelectorController', [
     '$scope', '$uibModalInstance', 'topologyDTO',
     function ($scope, $uibModalInstance, topologyDTO) {
       $scope.topologyDTO = topologyDTO;
-      
+
       $scope.selectedNodeTemplate = undefined;
       $scope.selectedInterface = undefined;
       $scope.selectedOperation = undefined;
-      
+
       $scope.nodeTemplateItems = [];
       $scope.relationshipTemplateItems = [];
       $scope.interfaceItems = [];
       $scope.operationItems = [];
-      
+
       for (var nodeId in topologyDTO.topology.nodeTemplates) {
         $scope.nodeTemplateItems.push(nodeId);
       }
-      
+
       var fillInterfaceItems = function (interfaces) {
         for (var nodeInterfaceName in interfaces) {
           if ($scope.interfaceItems.indexOf(nodeInterfaceName) < 0) {
@@ -31,7 +32,7 @@ define(function (require) {
           }
         }
       };
-      
+
       var fillOperationItems = function (interfaces, interfaceName) {
         if (interfaces && interfaces[interfaceName]) {
           for (var operationName in interfaces[interfaceName].operations) {
@@ -41,7 +42,7 @@ define(function (require) {
           }
         }
       };
-      
+
       $scope.selectNodeTemplate = function () {
         $scope.interfaceItems = [];
         $scope.operationItems = [];
@@ -61,7 +62,7 @@ define(function (require) {
           }
         }
       };
-      
+
       $scope.selectRelationship = function () {
         $scope.interfaceItems = [];
         $scope.operationItems = [];
@@ -74,13 +75,13 @@ define(function (require) {
         // some interfaces can be defined at node template level
         fillInterfaceItems(relationshipType.interfaces);
       };
-      
+
       $scope.selectInterface = function () {
         $scope.operationItems = [];
         delete $scope.selectedOperation;
         var nodeTemplate = $scope.topologyDTO.topology.nodeTemplates[$scope.selectedNodeTemplate];
         var nodeType = $scope.topologyDTO.nodeTypes[nodeTemplate.type];
-        
+
         if (_.isEmpty($scope.selectedRelationship)) {
           fillOperationItems(nodeType.interfaces, $scope.selectedInterface);
           fillOperationItems(nodeTemplate.interfaces, $scope.selectedInterface);
@@ -91,7 +92,7 @@ define(function (require) {
           fillOperationItems(relationshipTemplate.interfaces, $scope.selectedInterface);
         }
       };
-      
+
       $scope.submit = function () {
         $uibModalInstance.close({
           node: $scope.selectedNodeTemplate,
@@ -100,7 +101,7 @@ define(function (require) {
           operation: $scope.selectedOperation
         });
       };
-      
+
       $scope.cancel = function () {
         $uibModalInstance.dismiss('cancel');
       };

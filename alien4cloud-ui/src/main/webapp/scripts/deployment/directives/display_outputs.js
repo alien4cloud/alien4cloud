@@ -41,12 +41,15 @@ define(function (require) {
 
     function refreshOutputAttributes(scope){
       scope.outputAttributesValue = {};
+      if(_.undefined(scope.outputAttributes)) {
+        scope.outputAttributes = {};
+      }
       _.forEach(scope.topology.instances, function(instancesInfo, nodeId){
         scope.outputAttributesValue[nodeId] = {};
         _.forEach(instancesInfo, function(instanceInfo, instanceId){
           scope.outputAttributesValue[nodeId][instanceId] = {};
           _.forEach(scope.outputAttributes[nodeId], function(outputAttr){
-              scope.outputAttributesValue[nodeId][instanceId][outputAttr] = _.get(instanceInfo.attributes, outputAttr);
+            scope.outputAttributesValue[nodeId][instanceId][outputAttr] = _.get(instanceInfo.attributes, outputAttr);
           });
           if (_.isEmpty(scope.outputAttributesValue[nodeId][instanceId])) {
             delete scope.outputAttributesValue[nodeId][instanceId];

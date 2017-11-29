@@ -1,7 +1,5 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
 import alien4cloud.deployment.DeploymentInputService;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -14,7 +12,12 @@ import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsCon
 import org.alien4cloud.alm.deployment.configuration.services.InputService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Requirement;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.utils.FunctionEvaluator;
 import org.alien4cloud.tosca.utils.FunctionEvaluatorContext;
 import org.springframework.stereotype.Component;
@@ -40,12 +43,12 @@ public class InputsModifier implements ITopologyModifier {
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
-        EnvironmentContext environmentContext = context.getEnvironmentContext()
-                .orElseThrow(() -> new IllegalArgumentException("Input modifier requires an environment context."));
+        EnvironmentContext environmentContext = context.getEnvironmentContext().orElseThrow(
+                () -> new IllegalArgumentException("Input modifier requires an environment context."));
         ApplicationEnvironment environment = environmentContext.getEnvironment();
-        DeploymentInputs deploymentInputs = context.getConfiguration(DeploymentInputs.class, InputsModifier.class.getSimpleName())
-                .orElse(new DeploymentInputs(environment.getTopologyVersion(), environment.getId()));
-        if(deploymentInputs.getInputs() == null) {
+        DeploymentInputs deploymentInputs = context.getConfiguration(DeploymentInputs.class, InputsModifier.class.getSimpleName()).orElse(
+                new DeploymentInputs(environment.getTopologyVersion(), environment.getId()));
+        if (deploymentInputs.getInputs() == null) {
             deploymentInputs.setInputs(Maps.newHashMap());
         }
 
@@ -64,10 +67,10 @@ public class InputsModifier implements ITopologyModifier {
             }
         }
 
-        PreconfiguredInputsConfiguration preconfiguredInputsConfiguration = context.getConfiguration(PreconfiguredInputsConfiguration.class, InputsModifier.class.getSimpleName())
-                .orElseThrow(() -> new IllegalStateException("PreconfiguredInputsConfiguration must be in the context"));
+        PreconfiguredInputsConfiguration preconfiguredInputsConfiguration = context.getConfiguration(PreconfiguredInputsConfiguration.class,
+                InputsModifier.class.getSimpleName()).orElseThrow(() -> new IllegalStateException("PreconfiguredInputsConfiguration must be in the context"));
 
-        Map<String, PropertyValue> inputValues = Maps.newHashMap(deploymentInputs.getInputs());
+        Map<String, AbstractPropertyValue> inputValues = Maps.newHashMap(deploymentInputs.getInputs());
         inputValues.putAll(applicationInputs);
         inputValues.putAll(locationInputs);
         inputValues.putAll(preconfiguredInputsConfiguration.getInputs());
@@ -105,8 +108,10 @@ public class InputsModifier implements ITopologyModifier {
     private void processGetInput(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template, Map<String, AbstractPropertyValue> properties) {
         for (Map.Entry<String, AbstractPropertyValue> propEntry : safe(properties).entrySet()) {
             try {
-                PropertyValue value = FunctionEvaluator.resolveValue(evaluatorContext, template, properties, propEntry.getValue());
-                propEntry.setValue(value);
+                AbstractPropertyValue value = FunctionEvaluator.tryResolveValue(evaluatorContext, template, properties, propEntry.getValue());
+                if (propEntry.getValue() != value) {
+                    propEntry.setValue(value);
+                }
             } catch (IllegalArgumentException e) {
                 // FIXME we should add an error log rather than throwing the exception here. See internal of FunctionEvaluator.resolveValue and especially
                 // concat processing.

@@ -1073,6 +1073,18 @@
       },
       "SECURITY": "Security",
       "SERVICES": "Services",
+      "SECRETS" : {
+        "SECRET": "Secret",
+        "NEED_SECRET": " might need credentials to resolve secret",
+        "PLUGIN_NAME": "Plugin name",
+        "VAULT_CREDENTIALS": "Vaut Credentials",
+        "NO_SECRET_PLUGIN": "No secret plugin found.",
+        "TOKEN": "Token",
+        "LDAP": "LDAP",
+        "AUTHENTICATION_METHOD": "Authentication method",
+        "VAULT_URL": "Vault URL",
+        "VAULT_CERTIFICATE": "Vault Certificate"
+      },
       "MODIFIER": {
         "MODIFIER": "Topology modifier",
         "PLUGIN": "Plugin id",

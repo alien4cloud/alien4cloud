@@ -1,0 +1,20 @@
+<div class="topology-column-content-head">
+  <span>
+    <i class="fa fa-info"></i> {{'DETAILS' | translate}}
+  </span>
+  <span id='closeDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.set('details', false)">
+    <i class="fa fa-remove close-panel"></i>
+  </span>
+</div>
+<!-- Main -->
+<div ng-show="!selectedNodeTemplate">
+  <ng-include src="'views/_ref/applications/includes/runtime_editor_details_deployment.html'"></ng-include>
+</div>
+<!-- Node -->
+<div ng-if="selectedNodeTemplate && !selectedInstance">
+  <ng-include src="'views/_ref/applications/includes/runtime_editor_details_selected_node.html'"></ng-include>
+</div>
+<!-- Instance -->
+<div ng-show="selectedNodeTemplate && selectedInstance">
+  <ng-include src="'views/_ref/applications/includes/runtime_editor_details_selected_instance.html'"></ng-include>
+</div>

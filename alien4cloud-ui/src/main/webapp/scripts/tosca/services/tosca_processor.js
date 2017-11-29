@@ -29,12 +29,12 @@ define(function(require) {
         processObject(template, 'properties');
       },
       processNodeTemplate: function(nodeTemplate) {
-          processObject(nodeTemplate, 'properties');
-          processObject(nodeTemplate, 'requirements');
-          processObject(nodeTemplate, 'capabilities');
-          _.each(nodeTemplate.capabilitiesMap, function(capabilityEntry){
-            processObject(capabilityEntry.value, 'properties');
-          });
+        processObject(nodeTemplate, 'properties');
+        processObject(nodeTemplate, 'requirements');
+        processObject(nodeTemplate, 'capabilities');
+        _.each(nodeTemplate.capabilitiesMap, function(capabilityEntry){
+          processObject(capabilityEntry.value, 'properties');
+        });
       }
     };
   } // function
