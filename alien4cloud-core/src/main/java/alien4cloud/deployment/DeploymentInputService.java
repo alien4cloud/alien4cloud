@@ -9,6 +9,8 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.apache.commons.collections4.MapUtils;
@@ -33,31 +35,35 @@ public class DeploymentInputService {
      * @param inputValues Input properties values as specified by the user.
      * @return true if there is an update on inputValues (removal or addition). false if nothing has changed
      */
-    public boolean synchronizeInputs(Map<String, PropertyDefinition> inputDefinitions, Map<String, PropertyValue> inputValues) {
+    public boolean synchronizeInputs(Map<String, PropertyDefinition> inputDefinitions, Map<String, AbstractPropertyValue> inputValues) {
         boolean updated = false;
         if (!MapUtils.isEmpty(inputValues)) {
             // Ensure that previous defined values are still compatible with the latest input definition (as the topology may have changed).
-            Iterator<Map.Entry<String, PropertyValue>> inputPropertyEntryIterator = inputValues.entrySet().iterator();
+            Iterator<Map.Entry<String, AbstractPropertyValue>> inputPropertyEntryIterator = inputValues.entrySet().iterator();
             while (inputPropertyEntryIterator.hasNext()) {
-                Map.Entry<String, PropertyValue> inputPropertyEntry = inputPropertyEntryIterator.next();
+                Map.Entry<String, AbstractPropertyValue> inputPropertyEntry = inputPropertyEntryIterator.next();
                 // remove if the value is null, or the input is not register as one
                 if (inputPropertyEntry.getValue() == null || !safe(inputDefinitions).containsKey(inputPropertyEntry.getKey())) {
                     inputPropertyEntryIterator.remove();
                 } else {
-                    try {
-                        ConstraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue().getValue(),
-                                inputDefinitions.get(inputPropertyEntry.getKey()));
-                    } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                        // Property is not valid anymore for the input, remove the old value
-                        inputPropertyEntryIterator.remove();
-                        updated = true;
+                    if (inputPropertyEntry.getValue() instanceof FunctionPropertyValue) {
+                        // When the value is get_secret, do nothing.
+                    } else {
+                        try {
+                            ConstraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), ((PropertyValue)inputPropertyEntry.getValue()).getValue(),
+                                    inputDefinitions.get(inputPropertyEntry.getKey()));
+                        } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
+                            // Property is not valid anymore for the input, remove the old value
+                            inputPropertyEntryIterator.remove();
+                            updated = true;
+                        }
                     }
                 }
             }
         }
         // set default values for every unset property.
         for (Map.Entry<String, PropertyDefinition> inputDefinitionEntry : safe(inputDefinitions).entrySet()) {
-            PropertyValue existingValue = inputValues.get(inputDefinitionEntry.getKey());
+            AbstractPropertyValue existingValue = inputValues.get(inputDefinitionEntry.getKey());
             if (existingValue == null) {
                 // If user has not specified a value and there is
                 PropertyValue defaultValue = inputDefinitionEntry.getValue().getDefault();

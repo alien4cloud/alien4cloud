@@ -99,7 +99,7 @@ public class FunctionEvaluatorTest {
         topology.setNodeTemplates(Maps.newHashMap());
         topology.getNodeTemplates().put("my_node", myNode);
 
-        Map<String, PropertyValue> inputs = Maps.newHashMap();
+        Map<String, AbstractPropertyValue> inputs = Maps.newHashMap();
         inputs.put("scalar_input", new ScalarPropertyValue("scalar input value"));
 
         return new FunctionEvaluatorContext(topology, inputs);
