@@ -189,9 +189,7 @@ public class InputService {
                     .filter(inputEntry -> inputsDefinitions.containsKey(inputEntry.getKey())).filter(inputEntry -> {
                         // Copy only inputs which satisfy the new input definition
                         try {
-                            if (inputEntry.getValue() instanceof FunctionPropertyValue) {
-                                // Do nothing when it is get_secret function
-                            } else {
+                            if (! (inputEntry.getValue() instanceof FunctionPropertyValue)) {
                                 ConstraintPropertyService.checkPropertyConstraint(inputEntry.getKey(), PropertyService.asPropertyValue(inputEntry.getValue()),
                                         inputsDefinitions.get(inputEntry.getKey()));
                             }
