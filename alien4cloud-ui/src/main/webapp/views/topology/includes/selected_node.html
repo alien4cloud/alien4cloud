@@ -326,6 +326,7 @@
               definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
               property-type="topology.dataTypes[properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key).type]"
               dependencies="topology.topology.dependencies"
+              capability-name="capabilityEntry.key"
               property-name="propertyEntry.key"
               property-value="propertyEntry.value"
               on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
@@ -548,6 +549,7 @@
                     definition="propertyEntry.value"
                     property-name="propertyEntry.key"
                     property-value="relationshipEntry.value.propertiesMap[propertyEntry.key].value"
+                    relationship-name="relationshipEntry.key"
                     on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyName, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
                     editable="!properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                     condensed="condensed">

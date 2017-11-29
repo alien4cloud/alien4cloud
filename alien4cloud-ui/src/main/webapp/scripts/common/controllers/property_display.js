@@ -419,7 +419,16 @@ define(function(require) {
       /*
       * Add an event listener to reset the property value
       */
-      $scope.$on('reset-property-' + $scope.propertyName, function(event) {
+      $scope.$on('reset-property', function(event, object) {
+        var propertyName = event.currentScope.propertyName;
+        var capabilityName = event.currentScope.capabilityName;
+        var relationshipName = event.currentScope.relationshipName;
+        if ((_.defined(object.capabilityName) && object.capabilityName !== capabilityName)
+        || (_.defined(object.relationshipName) && object.relationshipName !== relationshipName)
+        || (object.propertyName !== propertyName)) {
+          // If it is not the right object which receives the event, we do nothing.
+          return;
+        }
         event.currentScope.resetProperty();
       });
 

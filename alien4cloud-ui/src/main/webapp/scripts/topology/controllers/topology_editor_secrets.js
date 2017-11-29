@@ -109,20 +109,21 @@ define(function (require) {
         toggleSecret: function(self, requestObject, broadcastObject) {
           var scope = this.scope;
           if (scope.properties.isSecretValue(self.value)) {
-            if (self.value.parameters[0] !== "") {
-              setTimeout(function () {
-                scope.execute(requestObject,
-                  function(result){
-                    // successful callback
-                  },
-                  null,
-                  scope.selectedNodeTemplate.name,
-                  true
-                );
-              }, 0);
-            }
-            // reset the secret to originalValue
+            // // reset the secret to originalValue
+            // if (self.value.parameters[0] !== "") {
+            //   setTimeout(function () {
+            //     scope.execute(requestObject,
+            //       function(result){
+            //         // successful callback
+            //       },
+            //       null,
+            //       scope.selectedNodeTemplate.name,
+            //       true
+            //     );
+            //   }, 0);
+            // }
             self.value = null;
+            scope.$root.$broadcast('reset-property', broadcastObject);
           } else {
             self.value = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
@@ -135,15 +136,16 @@ define(function (require) {
         */
         toggleInputParameterSecret: function(inputParameterName, inputParameter) {
           var scope = this.scope;
+          // identifier to locate the button
+          var broadcastObject = {
+            'propertyName': inputParameterName};
           if (scope.properties.isSecretValue(inputParameter.paramValue)) {
             // reset the secret to originalValue
             inputParameter.paramValue = null;
-            scope.$root.$broadcast('reset-property-' + inputParameterName);
+            scope.$root.$broadcast('reset-property', broadcastObject);
           } else {
             inputParameter.paramValue = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
-            var broadcastObject = {
-              'propertyName': inputParameterName};
             scope.$root.$broadcast('focus-on', broadcastObject);
           }
         },
@@ -153,15 +155,15 @@ define(function (require) {
         */
         toggleResourcePropertySecret: function(self) {
           var scope = this.scope;
+          var broadcastObject = {
+            'propertyName': self.key};
           if (scope.properties.isSecretValue(self.value)) {
             // Unset the property
             self.value = null;
-            scope.$root.$broadcast('reset-property-' + self.key);
+            scope.$root.$broadcast('reset-property', broadcastObject);
           } else {
             self.value = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
-            var broadcastObject = {
-              'propertyName': self.key};
             scope.$root.$broadcast('focus-on', broadcastObject);
           }
         },
@@ -176,10 +178,12 @@ define(function (require) {
           }
           var property = topology.deployerInputProperties[inputId];
           var scope = this.scope;
+          var broadcastObject = {
+            'propertyName': inputId};
           if (scope.properties.isSecretValue(property)) {
             // Unset the property
             property = null;
-            scope.$root.$broadcast('reset-property-' + inputId);
+            scope.$root.$broadcast('reset-property', broadcastObject);
           } else {
             _.forEach(_.keys(property), function(key){
               delete property[key];
@@ -187,8 +191,6 @@ define(function (require) {
             property['function'] = 'get_secret';
             property['parameters'] = [''];
             // Trigger the editor to enter the secret
-            var broadcastObject = {
-              'propertyName': inputId};
             scope.$root.$broadcast('focus-on', broadcastObject);
           }
         },
@@ -203,10 +205,12 @@ define(function (require) {
           }
           var property = topology.preconfiguredInputProperties[inputId];
           var scope = this.scope;
+          var broadcastObject = {
+            'propertyName': inputId};
           if (scope.properties.isSecretValue(property)) {
             // Unset the property
             property = null;
-            scope.$root.$broadcast('reset-property-' + inputId);
+            scope.$root.$broadcast('reset-property', broadcastObject);
           } else {
             _.forEach(_.keys(property), function(key){
               delete property[key];
@@ -214,8 +218,6 @@ define(function (require) {
             property['function'] = 'get_secret';
             property['parameters'] = [''];
             // Trigger the editor to enter the secret
-            var broadcastObject = {
-              'propertyName': inputId};
             scope.$root.$broadcast('focus-on', broadcastObject);
           }
         },

@@ -12,6 +12,7 @@ define(function (require) {
       controller: 'SecretDisplayCtrl',
       restrict: 'E',
       scope: {
+        'id': '@?',
         'translated': '=',
         'definition': '=',
         'editable': '=?',
