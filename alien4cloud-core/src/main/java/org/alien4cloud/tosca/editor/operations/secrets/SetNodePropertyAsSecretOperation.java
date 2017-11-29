@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.operations.nodetemplate.secrets;
+package org.alien4cloud.tosca.editor.operations.secrets;
 
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AbstractNodeOperation;
 

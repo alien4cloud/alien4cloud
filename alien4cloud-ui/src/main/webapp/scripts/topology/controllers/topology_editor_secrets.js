@@ -24,7 +24,7 @@ define(function (require) {
           var scope = this.scope;
           // It is an operation for property
           return scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodePropertyAsSecretOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.secrets.SetNodePropertyAsSecretOperation',
               nodeName: scope.selectedNodeTemplate.name,
               propertyName: propertyName,
               secretPath: secretPath
@@ -44,7 +44,7 @@ define(function (require) {
           var scope = this.scope;
           // It is the operation for capablity
           return scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodeCapabilityPropertyAsSecretOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.secrets.SetNodeCapabilityPropertyAsSecretOperation',
               nodeName: scope.selectedNodeTemplate.name,
               propertyName: propertyName,
               capabilityName: capabilityName,
@@ -61,19 +61,14 @@ define(function (require) {
         /*
         * It's a function for saving the relationship property as a secret.
         */
-        saveNodeRelationshipPropertySecret: function(secretPath) {
+        saveNodeRelationshipPropertySecret: function(secretPath, propertyName, relationshipName) {
           var scope = this.scope;
-          // Check the secretPath
-          var error = check(scope, secretPath);
-          if (_.defined(error)) {
-            return error;
-          }
           // It is the operation for capablity
           return scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodeRelationshipPropertyAsSecretOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.secrets.SetRelationshipPropertyAsSecretOperation',
               nodeName: scope.selectedNodeTemplate.name,
-              propertyName: scope.propertyName,
-              capabilityName: scope.capabilityName,
+              propertyName: propertyName,
+              relationshipName: relationshipName,
               secretPath: secretPath
             },
             function(result){
@@ -86,25 +81,32 @@ define(function (require) {
         },
 
         togglePropertySecret: function(property) {
+          // This request object is for unset the property.
           var requestObject = {
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodePropertyAsSecretOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetNodePropertyAsSecretOperation',
               nodeName: this.scope.selectedNodeTemplate.name,
               propertyName: property.key
             };
-          this.toggleSecret(property, requestObject);
+          var broadcastObject = {
+            'propertyName': property.key};
+          this.toggleSecret(property, requestObject, broadcastObject);
         },
 
         toggleCapabilitySecret: function(property, capabilityName) {
+          // This request object is for unset the capability.
           var requestObject = {
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodeCapabilityPropertyAsSecretOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetNodeCapabilityPropertyAsSecretOperation',
               nodeName: this.scope.selectedNodeTemplate.name,
               propertyName: property.key,
               capabilityName: capabilityName
             };
-          this.toggleSecret(property, requestObject);
+          var broadcastObject = {
+            'propertyName': property.key,
+            'capabilityName': capabilityName};
+          this.toggleSecret(property, requestObject, broadcastObject);
         },
 
-        toggleSecret: function(self, requestObject) {
+        toggleSecret: function(self, requestObject, broadcastObject) {
           var scope = this.scope;
           if (scope.properties.isSecretValue(self.value)) {
             if (self.value.parameters[0] !== "") {
@@ -124,7 +126,7 @@ define(function (require) {
           } else {
             self.value = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
-            scope.$root.$broadcast('focus-on-' + self.key);
+            scope.$root.$broadcast('focus-on', broadcastObject);
           }
         },
 
@@ -140,7 +142,9 @@ define(function (require) {
           } else {
             inputParameter.paramValue = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
-            scope.$root.$broadcast('focus-on-' + inputParameterName);;
+            var broadcastObject = {
+              'propertyName': inputParameterName};
+            scope.$root.$broadcast('focus-on', broadcastObject);
           }
         },
 
@@ -156,7 +160,9 @@ define(function (require) {
           } else {
             self.value = {function:'get_secret', parameters: ['']};
             // Trigger the editor to enter the secret
-            scope.$root.$broadcast('focus-on-' + self.key);
+            var broadcastObject = {
+              'propertyName': self.key};
+            scope.$root.$broadcast('focus-on', broadcastObject);
           }
         },
 
@@ -181,7 +187,9 @@ define(function (require) {
             property['function'] = 'get_secret';
             property['parameters'] = [''];
             // Trigger the editor to enter the secret
-            scope.$root.$broadcast('focus-on-' + inputId);
+            var broadcastObject = {
+              'propertyName': inputId};
+            scope.$root.$broadcast('focus-on', broadcastObject);
           }
         },
 
@@ -206,25 +214,26 @@ define(function (require) {
             property['function'] = 'get_secret';
             property['parameters'] = [''];
             // Trigger the editor to enter the secret
-            setTimeout(function () {
-              $('#p_secret_' + inputId).trigger('click');
-            }, 0);
+            var broadcastObject = {
+              'propertyName': inputId};
+            scope.$root.$broadcast('focus-on', broadcastObject);
           }
         },
 
-        toggleRelationshipPropertySecret: function(property) {
+        toggleRelationshipPropertySecret: function(property, relationshipName) {
           var scope = this.scope;
-          if (scope.properties.isSecretValue(property.value)) {
-            // Unset the property
-            property.value = null;
-            scope.$root.$broadcast('reset-property-' + property.key);
-          } else {
-            property.value = {function:'get_secret', parameters: ['']};
-            // Trigger the editor to enter the secret
-            setTimeout(function () {
-              $('#p_secret_' + property.key).trigger('click');
-            }, 0);
-          }
+          // This request object is for unset the property.
+          var requestObject = {
+              type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetRelationshipPropertyAsSecretOperation',
+              nodeName: this.scope.selectedNodeTemplate.name,
+              propertyName: property.key,
+              relationshipName: relationshipName
+            };
+          // Broadcast an event to auto open the editor inside the secret display.
+          var broadcastObject = {
+            'propertyName': property.key,
+            'relationshipName': relationshipName};
+          this.toggleSecret(property, requestObject, broadcastObject);
         }
 
 

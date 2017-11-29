@@ -9,6 +9,15 @@ define(function(require) {
   modules.get('a4c-common').controller('SecretDisplayCtrl', ['$scope', '$translate', '$uibModal',
     function($scope, $translate, $uibModal) {
 
+      // Init the directive id
+      if (_.defined($scope.capabilityName)) {
+        $scope.id = _.defined($scope.id) ? $scope.id : $scope.capabilityName + '-' + $scope.propertyName;
+      } else if (_.defined($scope.relationshipName)) {
+        $scope.id = _.defined($scope.id) ? $scope.id : $scope.relationshipName + '-' + $scope.propertyName;
+      } else {
+        $scope.id = _.defined($scope.id) ? $scope.id : $scope.propertyName;
+      }
+
       var check = function(scope, secretPath) {
         // The capablity "scalable" can not become a secret
         if ("scalable" === scope.capabilityName) {
@@ -32,18 +41,41 @@ define(function(require) {
         if (_.defined(error)) {
           return error;
         }
-        return $scope.onSave({secretPath: secretPath, propertyName: $scope.propertyName, propertyValue: $scope.propertyValue, capabilityName: $scope.capabilityName});
+        return $scope.onSave({
+          secretPath: secretPath,
+          propertyName: $scope.propertyName,
+          propertyValue: $scope.propertyValue,
+          capabilityName: $scope.capabilityName,
+          relationshipName: $scope.relationshipName});
       };
 
       /*
       * A listener for focusing on the text editor.
       */
-      $scope.$on('focus-on-' + $scope.propertyName, function(event) {
+      $scope.$on('focus-on', function(event, object) {
         var propertyName = event.currentScope.propertyName;
+        var capabilityName = event.currentScope.capabilityName;
+        var relationshipName = event.currentScope.relationshipName;
+        if ((_.defined(object.capabilityName) && object.capabilityName !== capabilityName)
+        || (_.defined(object.relationshipName) && object.relationshipName !== relationshipName)
+        || (object.propertyName !== propertyName)) {
+          return;
+        }
+
         setTimeout(function () {
-          // Because the UI element is not yet loaded in the page.
-          $('#p_secret_' + propertyName).trigger('click');
+          // Use setTimeout because the UI element is not yet loaded in the page.
+          if (_.defined(relationshipName)) {
+            // Search with relationshipName and propertyName
+            $('#' + relationshipName + '-' + propertyName + '-secret_path').trigger('click');
+          } else if (_.defined(capabilityName)) {
+            // Search with capabilityName and propertyName
+            $('#' + capabilityName + '-' + propertyName + '-secret_path').trigger('click');
+          } else {
+          	// Search only with propertyName
+            $('#' + propertyName + '-secret_path').trigger('click');
+          }
         }, 0);
+
       });
 
     }

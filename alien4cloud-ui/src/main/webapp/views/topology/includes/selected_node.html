@@ -496,7 +496,7 @@
                   <div class="btn-group" uib-dropdown>
                     <!-- button for secret -->
                     <button id="p_secret_rel_{{propertyEntry.key}}"
-                       ng-click="secrets.toggleRelationshipPropertySecret(propertyEntry)"
+                       ng-click="secrets.toggleRelationshipPropertySecret(propertyEntry, relationshipEntry.key)"
                        class="btn btn-default btn-xs"
                        ng-disabled="properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                        ng-class="{'active' : properties.isSecretValue(propertyEntry.value)}"
@@ -531,15 +531,15 @@
                   </div>
                 </td>
                 <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-8">
-                  Bobo's TODO
                   <secret-display
                     ng-show="properties.isSecretValue(propertyEntry.value)"
                     property-name="propertyEntry.key"
                     property-value="propertyEntry.value"
+                    relationship-name="relationshipEntry.key"
                     definition="propertyEntry.value"
                     selected-node-template="selectedNodeTemplate"
                     editable="true"
-                    on-save="secrets.saveNodeRelationshipPropertySecret()">
+                    on-save="secrets.saveNodeRelationshipPropertySecret(secretPath, propertyName, relationshipName)">
                   </secret-display>
                   <property-display
                     ng-show="!properties.isSecretValue(propertyEntry.value)"

@@ -1,10 +1,10 @@
 package alien4cloud.it.topology;
 
 
-import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodeCapabilityPropertyAsSecretOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodePropertyAsSecretOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodeCapabilityPropertyAsSecretOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodePropertyAsSecretOperation;
+import org.alien4cloud.tosca.editor.operations.secrets.SetNodeCapabilityPropertyAsSecretOperation;
+import org.alien4cloud.tosca.editor.operations.secrets.SetNodePropertyAsSecretOperation;
+import org.alien4cloud.tosca.editor.operations.secrets.UnsetNodeCapabilityPropertyAsSecretOperation;
+import org.alien4cloud.tosca.editor.operations.secrets.UnsetNodePropertyAsSecretOperation;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.junit.Assert;
 

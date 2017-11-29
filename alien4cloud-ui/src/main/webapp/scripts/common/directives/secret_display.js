@@ -19,6 +19,7 @@ define(function (require) {
         'propertyName': '=',
         'propertyValue': '=',
         'capabilityName': '=?',
+        'relationshipName': '=?',
         'selectedNodeTemplate': '=',
         'onSave': '&'
       },
