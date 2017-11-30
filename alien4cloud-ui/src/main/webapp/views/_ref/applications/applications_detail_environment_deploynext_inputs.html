@@ -112,8 +112,26 @@
         ng-if="_.isNotEmpty(predefiniedInputs)">
         <tr ng-repeat="(inputId, inputDefinition) in predefiniedInputs">
           <td>
-            Bobo's TODO
+            <button id="button_secret_preconfigured_input_{{inputId}}"
+               ng-click="secrets.toggleInputSecret(deploymentTopologyDTO.topology, inputId)"
+               class="btn btn-default btn-xs"
+               ng-class="{'active' : properties.isSecretValue(deploymentTopologyDTO.topology.preconfiguredInputProperties[inputId])}"
+               tooltip-append-to-body="true">
+              <i class="fa fa-key "></i>
+            </button>
+          </td>
+          <td>
+            <secret-display
+              ng-show="properties.isSecretValue(deploymentTopologyDTO.topology.preconfiguredInputProperties[inputId])"
+              property-name="inputId"
+              property-value="deploymentTopologyDTO.topology.preconfiguredInputProperties[inputId]"
+              definition="inputDefinition"
+              selected-node-template="selectedNodeTemplate"
+              editable="false"
+              on-save="saveInputSecret(secretPath, propertyValue, propertyName)">
+            </secret-display>
             <property-display
+              ng-show="!properties.isSecretValue(deploymentTopologyDTO.topology.preconfiguredInputProperties[inputId])"
               definition="inputDefinition"
               property-type="deploymentTopologyDTO.dataTypes[inputDefinition.type]"
               dependencies="deploymentTopologyDTO.topology.dependencies"
