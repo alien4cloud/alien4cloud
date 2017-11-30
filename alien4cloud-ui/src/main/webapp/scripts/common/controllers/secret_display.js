@@ -56,25 +56,24 @@ define(function(require) {
         var propertyName = event.currentScope.propertyName;
         var capabilityName = event.currentScope.capabilityName;
         var relationshipName = event.currentScope.relationshipName;
-        if ((_.defined(object.capabilityName) && object.capabilityName !== capabilityName)
-        || (_.defined(object.relationshipName) && object.relationshipName !== relationshipName)
-        || (object.propertyName !== propertyName)) {
-          return;
-        }
 
-        setTimeout(function () {
-          // Use setTimeout because the UI element is not yet loaded in the page.
-          if (_.defined(relationshipName)) {
-            // Search with relationshipName and propertyName
-            $('#' + relationshipName + '-' + propertyName + '-secret_path').trigger('click');
-          } else if (_.defined(capabilityName)) {
-            // Search with capabilityName and propertyName
-            $('#' + capabilityName + '-' + propertyName + '-secret_path').trigger('click');
-          } else {
-          	// Search only with propertyName
-            $('#' + propertyName + '-secret_path').trigger('click');
-          }
-        }, 0);
+
+        if (propertyName === object.propertyName && capabilityName === object.capabilityName && relationshipName === object.relationshipName) {
+          // Trigger the click on text editor
+          setTimeout(function () {
+            // Use setTimeout because the UI element is not yet loaded in the page.
+            if (_.defined(relationshipName)) {
+              // Search with relationshipName and propertyName
+              $('#' + relationshipName + '-' + propertyName + '-secret_path').trigger('click');
+            } else if (_.defined(capabilityName)) {
+              // Search with capabilityName and propertyName
+              $('#' + capabilityName + '-' + propertyName + '-secret_path').trigger('click');
+            } else {
+            	// Search only with propertyName
+              $('#' + propertyName + '-secret_path').trigger('click');
+            }
+          }, 0);
+        }
 
       });
 

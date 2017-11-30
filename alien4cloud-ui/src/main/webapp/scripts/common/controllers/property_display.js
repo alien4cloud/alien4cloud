@@ -423,13 +423,12 @@ define(function(require) {
         var propertyName = event.currentScope.propertyName;
         var capabilityName = event.currentScope.capabilityName;
         var relationshipName = event.currentScope.relationshipName;
-        if ((_.defined(object.capabilityName) && object.capabilityName !== capabilityName)
-        || (_.defined(object.relationshipName) && object.relationshipName !== relationshipName)
-        || (object.propertyName !== propertyName)) {
-          // If it is not the right object which receives the event, we do nothing.
-          return;
+
+        if (propertyName === object.propertyName && capabilityName === object.capabilityName && relationshipName === object.relationshipName) {
+          // Trigger the reset
+          event.currentScope.resetProperty();
         }
-        event.currentScope.resetProperty();
+
       });
 
       // Init managed property
