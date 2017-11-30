@@ -339,7 +339,7 @@ public class DeploymentTopologyStepDefinitions {
         }
     }
 
-    private void assertPropMapContains(Map<String, PropertyValue> map, Map<String, AbstractPropertyValue> expectedMap) {
+    private void assertPropMapContains(Map<String, AbstractPropertyValue> map, Map<String, AbstractPropertyValue> expectedMap) {
         map = safe(map);
         for (Entry<String, AbstractPropertyValue> entry : expectedMap.entrySet()) {
             assertEquals(entry.getValue(), map.get(entry.getKey()));
