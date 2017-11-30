@@ -7,8 +7,11 @@ define(function(require) {
   var _ = require('lodash');
   require('scripts/tosca/services/tosca_processor');
 
-  modules.get('a4c-tosca').controller('a4cTemplateEditCtrl', ['$scope', 'a4cToscaProcessor',
-    function($scope, a4cToscaProcessor) {
+  modules.get('a4c-tosca').controller('a4cTemplateEditCtrl', ['$scope', 'a4cToscaProcessor', 'topoEditSecrets', 'topoEditProperties',
+    function($scope, a4cToscaProcessor, topoEditSecrets, topoEditProperties) {
+
+      topoEditSecrets($scope);
+      topoEditProperties($scope);
 
       a4cToscaProcessor.processInheritableToscaTypes($scope.type);
       a4cToscaProcessor.processTemplate($scope.template);
@@ -42,18 +45,26 @@ define(function(require) {
         });
       };
 
-      // $scope.updateSecretProperty = function(propertyName, propertyValue) {
-      //   var updatePromise = $scope.onPropertyUpdate({
-      //     propertyName: propertyName,
-      //     propertyValue: propertyValue
-      //   });
-      //   return updatePromise.then(function(response) {
-      //     if (_.undefined(response.error)) { // update was performed on server side - impact js data.
-      //       $scope.template.propertiesMap[propertyName].value = propertyValue;
-      //     }
-      //     return response; // dispatch response to property display
-      //   });
-      // };
+
+      $scope.updateSecretProperty = function(propertyName, propertyValue) {
+        var updatePromise = $scope.onPropertyUpdate({
+          propertyName: propertyName,
+          propertyValue: propertyValue
+        });
+        return updatePromise.then(function(response) {
+          if (_.undefined(response.error)) { // update was performed on server side - impact js data.
+            $scope.template.propertiesMap[propertyName].value = propertyValue;
+          }
+          return response; // dispatch response to property display
+        });
+      };
+
+      $scope.savePropertySecret = function(secretPath, propertyName, propertyValue) {
+        // set the path
+        propertyValue.parameters[0] = secretPath;
+        // Update the secret property value
+        $scope.updateSecretProperty(propertyName, propertyValue);
+      };
 
       $scope.canEditProperty = function(propertyName){
         return $scope.isPropertyEditable({
@@ -63,9 +74,12 @@ define(function(require) {
         });
       };
 
-      $scope.canEditSecretProperty = function(propertyName) {
-        return $scope.isSecretPropertyEditable(propertyName);
-      }
+      $scope.canEditSecretProperty = function(propertyName){
+        return $scope.isSecretEditable({
+          propertyPath: {
+            propertyName: propertyName
+        }});
+      };
 
     }]);
 });

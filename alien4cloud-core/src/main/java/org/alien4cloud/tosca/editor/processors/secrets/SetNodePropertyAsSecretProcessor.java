@@ -4,6 +4,7 @@ import static alien4cloud.utils.AlienUtils.getOrFail;
 
 import java.util.Arrays;
 
+import alien4cloud.utils.services.PropertyService;
 import org.alien4cloud.tosca.editor.exception.InvalidSecretPathException;
 import org.alien4cloud.tosca.editor.exception.UnsupportedSecretException;
 import org.alien4cloud.tosca.editor.operations.secrets.SetNodePropertyAsSecretOperation;
@@ -31,8 +32,8 @@ public class SetNodePropertyAsSecretProcessor extends AbstractNodeProcessor<SetN
     @Override
     protected void processNodeOperation(Csar csar, Topology topology, SetNodePropertyAsSecretOperation operation, NodeTemplate nodeTemplate) {
         NodeType indexedNodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
-        getOrFail(indexedNodeType.getProperties(), operation.getPropertyName(),
-                "Property {} do not exist for node {}", operation.getPropertyName(), operation.getNodeName());
+        getOrFail(indexedNodeType.getProperties(), operation.getPropertyName(), "Property {} do not exist for node {}", operation.getPropertyName(),
+                operation.getNodeName());
 
         if (operation.getPropertyName().equals(FORBIDDEN_PROPERTY)) {
             throw new UnsupportedSecretException("We cannot set a secret on the property " + operation.getPropertyName());

@@ -13,6 +13,7 @@ define(function (require) {
         this.scope = scope;
       };
 
+
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
         init: function() {},
@@ -79,6 +80,24 @@ define(function (require) {
             true
           );
         },
+        /*
+        * It's a function for saving the policy property as a secret.
+        */
+        savePolicyPropertySecret: function(secretPath, propertyName) {
+          var scope = this.scope;
+          // It is the operation for capablity
+          return scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.secrets.SetPolicyPropertyAsSecretOperation',
+              policyName: scope.policies.selectedTemplate.name,
+              propertyName: propertyName,
+              secretPath: secretPath
+            },
+            null,
+            null,
+            scope.policies.selectedTemplate.name,
+            true
+          );
+        },
 
         togglePropertySecret: function(property) {
           // This request object is for unset the property.
@@ -129,6 +148,23 @@ define(function (require) {
             // Trigger the editor to enter the secret
             scope.$root.$broadcast('focus-on', broadcastObject);
           }
+        },
+
+
+        /*
+        * It's a function for policy secret button
+          It receives a policyEntry like propertyEntry
+        */
+        togglePolicyPropertySecret: function(policy) {
+          // This request object is for unset the property.
+          var requestObject = {
+              type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetPolicyPropertyAsSecretOperation',
+              nodeName: this.scope.policies.selectedTemplate.name,
+              propertyName: policy.key
+            };
+          var broadcastObject = {
+            'propertyName': policy.key};
+          this.toggleSecret(policy, requestObject, broadcastObject);
         },
 
         /*
