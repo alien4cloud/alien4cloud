@@ -39,7 +39,7 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
         // In addition to processing policy template replacements we also inject implementation modifiers for policies that defines them
 
         for (PolicyTemplate policyTemplate : safe(topology.getPolicies()).values()) {
-            PolicyType policyType = ToscaContext.get(PolicyType.class, policyTemplate.getType());
+            PolicyType policyType = ToscaContext.getOrFail(PolicyType.class, policyTemplate.getType());
             String policyImplMeta = TagUtil.getTagValue(policyType.getTags(), "a4c_policy_impl");
             if (policyImplMeta == null) {
                 context.log().warn("Matched policy {} for {} does not define an alien topology modifier implementation, it may not be taken in account.",

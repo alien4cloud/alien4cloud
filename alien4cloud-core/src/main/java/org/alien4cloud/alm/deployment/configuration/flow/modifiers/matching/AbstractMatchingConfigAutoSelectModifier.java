@@ -14,6 +14,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.model.orchestrators.locations.AbstractLocationResourceTemplate;
+import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.topology.task.LocationPolicyTask;
 import alien4cloud.topology.task.NodeMatchingTask;
 
@@ -54,8 +55,8 @@ public abstract class AbstractMatchingConfigAutoSelectModifier<T extends Abstrac
             // select default values
             if (!lastUserMatches.containsKey(entry.getKey())) {
                 if (entry.getValue().isEmpty()) {
-                    // warn that no node has been found on the location with the topology criteria
-                    context.log().error(new NodeMatchingTask(entry.getKey()));
+                    // report that no node has been found on the location with the topology criteria
+                    consumeNoMatchingFound(context, new NodeMatchingTask(entry.getKey()));
                 } else {
                     // Only take the first element as selected if no configuration has been set before
                     // let an info so the user know that we made a default selection for him
@@ -81,4 +82,7 @@ public abstract class AbstractMatchingConfigAutoSelectModifier<T extends Abstrac
     protected abstract Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
 
     protected abstract Map<String, List<T>> getAvailableMatches(FlowExecutionContext context);
+
+    protected abstract void consumeNoMatchingFound(FlowExecutionContext context, AbstractTask task);
+
 }
