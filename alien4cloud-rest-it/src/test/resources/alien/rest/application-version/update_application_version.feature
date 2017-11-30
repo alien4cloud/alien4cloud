@@ -87,7 +87,7 @@ Feature: Update operations on application version
     Then The SPEL expression "currentVersionName" should return "0.2.0-SNAPSHOT"
   ## check that the deployment topology was kept
     When I get the deployment topology for the current application
-#    And I register the rest response data as SPEL context of type "alien4cloud.rest.deployment.DeploymentTopologyDTO"
+#    And I register the rest response data as SPEL context of type "alien4cloud.deployment.DeploymentTopologyDTO"
     Then the deployment topology should have the following orchestrator properties
       | managementUrl | http://cloudifyurl:8099 |
       | numberBackup  | 1                       |

@@ -12,7 +12,8 @@ import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpression;
         //
         "classpath:alien/rest/service",
         // "classpath:alien/rest/service/create_service.feature",
-        // "classpath:alien/rest/service/delete_service.feature",
+//         "classpath:alien/rest/service/delete_service.feature",
+//         "classpath:alien/rest/service/delete_used_service.feature",
         // "classpath:alien/rest/service/get_service.feature",
         // "classpath:alien/rest/service/list_service.feature",
         // "classpath:alien/rest/service/search_service.feature",

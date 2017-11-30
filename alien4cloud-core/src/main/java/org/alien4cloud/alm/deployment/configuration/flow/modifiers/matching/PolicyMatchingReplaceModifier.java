@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import alien4cloud.model.deployment.matching.ILocationMatch;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry;
@@ -31,6 +32,19 @@ import alien4cloud.utils.TagUtil;
 public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifier<PolicyTemplate, PolicyLocationResourceTemplate> {
     @Inject
     private PluginModifierRegistry pluginModifierRegistry;
+
+    /**
+     * Add locations dependencies
+     */
+    @Override
+    protected void init(Topology topology, FlowExecutionContext context) {
+        List<ILocationMatch> locations = (List<ILocationMatch>) context.getExecutionCache().get(FlowExecutionContext.LOCATION_MATCH_CACHE_KEY);
+        for (ILocationMatch location : locations) {
+            // FIXME manage conflicting dependencies by fetching types from latest version
+            topology.getDependencies().addAll(location.getLocation().getDependencies());
+        }
+        ToscaContext.get().resetDependencies(topology.getDependencies());
+    }
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {

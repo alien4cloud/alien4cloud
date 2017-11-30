@@ -1,12 +1,10 @@
 package alien4cloud.deployment;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.inject.Inject;
-
+import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
+import alien4cloud.utils.PropertyUtil;
+import alien4cloud.utils.services.ConstraintPropertyService;
+import com.google.common.collect.Maps;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -16,12 +14,11 @@ import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Maps;
+import javax.inject.Inject;
+import java.util.Iterator;
+import java.util.Map;
 
-import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
-import alien4cloud.utils.PropertyUtil;
-import alien4cloud.utils.services.ConstraintPropertyService;
+import static alien4cloud.utils.AlienUtils.safe;
 
 @Service
 public class DeploymentInputService {
@@ -45,18 +42,14 @@ public class DeploymentInputService {
                 // remove if the value is null, or the input is not register as one
                 if (inputPropertyEntry.getValue() == null || !safe(inputDefinitions).containsKey(inputPropertyEntry.getKey())) {
                     inputPropertyEntryIterator.remove();
-                } else {
-                    if (inputPropertyEntry.getValue() instanceof FunctionPropertyValue) {
-                        // When the value is get_secret, do nothing.
-                    } else {
-                        try {
-                            ConstraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), ((PropertyValue)inputPropertyEntry.getValue()).getValue(),
-                                    inputDefinitions.get(inputPropertyEntry.getKey()));
-                        } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                            // Property is not valid anymore for the input, remove the old value
-                            inputPropertyEntryIterator.remove();
-                            updated = true;
-                        }
+                } else if(! (inputPropertyEntry.getValue() instanceof FunctionPropertyValue)) {
+                    try {
+                        ConstraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), ((PropertyValue)inputPropertyEntry.getValue()).getValue(),
+                                inputDefinitions.get(inputPropertyEntry.getKey()));
+                    } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
+                        // Property is not valid anymore for the input, remove the old value
+                        inputPropertyEntryIterator.remove();
+                        updated = true;
                     }
                 }
             }

@@ -1,10 +1,19 @@
 package alien4cloud.model.deployment;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
+import alien4cloud.json.deserializer.NodeTemplateDeserializer;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
@@ -20,17 +29,10 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Deployment topology is the topology for a given environment.
@@ -91,6 +93,8 @@ public class DeploymentTopology extends Topology {
     private Map<String, NodeTemplate> originalNodes = Maps.newHashMap();
 
     @ObjectField(enabled = false)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = NodeTemplateDeserializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, NodeTemplate> matchReplacedNodes = Maps.newHashMap();
 
     /** Configuration of the deployment properties specific to the orchestrator if any. */
