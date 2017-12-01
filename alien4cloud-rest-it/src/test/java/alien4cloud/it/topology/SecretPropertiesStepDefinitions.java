@@ -1,7 +1,6 @@
 package alien4cloud.it.topology;
 
 
-import cucumber.api.PendingException;
 import org.alien4cloud.tosca.editor.operations.secrets.SetNodeCapabilityPropertyAsSecretOperation;
 import org.alien4cloud.tosca.editor.operations.secrets.SetNodePropertyAsSecretOperation;
 import org.alien4cloud.tosca.editor.operations.secrets.SetRelationshipPropertyAsSecretOperation;

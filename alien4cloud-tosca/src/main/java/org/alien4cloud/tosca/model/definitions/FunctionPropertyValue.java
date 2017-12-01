@@ -101,4 +101,22 @@ public class FunctionPropertyValue extends AbstractPropertyValue {
             parameters.add(string);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FunctionPropertyValue that = (FunctionPropertyValue) o;
+
+        if (function != null ? !function.equals(that.function) : that.function != null) return false;
+        return parameters != null ? parameters.equals(that.parameters) : that.parameters == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = function != null ? function.hashCode() : 0;
+        result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
+        return result;
+    }
 }

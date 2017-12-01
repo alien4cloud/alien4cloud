@@ -10,48 +10,8 @@ Feature: Manage location policies resources
     Then I should receive a RestResponse with no error
 
   @reset
-  Scenario: Get a location and check policies types parsing
-    When I get the location "Mount doom orchestrator"/"Thark location"
-    Then I should receive a RestResponse with no error
-    And I register the rest response data as SPEL context of type "alien4cloud.rest.orchestrator.model.LocationDTO"
-    Then The SPEL expression "resources.policyTypes.size()" should return 2
-
-  @reset
-  Scenario: Create a policy template
-    When I create a policy resource of type "org.alien4cloud.mock.policies.AntiAffinity" named "AntiAffinity" related to the location "Mount doom orchestrator"/"Thark location"
-    Then I should receive a RestResponse with no error
-    When I get the location "Mount doom orchestrator"/"Thark location"
-    Then I should receive a RestResponse with no error
-    And The location should contains a policy resource with name "AntiAffinity" and type "org.alien4cloud.mock.policies.AntiAffinity"
-
-  @reset
-  Scenario: Delete a location policy template should succeed
-    Given I create a policy resource of type "org.alien4cloud.mock.policies.AntiAffinity" named "AntiAffinity" related to the location "Mount doom orchestrator"/"Thark location"
-    When I delete the policy resource named "AntiAffinity" related to the location "Mount doom orchestrator"/"Thark location"
-    Then I should receive a RestResponse with no error
-    When I get the location "Mount doom orchestrator"/"Thark location"
-    Then The location should not contain a policy resource with name "AntiAffinity" and type "org.alien4cloud.mock.policies.AntiAffinity"
-
-  @reset
   Scenario: Update a location policy resource property
-    Given I create a policy resource of type "org.alien4cloud.policies.mock.SimpleConditionPolicyType" named "SimpleConditionPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
-    When I update the property "sample_property" to "test_update_property" for the policy resource named "SimpleConditionPolicyType" related to the location "Mount doom orchestrator"/"Thark location"
+    Given I create a policy resource of type "org.alien4cloud.mock.policies.AntiAffinity" named "AntiAffinity" related to the location "Mount doom orchestrator"/"Thark location"
+    When I set the property "availability_zones" to a secret with a secret path "kv/availability_zones" for the policy resource named "AntiAffinity" related to the location "Mount doom orchestrator"/"Thark location"
     Then I should receive a RestResponse with no error
     Given I get the location "Mount doom orchestrator"/"Thark location"
-    When I register the rest response data as SPEL context of type "alien4cloud.rest.orchestrator.model.LocationDTO"
-    Then The SPEL expression "resources.policyTemplates[0].template.properties['sample_property'].value" should return "test_update_property"
-
-  @reset
-  Scenario: Update a location policy resource non-existing property should fail
-    Given I create a policy resource of type "org.alien4cloud.mock.policies.AntiAffinity" named "AntiAffinity" related to the location "Mount doom orchestrator"/"Thark location"
-    When I update the property "sample_property" to "test_update_property" for the policy resource named "AntiAffinity" related to the location "Mount doom orchestrator"/"Thark location"
-    Then I should receive a RestResponse with an error code 504
-
-  @reset
-  Scenario: Updating a policy template name
-    Given I create a policy resource of type "org.alien4cloud.mock.policies.AntiAffinity" named "AntiAffinity" related to the location "Mount doom orchestrator"/"Thark location"
-    When I update the policy resource name from "AntiAffinity" to "MinimalPolicyType_Renamed" related to the location "Mount doom orchestrator"/"Thark location"
-    Then I should receive a RestResponse with no error
-    When I get the location "Mount doom orchestrator"/"Thark location"
-    Then The location should not contain a policy resource with name "AntiAffinity" and type "org.alien4cloud.mock.policies.AntiAffinity"
-    And The location should contains a policy resource with name "MinimalPolicyType_Renamed" and type "org.alien4cloud.mock.policies.AntiAffinity"
