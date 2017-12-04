@@ -310,56 +310,62 @@ define(function (require) {
       $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName] = $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName] || {};
       $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = true;
 
-      deploymentServices.runtime.executeOperation({
-        applicationId: $scope.application.id
-      }, angular.toJson(operationExecRequest), function(successResult) {
-        // success
-        $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = false;
-        if (successResult.error !== null) {
-          var title = $translate.instant('ERRORS.' + successResult.error.code + '.TITLE', {
-            'operation': operationName
-          });
-          var message = null;
-          // Possible errors
-          // 800 : constraint error in a property definition
-          // 804 : type constraint for a property definition
-          // 805 : required constraint for a property definition
-          // 371 : Operation exception
-          if (successResult.error.code === 804 || successResult.error.code === 805) { // Type matching error
-            message = $translate.instant('ERRORS.' + successResult.error.code + '.MESSAGE', successResult.data);
-          } else if (successResult.error.code === 800) { // Constraint error
-            var constraintInfo = successResult.data;
-            message = $translate.instant('ERRORS.' + successResult.error.code + '.' + constraintInfo.name, constraintInfo);
-          } else { // code 371, execution error
-            message = successResult.error.message;
-          }
-          toaster.pop('error', title, message, 6000, 'trustedHtml', null);
-
-        } else if (!_.undefined(successResult.data)) {
-          var successTitle = $translate.instant('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
-            'operation': operationName
-          });
-          // Toaster HTML result preview for all instances
-          var resultInstanceMap = successResult.data;
-          var resultHtml = [];
-          resultHtml.push('<ul>');
-          Object.keys(resultInstanceMap).forEach(function(instanceId) {
-            if (resultInstanceMap[instanceId]) {
-              resultHtml.push('<li>Instance ' + instanceId + ' : ' + resultInstanceMap[instanceId] + '</li>');
-            } else {
-              resultHtml.push('<li>Instance ' + instanceId + ' : OK (' + $translate.instant('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.NO_RETURN') + ')</li>');
-            }
-
-          });
-          resultHtml.push('</ul>');
-          toaster.pop('success', successTitle, resultHtml.join(''), 4000, 'trustedHtml', null);
+      secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
+        if (_.defined(secretProviderInfo)) {
+          operationExecRequest.secretProviderPluginName = $scope.secretProviderConfigurations[0].pluginName;
+          operationExecRequest.secretProviderCredentials = secretProviderInfo.credentials;
         }
 
-      }, function(errorResult) {
-        console.error('executeOperation ERROR', errorResult);
-        $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = false;
-      });
+        deploymentServices.runtime.executeOperation({
+          applicationId: $scope.application.id
+        }, angular.toJson(operationExecRequest), function(successResult) {
+          // success
+          $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = false;
+          if (successResult.error !== null) {
+            var title = $translate.instant('ERRORS.' + successResult.error.code + '.TITLE', {
+              'operation': operationName
+            });
+            var message = null;
+            // Possible errors
+            // 800 : constraint error in a property definition
+            // 804 : type constraint for a property definition
+            // 805 : required constraint for a property definition
+            // 371 : Operation exception
+            if (successResult.error.code === 804 || successResult.error.code === 805) { // Type matching error
+              message = $translate.instant('ERRORS.' + successResult.error.code + '.MESSAGE', successResult.data);
+            } else if (successResult.error.code === 800) { // Constraint error
+              var constraintInfo = successResult.data;
+              message = $translate.instant('ERRORS.' + successResult.error.code + '.' + constraintInfo.name, constraintInfo);
+            } else { // code 371, execution error
+              message = successResult.error.message;
+            }
+            toaster.pop('error', title, message, 6000, 'trustedHtml', null);
 
+          } else if (!_.undefined(successResult.data)) {
+            var successTitle = $translate.instant('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
+              'operation': operationName
+            });
+            // Toaster HTML result preview for all instances
+            var resultInstanceMap = successResult.data;
+            var resultHtml = [];
+            resultHtml.push('<ul>');
+            Object.keys(resultInstanceMap).forEach(function(instanceId) {
+              if (resultInstanceMap[instanceId]) {
+                resultHtml.push('<li>Instance ' + instanceId + ' : ' + resultInstanceMap[instanceId] + '</li>');
+              } else {
+                resultHtml.push('<li>Instance ' + instanceId + ' : OK (' + $translate.instant('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.NO_RETURN') + ')</li>');
+              }
+
+            });
+            resultHtml.push('</ul>');
+            toaster.pop('success', successTitle, resultHtml.join(''), 4000, 'trustedHtml', null);
+          }
+
+        }, function(errorResult) {
+          console.error('executeOperation ERROR', errorResult);
+          $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = false;
+        });
+      });
       // reset parameter inputs ?
       injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterface);
     };
@@ -445,7 +451,7 @@ define(function (require) {
     // For saving the secret path
     $scope.saveSecret = function(secretPath, propertyValue) {
       propertyValue.parameters[0] = secretPath;
-    }
+    };
   }
 ]);
 });

@@ -1,34 +1,5 @@
 package alien4cloud.rest.runtime;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.validation.Valid;
-
-import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
-import org.alien4cloud.tosca.exceptions.ConstraintRequiredParameterException;
-import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
-import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
-import org.alien4cloud.tosca.model.definitions.IValue;
-import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.definitions.Operation;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
-
-import com.google.common.collect.Lists;
-
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
@@ -52,14 +23,47 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
-import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.services.ConstraintPropertyService;
+import alien4cloud.utils.services.PropertyService;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintRequiredParameterException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.alien4cloud.tosca.utils.FunctionEvaluator;
+import org.alien4cloud.tosca.utils.TopologyUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @RestController
 @Slf4j
@@ -195,12 +199,14 @@ public class RuntimeController {
         if (operation.getInputParameters() != null) {
             for (Entry<String, IValue> inputParameter : operation.getInputParameters().entrySet()) {
                 if (inputParameter.getValue().isDefinition()) {
-                    String requestInputParameter = operationRequest.getParameters() == null ? null
+                    Object requestInputParameter = operationRequest.getParameters() == null ? null
                             : operationRequest.getParameters().get(inputParameter.getKey());
                     PropertyDefinition currentOperationParameter = (PropertyDefinition) inputParameter.getValue();
-                    if (StringUtils.isNotBlank(requestInputParameter)) {
+                    if (requestInputParameter instanceof String && StringUtils.isNotBlank((String)requestInputParameter)) {
                         // recover the good property definition for the current parameter
                         ConstraintPropertyService.checkPropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
+                    } else if (FunctionEvaluator.containGetSecretFunction(PropertyService.asFunctionPropertyValue(requestInputParameter))) {
+                        continue;
                     } else if (currentOperationParameter.isRequired()) {
                         // input param not in the request, id required this is a missing parameter...
                         missingParams.add(inputParameter.getKey());

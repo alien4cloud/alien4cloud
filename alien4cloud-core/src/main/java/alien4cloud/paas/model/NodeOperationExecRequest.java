@@ -1,13 +1,12 @@
 package alien4cloud.paas.model;
 
-import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import org.hibernate.validator.constraints.NotBlank;
+
+import java.util.Map;
 
 /**
  * Object defining a request to execute an operation on a node template.
@@ -30,5 +29,5 @@ public class NodeOperationExecRequest {
     @NotBlank
     String operationName;
     /** Eventual parameters to the command **/
-    Map<String, String> parameters;
+    Map<String, Object> parameters;
 }
