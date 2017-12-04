@@ -46,3 +46,19 @@ Feature: Update substituted Node property
     Then I should receive a RestResponse with no error
     When I ask for the deployment topology of the application "ALIEN"
     And The the node "Compute" in the deployment topology should have the capability "os"'s property "type" with value "linux"
+
+  @reset
+  Scenario: Update a substituted node's property with a secret function
+    Given I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
+    When I update the property "imageId" to a secret with a secret path "kv/imageId" for the subtituted node "Compute"
+    Then I should receive a RestResponse with no error
+    When I ask for the deployment topology of the application "ALIEN"
+    Then The node "Compute" in the deployment topology should have the property "imageId" with a secret function having a secret path "kv/imageId"
+
+  @reset
+  Scenario: Update a substituted node's property who is a secret function should fail if configured by admin
+    Given I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
+    When I update the property "flavorId" to a secret with a secret path "kv/flavorId" for the subtituted node "Compute"
+    Then I should receive a RestResponse with an error code 800
+    When I ask for the deployment topology of the application "ALIEN"
+    Then The node "Compute" in the deployment topology should have the property "flavorId" with value "1"

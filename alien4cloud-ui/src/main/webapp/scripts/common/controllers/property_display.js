@@ -408,13 +408,28 @@ define(function(require) {
         }
         $scope.saveReset(defaultValue);
         $scope.editable = true;
-        
+
         if (_.has($scope.propertyValue, 'value')) {
           $scope.propertyValue.value = defaultValue; // if same value affected, no watch applied
         } else {
           $scope.propertyValue = defaultValue;
         }
       };
+
+      /*
+      * Add an event listener to reset the property value
+      */
+      $scope.$on('reset-property', function(event, object) {
+        var propertyName = event.currentScope.propertyName;
+        var capabilityName = event.currentScope.capabilityName;
+        var relationshipName = event.currentScope.relationshipName;
+
+        if (propertyName === object.propertyName && capabilityName === object.capabilityName && relationshipName === object.relationshipName) {
+          // Trigger the reset
+          event.currentScope.resetProperty();
+        }
+
+      });
 
       // Init managed property
       $scope.init();

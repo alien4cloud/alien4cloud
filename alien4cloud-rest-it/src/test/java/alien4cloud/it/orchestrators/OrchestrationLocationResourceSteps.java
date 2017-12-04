@@ -1,8 +1,11 @@
 package alien4cloud.it.orchestrators;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 
@@ -119,6 +122,15 @@ public class OrchestrationLocationResourceSteps extends AbstractLocationResource
 
     private String getUpdateCapabilityPropertyUrlFormat() {
         return getBaseUrlFormat() + "/%s/template/capabilities/%s/properties";
+    }
+
+
+    @And("^I update the property \"([^\"]*)\" to get_secret function with a secret path \"([^\"]*)\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void iUpdateThePropertyToASecretPathForTheResourceNamedRelatedToTheLocation(String propertyName, String secretPath, String resourceName, String orchestratorName, String locationName) throws Throwable {
+        FunctionPropertyValue propertyValue = new FunctionPropertyValue();
+        propertyValue.setFunction(ToscaFunctionConstants.GET_SECRET);
+        propertyValue.setParameters(Arrays.asList(secretPath));
+        updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, propertyValue, getUpdatePropertyUrlFormat());
     }
 
 }

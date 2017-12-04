@@ -149,6 +149,7 @@ define(function (require) {
             function(){ scope.display.displayAndUpdateVisualDimensions(['topology']); }
           );
         },
+
         /* Update properties of a node template */
         updateProperty: function(propertyDefinition, propertyName, propertyValue) {
           var scope = this.scope;

@@ -41,3 +41,21 @@ Feature: Update substituted policy property
     And I register the rest response data as SPEL context of type "alien4cloud.deployment.DeploymentTopologyDTO"
     Then The SPEL expression "topology.policies['MyPolicy'].properties['sample_property'].value" should return "doNotUpdate"
 
+  @reset
+  Scenario: Set a substituted policy's property as a secret
+    Given I substitute on the current application the policy "MyPolicy" with the location resource "Mock orchestrator"/"Thark location"/"SimpleConditionPolicyType2"
+    And I should receive a RestResponse with no error
+    When I update the property "sample_property" to a secret with a secret path "kv/sample_property" for the substituted policy "MyPolicy"
+    Then I should receive a RestResponse with no error
+    When I register the rest response data as SPEL context of type "alien4cloud.deployment.DeploymentTopologyDTO"
+    Then The SPEL expression "topology.policies['MyPolicy'].properties['sample_property'].function" should return "get_secret"
+    Then The SPEL expression "topology.policies['MyPolicy'].properties['sample_property'].parameters[0]" should return "kv/sample_property"
+
+  @reset
+  Scenario: Update a substituted policy's property should fail if configured by admin
+    Given I substitute on the current application the policy "MyPolicy" with the location resource "Mock orchestrator"/"Thark location"/"SimpleConditionPolicyType"
+    When I update the property "sample_property" to a secret with a secret path "kv/sample_property" for the substituted policy "MyPolicy"
+    Then I should receive a RestResponse with an error code 800
+    When I ask for the deployment topology of the application "ALIEN"
+    And I register the rest response data as SPEL context of type "alien4cloud.deployment.DeploymentTopologyDTO"
+    Then The SPEL expression "topology.policies['MyPolicy'].properties['sample_property'].value" should return "doNotUpdate"

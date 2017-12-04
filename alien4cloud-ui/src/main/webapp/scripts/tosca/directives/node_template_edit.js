@@ -22,7 +22,7 @@ define(function(require) {
         'dependencies': '=', // dependencies
         'onPropertyUpdate': '&', // callback operation triggered when a property is actually updated
         'isPropertyEditable': '&?', // callback operation that should return true if a property or a capability property can be edited.
-        'isSecretEditable': '&?',
+        'isSecretEditable': '&?', // callback operation that should return true if a secret
         'onCapabilityPropertyUpdate': '&', // callback operation triggered when a capability property is actually updated
         'onHalfRelationshipTypeUpdate' : '&?', // callback operation triggered when an half relationship type is updated (isService should be true)
         'capabilitiesRelationshipTypes' : '=?', // list of relationship type by capabilities (isService should be true)

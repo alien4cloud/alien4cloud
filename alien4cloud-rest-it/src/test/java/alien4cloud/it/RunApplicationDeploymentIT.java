@@ -9,6 +9,9 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(features = {
         //
         "classpath:alien/rest/application-deployment/"
+//        "classpath:alien/rest/application-deployment/inputs/inputs_secrets_settings.feature"
+//        "classpath:alien/rest/application-deployment/nodes_matching/node_substitution_update.feature"
+//        "classpath:alien/rest/application-deployment/policies_matching/policy_substitution_update.feature"
         // "classpath:alien/rest/application-deployment/policies_matching/policy_matching.feature"
         // "classpath:alien/rest/application-deployment/service_matching.feature"
         // "classpath:alien/rest/application-deployment/deploy_application.feature"

@@ -1,10 +1,12 @@
 package alien4cloud.it.topology;
 
 
-import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodeCapabilityPropertyAsSecretOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodePropertyAsSecretOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodeCapabilityPropertyAsSecretOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.UnsetNodePropertyAsSecretOperation;
+import org.alien4cloud.tosca.editor.operations.secrets.SetNodeCapabilityPropertyAsSecretOperation;
+import org.alien4cloud.tosca.editor.operations.secrets.SetNodePropertyAsSecretOperation;
+import org.alien4cloud.tosca.editor.operations.secrets.SetRelationshipPropertyAsSecretOperation;
+import org.alien4cloud.tosca.editor.operations.secrets.UnsetNodeCapabilityPropertyAsSecretOperation;
+import org.alien4cloud.tosca.editor.operations.secrets.UnsetNodePropertyAsSecretOperation;
+import org.alien4cloud.tosca.editor.operations.secrets.UnsetRelationshipPropertyAsSecretOperation;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.junit.Assert;
 
@@ -82,6 +84,37 @@ public class SecretPropertiesStepDefinitions {
         operation.setNodeName(nodeName);
         operation.setPropertyName(propertyName);
         operation.setCapabilityName(capabilityName);
+        EditorStepDefinitions.do_i_execute_the_operation(operation);
+        EditorStepDefinitions.do_i_save_the_topology();
+    }
+
+    @When("^I define the property \"([^\"]*)\" of relationship \"([^\"]*)\" from the node \"([^\"]*)\" as secret with a secret path \"([^\"]*)\" and I save the topology$")
+    public void iDefineThePropertyOfRelationshipFromTheNodeAsSecretWithASecretPathAndISaveTheTopology(String propertyName, String relationshipName, String nodeName, String secretPath) throws Throwable {
+        SetRelationshipPropertyAsSecretOperation operation = new SetRelationshipPropertyAsSecretOperation();
+        operation.setNodeName(nodeName);
+        operation.setRelationshipName(relationshipName);
+        operation.setPropertyName(propertyName);
+        operation.setSecretPath(secretPath);
+        EditorStepDefinitions.do_i_execute_the_operation(operation);
+        EditorStepDefinitions.do_i_save_the_topology();
+    }
+
+
+    @And("^The topology should have the property \"([^\"]*)\" of relationship \"([^\"]*)\" from the node \"([^\"]*)\" defined as a secret with a secret path \"([^\"]*)\"$")
+    public void theTopologyShouldHaveThePropertyOfRelationshipFromTheNodeDefinedAsASecretWithASecretPath(String propertyName, String relationshipName, String nodeName, String secretPath) throws Throwable {
+        String response = Context.getRestClientInstance().get("/rest/v1/topologies/" + Context.getInstance().getTopologyId());
+        JavaType restResponseType = Context.getJsonMapper().getTypeFactory().constructParametricType(RestResponse.class, TopologyDTO.class);
+        TopologyDTO topologyDTO = ((RestResponse<TopologyDTO>) Context.getJsonMapper().readValue(response, restResponseType)).getData();
+        FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) topologyDTO.getTopology().getNodeTemplates().get(nodeName).getRelationships().get(relationshipName).getProperties().get(propertyName);
+        Assert.assertEquals(secretPath, functionPropertyValue.getParameters().get(0));
+    }
+
+    @When("^I unset the property \"([^\"]*)\" of relationship \"([^\"]*)\" from the node \"([^\"]*)\" back to normal value$")
+    public void iUnsetThePropertyOfRelationshipFromTheNodeBackToNormalValue(String propertyName, String relationshipName, String nodeName) throws Throwable {
+        UnsetRelationshipPropertyAsSecretOperation operation = new UnsetRelationshipPropertyAsSecretOperation();
+        operation.setNodeName(nodeName);
+        operation.setPropertyName(propertyName);
+        operation.setRelationshipName(relationshipName);
         EditorStepDefinitions.do_i_execute_the_operation(operation);
         EditorStepDefinitions.do_i_save_the_topology();
     }

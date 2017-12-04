@@ -9,6 +9,15 @@ define(function(require) {
   modules.get('a4c-common').controller('SecretDisplayCtrl', ['$scope', '$translate', '$uibModal',
     function($scope, $translate, $uibModal) {
 
+      // Init the directive id
+      if (_.defined($scope.capabilityName)) {
+        $scope.id = _.defined($scope.id) ? $scope.id : $scope.capabilityName + '-' + $scope.propertyName;
+      } else if (_.defined($scope.relationshipName)) {
+        $scope.id = _.defined($scope.id) ? $scope.id : $scope.relationshipName + '-' + $scope.propertyName;
+      } else {
+        $scope.id = _.defined($scope.id) ? $scope.id : $scope.propertyName;
+      }
+
       var check = function(scope, secretPath) {
         // The capablity "scalable" can not become a secret
         if ("scalable" === scope.capabilityName) {
@@ -27,56 +36,47 @@ define(function(require) {
         return undefined;
       };
 
-      var secretSaveDefault = function(secretPath) {
-        // Check the secretPath
+      $scope.save = function(secretPath) {
         var error = check($scope, secretPath);
         if (_.defined(error)) {
           return error;
         }
+        return $scope.onSave({
+          secretPath: secretPath,
+          propertyName: $scope.propertyName,
+          propertyValue: $scope.propertyValue,
+          capabilityName: $scope.capabilityName,
+          relationshipName: $scope.relationshipName});
+      };
 
-        if (_.defined($scope.capabilityName)) {
-          // It is the operation for capablity
-          return $scope.execute()({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodeCapabilityPropertyAsSecretOperation',
-              nodeName: $scope.selectedNodeTemplate.name,
-              propertyName: $scope.propertyName,
-              capabilityName: $scope.capabilityName,
-              secretPath: secretPath
-            },
-            function(result){
-              // successful callback
-            },
-            null,
-            $scope.selectedNodeTemplate.name,
-            true
-          );
-        } else {
-          // It is an operation for property
-          return $scope.execute()({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.secrets.SetNodePropertyAsSecretOperation',
-              nodeName: $scope.selectedNodeTemplate.name,
-              propertyName: $scope.propertyName,
-              secretPath: secretPath
-            },
-            function(result){
-              // successful callback
-            },
-            null,
-            $scope.selectedNodeTemplate.name,
-            true
-          );
-        }
-      }
+      /*
+      * A listener for focusing on the text editor.
+      */
+      $scope.$on('focus-on', function(event, object) {
+        var propertyName = event.currentScope.propertyName;
+        var capabilityName = event.currentScope.capabilityName;
+        var relationshipName = event.currentScope.relationshipName;
 
-      $scope.secretSave = function(secretPath) {
-        if (_.defined($scope.customSaveSecret)) {
-          // use the custom secret save function
-          return $scope.customSaveSecret()($scope, secretPath);
-        } else {
-          // use the default secret save function
-          return secretSaveDefault(secretPath);
+
+        if (propertyName === object.propertyName && capabilityName === object.capabilityName && relationshipName === object.relationshipName) {
+          // Trigger the click on text editor
+          setTimeout(function () {
+            // Use setTimeout because the UI element is not yet loaded in the page.
+            if (_.defined(relationshipName)) {
+              // Search with relationshipName and propertyName
+              $('#' + relationshipName + '-' + propertyName + '-secret_path').trigger('click');
+            } else if (_.defined(capabilityName)) {
+              // Search with capabilityName and propertyName
+              $('#' + capabilityName + '-' + propertyName + '-secret_path').trigger('click');
+            } else {
+            	// Search only with propertyName
+              $('#' + propertyName + '-secret_path').trigger('click');
+            }
+          }, 0);
         }
-      }
+
+      });
+
     }
   ]); // controller
 }); // define

@@ -22,8 +22,9 @@ define(function (require) {
   });
   states.forward('catalog.policies', 'catalog.policies.list');
 
-  modules.get('a4c-catalog', ['ui.router']).controller('PoliciesCtrl', ['breadcrumbsService', '$translate',
-    function (breadcrumbsService, $translate) {
+  modules.get('a4c-catalog', ['ui.router']).controller('PoliciesCtrl', ['$scope', 'breadcrumbsService', '$translate',
+    function ($scope, breadcrumbsService, $translate) {
+
       breadcrumbsService.putConfig({
         state : 'catalog.policies',
         text: function(){

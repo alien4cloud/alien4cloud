@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,10 +18,11 @@ import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -28,10 +30,12 @@ import org.junit.Assert;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
+import alien4cloud.deployment.DeploymentTopologyDTO;
 import alien4cloud.it.Context;
 import alien4cloud.it.utils.RegisteredStringUtils;
 import alien4cloud.it.utils.TestUtils;
@@ -41,7 +45,6 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
 import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
-import alien4cloud.deployment.DeploymentTopologyDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
@@ -49,6 +52,7 @@ import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import cucumber.api.DataTable;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import lombok.AllArgsConstructor;
@@ -211,8 +215,27 @@ public class DeploymentTopologyStepDefinitions {
         updateProperty(propertyName, propertyValue, nodeName, "/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s/properties");
     }
 
+
+    @When("^I update the property \"([^\"]*)\" to a secret with a secret path \"([^\"]*)\" for the subtituted node \"([^\"]*)\"$")
+    public void iUpdateThePropertyToASecretWithASecretPathForTheSubtitutedNode(String propertyName, String secretPath, String nodeName) throws Throwable {
+        FunctionPropertyValue functionPropertyValue = new FunctionPropertyValue();
+        functionPropertyValue.setFunction(ToscaFunctionConstants.GET_SECRET);
+        functionPropertyValue.setParameters(Arrays.asList(secretPath));
+        updateProperty(propertyName, functionPropertyValue, nodeName, "/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s/properties");
+    }
+
     @When("^I update the property \"(.*?)\" to \"(.*?)\" for the substituted policy \"(.*?)\"$")
     public void I_update_the_property_to_for_the_subtituted_policy(String propertyName, String propertyValue, String nodeName) throws Throwable {
+        updateProperty(propertyName, propertyValue, nodeName,
+                "/rest/v1/applications/%s/environments/%s/deployment-topology/policies/%s/substitution/properties");
+    }
+
+
+    @When("^I update the property \"([^\"]*)\" to a secret with a secret path \"([^\"]*)\" for the substituted policy \"([^\"]*)\"$")
+    public void iUpdateThePropertyToASecretWithASecretPathForTheSubstitutedPolicy(String propertyName, String secretPath, String nodeName) throws Throwable {
+        FunctionPropertyValue propertyValue = new FunctionPropertyValue();
+        propertyValue.setFunction(ToscaFunctionConstants.GET_SECRET);
+        propertyValue.setParameters(Arrays.asList(secretPath));
         updateProperty(propertyName, propertyValue, nodeName,
                 "/rest/v1/applications/%s/environments/%s/deployment-topology/policies/%s/substitution/properties");
     }
@@ -234,6 +257,19 @@ public class DeploymentTopologyStepDefinitions {
         NodeTemplate node = dto.getTopology().getNodeTemplates().get(nodeName);
         assertNodePropertyValueEquals(node, propertyName, expectPropertyValue);
     }
+
+
+    @Then("^The node \"([^\"]*)\" in the deployment topology should have the property \"([^\"]*)\" with a secret function having a secret path \"([^\"]*)\"$")
+    public void theNodeInTheDeploymentTopologyShouldHaveThePropertyWithASecretFunctionHavingASecretPath(String nodeName, String propertyName, String secretPath) throws Throwable {
+        DeploymentTopologyDTO dto = getDeploymentTopologyDTO();
+        NodeTemplate node = dto.getTopology().getNodeTemplates().get(nodeName);
+        FunctionPropertyValue actualPropertyValue = (FunctionPropertyValue) node.getProperties().get(propertyName);
+        FunctionPropertyValue expectedPropertyValue = new FunctionPropertyValue();
+        expectedPropertyValue.setFunction(ToscaFunctionConstants.GET_SECRET);
+        expectedPropertyValue.setParameters(Arrays.asList(secretPath));
+        Assert.assertEquals(actualPropertyValue, expectedPropertyValue);
+    }
+
 
     @Then("^The TopologyDTO SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void the_node_in_the_deployment_topology_should_have_the_property_with_value(String spelExpression, String expected) throws Throwable {
@@ -435,6 +471,25 @@ public class DeploymentTopologyStepDefinitions {
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(url, JsonUtil.toString(inputArtifact)));
     }
+
+    @When("^I set the inputs property \"([^\"]*)\" as a secret with the following parameters$")
+    public void iSetTheInputsPropertyAsASecretWithTheFollowingParameters(String propertyName, Map<String, String> parameters) throws Throwable {
+        FunctionPropertyValue functionPropertyValue = new FunctionPropertyValue();
+        functionPropertyValue.setFunction(parameters.get("functionName"));
+        functionPropertyValue.setParameters(Arrays.asList(parameters.get("secretPath")));
+        UpdateDeploymentTopologyRequest request = new UpdateDeploymentTopologyRequest();
+        request.setInputProperties(parseAndReplaceProperties(ImmutableMap.of(propertyName, functionPropertyValue)));
+        executeUpdateDeploymentTopologyCall(request);
+    }
+
+    @And("^The deployment topology should have an input property \"([^\"]*)\" with the following parameters$")
+    public void theDeploymentTopologyShouldHaveAnInputPropertyWithTheFollowingParameters(String propertyName, Map<String, String> parameters) throws Throwable {
+        DeploymentTopologyDTO dto = getDeploymentTopologyDTO();
+        FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) safe(dto.getTopology().getAllInputProperties()).get(propertyName);
+        Assert.assertEquals(functionPropertyValue.getFunction(), parameters.get("functionName"));
+        Assert.assertEquals(functionPropertyValue.getParameters().get(0), parameters.get("secretPath"));
+    }
+
 
     @Getter
     @AllArgsConstructor(suppressConstructorProperties = true)
