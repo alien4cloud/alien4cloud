@@ -32,7 +32,7 @@ public class SetPolicyPropertyAsSecretProcessor extends AbstractPolicyProcessor<
     @Override
     protected void process(Csar csar, Topology topology, SetPolicyPropertyAsSecretOperation operation, PolicyTemplate policyTemplate) {
         PolicyType policyType = ToscaContext.getOrFail(PolicyType.class, policyTemplate.getType());
-        PropertyDefinition propertyDefinition = AlienUtils.getOrFail(policyType.getProperties(), operation.getPropertyName(),
+        AlienUtils.getOrFail(policyType.getProperties(), operation.getPropertyName(),
                 "Property [ {} ] doesn't exists in type [ {} ] for policy [ {} ].", operation.getPropertyName(), policyTemplate.getType(), operation.getPolicyName());
 
         FunctionPropertyValue secretFunction = new FunctionPropertyValue();

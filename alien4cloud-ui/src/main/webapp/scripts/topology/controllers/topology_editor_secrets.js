@@ -30,9 +30,7 @@ define(function (require) {
               propertyName: propertyName,
               secretPath: secretPath
             },
-            function(result){
-              // successful callback
-            },
+            null,
             null,
             scope.selectedNodeTemplate.name,
             true
@@ -51,9 +49,7 @@ define(function (require) {
               capabilityName: capabilityName,
               secretPath: secretPath
             },
-            function(result){
-              // successful callback
-            },
+            null,
             null,
             scope.selectedNodeTemplate.name,
             true
@@ -72,9 +68,7 @@ define(function (require) {
               relationshipName: relationshipName,
               secretPath: secretPath
             },
-            function(result){
-              // successful callback
-            },
+            null,
             null,
             scope.selectedNodeTemplate.name,
             true
@@ -128,19 +122,6 @@ define(function (require) {
         toggleSecret: function(self, requestObject, broadcastObject) {
           var scope = this.scope;
           if (scope.properties.isSecretValue(self.value)) {
-            // // reset the secret to originalValue
-            // if (self.value.parameters[0] !== "") {
-            //   setTimeout(function () {
-            //     scope.execute(requestObject,
-            //       function(result){
-            //         // successful callback
-            //       },
-            //       null,
-            //       scope.selectedNodeTemplate.name,
-            //       true
-            //     );
-            //   }, 0);
-            // }
             self.value = null;
             scope.$root.$broadcast('reset-property', broadcastObject);
           } else {
