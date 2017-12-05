@@ -6,7 +6,6 @@ import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.secret.SecretProviderConfiguration;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
@@ -32,8 +31,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Manages operations performed on a running deployment.
@@ -66,27 +63,11 @@ public class DeploymentRuntimeService {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(request.getApplicationEnvironmentId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(deployment.getEnvironmentId());
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
-        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = generateSecretConfiguration(deploymentTopology, request.getSecretProviderPluginName(), request.getSecretProviderCredentials());
-        orchestratorPlugin.executeOperation(deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials, deployment,
-                deploymentTopologyService.getLocations(deploymentTopology), deploymentTopology), request, callback);
-    }
-
-    private SecretProviderConfigurationAndCredentials generateSecretConfiguration(DeploymentTopology deploymentTopology, String secretProviderPluginName, Object secretProviderCredentials) {
-        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = new SecretProviderConfigurationAndCredentials();
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-        Optional<Location> firstLocation = locations.values().stream().filter(location -> Objects.equals(secretProviderPluginName, location.getSecretProviderConfiguration().getPluginName())).findFirst();
-        if(!firstLocation.isPresent()){
-            log.error("Plugin name <" + secretProviderPluginName + "> is not configured by the current location.");
-            secretProviderConfigurationAndCredentials = null;
-        }else{
-            SecretProviderConfiguration configuration = new SecretProviderConfiguration();
-            configuration.setConfiguration(firstLocation.get().getSecretProviderConfiguration());
-            configuration.setPluginName(secretProviderPluginName);
-            secretProviderConfigurationAndCredentials.setSecretProviderConfiguration(configuration);
-            secretProviderConfigurationAndCredentials.setCredentials(secretProviderCredentials);
-        }
-        return secretProviderConfigurationAndCredentials;
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = DeployService.generateSecretConfiguration(locations, request.getSecretProviderPluginName(), request.getSecretProviderCredentials());
+        orchestratorPlugin.executeOperation(deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials, deployment,
+                deploymentTopologyService.getLocations(deploymentTopology), deploymentTopology), request, callback);
     }
 
     /**

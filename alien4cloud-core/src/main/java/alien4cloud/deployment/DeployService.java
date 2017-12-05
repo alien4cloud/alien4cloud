@@ -273,24 +273,7 @@ public class DeployService {
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
 
-        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = null;
-        if (secretProviderCredentials != null) {
-            secretProviderConfigurationAndCredentials = new SecretProviderConfigurationAndCredentials();
-            secretProviderConfigurationAndCredentials.setCredentials(secretProviderCredentials.getCredentials());
-
-            Optional<Location> firstLocation = locations.values().stream().filter(location -> Objects.equals(secretProviderCredentials.getPluginName(), location.getSecretProviderConfiguration().getPluginName())).findFirst();
-            if(!firstLocation.isPresent()){
-                log.error("Plugin name <" + secretProviderCredentials.getPluginName() + "> is not configured by the current location.");
-                secretProviderConfigurationAndCredentials = null;
-            }else{
-                SecretProviderConfiguration configuration = new SecretProviderConfiguration();
-                configuration.setConfiguration(firstLocation.get().getSecretProviderConfiguration());
-                configuration.setPluginName(secretProviderCredentials.getPluginName());
-                secretProviderConfigurationAndCredentials.setSecretProviderConfiguration(configuration);
-                secretProviderConfigurationAndCredentials.setCredentials(secretProviderCredentials.getCredentials());
-            }
-
-        }
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = generateSecretConfiguration(locations, secretProviderCredentials.getPluginName(), secretProviderCredentials.getCredentials());
 
         PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials, deployment, locations, deploymentTopology);
         // Process services relationships to inject the service side based on the service resource.
@@ -299,6 +282,32 @@ public class DeployService {
         artifactProcessorService.processArtifacts(deploymentContext);
 
         return deploymentContext;
+    }
+
+    /**
+     * This method is used to build a valid object who contains the configuration of the secret provider from the location and the credentials for the current request/operation
+     *
+     * @param locations
+     * @param secretProviderPluginName
+     * @param secretProviderCredentials
+     * @return
+     */
+    public static SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations, String secretProviderPluginName, Object secretProviderCredentials) {
+        if (secretProviderCredentials == null) {
+            return null;
+        }
+        Optional<Location> firstLocation = locations.values().stream().filter(location -> Objects.equals(secretProviderPluginName, location.getSecretProviderConfiguration().getPluginName())).findFirst();
+        if (!firstLocation.isPresent()) {
+            log.error("Plugin name <" + secretProviderPluginName + "> is not configured by the current location.");
+            return null;
+        }
+        SecretProviderConfiguration configuration = new SecretProviderConfiguration();
+        configuration.setConfiguration(firstLocation.get().getSecretProviderConfiguration());
+        configuration.setPluginName(secretProviderPluginName);
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = new SecretProviderConfigurationAndCredentials();
+        secretProviderConfigurationAndCredentials.setSecretProviderConfiguration(configuration);
+        secretProviderConfigurationAndCredentials.setCredentials(secretProviderCredentials);
+        return secretProviderConfigurationAndCredentials;
     }
 
     /**
