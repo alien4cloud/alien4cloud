@@ -20,7 +20,7 @@ define(function (require) {
         key: 'EDITOR.MENU_TOPOLOGY',
         icon: 'fa fa-sitemap',
         show: true,
-        priority: 1
+        priority: 10
       }
     });
 
@@ -34,7 +34,21 @@ define(function (require) {
         key: 'EDITOR.MENU_WORKFLOW',
         icon: 'fa fa-code-fork fa-rotate-90',
         show: true,
-        priority: 1
+        priority: 20
+      }
+    });
+
+    states.state(prefix + '.inputs', {
+      url: '/inputs',
+      templateUrl: 'views/topology/topology_inputs_variables.html',
+      controller: 'TopologyInputsVariablesCtrl',
+      menu: {
+        id: 'am.' + prefix + '.inputs',
+        state: prefix + '.inputs',
+        key: 'EDITOR.MENU_INPUTS_VAR',
+        icon: 'fa fa-sign-in',
+        show: true,
+        priority: 25
       }
     });
 
@@ -48,7 +62,7 @@ define(function (require) {
         key: 'EDITOR.MENU_FILES',
         icon: 'fa fa-folder-open',
         show: true,
-        priority: 10
+        priority: 30
       }
     });
 
@@ -62,7 +76,7 @@ define(function (require) {
         key: 'EDITOR.MENU_VALIDATION',
         icon: 'fa fa-check',
         show: true,
-        priority: 20
+        priority: 40
       }
     });
 
@@ -76,7 +90,7 @@ define(function (require) {
         key: 'EDITOR.MENU_HISTORY',
         icon: 'fa fa-history',
         show: true,
-        priority: 30
+        priority: 50
       }
     });
 

@@ -94,6 +94,7 @@ module.exports = function (grunt) {
           'd3-pie': 'empty:',
           'dagre': 'empty:',
           'graphlib': 'empty:',
+          'js-yaml': 'empty:',
         }
       }
     },

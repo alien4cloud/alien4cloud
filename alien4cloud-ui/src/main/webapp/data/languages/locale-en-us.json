@@ -74,6 +74,10 @@
       "DELETING_FAILED": "Unable to delete the application. First, undeploy it and retry."
     },
     "IMAGE_UPLOAD": "Drop an image file",
+    "INPUTS": {
+      "EXPRESSION": "Expression",
+      "DEPLOYER": "Deployer input"
+    },
     "META_PROPERTIES": "Meta-properties",
     "NEW": "New Application",
     "RUNTIME": {
@@ -768,6 +772,7 @@
     },
     "MENU_FILES": "Archive content",
     "MENU_HISTORY": "History",
+    "MENU_INPUTS_VAR": "Inputs and Variables",
     "MENU_TOPOLOGY": "Topology",
     "MENU_VALIDATION": "Topology validation",
     "MENU_WORKFLOW": "Workflows",

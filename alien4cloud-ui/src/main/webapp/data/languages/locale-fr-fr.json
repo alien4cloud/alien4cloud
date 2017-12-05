@@ -74,6 +74,10 @@
       "DELETING_FAILED" : "Impossible de supprimer l'application. Annuler son déploiement et réessayez."
     },
     "IMAGE_UPLOAD" : "Déposer une image",
+    "INPUTS": {
+      "EXPRESSION": "Expression",
+      "DEPLOYER": "Deployer input"
+    },
     "META_PROPERTIES" : "Méta-propriétés",
     "NEW" : "Nouvelle Application",
     "RUNTIME" : {
@@ -762,6 +766,7 @@
     },
     "MENU_FILES" : "Fichiers de l'archive",
     "MENU_HISTORY" : "Historique",
+    "MENU_INPUTS_VAR": "Inputs et Variables",
     "MENU_TOPOLOGY" : "Topologie",
     "MENU_VALIDATION" : "Validation de la topologie",
     "MENU_WORKFLOW" : "Workflows",

@@ -1,0 +1,20 @@
+
+<empty-place-holder data="topology.mappedInputs"></empty-place-holder>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>
+        {{'COMMON.NAME' | translate}}
+      </th>
+      <th>
+        {{'APPLICATIONS.INPUTS.EXPRESSION' | translate}}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat = "(inputName, expression) in topology.mappedInputs">
+      <td style="width: 20%">{{inputName}}</td>
+      <td ng-class= "{'deployer_input': !expression}" style="white-space: pre-line;">{{expression || ('APPLICATIONS.INPUTS.DEPLOYER' | translate)}}</td>
+    </tr>
+  </tbody>
+</table>
