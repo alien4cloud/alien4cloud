@@ -115,26 +115,31 @@ public class DeploymentRuntimeService {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(applicationEnvironmentId);
         final DeploymentTopology topology = alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
         toscaContextualAspect.execInToscaContext(() -> {
-            doScale(nodeTemplateId, instances, callback, deployment, topology);
+            doScale(nodeTemplateId, instances, callback, deployment, topology, secretProviderConfigurationAndCredentials);
             return null;
         }, false, topology);
     }
 
     private void doScale(final String nodeTemplateId, final int instances, final IPaaSCallback<Object> callback, final Deployment deployment,
-            final DeploymentTopology topology) {
+            final DeploymentTopology topology, SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
         NodeTemplate nodeTemplate = TopologyUtils.getNodeTemplate(topology, nodeTemplateId);
+
+        // get the secret provider configuration from the location
+        Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(topology);
+        Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
+        secretProviderConfigurationAndCredentials = DeployService.generateSecretConfiguration(locations, secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(), secretProviderConfigurationAndCredentials.getCredentials());
 
         // Get alien4cloud specific interface to support cluster controller nodes.
         Capability clusterControllerCapability = NodeTemplateUtils.getCapabilityByType(nodeTemplate, AlienCapabilityTypes.CLUSTER_CONTROLLER);
         if (clusterControllerCapability == null) {
-            doScaleNode(nodeTemplateId, instances, callback, deployment, topology, nodeTemplate);
+            doScaleNode(nodeTemplateId, instances, callback, deployment, topology, nodeTemplate, secretProviderConfigurationAndCredentials);
         } else {
-            triggerClusterManagerScaleOperation(nodeTemplateId, instances, callback, deployment, topology, clusterControllerCapability);
+            triggerClusterManagerScaleOperation(nodeTemplateId, instances, callback, deployment, topology, clusterControllerCapability, secretProviderConfigurationAndCredentials);
         }
     }
 
     private void triggerClusterManagerScaleOperation(final String nodeTemplateId, final int instances, final IPaaSCallback<Object> callback,
-            final Deployment deployment, final DeploymentTopology topology, Capability clusterControllerCapability) {
+            final Deployment deployment, final DeploymentTopology topology, Capability clusterControllerCapability, SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
         NodeOperationExecRequest scaleOperationRequest = new NodeOperationExecRequest();
         // Instance id is not specified for cluster control nodes
@@ -153,7 +158,7 @@ public class DeploymentRuntimeService {
         scaleOperationRequest.getParameters().put(AlienInterfaceTypes.CLUSTER_CONTROL_OP_SCALE_PARAMS_EXPECTED_INSTANCES, String.valueOf(expectedInstances));
 
         orchestratorPlugin.executeOperation(
-                deploymentContextService.buildTopologyDeploymentContext(null, deployment, deploymentTopologyService.getLocations(topology), topology),
+                deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials, deployment, deploymentTopologyService.getLocations(topology), topology),
                 scaleOperationRequest, new IPaaSCallback<Map<String, String>>() {
                     @Override
                     public void onSuccess(Map<String, String> data) {
@@ -172,7 +177,7 @@ public class DeploymentRuntimeService {
     }
 
     private void doScaleNode(final String nodeTemplateId, final int instances, final IPaaSCallback<Object> callback, final Deployment deployment,
-            final DeploymentTopology topology, NodeTemplate nodeTemplate) {
+            final DeploymentTopology topology, NodeTemplate nodeTemplate, SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
         final Capability capability = NodeTemplateUtils.getCapabilityByTypeOrFail(nodeTemplate, NormativeCapabilityTypes.SCALABLE);
         final int previousInitialInstances = TopologyUtils.getScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, capability);
         final int newInitialInstances = previousInitialInstances + instances;
@@ -181,7 +186,7 @@ public class DeploymentRuntimeService {
         alienMonitorDao.save(topology);
 
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
-        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, topology, null);
+        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, topology, secretProviderConfigurationAndCredentials);
         orchestratorPlugin.scale(deploymentContext, nodeTemplateId, instances, new IPaaSCallback() {
             @Override
             public void onFailure(Throwable throwable) {
