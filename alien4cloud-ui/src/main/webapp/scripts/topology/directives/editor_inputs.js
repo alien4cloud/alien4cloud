@@ -8,6 +8,7 @@ define(function (require) {
 
   require('scripts/topology/services/topology_variables_service');
   require('scripts/topology/services/topology_browser_service');
+  require('scripts/common/filters/a4c_linky');
 
   modules.get('a4c-topology-editor').directive('editorInputs',
     [
@@ -22,13 +23,11 @@ define(function (require) {
 
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('editorInputsCtrl',
-    ['$scope', 'topologyVariableService', '$http', 'topoBrowserService', function($scope, topologyVariableService, $http, topoBrowserService) {
+    ['$scope', 'topologyVariableService', '$http', 'topoBrowserService', '$filter', function($scope, topologyVariableService, $http, topoBrowserService, $filter) {
 
-      //return if no inputs defined in topology
-      if(_.isEmpty($scope.topology.topology.inputs)){
-        return;
-      }
-      $scope.jsYml = yaml;
+      $scope.dump = function(value) {
+        return $filter('a4cLinky')(_.trim(yaml.safeDump(value, {indent: 4}), '"\n'), 'openVarModal');
+      };
 
       function refresh(expanded){
         var inputsFileNode = topologyVariableService.getInputs(expanded);
@@ -40,6 +39,7 @@ define(function (require) {
           });
         }
       }
+
       function updateInputFile(content) {
         $scope.execute({
           type: 'org.alien4cloud.tosca.editor.operations.UpdateFileContentOperation',
@@ -51,10 +51,16 @@ define(function (require) {
       $scope.clearInput = function(inputName) {
         if(_.has($scope.loadedInputs, inputName)){
           delete $scope.loadedInputs[inputName];
+          var content = yaml.safeDump($scope.loadedInputs);
+          updateInputFile(content);
         }
-        var content = yaml.safeDump($scope.loadedInputs || {});
-        updateInputFile(content);
       };
+
+      $scope.openVarModal = function(varName){
+        console.log('clicked on var ==>', varName);
+      };
+
+
       var firstLoad = true;
       $scope.$watch('topology.archiveContentTree.children[0]', function(newValue, oldValue){
         if(_.defined(newValue) && (firstLoad || newValue !== oldValue)){

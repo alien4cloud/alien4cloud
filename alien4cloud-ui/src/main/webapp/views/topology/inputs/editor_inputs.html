@@ -15,7 +15,8 @@
   <tbody>
     <tr ng-repeat = "(inputName, value) in topology.topology.inputs ">
       <td style="width: 20%">{{inputName}}</td>
-      <td ng-if="loadedInputs[inputName]" style="white-space: pre-line;">{{jsYml.safeDump(loadedInputs[inputName])}}</td>
+      <!-- ng-bind-html doesn't work here as we want to add ng-click to variable elements. So a4c-compile is a hack directive for that to work. -->
+      <td ng-if="loadedInputs[inputName]" style="white-space: pre;"><span a4c-compile=dump(loadedInputs[inputName])></span></td>
       <td ng-if="!loadedInputs[inputName]" class= "deployer_input">{{'APPLICATIONS.INPUTS.DEPLOYER' | translate}}</td>
       <td>
         <a class="btn btn-default btn-sm" ng-click="clearInput(inputName)">{{'APPLICATIONS.INPUTS.CLEAR' | translate}}</a>
