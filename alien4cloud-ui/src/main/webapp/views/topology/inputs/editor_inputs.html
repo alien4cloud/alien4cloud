@@ -1,5 +1,5 @@
 
-<empty-place-holder data="topology.mappedInputs"></empty-place-holder>
+<empty-place-holder data="topology.topology.inputs"></empty-place-holder>
 <table class="table table-hover">
   <thead>
     <tr>
@@ -9,12 +9,17 @@
       <th>
         {{'APPLICATIONS.INPUTS.EXPRESSION' | translate}}
       </th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat = "(inputName, expression) in topology.mappedInputs">
+    <tr ng-repeat = "(inputName, value) in topology.topology.inputs ">
       <td style="width: 20%">{{inputName}}</td>
-      <td ng-class= "{'deployer_input': !expression}" style="white-space: pre-line;">{{expression || ('APPLICATIONS.INPUTS.DEPLOYER' | translate)}}</td>
+      <td ng-if="loadedInputs[inputName]" style="white-space: pre-line;">{{jsYml.safeDump(loadedInputs[inputName])}}</td>
+      <td ng-if="!loadedInputs[inputName]" class= "deployer_input">{{'APPLICATIONS.INPUTS.DEPLOYER' | translate}}</td>
+      <td>
+        <a class="btn btn-default btn-sm" ng-click="clearInput(inputName)">{{'APPLICATIONS.INPUTS.CLEAR' | translate}}</a>
+      </td>
     </tr>
   </tbody>
 </table>

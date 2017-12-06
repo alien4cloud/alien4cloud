@@ -76,7 +76,8 @@
     "IMAGE_UPLOAD": "Drop an image file",
     "INPUTS": {
       "EXPRESSION": "Expression",
-      "DEPLOYER": "Deployer input"
+      "DEPLOYER": "Deployer input",
+      "CLEAR": "Clear"
     },
     "META_PROPERTIES": "Meta-properties",
     "NEW": "New Application",

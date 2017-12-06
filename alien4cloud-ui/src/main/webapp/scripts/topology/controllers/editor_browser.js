@@ -10,10 +10,11 @@ define(function (require) {
 
   require('angular-tree-control');
   require('scripts/common/services/explorer_service');
+  require('scripts/topology/services/topology_browser_service');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('TopologyBrowserCtrl',
-    ['$scope', '$http', 'explorerService', '$stateParams', 'topoEditDisplay', 'uploadServiceFactory', '$translate',
-    function($scope, $http, explorerService, $stateParams, topoEditDisplay, uploadServiceFactory, $translate) {
+    ['$scope', '$http', 'explorerService', '$stateParams', 'topoEditDisplay', 'uploadServiceFactory', '$translate', 'topoBrowserService',
+    function($scope, $http, explorerService, $stateParams, topoEditDisplay, uploadServiceFactory, $translate, topoBrowserService) {
     var openOnFile = $stateParams.file;
 
     $scope.displays = {
@@ -57,32 +58,18 @@ define(function (require) {
     $scope.showSelected = function(node) {
       var dirName = node.fullPath.substring(node.fullPath.split('/', 2).join('/').length+1);
       $scope.filePath = dirName;
-      var selectedUrl;
-      if(_.defined(node.artifactId)) {
-        // temp file under edition
-        selectedUrl = '/rest/latest/editor/' + $scope.topology.topology.id + '/file/' + node.artifactId;
-      } else {
-        // commited file
-        selectedUrl = '/static/tosca/' + $scope.topology.topology.archiveName + '/' + $scope.topology.topology.archiveVersion + node.fullPath;
-      }
-      _.isImage(selectedUrl).then(function(isImage) {
-        if(isImage) {
-          $scope.imageUrl = selectedUrl;
-          $scope.isImage = isImage;
-          $scope.$apply();
-        } else {
-          $scope.isImage = false;
-          $http({method: 'GET',
-            transformResponse: function(d) { return d; },
-            url: selectedUrl})
-            .then(function(result) {
-              $scope.aceFilePath = dirName;
-              aceEditor.getSession().setValue(result.data);
-              $scope.mode = explorerService.getMode(node);
-            });
-        }
-      });
+      topoBrowserService.getContent($scope.topology.topology, node, function(result){
+        $scope.isImage = false;
+        $scope.aceFilePath = dirName;
+        aceEditor.getSession().setValue(result.data);
+        $scope.mode = explorerService.getMode(node);
+      }, function(url) {
+        $scope.imageUrl = url;
+        $scope.isImage = true;
+        $scope.$apply();
+      } );
     };
+
     function update() {
       var root = $scope.topology.archiveContentTree.children[0];
       $scope.treedata.children = root.children;

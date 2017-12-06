@@ -7,7 +7,7 @@ define(function (require) {
   var yaml = require('js-yaml');
 
   require('scripts/topology/services/topology_variables_service');
-
+  require('scripts/topology/services/topology_browser_service');
 
   modules.get('a4c-topology-editor').directive('editorInputs',
     [
@@ -22,35 +22,46 @@ define(function (require) {
 
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('editorInputsCtrl',
-    ['$scope', 'topologyVariableService', '$http', function($scope, topologyVariableService, $http) {
+    ['$scope', 'topologyVariableService', '$http', 'topoBrowserService', function($scope, topologyVariableService, $http, topoBrowserService) {
 
       //return if no inputs defined in topology
       if(_.isEmpty($scope.topology.topology.inputs)){
         return;
       }
-      $scope.topology.mappedInputs = {};
-      _.forEach(_.keys($scope.topology.topology.inputs), function(inputName){
-        $scope.topology.mappedInputs[inputName]=null;
-      });
+      $scope.jsYml = yaml;
 
-      // console.log(selectedUrl);
-      // console.log($scope.topology.archiveContentTree);
-      var root = $scope.topology.archiveContentTree.children[0];
-      // console.log(topologyVariableService.getInputs(root));
-      if(_.defined(topologyVariableService.getInputs(root))){
-        $http({method: 'GET',
-          transformResponse: function(d) { return d; },
-          url: topologyVariableService.getInputsPath($scope.topology.topology.archiveName, $scope.topology.topology.archiveVersion)})
-        .then(function(result) {
-          // console.log(result.data);
-          var loadedInputs =  yaml.safeLoad(result.data);
-          _.forEach(_.keys($scope.topology.mappedInputs), function(inputName){
-            $scope.topology.mappedInputs[inputName] = yaml.safeDump(loadedInputs[inputName]);
-          } );
+      function refresh(expanded){
+        var inputsFileNode = topologyVariableService.getInputs(expanded);
+        // var inputsFileNode = topologyVariableService.getInputs($scope.topology.archiveContentTree.children[0]);
 
+        if(_.defined(inputsFileNode)){
+          topoBrowserService.getContent($scope.topology.topology, inputsFileNode, function(result){
+            $scope.loadedInputs= yaml.safeLoad(result.data);
+          });
+        }
+      }
+      function updateInputFile(content) {
+        $scope.execute({
+          type: 'org.alien4cloud.tosca.editor.operations.UpdateFileContentOperation',
+          path: 'inputs/inputs.yml',
+          content: content
         });
       }
 
+      $scope.clearInput = function(inputName) {
+        if(_.has($scope.loadedInputs, inputName)){
+          delete $scope.loadedInputs[inputName];
+        }
+        var content = yaml.safeDump($scope.loadedInputs || {});
+        updateInputFile(content);
+      };
+      var firstLoad = true;
+      $scope.$watch('topology.archiveContentTree.children[0]', function(newValue, oldValue){
+        if(_.defined(newValue) && (firstLoad || newValue !== oldValue)){
+          refresh(newValue);
+          firstLoad=false;
+        }
+      });
     }
   ]);
 }); // define
