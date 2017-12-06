@@ -312,19 +312,26 @@ public class DeployService {
         if (secretProviderCredentials == null) {
             return null;
         }
+        return generateSecretConfiguration(locations, secretProviderCredentials.getPluginName(), secretProviderCredentials.getCredentials());
+    }
+
+    public static SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations, String pluginName, Object credentials) {
+        if (credentials == null) {
+            return null;
+        }
         Optional<Location> firstLocation = locations.values().stream()
-                .filter(location -> Objects.equals(secretProviderCredentials.getPluginName(), location.getSecretProviderConfiguration().getPluginName()))
+                .filter(location -> Objects.equals(pluginName, location.getSecretProviderConfiguration().getPluginName()))
                 .findFirst();
         if (!firstLocation.isPresent()) {
-            log.error("Plugin name <" + secretProviderCredentials.getPluginName() + "> is not configured by the current location.");
+            log.error("Plugin name <" + pluginName + "> is not configured by the current location.");
             return null;
         }
         SecretProviderConfiguration configuration = new SecretProviderConfiguration();
         configuration.setConfiguration(firstLocation.get().getSecretProviderConfiguration());
-        configuration.setPluginName(secretProviderCredentials.getPluginName());
+        configuration.setPluginName(pluginName);
         SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = new SecretProviderConfigurationAndCredentials();
         secretProviderConfigurationAndCredentials.setSecretProviderConfiguration(configuration);
-        secretProviderConfigurationAndCredentials.setCredentials(secretProviderCredentials.getCredentials());
+        secretProviderConfigurationAndCredentials.setCredentials(credentials);
         return secretProviderConfigurationAndCredentials;
     }
 
