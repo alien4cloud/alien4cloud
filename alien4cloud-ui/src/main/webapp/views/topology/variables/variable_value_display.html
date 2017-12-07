@@ -1,0 +1,69 @@
+<form name="variable" class="form-horizontal" role="form" novalidate>
+  <div class="modal-header">
+    <b>{{'APPLICATIONS.VARIABLES.NAME' | translate}}</b>: {{varName}}
+  </div>
+
+
+  <div id="var-explorer" class="modal-body">
+    <div class="topology-row" >
+      <div id="var-scope-box" class="topology-column">
+        <div class="topology-column-box">
+          <div class="topology-column-content-left" style="padding-top: 10px; padding-left: 10px;">
+
+            <div>
+              <h5 class="var-scope-title clickable" ng-class= "{'var-defined': appScope.expression, 'var-undefined': !appScope.expression}"
+              ng-click="showAppVarExpression(appScope.expression)">  {{'APPLICATIONS.VARIABLES.APP_SCOPE' | translate}}</h5>
+            </div>
+
+            <div style="margin-top: 30px">
+              <h5 class="var-scope">  {{'APPLICATIONS.VARIABLES.ENV_SCOPE' | translate}}</h5>
+              <!-- inplace search bar-->
+              <form class="grp-margin">
+                <div>
+                  <input id="env-inplace-search-query" type="text" class="form-control input-xs" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchEnv">
+                </div>
+              </form>
+              <div class="var-scope-item clickable"
+                   ng-repeat="varDef in envVarDefs | filter:searchEnv"
+                   ng-click="showEnvVarExpression(varDef.environmentId, varDef.variable.expression)"
+                   ng-class= "{'var-defined': varDef.variable.expression, 'var-undefined': !varDef.variable.expression}" >
+                <span>{{varDef.environmentName}}</span> (<span>{{varDef.environmentId}}</span>)
+              </div>
+            </div>
+
+          </div>
+          <!-- <resizable-bar
+            id="var-scope-box-handler"
+            direction="e"
+            classes="topology-column-menu-right">
+          </resizable-bar> -->
+        </div>
+      </div>
+      <div id="var-expression" class="topology-column">
+        <div ng-if="!isImage" style="margin-top:10px;">
+          <div style="margin-left: 10px;">
+            <button class="btn btn-default btn-sm" id="save-file"
+              ng-disabled="!selectedScope"
+              ng-click="saveFile()">
+              <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
+            </button>
+            <span class="text-info">{{selectedScope.id}}<span>
+          </div>
+          <div ng-model="editorContent" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: 'true', onLoad : aceLoaded}" style="margin-top:10px; min-height: 100px;">
+          </div>
+        </div>
+        <div ng-if="isImage" style="margin-top:10px;" class="well"><img ng-src="{{imageUrl}}" /></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal-footer">
+    <button id="modal-push-button" class="btn btn-primary" ng-click="ok()">
+      {{ 'GENERIC_FORM.SAVE'| translate}}
+    </button>
+    <button id="modal-close-button" class="btn btn-default" ng-click="cancel()">
+      {{'GENERIC_FORM.CANCEL' | translate}}
+    </button>
+  </div>
+</form>

@@ -1,0 +1,17 @@
+.var-defined {
+  color: $state-success-text;
+}
+
+.var-undefined {
+  color: $state-danger-text;
+  font-style: italic;
+}
+
+.var-scope-selected {
+  // background-color: white
+}
+
+.var-scope-item {
+  margin-top: 10px;
+  padding-left: 20px;
+}

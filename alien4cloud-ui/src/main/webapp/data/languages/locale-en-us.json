@@ -79,6 +79,12 @@
       "DEPLOYER": "Deployer input",
       "CLEAR": "Clear"
     },
+    "VARIABLES": {
+      "APP_SCOPE": "Application scope",
+      "ENV_SCOPE": "Environment scope",
+      "ENV_TYPE_SCOPE": "Environment type scope",
+      "NAME":"Variable name"
+    },
     "META_PROPERTIES": "Meta-properties",
     "NEW": "New Application",
     "RUNTIME": {

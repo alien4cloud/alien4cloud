@@ -23,13 +23,8 @@ define(function (require) {
         return currentNode;
       }
 
-      var getInputsPath = function(archiveName, archiveVersion){
-        return '/static/tosca/' + archiveName + '/' + archiveVersion + '/expanded/inputs/inputs.yml';
-      };
-
       return {
         // end
-        getInputsPath: getInputsPath,
         getInputs: function(expanded) {return getNode(expanded, 'inputs/inputs.yml');}
       };
     }

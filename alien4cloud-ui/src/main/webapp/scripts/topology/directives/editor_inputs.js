@@ -8,6 +8,7 @@ define(function (require) {
 
   require('scripts/topology/services/topology_variables_service');
   require('scripts/topology/services/topology_browser_service');
+  require('scripts/topology/directives/variable_display_ctrl');
   require('scripts/common/filters/a4c_linky');
 
   modules.get('a4c-topology-editor').directive('editorInputs',
@@ -23,7 +24,7 @@ define(function (require) {
 
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('editorInputsCtrl',
-    ['$scope', 'topologyVariableService', '$http', 'topoBrowserService', '$filter', function($scope, topologyVariableService, $http, topoBrowserService, $filter) {
+    ['$scope', 'topologyVariableService', '$http', 'topoBrowserService', '$filter', '$uibModal', function($scope, topologyVariableService, $http, topoBrowserService, $filter, $uibModal) {
 
       $scope.dump = function(value) {
         return $filter('a4cLinky')(_.trim(yaml.safeDump(value, {indent: 4}), '"\n'), 'openVarModal');
@@ -58,6 +59,29 @@ define(function (require) {
 
       $scope.openVarModal = function(varName){
         console.log('clicked on var ==>', varName);
+        var modalInstance = $uibModal.open({
+          templateUrl: 'views/topology/variables/variable_value_display.html',
+          controller: 'variableDisplayCtrl',
+          scope: $scope,
+          size: 'lg',
+          resolve: {
+            varName: function() {
+              return varName;
+            }
+          }
+        });
+        modalInstance.result.then(function(vars) {
+          console.log(vars);
+          // var gitPullResource= $alresource('rest/latest/editor/:topologyId/git/pull');
+          // gitPullResource.update({topologyId: $scope.topologyId, remoteBranch: gitPushPullForm.remoteBranch}, angular.toJson(gitPushPullForm.credentials), function(response) {
+          //   if(_.undefined(response.error)){
+          //     $scope.refreshTopology(response.data);
+          //     toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PULL.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PULL.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
+          //   } else {
+          //     $scope.showParsingErrors(response);
+          //   }
+          // });
+        });
       };
 
 
