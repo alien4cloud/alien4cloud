@@ -1,5 +1,42 @@
 package alien4cloud.rest.runtime;
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.validation.Valid;
+
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintRequiredParameterException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.alien4cloud.tosca.utils.FunctionEvaluator;
+import org.alien4cloud.tosca.utils.TopologyUtils;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import com.google.common.collect.Lists;
+
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
@@ -23,47 +60,15 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.services.ConstraintPropertyService;
 import alien4cloud.utils.services.PropertyService;
-import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
-import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
-import org.alien4cloud.tosca.exceptions.ConstraintRequiredParameterException;
-import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
-import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
-import org.alien4cloud.tosca.model.definitions.IValue;
-import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.definitions.Operation;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
-import org.alien4cloud.tosca.utils.FunctionEvaluator;
-import org.alien4cloud.tosca.utils.TopologyUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.async.DeferredResult;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Map.Entry;
 
 @RestController
 @Slf4j
@@ -187,46 +192,56 @@ public class RuntimeController {
 
         Interface interfass = interfaces.get(operationRequest.getInterfaceName());
 
-        validateOperation(interfass, operationRequest);
+        validateOperation(interfass, operationRequest, topology.getDependencies());
     }
 
-    private void validateParameters(Interface interfass, OperationExecRequest operationRequest)
+    private void validateParameters(Interface interfass, OperationExecRequest operationRequest, Set<CSARDependency> dependencies)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException, ConstraintRequiredParameterException {
-        ArrayList<String> missingParams = Lists.newArrayList();
+        try {
+            if (dependencies != null) {
+                ToscaContext.init(dependencies);
+            }
+            ArrayList<String> missingParams = Lists.newArrayList();
+            Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
 
-        Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
-
-        if (operation.getInputParameters() != null) {
-            for (Entry<String, IValue> inputParameter : operation.getInputParameters().entrySet()) {
-                if (inputParameter.getValue().isDefinition()) {
-                    Object requestInputParameter = operationRequest.getParameters() == null ? null
-                            : operationRequest.getParameters().get(inputParameter.getKey());
-                    PropertyDefinition currentOperationParameter = (PropertyDefinition) inputParameter.getValue();
-                    if (requestInputParameter instanceof String && StringUtils.isNotBlank((String)requestInputParameter)) {
-                        // recover the good property definition for the current parameter
-                        ConstraintPropertyService.checkPropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
-                    } else if (FunctionEvaluator.containGetSecretFunction(PropertyService.asFunctionPropertyValue(requestInputParameter))) {
-                        continue;
-                    } else if (currentOperationParameter.isRequired()) {
-                        // input param not in the request, id required this is a missing parameter...
-                        missingParams.add(inputParameter.getKey());
-                    } else {
-                        // set the value to null
-                        operation.getInputParameters().put(inputParameter.getKey(), null);
+            if (operation.getInputParameters() != null) {
+                for (Entry<String, IValue> inputParameter : operation.getInputParameters().entrySet()) {
+                    if (inputParameter.getValue().isDefinition()) {
+                        Object requestInputParameter = operationRequest.getParameters() == null ? null
+                                : operationRequest.getParameters().get(inputParameter.getKey());
+                        PropertyDefinition currentOperationParameter = (PropertyDefinition) inputParameter.getValue();
+                        if (requestInputParameter != null) {
+                            if (!(requestInputParameter instanceof Map)
+                                    || !FunctionEvaluator.containGetSecretFunction(PropertyService.asFunctionPropertyValue(requestInputParameter))) {
+                                // recover the good property definition for the current parameter
+                                ConstraintPropertyService.checkPropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
+                            }
+                        } else if (currentOperationParameter.isRequired()) {
+                            // input param not in the request, id required this is a missing parameter...
+                            missingParams.add(inputParameter.getKey());
+                        } else {
+                            // set the value to null
+                            operation.getInputParameters().put(inputParameter.getKey(), null);
+                        }
                     }
                 }
             }
-        }
 
-        // check required input issue
-        if (!missingParams.isEmpty()) {
-            log.error("Missing required parameter", missingParams);
-            ConstraintInformation constraintInformation = new ConstraintInformation(null, null, missingParams.toString(), "required");
-            throw new ConstraintRequiredParameterException("Missing required parameters", null, constraintInformation);
+            // check required input issue
+            if (!missingParams.isEmpty()) {
+                log.error("Missing required parameter", missingParams);
+                ConstraintInformation constraintInformation = new ConstraintInformation(null, null, missingParams.toString(), "required");
+                throw new ConstraintRequiredParameterException("Missing required parameters", null, constraintInformation);
+            }
+        } finally {
+            if (ToscaContext.get() != null) {
+                ToscaContext.destroy();
+            }
         }
     }
 
-    private void validateOperation(Interface interfass, OperationExecRequest operationRequest) throws ConstraintFunctionalException {
+    private void validateOperation(Interface interfass, OperationExecRequest operationRequest, Set<CSARDependency> dependencies)
+            throws ConstraintFunctionalException {
         Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
         if (operation == null) {
             throw new NotFoundException("Operation [" + operationRequest.getOperationName() + "] is not defined in the interface ["
@@ -234,7 +249,7 @@ public class RuntimeController {
         }
 
         // validate parameters (value/type and required value)
-        validateParameters(interfass, operationRequest);
+        validateParameters(interfass, operationRequest, dependencies);
     }
 
     @ApiOperation(value = "Get non-natives node template of a topology.", notes = "Returns An map of non-natives {@link NodeTemplate}. Application role required [ APPLICATION_MANAGER | DEPLOYMENT_MANAGER ]")

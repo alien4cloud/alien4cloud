@@ -13,6 +13,7 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.services.ConstraintPropertyService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,9 @@ public class PropertiesController {
     public RestResponse<ConstraintInformation> checkPropertyDefinition(@RequestBody PropertyValidationRequest propertyValidationRequest) {
         if (propertyValidationRequest.getPropertyDefinition() != null) {
             try {
+                if (propertyValidationRequest.getDependencies() != null) {
+                    ToscaContext.init(propertyValidationRequest.getDependencies());
+                }
                 ConstraintPropertyService.checkPropertyConstraint(propertyValidationRequest.getDefinitionId(), propertyValidationRequest.getValue(),
                         propertyValidationRequest.getPropertyDefinition());
             } catch (ConstraintViolationException e) {
@@ -43,6 +47,10 @@ public class PropertiesController {
                         + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
                 return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+            } finally {
+                if (ToscaContext.get() != null) {
+                    ToscaContext.destroy();
+                }
             }
         }
 

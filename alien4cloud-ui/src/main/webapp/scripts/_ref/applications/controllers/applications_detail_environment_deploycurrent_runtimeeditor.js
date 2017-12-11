@@ -159,7 +159,8 @@ define(function (require) {
       var checkPropertyRequest = {
         'definitionId': definition.name,
         'propertyDefinition': definition,
-        'value': value
+        'value': value,
+        'dependencies': $scope.topology.topology.dependencies
       };
 
       return propertiesServices.validConstraints({}, angular.toJson(checkPropertyRequest), function(successResult) {
