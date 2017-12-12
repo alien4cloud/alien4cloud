@@ -12,11 +12,12 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.services.DanglingRequirementService;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.topology.TemplateBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +33,8 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
     private TopologyService topologyService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private DanglingRequirementService danglingRequirementService;
 
     @Override
     public void process(Csar csar, Topology topology, ReplaceNodeOperation operation) {
@@ -68,7 +71,10 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
                 oldNodeTemplate.getName(), operation.getNewTypeId(), topology.getId());
 
         // add the new node to the workflow
-        workflowBuilderService.addNode(workflowBuilderService.buildTopologyContext(topology, csar), oldNodeTemplate.getName());
+        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
+        workflowBuilderService.addNode(topologyContext, oldNodeTemplate.getName());
+
+        danglingRequirementService.addDanglingRequirements(topology, topologyContext, newNodeTemplate);
     }
 
     private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {

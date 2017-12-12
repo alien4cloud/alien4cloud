@@ -6,13 +6,13 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.Constants;
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.services.DanglingRequirementService;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -22,7 +22,6 @@ import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.model.common.Tag;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.topology.TemplateBuilder;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.NameValidationUtils;
@@ -39,11 +38,11 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
     @Inject
     private TopologyService topologyService;
     @Inject
-    private TopologyServiceCore topologyServiceCore;
-    @Inject
     private TopologyCompositionService topologyCompositionService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private DanglingRequirementService danglingRequirementService;
 
     @Override
     public void process(Csar csar, Topology topology, AddNodeOperation operation) {
@@ -85,5 +84,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
 
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         workflowBuilderService.addNode(topologyContext, operation.getNodeName());
+
+        danglingRequirementService.addDanglingRequirements(topology, topologyContext, nodeTemplate);
     }
 }

@@ -2,14 +2,19 @@ package org.alien4cloud.tosca.utils;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 
 import com.google.common.collect.Maps;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.tosca.context.ToscaContext;
+import org.alien4cloud.tosca.model.types.NodeType;
+
+import java.util.Map;
 
 /**
  * Utility class to work with a node template.
@@ -67,5 +72,23 @@ public final class NodeTemplateUtils {
             nodeTemplate.setCapabilities(Maps.newHashMap());
         }
         nodeTemplate.getCapabilities().put(name, capability);
+    }
+
+    /**
+     * Get the number of relationships from a node template that are actually linked to the given requirement.
+     *
+     * @param nodeTemplate The node template for which to count relationships
+     * @param requirementDefinition The requirement definition from the node template's type for which to count related relationships.
+     * @return The number of relationships connected to the given requirement.
+     */
+    public static int countRelationshipsForRequirement(NodeTemplate nodeTemplate, RequirementDefinition requirementDefinition) {
+        int count = 0;
+        for (Map.Entry<String, RelationshipTemplate> relEntry : safe(nodeTemplate.getRelationships()).entrySet()) {
+            if (relEntry.getValue().getRequirementName().equals(requirementDefinition.getId())
+                    && relEntry.getValue().getRequirementType().equals(requirementDefinition.getType())) {
+                count++;
+            }
+        }
+        return count;
     }
 }
