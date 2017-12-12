@@ -39,11 +39,13 @@ public class UpdateEnvironmentVariableProcessor extends AbstractUpdateFileProces
         Properties variables = editorFileService.loadEnvironmentVariables(EditionContextManager.get().getCsar().getId(), operation.getEnvironmentId());
 
         // update the value of the variable
-        variables.compute(operation.getName(), (key, oldValue) -> operation.getExpression());
-
+        // TODO what if the variable name is something like: toto.tata.titi ?
+        variables.put(operation.getName(), YamlParserUtil.load(operation.getExpression()));
+        variables.entrySet().removeIf(entry -> ((String) entry.getKey()).contains("."));
         if (operation.getTempFileId() == null) {
-            operation.setArtifactStream(new ByteArrayInputStream(YamlParserUtil.toYaml(variables).getBytes(StandardCharsets.UTF_8)));
+            operation.setArtifactStream(new ByteArrayInputStream(YamlParserUtil.dump(variables).getBytes(StandardCharsets.UTF_8)));
         }
         super.process(csar, topology, operation);
     }
+
 }

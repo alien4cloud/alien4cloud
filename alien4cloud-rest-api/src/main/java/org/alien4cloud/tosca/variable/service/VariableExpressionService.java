@@ -23,6 +23,7 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.utils.YamlParserUtil;
 
 @Service
 public class VariableExpressionService {
@@ -63,7 +64,8 @@ public class VariableExpressionService {
         ScopeVariableExpressionDTO dto = new ScopeVariableExpressionDTO();
         dto.setScopeId(scopeId);
         dto.setScopeName(scopeName);
-        dto.setVariable(new Variable(varName, variables.getProperty(varName)));
+        Object expression = variables.get(varName);
+        dto.setVariable(new Variable(varName, expression != null ? YamlParserUtil.dump(expression) : null));
         return dto;
     }
 

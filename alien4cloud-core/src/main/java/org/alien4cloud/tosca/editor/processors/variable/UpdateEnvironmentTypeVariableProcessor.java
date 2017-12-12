@@ -40,7 +40,7 @@ public class UpdateEnvironmentTypeVariableProcessor extends AbstractUpdateFilePr
 
         // update the value of the variable
         variables.compute(operation.getName(), (key, oldValue) -> operation.getExpression());
-
+        variables.entrySet().removeIf(entry -> ((String) entry.getKey()).contains("."));
         if (operation.getTempFileId() == null) {
             operation.setArtifactStream(new ByteArrayInputStream(YamlParserUtil.toYaml(variables).getBytes(StandardCharsets.UTF_8)));
         }

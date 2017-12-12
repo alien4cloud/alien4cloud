@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.yaml.snakeyaml.Yaml;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +28,8 @@ public final class YamlParserUtil {
     }
 
     private static final ObjectMapper YAML_OBJECT_MAPPER = createYamlObjectMapper();
+
+    private static final Yaml snakeYaml = new Yaml();
 
     /**
      * Creates YAML object mapper
@@ -147,5 +151,13 @@ public final class YamlParserUtil {
      */
     public static String toYaml(Object object) throws IOException {
         return YAML_OBJECT_MAPPER.writeValueAsString(object);
+    }
+
+    public static String dump(Object object) {
+        return snakeYaml.dumpAsMap(object);
+    }
+
+    public static Object load(String yamlString) {
+        return snakeYaml.load(yamlString);
     }
 }
