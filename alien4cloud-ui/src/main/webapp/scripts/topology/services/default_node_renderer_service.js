@@ -101,16 +101,8 @@ define(function(require) {
             var runtimeGroup = nodeGroup.append('g').attr('id', 'runtime');
             d3Service.rect(runtimeGroup, node.bbox.width() - 10, 0, 10, this.height, 0, 0).attr('id', 'runtimeState').attr('class', 'runtime-state-no');
           }
-          if (nodeType.tags) {
-            var tags = listToMapService.listToMap(nodeType.tags, 'name', 'value');
-            if (tags.icon) {
-              nodeGroup.append('image').attr('x', 8).attr('y', 8).attr('width', '32').attr('height', '32').attr('xlink:href',
-                'img?id=' + tags.icon + '&quality=QUALITY_64');
-            }
-          }
-          if (nodeType.abstract) {
-            nodeGroup.append('image').attr('x', 44).attr('y', 26).attr('width', 16).attr('height', 16).attr('xlink:href', 'images/abstract_ico.png');
-          }
+          nodeGroup.append('image').attr('id', 'icon').attr('x', 8).attr('y', 8).attr('width', '32').attr('height', '32').attr('xlink:href', 'images/blank.png');
+          nodeGroup.append('image').attr('id', 'abstract').attr('x', 44).attr('y', 26).attr('width', 16).attr('height', 16).attr('xlink:href', 'images/blank.png');
 
           nodeGroup.append('text').attr('id', 'title_' + node.id).attr('text-anchor', 'start').attr('class', 'title').attr('x', 44).attr('y', 20);
           nodeGroup.append('text').attr('text-anchor', 'end').attr('class', 'version').attr('x', node.bbox.width() - 10).attr('y', 40);
@@ -119,7 +111,7 @@ define(function(require) {
           // Scalable capability management
           if (!this.isRuntime && _.defined(nodeTemplate, 'capabilitiesMap.scalable')) {
             var scalableSelection = nodeGroup.append('g').attr('id', 'scalable_' + node.id);
-            var scaleX = nodeType.abstract ? 70 : 50;
+            var scaleX = 70;
             scalableSelection.append('text').attr('class', 'topology-svg-icon topology-svg-icon-center')
               .attr('transform', 'rotate(90 ' + (scaleX) + ' 35)')
               .attr('x', scaleX).attr('y', 35).text('\uf112');
@@ -160,6 +152,23 @@ define(function(require) {
               return 'v' + nodeTemplate.propertiesMap.version.value.value;
             }
           });
+          // node icon
+          if (nodeType.tags) {
+            var tags = listToMapService.listToMap(nodeType.tags, 'name', 'value');
+            if (tags.icon) {
+              nodeGroup.select('#icon').attr('xlink:href','img?id=' + tags.icon + '&quality=QUALITY_64');
+            } else {
+              nodeGroup.select('#icon').attr('xlink:href','images/blank.png');
+            }
+          } else {
+            nodeGroup.select('#icon').attr('xlink:href','images/blank.png');
+          }
+          // abstract icon
+          if (nodeType.abstract) {
+            nodeGroup.select('#abstract').attr('xlink:href', 'images/abstract_ico.png');
+          } else {
+            nodeGroup.select('#abstract').attr('xlink:href', 'images/blank.png');
+          }
 
           if (_.defined(nodeTemplate.groups)) {
             var gIdx = 1;
