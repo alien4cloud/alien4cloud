@@ -58,7 +58,6 @@ define(function (require) {
       };
 
       $scope.openVarModal = function(varName){
-        console.log('clicked on var ==>', varName);
         var modalInstance = $uibModal.open({
           templateUrl: 'views/topology/variables/variable_value_display.html',
           controller: 'variableDisplayCtrl',
