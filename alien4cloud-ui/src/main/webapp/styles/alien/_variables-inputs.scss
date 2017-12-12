@@ -3,12 +3,14 @@
 }
 
 .var-undefined {
-  color: $state-danger-text;
+  color: $text-muted;
   font-style: italic;
 }
 
 .var-scope-selected {
   // background-color: white
+  font-weight: bold;
+  background-color: $state-info-bg;
 }
 
 .var-scope-item {

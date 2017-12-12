@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.variable.service.VariableDefinitionService;
+import org.alien4cloud.tosca.variable.service.VariableExpressionService;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,18 +23,26 @@ import io.swagger.annotations.Api;
  */
 
 @RestController
-@RequestMapping({ "/rest/v2/applications/{applicationId:.+}/environments/variables", "/rest/latest/applications/{applicationId:.+}/environments/variables" })
+@RequestMapping({ "/rest/v2/applications/{applicationId:.+}", "/rest/latest/applications/{applicationId:.+}" })
 @Api
 public class EnvironmentVariableController {
 
     @Inject
-    private VariableDefinitionService variableDefinitionService;
+    private VariableExpressionService variableExpressionService;
 
-    @RequestMapping(value = "/{varName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/topologyVersion/{topologyVersion}/environments/variables/{varName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<List<EnvironmentVariableDefinitionDTO>> getVariableExpression(@PathVariable String applicationId, @PathVariable String varName,
-            @RequestParam(required = false) String envId) {
-        List<EnvironmentVariableDefinitionDTO> envDef = variableDefinitionService.getInEnvironmentScope(varName, applicationId, envId);
-        return RestResponseBuilder.<List<EnvironmentVariableDefinitionDTO>> builder().data(envDef).build();
+    public RestResponse<List<ScopeVariableExpressionDTO>> getVariableExpressionForEnvironement(@PathVariable String applicationId,
+            @PathVariable String topologyVersion, @PathVariable String varName, @RequestParam(required = false) String envId) {
+        List<ScopeVariableExpressionDTO> envDef = variableExpressionService.getInEnvironmentScope(varName, applicationId, topologyVersion, envId);
+        return RestResponseBuilder.<List<ScopeVariableExpressionDTO>> builder().data(envDef).build();
+    }
+
+    @RequestMapping(value = "/topologyVersion/{topologyVersion}/environmentTypes/variables/{varName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<List<ScopeVariableExpressionDTO>> getVariableExpressionForEnvironmentType(@PathVariable String applicationId,
+            @PathVariable String topologyVersion, @PathVariable String varName, @RequestParam(required = false) String envType) {
+        List<ScopeVariableExpressionDTO> envDef = variableExpressionService.getInEnvironmentTypeScope(varName, applicationId, topologyVersion, envType);
+        return RestResponseBuilder.<List<ScopeVariableExpressionDTO>> builder().data(envDef).build();
     }
 }

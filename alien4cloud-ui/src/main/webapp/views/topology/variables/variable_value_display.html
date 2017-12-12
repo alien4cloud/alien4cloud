@@ -1,6 +1,6 @@
 <form name="variable" class="form-horizontal" role="form" novalidate>
   <div class="modal-header">
-    <b>{{'APPLICATIONS.VARIABLES.NAME' | translate}}</b>: {{varName}}
+    <h3>{{'APPLICATIONS.VARIABLES.MODAL_HEADER' | translate:{var:varName} }}</h3>
   </div>
 
 
@@ -11,23 +11,58 @@
           <div class="topology-column-content-left" style="padding-top: 10px; padding-left: 10px;">
 
             <div>
-              <h5 class="var-scope-title clickable" ng-class= "{'var-defined': appScope.expression, 'var-undefined': !appScope.expression}"
-              ng-click="showAppVarExpression(appScope.expression)">  {{'APPLICATIONS.VARIABLES.APP_SCOPE' | translate}}</h5>
+              <h4 class="var-scope-title clickable"
+                ng-class= "{'var-defined': appScopeDTO.expression,
+                            'var-undefined': !appScopeDTO.expression,
+                            'var-scope-selected': selectedScope.id === topology.topology.archiveName}"
+                ng-click="showAppVarExpression(appScopeDTO.expression)">  {{'APPLICATIONS.VARIABLES.APP_SCOPE' | translate}}</h4>
             </div>
 
             <div style="margin-top: 30px">
-              <h5 class="var-scope">  {{'APPLICATIONS.VARIABLES.ENV_SCOPE' | translate}}</h5>
-              <!-- inplace search bar-->
-              <form class="grp-margin">
-                <div>
-                  <input id="env-inplace-search-query" type="text" class="form-control input-xs" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchEnv">
+              <div class="content-head clickable"
+                ng-click="toggle('envType')">
+                {{'APPLICATIONS.VARIABLES.ENV_TYPE_SCOPE' | translate}}
+                <i style="padding-right: .8em;" class="vertical-align-middle fa" ng-class="{'fa-caret-down' : !collapsed.envType, 'fa-caret-right': collapsed.envType}"></i>
+              </div>
+              <div uib-collapse="collapsed.envType">
+                <!-- inplace search bar-->
+                <form class="grp-margin">
+                  <div>
+                    <input id="env-inplace-search-query" type="text" class="form-control input-xs" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchEnvType">
+                  </div>
+                </form>
+                <div class="var-scope-item clickable"
+                     ng-repeat="varDTO in envTypeScopeDTO | filter:searchEnvType"
+                     ng-click="showEnvTypeVarExpression(varDTO)"
+                     ng-class= "{'var-defined': varDTO.variable.expression,
+                                 'var-undefined': !varDTO.variable.expression,
+                                 'var-scope-selected': selectedScope.id === varDTO.scopeId}" >
+                  <span>{{varDTO.scopeName}}</span>
                 </div>
-              </form>
-              <div class="var-scope-item clickable"
-                   ng-repeat="varDef in envVarDefs | filter:searchEnv"
-                   ng-click="showEnvVarExpression(varDef.environmentId, varDef.variable.expression)"
-                   ng-class= "{'var-defined': varDef.variable.expression, 'var-undefined': !varDef.variable.expression}" >
-                <span>{{varDef.environmentName}}</span> (<span>{{varDef.environmentId}}</span>)
+              </div>
+            </div>
+
+            <div style="margin-top: 30px">
+              <div class="content-head clickable"
+                ng-click="toggle('env')">
+                {{'APPLICATIONS.VARIABLES.ENV_SCOPE' | translate}}
+                <i style="padding-right: .8em;" class="vertical-align-middle fa" ng-class="{'fa-caret-down' : !collapsed.env, 'fa-caret-right': collapsed.env}"></i>
+              </div>
+              <div uib-collapse="collapsed.env">
+                <!-- inplace search bar-->
+                <form class="grp-margin">
+                  <div>
+                    <input id="env-inplace-search-query" type="text" class="form-control input-xs" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchEnv">
+                  </div>
+                </form>
+                <div class="var-scope-item clickable"
+                     ng-repeat="varDTO in envScopeDTO | filter:searchEnv"
+                     ng-click="showEnvVarExpression(varDTO)"
+                     ng-class= "{'var-defined': varDTO.variable.expression,
+                                 'var-undefined': !varDTO.variable.expression,
+                                 'var-scope-selected': selectedScope.id === varDTO.scopeId}" >
+                  <span>{{varDTO.scopeName}}</span> (<span>{{varDTO.scopeId}}</span>)
+                </div>
               </div>
             </div>
 
@@ -44,10 +79,10 @@
           <div style="margin-left: 10px;">
             <button class="btn btn-default btn-sm" id="save-file"
               ng-disabled="!selectedScope"
-              ng-click="saveFile()">
+              ng-click="saveEdited()">
               <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
             </button>
-            <span class="text-info">{{selectedScope.id}}<span>
+            <span class="text-info">{{selectedScope.name}}<span>
           </div>
           <div ng-model="editorContent" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: 'true', onLoad : aceLoaded}" style="margin-top:10px; min-height: 100px;">
           </div>
