@@ -1,16 +1,42 @@
-<form name="variable" class="form-horizontal" role="form" novalidate>
-  <div class="modal-header">
-    <h3>{{'APPLICATIONS.INPUTS.MODAL_HEADER' | translate:{var:inputName} }}</h3>
-  </div>
-  <div class="modal-body">
-    <textarea class="form-control" ng-model="inputExpression" rows="8"></textarea>
-  </div>
-  <div class="modal-footer">
-    <button id="modal-push-button" class="btn btn-primary" ng-click="ok()">
-      {{ 'GENERIC_FORM.SAVE'| translate}}
-    </button>
-    <button id="modal-close-button" class="btn btn-default" ng-click="cancel()">
-      {{'GENERIC_FORM.CANCEL' | translate}}
-    </button>
-  </div>
-</form>
+<div class="modal-header">
+  <h3>{{'APPLICATIONS.INPUTS.MODAL_HEADER' | translate:{var:inputName} }}</h3>
+</div>
+<div class="modal-body">
+
+  <uib-tabset>
+    <uib-tab id="value-tab">
+      <uib-tab-heading>
+        <span><i class="fa fa-code"></i> {{'APPLICATIONS.INPUTS.VALUE' | translate}}</span>
+      </uib-tab-heading>
+
+      <property-display
+        definition="getPropertyDefinition()"
+        property-type="topology.dataTypes[getPropertyDefinition().type]"
+        dependencies="topology.topology.dependencies"
+        property-name="inputName"
+        property-value="inputExpression.obj"
+        on-save="updateLocalExpression(propertyDefinition, propertyName, propertyValue)"
+        editable="true"
+        condensed="true">
+      </property-display>
+    </uib-tab>
+
+    <uib-tab id="expression-tab">
+      <uib-tab-heading>
+        <span><i class="fa fa-usd"></i> {{'APPLICATIONS.INPUTS.EXPRESSION' | translate}}</span>
+      </uib-tab-heading>
+      <form name="variable" class="form-horizontal" role="form" novalidate>
+        <textarea class="form-control" ng-model="inputExpression.str" rows="8"></textarea>
+      </form>
+    </uib-tab>
+  </uib-tabset>
+
+</div>
+<div class="modal-footer">
+  <button id="modal-push-button" class="btn btn-primary" ng-click="ok()">
+    {{ 'GENERIC_FORM.SAVE'| translate}}
+  </button>
+  <button id="modal-close-button" class="btn btn-default" ng-click="cancel()">
+    {{'GENERIC_FORM.CANCEL' | translate}}
+  </button>
+</div>

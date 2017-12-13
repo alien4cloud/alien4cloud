@@ -76,9 +76,10 @@
     "IMAGE_UPLOAD": "Drop an image file",
     "INPUTS": {
       "EXPRESSION": "Expression",
+      "VALUE": "Value",
       "DEPLOYER": "Deployer input",
       "CLEAR": "Clear",
-      "MODAL_HEADER": "Edit input < {{var}} > expression."
+      "MODAL_HEADER": "Edit input < {{var}} >"
     },
     "VARIABLES": {
       "APP_SCOPE": "Application scope",

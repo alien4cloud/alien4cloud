@@ -28,7 +28,7 @@ define(function (require) {
     ['$scope', 'topologyVariableService', '$http', 'topoBrowserService', '$filter', '$uibModal', function($scope, topologyVariableService, $http, topoBrowserService, $filter, $uibModal) {
 
       $scope.dump = function(value) {
-        return $filter('a4cLinky')(_.trim(yaml.safeDump(value, {indent: 4}), '"\n'), 'openVarModal');
+        return $filter('a4cLinky')(yaml.safeDump(value, {indent: 4}), 'openVarModal');
       };
 
       function refresh(expanded){
@@ -69,7 +69,7 @@ define(function (require) {
               return inputName;
             },
             inputExpression: function() {
-              return _.defined($scope.loadedInputs) && _.defined($scope.loadedInputs[inputName]) ? _.trim(yaml.safeDump($scope.loadedInputs[inputName], {indent: 4}), '"\n') : '';
+              return _.defined($scope.loadedInputs) && _.defined($scope.loadedInputs[inputName]) ? yaml.safeDump($scope.loadedInputs[inputName], {indent: 4}) : '';
             }
           }
         });
@@ -78,7 +78,7 @@ define(function (require) {
           $scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.inputs.UpdateInputExpressionOperation',
             name: inputName,
-            expression: inputExpression
+            expression: inputExpression.str
           });
         });
       };
