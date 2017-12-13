@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 
@@ -154,6 +155,10 @@ public final class YamlParserUtil {
     }
 
     public static String dump(Object object) {
+        return object instanceof Map ? dumpAsMap(object) : snakeYaml.dump(object);
+    }
+
+    public static String dumpAsMap(Object object) {
         return snakeYaml.dumpAsMap(object);
     }
 

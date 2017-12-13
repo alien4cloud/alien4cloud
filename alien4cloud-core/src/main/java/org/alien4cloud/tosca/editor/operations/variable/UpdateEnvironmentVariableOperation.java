@@ -1,7 +1,5 @@
 package org.alien4cloud.tosca.editor.operations.variable;
 
-import org.alien4cloud.tosca.editor.operations.AbstractUpdateFileOperation;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +8,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class UpdateEnvironmentVariableOperation extends AbstractUpdateFileOperation {
+public class UpdateEnvironmentVariableOperation extends AbstractUpdateTopologyVariableOperation {
     private String environmentId;
-    private String name;
-    private String expression;
 }
