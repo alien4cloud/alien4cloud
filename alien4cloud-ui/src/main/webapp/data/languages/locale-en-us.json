@@ -77,7 +77,8 @@
     "INPUTS": {
       "EXPRESSION": "Expression",
       "DEPLOYER": "Deployer input",
-      "CLEAR": "Clear"
+      "CLEAR": "Clear",
+      "MODAL_HEADER": "Edit input < {{var}} > expression."
     },
     "VARIABLES": {
       "APP_SCOPE": "Application scope",

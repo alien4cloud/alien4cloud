@@ -1,0 +1,16 @@
+<form name="variable" class="form-horizontal" role="form" novalidate>
+  <div class="modal-header">
+    <h3>{{'APPLICATIONS.INPUTS.MODAL_HEADER' | translate:{var:inputName} }}</h3>
+  </div>
+  <div class="modal-body">
+    <textarea class="form-control" ng-model="inputExpression" rows="8"></textarea>
+  </div>
+  <div class="modal-footer">
+    <button id="modal-push-button" class="btn btn-primary" ng-click="ok()">
+      {{ 'GENERIC_FORM.SAVE'| translate}}
+    </button>
+    <button id="modal-close-button" class="btn btn-default" ng-click="cancel()">
+      {{'GENERIC_FORM.CANCEL' | translate}}
+    </button>
+  </div>
+</form>

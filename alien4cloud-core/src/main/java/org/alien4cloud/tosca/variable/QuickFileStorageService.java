@@ -51,6 +51,11 @@ public class QuickFileStorageService {
         return loadYamlToPropertiesIfExists(ymlPath, createIfFileNotExists);
     }
 
+    public Map<String, Object> loadEnvironmentTypeVariablesAsMap(String archiveId, EnvironmentType environmentType, boolean createIfFileNotExists) {
+        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, getRelativeEnvironmentTypeVariablesFilePath(environmentType.toString()));
+        return loadYamlToMapIfExists(ymlPath, createIfFileNotExists);
+    }
+
     public Properties loadEnvironmentVariables(String archiveId, String environmentId) {
         return loadEnvironmentVariables(archiveId, environmentId, true);
     }
@@ -60,9 +65,18 @@ public class QuickFileStorageService {
         return loadYamlToPropertiesIfExists(ymlPath, createIfFileNotExists);
     }
 
+    public Map<String, Object> loadEnvironmentVariablesAsMap(String archiveId, String environmentId, boolean createIfFileNotExists) {
+        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, getRelativeEnvironmentVariablesFilePath(environmentId));
+        return loadYamlToMapIfExists(ymlPath, createIfFileNotExists);
+    }
+
     public Map<String, Object> loadInputsMappingFile(String archiveId) {
+        return loadInputsMappingFile(archiveId);
+    }
+
+    public Map<String, Object> loadInputsMappingFile(String archiveId, boolean createIfFileNotExists) {
         Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, getRelativeInputsFilePath());
-        return loadYamlToMapIfExists(ymlPath, true);
+        return loadYamlToMapIfExists(ymlPath, createIfFileNotExists);
     }
 
     @SneakyThrows
@@ -76,8 +90,6 @@ public class QuickFileStorageService {
                 Files.createDirectories(ymlPath.getParent());
                 Files.createFile(ymlPath);
             }
-            Files.createDirectories(ymlPath.getParent());
-            Files.createFile(ymlPath);
             props = new Properties();
         }
 

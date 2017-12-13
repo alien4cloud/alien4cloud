@@ -1,6 +1,6 @@
 package org.alien4cloud.tosca.editor.processors.variable;
 
-import java.util.Properties;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -19,14 +19,13 @@ public class UpdateEnvironmentTypeVariableProcessor extends AbstractUpdateTopolo
     @Inject
     private EditorFileService editorFileService;
 
-
     @Override
     protected String getRelativeVariablesFilePath(UpdateEnvironmentTypeVariableOperation operation) {
         return quickFileStorageService.getRelativeEnvironmentTypeVariablesFilePath(operation.getEnvironmentType().toString());
     }
 
     @Override
-    protected Properties loadVariables(String archiveId, UpdateEnvironmentTypeVariableOperation operation) {
+    protected Map<String, Object> loadVariables(String archiveId, UpdateEnvironmentTypeVariableOperation operation) {
         return editorFileService.loadEnvironmentTypeVariables(archiveId, operation.getEnvironmentType());
     }
 }
