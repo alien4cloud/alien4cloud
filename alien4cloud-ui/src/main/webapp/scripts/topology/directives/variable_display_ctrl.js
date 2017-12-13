@@ -83,7 +83,8 @@ define(function (require) {
           showVarExpression({
             scope:'APP',
             name: $scope.topology.topology.archiveName,
-            id:$scope.topology.topology.archiveName
+            id:$scope.topology.topology.archiveName,
+            readOnly:true
           }, expression);
         };
 

@@ -16,6 +16,9 @@
                             'var-undefined': !appScopeDTO.expression,
                             'var-scope-selected': selectedScope.id === topology.topology.archiveName}"
                 ng-click="showAppVarExpression(appScopeDTO.expression)">  {{'APPLICATIONS.VARIABLES.APP_SCOPE' | translate}}</h4>
+                <div class="text-muted var-scope-item">
+                  <i>{{'APPLICATIONS.VARIABLES.APP_SCOPE_NOT_EDITABLE' | translate }}.</i>
+                </div>
             </div>
 
             <div style="margin-top: 30px">
@@ -82,7 +85,7 @@
             </div>
             <div class="col-md-4 align-right" >
               <button class="btn btn-xs"
-                ng-disabled="!selectedScope"
+                ng-disabled="!selectedScope || selectedScope.readOnly"
                 uib-tooltip="{{'APPLICATIONS.VARIABLES.TOGGLE_EDIT' | translate:{state:editMode?'off':'on'} }}"
                 ng-class="{'btn-info': editMode, 'btn-default': !editMode}"
                 ng-click="toggleEditMode()">
@@ -93,7 +96,7 @@
                 <span class="switch-slider" ng-class="{'disabled' : !editMode , 'enabled': editMode}"></span>
               </span> -->
               <button class="btn btn-default btn-xs" id="save-file"
-                ng-disabled="!editMode || !selectedScope"
+                ng-disabled="!editMode || !selectedScope || selectedScope.readOnly"
                 ng-click="saveEdited()">
                 <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
               </button>
@@ -103,7 +106,7 @@
 
         <div ng-if="!editMode">
           <p class="var-undefined" ng-if="!selectedScope">{{'APPLICATIONS.VARIABLES.UNSELECTED_HOLDER' | translate}}</p>
-          <p class="var-undefined" ng-if="selectedScope && _.isEmpty(selectedScope.expression)">{{'APPLICATIONS.VARIABLES.SELECTED_UNDEFINED' | translate}}</p>
+          <p class="var-undefined" ng-if="selectedScope && _.isEmpty(selectedScope.expression)">{{'APPLICATIONS.VARIABLES.UNDEFINED' | translate}}. <span ng-if="!selectedScope.readOnly">{{'APPLICATIONS.VARIABLES.EDIT_MESSAGE' | translate}}</span></p>
           <p ng-if="_.isNotEmpty(selectedScope.expression)" style="white-space: pre;"><span a4c-compile="dump()"></span></p>
         </div>
         <div ng-if="editMode">

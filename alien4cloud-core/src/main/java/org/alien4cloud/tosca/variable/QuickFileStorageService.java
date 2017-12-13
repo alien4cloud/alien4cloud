@@ -71,7 +71,7 @@ public class QuickFileStorageService {
     }
 
     public Map<String, Object> loadInputsMappingFile(String archiveId) {
-        return loadInputsMappingFile(archiveId);
+        return loadInputsMappingFile(archiveId, true);
     }
 
     public Map<String, Object> loadInputsMappingFile(String archiveId, boolean createIfFileNotExists) {
