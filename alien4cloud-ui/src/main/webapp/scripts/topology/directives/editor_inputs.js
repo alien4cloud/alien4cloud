@@ -31,8 +31,8 @@ define(function (require) {
         return $filter('a4cLinky')(yaml.safeDump(value, {indent: 4}), 'openVarModal');
       };
 
-      function refresh(expanded){
-        var inputsFileNode = topologyVariableService.getInputs(expanded);
+      function refresh(){
+        var inputsFileNode = topologyVariableService.getInputsNode($scope.topology.archiveContentTree.children[0]);
         // var inputsFileNode = topologyVariableService.getInputs($scope.topology.archiveContentTree.children[0]);
 
         if(_.defined(inputsFileNode)){
@@ -97,12 +97,9 @@ define(function (require) {
         });
       };
 
-
-      var firstLoad = true;
-      $scope.$watch('topology.archiveContentTree.children[0]', function(newValue, oldValue){
-        if(_.defined(newValue) && (firstLoad || newValue !== oldValue)){
-          refresh(newValue);
-          firstLoad=false;
+      $scope.$watch('triggerVarRefresh', function(newValue){
+        if(_.defined(newValue)){
+          refresh();
         }
       });
     }

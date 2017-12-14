@@ -42,6 +42,11 @@ public class QuickFileStorageService {
         return loadYamlToPropertiesIfExists(ymlPath, true);
     }
 
+    public Map<String, Object> loadApplicationVariablesAsMap(String applicationId) {
+        Path ymlPath = getApplicationVariablesPath(applicationId);
+        return loadYamlToMapIfExists(ymlPath, false);
+    }
+
     public Properties loadEnvironmentTypeVariables(String archiveId, EnvironmentType environmentType) {
         return loadEnvironmentTypeVariables(archiveId, environmentType, true);
     }

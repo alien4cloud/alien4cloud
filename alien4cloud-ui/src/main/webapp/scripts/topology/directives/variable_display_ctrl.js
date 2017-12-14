@@ -11,7 +11,7 @@ define(function (require) {
   require('scripts/common/filters/a4c_linky');
 
 
-  modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('variableDisplayCtrl',
+  modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace']).controller('variableDisplayCtrl',
     ['$scope', '$uibModal', 'varName', '$uibModalInstance', 'topologyVariableService', '$alresource', '$filter',
       function($scope,  $uibModal, varName, $uibModalInstance, topologyVariableService, $alresource, $filter) {
 
