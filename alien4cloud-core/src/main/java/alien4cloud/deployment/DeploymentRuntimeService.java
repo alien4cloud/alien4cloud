@@ -56,6 +56,8 @@ public class DeploymentRuntimeService {
     private DeploymentTopologyService deploymentTopologyService;
     @Inject
     private ToscaContextualAspect toscaContextualAspect;
+    @Inject
+    private DeployService deployService;
 
     /**
      * Build the deployment context from an operation execution request
@@ -68,7 +70,7 @@ public class DeploymentRuntimeService {
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(deployment.getEnvironmentId());
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = DeployService.generateSecretConfiguration(locations,
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = deployService.generateSecretConfiguration(locations,
                 request.getSecretProviderPluginName(), request.getSecretProviderCredentials());
         return deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials, deployment,
                 deploymentTopologyService.getLocations(deploymentTopology), deploymentTopology);
@@ -150,7 +152,7 @@ public class DeploymentRuntimeService {
         // get the secret provider configuration from the location
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(topology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-        secretProviderConfigurationAndCredentials = DeployService.generateSecretConfiguration(locations,
+        secretProviderConfigurationAndCredentials = deployService.generateSecretConfiguration(locations,
                 secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
                 secretProviderConfigurationAndCredentials.getCredentials());
 

@@ -1,5 +1,7 @@
 package org.alien4cloud.secret;
 
+import alien4cloud.model.secret.SecretAuthResponse;
+
 /**
  * This interface represents a contract that must be respected by secret provider plugin
  * 
@@ -23,4 +25,14 @@ public interface ISecretProvider<T> {
      * @return the class object of the authentication configuration
      */
     Class<?> getAuthenticationConfigurationDescriptor(T configuration);
+
+    /**
+     * Use the secret provider configuration and the credentials object to authenticate and generate new configuration with new credentials if necessary.
+     * Typically for Vault, we can authenticate with a ldap account and generate a token.
+     *
+     * @param configuration the secret provider configuration
+     * @param credentials the credentials
+     * @return the secret auth response which contains the new configuration and the new credentials
+     */
+    SecretAuthResponse auth(T configuration, Object credentials);
 }
