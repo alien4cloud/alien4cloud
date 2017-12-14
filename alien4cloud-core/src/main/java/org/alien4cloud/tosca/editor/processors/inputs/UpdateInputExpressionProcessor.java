@@ -7,8 +7,12 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.editor.EditorFileService;
 import org.alien4cloud.tosca.editor.operations.inputs.UpdateInputExpressionOperation;
 import org.alien4cloud.tosca.editor.processors.variable.AbstractUpdateTopologyVariableProcessor;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.variable.QuickFileStorageService;
 import org.springframework.stereotype.Component;
+
+import alien4cloud.exception.NotFoundException;
 
 @Component
 public class UpdateInputExpressionProcessor extends AbstractUpdateTopologyVariableProcessor<UpdateInputExpressionOperation> {
@@ -16,6 +20,14 @@ public class UpdateInputExpressionProcessor extends AbstractUpdateTopologyVariab
     private QuickFileStorageService quickFileStorageService;
     @Inject
     private EditorFileService editorFileService;
+
+    @Override
+    public void process(Csar csar, Topology topology, UpdateInputExpressionOperation operation) {
+        if (!topology.getInputs().containsKey(operation.getName())) {
+            throw new NotFoundException("Input <" + operation.getName() + "> is not defined in topology <" + topology.getId() + ">");
+        }
+        super.process(csar, topology, operation);
+    }
 
     @Override
     protected String getRelativeVariablesFilePath(UpdateInputExpressionOperation operation) {
