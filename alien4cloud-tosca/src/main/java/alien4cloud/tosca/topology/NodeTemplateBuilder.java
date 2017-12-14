@@ -184,8 +184,10 @@ public class NodeTemplateBuilder {
                     properties.put(entry.getKey(), originalValue);
                 } catch (ConstraintFunctionalException e) {
                     log.debug("Not able to merge property <" + entry.getKey() + "> value due to a type check exception", e);
-                    AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(entry.getValue());
-                    properties.put(entry.getKey(), pv);
+                    if (adaptToType) {
+                        AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(entry.getValue());
+                        properties.put(entry.getKey(), pv);
+                    }
                 }
             }
         }
