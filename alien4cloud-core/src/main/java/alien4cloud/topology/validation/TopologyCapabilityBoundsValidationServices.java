@@ -14,6 +14,7 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
@@ -41,7 +42,7 @@ public class TopologyCapabilityBoundsValidationServices {
             return false;
         }
 
-        List<RelationshipTemplate> targetRelatedRelationships = topologyServiceCore.getTargetRelatedRelatonshipsTemplate(nodeTemplateName, nodeTemplates);
+        List<RelationshipTemplate> targetRelatedRelationships = TopologyUtils.getTargetRelationships(nodeTemplateName, nodeTemplates);
         if (targetRelatedRelationships == null || targetRelatedRelationships.isEmpty()) {
             return false;
         }

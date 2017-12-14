@@ -24,6 +24,7 @@ import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.common.collect.Lists;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -131,25 +132,25 @@ public class TopologyUtils {
         capability.getProperties().put(propertyName, new ScalarPropertyValue(String.valueOf(propertyValue)));
     }
 
-    private static Capability getCapability(Topology topology, String nodeTemplateId, String capabilityName, boolean throwNotFoundException) {
-        return getCapability(topology.getNodeTemplates(), nodeTemplateId, capabilityName, throwNotFoundException);
-    }
-
-    private static Capability getCapability(Map<String, NodeTemplate> nodes, String nodeTemplateId, String capabilityName, boolean throwNotFoundException) {
-        NodeTemplate node = nodes.get(nodeTemplateId);
-        if (node == null) {
-            if (throwNotFoundException) {
-                throw new NotFoundException("Node " + nodeTemplateId + " is not found in the topology");
-            } else {
-                return null;
-            }
-        }
-        Capability capability = safe(node.getCapabilities()).get(capabilityName);
-        if (capability == null && throwNotFoundException) {
-            throw new NotFoundException("Node " + nodeTemplateId + " does not have the capability scalable");
-        }
-        return capability;
-    }
+    // private static Capability getCapability(Topology topology, String nodeTemplateId, String capabilityName, boolean throwNotFoundException) {
+    // return getCapability(topology.getNodeTemplates(), nodeTemplateId, capabilityName, throwNotFoundException);
+    // }
+    //
+    // private static Capability getCapability(Map<String, NodeTemplate> nodes, String nodeTemplateId, String capabilityName, boolean throwNotFoundException) {
+    // NodeTemplate node = nodes.get(nodeTemplateId);
+    // if (node == null) {
+    // if (throwNotFoundException) {
+    // throw new NotFoundException("Node " + nodeTemplateId + " is not found in the topology");
+    // } else {
+    // return null;
+    // }
+    // }
+    // Capability capability = safe(node.getCapabilities()).get(capabilityName);
+    // if (capability == null && throwNotFoundException) {
+    // throw new NotFoundException("Node " + nodeTemplateId + " does not have the capability scalable");
+    // }
+    // return capability;
+    // }
 
     public static Capability getScalableCapability(Topology topology, String nodeTemplateId, boolean throwNotFoundException) {
         NodeTemplate nodeTemplate = throwNotFoundException ? getNodeTemplate(topology, nodeTemplateId) : safe(topology.getNodeTemplates()).get(nodeTemplateId);
@@ -436,5 +437,33 @@ public class TopologyUtils {
             i++;
         }
         return name;
+    }
+
+    /**
+     * Get all relationships that target the given node template.
+     *
+     * @param targetNodeTemplate the name of the node template which is target for relationship
+     * @param nodeTemplates all topology's node templates
+     * @return all relationships which have targetNodeTemplate as target
+     */
+    public static List<RelationshipTemplate> getTargetRelationships(String targetNodeTemplate, Map<String, NodeTemplate> nodeTemplates) {
+        List<RelationshipTemplate> toReturn = Lists.newArrayList();
+        for (String key : nodeTemplates.keySet()) {
+            NodeTemplate nodeTemp = nodeTemplates.get(key);
+            if (nodeTemp.getRelationships() == null) {
+                continue;
+            }
+            for (String key2 : nodeTemp.getRelationships().keySet()) {
+                RelationshipTemplate relTemp = nodeTemp.getRelationships().get(key2);
+                if (relTemp == null) {
+                    continue;
+                }
+                if (relTemp.getTarget() != null && relTemp.getTarget().equals(targetNodeTemplate)) {
+                    toReturn.add(relTemp);
+                }
+            }
+        }
+
+        return toReturn;
     }
 }

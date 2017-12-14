@@ -1,6 +1,10 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
@@ -8,16 +12,22 @@ import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.services.DanglingRequirementService;
+import org.alien4cloud.tosca.utils.NodeTemplateUtils;
 import org.alien4cloud.tosca.utils.TopologyUtils;
+import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.topology.TemplateBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,6 +71,10 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         // remove the node from the workflows
         workflowBuilderService.removeNode(topology, csar, oldNodeTemplate.getName());
 
+        // When replacing a node with another some relationships target capabilities or requirements may be impacted and moved to another capability/requirement
+        // name.
+        updateRelationshipsCapabilitiesRelationships(topology, newNodeTemplate);
+
         // FIXME we should remove outputs/inputs, others here ?
         if (topology.getSubstitutionMapping() != null) {
             removeNodeTemplateSubstitutionTargetMapEntry(oldNodeTemplate.getName(), topology.getSubstitutionMapping().getCapabilities());
@@ -82,5 +96,21 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
             return;
         }
         substitutionTargets.entrySet().removeIf(e -> e.getValue().getNodeTemplateName().equals(nodeTemplateName));
+    }
+
+    private void updateRelationshipsCapabilitiesRelationships(Topology topology, NodeTemplate nodeTemplate) {
+        List<RelationshipTemplate> targetRelationships = TopologyUtils.getTargetRelationships(nodeTemplate.getName(), topology.getNodeTemplates());
+        for (RelationshipTemplate targetRelationship : targetRelationships) {
+            Capability capability = safe(nodeTemplate.getCapabilities()).get(targetRelationship.getTargetedCapabilityName());
+            if (capability == null || isCapabilityNotOfType(capability, targetRelationship.getRequirementType())) {
+                Entry<String, Capability> capabilityEntry = NodeTemplateUtils.getCapabilitEntryyByType(nodeTemplate, targetRelationship.getRequirementType());
+                targetRelationship.setTargetedCapabilityName(capabilityEntry.getKey());
+            }
+        }
+    }
+
+    private boolean isCapabilityNotOfType(Capability capability, String expectedCapabilityType) {
+        CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capability.getType());
+        return !ToscaTypeUtils.isOfType(capabilityType, expectedCapabilityType);
     }
 }

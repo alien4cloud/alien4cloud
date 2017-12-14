@@ -2,6 +2,9 @@ package org.alien4cloud.tosca.utils;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -12,9 +15,6 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.tosca.context.ToscaContext;
-import org.alien4cloud.tosca.model.types.NodeType;
-
-import java.util.Map;
 
 /**
  * Utility class to work with a node template.
@@ -24,24 +24,36 @@ public final class NodeTemplateUtils {
     }
 
     /**
+     * Get the first capability entry that match the given type.
+     *
+     * @param nodeTemplate The node template in witch to lookup for the capability.
+     * @param capabilityTypeName The capability type to look for.
+     * @return The capability matching the type or null if no capability of the requested type is defined.
+     */
+    public static Entry<String, Capability> getCapabilitEntryyByType(NodeTemplate nodeTemplate, String capabilityTypeName) {
+        for (Entry<String, Capability> capabilityEntry : safe(nodeTemplate.getCapabilities()).entrySet()) {
+            if (capabilityEntry.getValue().getType().equals(capabilityTypeName)) {
+                return capabilityEntry;
+            }
+            // if the type does not strictly equals we should check the derived from element
+            CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capabilityEntry.getValue().getType());
+            if (ToscaTypeUtils.isOfType(capabilityType, capabilityTypeName)) {
+                return capabilityEntry;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Get the first capability that match the given type.
-     * 
+     *
      * @param nodeTemplate The node template in witch to lookup for the capability.
      * @param capabilityTypeName The capability type to look for.
      * @return The capability matching the type or null if no capability of the requested type is defined.
      */
     public static Capability getCapabilityByType(NodeTemplate nodeTemplate, String capabilityTypeName) {
-        for (Capability capability : safe(nodeTemplate.getCapabilities()).values()) {
-            if (capability.getType().equals(capabilityTypeName)) {
-                return capability;
-            }
-            // if the type does not strictly equals we should check the derived from element
-            CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capability.getType());
-            if (ToscaTypeUtils.isOfType(capabilityType, capabilityTypeName)) {
-                return capability;
-            }
-        }
-        return null;
+        Entry<String, Capability> capabilityEntry = getCapabilitEntryyByType(nodeTemplate, capabilityTypeName);
+        return capabilityEntry == null ? null : capabilityEntry.getValue();
     }
 
     /**
