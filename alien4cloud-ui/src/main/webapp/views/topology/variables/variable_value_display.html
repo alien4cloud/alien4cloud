@@ -16,6 +16,9 @@
                             'var-undefined': !appScopeDTO.expression,
                             'var-scope-selected': selectedScope.id === topology.topology.archiveName}"
                 ng-click="showAppVarExpression(appScopeDTO.expression)">  {{'APPLICATIONS.VARIABLES.APP_SCOPE' | translate}}</h4>
+                <div class="text-muted var-scope-item">
+                  <i>{{'APPLICATIONS.VARIABLES.APP_SCOPE_NOT_EDITABLE' | translate }}.</i>
+                </div>
             </div>
 
             <div style="margin-top: 30px">
@@ -75,16 +78,39 @@
         </div>
       </div>
       <div id="var-expression" class="topology-column">
-        <div ng-if="!isImage" style="margin-top:10px;">
-          <div style="margin-left: 10px;">
-            <button class="btn btn-default btn-sm" id="save-file"
-              ng-disabled="!selectedScope"
-              ng-click="saveEdited()">
-              <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
-            </button>
-            <span class="text-info">{{selectedScope.name}}<span>
+        <div class="content-head" style="margin-bottom: 15px">
+          <div class="row">
+            <div class="col-md-8 center">
+              <span class="text-info">{{selectedScope.name}}</span>
+            </div>
+            <div class="col-md-4 align-right" >
+              <button class="btn btn-xs"
+                ng-disabled="!selectedScope || selectedScope.readOnly"
+                uib-tooltip="{{'APPLICATIONS.VARIABLES.TOGGLE_EDIT' | translate:{state:editMode?'off':'on'} }}"
+                ng-class="{'btn-info': editMode, 'btn-default': !editMode}"
+                ng-click="toggleEditMode()">
+                <i class="fa fa-pencil"></i> {{'COMMON.EDIT' | translate}}
+              </button>
+              <!-- <span class="vertical-center">{{'COMMON.EDIT' | translate}}: </span>
+              <span id="srv-state" class="switch" ng-click="toggleEditMode()">
+                <span class="switch-slider" ng-class="{'disabled' : !editMode , 'enabled': editMode}"></span>
+              </span> -->
+              <button class="btn btn-default btn-xs" id="save-file"
+                ng-disabled="!editMode || !selectedScope || selectedScope.readOnly"
+                ng-click="saveEdited()">
+                <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
+              </button>
+            </div>
           </div>
-          <div ng-model="editorContent" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: 'true', onLoad : aceLoaded}" style="margin-top:10px; min-height: 100px;">
+        </div>
+
+        <div ng-if="!editMode">
+          <p class="var-undefined" ng-if="!selectedScope">{{'APPLICATIONS.VARIABLES.UNSELECTED_HOLDER' | translate}}</p>
+          <p class="var-undefined" ng-if="selectedScope && _.isEmpty(selectedScope.expression)">{{'APPLICATIONS.VARIABLES.UNDEFINED' | translate}}. <span ng-if="!selectedScope.readOnly">{{'APPLICATIONS.VARIABLES.EDIT_MESSAGE' | translate}}</span></p>
+          <p ng-if="_.isNotEmpty(selectedScope.expression)" style="white-space: pre;"><span a4c-compile="dump()"></span></p>
+        </div>
+        <div ng-if="editMode">
+          <div ng-model="selectedScope.editorContent" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: 'true', onLoad : aceLoaded}" style="margin-top:10px; min-height: 350px;">
           </div>
         </div>
         <div ng-if="isImage" style="margin-top:10px;" class="well"><img ng-src="{{imageUrl}}" /></div>
@@ -94,11 +120,8 @@
 
 
   <div class="modal-footer">
-    <button id="modal-push-button" class="btn btn-primary" ng-click="ok()">
-      {{ 'GENERIC_FORM.SAVE'| translate}}
-    </button>
-    <button id="modal-close-button" class="btn btn-default" ng-click="cancel()">
-      {{'GENERIC_FORM.CANCEL' | translate}}
-    </button>
+    <a id="modal-push-button" class="btn btn-primary" ng-click=cancel()>
+      {{ 'CLOSE'| translate}}
+    </a>
   </div>
 </form>

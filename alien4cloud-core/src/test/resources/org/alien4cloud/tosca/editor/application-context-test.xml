@@ -38,7 +38,8 @@
   		org.alien4cloud.tosca.catalog,
         org.alien4cloud.tosca.exporter,
 		org.alien4cloud.tosca.editor,
-        org.alien4cloud.tosca.topology">
+        org.alien4cloud.tosca.topology,
+        org.alien4cloud.tosca.variable">
         <context:exclude-filter type="regex"
                                 expression="alien4cloud.orchestrators.services.OrchestratorSecurityService"/>
         <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap"/>
@@ -57,5 +58,6 @@
 
     <mockito:mock id="group-dao" class="alien4cloud.security.groups.IAlienGroupDao"/>
     <mockito:mock id="user-dao" class="alien4cloud.security.users.IAlienUserDao"/>
-    <mockito:mock id="pluginmodifierregistry" class="org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry"/>
+    <mockito:mock id="pluginmodifierregistry"
+                  class="org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry"/>
 </beans>

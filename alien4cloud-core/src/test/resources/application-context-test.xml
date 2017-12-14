@@ -38,7 +38,8 @@
       org.alien4cloud.tosca.catalog,
       org.alien4cloud.tosca.exporter,
       org.alien4cloud.tosca.editor,
-      org.alien4cloud.tosca.topology
+      org.alien4cloud.tosca.topology,
+      org.alien4cloud.tosca.variable
       ">
         <context:exclude-filter type="regex"
                                 expression="alien4cloud.orchestrators.services.OrchestratorSecurityService"/>

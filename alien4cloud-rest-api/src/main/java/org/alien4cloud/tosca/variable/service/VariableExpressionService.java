@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.variable.service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.utils.YamlParserUtil;
 
 @Service
 public class VariableExpressionService {
@@ -55,20 +57,21 @@ public class VariableExpressionService {
     }
 
     private ScopeVariableExpressionDTO getVariableDef(String varName, String archiveId, ApplicationEnvironment env) {
-        Properties variables = editorFileService.loadEnvironmentVariables(archiveId, env.getId());
+        Map<String, Object> variables = editorFileService.loadEnvironmentVariables(archiveId, env.getId());
         return getScopeVariableExpressionDTO(varName, env.getId(), env.getName(), variables);
     }
 
-    private ScopeVariableExpressionDTO getScopeVariableExpressionDTO(String varName, String scopeId, String scopeName, Properties variables) {
+    private ScopeVariableExpressionDTO getScopeVariableExpressionDTO(String varName, String scopeId, String scopeName, Map<String, Object> variables) {
         ScopeVariableExpressionDTO dto = new ScopeVariableExpressionDTO();
         dto.setScopeId(scopeId);
         dto.setScopeName(scopeName);
-        dto.setVariable(new Variable(varName, variables.getProperty(varName)));
+        Object expression = variables.get(varName);
+        dto.setVariable(new Variable(varName, expression != null ? YamlParserUtil.dump(expression) : null));
         return dto;
     }
 
     private ScopeVariableExpressionDTO getVariableDef(String varName, String archiveId, EnvironmentType environmentType) {
-        Properties variables = editorFileService.loadEnvironmentTypeVariables(archiveId, environmentType);
+        Map<String, Object> variables = editorFileService.loadEnvironmentTypeVariables(archiveId, environmentType);
         return getScopeVariableExpressionDTO(varName, environmentType.toString(), environmentType.toString(), variables);
     }
 

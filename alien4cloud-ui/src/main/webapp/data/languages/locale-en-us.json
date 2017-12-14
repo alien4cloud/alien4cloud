@@ -76,15 +76,22 @@
     "IMAGE_UPLOAD": "Drop an image file",
     "INPUTS": {
       "EXPRESSION": "Expression",
+      "VALUE": "Value",
       "DEPLOYER": "Deployer input",
-      "CLEAR": "Clear"
+      "CLEAR": "Clear",
+      "MODAL_HEADER": "Edit input < {{var}} >"
     },
     "VARIABLES": {
       "APP_SCOPE": "Application scope",
       "ENV_SCOPE": "Environment scope",
       "ENV_TYPE_SCOPE": "Environment type scope",
       "NAME":"Variable name",
-      "MODAL_HEADER": "Where is variable < {{var}} > defined ?"
+      "UNDEFINED": "Undefined",
+      "MODAL_HEADER": "Where is variable < {{var}} > defined ?",
+      "TOGGLE_EDIT": "Toggle edit {{state}}",
+      "UNSELECTED_HOLDER": "Select a scope item on the left to view the variable value",
+      "EDIT_MESSAGE": "Toggle edit on to add a value.",
+      "APP_SCOPE_NOT_EDITABLE": "Please note thet application's variables can not be edited here"
     },
     "META_PROPERTIES": "Meta-properties",
     "NEW": "New Application",
