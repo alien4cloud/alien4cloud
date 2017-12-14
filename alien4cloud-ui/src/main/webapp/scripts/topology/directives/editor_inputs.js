@@ -42,20 +42,12 @@ define(function (require) {
         }
       }
 
-      function updateInputFile(content) {
-        $scope.execute({
-          type: 'org.alien4cloud.tosca.editor.operations.UpdateFileContentOperation',
-          path: 'inputs/inputs.yml',
-          content: content
-        });
-      }
-
       $scope.clearInput = function(inputName) {
-        if(_.has($scope.loadedInputs, inputName)){
-          delete $scope.loadedInputs[inputName];
-          var content = yaml.safeDump($scope.loadedInputs);
-          updateInputFile(content);
-        }
+        $scope.execute({
+          type: 'org.alien4cloud.tosca.editor.operations.inputs.UpdateInputExpressionOperation',
+          name: inputName,
+          expression: null
+        });
       };
 
       $scope.editInput = function(inputName) {

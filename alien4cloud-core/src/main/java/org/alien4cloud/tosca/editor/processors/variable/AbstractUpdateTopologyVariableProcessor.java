@@ -9,6 +9,7 @@ import org.alien4cloud.tosca.editor.operations.variable.AbstractUpdateTopologyVa
 import org.alien4cloud.tosca.editor.processors.AbstractUpdateFileProcessor;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.lang3.StringUtils;
 
 import alien4cloud.utils.YamlParserUtil;
 import lombok.SneakyThrows;
@@ -25,8 +26,14 @@ public abstract class AbstractUpdateTopologyVariableProcessor<T extends Abstract
         operation.setPath(getRelativeVariablesFilePath(operation));
         Map<String, Object> variables = loadVariables(EditionContextManager.get().getCsar().getId(), operation);
 
-        // update the value of the variable
-        variables.put(operation.getName(), YamlParserUtil.load(operation.getExpression()));
+        // if the expression is empty, remove the var
+        if (StringUtils.isBlank(operation.getExpression())) {
+            variables.remove(operation.getName());
+        } else {
+            // update the value of the variable
+            variables.put(operation.getName(), YamlParserUtil.load(operation.getExpression()));
+        }
+
         if (operation.getTempFileId() == null) {
             operation.setArtifactStream(new ByteArrayInputStream(YamlParserUtil.dumpAsMap(variables).getBytes(StandardCharsets.UTF_8)));
         }
