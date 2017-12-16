@@ -1,6 +1,8 @@
 package org.alien4cloud.secret.services;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -10,7 +12,12 @@ import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
 import org.alien4cloud.secret.ISecretProvider;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
+import alien4cloud.deployment.model.SecretProviderCredentials;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.secret.SecretAuthResponse;
+import alien4cloud.model.secret.SecretProviderConfiguration;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.ui.form.PojoFormDescriptorGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -61,4 +68,52 @@ public class SecretProviderService {
         info.setPluginName(pluginName);
         return info;
     }
+
+    /**
+     * This method is used to build a valid object who contains the configuration of the secret provider from the location and the credentials for the current
+     * request/operation
+     *
+     * @param locations map of locations
+     * @param secretProviderCredentials the secret provider credentials configuration
+     * @return the more suitable model for orchestrator
+     */
+    public SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations,
+            SecretProviderCredentials secretProviderCredentials) {
+        if (secretProviderCredentials == null) {
+            return null;
+        }
+        return generateSecretConfiguration(locations, secretProviderCredentials.getPluginName(), secretProviderCredentials.getCredentials());
+    }
+
+    public SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations, String pluginName, Object credentials) {
+        if (credentials == null) {
+            return null;
+        }
+        Optional<Location> firstLocation = locations.values().stream()
+                .filter(location -> Objects.equals(pluginName, location.getSecretProviderConfiguration().getPluginName())).findFirst();
+        if (!firstLocation.isPresent()) {
+            log.error("Plugin name <" + pluginName + "> is not configured by the current location.");
+            return null;
+        }
+        return generateSecretConfiguration(firstLocation.get().getSecretProviderConfiguration(), credentials);
+    }
+
+    public SecretProviderConfigurationAndCredentials generateSecretConfiguration(SecretProviderConfiguration locationConfiguration, Object credentials) {
+        if(credentials == null) {
+            return null;
+        }
+        // Instead of saving the credentials username and password, we transform the username and password to a client token
+        ISecretProvider secretProvider = this.getPluginBean(locationConfiguration.getPluginName());
+        Object configuration = this.getPluginConfiguration(locationConfiguration.getPluginName(), locationConfiguration.getConfiguration());
+        SecretAuthResponse authResponse = secretProvider.auth(configuration,
+                this.getCredentials(locationConfiguration.getPluginName(), configuration, credentials));
+        SecretProviderConfigurationAndCredentials result = new SecretProviderConfigurationAndCredentials();
+        SecretProviderConfiguration secretProviderConfiguration = new SecretProviderConfiguration();
+        secretProviderConfiguration.setPluginName(locationConfiguration.getPluginName());
+        secretProviderConfiguration.setConfiguration(authResponse.getConfiguration());
+        result.setSecretProviderConfiguration(secretProviderConfiguration);
+        result.setCredentials(authResponse.getCredentials());
+        return result;
+    }
+
 }

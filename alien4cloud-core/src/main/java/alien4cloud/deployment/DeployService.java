@@ -4,14 +4,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.secret.ISecretProvider;
 import org.alien4cloud.secret.services.SecretProviderService;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
@@ -42,8 +39,6 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.secret.SecretAuthResponse;
-import alien4cloud.model.secret.SecretProviderConfiguration;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.IPaaSCallback;
@@ -292,7 +287,8 @@ public class DeployService {
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
 
-        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = generateSecretConfiguration(locations, secretProviderCredentials);
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = secretProviderService.generateSecretConfiguration(locations,
+                secretProviderCredentials);
 
         PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials,
                 deployment, locations, deploymentTopology);
@@ -302,46 +298,6 @@ public class DeployService {
         artifactProcessorService.processArtifacts(deploymentContext);
 
         return deploymentContext;
-    }
-
-    /**
-     * This method is used to build a valid object who contains the configuration of the secret provider from the location and the credentials for the current
-     * request/operation
-     *
-     * @param locations map of locations
-     * @param secretProviderCredentials the secret provider credentials configuration
-     * @return the more suitable model for orchestrator
-     */
-    public SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations,
-            SecretProviderCredentials secretProviderCredentials) {
-        if (secretProviderCredentials == null) {
-            return null;
-        }
-        return generateSecretConfiguration(locations, secretProviderCredentials.getPluginName(), secretProviderCredentials.getCredentials());
-    }
-
-    public SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations, String pluginName, Object credentials) {
-        if (credentials == null) {
-            return null;
-        }
-        Optional<Location> firstLocation = locations.values().stream()
-                .filter(location -> Objects.equals(pluginName, location.getSecretProviderConfiguration().getPluginName())).findFirst();
-        if (!firstLocation.isPresent()) {
-            log.error("Plugin name <" + pluginName + "> is not configured by the current location.");
-            return null;
-        }
-        // Instead of saving the credentials username and password, we transform the username and password to a client token
-        ISecretProvider secretProvider = secretProviderService.getPluginBean(pluginName);
-        Object configuration = secretProviderService.getPluginConfiguration(pluginName,
-                firstLocation.get().getSecretProviderConfiguration().getConfiguration());
-        SecretAuthResponse authResponse = secretProvider.auth(configuration, secretProviderService.getCredentials(pluginName, configuration, credentials));
-        SecretProviderConfigurationAndCredentials result = new SecretProviderConfigurationAndCredentials();
-        SecretProviderConfiguration secretProviderConfiguration = new SecretProviderConfiguration();
-        secretProviderConfiguration.setPluginName(pluginName);
-        secretProviderConfiguration.setConfiguration(authResponse.getConfiguration());
-        result.setSecretProviderConfiguration(secretProviderConfiguration);
-        result.setCredentials(authResponse.getCredentials());
-        return result;
     }
 
     /**
