@@ -74,9 +74,12 @@ public class UndeployService {
             DeploymentTopology deployedTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
             Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deployedTopology);
             Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-            final SecretProviderConfigurationAndCredentials authResponse = secretProviderService.generateSecretConfiguration(locations,
-                    secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
-                    secretProviderConfigurationAndCredentials.getCredentials());
+            SecretProviderConfigurationAndCredentials authResponse = null;
+            if (secretProviderConfigurationAndCredentials != null && secretProviderConfigurationAndCredentials.getSecretProviderConfiguration() != null) {
+                authResponse = secretProviderService.generateSecretConfiguration(locations,
+                        secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
+                        secretProviderConfigurationAndCredentials.getCredentials());
+            }
             PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deployedTopology, authResponse);
             orchestratorPlugin.undeploy(deploymentContext, new IPaaSCallback<ResponseEntity>() {
                 @Override
