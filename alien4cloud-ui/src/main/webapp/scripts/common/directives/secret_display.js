@@ -12,6 +12,7 @@ define(function (require) {
       controller: 'SecretDisplayCtrl',
       restrict: 'E',
       scope: {
+        'id': '@?',
         'translated': '=',
         'definition': '=',
         'editable': '=?',
@@ -19,9 +20,9 @@ define(function (require) {
         'propertyName': '=',
         'propertyValue': '=',
         'capabilityName': '=?',
+        'relationshipName': '=?',
         'selectedNodeTemplate': '=',
-        'execute': '&?',
-        'customSaveSecret': '&?'
+        'onSave': '&'
       },
       link: {}
     };

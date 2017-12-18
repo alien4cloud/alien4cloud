@@ -87,8 +87,27 @@
                 <!-- <td class="topology-props-td-inp">
                   inputs
                 </td> -->
+                <td>
+                  <button id="p_secret_pro_{{propEntry.key}}"
+                     ng-click="secrets.togglePolicyPropertySecret(propEntry)"
+                     class="btn btn-default btn-xs"
+                     ng-class="{'active' : properties.isSecretValue(propEntry.value)}"
+                     tooltip-append-to-body="true">
+                    <i class="fa fa-key "></i>
+                  </button>
+                </td>
                 <td ng-init="condensed=true; propDef=policyType.propertiesMap[propEntry.key].value">
+                  <secret-display
+                    ng-show="properties.isSecretValue(propEntry.value)"
+                    property-name="propEntry.key"
+                    property-value="propEntry.value"
+                    definition="propDef"
+                    selected-node-template="policyTemplate"
+                    editable="true"
+                    on-save="secrets.savePolicyPropertySecret(secretPath, propertyName)">
+                  </secret-display>
                   <property-display
+                    ng-show="!properties.isSecretValue(propEntry.value)"
                     definition="propDef"
                     property-type="topology.dataTypes[propDef.type]"
                     dependencies="topology.topology.dependencies"

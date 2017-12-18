@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.variable.QuickFileStorageService;
+import org.alien4cloud.tosca.variable.model.Variable;
+import org.alien4cloud.tosca.variable.service.VariableExpressionService;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +38,8 @@ public class ApplicationVariableController {
     private ApplicationService applicationService;
     @Inject
     private QuickFileStorageService quickFileStorageService;
+    @Inject
+    private VariableExpressionService variableExpressionService;
 
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
@@ -43,6 +47,13 @@ public class ApplicationVariableController {
     public RestResponse<String> getContent(@PathVariable String applicationId) {
         applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
         return RestResponseBuilder.<String> builder().data(quickFileStorageService.getApplicationVariables(applicationId)).build();
+    }
+
+    @ApiIgnore
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{varName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Variable> getVariable(@PathVariable String applicationId, @PathVariable String varName) {
+        return RestResponseBuilder.<Variable> builder().data(variableExpressionService.getInApplicationScope(varName, applicationId)).build();
     }
 
     @ApiIgnore

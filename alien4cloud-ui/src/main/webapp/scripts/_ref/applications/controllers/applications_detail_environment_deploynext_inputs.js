@@ -7,11 +7,24 @@ define(function (require) {
   var _ = require('lodash');
 
   require('scripts/common/filters/inputs');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_inputs_artifact_modal');
 
   states.state('applications.detail.environment.deploynext.inputs', {
     url: '/inputs',
     templateUrl: 'views/_ref/applications/applications_detail_environment_deploynext_inputs.html',
     controller: 'AppEnvDeployNextInputsCtrl',
+    resolve: {
+      topologyDTO: ['deploymentTopologyDTO', 'topologyServices',
+        function (deploymentTopologyDTO, topologyServices) {
+          return _.catch(function () {
+            return topologyServices.dao.get({ topologyId: deploymentTopologyDTO.topology.id })
+            .$promise.then(function(result) {
+                 return result.data;
+               });
+          });
+        }
+      ]
+    },
     menu: {
       id: 'applications.detail.environment.deploynext.inputs',
       state: 'applications.detail.environment.deploynext.inputs',
@@ -25,8 +38,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextInputsCtrl',
-    ['$scope', '$filter', '$resource', '$uibModal', 'deploymentTopologyServices', 'topologyServices', 'breadcrumbsService','$translate', 'topoEditSecrets', 'topoEditProperties',
-    function ($scope, $filter, $resource, $uibModal, deploymentTopologyServices, topologyServices, breadcrumbsService, $translate, topoEditSecrets, topoEditProperties) {
+    ['$scope', '$filter', '$resource', '$uibModal', 'deploymentTopologyServices', 'topologyServices', 'breadcrumbsService','$translate', 'topoEditSecrets', 'topoEditProperties', 'topologyDTO',
+    function ($scope, $filter, $resource, $uibModal, deploymentTopologyServices, topologyServices, breadcrumbsService, $translate, topoEditSecrets, topoEditProperties, topologyDTO) {
 
       topoEditSecrets($scope);
       topoEditProperties($scope);
@@ -80,7 +93,7 @@ define(function (require) {
       $scope.openInputArtifactModal = function (artifactKey) {
         var key = artifactKey;
         topologyServices.availableRepositories({
-          topologyId: $scope.topologyId
+          topologyId: $scope.deploymentTopologyDTO.topology.id
         }, function (result) {
           $scope.availableRepositories = result.data;
           var modalInstance = $uibModal.open({
@@ -89,7 +102,7 @@ define(function (require) {
             size: 'lg',
             resolve: {
               archiveContentTree: function () {
-                return $scope.topologyDTO.archiveContentTree;
+                return topologyDTO.archiveContentTree;
               },
               availableRepositories: function () {
                 return $scope.availableRepositories;
@@ -103,11 +116,14 @@ define(function (require) {
               artifactKey: function () {
                 return artifactKey;
               },
+              environment: function() {
+                return $scope.environment;
+              },
               updateScopeDeploymentTopologyDTO: function () {
                 return $scope.updateScopeDeploymentTopologyDTO;
               },
               topology: function () {
-                return $scope.topologyDTO.topology;
+                return topologyDTO.topology;
               }
             }
           });
@@ -141,15 +157,9 @@ define(function (require) {
         }); // availableRepositories callback
       }; // openInputArtifactModal function
 
-      $scope.saveInputSecret = function(scope, data){
-        if (_.undefined(data)) {
-          return "The secret path cannot be null."
-        }
-        if (scope.propertyName === "component_version") {
-          return "The property component_version cannot be set as a secret."
-        }
-        scope.propertyValue.parameters[0] = data;
-        $scope.updateInputValue(null, scope.propertyValue, scope.propertyName);
+      $scope.saveInputSecret = function(secretPath, propertyValue, propertyName){
+        propertyValue.parameters[0] = secretPath;
+        $scope.updateInputValue(null, propertyValue, propertyName);
       };
 
     }

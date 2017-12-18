@@ -1,5 +1,10 @@
 package alien4cloud.it.orchestrators;
 
+import java.util.Arrays;
+
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
+
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -58,6 +63,15 @@ public class OrchestrationPolicyLocationResourceSteps extends AbstractLocationRe
     public void IUpdateThePolicyResourceNameFromRelatedToTheLocation(String oldName, String newName, String orchestratorName, String locationName)
             throws Throwable {
         updateLocationResource(orchestratorName, locationName, oldName, newName);
+    }
+
+
+    @When("^I set the property \"([^\"]*)\" to a secret with a secret path \"([^\"]*)\" for the policy resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void iSetThePropertyToASecretWithASecretPathForThePolicyResourceNamedRelatedToTheLocation(String propertyName, String secretPath, String resourceName, String orchestratorName, String locationName) throws Throwable {
+        FunctionPropertyValue functionPropertyValue = new FunctionPropertyValue();
+        functionPropertyValue.setFunction(ToscaFunctionConstants.GET_SECRET);
+        functionPropertyValue.setParameters(Arrays.asList(secretPath));
+        updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, functionPropertyValue, getUpdatePropertyUrlFormat());
     }
 
     @Override

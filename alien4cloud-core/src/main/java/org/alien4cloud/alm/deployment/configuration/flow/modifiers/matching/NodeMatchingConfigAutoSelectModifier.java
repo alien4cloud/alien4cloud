@@ -8,6 +8,7 @@ import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConf
 import org.springframework.stereotype.Component;
 
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.topology.task.AbstractTask;
 
 /**
  * This node matching modifier is responsible for automatic selection of location resources that are not yet selected by the user.
@@ -36,5 +37,10 @@ public class NodeMatchingConfigAutoSelectModifier extends AbstractMatchingConfig
     protected Map<String, List<LocationResourceTemplate>> getAvailableMatches(FlowExecutionContext context) {
         return (Map<String, List<LocationResourceTemplate>>) context.getExecutionCache()
                 .get(FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_NODE_ID_MAP);
+    }
+
+    @Override
+    protected void consumeNoMatchingFound(FlowExecutionContext context, AbstractTask task) {
+        context.getLog().error(task);
     }
 }

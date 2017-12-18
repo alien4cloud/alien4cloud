@@ -1,0 +1,162 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: Wordpress
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: ""
+
+imports:
+  - wordpress-type:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - php-type:1.4.0-SNAPSHOT
+  - mysql-type:1.4.0-SNAPSHOT
+  - apache-type:1.4.0-SNAPSHOT
+
+topology_template:
+  inputs:
+    os_distribution:
+      type: string
+      required: true
+      default: ubuntu
+      constraints:
+        - valid_values: [debian, ubuntu, knoppix]
+      description: "The host Operating System (OS) architecture."
+    credential:
+      type: tosca.datatypes.Credential
+      required: false
+      description: "The security credential to use to present to the target endpoint to for either authentication or authorization purposes."
+  node_templates:
+    wordpress:
+      type: org.alien4cloud.nodes.Wordpress
+      properties:
+        zip_url: "https://wordpress.org/latest.zip"
+        context_root: "/"
+      requirements:
+        - host:
+            node: apache
+            capability: org.alien4cloud.capabilities.ApacheContainer
+            relationship: org.alien4cloud.relationships.WordpressHostedOnApache
+        - database:
+            node: mysql
+            capability: org.alien4cloud.capabilities.MysqlDatabaseEndpoint
+            relationship: org.alien4cloud.relationships.WordpressConnectToMysql
+        - php:
+            node: php
+            capability: org.alien4cloud.capabilities.PHPModule
+            relationship: org.alien4cloud.relationships.WordpressConnectToPHP
+      capabilities:
+        app_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    php:
+      type: org.alien4cloud.nodes.PHP
+      properties:
+        component_version: 5
+      requirements:
+        - host:
+            node: computeWww
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    computeDb:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            cpu_frequency: "1 GHz"
+            disk_size: "1 GB"
+            mem_size: "1024 MB"
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: { get_input: os_distribution }
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    computeWww:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            cpu_frequency: "1 GHz"
+            disk_size: "1 GB"
+            mem_size: "1024 MB"
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: { get_input: os_distribution }
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    apache:
+      type: org.alien4cloud.nodes.Apache
+      properties:
+        component_version: 2.4
+        port: 80
+        document_root: "/var/www"
+      requirements:
+        - host:
+            node: computeWww
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        data_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        admin_endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    mysql:
+      type: org.alien4cloud.nodes.Mysql
+      properties:
+        port: 3306
+        name: wordpress
+        db_user: pass
+        db_password: pass
+        bind_address: true
+        storage_path: "/mountedStorage"
+      requirements:
+        - host:
+            node: computeDb
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        database_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+  outputs:
+    wordpress_wordpress_url:
+      value: { get_attribute: [ wordpress, wordpress_url ] }

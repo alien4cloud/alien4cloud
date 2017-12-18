@@ -49,7 +49,8 @@ require.config({
     'd3-tip': 'bower_components/d3-tip/index',
     'd3-pie': 'bower_components/d3pie/d3pie/d3pie.min',
     'dagre': 'bower_components/dagre/dist/dagre.core.min',
-    'graphlib': 'bower_components/graphlib/dist/graphlib.core.min'
+    'graphlib': 'bower_components/graphlib/dist/graphlib.core.min',
+    'js-yaml': 'bower_components/js-yaml/js-yaml.min',
   },
   shim: {
     'angular': {

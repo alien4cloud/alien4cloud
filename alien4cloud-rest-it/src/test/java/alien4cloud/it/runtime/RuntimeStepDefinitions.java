@@ -1,16 +1,5 @@
 package alien4cloud.it.runtime;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.elasticsearch.common.collect.Lists;
-import org.junit.Assert;
-
 import alien4cloud.it.Context;
 import alien4cloud.it.application.ApplicationStepDefinitions;
 import alien4cloud.it.common.CommonStepDefinitions;
@@ -18,12 +7,19 @@ import alien4cloud.it.topology.TopologyStepDefinitions;
 import alien4cloud.paas.model.OperationExecRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-
 import com.google.common.collect.Maps;
-
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.elasticsearch.common.collect.Lists;
+import org.junit.Assert;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class RuntimeStepDefinitions {
@@ -67,7 +63,7 @@ public class RuntimeStepDefinitions {
         commandRequest.setOperationName(commandName);
         commandRequest.setApplicationEnvironmentId(Context.getInstance().getDefaultApplicationEnvironmentId(appName));
         if (operationParameters != null) {
-            Map<String, String> parameters = Maps.newHashMap();
+            Map<String, Object> parameters = Maps.newHashMap();
             for (List<String> operationParameter : operationParameters.raw()) {
                 parameters.put(operationParameter.get(0), operationParameter.get(1));
             }

@@ -2,6 +2,7 @@ package alien4cloud.application;
 
 import static alien4cloud.common.ResourceUpdateInterceptor.TopologyVersionChangedInfo;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import org.alien4cloud.alm.events.AfterApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.tosca.model.Csar;
+import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,7 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
 import alien4cloud.model.application.ApplicationVersion;
@@ -122,6 +125,25 @@ public class ApplicationEnvironmentService {
     public ApplicationEnvironment[] getByApplicationId(String applicationId) {
         Map<String, String[]> filters = MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } });
         return alienDAO.search(ApplicationEnvironment.class, null, filters, null, null, 0, Integer.MAX_VALUE, "name.lower_case", false).getData();
+    }
+
+    /**
+     * Get all authorized environments for a given application
+     *
+     * @param applicationId The id of the application for which to get environments.
+     * @return An array of the environments for the requested application id.
+     */
+    public ApplicationEnvironment[] getAuthorizedByApplicationId(String applicationId) {
+        return alienDAO.search(ApplicationEnvironment.class, null, singleKeyFilter("applicationId", applicationId),
+                getEnvironmentAuthorizationFilters(applicationId), null, 0, Integer.MAX_VALUE, "name.lower_case", false).getData();
+    }
+
+    private FilterBuilder getEnvironmentAuthorizationFilters(String applicationId) {
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        if (AuthorizationUtil.hasAuthorizationForApplication(application)) {
+            return null;
+        }
+        return AuthorizationUtil.getResourceAuthorizationFilters();
     }
 
     /**
@@ -254,11 +276,11 @@ public class ApplicationEnvironmentService {
      */
     public ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, IResourceRoles... roles) {
         ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
-        // Does the user is allowed access (application, environment) level ?
+        // Is the user allowed access (application, environment) level ?
         if (AuthorizationUtil.hasAuthorization(applicationEnvironment, Role.ADMIN, roles)) {
             return applicationEnvironment;
         }
-        // Does the user is allowed to access at the application level
+        // is the user allowed to access at the application level
         applicationService.checkAndGetApplication(applicationEnvironment.getApplicationId(), roles);
         return applicationEnvironment;
     }

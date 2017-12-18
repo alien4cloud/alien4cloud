@@ -56,6 +56,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.User;
@@ -91,6 +92,8 @@ public class EditorStepDefs {
     private ITopologyCatalogService catalogService;
     @Inject
     private ApplicationService applicationService;
+    @Inject
+    private EditorFileService editorFileService;
 
     private LinkedList<String> topologyIds = new LinkedList();
 
@@ -321,6 +324,23 @@ public class EditorStepDefs {
     public void i_upload_a_file_located_at_to_the_archive_path(String filePath, String archiveTargetPath) throws Throwable {
         UpdateFileOperation updateFileOperation = new UpdateFileOperation(archiveTargetPath, Files.newInputStream(Paths.get(filePath)));
         doExecuteOperation(updateFileOperation);
+    }
+
+    @Given("^I load variables for \"(.*?)\" / \"(.*?)\"$")
+    public void i_load_variables_for(String scopeType, String scopeId) throws Throwable {
+        Map<String, Object> variables;
+        switch (scopeType) {
+        case "ENV":
+            variables = editorFileService.loadEnvironmentVariables(topologyIds.getLast(), scopeId);
+            break;
+        case "EVN_TYPE":
+            variables = editorFileService.loadEnvironmentTypeVariables(topologyIds.getLast(), EnvironmentType.valueOf(scopeId));
+            break;
+        default:
+            throw new UnsupportedOperationException("Not supported scope type for checking: " + scopeType);
+        }
+
+        topologyEvaluationContext = new StandardEvaluationContext(variables);
     }
 
     private void doExecuteOperation(AbstractEditorOperation operation, String topologyId) {

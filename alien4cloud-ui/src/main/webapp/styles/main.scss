@@ -38,6 +38,7 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "alien/tree-control";
 @import "alien/users";
 @import "alien/vertical-menu";
+@import "alien/variables-inputs";
 
 
 .text-default {
@@ -526,4 +527,9 @@ img.icon_32 {
 
 .table-vertical-center .td-icon {
   width: 5%;
+}
+
+.deployer_input {
+  font-style: italic;
+  color: rgba(48, 72, 204, 0.65);
 }

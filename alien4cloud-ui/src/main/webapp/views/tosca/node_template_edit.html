@@ -25,7 +25,7 @@
             definition="getPropertyDefinition(propEntry.key)"
             selected-node-template="selectedNodeTemplate"
             editable="properties.isSecretValue(propEntry.value) && canEditSecretProperty(propEntry.key)"
-            custom-save-secret="savePropertySecret">
+            on-save="savePropertySecret(secretPath, propertyName, propertyValue)">
           </secret-display>
           <property-display
               ng-show="!properties.isSecretValue(propEntry.value)"
@@ -77,7 +77,7 @@
           <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
             <td>
               <button id="p_secret_pro_{{propertyEntry.key}}"
-                 ng-click="secrets.toggleResourcePropertySecret(propertyEntry)"
+                 ng-click="secrets.toggleResourceCapabilitySecret(capabilityEntry.key, propertyEntry)"
                  class="btn btn-default btn-xs"
                  ng-disabled="!canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key) || !canEditSecretCapability(capabilityEntry.key, propertyEntry.key)"
                  ng-class="{'active' : properties.isSecretValue(propertyEntry.value)}"
@@ -94,7 +94,7 @@
                 definition="getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key)"
                 selected-node-template="selectedNodeTemplate"
                 editable="properties.isSecretValue(propertyEntry.value) && canEditSecretCapability(capabilityEntry.key, propertyEntry.key)"
-                custom-save-secret="saveCapabilitySecret">
+                on-save="saveCapabilitySecret(secretPath, propertyName, propertyValue, capabilityName)">
               </secret-display>
               <property-display
                   ng-init="condensed = true"
@@ -104,6 +104,7 @@
                   dependencies="dependencies"
                   property-name="propertyEntry.key"
                   property-value="propertyEntry.value"
+                  capability-name="capabilityEntry.key"
                   editable="canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                   on-save="updateCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
                   condensed="condensed">

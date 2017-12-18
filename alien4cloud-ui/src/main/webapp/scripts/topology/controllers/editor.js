@@ -15,6 +15,7 @@ define(function (require) {
   require('scripts/topology/controllers/editor_history');
   require('scripts/topology/controllers/editor_git_modal');
   require('scripts/topology/controllers/editor_validation');
+  require('scripts/topology/controllers/editor_inputs_variables');
 
   require('scripts/tosca/services/tosca_cardinalities_service');
   require('scripts/topology/services/topology_json_processor');

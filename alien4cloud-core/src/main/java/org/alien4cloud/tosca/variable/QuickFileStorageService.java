@@ -39,33 +39,62 @@ public class QuickFileStorageService {
 
     public Properties loadApplicationVariables(String applicationId) {
         Path ymlPath = getApplicationVariablesPath(applicationId);
-        return loadYamlToPropertiesIfExists(ymlPath);
+        return loadYamlToPropertiesIfExists(ymlPath, true);
+    }
+
+    public Map<String, Object> loadApplicationVariablesAsMap(String applicationId) {
+        Path ymlPath = getApplicationVariablesPath(applicationId);
+        return loadYamlToMapIfExists(ymlPath, false);
     }
 
     public Properties loadEnvironmentTypeVariables(String archiveId, EnvironmentType environmentType) {
-        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, "inputs/" + sanitizeFilename("var_env_type_" + environmentType + ".yml"));
-        return loadYamlToPropertiesIfExists(ymlPath);
+        return loadEnvironmentTypeVariables(archiveId, environmentType, true);
+    }
+
+    public Properties loadEnvironmentTypeVariables(String archiveId, EnvironmentType environmentType, boolean createIfFileNotExists) {
+        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, getRelativeEnvironmentTypeVariablesFilePath(environmentType.toString()));
+        return loadYamlToPropertiesIfExists(ymlPath, createIfFileNotExists);
+    }
+
+    public Map<String, Object> loadEnvironmentTypeVariablesAsMap(String archiveId, EnvironmentType environmentType, boolean createIfFileNotExists) {
+        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, getRelativeEnvironmentTypeVariablesFilePath(environmentType.toString()));
+        return loadYamlToMapIfExists(ymlPath, createIfFileNotExists);
     }
 
     public Properties loadEnvironmentVariables(String archiveId, String environmentId) {
-        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, "inputs/" + sanitizeFilename("var_env_" + environmentId + ".yml"));
-        return loadYamlToPropertiesIfExists(ymlPath);
+        return loadEnvironmentVariables(archiveId, environmentId, true);
+    }
+
+    public Properties loadEnvironmentVariables(String archiveId, String environmentId, boolean createIfFileNotExists) {
+        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, getRelativeEnvironmentVariablesFilePath(environmentId));
+        return loadYamlToPropertiesIfExists(ymlPath, createIfFileNotExists);
+    }
+
+    public Map<String, Object> loadEnvironmentVariablesAsMap(String archiveId, String environmentId, boolean createIfFileNotExists) {
+        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, getRelativeEnvironmentVariablesFilePath(environmentId));
+        return loadYamlToMapIfExists(ymlPath, createIfFileNotExists);
     }
 
     public Map<String, Object> loadInputsMappingFile(String archiveId) {
-        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, "inputs/inputs.yml");
-        return loadYamlToMapIfExists(ymlPath);
+        return loadInputsMappingFile(archiveId, true);
+    }
+
+    public Map<String, Object> loadInputsMappingFile(String archiveId, boolean createIfFileNotExists) {
+        Path ymlPath = editorRepositoryService.resolveArtifact(archiveId, getRelativeInputsFilePath());
+        return loadYamlToMapIfExists(ymlPath, createIfFileNotExists);
     }
 
     @SneakyThrows
-    private Properties loadYamlToPropertiesIfExists(Path ymlPath) {
+    private Properties loadYamlToPropertiesIfExists(Path ymlPath, boolean createFileIfNotExists) {
         Properties props;
         if (Files.exists(ymlPath)) {
             Resource appVar = new PathResource(ymlPath);
             props = PropertiesYamlParser.ToProperties.from(appVar);
         } else {
-            Files.createDirectories(ymlPath.getParent());
-            Files.createFile(ymlPath);
+            if (createFileIfNotExists) {
+                Files.createDirectories(ymlPath.getParent());
+                Files.createFile(ymlPath);
+            }
             props = new Properties();
         }
 
@@ -73,14 +102,16 @@ public class QuickFileStorageService {
     }
 
     @SneakyThrows
-    private Map<String, Object> loadYamlToMapIfExists(Path ymlPath) {
+    private Map<String, Object> loadYamlToMapIfExists(Path ymlPath, boolean createFileIfNotExists) {
         Map<String, Object> map;
         if (Files.exists(ymlPath)) {
             Resource appVar = new PathResource(ymlPath);
             map = PropertiesYamlParser.ToMap.from(appVar);
         } else {
-            Files.createDirectories(ymlPath.getParent());
-            Files.createFile(ymlPath);
+            if (createFileIfNotExists) {
+                Files.createDirectories(ymlPath.getParent());
+                Files.createFile(ymlPath);
+            }
             map = Maps.newHashMap();
         }
 
@@ -114,5 +145,17 @@ public class QuickFileStorageService {
 
     private String sanitizeFilename(String fileName) {
         return fileName.replaceAll("[^a-zA-Z0-9-_\\.]", "_");
+    }
+
+    public String getRelativeEnvironmentVariablesFilePath(String environmentId) {
+        return "inputs/" + sanitizeFilename("var_env_" + environmentId + ".yml");
+    }
+
+    public String getRelativeEnvironmentTypeVariablesFilePath(String environmentType) {
+        return "inputs/" + sanitizeFilename("var_env_type_" + environmentType + ".yml");
+    }
+
+    public String getRelativeInputsFilePath() {
+        return "inputs/inputs.yml";
     }
 }

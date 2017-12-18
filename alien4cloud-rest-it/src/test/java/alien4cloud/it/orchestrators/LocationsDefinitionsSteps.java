@@ -48,7 +48,8 @@ public class LocationsDefinitionsSteps {
         CreateLocationRequest request = new CreateLocationRequest();
         request.setName(locationName);
         request.setInfrastructureType(infrastructureType);
-        String resp = Context.getRestClientInstance().postJSon(String.format("/rest/v1/orchestrators/%s/locations", orchestratorId), JsonUtil.toString(request));
+        String resp = Context.getRestClientInstance().postJSon(String.format("/rest/v1/orchestrators/%s/locations", orchestratorId),
+                JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(resp);
 
         RestResponse<String> idResponse = JsonUtil.read(resp, String.class);
@@ -101,7 +102,8 @@ public class LocationsDefinitionsSteps {
     }
 
     @When("^I update environment type to \"([^\"]*)\" of the location \"([^\"]*)\" of the orchestrator \"([^\"]*)\"$")
-    public void I_update_environment_type_to_of_the_location_of_the_orchestrator(String newEnvType, String locationName, String orchestratorName) throws Throwable {
+    public void I_update_environment_type_to_of_the_location_of_the_orchestrator(String newEnvType, String locationName, String orchestratorName)
+            throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = getLocationIdFromName(orchestratorName, locationName);
         UpdateLocationRequest request = new UpdateLocationRequest();
@@ -111,9 +113,10 @@ public class LocationsDefinitionsSteps {
     }
 
     @When("^I set the value \"([^\"]*)\" to the location meta-property \"([^\"]*)\" of the location \"([^\"]*)\" of the orchestrator \"([^\"]*)\"$")
-    public void I_set_the_value_to_the_location_meta_property_of_the_location_of_the_orchestrator(String value, String metaPropertyName, String locationName, String orchestratorName) throws Throwable {
+    public void I_set_the_value_to_the_location_meta_property_of_the_location_of_the_orchestrator(String value, String metaPropertyName, String locationName,
+            String orchestratorName) throws Throwable {
         MetaPropConfiguration propertyDefinition = Context.getInstance().getConfigurationTag(metaPropertyName);
-        PropertyValidationRequest propertyCheckRequest = new PropertyValidationRequest(value, propertyDefinition.getId(), propertyDefinition);
+        PropertyValidationRequest propertyCheckRequest = new PropertyValidationRequest(value, propertyDefinition.getId(), propertyDefinition, null);
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = getLocationIdFromName(orchestratorName, locationName);
         String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s/properties", orchestratorId, locationId);
@@ -125,7 +128,8 @@ public class LocationsDefinitionsSteps {
         RestResponse<List> response = JsonUtil.read(Context.getInstance().getRestResponse(), List.class);
         assertNotNull(response);
         for (Object obj : response.getData()) {
-            LocationDTO location = Context.getInstance().getJsonMapper().readValue(Context.getInstance().getJsonMapper().writeValueAsString(obj), LocationDTO.class);
+            LocationDTO location = Context.getInstance().getJsonMapper().readValue(Context.getInstance().getJsonMapper().writeValueAsString(obj),
+                    LocationDTO.class);
             if (locationName.equals(location.getLocation().getName())) {
                 currentMetaProperties = location.getLocation().getMetaProperties();
                 break;

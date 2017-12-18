@@ -738,6 +738,7 @@
       "DETAIL" : "Details"
     },
     "MENU_FILES" : "Archive content",
+    "MENU_INPUTS_VAR": "Inputs and Variables",
     "MENU_HISTORY" : "History",
     "MENU_TOPOLOGY" : "Topology",
     "MENU_VALIDATION" : "Topology validation",

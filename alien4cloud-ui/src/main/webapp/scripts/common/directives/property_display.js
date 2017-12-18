@@ -17,6 +17,8 @@ define(function (require) {
         'propertyType': '=?',
         'propertyName': '=',
         'propertyValue': '=',
+        'relationshipName': '=?',
+        'capabilityName': '=?',
         'dependencies': '=?',
         'onSave': '&',
         'onDelete': '&',

@@ -1,0 +1,25 @@
+.var-defined {
+  color: $state-success-text;
+  font-weight: bold;
+}
+
+.var-undefined {
+  color: $text-muted;
+  font-style: italic;
+}
+
+.var-scope-selected {
+  // background-color: white
+  font-weight: bold;
+  background-color: $state-info-bg;
+}
+
+.var-scope-item {
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
+#var-expression {
+  padding: 5px;
+  border: 1px solid $gray-light;
+}

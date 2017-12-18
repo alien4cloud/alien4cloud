@@ -1,0 +1,127 @@
+<form name="variable" class="form-horizontal" role="form" novalidate>
+  <div class="modal-header">
+    <h3>{{'APPLICATIONS.VARIABLES.MODAL_HEADER' | translate:{var:varName} }}</h3>
+  </div>
+
+
+  <div id="var-explorer" class="modal-body">
+    <div class="topology-row" >
+      <div id="var-scope-box" class="topology-column">
+        <div class="topology-column-box">
+          <div class="topology-column-content-left" style="padding-top: 10px; padding-left: 10px;">
+
+            <div>
+              <h4 class="var-scope-title clickable"
+                ng-class= "{'var-defined': appScopeDTO.expression,
+                            'var-undefined': !appScopeDTO.expression,
+                            'var-scope-selected': selectedScope.id === topology.topology.archiveName}"
+                ng-click="showAppVarExpression(appScopeDTO.expression)">  {{'APPLICATIONS.VARIABLES.APP_SCOPE' | translate}}</h4>
+                <div class="text-muted var-scope-item">
+                  <i>{{'APPLICATIONS.VARIABLES.APP_SCOPE_NOT_EDITABLE' | translate }}.</i>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px">
+              <div class="content-head clickable"
+                ng-click="toggle('envType')">
+                {{'APPLICATIONS.VARIABLES.ENV_TYPE_SCOPE' | translate}}
+                <i style="padding-right: .8em;" class="vertical-align-middle fa" ng-class="{'fa-caret-down' : !collapsed.envType, 'fa-caret-right': collapsed.envType}"></i>
+              </div>
+              <div uib-collapse="collapsed.envType">
+                <!-- inplace search bar-->
+                <form class="grp-margin">
+                  <div>
+                    <input id="env-inplace-search-query" type="text" class="form-control input-xs" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchEnvType">
+                  </div>
+                </form>
+                <div class="var-scope-item clickable"
+                     ng-repeat="varDTO in envTypeScopeDTO | filter:searchEnvType"
+                     ng-click="showEnvTypeVarExpression(varDTO)"
+                     ng-class= "{'var-defined': varDTO.variable.expression,
+                                 'var-undefined': !varDTO.variable.expression,
+                                 'var-scope-selected': selectedScope.id === varDTO.scopeId}" >
+                  <span>{{varDTO.scopeName}}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 30px">
+              <div class="content-head clickable"
+                ng-click="toggle('env')">
+                {{'APPLICATIONS.VARIABLES.ENV_SCOPE' | translate}}
+                <i style="padding-right: .8em;" class="vertical-align-middle fa" ng-class="{'fa-caret-down' : !collapsed.env, 'fa-caret-right': collapsed.env}"></i>
+              </div>
+              <div uib-collapse="collapsed.env">
+                <!-- inplace search bar-->
+                <form class="grp-margin">
+                  <div>
+                    <input id="env-inplace-search-query" type="text" class="form-control input-xs" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchEnv">
+                  </div>
+                </form>
+                <div class="var-scope-item clickable"
+                     ng-repeat="varDTO in envScopeDTO | filter:searchEnv"
+                     ng-click="showEnvVarExpression(varDTO)"
+                     ng-class= "{'var-defined': varDTO.variable.expression,
+                                 'var-undefined': !varDTO.variable.expression,
+                                 'var-scope-selected': selectedScope.id === varDTO.scopeId}" >
+                  <span>{{varDTO.scopeName}}</span> (<span>{{varDTO.scopeId}}</span>)
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- <resizable-bar
+            id="var-scope-box-handler"
+            direction="e"
+            classes="topology-column-menu-right">
+          </resizable-bar> -->
+        </div>
+      </div>
+      <div id="var-expression" class="topology-column">
+        <div class="content-head" style="margin-bottom: 15px">
+          <div class="row">
+            <div class="col-md-8 center">
+              <span class="text-info">{{selectedScope.name}}</span>
+            </div>
+            <div class="col-md-4 align-right" >
+              <button class="btn btn-xs"
+                ng-disabled="!selectedScope || selectedScope.readOnly"
+                uib-tooltip="{{'APPLICATIONS.VARIABLES.TOGGLE_EDIT' | translate:{state:editMode?'off':'on'} }}"
+                ng-class="{'btn-info': editMode, 'btn-default': !editMode}"
+                ng-click="toggleEditMode()">
+                <i class="fa fa-pencil"></i> {{'COMMON.EDIT' | translate}}
+              </button>
+              <!-- <span class="vertical-center">{{'COMMON.EDIT' | translate}}: </span>
+              <span id="srv-state" class="switch" ng-click="toggleEditMode()">
+                <span class="switch-slider" ng-class="{'disabled' : !editMode , 'enabled': editMode}"></span>
+              </span> -->
+              <button class="btn btn-default btn-xs" id="save-file"
+                ng-disabled="!editMode || !selectedScope || selectedScope.readOnly"
+                ng-click="saveEdited()">
+                <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div ng-if="!editMode">
+          <p class="var-undefined" ng-if="!selectedScope">{{'APPLICATIONS.VARIABLES.UNSELECTED_HOLDER' | translate}}</p>
+          <p class="var-undefined" ng-if="selectedScope && _.isEmpty(selectedScope.expression)">{{'APPLICATIONS.VARIABLES.UNDEFINED' | translate}}. <span ng-if="!selectedScope.readOnly">{{'APPLICATIONS.VARIABLES.EDIT_MESSAGE' | translate}}</span></p>
+          <p ng-if="_.isNotEmpty(selectedScope.expression)" style="white-space: pre;"><span a4c-compile="dump()"></span></p>
+        </div>
+        <div ng-if="editMode">
+          <div ng-model="selectedScope.editorContent" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: 'true', onLoad : aceLoaded}" style="margin-top:10px; min-height: 350px;">
+          </div>
+        </div>
+        <div ng-if="isImage" style="margin-top:10px;" class="well"><img ng-src="{{imageUrl}}" /></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal-footer">
+    <a id="modal-push-button" class="btn btn-primary" ng-click=cancel()>
+      {{ 'CLOSE'| translate}}
+    </a>
+  </div>
+</form>

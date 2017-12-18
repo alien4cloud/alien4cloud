@@ -26,13 +26,13 @@
           <table class="table table-condensed" id="op_{{operationName}}_inputParams">
             <tr ng-repeat="(inputParameterName, inputParameter) in operation.inputParameters">
               <td>
-                <a id="p_secret_pro_{{inputParameterName}}"
+                <button id="p_secret_pro_{{inputParameterName}}"
                    ng-click="secrets.toggleInputParametersSecret(inputParameterName, inputParameter)"
                    class="btn btn-default btn-xs"
                    ng-class="{'active' : properties.isSecretValue(inputParameter.paramValue)}"
                    tooltip-append-to-body="true">
                   <i class="fa fa-key "></i>
-                </a>
+                </button>
               </td>
               <td class="col-md-11" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
                 <secret-display
@@ -41,14 +41,16 @@
                         property-value="inputParameter.paramValue"
                         definition="inputParameter"
                         selected-node-template="selectedNodeTemplate"
-                        custom-save-secret="saveSecret"
+                        on-save="saveSecret(secretPath, propertyValue)"
                         editable="true">
+                </secret-display>
                 <property-display
                         ng-show="!properties.isSecretValue(inputParameter.paramValue)"
                         ng-init="condensed = true"
                         definition="inputParameter"
                         property-name="inputParameterName"
                         property-value="inputParameter.paramValue"
+                        dependencies="topology.topology.dependencies"
                         on-save="checkProperty(propertyDefinition, propertyValue, propertyName)"
                         editable="true"
                         condensed="condensed">
