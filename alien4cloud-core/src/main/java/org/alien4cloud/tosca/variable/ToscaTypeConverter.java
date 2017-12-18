@@ -5,7 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
@@ -45,7 +49,8 @@ public class ToscaTypeConverter {
                     map.forEach((key, value) -> resultMap.put(key, toPropertyValue(value, propertyDefinition.getEntrySchema())));
                     return new ComplexPropertyValue(resultMap);
                 } else {
-                    throw new IllegalStateException("Property is not the expected type <" + Map.class.getSimpleName() + "> but was <" + resolvedPropertyValue.getClass().getName() + ">");
+                throw new IllegalStateException(
+                        "Property is not the expected type [" + Map.class.getSimpleName() + "] but was [" + resolvedPropertyValue.getClass().getName() + "]");
                 }
 
             case ToscaTypes.LIST:
@@ -57,14 +62,15 @@ public class ToscaTypeConverter {
                     }
                     return new ListPropertyValue(resultList);
                 } else {
-                    throw new IllegalStateException("Property is in the expected type <" + Collection.class.getSimpleName() + "> but was <" + resolvedPropertyValue.getClass().getName() + ">");
+                throw new IllegalStateException("Property is in the expected type [" + Collection.class.getSimpleName() + "] but was ["
+                        + resolvedPropertyValue.getClass().getName() + "]");
                 }
 
             default:
                 DataType dataType = findDataType(propertyDefinition.getType());
 
                 if (dataType == null) {
-                    throw new IllegalStateException("Property with type <" + propertyDefinition.getType() + "> is not supported");
+                throw new IllegalStateException("Property with type [" + propertyDefinition.getType() + "] is not supported");
                 }
 
                 if (dataType.isDeriveFromSimpleType()) {
@@ -72,20 +78,20 @@ public class ToscaTypeConverter {
                 } else if (resolvedPropertyValue instanceof Map) {
                     Map<String, Object> map = (Map<String, Object>) resolvedPropertyValue;
                     /*
-                    Map<String, Object> resultMap = Maps.newHashMap();
-
-                    map.forEach((key, value) -> {
-                        PropertyDefinition entryDefinition = dataType.getProperties().get(key);
-                        if(entryDefinition == null){
-                            throw new IllegalStateException("DataType <" + propertyDefinition.getType() + "> does not contains any definition for entry <" + key + ">");
-                        }
-                        resultMap.put(key, toPropertyValue(value, entryDefinition));
-                    });
-                    return new ComplexPropertyValue(resultMap);
-                    */
+                 * Map<String, Object> resultMap = Maps.newHashMap();
+                 * 
+                 * map.forEach((key, value) -> {
+                 * PropertyDefinition entryDefinition = dataType.getProperties().get(key);
+                 * if(entryDefinition == null){
+                 * throw new IllegalStateException("DataType [" + propertyDefinition.getType() + "] does not contains any definition for entry [" + key + "]");
+                 * }
+                 * resultMap.put(key, toPropertyValue(value, entryDefinition));
+                 * });
+                 * return new ComplexPropertyValue(resultMap);
+                 */
                     return new ComplexPropertyValue(map);
                 } else {
-                    throw new IllegalStateException("Property with type <" + propertyDefinition.getType() + "> is not supported.");
+                throw new IllegalStateException("Property with type [" + propertyDefinition.getType() + "] is not supported.");
                 }
         }
 

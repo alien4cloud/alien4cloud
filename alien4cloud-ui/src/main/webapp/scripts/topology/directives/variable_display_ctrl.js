@@ -80,6 +80,7 @@ define(function (require) {
         }
 
         $scope.showAppVarExpression = function(expression){
+          $scope.editMode=false;
           showVarExpression({
             scope:'APP',
             name: $scope.topology.topology.archiveName,
