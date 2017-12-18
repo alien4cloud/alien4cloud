@@ -30,8 +30,7 @@ public class ArchiveExportService {
     private ApplicationService applicationService;
 
     public String getYaml(Csar csar, Topology topology) {
-        boolean generateWorkflow = hasCustomWorkflows(topology);
-        return getYaml(csar, topology, generateWorkflow);
+        return getYaml(csar, topology, false);
     }
 
     /**
@@ -39,7 +38,7 @@ public class ArchiveExportService {
      *
      * @param csar The csar that contains archive meta-data.
      * @param topology The topology template within the archive.
-     * @param generateWorkflow check if we generate the workflow
+     * @param generateWorkflow if true, all wf will be generate, if false, only the custom wf will be generate
      * @return The TOSCA yaml file that describe the topology.
      */
     public String getYaml(Csar csar, Topology topology, boolean generateWorkflow) {
@@ -59,6 +58,7 @@ public class ArchiveExportService {
         velocityCtx.put("topology", topology);
         velocityCtx.put("template_name", csar.getName());
         velocityCtx.put("template_version", csar.getVersion());
+        velocityCtx.put("hasCustomWorkflows", hasCustomWorkflows(topology));
         velocityCtx.put("generateWorkflow", generateWorkflow);
         if (csar.getDescription() == null) {
             velocityCtx.put("template_description", "");
