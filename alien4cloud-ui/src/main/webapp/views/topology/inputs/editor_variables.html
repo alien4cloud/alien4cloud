@@ -26,7 +26,7 @@
 </div>
 
 <empty-place-holder data="variables"></empty-place-holder>
-<table class="table table-hover grp-margin" ng-if="_.isNotEmpty(topology.topology.inputs)">
+<table class="table table-hover grp-margin" ng-if="_.isNotEmpty(variables)">
   <tbody>
     <tr ng-repeat="variable in variables | filter:formVar.name">
       <td style="width: 20%"><a ng-click="openVarModal(variable)">{{variable}}</a></td>
