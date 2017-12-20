@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import alien4cloud.it.utils.ConfigurationStringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.Header;
@@ -123,6 +124,16 @@ public class ApplicationsDeploymentStepDefinitions {
         // deploys the current application on default "Environment"
         log.info("Deploy : Deploying the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
+        String response = deploy(deployApplicationRequest);
+        Context.getInstance().registerRestResponse(response);
+    }
+
+
+    @When("^I deploy it with the following credentials defined by the secret provider plugin \"([^\"]*)\"$")
+    public void iDeployItWithTheFollowingCredentialsDefinedByTheSecretProviderPlugin(String pluginName, DataTable table) throws Throwable {
+        DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
+        deployApplicationRequest.setSecretProviderCredentials(ConfigurationStringUtils.dataTableToMap(table));
+        deployApplicationRequest.setSecretProviderPluginName(pluginName);
         String response = deploy(deployApplicationRequest);
         Context.getInstance().registerRestResponse(response);
     }
