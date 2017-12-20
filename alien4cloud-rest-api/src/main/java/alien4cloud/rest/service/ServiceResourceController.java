@@ -6,6 +6,9 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.groups.Default;
 
+import org.alien4cloud.alm.service.ServiceResourceService;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -32,10 +35,7 @@ import alien4cloud.rest.service.model.CreateServiceResourceRequest;
 import alien4cloud.rest.service.model.PatchServiceResourceRequest;
 import alien4cloud.rest.service.model.UpdateServiceResourceRequest;
 import alien4cloud.rest.service.model.UpdateValidationGroup;
-import org.alien4cloud.alm.service.ServiceResourceService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
-import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
-import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import alien4cloud.utils.RestConstraintValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -99,7 +99,8 @@ public class ServiceResourceController {
         try {
             serviceResourceService.update(id, request.getName(), request.getVersion(), request.getDescription(), request.getNodeInstance().getType(),
                     request.getNodeInstance().getTypeVersion(), request.getNodeInstance().getProperties(), request.getNodeInstance().getCapabilities(),
-                    request.getNodeInstance().getAttributeValues(), request.getLocationIds(), request.getCapabilitiesRelationshipTypes(), request.getRequirementsRelationshipTypes());
+                    request.getNodeInstance().getAttributeValues(), request.getLocationIds(), request.getCapabilitiesRelationshipTypes(),
+                    request.getRequirementsRelationshipTypes());
             return RestResponseBuilder.<ConstraintInformation> builder().build();
         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
             return RestConstraintValidator.fromException(e, e.getConstraintInformation().getName(), e.getConstraintInformation().getValue());
@@ -122,15 +123,19 @@ public class ServiceResourceController {
             Map<String, String> nodeAttributeValues = request.getNodeInstance() == null ? null : request.getNodeInstance().getAttributeValues();
 
             serviceResourceService.patch(id, request.getName(), request.getVersion(), request.getDescription(), nodeType, nodeTypeVersion, nodeProperties,
-                    nodeCapabilities, nodeAttributeValues, request.getLocationIds(), request.getCapabilitiesRelationshipTypes(), request.getRequirementsRelationshipTypes());
+                    nodeCapabilities, nodeAttributeValues, request.getLocationIds(), request.getCapabilitiesRelationshipTypes(),
+                    request.getRequirementsRelationshipTypes());
             return RestResponseBuilder.<ConstraintInformation> builder().build();
         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-            return RestConstraintValidator.fromException(e, e.getConstraintInformation().getName(), e.getConstraintInformation().getValue());
+            if (e.getConstraintInformation() != null) {
+                return RestConstraintValidator.fromException(e, e.getConstraintInformation().getName(), e.getConstraintInformation().getValue());
+            } else {
+                return RestConstraintValidator.fromException(e, null, null);
+            }
         }
     }
 
-    @ApiOperation(value = "Delete a service.", authorizations = {
-            @Authorization("ADMIN") })
+    @ApiOperation(value = "Delete a service.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit

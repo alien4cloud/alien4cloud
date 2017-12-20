@@ -1,8 +1,9 @@
 package alien4cloud.utils.services;
 
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.tosca.context.ToscaContextual;
-import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -18,9 +19,10 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Maps;
+
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.tosca.context.ToscaContextual;
 
 /**
  * Service to set and check constraints on properties.
@@ -37,12 +39,12 @@ public class PropertyService {
             return;
         }
 
-        AbstractPropertyValue abstractPropertyValue = asPropertyValue(propertyValue);
-        if (! (abstractPropertyValue instanceof FunctionPropertyValue)) {
+        T abstractPropertyValue = asPropertyValue(propertyValue);
+        if (!(abstractPropertyValue instanceof FunctionPropertyValue)) {
             ConstraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
         }
 
-        properties.put(propertyName, asPropertyValue(propertyValue));
+        properties.put(propertyName, abstractPropertyValue);
     }
 
     public static <T extends AbstractPropertyValue> T asPropertyValue(Object propertyValue) {
@@ -50,6 +52,8 @@ public class PropertyService {
             return (T) propertyValue;
         } else if (propertyValue instanceof String) {
             return (T) new ScalarPropertyValue((String) propertyValue);
+        } else if (propertyValue instanceof FunctionPropertyValue) {
+            return (T) propertyValue;
         } else if (propertyValue instanceof Map) {
             return asFunctionPropertyValue(propertyValue);
         } else if (propertyValue instanceof List) {
