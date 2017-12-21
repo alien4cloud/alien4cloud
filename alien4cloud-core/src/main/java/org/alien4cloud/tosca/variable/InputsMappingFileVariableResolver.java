@@ -53,6 +53,9 @@ public class InputsMappingFileVariableResolver {
         }
 
         public Map<String, PropertyValue> resolve(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) throws MissingVariablesException {
+            if (inputsDefinition.isEmpty()) {
+                return Maps.newHashMap();
+            }
             ToscaTypeConverter converter = customConverter != null ? customConverter : InputsMappingFileVariableResolver.DEFAULT_CONVERTER;
             return new InputsMappingFileVariableResolverInternal(converter, appVariables, envTypeVariables, envVariables, alienContextVariables).resolve(inputMappingMap, inputsDefinition);
         }
