@@ -8,12 +8,12 @@ import cucumber.api.DataTable;
 /**
  *
  */
-public class ConfigurationStringUtils {
+public class DataTableUtils {
 
     /**
-     * Allow to parse a table of key value to a map
-     * @param table
-     * @return  A map
+     * Allow to parse a table of key value to a map and it supports the key being an environment variable
+     * @param table a data table
+     * @return  a map
      */
     public static Map<String, Object> dataTableToMap(DataTable table) {
         Map<String, Object> configuration = new HashMap<>();

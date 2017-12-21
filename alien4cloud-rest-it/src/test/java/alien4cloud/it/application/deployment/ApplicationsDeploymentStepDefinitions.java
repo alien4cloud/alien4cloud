@@ -16,7 +16,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import alien4cloud.it.utils.ConfigurationStringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.Header;
@@ -27,10 +26,12 @@ import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.collect.Sets;
 import org.junit.Assert;
 
+import alien4cloud.deployment.model.SecretProviderCredentials;
 import alien4cloud.it.Context;
 import alien4cloud.it.application.ApplicationStepDefinitions;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.exception.ITException;
+import alien4cloud.it.utils.DataTableUtils;
 import alien4cloud.it.utils.websocket.IStompDataFuture;
 import alien4cloud.it.utils.websocket.StompConnection;
 import alien4cloud.it.utils.websocket.StompData;
@@ -102,17 +103,30 @@ public class ApplicationsDeploymentStepDefinitions {
                 failsafe);
     }
 
-    private void doUpdateDeployement(String applicationName, String environmentName) throws Throwable {
+    private void doUpdateDeployment(String applicationName, String environmentName, SecretProviderCredentials secretProviderCredentials) throws Throwable {
         String applicationId = Context.getInstance().getApplicationId(applicationName);
         String envId = environmentName == null ? Context.getInstance().getDefaultApplicationEnvironmentId(applicationName)
                 : Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName);
-        String updateRequest = "/rest/v1/applications/" + applicationId + "/environments/" + envId + "/update-deployment";
-        Context.getRestClientInstance().post(updateRequest);
+        String updateRequestPath = "/rest/v1/applications/" + applicationId + "/environments/" + envId + "/update-deployment";
+        if (secretProviderCredentials == null) {
+            Context.getRestClientInstance().post(updateRequestPath);
+        } else {
+            Context.getRestClientInstance().postJSon(updateRequestPath, JsonUtil.toString(secretProviderCredentials));
+        }
     }
 
     @Given("^I update the deployment$")
     public void i_update_the_deployment() throws Throwable {
-        doUpdateDeployement(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
+        doUpdateDeployment(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, null);
+    }
+
+
+    @When("^I update the deployment with the following credentials defined by the secret provider plugin \"([^\"]*)\"$")
+    public void iUpdateTheDeploymentWithTheFollowingCredentialsDefinedByTheSecretProviderPlugin(String pluginName, DataTable table) throws Throwable {
+        SecretProviderCredentials secretProviderCredentials = new SecretProviderCredentials();
+        secretProviderCredentials.setPluginName(pluginName);
+        secretProviderCredentials.setCredentials(DataTableUtils.dataTableToMap(table));
+        doUpdateDeployment(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, secretProviderCredentials);
     }
 
     public void I_undeploy_it(Application application, boolean failsafe) throws Throwable {
@@ -132,7 +146,7 @@ public class ApplicationsDeploymentStepDefinitions {
     @When("^I deploy it with the following credentials defined by the secret provider plugin \"([^\"]*)\"$")
     public void iDeployItWithTheFollowingCredentialsDefinedByTheSecretProviderPlugin(String pluginName, DataTable table) throws Throwable {
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
-        deployApplicationRequest.setSecretProviderCredentials(ConfigurationStringUtils.dataTableToMap(table));
+        deployApplicationRequest.setSecretProviderCredentials(DataTableUtils.dataTableToMap(table));
         deployApplicationRequest.setSecretProviderPluginName(pluginName);
         String response = deploy(deployApplicationRequest);
         Context.getInstance().registerRestResponse(response);

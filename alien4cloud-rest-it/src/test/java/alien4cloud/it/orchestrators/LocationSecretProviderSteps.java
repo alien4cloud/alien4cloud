@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
-import alien4cloud.it.utils.ConfigurationStringUtils;
+import alien4cloud.it.utils.DataTableUtils;
 import alien4cloud.model.secret.SecretProviderConfiguration;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.orchestrator.model.UpdateLocationRequest;
@@ -39,7 +39,7 @@ public class LocationSecretProviderSteps {
         String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s", orchestratorId, locationId);
         SecretProviderConfiguration secretProviderConfiguration = new SecretProviderConfiguration();
         secretProviderConfiguration.setPluginName(pluginName);
-        Map<String, Object> configuration = ConfigurationStringUtils.dataTableToMap(table);
+        Map<String, Object> configuration = DataTableUtils.dataTableToMap(table);
         // Read the certificate file by passing the path of this file
         configuration.put("certificate", new String(Files.readAllBytes(Paths.get((String) configuration.get("certificate")))));
         secretProviderConfiguration.setConfiguration(configuration);

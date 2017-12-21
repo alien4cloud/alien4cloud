@@ -1,25 +1,30 @@
 package alien4cloud.it.runtime;
 
-import alien4cloud.it.Context;
-import alien4cloud.it.application.ApplicationStepDefinitions;
-import alien4cloud.it.common.CommonStepDefinitions;
-import alien4cloud.it.topology.TopologyStepDefinitions;
-import alien4cloud.paas.model.OperationExecRequest;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.utils.JsonUtil;
-import com.google.common.collect.Maps;
-import cucumber.api.DataTable;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.elasticsearch.common.collect.Lists;
 import org.junit.Assert;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Maps;
+
+import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
+import alien4cloud.it.Context;
+import alien4cloud.it.application.ApplicationStepDefinitions;
+import alien4cloud.it.common.CommonStepDefinitions;
+import alien4cloud.it.topology.TopologyStepDefinitions;
+import alien4cloud.it.utils.DataTableUtils;
+import alien4cloud.model.secret.SecretProviderConfiguration;
+import alien4cloud.paas.model.OperationExecRequest;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.utils.JsonUtil;
+import cucumber.api.DataTable;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class RuntimeStepDefinitions {
@@ -76,24 +81,40 @@ public class RuntimeStepDefinitions {
 
     }
 
-    private String scale(String nodeName, int instancesToScale) throws IOException {
-        return Context.getRestClientInstance().postUrlEncoded(
-                "/rest/v1/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
-                        + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName()) + "/scale/"
-                        + nodeName, Lists.<NameValuePair> newArrayList(new BasicNameValuePair("instances", String.valueOf(instancesToScale))));
+    private String scale(String nodeName, int instancesToScale, SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) throws IOException {
+        String path = "/rest/v1/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName()) + "/scale/"
+        + nodeName + "?instances=" + instancesToScale;
+        if (secretProviderConfigurationAndCredentials == null) {
+            return Context.getRestClientInstance().post(path);
+        }
+        return Context.getRestClientInstance().postJSon(path, JsonUtil.toString(secretProviderConfigurationAndCredentials));
     }
 
     @When("^I scale up the node \"([^\"]*)\" by adding (\\d+) instance\\(s\\)$")
     public void I_scale_up_the_node_by_adding_instance_s(String nodeName, int instancesToAdd) throws Throwable {
         log.info("Scale up the node " + nodeName + " by " + instancesToAdd);
-        Context.getInstance().registerRestResponse(scale(nodeName, instancesToAdd));
+        Context.getInstance().registerRestResponse(scale(nodeName, instancesToAdd, null));
+        log.info("Finished scaling up the node " + nodeName + " by " + instancesToAdd);
+    }
+
+    @When("^I scale up the node \"([^\"]*)\" by adding (\\d+) instance\\(s\\) with the following credentials defined by the secret provider plugin \"([^\"]*)\"$")
+    public void iScaleUpTheNodeByAddingInstanceSWithTheFollowingCredentialsDefinedByTheSecretProviderPlugin(String nodeName, int instancesToAdd, String pluginName, DataTable table) throws Throwable {
+        log.info("Scale up the node " + nodeName + " by " + instancesToAdd);
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = new SecretProviderConfigurationAndCredentials();
+        secretProviderConfigurationAndCredentials.setCredentials(DataTableUtils.dataTableToMap(table));
+        SecretProviderConfiguration secretProviderConfiguration = new SecretProviderConfiguration();
+        secretProviderConfiguration.setPluginName(pluginName);
+        secretProviderConfigurationAndCredentials.setSecretProviderConfiguration(secretProviderConfiguration);
+        Context.getInstance().registerRestResponse(scale(nodeName, instancesToAdd, secretProviderConfigurationAndCredentials));
         log.info("Finished scaling up the node " + nodeName + " by " + instancesToAdd);
     }
 
     @When("^I scale down the node \"([^\"]*)\" by removing (\\d+) instance\\(s\\)$")
     public void I_scale_down_the_node_by_removing_instance_s(String nodeName, int instancesToRemove) throws Throwable {
         log.info("Scale down the node " + nodeName + " by " + instancesToRemove);
-        Context.getInstance().registerRestResponse(scale(nodeName, -1 * instancesToRemove));
+        Context.getInstance().registerRestResponse(scale(nodeName, -1 * instancesToRemove, null));
         log.info("Finished scaling down the node " + nodeName + " by " + instancesToRemove);
     }
+
 }
