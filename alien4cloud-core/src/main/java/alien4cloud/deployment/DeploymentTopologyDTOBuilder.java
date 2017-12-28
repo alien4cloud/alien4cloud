@@ -19,9 +19,9 @@ import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeployment
 import org.alien4cloud.alm.deployment.configuration.model.PreconfiguredInputsConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
 import org.alien4cloud.alm.service.ServiceResourceService;
+import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -63,6 +63,8 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
     private ServiceResourceService serviceResourceService;
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
+    @Inject
+    private ICsarDependencyLoader csarDependencyLoader;
 
     @Override
     @ToscaContextual
@@ -237,17 +239,14 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
                 String serviceId = resourceTemplate.getId();
                 ServiceResource serviceResource = serviceResourceService.getOrFail(serviceId);
 
-                NodeType nodeType = ToscaContext.get(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType());
-                if (nodeType == null || !nodeType.getArchiveVersion().equals(serviceResource.getNodeInstance().getTypeVersion())) {
-                    NodeType serviceType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
+                NodeType serviceType = ToscaContext.get(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType());
+                if (serviceType == null || !serviceType.getArchiveVersion().equals(serviceResource.getNodeInstance().getTypeVersion())) {
+                    serviceType = toscaTypeSearchService.findOrFail(NodeType.class, serviceResource.getNodeInstance().getNodeTemplate().getType(),
                             serviceResource.getNodeInstance().getTypeVersion());
-                    serviceTypes.add(serviceResource.getNodeInstance().getNodeTemplate().getType());
-                    Csar csar = toscaTypeSearchService.getArchive(serviceType.getArchiveName(), serviceType.getArchiveVersion());
-                    if (csar.getDependencies() != null) {
-                        dependencies.addAll(csar.getDependencies());
-                    }
-                    dependencies.add(new CSARDependency(csar.getName(), csar.getVersion()));
                 }
+                dependencies.addAll(csarDependencyLoader.getDependencies(serviceType.getArchiveName(), serviceType.getArchiveVersion()));
+                dependencies.add(new CSARDependency(serviceType.getArchiveName(), serviceType.getArchiveVersion()));
+                serviceTypes.add(serviceResource.getNodeInstance().getNodeTemplate().getType());
             }
         }
         locationResourceService.fillLocationResourceTypes(serviceTypes, locationResourceTypes, dependencies);
