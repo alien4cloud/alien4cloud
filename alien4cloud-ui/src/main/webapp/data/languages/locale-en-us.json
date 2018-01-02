@@ -79,7 +79,8 @@
       "VALUE": "Value",
       "DEPLOYER": "Deployer input",
       "CLEAR": "Clear",
-      "MODAL_HEADER": "Edit input < {{var}} >"
+      "MODAL_HEADER": "Edit input < {{var}} >",
+      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE": "An expression has been provided for this input value. Go to \"Expression\" tab to edit it. \nIf you want to edit it as a property, make sure to either provide an expression matching the input type, or set it empty."
     },
     "VARIABLES": {
       "APP_SCOPE": "Application scope",
