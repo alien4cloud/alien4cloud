@@ -43,9 +43,14 @@ public class PropertiesController {
                 return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
             } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
-                        + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-                return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+
+                ConstraintInformation constraintInformation = e.getConstraintInformation() != null ? e.getConstraintInformation()
+                        : new ConstraintInformation(propertyValidationRequest.getDefinitionId(), null, propertyValidationRequest.getValue().toString(),
+                                propertyValidationRequest.getPropertyDefinition().getType());
+
+                log.error("Constraint value violation error for property <" + constraintInformation.getName() + "> with value <"
+                        + constraintInformation.getValue() + "> and type <" + constraintInformation.getType() + ">", e);
+                return RestResponseBuilder.<ConstraintInformation> builder().data(constraintInformation)
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
             } finally {
                 if (ToscaContext.get() != null) {
