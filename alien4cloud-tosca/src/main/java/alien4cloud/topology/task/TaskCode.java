@@ -13,6 +13,7 @@ public enum TaskCode {
     NODE_FILTER_INVALID,
     WORKFLOW_INVALID,
     ARTIFACT_INVALID,
+    DEPRECATED_NODE,
 
     /** Inputs codes */
     MISSING_VARIABLES,

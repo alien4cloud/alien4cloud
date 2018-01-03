@@ -293,7 +293,8 @@
         "LABEL": "警告",
         "PROPERTIES": {
           "LABEL": "节点属性"
-        }
+        },
+        "DEPRECATION": "The node {{name}} of type {{type}}, version{{version}} is marked as deprecated. You should update it's archive version in the topology dependencies."
       },
       "YAML": "yaml"
     },

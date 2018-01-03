@@ -14,6 +14,13 @@
             </div>
         </div>
     </div>
+    <div class="row" ng-if="deploymentTopologyDTO.validation.warningList['DEPRECATED_NODE'].length > 0">
+        <div class="col-md-12">
+            <div class="text-warning" ng-repeat="task in deploymentTopologyDTO.validation.warningList['DEPRECATED_NODE']">
+                <i class="fa fa-exclamation-triangle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ 'APPLICATIONS.TOPOLOGY.WARNING.DEPRECATION' | translate:task }}</b></em>
+            </div>
+        </div>
+    </div>
     <div class="row" ng-if="deploymentTopologyDTO.validation.infoList['LOG'].length > 0">
         <div class="col-md-12">
             <div class="text-info" ng-repeat="task in deploymentTopologyDTO.validation.infoList['LOG']">

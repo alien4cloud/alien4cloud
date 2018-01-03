@@ -301,7 +301,8 @@
         "LABEL" : "Alertes",
         "PROPERTIES" : {
           "LABEL" : "Propriétés de noeuds"
-        }
+        },
+        "DEPRECATION": "Le noeud {{name}} de type {{type}}, version {{version}}, est marqué comme déprécié. Veuillez mettre à jour la version de son archive dans les dépendances de la topologie."
       },
       "YAML" : "yaml"
     },

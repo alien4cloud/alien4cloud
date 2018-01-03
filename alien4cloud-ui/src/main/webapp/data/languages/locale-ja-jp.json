@@ -285,7 +285,8 @@
         "LABEL" : "警告",
         "PROPERTIES" : {
           "LABEL" : "ノードプロパティ"
-        }
+        },
+        "DEPRECATION": "The node {{name}} of type {{version}}, version{{version}} is marked as deprecated. You should update it's archive version in the topology dependencies."
       },
       "YAML" : "yaml"
     },

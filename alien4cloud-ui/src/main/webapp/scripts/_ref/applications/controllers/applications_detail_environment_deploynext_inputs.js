@@ -38,8 +38,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextInputsCtrl',
-    ['$scope', '$filter', '$resource', '$uibModal', 'deploymentTopologyServices', 'topologyServices', 'breadcrumbsService','$translate', 'topoEditSecrets', 'topoEditProperties', 'topologyDTO',
-    function ($scope, $filter, $resource, $uibModal, deploymentTopologyServices, topologyServices, breadcrumbsService, $translate, topoEditSecrets, topoEditProperties, topologyDTO) {
+    ['$scope', '$state', '$filter', '$resource', '$uibModal', 'deploymentTopologyServices', 'topologyServices', 'breadcrumbsService','$translate', 'topoEditSecrets', 'topoEditProperties', 'topologyDTO',
+    function ($scope, $state, $filter, $resource, $uibModal, deploymentTopologyServices, topologyServices, breadcrumbsService, $translate, topoEditSecrets, topoEditProperties, topologyDTO) {
 
       topoEditSecrets($scope);
       topoEditProperties($scope);
