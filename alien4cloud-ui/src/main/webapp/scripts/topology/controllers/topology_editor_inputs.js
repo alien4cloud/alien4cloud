@@ -237,13 +237,11 @@ define(function (require) {
         },
 
         update: function(oldInput, newInput, inputDefinition) {
-          var scope = this.scope;
           if (newInput === oldInput) {
             return;
           }
           this.scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.inputs.RenameInputOperation',
-            nodeName: scope.selectedNodeTemplate.name,
             inputName: oldInput,
             newInputName: newInput
           },function(result){
