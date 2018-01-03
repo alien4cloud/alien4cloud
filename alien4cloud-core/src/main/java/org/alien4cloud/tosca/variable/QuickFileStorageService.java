@@ -10,10 +10,12 @@ import java.util.Properties;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.events.AfterApplicationDeleted;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.alien4cloud.tosca.utils.PropertiesYamlParser;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -139,7 +141,19 @@ public class QuickFileStorageService {
         return "";
     }
 
-    private Path getApplicationVariablesPath(String applicationId) {
+    /**
+     * Listen to {@link AfterApplicationDeleted} event and delete variable file path if exists
+     * 
+     * @param event
+     */
+    @EventListener
+    @SneakyThrows
+    public void afterApplicationDeletedEventListener(AfterApplicationDeleted event) {
+        Path appVarFilePath = getApplicationVariablesPath(event.getApplicationId());
+        Files.deleteIfExists(appVarFilePath);
+    }
+
+    public Path getApplicationVariablesPath(String applicationId) {
         return this.variablesStoreRootPath.resolve(sanitizeFilename("app_" + applicationId + ".yml"));
     }
 
