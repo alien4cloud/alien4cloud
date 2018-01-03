@@ -343,6 +343,11 @@ public class EditorStepDefs {
         topologyEvaluationContext = new StandardEvaluationContext(variables);
     }
 
+    @When("^I load preconfigured inputs$")
+    public void i_load_preconfigured_inputs() throws Throwable {
+        topologyEvaluationContext = new StandardEvaluationContext(editorFileService.loadInputsVariables(topologyIds.getLast()));
+    }
+
     private void doExecuteOperation(AbstractEditorOperation operation, String topologyId) {
         thrownException = null;
         operation.setPreviousOperationId(topologyIdToLastOperationId.get(topologyId));

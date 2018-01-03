@@ -1,9 +1,13 @@
 package org.alien4cloud.tosca.editor.processors.inputs;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Map;
 
-import org.alien4cloud.tosca.editor.EditionContextManager;
+import javax.inject.Inject;
+
 import org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation;
+import org.alien4cloud.tosca.editor.operations.inputs.UpdateInputExpressionOperation;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -29,19 +33,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOperation> {
+
+    @Inject
+    private UpdateInputExpressionProcessor updateInputExpressionProcessor;
+
     @Override
     protected void processInputOperation(Csar csar, Topology topology, DeleteInputOperation operation, Map<String, PropertyDefinition> inputs) {
         if (!inputs.containsKey(operation.getInputName())) {
             throw new NotFoundException("Input " + operation.getInputName() + "not found in topology");
         }
-        inputs.remove(operation.getInputName());
 
-        Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
-        if (nodeTemplates == null) {
-            return;
-        }
-
-        for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
+        for (NodeTemplate nodeTemplate : safe(topology.getNodeTemplates()).values()) {
             NodeType nodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
             removeInputIdInProperties(nodeTemplate.getProperties(), nodeType.getProperties(), operation.getInputName());
             if (nodeTemplate.getRelationships() != null) {
@@ -58,6 +60,9 @@ public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOper
             }
         }
 
+        deletePreConfiguredInput(csar, topology, operation);
+
+        inputs.remove(operation.getInputName());
         log.debug("Remove the input " + operation.getInputName() + " from the topology " + topology.getId());
     }
 
@@ -83,6 +88,20 @@ public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOper
                 }
             }
         }
+    }
+
+    /**
+     * Remove if existed, the preconfigured input from the inputs file
+     *
+     * @param csar
+     * @param topology
+     * @param deleteInputOperation
+     */
+    private void deletePreConfiguredInput(Csar csar, Topology topology, DeleteInputOperation deleteInputOperation) {
+        UpdateInputExpressionOperation updateInputExpressionOperation = new UpdateInputExpressionOperation();
+        // only set the name, leaving the expression to null, as a null expression is considered as a removal of the pre-conf input entry
+        updateInputExpressionOperation.setName(deleteInputOperation.getInputName());
+        updateInputExpressionProcessor.process(csar, topology, updateInputExpressionOperation);
     }
 
     @Override
