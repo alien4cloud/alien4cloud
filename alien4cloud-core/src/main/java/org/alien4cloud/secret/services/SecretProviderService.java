@@ -85,6 +85,13 @@ public class SecretProviderService {
         return generateSecretConfiguration(locations, secretProviderCredentials.getPluginName(), secretProviderCredentials.getCredentials());
     }
 
+    /**
+     * Generate a token wrapped in the new instance of SecretProviderConfigurationAndCredentials
+     * @param locations
+     * @param pluginName
+     * @param credentials
+     * @return new instance of SecretProviderConfigurationAndCredentials wrapping the token
+     */
     public SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations, String pluginName, Object credentials) {
         if (credentials == null) {
             return null;
@@ -98,7 +105,13 @@ public class SecretProviderService {
         return generateSecretConfiguration(firstLocation.get().getSecretProviderConfiguration(), credentials);
     }
 
-    public SecretProviderConfigurationAndCredentials generateSecretConfiguration(SecretProviderConfiguration locationConfiguration, Object credentials) {
+    /**
+     * Generate a token wrapped in an instance of SecretProviderConfigurationAndCredentials by authenticating the credentials (username, password) with ldap
+     * @param locationConfiguration
+     * @param credentials
+     * @return SecretProviderConfigurationAndCredentials wrapping a token
+     */
+    private SecretProviderConfigurationAndCredentials generateSecretConfiguration(SecretProviderConfiguration locationConfiguration, Object credentials) {
         if(credentials == null) {
             return null;
         }
