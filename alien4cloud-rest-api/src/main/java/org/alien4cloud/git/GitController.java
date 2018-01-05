@@ -1,6 +1,9 @@
 package org.alien4cloud.git;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -8,9 +11,15 @@ import javax.validation.Valid;
 import org.alien4cloud.git.model.GitHardcodedCredential;
 import org.alien4cloud.git.model.GitLocation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -20,9 +29,12 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.User;
+import alien4cloud.utils.FileUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.SneakyThrows;
 
 @RestController
 @RequestMapping(value = { "/rest/git", "/rest/v1/git", "/rest/latest/git" })
@@ -39,6 +51,14 @@ public class GitController {
     private ApplicationEnvironmentService environmentService;
     @Inject
     private AlienManagedGitLocationBuilder alienManagedGitLocationBuilder;
+
+    private Path tempDirPath;
+
+    @Required
+    @Value("${directories.alien}/tmp")
+    public void setTempDirPath(String tempDirPath) throws IOException {
+        this.tempDirPath = FileUtil.createDirectoryIfNotExists(tempDirPath);
+    }
 
     @ApiOperation(value = "Update the git repository parameters for storing deployment config")
     @RequestMapping(value = "/deployment/custom", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -95,6 +115,10 @@ public class GitController {
         checkEnvironmentAuthorization(environmentId);
 
         GitLocation gitLocation = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environmentId);
+        if (gitLocation.isLocal()) {
+            gitLocation.setUrl(GitLocation.LOCAL_PREFIX);
+        }
+        gitLocation.setCredential(new GitHardcodedCredential());
         return RestResponseBuilder.<GitLocation> builder().data(gitLocation).build();
     }
 
@@ -104,15 +128,28 @@ public class GitController {
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
     }
 
+    @SneakyThrows(IOException.class)
     private void updateGitLocation(GitLocation newGitLocation) {
-        // delete previous
+        Path tempPath = tempDirPath.resolve(UUID.randomUUID().toString());
         GitLocation previousLocation = gitLocationDao.findById(newGitLocation.getId());
         if (previousLocation != null) {
+            // move data for copy to a temporary location
+            FileUtil.copy(localGitManager.getLocalGitPath(previousLocation), tempPath);
+            // delte the repository
             localGitManager.deleteLocalGit(previousLocation);
         }
 
         // create the new one
         localGitManager.checkout(newGitLocation);
         gitLocationDao.save(newGitLocation);
+
+        // copy all files that where defined and does not exist in the new repository.
+        if (tempPath != null) {
+            User currentUser = AuthorizationUtil.getCurrentUser();
+            FileUtil.copy(tempPath, localGitManager.getLocalGitPath(newGitLocation), true);
+            localGitManager.commitAndPush(newGitLocation, currentUser.getUsername(), currentUser.getEmail(),
+                    "a4c: Copy existing deployment configuration to associated repository.");
+            FileUtil.delete(tempPath);
+        }
     }
 }

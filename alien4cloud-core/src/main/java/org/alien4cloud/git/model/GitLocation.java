@@ -14,9 +14,9 @@ import lombok.Setter;
 @ESObject
 @Getter
 @Setter
-@JsonIgnoreProperties(value = {"alienManaged", "local"}, allowGetters = true)
+@JsonIgnoreProperties(value = { "alienManaged", "local" }, allowGetters = true)
 public class GitLocation {
-
+    public static final String LOCAL_PREFIX = "file://";
     public static final String DEPLOYMENT_CONFIG_PREFIX = "deployment_config_";
 
     public enum GitType {
@@ -32,13 +32,8 @@ public class GitLocation {
     private String branch;
     private String path;
 
-    // used by the UI side
-    public boolean isAlienManaged() {
-        return url.startsWith("file://");
-    }
-
     public boolean isLocal() {
-        return url.startsWith("file://");
+        return url.startsWith(LOCAL_PREFIX);
     }
 
     public static class IdBuilder {

@@ -7,7 +7,6 @@ define(function (require) {
   var angular = require('angular');
 
   require('scripts/common/directives/pagination');
-  require('scripts/_ref/applications/services/environments_git_service');
 
   states.state('applications.detail.environments', {
     url: '/environment',
@@ -35,42 +34,6 @@ define(function (require) {
             $scope.newEnvironment.inputCandidate = inputCandidate.id;
           }
           $uibModalInstance.close($scope.newEnvironment);
-        }
-      };
-      $scope.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-      };
-    }
-  ];
-
-  var EditGitByEnvCtrl = ['$scope', '$uibModalInstance', 'environmentsGitService', 'gitLocation', 'environmentId',
-    function($scope, $uibModalInstance, environmentsGitService, gitLocation, environmentId) {
-      $scope.originalGitLocation = gitLocation;
-      $scope.gitLocation = _.cloneDeep(gitLocation);
-      $scope.gitOwner = $scope.gitLocation.alienManaged ? 'alien' : 'user';
-
-      $scope.isAlienManagedGit = function() {
-        return $scope.gitOwner === 'alien';
-      };
-
-      $scope.save = function(valid) {
-        if (valid && !_.isEqual($scope.originalGitLocation, $scope.gitLocation)) {
-          if($scope.isAlienManagedGit('alien')){
-            environmentsGitService.updateDeploymentConfigGitToAlienManaged({
-              'environmentId' : environmentId
-            });
-          }else{
-            var request = {
-              environmentId : environmentId,
-              url: $scope.gitLocation.url,
-              username: _.get($scope.gitLocation, 'credential.username'),
-              password: _.get($scope.gitLocation, 'credential.password'),
-              path: $scope.gitLocation.path,
-              branch: $scope.gitLocation.branch
-            };
-            environmentsGitService.updateDeploymentConfigGitToCustom({}, angular.toJson(request));
-          }
-          $uibModalInstance.close($scope.gitLocation);
         }
       };
       $scope.cancel = function() {
@@ -169,30 +132,6 @@ define(function (require) {
               }
             });
           });
-        });
-      };
-
-      // Modal to configure a custom git
-      $scope.editGit = function(environmentId) {
-        $uibModal.open({
-          templateUrl: 'views/_ref/applications/applications_detail_environments_git.html',
-          controller: EditGitByEnvCtrl,
-          scope: $scope,
-          resolve: {
-            gitLocation: ['environmentsGitService', function (environmentsGitService) {
-              return _.catch(function () {
-                return environmentsGitService.getDeploymentConfigGitByEnvId({
-                  environmentId: environmentId
-                }, angular.toJson({})).$promise.then(function (result) {
-                  return result.data;
-                });
-              });
-            }],
-
-            environmentId: function() {
-              return environmentId;
-            },
-          }
         });
       };
 

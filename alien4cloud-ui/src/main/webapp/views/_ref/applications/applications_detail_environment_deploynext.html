@@ -93,5 +93,9 @@
       <i class="fa" ng-class="{'fa-check': menuItem.step.status === 'SUCCESS', 'fa-exclamation': menuItem.step.status ==='WARNING', 'fa-times': menuItem.step.status ==='ERROR'}"></i> {{menuItem.key | translate}}
     </a>
   </li>
+  <li class="pull-right">
+    <!-- Edit Git config -->
+    <button class="btn btn-default" id="edit-git-env_{{environment.name}}" ng-click="editGit(environment.id)"><i class="fa fa-git"></i></button>
+  </li>
 </ul>
 <div ui-view></div>

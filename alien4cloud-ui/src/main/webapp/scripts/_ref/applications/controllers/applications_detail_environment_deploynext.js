@@ -4,6 +4,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var _ = require('lodash');
+  var angular = require('angular');
 
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_version');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_topology');
@@ -12,10 +13,12 @@ define(function (require) {
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_matching');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext_deploy');
 
-  require('scripts/applications/services/deployment_topology_services.js');
-  require('scripts/applications/services/deployment_topology_processor.js');
-  require('scripts/applications/services/tasks_processor.js');
-  require('scripts/applications/services/locations_matching_services.js');
+  require('scripts/_ref/applications/services/environments_git_service');
+
+  require('scripts/applications/services/deployment_topology_services');
+  require('scripts/applications/services/deployment_topology_processor');
+  require('scripts/applications/services/tasks_processor');
+  require('scripts/applications/services/locations_matching_services');
 
   states.state('applications.detail.environment.deploynext', {
     url: '/deploy_next',
@@ -46,9 +49,43 @@ define(function (require) {
     }
   });
 
+  var EditGitByEnvCtrl = ['$scope', '$uibModalInstance', 'environmentsGitService', 'gitLocation', 'environmentId',
+    function($scope, $uibModalInstance, environmentsGitService, gitLocation, environmentId) {
+      $scope.originalGitLocation = gitLocation;
+      $scope.gitLocation = _.cloneDeep(gitLocation);
+      if($scope.gitLocation.local) {
+        $scope.gitLocation.url = 'http://';
+      }
+
+      $scope.save = function(valid) {
+        if (valid && !_.isEqual($scope.originalGitLocation, $scope.gitLocation)) {
+          if($scope.gitLocation.local) {
+            environmentsGitService.updateDeploymentConfigGitToAlienManaged({
+              'environmentId' : environmentId
+            });
+          }else{
+            var request = {
+              environmentId : environmentId,
+              url: $scope.gitLocation.url,
+              username: _.get($scope.gitLocation, 'credential.username'),
+              password: _.get($scope.gitLocation, 'credential.password'),
+              path: $scope.gitLocation.path,
+              branch: $scope.gitLocation.branch
+            };
+            environmentsGitService.updateDeploymentConfigGitToCustom({}, angular.toJson(request));
+          }
+          $uibModalInstance.close($scope.gitLocation);
+        }
+      };
+      $scope.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+      };
+    }
+  ];
+
   modules.get('a4c-applications').controller('ApplicationEnvDeployNextCtrl',
-    ['$scope', '$state', 'menu', 'deploymentTopologyDTO', 'deploymentTopologyProcessor', 'tasksProcessor', 'locationsMatchingServices', 'deploymentServices',
-    function ($scope, $state, menu, deploymentTopologyDTO, deploymentTopologyProcessor, tasksProcessor, locationsMatchingServices, deploymentServices) {
+    ['$scope', '$uibModal', '$state', 'menu', 'deploymentTopologyDTO', 'deploymentTopologyProcessor', 'tasksProcessor', 'locationsMatchingServices', 'deploymentServices',
+    function ($scope, $uibModal, $state, menu, deploymentTopologyDTO, deploymentTopologyProcessor, tasksProcessor, locationsMatchingServices, deploymentServices) {
       $scope.deploymentTopologyDTO = deploymentTopologyDTO;
 
       $scope.$watch('environment.status', function (envStatus) {
@@ -150,6 +187,30 @@ define(function (require) {
       };
 
       goToNextInvalidStep();
+
+      // Modal to configure a custom git
+      $scope.editGit = function(environmentId) {
+        $uibModal.open({
+          templateUrl: 'views/_ref/applications/applications_detail_environments_git.html',
+          controller: EditGitByEnvCtrl,
+          scope: $scope,
+          resolve: {
+            gitLocation: ['environmentsGitService', function (environmentsGitService) {
+              return _.catch(function () {
+                return environmentsGitService.getDeploymentConfigGitByEnvId({
+                  environmentId: environmentId
+                }, angular.toJson({})).$promise.then(function (result) {
+                  return result.data;
+                });
+              });
+            }],
+
+            environmentId: function() {
+              return environmentId;
+            },
+          }
+        });
+      };
     }
   ]);
 });
