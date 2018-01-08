@@ -18,7 +18,7 @@ import alien4cloud.model.orchestrators.locations.Location;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class DeploymentDTO<T extends IDeploymentSource> {
     private Deployment deployment;
     private T source;

@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @ApiModel("Request for creation of a new service.")
 public class CreateServiceResourceRequest {
     @NotEmpty

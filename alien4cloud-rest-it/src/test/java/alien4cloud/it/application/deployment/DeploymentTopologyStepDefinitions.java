@@ -492,7 +492,7 @@ public class DeploymentTopologyStepDefinitions {
 
 
     @Getter
-    @AllArgsConstructor(suppressConstructorProperties = true)
+    @AllArgsConstructor
     private static class LocationPolicySetting {
         String groupName;
         String orchestratorName;
@@ -500,7 +500,7 @@ public class DeploymentTopologyStepDefinitions {
     }
 
     @Getter
-    @AllArgsConstructor(suppressConstructorProperties = true)
+    @AllArgsConstructor
     @NoArgsConstructor
     private static class SubstitutionSetting {
         String templateNme;

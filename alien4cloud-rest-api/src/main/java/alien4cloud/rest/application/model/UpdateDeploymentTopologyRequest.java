@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class UpdateDeploymentTopologyRequest {
 
     private Map<String, String> providerDeploymentProperties;

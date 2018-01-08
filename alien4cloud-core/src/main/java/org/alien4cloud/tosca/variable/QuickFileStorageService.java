@@ -154,7 +154,7 @@ public class QuickFileStorageService {
     }
 
     public Path getApplicationVariablesPath(String applicationId) {
-        return this.variablesStoreRootPath.resolve(sanitizeFilename("app_" + applicationId + ".yml"));
+        return this.variablesStoreRootPath.resolve(sanitizeFilename(applicationId)).resolve(sanitizeFilename("app_variables.yml"));
     }
 
     private String sanitizeFilename(String fileName) {

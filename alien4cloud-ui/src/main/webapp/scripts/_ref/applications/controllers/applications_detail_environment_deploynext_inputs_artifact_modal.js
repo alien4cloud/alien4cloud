@@ -2,13 +2,13 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
 
   modules.get('a4c-applications', ['ui.bootstrap']).controller('ApplicationInputArtifactModalCtrl', ['$scope', 'Upload', '$uibModalInstance', '$translate', 'explorerService','archiveContentTree', 'availableRepositories', 'artifact', 'artifactKey', 'application', 'environment','updateScopeDeploymentTopologyDTO', 'topology', 'toaster',
     function($scope, $upload, $uibModalInstance, $translate, explorerService, archiveContentTree, availableRepositories, artifact, artifactKey, application, environment, updateScopeDeploymentTopologyDTO, topology, toaster) {
 
       var newRepositoryName = 'MyRepository';
       $scope.environment = environment;
-      $scope.initialArtifactClassifier;
       $scope.opts = explorerService.getOps(false);
       $scope.treedata = {
         children: [],

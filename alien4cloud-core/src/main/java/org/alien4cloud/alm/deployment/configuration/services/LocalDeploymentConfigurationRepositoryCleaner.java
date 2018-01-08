@@ -18,11 +18,11 @@ public class LocalDeploymentConfigurationRepositoryCleaner {
 
     @EventListener
     public void handleDeleteTopologyVersion(BeforeApplicationTopologyVersionDeleted event) {
-        deploymentConfigurationDao.deleteAllByTopologyVersionId(event.getTopologyVersion());
+        deploymentConfigurationDao.deleteAllByTopologyVersionId(event.getApplicationId(), event.getTopologyVersion());
     }
 
     @EventListener
     public void handleDeleteEnvironment(BeforeApplicationEnvironmentDeleted event) {
-        deploymentConfigurationDao.deleteAllByEnvironmentId(event.getApplicationEnvironmentId());
+        deploymentConfigurationDao.deleteAllByEnvironmentId(event.getApplicationId(), event.getApplicationEnvironmentId());
     }
 }

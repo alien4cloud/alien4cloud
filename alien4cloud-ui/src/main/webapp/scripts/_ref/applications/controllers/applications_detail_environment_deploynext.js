@@ -51,6 +51,7 @@ define(function (require) {
 
   var EditGitByEnvCtrl = ['$scope', '$uibModalInstance', 'environmentsGitService', 'gitLocation', 'environmentId',
     function($scope, $uibModalInstance, environmentsGitService, gitLocation, environmentId) {
+
       $scope.originalGitLocation = gitLocation;
       $scope.gitLocation = _.cloneDeep(gitLocation);
       if($scope.gitLocation.local) {
@@ -60,23 +61,28 @@ define(function (require) {
       $scope.save = function(valid) {
         if (valid && !_.isEqual($scope.originalGitLocation, $scope.gitLocation)) {
           if($scope.gitLocation.local) {
-            environmentsGitService.updateDeploymentConfigGitToAlienManaged({
-              'environmentId' : environmentId
+            environmentsGitService.delete({
+              applicationId: $scope.application.id,
+              environmentId : environmentId
             });
-          }else{
+          } else {
             var request = {
-              environmentId : environmentId,
               url: $scope.gitLocation.url,
               username: _.get($scope.gitLocation, 'credential.username'),
               password: _.get($scope.gitLocation, 'credential.password'),
               path: $scope.gitLocation.path,
               branch: $scope.gitLocation.branch
             };
-            environmentsGitService.updateDeploymentConfigGitToCustom({}, angular.toJson(request));
+
+            environmentsGitService.create({
+              applicationId: $scope.application.id,
+              environmentId : environmentId
+            }, angular.toJson(request));
           }
           $uibModalInstance.close($scope.gitLocation);
         }
       };
+
       $scope.cancel = function() {
         $uibModalInstance.dismiss('cancel');
       };
@@ -197,9 +203,10 @@ define(function (require) {
           resolve: {
             gitLocation: ['environmentsGitService', function (environmentsGitService) {
               return _.catch(function () {
-                return environmentsGitService.getDeploymentConfigGitByEnvId({
+                return environmentsGitService.get({
+                  applicationId: $scope.application.id,
                   environmentId: environmentId
-                }, angular.toJson({})).$promise.then(function (result) {
+                }).$promise.then(function (result) {
                   return result.data;
                 });
               });

@@ -21,7 +21,7 @@ public class LocalGitRepositoryPathResolverTest {
 
     @Test
     public void findAllLocalDeploymentConfigGitPath() throws Exception {
-        assertThat(resolver.findAllLocalDeploymentConfigGitPath()).hasSize(2);
+        assertThat(resolver.findAllEnvironmentSetupLocalPath("my_app")).hasSize(2);
     }
 
 }

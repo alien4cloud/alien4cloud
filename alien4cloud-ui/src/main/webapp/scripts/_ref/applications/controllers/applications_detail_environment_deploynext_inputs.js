@@ -19,8 +19,8 @@ define(function (require) {
           return _.catch(function () {
             return topologyServices.dao.get({ topologyId: deploymentTopologyDTO.topology.id })
             .$promise.then(function(result) {
-                 return result.data;
-               });
+              return result.data;
+            });
           });
         }
       ]

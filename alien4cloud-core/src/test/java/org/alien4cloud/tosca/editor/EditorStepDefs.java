@@ -75,7 +75,7 @@ import cucumber.api.java.en.When;
 import gherkin.formatter.model.DataTableRow;
 import lombok.extern.slf4j.Slf4j;
 
-@ContextConfiguration("classpath:org/alien4cloud/tosca/editor/application-context-test.xml")
+@ContextConfiguration("classpath:application-context-test.xml")
 @Slf4j
 public class EditorStepDefs {
     @Resource(name = "alien-es-dao")

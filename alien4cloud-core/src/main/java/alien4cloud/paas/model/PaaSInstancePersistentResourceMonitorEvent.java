@@ -12,7 +12,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ESObject
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @NoArgsConstructor
 @ToString
 public class PaaSInstancePersistentResourceMonitorEvent extends AbstractMonitorEvent {

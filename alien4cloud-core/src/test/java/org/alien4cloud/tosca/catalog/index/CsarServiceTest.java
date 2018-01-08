@@ -3,6 +3,7 @@ package org.alien4cloud.tosca.catalog.index;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -19,6 +20,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 
 import java.util.concurrent.ExecutionException;
 
+@Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)

@@ -12,7 +12,7 @@ import org.alien4cloud.tosca.model.Csar;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class CsarInfoDTO {
     private Csar csar;
     private List<Usage> relatedResources;

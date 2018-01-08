@@ -3,6 +3,8 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
+  var _ = require('lodash');
+  var angular = require('angular');
 
   require('angular-ui-ace');
 
@@ -23,8 +25,45 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-applications').controller('ApplicationVariablesCtrl', ['$scope', '$translate', '$alresource', 'authService', 'breadcrumbsService', 'application',
-    function($scope, $translate, $alresource, authService, breadcrumbsService, applicationResponse) {
+  var EditAppVarGitCtrl = ['$scope', '$uibModalInstance', 'environmentsGitService', 'gitLocation',
+    function($scope, $uibModalInstance, environmentsGitService, gitLocation) {
+      $scope.originalGitLocation = gitLocation;
+      $scope.gitLocation = _.cloneDeep(gitLocation);
+      if($scope.gitLocation.local) {
+        $scope.gitLocation.url = 'http://';
+      }
+
+      $scope.save = function(valid) {
+        if (valid && !_.isEqual($scope.originalGitLocation, $scope.gitLocation)) {
+          if($scope.gitLocation.local) {
+            environmentsGitService.delete({
+              applicationId: $scope.application.id
+            });
+          } else {
+            var request = {
+              url: $scope.gitLocation.url,
+              username: _.get($scope.gitLocation, 'credential.username'),
+              password: _.get($scope.gitLocation, 'credential.password'),
+              path: $scope.gitLocation.path,
+              branch: $scope.gitLocation.branch
+            };
+
+            environmentsGitService.create({
+              applicationId: $scope.application.id
+            }, angular.toJson(request));
+          }
+          $uibModalInstance.close($scope.gitLocation);
+        }
+      };
+
+      $scope.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+      };
+    }
+  ];
+
+  modules.get('a4c-applications').controller('ApplicationVariablesCtrl', ['$scope', '$translate', '$alresource', '$uibModal', 'authService', 'breadcrumbsService', 'application',
+    function($scope, $translate, $alresource, $uibModal, authService, breadcrumbsService, applicationResponse) {
       breadcrumbsService.putConfig({
         state : 'applications.detail.variables',
         text: function(){
@@ -61,6 +100,26 @@ define(function (require) {
           }
         });
         $scope.load();
+      };
+
+      // Modal to configure a custom git
+      $scope.editGit = function() {
+        $uibModal.open({
+          templateUrl: 'views/_ref/applications/applications_detail_environments_git.html',
+          controller: EditAppVarGitCtrl,
+          scope: $scope,
+          resolve: {
+            gitLocation: ['appVarGitService', function (appVarGitService) {
+              return _.catch(function () {
+                return appVarGitService.get({
+                  applicationId: $scope.application.id
+                }).$promise.then(function (result) {
+                  return result.data;
+                });
+              });
+            }]
+          }
+        });
       };
     }
   ]);

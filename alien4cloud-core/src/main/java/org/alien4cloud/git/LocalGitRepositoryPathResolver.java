@@ -18,13 +18,9 @@ import lombok.SneakyThrows;
 
 @Component
 public class LocalGitRepositoryPathResolver {
-
+    private static final String ENV_DEPLOYMENT_SETUP_DIRECTORY = "env_setup";
+    private static final String APP_VARIABLES_DIRECTORY = "vars";
     private Path storageRootPath;
-    private DeploymentConfigGitResolver deploymentConfigGitResolver = new DeploymentConfigGitResolver();
-
-    public DeploymentConfigGitResolver forDeploymentConfig() {
-        return deploymentConfigGitResolver;
-    }
 
     @Required
     @Value("${directories.alien}")
@@ -48,23 +44,30 @@ public class LocalGitRepositoryPathResolver {
         return storageRootPath.resolve(versionIdEnvId.getEnvironmentId()).resolve(fileName);
     }
 
-    public class DeploymentConfigGitResolver {
-        private DeploymentConfigGitResolver() {
-        }
-
-        public Path resolveGitRoot(String environmentId) {
-            return storageRootPath.resolve(environmentId);
-        }
+    /**
+     * Find the path in which application variables git repository is stored.
+     * 
+     * @param applicationId The id of the application for which to get the application variables path.
+     * @return The application variables storage path.
+     */
+    public Path findApplicationVariableLocalPath(String applicationId) {
+        return storageRootPath.resolve(applicationId).resolve(APP_VARIABLES_DIRECTORY);
     }
 
-    public Path findLocalPathRelatedToEnvironment(String environmentId) {
-        return storageRootPath.resolve(environmentId);
+    /**
+     * Find the path in which environment deployment setup git reporisoties are stored.
+     * 
+     * @param applicationId The id of the application the environment belongs to.
+     * @param environmentId The id of the environment for which to get the path.
+     * @return The path of the git repository for the given application environment.
+     */
+    public Path findEnvironmentSetupLocalPath(String applicationId, String environmentId) {
+        return storageRootPath.resolve(applicationId).resolve(ENV_DEPLOYMENT_SETUP_DIRECTORY).resolve(environmentId);
     }
 
     @SneakyThrows
-    public List<Path> findAllLocalDeploymentConfigGitPath() {
-        return Files.walk(storageRootPath, 1)
-                .filter(path -> !storageRootPath.equals(path) && Files.isDirectory(path))
-                .collect(Collectors.toList());
+    public List<Path> findAllEnvironmentSetupLocalPath(String applicationId) {
+        Path environmentSetupPath = storageRootPath.resolve(applicationId).resolve(ENV_DEPLOYMENT_SETUP_DIRECTORY);
+        return Files.walk(environmentSetupPath, 1).filter(path -> !environmentSetupPath.equals(path) && Files.isDirectory(path)).collect(Collectors.toList());
     }
 }
