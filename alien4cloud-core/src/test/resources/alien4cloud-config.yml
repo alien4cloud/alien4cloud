@@ -49,3 +49,6 @@ audit:
 
 logs_deployment_appender:
   enable: false
+
+features:
+  editor_auto_completion: true

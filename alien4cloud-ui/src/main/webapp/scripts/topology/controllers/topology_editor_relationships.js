@@ -84,7 +84,7 @@ define(function (require) {
           var targetNodeTemplate = scope.topology.topology.nodeTemplates[targetNodeTemplateName];
           if (_.defined(sourceNodeTemplate) && _.defined(targetNodeTemplate)) {
             // let's try to find the requirement / for now we just support hosted on but we should improve that...
-            var requirementName = nodeTemplateService.getContainerRequirement(sourceNodeTemplate, scope.topology.nodeTypes, scope.topology.relationshipTypes, scope.topology.capabilityTypes);
+            var requirementName = nodeTemplateService.getContainerRequirement(scope.topology.nodeTypes[sourceNodeTemplate.type], scope.topology.relationshipTypes, scope.topology.capabilityTypes);
             if(_.defined(requirementName)) {
               this.openSearchRelationshipModal(sourceNodeTemplateName, requirementName, targetNodeTemplateName);
             }

@@ -33,6 +33,7 @@ import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.alien4cloud.tosca.utils.NodeTypeUtils;
 import org.alien4cloud.tosca.utils.TopologyUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -55,16 +56,8 @@ public class DanglingRequirementService {
     @Resource
     private ICapabilityMatcherService capabilityMatcherService;
 
-    /**
-     * Add all "dangling requirement nodes" in alien4cloud for the given topology.
-     *
-     * @param topology The topology for which to add dangling requirements.
-     */
-    public void addDanglingRequirements(Topology topology, WorkflowsBuilderService.TopologyContext topologyContext) {
-        for (Entry<String, NodeTemplate> templateEntry : safe(topology.getNodeTemplates()).entrySet()) {
-            addDanglingRequirements(topology, topologyContext, templateEntry.getValue());
-        }
-    }
+    @Value("${features.editor_auto_completion}")
+    private boolean enabled;
 
     /**
      * Add dangling requirement nodes for the specified node in the topology.
@@ -72,16 +65,22 @@ public class DanglingRequirementService {
      * @param topology The topology template
      * @param nodeTemplate The specific node template for which to add dangling requirements.
      */
-    public void addDanglingRequirements(Topology topology, WorkflowsBuilderService.TopologyContext topologyContext, NodeTemplate nodeTemplate) {
+    public void addDanglingRequirements(Topology topology, WorkflowsBuilderService.TopologyContext topologyContext, NodeTemplate nodeTemplate,
+            String requirementSkipAutoCompletion) {
+        if (!enabled) {
+            return;
+        }
         // Get the node type
         NodeType nodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
         for (RequirementDefinition requirementDefinition : nodeType.getRequirements()) {
-            // let's count current requirement fullfillment count
-            int relationshipCount = countRelationshipsForRequirement(nodeTemplate, requirementDefinition);
+            if (!requirementDefinition.getId().equals(requirementSkipAutoCompletion)) {
+                // let's count current requirement fullfillment count
+                int relationshipCount = countRelationshipsForRequirement(nodeTemplate, requirementDefinition);
 
-            if (requirementDefinition.getLowerBound() > relationshipCount) {
-                // we need to add some dangling requirement nodes
-                addDanglingNodes(topology, topologyContext, nodeTemplate, requirementDefinition, requirementDefinition.getLowerBound() - relationshipCount);
+                if (requirementDefinition.getLowerBound() > relationshipCount) {
+                    // we need to add some dangling requirement nodes
+                    addDanglingNodes(topology, topologyContext, nodeTemplate, requirementDefinition, requirementDefinition.getLowerBound() - relationshipCount);
+                }
             }
         }
     }
@@ -120,7 +119,7 @@ public class DanglingRequirementService {
 
         // Recursively add dangling nodes.
         for (NodeTemplate addedNode : addedNodes) {
-            addDanglingRequirements(topology, topologyContext, addedNode);
+            addDanglingRequirements(topology, topologyContext, addedNode, null);
         }
     }
 

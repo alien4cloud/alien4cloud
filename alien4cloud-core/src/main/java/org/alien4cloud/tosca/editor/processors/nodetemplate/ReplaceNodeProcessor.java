@@ -88,7 +88,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         workflowBuilderService.addNode(topologyContext, oldNodeTemplate.getName());
 
-        danglingRequirementService.addDanglingRequirements(topology, topologyContext, newNodeTemplate);
+        danglingRequirementService.addDanglingRequirements(topology, topologyContext, newNodeTemplate, null);
     }
 
     private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {

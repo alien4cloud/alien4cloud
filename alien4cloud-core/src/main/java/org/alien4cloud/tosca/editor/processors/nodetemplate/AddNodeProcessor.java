@@ -85,6 +85,6 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         workflowBuilderService.addNode(topologyContext, operation.getNodeName());
 
-        danglingRequirementService.addDanglingRequirements(topology, topologyContext, nodeTemplate);
+        danglingRequirementService.addDanglingRequirements(topology, topologyContext, nodeTemplate, operation.getRequirementSkipAutoCompletion());
     }
 }
