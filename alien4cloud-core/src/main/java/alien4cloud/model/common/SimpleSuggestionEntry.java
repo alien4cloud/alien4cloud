@@ -19,7 +19,6 @@ public class SimpleSuggestionEntry extends AbstractSuggestionEntry {
 
     private String id;
 
-    @Id
     public String getId() {
         return id;
     }

@@ -1,6 +1,5 @@
 package org.alien4cloud.tosca.variable;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,8 +13,6 @@ import org.alien4cloud.alm.events.AfterApplicationDeleted;
 import org.alien4cloud.git.LocalGitRepositoryPathResolver;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.alien4cloud.tosca.utils.PropertiesYamlParser;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;

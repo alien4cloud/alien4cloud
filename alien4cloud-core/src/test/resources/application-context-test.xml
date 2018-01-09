@@ -35,6 +35,7 @@
         alien4cloud.plugin,
         alien4cloud.utils.services,
         org.alien4cloud.alm.service,
+        org.alien4cloud.git,
         org.alien4cloud.tosca.catalog,
         org.alien4cloud.tosca.exporter,
         org.alien4cloud.tosca.editor,
