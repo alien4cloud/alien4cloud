@@ -7,6 +7,7 @@ define(function (require) {
   var angular = require('angular');
 
   require('angular-ui-ace');
+  require('scripts/_ref/applications/services/application_var_git_service');
 
   states.state('applications.detail.variables', {
     url: '/variables',
@@ -25,8 +26,8 @@ define(function (require) {
     }
   });
 
-  var EditAppVarGitCtrl = ['$scope', '$uibModalInstance', 'environmentsGitService', 'gitLocation',
-    function($scope, $uibModalInstance, environmentsGitService, gitLocation) {
+  var EditAppVarGitCtrl = ['$scope', '$uibModalInstance', 'appVarGitService', 'gitLocation',
+    function($scope, $uibModalInstance, appVarGitService, gitLocation) {
       $scope.originalGitLocation = gitLocation;
       $scope.gitLocation = _.cloneDeep(gitLocation);
       if($scope.gitLocation.local) {
@@ -36,7 +37,7 @@ define(function (require) {
       $scope.save = function(valid) {
         if (valid && !_.isEqual($scope.originalGitLocation, $scope.gitLocation)) {
           if($scope.gitLocation.local) {
-            environmentsGitService.delete({
+            appVarGitService.delete({
               applicationId: $scope.application.id
             });
           } else {
@@ -48,7 +49,7 @@ define(function (require) {
               branch: $scope.gitLocation.branch
             };
 
-            environmentsGitService.create({
+            appVarGitService.create({
               applicationId: $scope.application.id
             }, angular.toJson(request));
           }

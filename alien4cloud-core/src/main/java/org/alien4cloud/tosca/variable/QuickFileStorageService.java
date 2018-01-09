@@ -11,6 +11,7 @@ import java.util.Properties;
 import javax.inject.Inject;
 
 import org.alien4cloud.alm.events.AfterApplicationDeleted;
+import org.alien4cloud.git.LocalGitRepositoryPathResolver;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.alien4cloud.tosca.utils.PropertiesYamlParser;
 import org.springframework.beans.factory.annotation.Required;
@@ -30,14 +31,8 @@ import lombok.SneakyThrows;
 public class QuickFileStorageService {
     @Inject
     private EditorRepositoryService editorRepositoryService;
-
-    private Path variablesStoreRootPath;
-
-    @Required
-    @Value("${directories.alien}")
-    public void setStorageRootPath(String variableRootDir) throws IOException {
-        this.variablesStoreRootPath = FileUtil.createDirectoryIfNotExists(variableRootDir + "/variables/");
-    }
+    @Inject
+    private LocalGitRepositoryPathResolver localGitRepositoryPathResolver;
 
     public Properties loadApplicationVariables(String applicationId) {
         Path ymlPath = getApplicationVariablesPath(applicationId);
@@ -144,17 +139,17 @@ public class QuickFileStorageService {
     /**
      * Listen to {@link AfterApplicationDeleted} event and delete variable file path if exists
      * 
-     * @param event
+     * @param event the event that contains the id of the deleted application.
      */
     @EventListener
     @SneakyThrows
     public void afterApplicationDeletedEventListener(AfterApplicationDeleted event) {
-        Path appVarFilePath = getApplicationVariablesPath(event.getApplicationId());
-        Files.deleteIfExists(appVarFilePath);
+        Path appVarGitDirectory = localGitRepositoryPathResolver.findApplicationVariableLocalPath(event.getApplicationId());
+        FileUtil.delete(appVarGitDirectory);
     }
 
     public Path getApplicationVariablesPath(String applicationId) {
-        return this.variablesStoreRootPath.resolve(sanitizeFilename(applicationId)).resolve(sanitizeFilename("app_variables.yml"));
+        return localGitRepositoryPathResolver.findApplicationVariableLocalPath(applicationId).resolve(sanitizeFilename("app_variables.yml"));
     }
 
     private String sanitizeFilename(String fileName) {
