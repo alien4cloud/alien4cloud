@@ -60,7 +60,7 @@ public class UiController {
 
     @Getter
     @Setter
-    @AllArgsConstructor(suppressConstructorProperties = true)
+    @AllArgsConstructor
     public class PluginInfo {
         private String entryPoint;
         private String base;

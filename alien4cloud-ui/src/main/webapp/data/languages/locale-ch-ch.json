@@ -293,7 +293,8 @@
         "LABEL": "警告",
         "PROPERTIES": {
           "LABEL": "节点属性"
-        }
+        },
+        "DEPRECATION": "The node {{name}} of type {{type}}, version{{version}} is marked as deprecated. You should update it's archive version in the topology dependencies."
       },
       "YAML": "yaml"
     },
@@ -302,6 +303,10 @@
       "MESSAGE": "您即将去卸载一下：",
       "RESOURCES_TO_UNINSTALL": "将要卸载的资源",
       "TITLE": "卸载提醒者"
+    },
+    "VARIABLES": {
+      "HELP": "You can define varaibles at application level here. These varaibles can then be referenced in the topology and will be replaced by their value before deployment. For more information please look at the following address.",
+      "DOC_LINK": "Online documentation."
     },
     "VERSION": {
       "CHANGE_TOPO_VERSION_WARNING": "还有一件事情：您需要选择一个拓扑版本去确认应用版本的更改",

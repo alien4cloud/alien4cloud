@@ -7,7 +7,7 @@ import lombok.Setter;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter

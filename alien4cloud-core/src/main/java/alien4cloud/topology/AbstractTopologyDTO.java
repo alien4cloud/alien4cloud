@@ -17,7 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class AbstractTopologyDTO<T extends Topology> {
     private T topology;
     // elementId -> Type

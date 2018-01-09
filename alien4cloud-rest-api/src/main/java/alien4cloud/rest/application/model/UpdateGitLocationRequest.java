@@ -1,4 +1,4 @@
-package org.alien4cloud.git;
+package alien4cloud.rest.application.model;
 
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -11,12 +11,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@ApiModel("Request for creation of a new git repository for storing deployment config.")
-public class CreateDeploymentConfigGitRequest {
-    @NotBlank
-    @ApiModelProperty(value = "Environment id of the related deployment config.", required = true)
-    private String environmentId;
-
+@ApiModel("Request for updating of a repository for storing deployment config.")
+public class UpdateGitLocationRequest {
     @NotBlank
     @ApiModelProperty(value = "Url of the git repository.", required = true)
     private String url;

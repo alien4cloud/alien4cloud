@@ -47,7 +47,7 @@ import lombok.Setter;
 @Setter
 @ESObject
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Topology implements IDatableResource, IWorkspaceResource {

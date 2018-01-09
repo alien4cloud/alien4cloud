@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class SimpleGitHistoryEntry {
     private String id;
     private String userName;

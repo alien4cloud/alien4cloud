@@ -1,9 +1,15 @@
 <div style="margin-left: 10px;">
-  <button class="btn btn-default btn-sm" id="save-file"
+  <button class="btn btn-default" id="save-file"
     ng-click="saveFile()">
     <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
   </button>
-  <span class="text-info">{{aceFilePath}}<span>
+  <button class="pull-right btn btn-default" id="git-config"
+    ng-click="editGit()">
+    <i class="fa fa-git"></i>
+  </button>
 </div>
-<div ng-model="editorContent" ui-ace="{mode: yaml, useWrapMode: true, readonly: released, onLoad : aceLoaded}" style="height: 200px;">
+<div class="grp-margin text-muted">
+{{'APPLICATIONS.VARIABLES.HELP' | translate}}<a href="https://alien4cloud.github.io/#/documentation/2.0.0/user_guide/inputs_vars/topology_editor_variables_inputs.html" target="_blank">{{'APPLICATIONS.VARIABLES.DOC_LINK' | translate}}</a>
+</div>
+<div class="grp-margin" ng-model="editorContent" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: false, onLoad : aceLoaded}" style="height: 200px;">
 </div>

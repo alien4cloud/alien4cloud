@@ -1,0 +1,39 @@
+<div class="row">
+  <div class="col-md-6">
+    <form ng-submit="addVariable(formVar)" style="margin-top: 15px">
+      <div class="input-group">
+        <span class="input-group-addon"><i class="fa fa-filter"></i></span>
+        <input type="text" class="form-control input-sm" id="var-name" name="varName" ng-model="formVar.name"
+          placeholder="{{'APPLICATIONS.VARIABLES.TYPE_TO_ADD' | translate}}" required/>
+        <span class="input-group-btn">
+          <button ng-disabled="formAddVar.varName.$invalid" type="submit" class="btn btn-primary btn-sm" id="btn-add-var">
+            <i class="fa fa-plus-circle"></i>
+          </button>
+        </span>
+      </div>
+    </form>
+    <!-- <form name="formAddVar" class="form-inline" ng-submit="addVariable(var)" style="margin-top: 20px">
+      <div class="form-group">
+        <input type="text" class="form-control input-sm" id="var-name" name="varName" ng-model="var.name" required/>
+      </div>
+      <div class="form-group">
+        <button ng-disabled="formAddVar.varName.$invalid" type="submit" class="btn btn-primary btn-sm" id="btn-add-var">
+          <i class="fa fa-plus-circle"></i>
+        </button>
+      </div>
+    </form> -->
+  </div>
+</div>
+
+<empty-place-holder data="variables"></empty-place-holder>
+<table class="table table-hover grp-margin" ng-if="_.isNotEmpty(variables)">
+  <tbody>
+    <tr ng-repeat="variable in variables | filter:formVar.name">
+      <td style="width: 20%"><a ng-click="openVarModal(variable)">{{variable}}</a></td>
+      <!-- <td>
+        <a class="btn btn-default btn-sm" ng-click="openVarModal(variable)"><i class="fa fa-edit"></i> {{'COMMON.EDIT' | translate}}</a>
+        <a class="btn btn-default btn-sm" ng-click="clearInput(inputName)"><i class="fa fa-eraser"></i> {{'APPLICATIONS.INPUTS.CLEAR' | translate}}</a>
+      </td> -->
+    </tr>
+  </tbody>
+</table>

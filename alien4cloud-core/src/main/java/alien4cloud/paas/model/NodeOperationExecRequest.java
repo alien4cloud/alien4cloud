@@ -16,7 +16,7 @@ import java.util.Map;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class NodeOperationExecRequest {
     @NotBlank
     String nodeTemplateName;

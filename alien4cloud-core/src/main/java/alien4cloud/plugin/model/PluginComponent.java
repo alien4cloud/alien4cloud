@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("Result for a request for specific plugin components.")
 public class PluginComponent {

@@ -160,6 +160,7 @@ define(function(require) {
             } else {
               nodeGroup.select('#icon').attr('xlink:href','images/blank.png');
             }
+            nodeGroup.select('.title').classed('text-deprecated', function() { return tags.deprecated === 'true'; });
           } else {
             nodeGroup.select('#icon').attr('xlink:href','images/blank.png');
           }

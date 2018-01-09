@@ -1,5 +1,37 @@
 package org.alien4cloud.exception.rest;
 
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
+import org.alien4cloud.alm.service.exceptions.ServiceUsageException;
+import org.alien4cloud.secret.exception.SecretProviderAuthenticationException;
+import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
+import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
+import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
+import org.alien4cloud.tosca.editor.exception.PropertyValueException;
+import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
+import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
+import org.alien4cloud.tosca.editor.exception.UnmatchedElementPatternException;
+import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.expression.ExpressionException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.google.common.collect.Lists;
+
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
 import alien4cloud.exception.AlreadyExistException;
@@ -46,36 +78,7 @@ import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
-import org.alien4cloud.alm.service.exceptions.ServiceUsageException;
-import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
-import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
-import org.alien4cloud.tosca.editor.exception.EditorToscaYamlParsingException;
-import org.alien4cloud.tosca.editor.exception.PropertyValueException;
-import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
-import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
-import org.alien4cloud.tosca.editor.exception.UnmatchedElementPatternException;
-import org.alien4cloud.tosca.editor.exception.UnsupportedSecretException;
-import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
-import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
-import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
-import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.expression.ExpressionException;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * All technical (runtime) exception handler goes here. It's unexpected exception and is in general back-end exception or bug in our code
@@ -542,7 +545,16 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> locationSupportExceptionHandler(LocationSupportException e) {
         log.error("Location support exception", e);
-        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.ORCHESTRATOR_LOCATION_SUPPORT_VIOLATION).message(e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.ORCHESTRATOR_LOCATION_SUPPORT_VIOLATION).message(e.getMessage()).build()).build();
     }
 
+    @ExceptionHandler(SecretProviderAuthenticationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> secretVaultAuthenticationHandler(SecretProviderAuthenticationException e) {
+        log.error("Secret provider credentials is invalid", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.INVALID_SECRET_CREDENTIALS_EXCEPTION).message(e.getMessage()).build()).build();
+    }
 }

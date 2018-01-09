@@ -116,6 +116,11 @@
   font-size: 10px;
 }
 
+.node-template .text-deprecated{
+  text-decoration:line-through;
+  fill: $brand-warning;
+}
+
 .node-template .version{
   font-size: 8px;
   fill: #666;

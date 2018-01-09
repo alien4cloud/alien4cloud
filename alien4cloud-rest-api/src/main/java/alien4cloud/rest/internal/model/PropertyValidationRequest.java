@@ -16,7 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @ApiModel("Request to validate that a property value is matching a given definition.")
 public class PropertyValidationRequest {
     @ApiModelProperty(value = "Value to set for the property.", required = true)

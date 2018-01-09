@@ -4,13 +4,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.secret.services.SecretProviderService;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import org.apache.commons.lang3.ArrayUtils;
@@ -40,7 +39,6 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.secret.SecretProviderConfiguration;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.IPaaSCallback;
@@ -91,6 +89,8 @@ public class DeployService {
     private DeploymentLoggingService deploymentLoggingService;
     @Inject
     private ServiceResourceRelationshipService serviceResourceRelationshipService;
+    @Inject
+    private SecretProviderService secretProviderService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -287,7 +287,8 @@ public class DeployService {
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
 
-        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = generateSecretConfiguration(locations, secretProviderCredentials);
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = secretProviderService.generateSecretConfiguration(locations,
+                secretProviderCredentials);
 
         PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials,
                 deployment, locations, deploymentTopology);
@@ -297,42 +298,6 @@ public class DeployService {
         artifactProcessorService.processArtifacts(deploymentContext);
 
         return deploymentContext;
-    }
-
-    /**
-     * This method is used to build a valid object who contains the configuration of the secret provider from the location and the credentials for the current
-     * request/operation
-     *
-     * @param locations map of locations
-     * @param secretProviderCredentials the secret provider credentials configuration
-     * @return the more suitable model for orchestrator
-     */
-    public static SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations,
-            SecretProviderCredentials secretProviderCredentials) {
-        if (secretProviderCredentials == null) {
-            return null;
-        }
-        return generateSecretConfiguration(locations, secretProviderCredentials.getPluginName(), secretProviderCredentials.getCredentials());
-    }
-
-    public static SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations, String pluginName, Object credentials) {
-        if (credentials == null) {
-            return null;
-        }
-        Optional<Location> firstLocation = locations.values().stream()
-                .filter(location -> Objects.equals(pluginName, location.getSecretProviderConfiguration().getPluginName()))
-                .findFirst();
-        if (!firstLocation.isPresent()) {
-            log.error("Plugin name <" + pluginName + "> is not configured by the current location.");
-            return null;
-        }
-        SecretProviderConfiguration configuration = new SecretProviderConfiguration();
-        configuration.setConfiguration(firstLocation.get().getSecretProviderConfiguration());
-        configuration.setPluginName(pluginName);
-        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = new SecretProviderConfigurationAndCredentials();
-        secretProviderConfigurationAndCredentials.setSecretProviderConfiguration(configuration);
-        secretProviderConfigurationAndCredentials.setCredentials(credentials);
-        return secretProviderConfigurationAndCredentials;
     }
 
     /**

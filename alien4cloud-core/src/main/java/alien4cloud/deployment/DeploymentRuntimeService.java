@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.secret.services.SecretProviderService;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.normative.constants.AlienCapabilityTypes;
@@ -56,6 +57,10 @@ public class DeploymentRuntimeService {
     private DeploymentTopologyService deploymentTopologyService;
     @Inject
     private ToscaContextualAspect toscaContextualAspect;
+    @Inject
+    private DeployService deployService;
+    @Inject
+    private SecretProviderService secretProviderService;
 
     /**
      * Build the deployment context from an operation execution request
@@ -68,7 +73,7 @@ public class DeploymentRuntimeService {
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(deployment.getEnvironmentId());
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = DeployService.generateSecretConfiguration(locations,
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = secretProviderService.generateSecretConfiguration(locations,
                 request.getSecretProviderPluginName(), request.getSecretProviderCredentials());
         return deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials, deployment,
                 deploymentTopologyService.getLocations(deploymentTopology), deploymentTopology);
@@ -150,7 +155,7 @@ public class DeploymentRuntimeService {
         // get the secret provider configuration from the location
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(topology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-        secretProviderConfigurationAndCredentials = DeployService.generateSecretConfiguration(locations,
+        secretProviderConfigurationAndCredentials = secretProviderService.generateSecretConfiguration(locations,
                 secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
                 secretProviderConfigurationAndCredentials.getCredentials());
 

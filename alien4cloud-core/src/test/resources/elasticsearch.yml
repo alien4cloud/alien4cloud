@@ -1,7 +1,7 @@
-
 index:
   number_of_shards: 1
   number_of_replicas: 0
+
 path:
   data: target/elasticsearch/data
   work: target/elasticsearch/work

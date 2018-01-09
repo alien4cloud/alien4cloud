@@ -301,7 +301,8 @@
         "LABEL" : "Alertes",
         "PROPERTIES" : {
           "LABEL" : "Propriétés de noeuds"
-        }
+        },
+        "DEPRECATION": "Le noeud {{name}} de type {{type}}, version {{version}}, est marqué comme déprécié. Veuillez mettre à jour la version de son archive dans les dépendances de la topologie."
       },
       "YAML" : "yaml"
     },
@@ -310,6 +311,10 @@
       "MESSAGE": "Vous êtes sur le point de dsintaller ce qui suit:",
       "RESOURCES_TO_UNINSTALL": "Ressources à désinstaller",
       "TITLE": "Informations concernant la désinstallation"
+    },
+    "VARIABLES": {
+      "HELP": "Vous pouvez configurer ici des variables d'application. Ces variables peuvent être référencées dans la topologie et seront remplacées par leur valeur avant le déploiement. Pour plus d'information consultez l'adresse suivante.",
+      "DOC_LINK": "Documentation en ligne."
     },
     "VERSION" : {
       "CHANGE_TOPO_VERSION_WARNING": "Encore une chose: vous devez sélectionner une version de topologie pour valider le changement de version de l'application",

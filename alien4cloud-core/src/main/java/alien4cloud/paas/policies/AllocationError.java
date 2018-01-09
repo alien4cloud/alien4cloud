@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class AllocationError {
 
     private AllocationErrorCode code;

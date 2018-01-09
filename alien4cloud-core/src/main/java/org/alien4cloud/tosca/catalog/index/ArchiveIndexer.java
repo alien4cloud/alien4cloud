@@ -111,6 +111,7 @@ public class ArchiveIndexer {
         ArchiveRoot archiveRoot = new ArchiveRoot();
         archiveRoot.setArchive(csar);
         archiveRoot.setTopology(topology);
+        csar.setHasTopology(true);
 
         // dispatch event before indexing
         publisher.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));

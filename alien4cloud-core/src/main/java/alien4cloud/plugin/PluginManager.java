@@ -634,7 +634,7 @@ public class PluginManager {
         return plugin;
     }
 
-    @AllArgsConstructor(suppressConstructorProperties = true)
+    @AllArgsConstructor
     private final class PluginLinker<T> {
         private IPluginLinker<T> linker;
         private Class<T> linkedType;

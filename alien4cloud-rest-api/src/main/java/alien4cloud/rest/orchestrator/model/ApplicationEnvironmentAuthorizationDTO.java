@@ -1,17 +1,20 @@
 package alien4cloud.rest.orchestrator.model;
 
+import java.util.List;
+import java.util.Map;
+
+import org.elasticsearch.common.collect.Lists;
+
+import com.google.common.collect.Maps;
+
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.utils.ReflectionUtil;
-import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.elasticsearch.common.collect.Lists;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * This DTO represents an authorization given to a given application / environment.
@@ -19,6 +22,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class ApplicationEnvironmentAuthorizationDTO {
 
@@ -28,7 +32,8 @@ public class ApplicationEnvironmentAuthorizationDTO {
 
     private List<String> environmentTypes;
 
-    public static GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO> convert(GetMultipleDataResult<Application> toConvert, List<ApplicationEnvironmentAuthorizationDTO> allDTOs) {
+    public static GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO> convert(GetMultipleDataResult<Application> toConvert,
+            List<ApplicationEnvironmentAuthorizationDTO> allDTOs) {
         if (toConvert == null) {
             return null;
         }
@@ -43,7 +48,7 @@ public class ApplicationEnvironmentAuthorizationDTO {
                 }
             }
         }
-        converted.setData(data.toArray( new ApplicationEnvironmentAuthorizationDTO[toConvert.getData().length]));
+        converted.setData(data.toArray(new ApplicationEnvironmentAuthorizationDTO[toConvert.getData().length]));
         return converted;
     }
 
@@ -57,10 +62,13 @@ public class ApplicationEnvironmentAuthorizationDTO {
         return envTypes;
     }
 
-    public static List<ApplicationEnvironmentAuthorizationDTO> buildDTOs(List<Application> applicationsRelatedToEnvironment, List<Application> applicationsRelatedToEnvironmentType, List<ApplicationEnvironment> environments, List<Application> applications, List<String> environmentTypes) {
+    public static List<ApplicationEnvironmentAuthorizationDTO> buildDTOs(List<Application> applicationsRelatedToEnvironment,
+            List<Application> applicationsRelatedToEnvironmentType, List<ApplicationEnvironment> environments, List<Application> applications,
+            List<String> environmentTypes) {
         Map<String, ApplicationEnvironmentAuthorizationDTO> aeaDTOsMap = Maps.newHashMap();
         if (!environments.isEmpty()) {
-            applicationsRelatedToEnvironment.stream().forEach(application -> aeaDTOsMap.put(application.getId(), new ApplicationEnvironmentAuthorizationDTO(application, Lists.newArrayList(), Lists.newArrayList())));
+            applicationsRelatedToEnvironment.stream().forEach(application -> aeaDTOsMap.put(application.getId(),
+                    new ApplicationEnvironmentAuthorizationDTO(application, Lists.newArrayList(), Lists.newArrayList())));
             for (ApplicationEnvironment ae : environments) {
                 ApplicationEnvironmentAuthorizationDTO dto = aeaDTOsMap.get(ae.getApplicationId());
                 dto.getEnvironments().add(ae);
@@ -72,7 +80,8 @@ public class ApplicationEnvironmentAuthorizationDTO {
                 if (aeaDTOsMap.get(application.getId()) != null) {
                     aeaDTOsMap.get(application.getId()).getEnvironmentTypes().addAll(filterEnvType(application.getId(), environmentTypes));
                 } else {
-                    aeaDTOsMap.put(application.getId(), new ApplicationEnvironmentAuthorizationDTO(application, Lists.newArrayList(), filterEnvType(application.getId(), environmentTypes)));
+                    aeaDTOsMap.put(application.getId(), new ApplicationEnvironmentAuthorizationDTO(application, Lists.newArrayList(),
+                            filterEnvType(application.getId(), environmentTypes)));
                 }
             }
         }

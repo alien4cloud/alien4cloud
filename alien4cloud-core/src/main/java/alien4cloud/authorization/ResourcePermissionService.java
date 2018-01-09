@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  * Service managing permissions to resources
  */
 @Service
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @NoArgsConstructor
 public class ResourcePermissionService {
     @Resource(name = "alien-es-dao")

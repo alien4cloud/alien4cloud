@@ -285,7 +285,8 @@
         "LABEL" : "警告",
         "PROPERTIES" : {
           "LABEL" : "ノードプロパティ"
-        }
+        },
+        "DEPRECATION": "The node {{name}} of type {{version}}, version{{version}} is marked as deprecated. You should update it's archive version in the topology dependencies."
       },
       "YAML" : "yaml"
     },
@@ -296,6 +297,10 @@
         "FOOTER": "The following node(s) will be deleted:"
       },
       "TITLE": "Uninstall reminder"
+    },
+    "VARIABLES": {
+      "HELP": "You can define varaibles at application level here. These varaibles can then be referenced in the topology and will be replaced by their value before deployment. For more information please look at the following address.",
+      "DOC_LINK": "Online documentation."
     },
     "VERSION" : {
       "CHANGE_TOPO_VERSION_WARNING": "One more thing : you need to select a topology version to validate the change of application version",

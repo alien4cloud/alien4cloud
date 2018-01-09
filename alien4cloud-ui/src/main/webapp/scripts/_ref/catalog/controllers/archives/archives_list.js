@@ -59,7 +59,7 @@ define(function (require) {
         });
       };
 
-      $scope.uploadSucessCalback = function(){
+      $scope.uploadSuccessCallback = function(){
         $scope.searchService.search();
       };
 

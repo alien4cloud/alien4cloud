@@ -1,5 +1,39 @@
 package alien4cloud.rest.application;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.validation.Valid;
+
+import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
+import org.alien4cloud.git.GitLocationDao;
+import org.alien4cloud.git.LocalGitManager;
+import org.alien4cloud.git.model.GitLocation;
+import org.alien4cloud.secret.services.SecretProviderService;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.elasticsearch.common.joda.time.DateTime;
+import org.elasticsearch.common.joda.time.DateTimeZone;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
@@ -43,42 +77,11 @@ import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.tosca.context.ToscaContextualAspect;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
-import org.alien4cloud.git.GitLocationDao;
-import org.alien4cloud.git.LocalGitManager;
-import org.alien4cloud.git.model.GitLocation;
-import org.alien4cloud.secret.services.SecretProviderService;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
-import org.elasticsearch.common.joda.time.DateTime;
-import org.elasticsearch.common.joda.time.DateTimeZone;
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.async.DeferredResult;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -173,7 +176,7 @@ public class ApplicationDeploymentController {
 
         User deployer = AuthorizationUtil.getCurrentUser();
         // commit and push the deployment configuration data
-        GitLocation location = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environment.getId());
+        GitLocation location = gitLocationDao.findDeploymentSetupLocation(application.getId(), environment.getId());
         localGitManager.commitAndPush(location, deployer.getUsername(), deployer.getEmail(), "Deployment " + DateTime.now(DateTimeZone.UTC));
 
         // the request contains secret provider credentials?
@@ -218,11 +221,12 @@ public class ApplicationDeploymentController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
-                                       @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+            @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
         return doUndeploy(applicationId, applicationEnvironmentId, secretProviderConfigurationAndCredentials);
     }
 
-    private RestResponse<Void>  doUndeploy(String applicationId, String applicationEnvironmentId, SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+    private RestResponse<Void> doUndeploy(String applicationId, String applicationEnvironmentId,
+            SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         Application application = applicationService.checkAndGetApplication(applicationId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
@@ -255,17 +259,19 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Get current secret provider configuration for the given application on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/current-secret-provider-configurations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<List<SecretCredentialInfo>> getSecretProviderConfigurationsForCurrentDeployment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+    public RestResponse<List<SecretCredentialInfo>> getSecretProviderConfigurationsForCurrentDeployment(@PathVariable String applicationId,
+            @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         List<SecretCredentialInfo> secretProviderConfigurations = Lists.newArrayList();
-        for (int i=0; i < deployment.getLocationIds().length; i++) {
+        for (int i = 0; i < deployment.getLocationIds().length; i++) {
             Location location = locationService.getOrFail(deployment.getLocationIds()[i]);
             if (location.getSecretProviderConfiguration() != null) {
-                secretProviderConfigurations.add(secretProviderService.getSecretCredentialInfo(location.getSecretProviderConfiguration().getPluginName(), location.getSecretProviderConfiguration().getConfiguration()));
+                secretProviderConfigurations.add(secretProviderService.getSecretCredentialInfo(location.getSecretProviderConfiguration().getPluginName(),
+                        location.getSecretProviderConfiguration().getConfiguration()));
             }
         }
         return RestResponseBuilder.<List<SecretCredentialInfo>> builder().data(secretProviderConfigurations).build();
@@ -275,7 +281,7 @@ public class ApplicationDeploymentController {
     @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/update-deployment", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public DeferredResult<RestResponse<Void>> updateDeployment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
-                                                               @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderCredentials secretProviderCredentials) {
+            @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderCredentials secretProviderCredentials) {
         final DeferredResult<RestResponse<Void>> result = new DeferredResult<>(15L * 60L * 1000L);
 
         Application application = applicationService.checkAndGetApplication(applicationId);
@@ -535,24 +541,25 @@ public class ApplicationDeploymentController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public DeferredResult<RestResponse<Void>> scale(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
-                                                    @PathVariable String nodeTemplateId, @RequestParam int instances,
-                                                    @ApiParam(value = "The secret provider configuration ans credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+            @PathVariable String nodeTemplateId, @RequestParam int instances,
+            @ApiParam(value = "The secret provider configuration ans credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
         final DeferredResult<RestResponse<Void>> result = new DeferredResult<>(15L * 60L * 1000L);
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
 
         try {
-            deploymentRuntimeService.scale(secretProviderConfigurationAndCredentials, environment.getId(), nodeTemplateId, instances, new IPaaSCallback<Object>() {
-                @Override
-                public void onSuccess(Object data) {
-                    result.setResult(RestResponseBuilder.<Void> builder().build());
-                }
+            deploymentRuntimeService.scale(secretProviderConfigurationAndCredentials, environment.getId(), nodeTemplateId, instances,
+                    new IPaaSCallback<Object>() {
+                        @Override
+                        public void onSuccess(Object data) {
+                            result.setResult(RestResponseBuilder.<Void> builder().build());
+                        }
 
-                @Override
-                public void onFailure(Throwable e) {
-                    result.setErrorResult(
-                            RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
-                }
-            });
+                        @Override
+                        public void onFailure(Throwable e) {
+                            result.setErrorResult(
+                                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
+                        }
+                    });
         } catch (OrchestratorDisabledException e) {
             result.setErrorResult(
                     RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
@@ -571,7 +578,7 @@ public class ApplicationDeploymentController {
             @ApiParam(value = "Application id.", required = true) @Valid @NotBlank @PathVariable String applicationId,
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
             @ApiParam(value = "Workflow name.", required = true) @Valid @NotBlank @PathVariable String workflowName,
-            @ApiParam(value = "The secret provider configuration ans credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+            @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
 
         final DeferredResult<RestResponse<Void>> result = new DeferredResult<>(15L * 60L * 1000L);
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
@@ -580,18 +587,19 @@ public class ApplicationDeploymentController {
         Map<String, Object> params = Maps.newHashMap();
 
         try {
-            workflowExecutionService.launchWorkflow(secretProviderConfigurationAndCredentials, environment.getId(), workflowName, params, new IPaaSCallback<Object>() {
-                @Override
-                public void onSuccess(Object data) {
-                    result.setResult(RestResponseBuilder.<Void> builder().build());
-                }
+            workflowExecutionService.launchWorkflow(secretProviderConfigurationAndCredentials, environment.getId(), workflowName, params,
+                    new IPaaSCallback<Object>() {
+                        @Override
+                        public void onSuccess(Object data) {
+                            result.setResult(RestResponseBuilder.<Void> builder().build());
+                        }
 
-                @Override
-                public void onFailure(Throwable e) {
-                    result.setErrorResult(
-                            RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
-                }
-            });
+                        @Override
+                        public void onFailure(Throwable e) {
+                            result.setErrorResult(
+                                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
+                        }
+                    });
         } catch (OrchestratorDisabledException e) {
             result.setErrorResult(
                     RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());

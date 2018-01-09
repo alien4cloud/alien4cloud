@@ -6,8 +6,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import alien4cloud.utils.MapUtil;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.core.env.MapPropertySource;
 
 import com.google.common.collect.Maps;
@@ -53,6 +55,9 @@ public class InputsMappingFileVariableResolver {
         }
 
         public Map<String, PropertyValue> resolve(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) throws MissingVariablesException {
+            if (MapUtils.isEmpty(inputsDefinition)) {
+                return Maps.newHashMap();
+            }
             ToscaTypeConverter converter = customConverter != null ? customConverter : InputsMappingFileVariableResolver.DEFAULT_CONVERTER;
             return new InputsMappingFileVariableResolverInternal(converter, appVariables, envTypeVariables, envVariables, alienContextVariables).resolve(inputMappingMap, inputsDefinition);
         }

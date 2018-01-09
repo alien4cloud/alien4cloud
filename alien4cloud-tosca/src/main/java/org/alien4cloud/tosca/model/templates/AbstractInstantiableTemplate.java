@@ -32,7 +32,7 @@ import org.elasticsearch.mapping.IndexType;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public abstract class AbstractInstantiableTemplate extends AbstractTemplate {
     /**
      * Attributes of the node template

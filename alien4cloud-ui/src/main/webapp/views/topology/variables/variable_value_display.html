@@ -14,8 +14,8 @@
               <h4 class="var-scope-title clickable"
                 ng-class= "{'var-defined': appScopeDTO.expression,
                             'var-undefined': !appScopeDTO.expression,
-                            'var-scope-selected': selectedScope.id === topology.topology.archiveName}"
-                ng-click="showAppVarExpression(appScopeDTO.expression)">  {{'APPLICATIONS.VARIABLES.APP_SCOPE' | translate}}</h4>
+                            'var-scope-selected': selectedScope.scopeId === topology.topology.archiveName}"
+                ng-click="showAppVarExpression(appScopeDTO)">  {{'APPLICATIONS.VARIABLES.APP_SCOPE' | translate}}</h4>
                 <div class="text-muted var-scope-item">
                   <i>{{'APPLICATIONS.VARIABLES.APP_SCOPE_NOT_EDITABLE' | translate }}.</i>
                 </div>
@@ -39,7 +39,7 @@
                      ng-click="showEnvTypeVarExpression(varDTO)"
                      ng-class= "{'var-defined': varDTO.variable.expression,
                                  'var-undefined': !varDTO.variable.expression,
-                                 'var-scope-selected': selectedScope.id === varDTO.scopeId}" >
+                                 'var-scope-selected': selectedScope.scopeId === varDTO.scopeId}" >
                   <span>{{varDTO.scopeName}}</span>
                 </div>
               </div>
@@ -63,7 +63,7 @@
                      ng-click="showEnvVarExpression(varDTO)"
                      ng-class= "{'var-defined': varDTO.variable.expression,
                                  'var-undefined': !varDTO.variable.expression,
-                                 'var-scope-selected': selectedScope.id === varDTO.scopeId}" >
+                                 'var-scope-selected': selectedScope.scopeId === varDTO.scopeId}" >
                   <span>{{varDTO.scopeName}}</span> (<span>{{varDTO.scopeId}}</span>)
                 </div>
               </div>
@@ -81,7 +81,7 @@
         <div class="content-head" style="margin-bottom: 15px">
           <div class="row">
             <div class="col-md-8 center">
-              <span class="text-info">{{selectedScope.name}}</span>
+              <span class="text-info">{{selectedScope.scopeName}}</span>
             </div>
             <div class="col-md-4 align-right" >
               <button class="btn btn-xs"
@@ -104,12 +104,12 @@
           </div>
         </div>
 
-        <div ng-if="!editMode">
+        <div ng-if="selectedScope.readOnly || !editMode">
           <p class="var-undefined" ng-if="!selectedScope">{{'APPLICATIONS.VARIABLES.UNSELECTED_HOLDER' | translate}}</p>
-          <p class="var-undefined" ng-if="selectedScope && _.isEmpty(selectedScope.expression)">{{'APPLICATIONS.VARIABLES.UNDEFINED' | translate}}. <span ng-if="!selectedScope.readOnly">{{'APPLICATIONS.VARIABLES.EDIT_MESSAGE' | translate}}</span></p>
-          <p ng-if="_.isNotEmpty(selectedScope.expression)" style="white-space: pre;"><span a4c-compile="dump()"></span></p>
+          <p class="var-undefined" ng-if="selectedScope && _.isEmpty(selectedScope.variable.expression)">{{'APPLICATIONS.VARIABLES.UNDEFINED' | translate}}. <span ng-if="!selectedScope.readOnly">{{'APPLICATIONS.VARIABLES.EDIT_MESSAGE' | translate}}</span></p>
+          <p ng-if="_.isNotEmpty(selectedScope.variable.expression)" style="white-space: pre;"><span a4c-compile="dump()"></span></p>
         </div>
-        <div ng-if="editMode">
+        <div ng-if="editMode && !selectedScope.readOnly">
           <div ng-model="selectedScope.editorContent" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: 'true', onLoad : aceLoaded}" style="margin-top:10px; min-height: 350px;">
           </div>
         </div>
@@ -120,7 +120,7 @@
 
 
   <div class="modal-footer">
-    <a id="modal-push-button" class="btn btn-primary" ng-click=cancel()>
+    <a id="modal-push-button" class="btn btn-primary" ng-click=close()>
       {{ 'CLOSE'| translate}}
     </a>
   </div>

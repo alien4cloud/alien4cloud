@@ -8,9 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class EditorGitRemoteDTO {
-
     private String remoteName;
     private String remoteUrl;
 }

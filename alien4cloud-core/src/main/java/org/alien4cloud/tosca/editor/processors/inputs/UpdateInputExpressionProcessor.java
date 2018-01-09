@@ -23,7 +23,7 @@ public class UpdateInputExpressionProcessor extends AbstractUpdateTopologyVariab
 
     @Override
     public void process(Csar csar, Topology topology, UpdateInputExpressionOperation operation) {
-        if (!topology.getInputs().containsKey(operation.getName())) {
+        if (topology.getInputs() == null || !topology.getInputs().containsKey(operation.getName())) {
             throw new NotFoundException("Input <" + operation.getName() + "> is not defined in topology <" + topology.getId() + ">");
         }
         super.process(csar, topology, operation);

@@ -25,7 +25,7 @@ define(function (require) {
 
       return {
         // end
-        getInputs: function(expanded) {return getNode(expanded, 'inputs/inputs.yml');}
+        getInputsNode: function(expanded) {return getNode(expanded, 'inputs/inputs.yml');}
       };
     }
   ]);

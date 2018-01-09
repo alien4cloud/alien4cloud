@@ -79,7 +79,8 @@
       "VALUE": "Value",
       "DEPLOYER": "Deployer input",
       "CLEAR": "Clear",
-      "MODAL_HEADER": "Edit input < {{var}} >"
+      "MODAL_HEADER": "Edit input < {{var}} >",
+      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE": "An expression has been provided for this input value. Go to \"Expression\" tab to edit it. \nIf you want to edit it as a property, make sure to either provide an expression matching the input type, or set it empty."
     },
     "VARIABLES": {
       "APP_SCOPE": "Application scope",
@@ -91,7 +92,8 @@
       "TOGGLE_EDIT": "Toggle edit {{state}}",
       "UNSELECTED_HOLDER": "Select a scope item on the left to view the variable value",
       "EDIT_MESSAGE": "Toggle edit on to add a value.",
-      "APP_SCOPE_NOT_EDITABLE": "Please note thet application's variables can not be edited here"
+      "APP_SCOPE_NOT_EDITABLE": "Please note that application's variables can not be edited here",
+      "TYPE_TO_ADD": "Type to filter or add a variable..."
     },
     "META_PROPERTIES": "Meta-properties",
     "NEW": "New Application",
@@ -315,7 +317,8 @@
         "LABEL": "Warnings",
         "PROPERTIES": {
           "LABEL": "Nodes properties"
-        }
+        },
+        "DEPRECATION": "The node {{name}} of type {{type}}, version{{version}} is marked as deprecated. You should update it's archive version in the topology dependencies."
       },
       "YAML": "yaml"
     },
@@ -324,6 +327,10 @@
       "MESSAGE": "You are about to undeploy the following:",
       "RESOURCES_TO_UNINSTALL": "Resources to uninstall",
       "TITLE": "Uninstall reminder"
+    },
+    "VARIABLES": {
+      "HELP": "You can define varaibles at application level here. These varaibles can then be referenced in the topology and will be replaced by their value before deployment. For more information please look at the following address.",
+      "DOC_LINK": "Online documentation."
     },
     "VERSION": {
       "CHANGE_TOPO_VERSION_WARNING": "One more thing : you need to select a topology version to validate the change of application version",

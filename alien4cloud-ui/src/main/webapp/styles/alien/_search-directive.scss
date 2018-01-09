@@ -72,3 +72,11 @@ $min-width: 951px;
   border: 0px;
   cursor: pointer;
 }
+
+.filter_query:hover {
+  color: #2a6496; /*#428bca*/
+}
+
+.remove_filter_query:hover {
+  color: #d9534f; /*#428bca*/
+}

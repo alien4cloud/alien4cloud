@@ -31,8 +31,8 @@ define(function (require) {
         return $filter('a4cLinky')(yaml.safeDump(value, {indent: 4}), 'openVarModal');
       };
 
-      function refresh(expanded){
-        var inputsFileNode = topologyVariableService.getInputs(expanded);
+      function refresh(){
+        var inputsFileNode = topologyVariableService.getInputsNode($scope.topology.archiveContentTree.children[0]);
         // var inputsFileNode = topologyVariableService.getInputs($scope.topology.archiveContentTree.children[0]);
 
         if(_.defined(inputsFileNode)){
@@ -42,20 +42,12 @@ define(function (require) {
         }
       }
 
-      function updateInputFile(content) {
-        $scope.execute({
-          type: 'org.alien4cloud.tosca.editor.operations.UpdateFileContentOperation',
-          path: 'inputs/inputs.yml',
-          content: content
-        });
-      }
-
       $scope.clearInput = function(inputName) {
-        if(_.has($scope.loadedInputs, inputName)){
-          delete $scope.loadedInputs[inputName];
-          var content = yaml.safeDump($scope.loadedInputs);
-          updateInputFile(content);
-        }
+        $scope.execute({
+          type: 'org.alien4cloud.tosca.editor.operations.inputs.UpdateInputExpressionOperation',
+          name: inputName,
+          expression: null
+        });
       };
 
       $scope.editInput = function(inputName) {
@@ -97,12 +89,9 @@ define(function (require) {
         });
       };
 
-
-      var firstLoad = true;
-      $scope.$watch('topology.archiveContentTree.children[0]', function(newValue, oldValue){
-        if(_.defined(newValue) && (firstLoad || newValue !== oldValue)){
-          refresh(newValue);
-          firstLoad=false;
+      $scope.$watch('triggerVarRefresh', function(newValue){
+        if(_.defined(newValue)){
+          refresh();
         }
       });
     }

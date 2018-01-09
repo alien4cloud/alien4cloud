@@ -23,6 +23,8 @@ Feature: Topology editor: add input
       | name       | simple_input                                                                  |
       | expression | simple str value                                                              |
     Then No exception should be thrown
+    When I load preconfigured inputs
+    Then The SPEL expression "#this['simple_input']" should return "simple str value"
 
   Scenario: Update expression for an input that does not exist should fail
     When I execute the operation

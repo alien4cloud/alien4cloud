@@ -16,7 +16,7 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @Setter
 public abstract class CollectionParser<T> implements INodeParser<Collection<T>> {
     private INodeParser<T> valueParser;

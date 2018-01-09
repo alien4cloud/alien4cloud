@@ -3,13 +3,13 @@
 </div>
 <div class="modal-body">
 
-  <uib-tabset>
-    <uib-tab id="value-tab">
+  <uib-tabset active="activeTab">
+    <uib-tab id="value-tab" index="0">
       <uib-tab-heading>
         <span><i class="fa fa-code"></i> {{'APPLICATIONS.INPUTS.VALUE' | translate}}</span>
       </uib-tab-heading>
 
-      <property-display
+      <property-display ng-if="!inputExpression.obj || typeMatch"
         definition="getPropertyDefinition()"
         property-type="topology.dataTypes[getPropertyDefinition().type]"
         dependencies="topology.topology.dependencies"
@@ -19,9 +19,13 @@
         editable="true"
         condensed="true">
       </property-display>
+      <div ng-if="inputExpression.obj && !typeMatch" class="var-undefined var-scope-item">
+        {{'APPLICATIONS.INPUTS.EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE' | translate}}
+      </div>
+
     </uib-tab>
 
-    <uib-tab id="expression-tab">
+    <uib-tab id="expression-tab" index="1">
       <uib-tab-heading>
         <span><i class="fa fa-usd"></i> {{'APPLICATIONS.INPUTS.EXPRESSION' | translate}}</span>
       </uib-tab-heading>
