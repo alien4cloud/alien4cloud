@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.parser.postprocess.ICapabilityMatcherService;
@@ -55,6 +56,8 @@ public class DanglingRequirementService {
     private WorkflowsBuilderService workflowsBuilderService;
     @Resource
     private ICapabilityMatcherService capabilityMatcherService;
+    @Resource
+    private ICSARRepositorySearchService repositorySearchService;
 
     @Value("${features.editor_auto_completion}")
     private boolean enabled;
@@ -90,9 +93,12 @@ public class DanglingRequirementService {
         // TODO If the TOSCA context does not has the TOSCA normative types then add it automatically
         String danglingTemplateType = requirementDefinition.getNodeType() == null ? NormativeTypesConstant.ROOT_NODE_TYPE : requirementDefinition.getNodeType();
         NodeType danglingNodeType = ToscaContext.get(NodeType.class, danglingTemplateType);
-        String danglingRelationshipTemplateType = requirementDefinition.getRelationshipType() == null ? NormativeRelationshipConstants.ROOT
-                : requirementDefinition.getRelationshipType();
-        RelationshipType danglingRelationshipType = ToscaContext.get(RelationshipType.class, danglingRelationshipTemplateType);
+
+        List<CapabilityDefinition> compatibleCapabilityByType = capabilityMatcherService.getCompatibleCapabilityByType(danglingNodeType,
+                requirementDefinition.getType());
+        CapabilityDefinition targetCapabilityDefinition = compatibleCapabilityByType.size() == 0 ? null : compatibleCapabilityByType.get(0);
+
+        RelationshipType danglingRelationshipType = fetchValidRelationshipType(requirementDefinition, targetCapabilityDefinition);
 
         // check if the type is scalable (then count is used as a scalability parameter) or if we should add multiple instances
         CapabilityDefinition scalable = NodeTypeUtils.getCapabilityByType(danglingNodeType, NormativeCapabilityTypes.SCALABLE);
@@ -105,12 +111,12 @@ public class DanglingRequirementService {
         if (scalable == null) {
             for (int i = 0; i < count; i++) {
                 NodeTemplate addedNode = addDanglingNode(topology, topologyContext, nodeTemplate, requirementDefinition, danglingNodeType,
-                        danglingRelationshipType);
+                        danglingRelationshipType, targetCapabilityDefinition);
                 addedNodes.add(addedNode);
             }
         } else {
             NodeTemplate danglingTemplate = addDanglingNode(topology, topologyContext, nodeTemplate, requirementDefinition, danglingNodeType,
-                    danglingRelationshipType);
+                    danglingRelationshipType, targetCapabilityDefinition);
             Capability scalableCapability = danglingTemplate.getCapabilities().get(scalable.getId());
             TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, count, scalableCapability);
             TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_MAX_INSTANCES, requirementDefinition.getUpperBound(), scalableCapability);
@@ -123,8 +129,25 @@ public class DanglingRequirementService {
         }
     }
 
+    public RelationshipType fetchValidRelationshipType(RequirementDefinition requirementDefinition, CapabilityDefinition targetCapabilityDefinition) {
+        if (requirementDefinition.getRelationshipType() != null) {
+            return ToscaContext.get(RelationshipType.class, requirementDefinition.getRelationshipType());
+        }
+        if (targetCapabilityDefinition == null) {
+            return ToscaContext.get(RelationshipType.class, NormativeRelationshipConstants.ROOT);
+        }
+        // Let's fetch relationship types that matches the
+        RelationshipType relationshipType = repositorySearchService.getElementInDependencies(RelationshipType.class, ToscaContext.get().getDependencies(),
+                "validTargets", targetCapabilityDefinition.getType());
+        if (relationshipType == null) {
+            return ToscaContext.get(RelationshipType.class, NormativeRelationshipConstants.ROOT);
+        }
+        return relationshipType;
+    }
+
     private NodeTemplate addDanglingNode(Topology topology, WorkflowsBuilderService.TopologyContext topologyContext, NodeTemplate nodeTemplate,
-            RequirementDefinition requirementDefinition, NodeType danglingNodeType, RelationshipType danglingRelationshipType) {
+            RequirementDefinition requirementDefinition, NodeType danglingNodeType, RelationshipType danglingRelationshipType,
+            CapabilityDefinition targetCapabilityDefinition) {
         NodeTemplate danglingTemplate = TemplateBuilder.buildNodeTemplate(danglingNodeType);
 
         // Add the filter as defined in the node type.
@@ -150,9 +173,7 @@ public class DanglingRequirementService {
         relationshipTemplate.setName(danglingRelationshipTemplateName);
         relationshipTemplate.setTarget(danglingTemplateName);
 
-        Map<String, Capability> compatibleCapabilityByType = capabilityMatcherService.getCompatibleCapabilityByType(danglingTemplate,
-                requirementDefinition.getType());
-        String targetCapabilityName = compatibleCapabilityByType.size() == 0 ? null : compatibleCapabilityByType.entrySet().iterator().next().getKey();
+        String targetCapabilityName = targetCapabilityDefinition == null ? null : targetCapabilityDefinition.getId();
         relationshipTemplate.setTargetedCapabilityName(targetCapabilityName);
 
         relationshipTemplate.setRequirementName(requirementDefinition.getId());
@@ -160,7 +181,7 @@ public class DanglingRequirementService {
         relationshipTemplate.setType(danglingRelationshipType.getElementId());
         relationshipTemplate.setArtifacts(newLinkedHashMap(safe(danglingRelationshipType.getArtifacts())));
         relationshipTemplate.setAttributes(newLinkedHashMap(safe(danglingRelationshipType.getAttributes())));
-        Map<String, AbstractPropertyValue> properties = new LinkedHashMap<String, AbstractPropertyValue>();
+        Map<String, AbstractPropertyValue> properties = new LinkedHashMap();
         TemplateBuilder.fillProperties(properties, danglingRelationshipType.getProperties(), null);
         relationshipTemplate.setProperties(properties);
 

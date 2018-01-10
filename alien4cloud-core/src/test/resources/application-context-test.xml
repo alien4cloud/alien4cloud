@@ -41,6 +41,7 @@
         org.alien4cloud.tosca.editor,
         org.alien4cloud.tosca.topology,
         org.alien4cloud.tosca.variable,
+        org.alien4cloud.tosca.services,
         org.alien4cloud.secret.services,
         alien4cloud.ui.form">
         <context:exclude-filter type="regex"

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
@@ -446,8 +449,8 @@ public class TopologyUtils {
      * @param nodeTemplates all topology's node templates
      * @return all relationships which have targetNodeTemplate as target
      */
-    public static List<RelationshipTemplate> getTargetRelationships(String targetNodeTemplate, Map<String, NodeTemplate> nodeTemplates) {
-        List<RelationshipTemplate> toReturn = Lists.newArrayList();
+    public static List<RelationshipEntry> getTargetRelationships(String targetNodeTemplate, Map<String, NodeTemplate> nodeTemplates) {
+        List<RelationshipEntry> toReturn = Lists.newArrayList();
         for (String key : nodeTemplates.keySet()) {
             NodeTemplate nodeTemp = nodeTemplates.get(key);
             if (nodeTemp.getRelationships() == null) {
@@ -459,11 +462,19 @@ public class TopologyUtils {
                     continue;
                 }
                 if (relTemp.getTarget() != null && relTemp.getTarget().equals(targetNodeTemplate)) {
-                    toReturn.add(relTemp);
+                    toReturn.add(new RelationshipEntry(nodeTemp, relTemp));
                 }
             }
         }
 
         return toReturn;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class RelationshipEntry {
+        private NodeTemplate source;
+        private RelationshipTemplate relationship;
     }
 }

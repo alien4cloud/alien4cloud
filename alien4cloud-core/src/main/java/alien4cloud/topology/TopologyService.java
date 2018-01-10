@@ -34,6 +34,7 @@ import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.alien4cloud.tosca.utils.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils.RelationshipEntry;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -221,12 +222,10 @@ public class TopologyService {
         }
 
         // process the node template target of relationships
-        List<RelationshipTemplate> relTemplatesTargetRelated = TopologyUtils.getTargetRelationships(nodeTempEntry.getKey(),
-                topology.getNodeTemplates());
-        for (RelationshipTemplate relationshipTemplate : relTemplatesTargetRelated) {
-            addFilters(nodeTempEntry.getKey(), capabilityFilterKey, relationshipTemplate.getRequirementType(), nodeTemplatesToFilters);
+        List<RelationshipEntry> targetRelationships = TopologyUtils.getTargetRelationships(nodeTempEntry.getKey(), topology.getNodeTemplates());
+        for (RelationshipEntry targetRelationshipEntry : targetRelationships) {
+            addFilters(nodeTempEntry.getKey(), capabilityFilterKey, targetRelationshipEntry.getRelationship().getRequirementType(), nodeTemplatesToFilters);
         }
-
     }
 
     private NodeType[] getIndexedNodeTypesFromSearchResponse(final GetMultipleDataResult<NodeType> searchResult, final NodeType toExcludeIndexedNodeType)

@@ -84,7 +84,6 @@ define(function (require) {
 
           // Add node operation automatically change dependency version to higher so if different warn the user.
           var hostRequirement = _.undefined(targetNodeTemplateName) ? null: nodeTemplateService.getContainerRequirement(selectedNodeType, scope.topology.relationshipTypes, scope.topology.capabilityTypes);
-          console.log(targetNodeTemplateName, hostRequirement);
           scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation',
             nodeName: nodeTemplateName,

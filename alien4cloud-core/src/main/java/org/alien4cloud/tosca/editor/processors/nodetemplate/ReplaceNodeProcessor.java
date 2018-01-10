@@ -1,7 +1,9 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import static alien4cloud.utils.AlienUtils.safe;
+import static com.google.common.collect.Maps.newLinkedHashMap;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,6 +14,9 @@ import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -19,9 +24,12 @@ import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.services.DanglingRequirementService;
 import org.alien4cloud.tosca.utils.NodeTemplateUtils;
+import org.alien4cloud.tosca.utils.NodeTypeUtils;
 import org.alien4cloud.tosca.utils.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils.RelationshipEntry;
 import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.springframework.stereotype.Component;
 
@@ -99,14 +107,46 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
     }
 
     private void updateRelationshipsCapabilitiesRelationships(Topology topology, NodeTemplate nodeTemplate) {
-        List<RelationshipTemplate> targetRelationships = TopologyUtils.getTargetRelationships(nodeTemplate.getName(), topology.getNodeTemplates());
-        for (RelationshipTemplate targetRelationship : targetRelationships) {
+        List<RelationshipEntry> targetRelationships = TopologyUtils.getTargetRelationships(nodeTemplate.getName(), topology.getNodeTemplates());
+        for (RelationshipEntry targetRelationshipEntry : targetRelationships) {
+            RelationshipTemplate targetRelationship = targetRelationshipEntry.getRelationship();
             Capability capability = safe(nodeTemplate.getCapabilities()).get(targetRelationship.getTargetedCapabilityName());
             if (capability == null || isCapabilityNotOfType(capability, targetRelationship.getRequirementType())) {
                 Entry<String, Capability> capabilityEntry = NodeTemplateUtils.getCapabilitEntryyByType(nodeTemplate, targetRelationship.getRequirementType());
                 targetRelationship.setTargetedCapabilityName(capabilityEntry.getKey());
+                // check that the relationship type is still valid with the new capability
+                RelationshipType relationshipType = ToscaContext.get(RelationshipType.class, targetRelationship.getType());
+                if (!isValidRelationship(relationshipType, capabilityEntry.getValue())) {
+                    NodeType sourceNodeType = ToscaContext.get(NodeType.class, targetRelationshipEntry.getSource().getType());
+                    RequirementDefinition requirementDefinition = NodeTypeUtils.getRequirementById(sourceNodeType,
+                            targetRelationshipEntry.getRelationship().getRequirementName());
+                    NodeType targetNodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
+                    CapabilityDefinition capabilityDefinition = NodeTypeUtils.getCapabilityById(targetNodeType, capabilityEntry.getKey());
+                    RelationshipType validRelationshipType = danglingRequirementService.fetchValidRelationshipType(requirementDefinition, capabilityDefinition);
+
+                    targetRelationship.setType(validRelationshipType.getElementId());
+                    targetRelationship.setType(validRelationshipType.getElementId());
+                    targetRelationship.setArtifacts(newLinkedHashMap(safe(validRelationshipType.getArtifacts())));
+                    targetRelationship.setAttributes(newLinkedHashMap(safe(validRelationshipType.getAttributes())));
+                    Map<String, AbstractPropertyValue> properties = new LinkedHashMap();
+                    TemplateBuilder.fillProperties(properties, validRelationshipType.getProperties(), null);
+                    targetRelationship.setProperties(properties);
+                }
             }
         }
+    }
+
+    private boolean isValidRelationship(RelationshipType relationshipType, Capability targetCapability) {
+        if (relationshipType.getValidTargets() == null) {
+            return false;
+        }
+
+        for (String target : relationshipType.getValidTargets()) {
+            if (targetCapability.getType().equals(target)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isCapabilityNotOfType(Capability capability, String expectedCapabilityType) {
