@@ -77,7 +77,21 @@
     "INPUTS": {
       "EXPRESSION": "Expression",
       "DEPLOYER": "Deployer input",
-      "CLEAR": "Effacer"
+      "CLEAR": "Effacer",
+      "MODAL_HEADER": "Editer l'input < {{var}} >",
+      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE": "Une expression ne matchant pas le type de l'input a été renseignée. Allez dans la partie \"Expression\" pour l'editer. \nSi vous voulez editer cet input comme propriété, assurez vous de fournir soit une expression qui matche le type de l'input, soit une valeur vide."
+    },
+    "VARIABLES": {
+      "APP_SCOPE": "Scope Application",
+      "ENV_SCOPE": "Scope Environment",
+      "ENV_TYPE_SCOPE": "Scope Type d'Environment",
+      "UNDEFINED": "Non défini",
+      "MODAL_HEADER": "Où est définie la variable < {{var}} > ?",
+      "TOGGLE_EDIT": "Toggle edit {{state}}",
+      "UNSELECTED_HOLDER": "Selectionner un element de scope sur la gauche pour afficher la valeur",
+      "EDIT_MESSAGE": "Clicker sur le bouton \"Editer\" pour definir une valeur.",
+      "APP_SCOPE_NOT_EDITABLE": "Noter que les variables d'applications ne sont pas éditables ici.",
+      "TYPE_TO_ADD": "Saisir pour filtrer, ou ajouter une variable..."
     },
     "META_PROPERTIES" : "Méta-propriétés",
     "NEW" : "Nouvelle Application",
