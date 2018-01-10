@@ -76,21 +76,21 @@
     "IMAGE_UPLOAD": "Drop an image file",
     "INPUTS": {
       "EXPRESSION": "Expression",
-      "VALUE": "Value",
       "DEPLOYER": "Deployer input",
       "CLEAR": "Clear",
       "MODAL_HEADER": "Edit input < {{var}} >",
-      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE": "An expression has been provided for this input value. Go to \"Expression\" tab to edit it. \nIf you want to edit it as a property, make sure to either provide an expression matching the input type, or set it empty."
+      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE": "An expression not matching the input type has been provided. Go to \"Expression\" tab to edit it. \nIf you want to edit it as a property, make sure to either provide an expression matching the input type, or set it empty."
     },
     "VARIABLES": {
+      "APP_HELP": "You can define variables at application level here. These varaibles can then be referenced in the topology and will be replaced by their value before deployment. For more information please look at the following address.",
+      "DOC_LINK": "Online documentation.",
       "APP_SCOPE": "Application scope",
       "ENV_SCOPE": "Environment scope",
       "ENV_TYPE_SCOPE": "Environment type scope",
-      "NAME":"Variable name",
       "UNDEFINED": "Undefined",
       "MODAL_HEADER": "Where is variable < {{var}} > defined ?",
       "TOGGLE_EDIT": "Toggle edit {{state}}",
-      "UNSELECTED_HOLDER": "Select a scope item on the left to view the variable value",
+      "UNSELECTED_HOLDER": "Select a scope item on the left to view the value",
       "EDIT_MESSAGE": "Toggle edit on to add a value.",
       "APP_SCOPE_NOT_EDITABLE": "Please note that application's variables can not be edited here",
       "TYPE_TO_ADD": "Type to filter or add a variable..."
@@ -327,10 +327,6 @@
       "MESSAGE": "You are about to undeploy the following:",
       "RESOURCES_TO_UNINSTALL": "Resources to uninstall",
       "TITLE": "Uninstall reminder"
-    },
-    "VARIABLES": {
-      "HELP": "You can define varaibles at application level here. These varaibles can then be referenced in the topology and will be replaced by their value before deployment. For more information please look at the following address.",
-      "DOC_LINK": "Online documentation."
     },
     "VERSION": {
       "CHANGE_TOPO_VERSION_WARNING": "One more thing : you need to select a topology version to validate the change of application version",

@@ -4,8 +4,9 @@ define(function (require) {
 
   var modules = require('modules');
   var _ = require('lodash');
-  var yaml = require('js-yaml');
 
+  require('angular-ui-ace');
+  require('scripts/common/directives/ace_save_button');
   require('scripts/topology/services/topology_variables_service');
   require('scripts/topology/services/topology_browser_service');
   require('scripts/common/filters/a4c_linky');
@@ -69,7 +70,10 @@ define(function (require) {
 
         function setAceEditorContent(){
           if(_.defined($scope.selectedScope)){
-            $scope.selectedScope.editorContent = $scope.selectedScope.variable.expression;
+            $scope.selectedScope.editorContent = {
+              old: $scope.selectedScope.variable.expression,
+              new: $scope.selectedScope.variable.expression
+            };
           }
         }
 
@@ -142,6 +146,7 @@ define(function (require) {
             default:
               console.error('Not yet supported: ', $scope.selectedScope.scope);
           }
+          setAceEditorContent();
         };
 
         $scope.toggleEditMode = function(){
@@ -152,6 +157,10 @@ define(function (require) {
 
         $scope.dump = function() {
           return $filter('a4cLinky')($scope.selectedScope.variable.expression, 'refreshSelectedVar');
+        };
+
+        $scope.disableSave = function(){
+          return !$scope.editMode || !$scope.selectedScope || _.get($scope.selectedScope, 'readOnly', false);
         };
 
         //first load

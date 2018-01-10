@@ -40,14 +40,14 @@
     <div id="file-content" class="topology-column">
       <div ng-if="!isImage" style="margin-top:10px;">
         <div style="margin-left: 10px;">
-          <button class="btn btn-default btn-sm" id="save-file"
-            ng-disabled="!aceFilePath"
-            ng-click="saveFile()">
-            <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
-          </button>
+          <ace-save
+            size="'sm'"
+            save-callback="saveFile()"
+            content="editorContent">
+          </ace-save>
           <span class="text-info">{{aceFilePath}}<span>
         </div>
-        <div ng-model="editorContent" ui-ace="{mode: mode, useWrapMode: true, readonly: released, onLoad : aceLoaded}" style="margin-top:10px; height: {{dimensions.height - 58}}px;">
+        <div ng-model="editorContent.new" ui-ace="{mode: mode, useWrapMode: true, readonly: released, onLoad : aceLoaded}" style="margin-top:10px; height: {{dimensions.height - 58}}px;">
         </div>
       </div>
       <div ng-if="isImage" style="margin-top:10px;" class="well"><img ng-src="{{imageUrl}}" /></div>

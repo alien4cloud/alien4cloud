@@ -77,7 +77,23 @@
     "INPUTS": {
       "EXPRESSION": "Expression",
       "DEPLOYER": "Deployer input",
-      "CLEAR": "Effacer"
+      "CLEAR": "Effacer",
+      "MODAL_HEADER": "Editer l'input < {{var}} >",
+      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE": "Une expression ne matchant pas le type de l'input a été renseignée. Allez dans la partie \"Expression\" pour l'editer. \nSi vous voulez editer cet input comme propriété, assurez vous de fournir soit une expression qui matche le type de l'input, soit une valeur vide."
+    },
+    "VARIABLES": {
+      "APP_HELP": "Vous pouvez configurer ici des variables d'application. Ces variables peuvent être référencées dans la topologie et seront remplacées par leur valeur avant le déploiement. Pour plus d'information consultez l'adresse suivante.",
+      "DOC_LINK": "Documentation en ligne.",
+      "APP_SCOPE": "Scope Application",
+      "ENV_SCOPE": "Scope Environment",
+      "ENV_TYPE_SCOPE": "Scope Type d'Environment",
+      "UNDEFINED": "Non défini",
+      "MODAL_HEADER": "Où est définie la variable < {{var}} > ?",
+      "TOGGLE_EDIT": "Toggle edit {{state}}",
+      "UNSELECTED_HOLDER": "Selectionner un element de scope sur la gauche pour afficher la valeur",
+      "EDIT_MESSAGE": "Clicker sur le bouton \"Editer\" pour definir une valeur.",
+      "APP_SCOPE_NOT_EDITABLE": "Noter que les variables d'applications ne sont pas éditables ici.",
+      "TYPE_TO_ADD": "Saisir pour filtrer, ou ajouter une variable..."
     },
     "META_PROPERTIES" : "Méta-propriétés",
     "NEW" : "Nouvelle Application",
@@ -311,10 +327,6 @@
       "MESSAGE": "Vous êtes sur le point de dsintaller ce qui suit:",
       "RESOURCES_TO_UNINSTALL": "Ressources à désinstaller",
       "TITLE": "Informations concernant la désinstallation"
-    },
-    "VARIABLES": {
-      "HELP": "Vous pouvez configurer ici des variables d'application. Ces variables peuvent être référencées dans la topologie et seront remplacées par leur valeur avant le déploiement. Pour plus d'information consultez l'adresse suivante.",
-      "DOC_LINK": "Documentation en ligne."
     },
     "VERSION" : {
       "CHANGE_TOPO_VERSION_WARNING": "Encore une chose: vous devez sélectionner une version de topologie pour valider le changement de version de l'application",
