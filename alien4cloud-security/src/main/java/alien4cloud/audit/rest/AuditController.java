@@ -181,7 +181,7 @@ public class AuditController {
         if (method.getMethod() == null) {
             throw new InvalidArgumentException("Method's path or http method is null");
         }
-        Method auditedMethodKey = new Method(method.getSignature(), method.getMethod(), method.getCategory(), method.getAction());
+        Method auditedMethodKey = new Method(method.getSignature(), method.getMethod(), method.getCategory(), method.getAction(), method.getBodyHiddenFields());
         if (!auditedMethodsMap.containsKey(auditedMethodKey)) {
             throw new NotFoundException("Method " + method + " does not exist ");
         }

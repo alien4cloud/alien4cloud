@@ -25,4 +25,6 @@ public class Method {
     private String category;
 
     private String action;
+
+    private String[] bodyHiddenFields;
 }

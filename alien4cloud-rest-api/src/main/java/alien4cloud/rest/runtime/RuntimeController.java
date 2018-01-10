@@ -97,7 +97,7 @@ public class RuntimeController {
     @RequestMapping(value = "/{applicationId:.+?}/operations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @PreAuthorize("isAuthenticated()")
-    @Audit
+    @Audit(bodyHiddenFields = { "secretProviderCredentials" })
     public DeferredResult<RestResponse<Object>> executeOperation(@PathVariable String applicationId,
             @RequestBody @Valid OperationExecRequest operationRequest) {
         final DeferredResult<RestResponse<Object>> result = new DeferredResult<>(15L * 60L * 1000L);
