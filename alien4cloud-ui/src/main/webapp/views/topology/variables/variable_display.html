@@ -91,15 +91,17 @@
                 ng-click="toggleEditMode()">
                 <i class="fa fa-pencil"></i> {{'COMMON.EDIT' | translate}}
               </button>
-              <!-- <span class="vertical-center">{{'COMMON.EDIT' | translate}}: </span>
-              <span id="srv-state" class="switch" ng-click="toggleEditMode()">
-                <span class="switch-slider" ng-class="{'disabled' : !editMode , 'enabled': editMode}"></span>
-              </span> -->
-              <button class="btn btn-default btn-xs" id="save-file"
+              <ace-save
+                size="'xs'"
+                save-callback="saveEdited()"
+                content="selectedScope.editorContent"
+                disable="disableSave()">
+              </ace-save>
+              <!-- <button class="btn btn-default btn-xs" id="save-file"
                 ng-disabled="!editMode || !selectedScope || selectedScope.readOnly"
                 ng-click="saveEdited()">
                 <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
-              </button>
+              </button> -->
             </div>
           </div>
         </div>
@@ -110,7 +112,7 @@
           <p ng-if="_.isNotEmpty(selectedScope.variable.expression)" style="white-space: pre;"><span a4c-compile="dump()"></span></p>
         </div>
         <div ng-if="editMode && !selectedScope.readOnly">
-          <div ng-model="selectedScope.editorContent" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: 'true', onLoad : aceLoaded}" style="margin-top:10px; min-height: 350px;">
+          <div ng-model="selectedScope.editorContent.new" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: 'true', onLoad : aceLoaded}" style="margin-top:10px; min-height: 350px;">
           </div>
         </div>
         <div ng-if="isImage" style="margin-top:10px;" class="well"><img ng-src="{{imageUrl}}" /></div>

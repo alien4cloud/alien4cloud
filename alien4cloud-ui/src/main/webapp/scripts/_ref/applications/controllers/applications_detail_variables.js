@@ -7,6 +7,7 @@ define(function (require) {
   var angular = require('angular');
 
   require('angular-ui-ace');
+  require('scripts/common/directives/ace_save_button');
   require('scripts/_ref/applications/services/application_var_git_service');
 
   states.state('applications.detail.variables', {
@@ -79,15 +80,20 @@ define(function (require) {
       // aceEditor.getSession().setValue(result.data);
       var variablesService = $alresource('/rest/applications/:applicationId/variables');
 
+      function setAceEditorContent (content){
+        $scope.editorContent = {old: content, new: content};
+      }
       $scope.saveFile = function() {
         variablesService.create({
           applicationId: $scope.application.id
-        }, {content: aceEditor.getSession().getDocument().getValue()});
+        }, {content: aceEditor.getSession().getDocument().getValue()}, function(){
+          setAceEditorContent($scope.editorContent.new);
+        });
       };
 
       $scope.load = function() {
         variablesService.get({applicationId: $scope.application.id}).$promise.then(function(result){
-          aceEditor.getSession().setValue(result.data);
+          setAceEditorContent(result.data);
         });
       };
 
