@@ -614,6 +614,8 @@
       "UNKNOWN_TOSCA_VERSION": "Tosca version is unknown and not recognized by Alien4Cloud .",
       "UNKNWON_DISCRIMINATOR_KEY": "Key {{note}} is not known.",
       "UNKNWON_WORKFLOW_STEP": "Workflow step [{{note}}] doesn't exists and has been ignored",
+      "UNKNWON_WORKFLOW_STEP_TARGET": "The target node specified in the workflow step does not exist in the topology.",
+      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET": "The relationship defined as target of the workflow step does not exist in the specified node.",
       "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored",
       "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
       "UNRECOGNIZED_PROPERTY": "Property [ {{note}} ] is unknown and has been ignored.",

@@ -585,6 +585,8 @@
       "UNRESOLVED_ARTIFACT": "工件{{note}}无法解决。",
       "VALIDATION_ERROR": "已声明的类型无效： {{context | translate:note}}",
       "WORKFLOW_HAS_ERRORS": "工作流程 [{{note}}] 是无效的。",
+      "UNKNWON_WORKFLOW_STEP_TARGET": "The target node specified in the workflow step does not exist in the topology.",
+      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET": "The relationship defined as target of the workflow step does not exist in the specified node.",
       "YAML_MAPPING_NODE_EXPECTED": "需要映射节点。",
       "YAML_SCALAR_NODE_EXPECTED": "此处需要可扩展类型的YAML节点。",
       "YAML_SEQUENCE_EXPECTED": "需要YAML序列。",
