@@ -16,4 +16,6 @@ public @interface Audit {
     String category() default "";
 
     String action() default "";
+
+    String[] bodyHiddenFields() default {};
 }

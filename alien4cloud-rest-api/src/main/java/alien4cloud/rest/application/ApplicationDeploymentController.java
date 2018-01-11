@@ -134,7 +134,7 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Deploys the application on the configured Cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/deployment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    @Audit
+    @Audit(bodyHiddenFields = { "secretProviderCredentials" })
     public RestResponse<?> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) {
         String applicationId = deployApplicationRequest.getApplicationId();
         String environmentId = deployApplicationRequest.getApplicationEnvironmentId();
@@ -219,7 +219,7 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Un-Deploys the application on the configured PaaS.", notes = "The logged-in user must have the [ APPLICATION_MANAGER ] role for this application. Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/deployment", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    @Audit
+    @Audit(bodyHiddenFields = { "credentials" })
     public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
         return doUndeploy(applicationId, applicationEnvironmentId, secretProviderConfigurationAndCredentials);
@@ -539,7 +539,7 @@ public class ApplicationDeploymentController {
             + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/scale/{nodeTemplateId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    @Audit
+    @Audit(bodyHiddenFields = { "credentials" })
     public DeferredResult<RestResponse<Void>> scale(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @PathVariable String nodeTemplateId, @RequestParam int instances,
             @ApiParam(value = "The secret provider configuration ans credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
@@ -573,7 +573,7 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Launch a given workflow.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
     @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/workflows/{workflowName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    @Audit
+    @Audit(bodyHiddenFields = { "credentials" })
     public DeferredResult<RestResponse<Void>> launchWorkflow(
             @ApiParam(value = "Application id.", required = true) @Valid @NotBlank @PathVariable String applicationId,
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
