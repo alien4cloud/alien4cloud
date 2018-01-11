@@ -59,7 +59,7 @@ public class DanglingRequirementService {
     @Resource
     private ICSARRepositorySearchService repositorySearchService;
 
-    @Value("${features.editor_auto_completion}")
+    @Value("${features.editor_auto_completion:#{false}}")
     private boolean enabled;
 
     /**
