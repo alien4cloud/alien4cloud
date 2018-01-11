@@ -1,5 +1,29 @@
 package alien4cloud.tosca.parser.postprocess;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep;
+import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.Node;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.context.ToscaContext;
@@ -9,23 +33,6 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.NameValidationUtils;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.workflow.Workflow;
-import org.alien4cloud.tosca.model.workflow.WorkflowStep;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.Node;
-
-import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
 
 @Component
 public class WorkflowPostProcessor {
@@ -40,7 +47,8 @@ public class WorkflowPostProcessor {
      * @param topologyNode the yaml node of the topology
      */
     public void processWorkflows(Topology topology, Node topologyNode) {
-
+        // Check that step targets exists in the topology.
+        ensureReferencesExist(topology);
         // Workflow validation if any are defined
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
                 .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
@@ -64,6 +72,25 @@ public class WorkflowPostProcessor {
         finalizeParsedWorkflows(topologyContext, topologyNode);
     }
 
+    private void ensureReferencesExist(Topology topology) {
+        for (Workflow wf : safe(topology.getWorkflows().values())) {
+            for (WorkflowStep step : safe(wf.getSteps().values())) {
+                NodeTemplate stepTarget = safe(topology.getNodeTemplates()).get(step.getTarget());
+                if (stepTarget == null) {
+                    Node node = ParsingContextExecution.getObjectToNodeMap().get(step.getTarget());
+                    ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNKNWON_WORKFLOW_STEP_TARGET, null,
+                            node.getStartMark(), "The target node referenced by the workflow step do not exist.", node.getEndMark(), step.getName()));
+                } else if (step instanceof RelationshipWorkflowStep
+                        && !safe(stepTarget.getRelationships()).containsKey(((RelationshipWorkflowStep) step).getTargetRelationship())) {
+                    Node node = ParsingContextExecution.getObjectToNodeMap().get(((RelationshipWorkflowStep) step).getTargetRelationship());
+                    ParsingContextExecution.getParsingErrors()
+                            .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET, null, node.getStartMark(),
+                                    "The target relationship referenced by the workflow step do not exist.", node.getEndMark(), step.getName()));
+                }
+            }
+        }
+    }
+
     /**
      * Called after yaml parsing.
      *
@@ -82,8 +109,8 @@ public class WorkflowPostProcessor {
                 for (WorkflowStep step : wf.getSteps().values()) {
                     if (step.getActivities() == null) {
                         Node node = ParsingContextExecution.getObjectToNodeMap().get(step);
-                        ParsingContextExecution.getParsingErrors()
-                                .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.WORKFLOW_HAS_ERRORS, null, node.getStartMark(), "Step should have at least one activity", node.getEndMark(), step.getName()));
+                        ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.WORKFLOW_HAS_ERRORS, null,
+                                node.getStartMark(), "Step should have at least one activity", node.getEndMark(), step.getName()));
                         continue;
                     } else if (step.getActivities().size() < 2) {
                         continue;

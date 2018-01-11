@@ -4,7 +4,14 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Defines a dependency on a CloudServiceArchive.
@@ -12,8 +19,8 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
-@RequiredArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode(of = { "name", "version" })
 @ToString(exclude = "hash")
 public class CSARDependency {

@@ -36,6 +36,7 @@ Feature: Topology editor: delete input
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | software_component                                                    |
       | indexedNodeTypeId | tosca.nodes.SoftwareComponent:1.0.0-SNAPSHOT                          |
+    And No exception should be thrown
     And I execute the operation
       | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
       | inputName               | component_version                                                |
@@ -63,3 +64,22 @@ Feature: Topology editor: delete input
       | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
       | inputName               | simple_input                                                     |
       | propertyDefinition.type | string                                                           |
+
+  Scenario: Remove an input that is preconfigured should also remove the entry from the inputs file
+    Given I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | simple_input                                                     |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type       | org.alien4cloud.tosca.editor.operations.inputs.UpdateInputExpressionOperation |
+      | name       | simple_input                                                                  |
+      | expression | simple str value                                                              |
+    And I load preconfigured inputs
+    And The SPEL expression "#this['simple_input']" should return "simple str value"
+    When I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation |
+      | inputName | simple_input                                                        |
+    Then No exception should be thrown
+    And The SPEL expression "inputs.size()" should return 0
+    When I load preconfigured inputs
+    Then The SPEL expression "#this.size()" should return 0

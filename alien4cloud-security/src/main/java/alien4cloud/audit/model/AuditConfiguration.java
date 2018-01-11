@@ -2,16 +2,16 @@ package alien4cloud.audit.model;
 
 import java.util.Map;
 import java.util.Set;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.stream.Collectors;
 
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @ESObject
 @Getter
@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 public class AuditConfiguration {
 
     public static final String ID = "singleton";
+    public static final String FORMATTER = "*";
 
     @Id
     private String id = ID;
@@ -40,21 +41,20 @@ public class AuditConfiguration {
             return methodsMap;
         }
         for (AuditedMethod auditedMethod : auditedMethods) {
-            methodsMap.put(new Method(auditedMethod.getSignature(), auditedMethod.getMethod(), auditedMethod.getCategory(), auditedMethod.getAction()),
-                    auditedMethod.isEnabled());
+            methodsMap.put(new Method(auditedMethod.getSignature(), auditedMethod.getMethod(), auditedMethod.getCategory(), auditedMethod.getAction(),
+                    auditedMethod.getBodyHiddenFields()), auditedMethod.isEnabled());
         }
         return methodsMap;
     }
 
     @JsonIgnore
     public void setAuditedMethodsMap(Map<Method, Boolean> auditedMethodsMap) {
-        auditedMethods = Sets.newHashSet();
         if (auditedMethodsMap == null) {
             return;
         }
-        for (Map.Entry<Method, Boolean> auditedMethodsMapEntry : auditedMethodsMap.entrySet()) {
-            auditedMethods.add(new AuditedMethod(auditedMethodsMapEntry.getKey().getSignature(), auditedMethodsMapEntry.getKey().getMethod(),
-                    auditedMethodsMapEntry.getKey().getCategory(), auditedMethodsMapEntry.getKey().getAction(), auditedMethodsMapEntry.getValue()));
-        }
+        auditedMethods = auditedMethodsMap.entrySet().stream()
+                .map(m -> new AuditedMethod(m.getKey().getSignature(), m.getKey().getMethod(), m.getKey().getCategory(),
+                        m.getKey().getAction(), m.getKey().getBodyHiddenFields(), m.getValue()))
+                .collect(Collectors.toSet());
     }
 }

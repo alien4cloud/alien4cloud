@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
  */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
     private INodeParser<T> valueParser;
     /** The tosca type of the map. */

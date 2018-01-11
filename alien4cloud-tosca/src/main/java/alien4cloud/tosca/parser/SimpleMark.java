@@ -9,7 +9,7 @@ import org.yaml.snakeyaml.error.Mark;
 
 @Getter
 @Setter
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @ToString
 public class SimpleMark {
     private int line;

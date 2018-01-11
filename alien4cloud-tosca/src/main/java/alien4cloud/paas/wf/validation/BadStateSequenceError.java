@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @NoArgsConstructor
 public class BadStateSequenceError extends AbstractWorkflowError {
     private String from;

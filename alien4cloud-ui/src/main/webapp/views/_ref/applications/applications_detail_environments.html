@@ -47,10 +47,6 @@
               </td>
               <td><span editable-text="environment.description" onbeforesave="updateApplicationEnvironment('description', $data, environment.id, environment.description)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.description}} <i class="fa fa-edit"></i></span></td>
               <td>
-                <!-- Edit Git config -->
-                <button class="btn btn-success" id="edit-git-env_{{environment.name}}" ng-click="editGit(environment.id)">
-                    <i class="fa fa-git"></i>
-                </button>
                 <!-- Remove an environment -->
                 <delete-confirm class="pull-right" id="delete-env_{{environment.name}}" func="delete(environment.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>

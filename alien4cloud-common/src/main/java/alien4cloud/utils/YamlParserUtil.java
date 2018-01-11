@@ -155,7 +155,7 @@ public final class YamlParserUtil {
     }
 
     public static String dump(Object object) {
-        return object instanceof Map ? dumpAsMap(object) : snakeYaml.dump(object);
+        return object == null ? null : (object instanceof Map ? dumpAsMap(object) : snakeYaml.dump(object));
     }
 
     public static String dumpAsMap(Object object) {

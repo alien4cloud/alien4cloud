@@ -7,7 +7,7 @@ define(function (require) {
   // require('ace');
   // var range = require('ace/range');
   require('angular-ui-ace');
-
+  require('scripts/common/directives/ace_save_button');
   require('angular-tree-control');
   require('scripts/common/services/explorer_service');
   require('scripts/topology/services/topology_browser_service');
@@ -55,13 +55,18 @@ define(function (require) {
       $scope.filePath = dirName + '/';
     };
 
+    function setAceEditorContent(content) {
+      $scope.editorContent = {old:content, new:content};
+    }
+
     $scope.showSelected = function(node) {
       var dirName = node.fullPath.substring(node.fullPath.split('/', 2).join('/').length+1);
       $scope.filePath = dirName;
       topoBrowserService.getContent($scope.topology.topology, node, function(result){
         $scope.isImage = false;
         $scope.aceFilePath = dirName;
-        aceEditor.getSession().setValue(result.data);
+        setAceEditorContent(result.data);
+        // aceEditor.getSession().setValue(result.data);
         $scope.mode = explorerService.getMode(node);
       }, function(url) {
         $scope.imageUrl = url;
@@ -178,6 +183,7 @@ define(function (require) {
           $scope.showParsingErrors(response);
         }else{
           aceEditor.getSession().clearAnnotations();
+          setAceEditorContent($scope.editorContent.new);
         }
       });
     };

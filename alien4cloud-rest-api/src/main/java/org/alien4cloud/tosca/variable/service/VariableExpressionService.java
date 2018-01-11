@@ -68,8 +68,7 @@ public class VariableExpressionService {
         ScopeVariableExpressionDTO dto = new ScopeVariableExpressionDTO();
         dto.setScopeId(scopeId);
         dto.setScopeName(scopeName);
-        Object expression = variables.get(varName);
-        dto.setVariable(new Variable(varName, expression != null ? YamlParserUtil.dump(expression) : null));
+        dto.setVariable(new Variable(varName, YamlParserUtil.dump(variables.get(varName))));
         return dto;
     }
 

@@ -1,6 +1,12 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
+import static alien4cloud.utils.AlienUtils.safe;
+import static com.google.common.collect.Maps.newLinkedHashMap;
+
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
@@ -8,15 +14,28 @@ import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.services.DanglingRequirementService;
+import org.alien4cloud.tosca.utils.NodeTemplateUtils;
+import org.alien4cloud.tosca.utils.NodeTypeUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils.RelationshipEntry;
+import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import org.alien4cloud.tosca.utils.TopologyUtils;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.topology.TemplateBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +51,8 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
     private TopologyService topologyService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private DanglingRequirementService danglingRequirementService;
 
     @Override
     public void process(Csar csar, Topology topology, ReplaceNodeOperation operation) {
@@ -58,6 +79,10 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         // remove the node from the workflows
         workflowBuilderService.removeNode(topology, csar, oldNodeTemplate.getName());
 
+        // When replacing a node with another some relationships target capabilities or requirements may be impacted and moved to another capability/requirement
+        // name.
+        updateRelationshipsCapabilitiesRelationships(topology, newNodeTemplate);
+
         // FIXME we should remove outputs/inputs, others here ?
         if (topology.getSubstitutionMapping() != null) {
             removeNodeTemplateSubstitutionTargetMapEntry(oldNodeTemplate.getName(), topology.getSubstitutionMapping().getCapabilities());
@@ -68,7 +93,10 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
                 oldNodeTemplate.getName(), operation.getNewTypeId(), topology.getId());
 
         // add the new node to the workflow
-        workflowBuilderService.addNode(workflowBuilderService.buildTopologyContext(topology, csar), oldNodeTemplate.getName());
+        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
+        workflowBuilderService.addNode(topologyContext, oldNodeTemplate.getName());
+
+        danglingRequirementService.addDanglingRequirements(topology, topologyContext, newNodeTemplate, null);
     }
 
     private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {
@@ -76,5 +104,53 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
             return;
         }
         substitutionTargets.entrySet().removeIf(e -> e.getValue().getNodeTemplateName().equals(nodeTemplateName));
+    }
+
+    private void updateRelationshipsCapabilitiesRelationships(Topology topology, NodeTemplate nodeTemplate) {
+        List<RelationshipEntry> targetRelationships = TopologyUtils.getTargetRelationships(nodeTemplate.getName(), topology.getNodeTemplates());
+        for (RelationshipEntry targetRelationshipEntry : targetRelationships) {
+            RelationshipTemplate targetRelationship = targetRelationshipEntry.getRelationship();
+            Capability capability = safe(nodeTemplate.getCapabilities()).get(targetRelationship.getTargetedCapabilityName());
+            if (capability == null || isCapabilityNotOfType(capability, targetRelationship.getRequirementType())) {
+                Entry<String, Capability> capabilityEntry = NodeTemplateUtils.getCapabilitEntryyByType(nodeTemplate, targetRelationship.getRequirementType());
+                targetRelationship.setTargetedCapabilityName(capabilityEntry.getKey());
+                // check that the relationship type is still valid with the new capability
+                RelationshipType relationshipType = ToscaContext.get(RelationshipType.class, targetRelationship.getType());
+                if (!isValidRelationship(relationshipType, capabilityEntry.getValue())) {
+                    NodeType sourceNodeType = ToscaContext.get(NodeType.class, targetRelationshipEntry.getSource().getType());
+                    RequirementDefinition requirementDefinition = NodeTypeUtils.getRequirementById(sourceNodeType,
+                            targetRelationshipEntry.getRelationship().getRequirementName());
+                    NodeType targetNodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
+                    CapabilityDefinition capabilityDefinition = NodeTypeUtils.getCapabilityById(targetNodeType, capabilityEntry.getKey());
+                    RelationshipType validRelationshipType = danglingRequirementService.fetchValidRelationshipType(requirementDefinition, capabilityDefinition);
+
+                    targetRelationship.setType(validRelationshipType.getElementId());
+                    targetRelationship.setType(validRelationshipType.getElementId());
+                    targetRelationship.setArtifacts(newLinkedHashMap(safe(validRelationshipType.getArtifacts())));
+                    targetRelationship.setAttributes(newLinkedHashMap(safe(validRelationshipType.getAttributes())));
+                    Map<String, AbstractPropertyValue> properties = new LinkedHashMap();
+                    TemplateBuilder.fillProperties(properties, validRelationshipType.getProperties(), null);
+                    targetRelationship.setProperties(properties);
+                }
+            }
+        }
+    }
+
+    private boolean isValidRelationship(RelationshipType relationshipType, Capability targetCapability) {
+        if (relationshipType.getValidTargets() == null) {
+            return false;
+        }
+
+        for (String target : relationshipType.getValidTargets()) {
+            if (targetCapability.getType().equals(target)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isCapabilityNotOfType(Capability capability, String expectedCapabilityType) {
+        CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capability.getType());
+        return !ToscaTypeUtils.isOfType(capabilityType, expectedCapabilityType);
     }
 }

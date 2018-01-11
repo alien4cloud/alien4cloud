@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class CreateApplicationRequest {
     /** Name of the archive that is related to the application. This is also the application id. */
     @NotNull

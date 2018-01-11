@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class ScrollJsonResult implements Serializable {
     private static final long serialVersionUID = 1L;
     @JsonRawValue

@@ -298,6 +298,10 @@
       },
       "TITLE": "Uninstall reminder"
     },
+    "VARIABLES": {
+      "HELP": "You can define varaibles at application level here. These varaibles can then be referenced in the topology and will be replaced by their value before deployment. For more information please look at the following address.",
+      "DOC_LINK": "Online documentation."
+    },
     "VERSION" : {
       "CHANGE_TOPO_VERSION_WARNING": "One more thing : you need to select a topology version to validate the change of application version",
       "LABEL" : "Application version",
@@ -575,6 +579,8 @@
       "UNRESOLVED_ARTIFACT" : "Artifact {{note}} cannot be resolved ",
       "VALIDATION_ERROR" : "Declared type is not valid: {{context | translate:note}}",
       "WORKFLOW_HAS_ERRORS" : "Workflow [{{note}}] is not valid",
+      "UNKNWON_WORKFLOW_STEP_TARGET": "The target node specified in the workflow step does not exist in the topology.",
+      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET": "The relationship defined as target of the workflow step does not exist in the specified node.",
       "YAML_MAPPING_NODE_EXPECTED" : "A mapping node is expected.",
       "YAML_SCALAR_NODE_EXPECTED" : "A YAML node of type scalar is expected here.",
       "YAML_SEQUENCE_EXPECTED" : "A YAML sequence is expected.",

@@ -47,7 +47,6 @@ public class SuggestionEntry extends AbstractSuggestionEntry {
         return esIndex + ":" + esType + ":" + targetElementId + ":" + targetProperty;
     }
 
-    @Id
     public String getId() {
         return generateId(esIndex, esType, targetElementId, targetProperty);
     }

@@ -24,6 +24,8 @@ import alien4cloud.topology.task.RequirementToSatisfy;
 import alien4cloud.topology.task.RequirementsTask;
 import alien4cloud.topology.task.TaskCode;
 
+import static org.alien4cloud.tosca.utils.NodeTemplateUtils.countRelationshipsForRequirement;
+
 /**
  * Performs validation of the requirements and capabilities bounds.
  */
@@ -54,7 +56,7 @@ public class TopologyRequirementBoundsValidationServices {
             return false;
         }
 
-        int count = countRelationshipsForRequirement(requirementName, requirement.getType(), nodeTemplate.getRelationships());
+        int count = countRelationshipsForRequirement(nodeTemplate, requirementDefinition);
 
         return count >= requirementDefinition.getUpperBound();
     }
@@ -86,7 +88,7 @@ public class TopologyRequirementBoundsValidationServices {
             task.setRequirementsToImplement(Lists.<RequirementToSatisfy> newArrayList());
             if (CollectionUtils.isNotEmpty(relatedIndexedNodeType.getRequirements())) {
                 for (RequirementDefinition reqDef : relatedIndexedNodeType.getRequirements()) {
-                    int count = countRelationshipsForRequirement(reqDef.getId(), reqDef.getType(), nodeTemp.getRelationships());
+                    int count = countRelationshipsForRequirement(nodeTemp, reqDef);
                     if (count < reqDef.getLowerBound()) {
                         task.getRequirementsToImplement().add(new RequirementToSatisfy(reqDef.getId(), reqDef.getType(), reqDef.getLowerBound() - count));
                     }
@@ -97,27 +99,6 @@ public class TopologyRequirementBoundsValidationServices {
             }
         }
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
-    }
-
-    /**
-     * Get the number of relationships from a node template that are actually linked to the given requirement.
-     * 
-     * @param requirementName Name of the requirement for which to count relationships
-     * @param requirementType Type of the requirement for which to count relationships
-     * @param relationships Relationships connected to the node that holds the requirement.
-     * @return The number of relationships connected to the given requirement.
-     */
-    private int countRelationshipsForRequirement(String requirementName, String requirementType, Map<String, RelationshipTemplate> relationships) {
-        int count = 0;
-        if (relationships == null) {
-            return 0;
-        }
-        for (Map.Entry<String, RelationshipTemplate> relEntry : relationships.entrySet()) {
-            if (relEntry.getValue().getRequirementName().equals(requirementName) && relEntry.getValue().getRequirementType().equals(requirementType)) {
-                count++;
-            }
-        }
-        return count;
     }
 
     private RequirementDefinition getRequirementDefinition(Collection<RequirementDefinition> requirementDefinitions, String requirementName,

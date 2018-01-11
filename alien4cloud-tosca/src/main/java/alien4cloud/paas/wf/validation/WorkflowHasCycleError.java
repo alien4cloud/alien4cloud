@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @NoArgsConstructor
 public class WorkflowHasCycleError extends AbstractWorkflowError {
 

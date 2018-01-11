@@ -2,7 +2,7 @@ package org.alien4cloud.tosca.model.templates;
 
 import lombok.*;
 
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter

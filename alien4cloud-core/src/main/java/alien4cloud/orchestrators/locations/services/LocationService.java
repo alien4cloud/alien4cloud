@@ -50,6 +50,7 @@ import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationSupport;
+import alien4cloud.orchestrators.locations.events.AfterLocationCreated;
 import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import alien4cloud.orchestrators.locations.events.BeforeLocationDeleted;
 import alien4cloud.orchestrators.locations.events.OnLocationResourceChangeEvent;
@@ -150,6 +151,8 @@ public class LocationService {
         location.setOrchestratorId(orchestratorId);
 
         createLocation(orchestrator, location, infrastructureType);
+
+        publisher.publishEvent(new AfterLocationCreated(this, location));
 
         return location.getId();
     }

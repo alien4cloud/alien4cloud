@@ -25,7 +25,7 @@
               <div class="content-head clickable"
                 ng-click="toggle('envType')">
                 {{'APPLICATIONS.VARIABLES.ENV_TYPE_SCOPE' | translate}}
-                <i style="padding-right: .8em;" class="vertical-align-middle fa" ng-class="{'fa-caret-down' : !collapsed.envType, 'fa-caret-right': collapsed.envType}"></i>
+                <i class="vertical-center fa" ng-class="{'fa-caret-down' : !collapsed.envType, 'fa-caret-right': collapsed.envType}"></i>
               </div>
               <div uib-collapse="collapsed.envType">
                 <!-- inplace search bar-->
@@ -36,11 +36,14 @@
                 </form>
                 <div class="var-scope-item clickable"
                      ng-repeat="varDTO in envTypeScopeDTO | filter:searchEnvType"
-                     ng-click="showEnvTypeVarExpression(varDTO)"
+                     ng-click="showEnvTypeVarExpression(varDTO, $event)"
                      ng-class= "{'var-defined': varDTO.variable.expression,
                                  'var-undefined': !varDTO.variable.expression,
                                  'var-scope-selected': selectedScope.scopeId === varDTO.scopeId}" >
                   <span>{{varDTO.scopeName}}</span>
+                  <i class="fa fa-times text-danger pull-right var-scope-delete"
+                      ng-click="deleteEnvTypeVarExpression(varDTO, $event)"
+                      uib-tooltip="{{'APPLICATIONS.INPUTS.CLEAR' | translate }}"></i>
                 </div>
               </div>
             </div>
@@ -49,7 +52,7 @@
               <div class="content-head clickable"
                 ng-click="toggle('env')">
                 {{'APPLICATIONS.VARIABLES.ENV_SCOPE' | translate}}
-                <i style="padding-right: .8em;" class="vertical-align-middle fa" ng-class="{'fa-caret-down' : !collapsed.env, 'fa-caret-right': collapsed.env}"></i>
+                <i class="vertical-center fa" ng-class="{'fa-caret-down' : !collapsed.env, 'fa-caret-right': collapsed.env}"></i>
               </div>
               <div uib-collapse="collapsed.env">
                 <!-- inplace search bar-->
@@ -60,11 +63,14 @@
                 </form>
                 <div class="var-scope-item clickable"
                      ng-repeat="varDTO in envScopeDTO | filter:searchEnv"
-                     ng-click="showEnvVarExpression(varDTO)"
+                     ng-click="showEnvVarExpression(varDTO, $event)"
                      ng-class= "{'var-defined': varDTO.variable.expression,
                                  'var-undefined': !varDTO.variable.expression,
                                  'var-scope-selected': selectedScope.scopeId === varDTO.scopeId}" >
                   <span>{{varDTO.scopeName}}</span> (<span>{{varDTO.scopeId}}</span>)
+                  <i class="fa fa-times text-danger pull-right vertical-center var-scope-delete"
+                      ng-click="deleteEnvVarExpression(varDTO, $event)"
+                      uib-tooltip="{{'APPLICATIONS.INPUTS.CLEAR' | translate }}"></i>
                 </div>
               </div>
             </div>
@@ -91,15 +97,17 @@
                 ng-click="toggleEditMode()">
                 <i class="fa fa-pencil"></i> {{'COMMON.EDIT' | translate}}
               </button>
-              <!-- <span class="vertical-center">{{'COMMON.EDIT' | translate}}: </span>
-              <span id="srv-state" class="switch" ng-click="toggleEditMode()">
-                <span class="switch-slider" ng-class="{'disabled' : !editMode , 'enabled': editMode}"></span>
-              </span> -->
-              <button class="btn btn-default btn-xs" id="save-file"
+              <ace-save
+                size="'xs'"
+                save-callback="saveEdited()"
+                content="selectedScope.editorContent"
+                disable="disableSave()">
+              </ace-save>
+              <!-- <button class="btn btn-default btn-xs" id="save-file"
                 ng-disabled="!editMode || !selectedScope || selectedScope.readOnly"
                 ng-click="saveEdited()">
                 <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
-              </button>
+              </button> -->
             </div>
           </div>
         </div>
@@ -110,7 +118,7 @@
           <p ng-if="_.isNotEmpty(selectedScope.variable.expression)" style="white-space: pre;"><span a4c-compile="dump()"></span></p>
         </div>
         <div ng-if="editMode && !selectedScope.readOnly">
-          <div ng-model="selectedScope.editorContent" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: 'true', onLoad : aceLoaded}" style="margin-top:10px; min-height: 350px;">
+          <div ng-model="selectedScope.editorContent.new" ui-ace="{mode: 'yaml', useWrapMode: true, readonly: 'true', onLoad : aceLoaded}" style="margin-top:10px; min-height: 350px;">
           </div>
         </div>
         <div ng-if="isImage" style="margin-top:10px;" class="well"><img ng-src="{{imageUrl}}" /></div>

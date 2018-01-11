@@ -304,6 +304,10 @@
       "RESOURCES_TO_UNINSTALL": "将要卸载的资源",
       "TITLE": "卸载提醒者"
     },
+    "VARIABLES": {
+      "HELP": "You can define varaibles at application level here. These varaibles can then be referenced in the topology and will be replaced by their value before deployment. For more information please look at the following address.",
+      "DOC_LINK": "Online documentation."
+    },
     "VERSION": {
       "CHANGE_TOPO_VERSION_WARNING": "还有一件事情：您需要选择一个拓扑版本去确认应用版本的更改",
       "LABEL": "应用版本",
@@ -581,6 +585,8 @@
       "UNRESOLVED_ARTIFACT": "工件{{note}}无法解决。",
       "VALIDATION_ERROR": "已声明的类型无效： {{context | translate:note}}",
       "WORKFLOW_HAS_ERRORS": "工作流程 [{{note}}] 是无效的。",
+      "UNKNWON_WORKFLOW_STEP_TARGET": "The target node specified in the workflow step does not exist in the topology.",
+      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET": "The relationship defined as target of the workflow step does not exist in the specified node.",
       "YAML_MAPPING_NODE_EXPECTED": "需要映射节点。",
       "YAML_SCALAR_NODE_EXPECTED": "此处需要可扩展类型的YAML节点。",
       "YAML_SEQUENCE_EXPECTED": "需要YAML序列。",

@@ -3,6 +3,7 @@ package org.alien4cloud.tosca.model.templates;
 import java.util.Map;
 import java.util.Set;
 
+import org.alien4cloud.tosca.model.definitions.NodeFilter;
 import org.elasticsearch.annotation.MapKeyValue;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -58,6 +59,15 @@ public class NodeTemplate extends AbstractInstantiableTemplate {
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, Capability> capabilities;
+
+    /** This flag allows to know if the node represents a dangling requirement. */
+    private boolean isDanglingRequirement = false;
+
+    /**
+     * Optional node filter for abstract nodes that replaces the usage of properties and capabilities (moved to equals constraints in the node filter).
+     * Node filter is also used for dangling requirements nodes.
+     */
+    private NodeFilter nodeFilter;
 
     /**
      * The {@link NodeGroup}s this template is member of.

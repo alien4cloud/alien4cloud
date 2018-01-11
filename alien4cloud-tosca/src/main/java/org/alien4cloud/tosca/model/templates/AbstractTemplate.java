@@ -30,7 +30,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public abstract class AbstractTemplate {
     /** Name of the template. Same value as it's key in the map. */
     @StringField(indexType = IndexType.no, includeInAll = false)

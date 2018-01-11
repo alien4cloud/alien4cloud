@@ -17,7 +17,7 @@ public class DataTableUtils {
      */
     public static Map<String, Object> dataTableToMap(DataTable table) {
         Map<String, Object> configuration = new HashMap<>();
-        table.getGherkinRows().stream().forEach(dataTableRow -> {
+        table.getGherkinRows().forEach(dataTableRow -> {
             String key = dataTableRow.getCells().get(0);
             String value = dataTableRow.getCells().get(1);
             Object processedValue = System.getenv(value);

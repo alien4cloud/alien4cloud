@@ -10,8 +10,8 @@ define(function (require) {
 
   require('scripts/common/controllers/confirm_modal');
 
-  modules.get('a4c-topology-editor').factory('topoEditNodes', ['toscaService', '$filter', '$uibModal', '$translate',
-    function(toscaService, $filter, $uibModal, $translate) {
+  modules.get('a4c-topology-editor').factory('topoEditNodes', ['toscaService', '$filter', '$uibModal', '$translate', 'nodeTemplateService',
+    function(toscaService, $filter, $uibModal, $translate, nodeTemplateService) {
       var nodeNamePattern = '^\\w+$';
 
       var TopologyEditorMixin = function(scope) {
@@ -80,12 +80,16 @@ define(function (require) {
         /** Actually trigger the node template addition. */
         doAddNodeTemplate: function(nodeTemplateName, selectedNodeType, targetNodeTemplateName, dropCoord) {
           var scope = this.scope;
+          // requirementSkipAutoCompletion
+
           // Add node operation automatically change dependency version to higher so if different warn the user.
+          var hostRequirement = _.undefined(targetNodeTemplateName) ? null: nodeTemplateService.getContainerRequirement(selectedNodeType, scope.topology.relationshipTypes, scope.topology.capabilityTypes);
           scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation',
             nodeName: nodeTemplateName,
             indexedNodeTypeId: selectedNodeType.id,
-            coords: dropCoord
+            coords: dropCoord,
+            requirementSkipAutoCompletion: hostRequirement
           }, function(result) {
             if (_.undefined(result.error) && targetNodeTemplateName) {
               // drag a node on another node
