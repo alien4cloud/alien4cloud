@@ -1,10 +1,10 @@
 package alien4cloud.paas.wf;
 
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
-import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
-import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
-import alien4cloud.paas.wf.util.WorkflowUtils;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
@@ -17,10 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
+import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
+import alien4cloud.paas.wf.util.WorkflowUtils;
 
 public abstract class AbstractWorkflowBuilder {
 
@@ -40,8 +40,8 @@ public abstract class AbstractWorkflowBuilder {
             throw new InconsistentWorkflowException(
                     String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", to));
         }
-        fromStep.getOnSuccess().remove(to);
-        toStep.getPrecedingSteps().remove(from);
+        fromStep.removeFollowing(to);
+        toStep.removePreceding(from);
     }
 
     void connectStepFrom(Workflow wf, String stepId, String[] stepNames) {
@@ -187,20 +187,20 @@ public abstract class AbstractWorkflowBuilder {
         }
         WorkflowStep step = wf.getSteps().remove(stepId);
         step.setName(newStepName);
-        wf.getSteps().put(newStepName, step);
+        wf.addStep(step);
         // now explore the links
         if (step.getPrecedingSteps() != null) {
             for (String precedingId : step.getPrecedingSteps()) {
                 WorkflowStep precedingStep = wf.getSteps().get(precedingId);
-                precedingStep.getOnSuccess().remove(stepId);
-                precedingStep.getOnSuccess().add(newStepName);
+                precedingStep.removeFollowing(stepId);
+                precedingStep.addFollowing(newStepName);
             }
         }
         if (step.getOnSuccess() != null) {
             for (String followingId : step.getOnSuccess()) {
                 WorkflowStep followingStep = wf.getSteps().get(followingId);
-                followingStep.getPrecedingSteps().remove(stepId);
-                followingStep.getPrecedingSteps().add(newStepName);
+                followingStep.removePreceding(stepId);
+                followingStep.addPreceding(newStepName);
             }
         }
     }

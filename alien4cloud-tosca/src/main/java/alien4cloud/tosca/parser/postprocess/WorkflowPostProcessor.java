@@ -24,6 +24,7 @@ import org.yaml.snakeyaml.nodes.Node;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.context.ToscaContext;
@@ -50,30 +51,29 @@ public class WorkflowPostProcessor {
         // Check that step targets exists in the topology.
         ensureReferencesExist(topology);
         // Workflow validation if any are defined
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
-                .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
-                    @Override
-                    public String getDSLVersion() {
-                        return ParsingContextExecution.getDefinitionVersion();
-                    }
+        TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new TopologyContext() {
+            @Override
+            public String getDSLVersion() {
+                return ParsingContextExecution.getDefinitionVersion();
+            }
 
-                    @Override
-                    public Topology getTopology() {
-                        return topology;
-                    }
+            @Override
+            public Topology getTopology() {
+                return topology;
+            }
 
-                    @Override
-                    public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
-                        return ToscaContext.get(clazz, id);
-                    }
-                });
+            @Override
+            public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
+                return ToscaContext.get(clazz, id);
+            }
+        });
         // If the workflow contains steps with multiple activities then split them into single activity steps
         splitMultipleActivitiesSteps(topologyContext);
         finalizeParsedWorkflows(topologyContext, topologyNode);
     }
 
     private void ensureReferencesExist(Topology topology) {
-        for (Workflow wf : safe(topology.getWorkflows().values())) {
+        for (Workflow wf : safe(topology.getWorkflows()).values()) {
             for (WorkflowStep step : safe(wf.getSteps().values())) {
                 NodeTemplate stepTarget = safe(topology.getNodeTemplates()).get(step.getTarget());
                 if (stepTarget == null) {
@@ -97,7 +97,7 @@ public class WorkflowPostProcessor {
      * Add support of activities on alien-dsl-2.0.0 and higher.
      * For activity, other than the first, we create 1 step per activity.
      */
-    private void splitMultipleActivitiesSteps(WorkflowsBuilderService.TopologyContext topologyContext) {
+    private void splitMultipleActivitiesSteps(TopologyContext topologyContext) {
         if (!ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion()) || MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
             return;
         }
@@ -149,7 +149,7 @@ public class WorkflowPostProcessor {
                 });
 
                 // add new steps to the workflow
-                wf.getSteps().putAll(stepsToAdd);
+                wf.addAllSteps(stepsToAdd);
             }
         }
     }
@@ -157,7 +157,7 @@ public class WorkflowPostProcessor {
     /**
      * Called after yaml parsing.
      */
-    private void finalizeParsedWorkflows(WorkflowsBuilderService.TopologyContext topologyContext, Node node) {
+    private void finalizeParsedWorkflows(TopologyContext topologyContext, Node node) {
         if (MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
             return;
         }

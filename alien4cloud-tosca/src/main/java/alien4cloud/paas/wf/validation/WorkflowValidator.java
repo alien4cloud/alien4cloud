@@ -6,7 +6,7 @@ import java.util.List;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
+import alien4cloud.paas.wf.TopologyContext;
 
 @Component
 public class WorkflowValidator {

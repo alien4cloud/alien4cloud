@@ -6,8 +6,10 @@ import java.util.List;
 
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.junit.Assert;
 import org.junit.Test;
 
+import alien4cloud.paas.wf.model.Path;
 import alien4cloud.paas.wf.util.WorkflowGraphUtils;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -112,6 +114,24 @@ public class GraphPathsTest {
         WorkflowUtils.linkSteps(a, b);
         WorkflowUtils.linkSteps(b, a);
         List<Path> paths = WorkflowGraphUtils.getWorkflowGraphCycles(wf);
+        System.out.println(paths);
+        Assert.assertEquals(1, paths.size());
+        log.info(paths.toString());
+    }
+
+    @Test
+    public void testCycles() {
+        Workflow wf = new Workflow();
+        wf.setName(INSTALL);
+        WorkflowStep a = wf.addStep(new SimpleStep("a"));
+        WorkflowStep b = wf.addStep(new SimpleStep("b"));
+        WorkflowStep c = wf.addStep(new SimpleStep("c"));
+        WorkflowUtils.linkSteps(a, b);
+        WorkflowUtils.linkSteps(b, c);
+        WorkflowUtils.linkSteps(c, a);
+        List<Path> paths = WorkflowGraphUtils.getWorkflowGraphCycles(wf);
+        System.out.println(paths);
+        Assert.assertEquals(1, paths.size());
         log.info(paths.toString());
     }
 }

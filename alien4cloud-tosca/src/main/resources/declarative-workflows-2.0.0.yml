@@ -121,8 +121,10 @@ relationship_workflows:
           following_state: configured
         operation_host: TARGET
       add_source:
-        # source.started -> add_source
+        # [source.started, target.started] -> add_source
         source:
+          preceding_state: started
+        target:
           preceding_state: started
         operation_host: TARGET
       add_target:
@@ -134,22 +136,27 @@ relationship_workflows:
     # If we join all source and operation dependencies, we have a relationship workflow
     # remove_source -> target.stopping -> target.stop
     # remove_target -> source.stopping -> source.stop
-
     operations:
       remove_source:
-        # remove_source -> source.stopping
-        source:
-          following_state: stopping
+        # target.stopping -> remove_source -> stop
+        target:
+          preceding_state: stopping
+          following_operations: [ stop ]
         operation_host: TARGET
       remove_target:
-        # remove_target -> source.stopping
+        # source.stopping -> remove_target -> stop
         source:
-          following_state: stopping
+          preceding_state: stopping
+          following_operations: [ stop ]
         operation_host: SOURCE
+
   start:
     operations:
       add_source:
+        # [source.started, target.started] -> add_source
         source:
+          preceding_state: started
+        target:
           preceding_state: started
         operation_host: TARGET
       add_target:
@@ -159,14 +166,16 @@ relationship_workflows:
   stop:
     operations:
       remove_source:
-        # remove_source -> source.stopping
-        source:
-          following_state: stopping
+        # target.stopping -> remove_source -> stop
+        target:
+          preceding_state: stopping
+          following_operations: [ stop ]
         operation_host: TARGET
       remove_target:
-        # remove_target -> source.stopping
+        # source.stopping -> remove_target -> stop
         source:
-          following_state: stopping
+          preceding_state: stopping
+          following_operations: [ stop ]
         operation_host: SOURCE
 
 relationships_weaving:

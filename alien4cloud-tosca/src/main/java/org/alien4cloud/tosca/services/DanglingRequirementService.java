@@ -40,6 +40,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.parser.postprocess.ICapabilityMatcherService;
@@ -68,8 +69,7 @@ public class DanglingRequirementService {
      * @param topology The topology template
      * @param nodeTemplate The specific node template for which to add dangling requirements.
      */
-    public void addDanglingRequirements(Topology topology, WorkflowsBuilderService.TopologyContext topologyContext, NodeTemplate nodeTemplate,
-            String requirementSkipAutoCompletion) {
+    public void addDanglingRequirements(Topology topology, TopologyContext topologyContext, NodeTemplate nodeTemplate, String requirementSkipAutoCompletion) {
         if (!enabled) {
             return;
         }
@@ -88,8 +88,8 @@ public class DanglingRequirementService {
         }
     }
 
-    private void addDanglingNodes(Topology topology, WorkflowsBuilderService.TopologyContext topologyContext, NodeTemplate nodeTemplate,
-            RequirementDefinition requirementDefinition, int count) {
+    private void addDanglingNodes(Topology topology, TopologyContext topologyContext, NodeTemplate nodeTemplate, RequirementDefinition requirementDefinition,
+            int count) {
         // TODO If the TOSCA context does not has the TOSCA normative types then add it automatically
         String danglingTemplateType = requirementDefinition.getNodeType() == null ? NormativeTypesConstant.ROOT_NODE_TYPE : requirementDefinition.getNodeType();
         NodeType danglingNodeType = ToscaContext.get(NodeType.class, danglingTemplateType);
@@ -145,7 +145,7 @@ public class DanglingRequirementService {
         return relationshipType;
     }
 
-    private NodeTemplate addDanglingNode(Topology topology, WorkflowsBuilderService.TopologyContext topologyContext, NodeTemplate nodeTemplate,
+    private NodeTemplate addDanglingNode(Topology topology, TopologyContext topologyContext, NodeTemplate nodeTemplate,
             RequirementDefinition requirementDefinition, NodeType danglingNodeType, RelationshipType danglingRelationshipType,
             CapabilityDefinition targetCapabilityDefinition) {
         NodeTemplate danglingTemplate = TemplateBuilder.buildNodeTemplate(danglingNodeType);

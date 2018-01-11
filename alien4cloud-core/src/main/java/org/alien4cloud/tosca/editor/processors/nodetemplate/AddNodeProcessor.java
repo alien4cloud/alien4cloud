@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.model.common.Tag;
+import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.topology.TemplateBuilder;
@@ -82,7 +83,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         log.debug("Adding a new Node template <" + operation.getNodeName() + "> bound to the node type <" + operation.getIndexedNodeTypeId()
                 + "> to the topology <" + topology.getId() + "> .");
 
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
+        TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         workflowBuilderService.addNode(topologyContext, operation.getNodeName());
 
         danglingRequirementService.addDanglingRequirements(topology, topologyContext, nodeTemplate, operation.getRequirementSkipAutoCompletion());

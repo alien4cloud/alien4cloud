@@ -3,11 +3,11 @@ package org.alien4cloud.tosca.model.templates;
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.model.common.Tag;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
@@ -33,6 +33,7 @@ import com.google.common.collect.Sets;
 import alien4cloud.json.deserializer.NodeTemplateDeserializer;
 import alien4cloud.model.common.IDatableResource;
 import alien4cloud.model.common.IWorkspaceResource;
+import alien4cloud.model.common.Tag;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
@@ -154,6 +155,14 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     @ObjectField(enabled = false)
     @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, Workflow> workflows;
+
+    /**
+     * This fields save workflows as it's declared in declarative workflows without any post processing.
+     * This is necessary as post processing (flatten, remove unnecessary links, nodes) may change the workflow and make the declarative workflows not working.
+     */
+    @ObjectField(enabled = false)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
+    private Map<String, Workflow> unprocessedWorkflows = new HashMap<>();
 
     /* Archive meta-data are also set as topology tags. */
     @NestedObject(nestedClass = Tag.class)

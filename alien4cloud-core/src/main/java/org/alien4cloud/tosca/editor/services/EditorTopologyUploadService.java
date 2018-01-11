@@ -1,12 +1,12 @@
 package org.alien4cloud.tosca.editor.services;
 
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.tosca.parser.ToscaArchiveParser;
+import static alien4cloud.utils.AlienUtils.safe;
+
+import java.nio.file.Path;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
 import org.alien4cloud.tosca.catalog.ArchiveParserUtil;
 import org.alien4cloud.tosca.catalog.IArchivePostProcessor;
 import org.alien4cloud.tosca.editor.EditionContextManager;
@@ -19,11 +19,14 @@ import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import java.nio.file.Path;
-
-import static alien4cloud.utils.AlienUtils.safe;
+import alien4cloud.paas.wf.TopologyContext;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.tosca.parser.ToscaArchiveParser;
 
 /**
  * Process the upload of a topology in the context of the editor.
@@ -96,23 +99,22 @@ public class EditorTopologyUploadService {
         ToscaContext.get().resetDependencies(parsedTopology.getDependencies());
 
         // init the workflows for the topology based on the yaml
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
-                .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
-                    @Override
-                    public String getDSLVersion() {
-                        return definitionVersion;
-                    }
+        TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new TopologyContext() {
+            @Override
+            public String getDSLVersion() {
+                return definitionVersion;
+            }
 
-                    @Override
-                    public Topology getTopology() {
-                        return parsedTopology;
-                    }
+            @Override
+            public Topology getTopology() {
+                return parsedTopology;
+            }
 
-                    @Override
-                    public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
-                        return ToscaContext.get(clazz, id);
-                    }
-                });
+            @Override
+            public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
+                return ToscaContext.get(clazz, id);
+            }
+        });
         for (Workflow wf : safe(topologyContext.getTopology().getWorkflows()).values()) {
             wf.setHasCustomModifications(true);
         }

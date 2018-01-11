@@ -1,18 +1,19 @@
 package org.alien4cloud.tosca.model.workflow;
 
-import alien4cloud.paas.wf.validation.AbstractWorkflowError;
-import lombok.Getter;
-import lombok.Setter;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.workflow.conditions.PreconditionDefinition;
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.workflow.conditions.PreconditionDefinition;
+import org.apache.commons.collections4.CollectionUtils;
+
+import alien4cloud.paas.wf.validation.AbstractWorkflowError;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Tosca Workflow that can be executed on a topology.
@@ -49,6 +50,11 @@ public class Workflow {
     public WorkflowStep addStep(WorkflowStep step) {
         steps.put(step.getName(), step);
         return step;
+    }
+
+    public Map<String, WorkflowStep> addAllSteps(Map<String, WorkflowStep> steps) {
+        this.steps.putAll(steps);
+        return this.steps;
     }
 
     public void clearErrors() {

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.alien4cloud.tosca.model.workflow.Workflow;
 
-import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
+import alien4cloud.paas.wf.TopologyContext;
 
 public interface Rule {
 

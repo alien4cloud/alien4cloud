@@ -10,7 +10,7 @@ import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 
-import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
+import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.exception.WorkflowException;
 import lombok.extern.slf4j.Slf4j;
 

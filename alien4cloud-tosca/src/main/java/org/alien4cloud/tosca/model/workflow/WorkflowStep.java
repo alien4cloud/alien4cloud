@@ -73,15 +73,31 @@ public abstract class WorkflowStep {
         this.precedingSteps.add(name);
     }
 
-    public void removePreceding(String name) {
-        this.precedingSteps.remove(name);
+    public void addAllPrecedings(Set<String> precedings) {
+        this.precedingSteps.addAll(precedings);
+    }
+
+    public void removeAllPrecedings(Set<String> precedingSteps) {
+        this.precedingSteps.removeAll(precedingSteps);
+    }
+
+    public boolean removePreceding(String name) {
+        return this.precedingSteps.remove(name);
     }
 
     public void addFollowing(String name) {
         this.onSuccess.add(name);
     }
 
-    public void removeFollowing(String name) {
-        this.onSuccess.remove(name);
+    public void addAllFollowings(Set<String> followings) {
+        this.onSuccess.addAll(followings);
+    }
+
+    public boolean removeFollowing(String name) {
+        return this.onSuccess.remove(name);
+    }
+
+    public void removeAllFollowings(Set<String> followings) {
+        this.onSuccess.removeAll(followings);
     }
 }

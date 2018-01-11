@@ -33,6 +33,7 @@ import org.alien4cloud.tosca.utils.TopologyUtils.RelationshipEntry;
 import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.context.ToscaContext;
@@ -93,7 +94,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
                 oldNodeTemplate.getName(), operation.getNewTypeId(), topology.getId());
 
         // add the new node to the workflow
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
+        TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         workflowBuilderService.addNode(topologyContext, oldNodeTemplate.getName());
 
         danglingRequirementService.addDanglingRequirements(topology, topologyContext, newNodeTemplate, null);
