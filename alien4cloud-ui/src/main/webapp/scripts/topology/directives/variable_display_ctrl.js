@@ -83,6 +83,28 @@ define(function (require) {
           setAceEditorContent();
         }
 
+        function stopEventPropagation($event){
+          if($event){
+            $event.stopPropagation();
+          }
+        }
+
+        function saveEnvVar(envId, expression){
+          var operation = {name: $scope.varName};
+          operation.type = 'org.alien4cloud.tosca.editor.operations.variable.UpdateEnvironmentVariableOperation';
+          operation.environmentId=envId;
+          operation.expression=expression;
+          $scope.execute(operation);
+        }
+
+        function saveEnvTypeVar(envType, expression){
+          var operation = {name: $scope.varName};
+          operation.type = 'org.alien4cloud.tosca.editor.operations.variable.UpdateEnvironmentTypeVariableOperation';
+          operation.environmentType=envType;
+          operation.expression=expression;
+          $scope.execute(operation);
+        }
+
         $scope.showAppVarExpression = function(variable){
           showVarExpression('APP', {
             scopeName: $scope.topology.topology.archiveName,
@@ -92,12 +114,26 @@ define(function (require) {
           });
         };
 
-        $scope.showEnvVarExpression = function(varDTO){
+        $scope.showEnvVarExpression = function(varDTO, $event){
           showVarExpression('ENV', varDTO);
+          stopEventPropagation($event);
         };
 
-        $scope.showEnvTypeVarExpression = function(varDTO){
+        $scope.showEnvTypeVarExpression = function(varDTO, $event){
           showVarExpression('ENV_TYPE', varDTO);
+          stopEventPropagation($event);
+        };
+
+        $scope.deleteEnvVarExpression = function(varDTO, $event){
+          saveEnvVar(varDTO.scopeId, null);
+          varDTO.variable.expression=null;
+          stopEventPropagation($event);
+        };
+
+        $scope.deleteEnvTypeVarExpression = function(varDTO, $event){
+          saveEnvTypeVar(varDTO.scopeId, null);
+          varDTO.variable.expression=null;
+          stopEventPropagation($event);
         };
 
         $scope.close = function() {
@@ -127,25 +163,18 @@ define(function (require) {
         };
 
         $scope.saveEdited = function(){
-          var operation = {name: $scope.varName};
           switch ($scope.selectedScope.scope) {
             case 'ENV':
-              operation.type = 'org.alien4cloud.tosca.editor.operations.variable.UpdateEnvironmentVariableOperation';
-              operation.environmentId=$scope.selectedScope.scopeId;
-              operation.expression=aceEditor.getSession().getDocument().getValue();
-              $scope.execute(operation);
-              $scope.selectedScope.variable.expression=operation.expression;
+              saveEnvVar($scope.selectedScope.scopeId, $scope.selectedScope.editorContent.new);
               break;
             case 'ENV_TYPE':
-              operation.type = 'org.alien4cloud.tosca.editor.operations.variable.UpdateEnvironmentTypeVariableOperation';
-              operation.environmentType=$scope.selectedScope.scopeId;
-              operation.expression=aceEditor.getSession().getDocument().getValue();
-              $scope.execute(operation);
-              $scope.selectedScope.variable.expression=operation.expression;
+              saveEnvTypeVar($scope.selectedScope.scopeId, $scope.selectedScope.editorContent.new);
               break;
             default:
               console.error('Not yet supported: ', $scope.selectedScope.scope);
+              return;
           }
+          $scope.selectedScope.variable.expression=$scope.selectedScope.editorContent.new;
           setAceEditorContent();
         };
 
