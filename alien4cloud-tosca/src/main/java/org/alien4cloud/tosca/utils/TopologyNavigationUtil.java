@@ -208,6 +208,25 @@ public final class TopologyNavigationUtil {
         return result;
     }
 
+    /**
+     * Returns all the nodes that target this node template with a relationship of the given type.
+     */
+    public static Set<NodeTemplate> getSourceNodesByRelationshipType(Topology topology, NodeTemplate nodeTemplate, String relationshipTypeName) {
+        Set<NodeTemplate> result = Sets.newHashSet();
+        for (NodeTemplate node : topology.getNodeTemplates().values()) {
+            for (RelationshipTemplate relationshipTemplate : safe(node.getRelationships()).values()) {
+
+                if (relationshipTemplate.getTarget().equals(nodeTemplate.getName())) {
+                    RelationshipType relationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplate.getType());
+                    if (ToscaTypeUtils.isOfType(relationshipType, relationshipTypeName)) {
+                        result.add(node);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     public static boolean hasRelationship(NodeTemplate sourceNode, String targetNodeName, String requirementName, String capabilityName) {
         for (RelationshipTemplate relationshipTemplate : safe(sourceNode.getRelationships()).values()) {
             if (relationshipTemplate.getTarget().equals(targetNodeName) && relationshipTemplate.getRequirementName().equals(requirementName)
