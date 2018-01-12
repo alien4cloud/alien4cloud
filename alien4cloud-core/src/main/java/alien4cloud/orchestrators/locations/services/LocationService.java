@@ -35,7 +35,6 @@ import com.google.common.collect.Maps;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.deployment.DeploymentService;
 import alien4cloud.events.LocationTemplateCreated;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.LocationSupportException;
@@ -87,10 +86,6 @@ public class LocationService {
     private ICSARRepositorySearchService csarRepoSearchService;
     @Inject
     private ApplicationContext applicationContext;
-    @Resource
-    private LocationSecurityService locationSecurityService;
-    @Inject
-    DeploymentService deploymentService;
 
     public Location getLocation(String orchestratorId, String locationId) {
         Location location = getOrFail(locationId);
