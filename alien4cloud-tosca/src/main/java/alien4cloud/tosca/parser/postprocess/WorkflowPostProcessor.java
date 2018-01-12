@@ -25,9 +25,7 @@ import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.paas.wf.validation.AbstractWorkflowError;
-import alien4cloud.paas.wf.validation.BadStateSequenceError;
 import alien4cloud.paas.wf.validation.InlinedWorkflowNotFoundError;
-import alien4cloud.paas.wf.validation.ParallelSetStatesError;
 import alien4cloud.paas.wf.validation.UnknownNodeError;
 import alien4cloud.paas.wf.validation.UnknownRelationshipError;
 import alien4cloud.paas.wf.validation.WorkflowHasCycleError;
@@ -175,17 +173,10 @@ public class WorkflowPostProcessor {
 
     private void processWorkflowErrors(Workflow wf, List<AbstractWorkflowError> errors, Node workflowNode) {
         for (AbstractWorkflowError error : errors) {
-            if (error instanceof BadStateSequenceError) {
-                ParsingContextExecution.getParsingErrors()
-                        .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.WORKFLOW_BAD_STATE_SEQUENCE, null, workflowNode.getStartMark(), null,
-                                workflowNode.getEndMark(), ((BadStateSequenceError) error).getTo() + " to " + ((BadStateSequenceError) error).getFrom()));
-            } else if (error instanceof InlinedWorkflowNotFoundError) {
+            if (error instanceof InlinedWorkflowNotFoundError) {
                 Node node = ParsingContextExecution.getObjectToNodeMap().get(((InlinedWorkflowNotFoundError) error).getInlinedWorkflow());
                 ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.WORKFLOW_INLINED_WORKFLOW_NOT_FOUND, null,
                         node.getStartMark(), null, node.getEndMark(), ((InlinedWorkflowNotFoundError) error).getInlinedWorkflow()));
-            } else if (error instanceof ParallelSetStatesError) {
-                ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.WORKFLOW_PARALLEL_SET_STATES, null,
-                        workflowNode.getStartMark(), null, workflowNode.getEndMark(), ((ParallelSetStatesError) error).getNodeId()));
             } else if (error instanceof UnknownNodeError) {
                 Node node = ParsingContextExecution.getObjectToNodeMap().get(((UnknownNodeError) error).getNodeId());
                 ParsingContextExecution.getParsingErrors()
