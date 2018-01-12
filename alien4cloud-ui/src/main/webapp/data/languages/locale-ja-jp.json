@@ -1,62 +1,48 @@
 {
-  "SERVICE":{
-    "RELATIONSHIP" : {
-      "LABEL" : "Relationship type",
-      "CAPABILITY_DESCRIPTION" : "Relationship type used to define operations that run on the service side.",
-      "REQUIREMENT_DESCRIPTION" : "Relationship type used to define operations that run on the service side."
-    }
-  },
   "APPLICATIONS" : {
     "APPLICATION" : "アプリケーション",
     "APPLICATION_ROLES" : "アプリケーションロール",
     "ARCHIVE_NAME" : "Archive name (Id)",
-    "ARCHIVE_NAME_HELP" : "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
-    "AUTHORIZED" : "application authorized",
     "DEPLOY" : "デプロイ",
-    "DEPLOYMENT_INFO" : "Deployment informations",
-    "DEPLOY_CONFIRM": "Are you sure to deploy this production environment ?",
-    "UNDEPLOY_CONFIRM": "Are you sure to undeploy this production environment ?",
-    "UPDATE_DEPLOYMENT" : "Update",
-    "UPDATE_CONFIRM": "Are you sure to update this production environment ?",
     "DEPLOYMENT" : {
-      "DEPLOY" : "デプロイ",
-      "INPUT" : "入力",
+      "HISTORY" : {
+        "DEPLOYED_AT" : "Deployed at",
+        "DEPLOYER" : "Deployer",
+        "DURATION" : "Duration",
+        "UNDEPLOYED_AT" : "Undeployed at"
+      },
       "MATCHING" : {
         "CONFIGURATION" : "Resource configuration",
         "CONFIGURATION_HELP" : "You can configure properties of the matched resource. Note that some properties have been defined by the location administrator. These properties cannot be overriden.",
+        "NODES_TITLE" : "TRANSLATION_IS_REQUIRED",
+        "POLICIES_TITLE" : "TRANSLATION_IS_REQUIRED",
         "SERVICE" : "Service information",
         "SERVICE_HELP" : "Below are the defined properties and attributes of the matched service.",
-        "SERVICE_UNDEPLOYED_HELP" : "The selected servie is undeployed, this may cause issues on deployment if you select it as matched resource.",
-        "TITLE" : "代入"
-      },
-      "HISTORY": {
-        "DEPLOYER": "Deployer",
-        "DEPLOYED_AT": "Deployed at",
-        "UNDEPLOYED_AT": "Undeployed at",
-        "DURATION": "Duration"
+        "SERVICE_UNDEPLOYED_HELP" : "The selected servie is undeployed, this may cause issues on deployment if you select it as matched resource."
       },
       "PROPERTIES" : {
         "REQUIRED" : "Required",
-        "WARNING" : "Warning",
         "WARNING_MESSAGE" : "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
       },
       "VERSION" : "Deployed version"
     },
+    "DEPLOYMENT_INFO" : "Deployment informations",
+    "DEPLOY_CONFIRM" : "Are you sure to deploy this production environment ?",
     "ENVIRONMENT" : {
       "ALL" : "All Environment",
       "ENV" : "環境",
       "ENV_ROLES" : "環境のロール",
-      "SELECT_INPUT_CANDIDATE": "Select environment to copy inputs",
       "FORM" : {
+        "DONT_COPY_INPUT" : "-- Don't copy inputs --",
+        "ENV_INPUT_CANDIDATE_LABEL" : "Inputs",
+        "ENV_INPUT_CANDIDATE_SELECT" : "-- Select the environment to copy inputs --",
         "ENV_TYPE" : "環境タイプ",
         "ENV_TYPE_SELECT" : "-- 環境タイプの選択 --",
         "ENV_VERSION" : "アプリケーションバージョン",
-        "ENV_VERSION_SELECT" : "-- アプリケーションバージョンの選択 --",
-        "ENV_INPUT_CANDIDATE_LABEL": "Inputs",
-        "ENV_INPUT_CANDIDATE_SELECT": "-- Select the environment to copy inputs --",
-        "DONT_COPY_INPUT": "-- Don't copy inputs --"
+        "ENV_VERSION_SELECT" : "-- アプリケーションバージョンの選択 --"
       },
       "NEW" : "新規環境",
+      "SELECT_INPUT_CANDIDATE" : "Select environment to copy inputs",
       "STATUS" : "ステータス"
     },
     "ERRORS" : {
@@ -64,6 +50,7 @@
       "DELETING_FAILED" : "Unable to delete the application. First, undeploy it and retry."
     },
     "IMAGE_UPLOAD" : "新しいイメージのアップロード",
+    "INPUTS" : "TRANSLATION_IS_REQUIRED",
     "META_PROPERTIES" : "メタプロパティ",
     "NEW" : "新規アプリケーション",
     "RUNTIME" : {
@@ -98,11 +85,6 @@
       "INSTANCE" : "インスタンス",
       "INSTANCES" : "インスタンス",
       "KEY" : "キー",
-      "MAINTENANCE" : "メンテナンスモード",
-      "MAINTENANCE_BUTTON" : {
-        "OFF" : "メンテナンスモードを終了しますか",
-        "ON" : "メンテナンスモードにしますか"
-      },
       "OPERATION_EXECUTION" : {
         "NO_RETURN" : "No return",
         "RESULT_TITLE" : "Execution result for operation {{operation}}"
@@ -110,8 +92,7 @@
       "RUNTIMEPROPS" : "ランタイムプロパティ",
       "SCALE" : "スケール",
       "SCALE_BUTTON" : "Scale this node",
-      "STATUS" : "Status",
-      "VALUE" : "値"
+      "STATUS" : "Status"
     },
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "ノードテンプレートの追加",
@@ -125,8 +106,6 @@
       "CARDINALITIES_TOOLTIP" : "lowerBound..upperBound (remaining)",
       "CHANGE_RELATIONSHIP" : "Change an existing relationship",
       "DEPENDENCIES" : {
-        "VERSION_CONFLICT_TITLE": "Archive version conflict",
-        "VERSION_CONFLICT_MSG": "The version of the node you added creates a conflict on TOSCA archive {{name}}. Current topology version is {{current}} while selected new node version is {{new}}. If you continue alien 4 cloud will update the topology with the highest version. Do you want to continue ?",
         "CHANGE_VERSION" : {
           "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology.",
           "TITLE" : "Change version"
@@ -138,19 +117,13 @@
           "TITLE" : "Transitive dependency conflicts",
           "WARNING" : "Transitive dependency conflicts may cause incompatibility issues."
         },
-        "INCOMPATIBLE_VERSIONS" : {
-          "CONTENT" : "The topology has already a dependency to the archive <{{archiveName}}> version <{{archiveVersion}}>. You can not use a component from the same archive with a different version. Please upgrade or downgrade the topology dependency if you want to use a different version.",
-          "TITLE" : "Dependency version conflict"
-        }
+        "VERSION_CONFLICT_MSG" : "The version of the node you added creates a conflict on TOSCA archive {{name}}. Current topology version is {{current}} while selected new node version is {{new}}. If you continue alien 4 cloud will update the topology with the highest version. Do you want to continue ?",
+        "VERSION_CONFLICT_TITLE" : "Archive version conflict"
       },
       "DEPENDENCY" : "依存関係",
-      "DESC_TEMPLATE" : "トポロジテンプレートの説明",
-      "EDITOR" : "Visual Editor",
-      "FILES" : "Archive content browser",
       "GROUPS" : {
         "ADD" : "グループの追加",
         "MEMBERS" : "メンバー",
-        "POLICIES" : "ポリシー",
         "TOOLTIP" : "グループの管理"
       },
       "INIT_FROM" : "Initialize topology from",
@@ -169,9 +142,8 @@
       "NO_OUTPUTS" : "プロパティ、属性の出力なし",
       "ORCHESTRATOR_PROPERTIES" : "オーケストレータのプロパティ",
       "PARSING_ERROR" : "Topology is not valid",
-      "PLAN" : "Workflow",
+      "PRECONFIGURED_PROPERTIES_INPUTS" : "Preconfigured input properties",
       "PROPERTIES_INPUTS" : "プロパティの入力",
-      "PRECONFIGURED_PROPERTIES_INPUTS": "Preconfigured input properties",
       "PROPERTIES_OUTPUTS" : "プロパティ出力",
       "RECOVERY" : {
         "CHOICE_ASK" : "What would you like to do with the topology ?",
@@ -233,15 +205,16 @@
         },
         "LABEL" : "The topology is not valid:",
         "NODE_FILTER" : {
+          "CAPABILITY" : "TRANSLATION_IS_REQUIRED",
           "CAPABILITY_MISSING_ERROR" : "The target has not this ability",
-          "CAPABILITY_NAME" : "Capacity name",
           "NODE_FILTER_INVALID" : "NodeFilters not satisfy",
+          "PROPERTY" : "TRANSLATION_IS_REQUIRED",
           "PROPERTY_CONSTRAINT_VIOLATION_ERROR" : "One constraint on this property is not respected",
           "PROPERTY_MISSING_ERROR" : "La cible de posséde pas cette propriété",
-          "PROPERTY_NAME" : "Property name",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "The property has no such target"
         },
         "RELATED_INPUT" : "Related input",
+        "RELATIONSHIP" : "TRANSLATION_IS_REQUIRED",
         "REPLACE" : "指定内容で置換",
         "REPLACE_LABEL" : "置換",
         "REQUIRED_PROPERTIES_LABEL" : "必須プロパティ",
@@ -270,40 +243,51 @@
       "UPDATE_ARTIFACT" : "アーティファクトの更新",
       "VISUAL_DETAILED" : "詳細ビュー",
       "WARNING" : {
+        "DEPRECATION" : "The node {{name}} of type {{version}}, version{{version}} is marked as deprecated. You should update it's archive version in the topology dependencies.",
         "HA_INVALID" : {
           "ERROR" : "Error",
           "GROUP" : "グループ",
           "LABEL" : "無効なHAポリシー"
         },
-        "ILLEGAL_OPERATIONS": {
-          "OPERATION": "Operation",
-          "SERVICE": "Service",
-          "LABEL": "Ignored operations",
-          "RELATIONSHIP_TYPE": "Relationship type",
-          "LABEL_DETAILS": "Not all relationship operations are allowed when involving a service. Client cannot modify a service configuration on its own and vice and versa."
+        "ILLEGAL_OPERATIONS" : {
+          "LABEL" : "Ignored operations",
+          "LABEL_DETAILS" : "Not all relationship operations are allowed when involving a service. Client cannot modify a service configuration on its own and vice and versa.",
+          "OPERATION" : "Operation",
+          "RELATIONSHIP_TYPE" : "Relationship type",
+          "SERVICE" : "Service"
         },
         "LABEL" : "警告",
         "PROPERTIES" : {
           "LABEL" : "ノードプロパティ"
-        },
-        "DEPRECATION": "The node {{name}} of type {{version}}, version{{version}} is marked as deprecated. You should update it's archive version in the topology dependencies."
+        }
       },
       "YAML" : "yaml"
     },
     "UNDEPLOY" : "デプロイ解除",
-    "UNDEPLOY_MODAL": {
-      "CONTENT": {
-        "HEADER" : "Are you sure you want to uninstall the {{application}} application in {{version}} version?",
-        "FOOTER": "The following node(s) will be deleted:"
-      },
-      "TITLE": "Uninstall reminder"
+    "UNDEPLOY_CONFIRM" : "Are you sure to undeploy this production environment ?",
+    "UNDEPLOY_MODAL" : {
+      "MESSAGE" : "TRANSLATION_IS_REQUIRED",
+      "RESOURCES_TO_UNINSTALL" : "TRANSLATION_IS_REQUIRED",
+      "TITLE" : "Uninstall reminder"
     },
-    "VARIABLES": {
-      "HELP": "You can define varaibles at application level here. These varaibles can then be referenced in the topology and will be replaced by their value before deployment. For more information please look at the following address.",
-      "DOC_LINK": "Online documentation."
+    "UPDATE_CONFIRM" : "Are you sure to update this production environment ?",
+    "UPDATE_DEPLOYMENT" : "Update",
+    "VARIABLES" : {
+      "APP_HELP" : "TRANSLATION_IS_REQUIRED",
+      "APP_SCOPE" : "TRANSLATION_IS_REQUIRED",
+      "APP_SCOPE_NOT_EDITABLE" : "TRANSLATION_IS_REQUIRED",
+      "DOC_LINK" : "Online documentation.",
+      "EDIT_MESSAGE" : "TRANSLATION_IS_REQUIRED",
+      "ENV_SCOPE" : "TRANSLATION_IS_REQUIRED",
+      "ENV_TYPE_SCOPE" : "TRANSLATION_IS_REQUIRED",
+      "MODAL_HEADER" : "TRANSLATION_IS_REQUIRED",
+      "TOGGLE_EDIT" : "TRANSLATION_IS_REQUIRED",
+      "TYPE_TO_ADD" : "TRANSLATION_IS_REQUIRED",
+      "UNDEFINED" : "TRANSLATION_IS_REQUIRED",
+      "UNSELECTED_HOLDER" : "TRANSLATION_IS_REQUIRED"
     },
     "VERSION" : {
-      "CHANGE_TOPO_VERSION_WARNING": "One more thing : you need to select a topology version to validate the change of application version",
+      "CHANGE_TOPO_VERSION_WARNING" : "One more thing : you need to select a topology version to validate the change of application version",
       "LABEL" : "Application version",
       "MODAL" : {
         "PATTERN" : "無効なフォーマットバージョン",
@@ -322,13 +306,16 @@
       }
     },
     "WF" : {
-      "DelegateWorkflowActivity" : "Delegate workflow",
       "CallOperationWorkflowActivity" : "Operation call",
+      "DelegateWorkflowActivity" : "Delegate workflow",
+      "InlineWorkflowActivity" : "TRANSLATION_IS_REQUIRED",
       "SetStateWorkflowActivity" : "State change",
       "activity" : "Activity",
+      "addInlineActivity" : "TRANSLATION_IS_REQUIRED",
       "addOperationActivity" : "Add opreration call",
       "addStateActivity" : "Add state change",
       "addWorkflow" : "Add workflow",
+      "appendInlineActivity" : "TRANSLATION_IS_REQUIRED",
       "appendOperationActivity" : "Append opreration call",
       "appendStateActivity" : "Append state change",
       "changeViewMode" : "Simplified view",
@@ -347,6 +334,8 @@
       },
       "hasErrors" : "error(s)",
       "host" : "Host",
+      "inline" : "TRANSLATION_IS_REQUIRED",
+      "insertInlineActivity" : "TRANSLATION_IS_REQUIRED",
       "insertOperationActivity" : "Insert opreration call",
       "insertStateActivity" : "Insert state change",
       "interfaceName" : "Interface",
@@ -358,7 +347,8 @@
       "swapLeft" : "Swap to left",
       "swapRigth" : "Swap to right",
       "title" : "Workflows",
-      "unpin" : "Unpin"
+      "unpin" : "Unpin",
+      "workflow" : "TRANSLATION_IS_REQUIRED"
     }
   },
   "AUDIT" : {
@@ -439,14 +429,18 @@
   "CODE" : "ja-jp",
   "COMMON" : {
     "ADD" : "追加",
-    "ADD_USER_ATTRIBUTE": "Add a user attribute",
-    "ATTENTION": "Attention",
+    "ADD_USER_ATTRIBUTE" : "Add a user attribute",
+    "ATTENTION" : "Attention",
     "ATTRIBUTES" : "属性",
     "AUTHOR" : "作成者",
+    "AUTHORIZED" : "TRANSLATION_IS_REQUIRED",
     "CAPABILITIES" : "ケーパビリティ",
+    "CONTENT" : "TRANSLATION_IS_REQUIRED",
     "DATA" : "Data",
     "DATE" : "Date",
     "DESCRIPTION" : "説明",
+    "DOWNLOAD" : "TRANSLATION_IS_REQUIRED",
+    "EDIT" : "TRANSLATION_IS_REQUIRED",
     "EMAIL" : "Email",
     "EMAIL_INVALID" : "Emailが無効です",
     "ENABLED_false" : "無効化",
@@ -456,17 +450,19 @@
     "ID" : "Id",
     "INFO" : "Information",
     "INFOS" : "Informations",
-    "KEY": "Key",
+    "KEY" : "Key",
     "MESSAGE" : "Message",
     "NAME" : "名前",
     "NO" : "No",
     "NODE" : "ノード",
-    "PATH": "Path",
-    "PASSWORD": "Password",
+    "OR" : "TRANSLATION_IS_REQUIRED",
+    "PASSWORD" : "Password",
+    "PATH" : "Path",
     "PROPERTIES" : "プロパティ",
-    "RELATIONSHIP": "Relationship",
+    "RELATIONSHIP" : "Relationship",
+    "RESOURCES" : "TRANSLATION_IS_REQUIRED",
+    "SEARCH" : "検索...",
     "SOURCE" : "ソース",
-    "SEARCH": "検索...",
     "STATE" : "状態",
     "TARGET" : "ターゲット",
     "TYPE" : "タイプ",
@@ -480,6 +476,7 @@
     "ARCHIVE" : "アーカイブ",
     "ARCHIVE_NAME" : "アーカイブ名",
     "ARCHIVE_VERSION" : "アーカイブバージョン",
+    "BROWSE" : "TRANSLATION_IS_REQUIRED",
     "CAPABILITIES" : {
       "CARDINALITIES_TOOLTIP" : "upperBound",
       "TYPE" : "機能"
@@ -498,6 +495,7 @@
     },
     "CSAR" : {
       "ACTIVE_FILTERS" : "Active filters",
+      "IMPORTSOURCE" : "TRANSLATION_IS_REQUIRED",
       "TEMPLATEAUTHOR" : "Author",
       "TITLE" : "CSARS",
       "WORKSPACE" : "Workspace"
@@ -519,14 +517,17 @@
     "UPLOAD_ERROR" : {
       "300" : "Unexpected IO error on plugin upload.",
       "353" : "The META-INF/plugin.yml file is missing in your plugin.",
+      "354" : "TRANSLATION_IS_REQUIRED",
       "ALIEN_MAPPING_ERROR" : "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
       "CSAR_ALREADY_EXISTS" : "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive.",
       "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE" : "An archive with the same name and version already exists in Alien repository in another workspace.",
       "CSAR_ALREADY_INDEXED" : "The CSAR has already been indexed in Alien with the same content",
+      "CSAR_IMPORT_ITSELF" : "An archive is not allowed to import itself.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT" : "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien doesn't allow the overriding.",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE" : "The dependency [ {{note}} ] is not visible from the target workspace",
       "DEPENDENCY_VERSION_CONFLICT" : "The dependency [{{problem}}] is in conflict with the dependency [{{context}}]. The conflict has been resolved by using the latest version.",
-      "DERIVED_FROM_NOTHING": "The tosca type [{{note}}] must derive from the base type [{{context}}], Alien has automatically added [{{context}}] as its parent",
+      "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION" : "Substitution derive from concrete type [ {{note}} ], please use an abstract type.",
+      "DERIVED_FROM_NOTHING" : "The tosca type [{{note}}] must derive from the base type [{{context}}], Alien has automatically added [{{context}}] as its parent",
       "DUPLICATED_ELEMENT_DECLARATION" : "The element [ {{note}} ] has already be defined in this definition file.",
       "ENTRY_DEFINITION_NOT_FOUND" : "Entry definition file has not been found. Please put a valid definition file at the root of the archive.",
       "ERRONEOUS_ARCHIVE_FILE" : "Cannot load the archive file. Please check that the file is a valid zip.",
@@ -545,6 +546,7 @@
       "NotNull" : "The property [ {{path}} ] cannot be null",
       "OUTPUTS_BAD_PARAMS_COUNT" : "Function arguments count is incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION" : "Unknown function [{{note}}]",
+      "POLICY_TARGET_NOT_FOUND" : "Policy target [{{note}}] cannot be found",
       "POTENTIAL_BAD_PROPERTY_VALUE" : "There might be typographical errors: {{note}}.",
       "RELATIONSHIP_NOT_BUILT" : "Not able to build the relationship for the requirement [{{note}}] (please read errors).",
       "REQUIREMENT_CAPABILITY_NOT_FOUND" : "The capability corresponding to the requirement [{{note}}] can't be identified.",
@@ -561,7 +563,6 @@
       "TOSCA_VERSION_NOT_FIRST" : "Tosca version must be the first line of the service template.",
       "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT" : "The transitive dependency [{{problem}}] is in conflict with the direct dependency [{{context}}]. The conflict has been resolved by using the direct dependency version: [{{note}}].",
       "TYPE_NOT_FOUND" : "Referenced type [ {{note}} ] cannot be found neither in the archive or its dependencies. Please check the import section or add the type to your archive.",
-      "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION": "Substitution derive from concrete type [ {{note}} ], please use an abstract type.",
       "ToscaPropertyConstraint" : "Constraint [ {{path}} ] is not valid or cannot be applied on the defined property.",
       "ToscaPropertyConstraintDuplicate" : "The constraint [ {{path}} ] already existed. The same constraint cannot be defined more than once.",
       "ToscaPropertyDefaultValueConstraints" : "The default value for the property [ {{path}} ] do not respect its constraint.",
@@ -573,22 +574,20 @@
       "UNKNOWN_TOSCA_VERSION" : "Tosca version is unknown and not recognized by Alien 4 Cloud.",
       "UNKNWON_DISCRIMINATOR_KEY" : "Key {{note}} is not known.",
       "UNKNWON_WORKFLOW_STEP" : "Workflow step [{{note}}] doesn't exists and has been ignored",
+      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET" : "The relationship ({{note}}) defined as target of the workflow step does not exist in the specified node.",
+      "UNKNWON_WORKFLOW_STEP_TARGET" : "The target node ({{note}}) specified in the workflow step does not exist in the topology.",
       "UNKOWN_GROUP_MEMBER" : "The group member [{{note}}] doesn't exist so is ignored",
       "UNKOWN_GROUP_POLICY" : "Group policy [{{note}}] is not managed",
       "UNRECOGNIZED_PROPERTY" : "Property [ {{note}} ] is unknown and has been ignored.",
       "UNRESOLVED_ARTIFACT" : "Artifact {{note}} cannot be resolved ",
+      "UNSUPPORTED_SUBSTITUTION" : "Substitution is not supported on archive that defines types.",
       "VALIDATION_ERROR" : "Declared type is not valid: {{context | translate:note}}",
+      "WORKFLOW_HAS_CYCLE" : "Workflow {{note}} contains an infinite cycle.",
       "WORKFLOW_HAS_ERRORS" : "Workflow [{{note}}] is not valid",
-      "WORKFLOW_HAS_CYCLE": "Workflow {{note}} contains an infinite cycle.",
-      "WORKFLOW_INLINED_WORKFLOW_NOT_FOUND": "Referenced inline workflow {{note}} does not exists.",
-      "UNKNWON_WORKFLOW_STEP_TARGET": "The target node ({{note}}) specified in the workflow step does not exist in the topology.",
-      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET": "The relationship ({{note}}) defined as target of the workflow step does not exist in the specified node.",
+      "WORKFLOW_INLINED_WORKFLOW_NOT_FOUND" : "Referenced inline workflow {{note}} does not exists.",
       "YAML_MAPPING_NODE_EXPECTED" : "A mapping node is expected.",
       "YAML_SCALAR_NODE_EXPECTED" : "A YAML node of type scalar is expected here.",
-      "YAML_SEQUENCE_EXPECTED" : "A YAML sequence is expected.",
-      "CSAR_IMPORT_ITSELF": "An archive is not allowed to import itself.",
-      "UNSUPPORTED_SUBSTITUTION": "Substitution is not supported on archive that defines types.",
-      "POLICY_TARGET_NOT_FOUND": "Policy target [{{note}}] cannot be found"
+      "YAML_SEQUENCE_EXPECTED" : "A YAML sequence is expected."
     },
     "VALIDSOURCES" : "Valid sources",
     "WORKSPACE" : "Workspaces"
@@ -628,6 +627,7 @@
     "CREDENTIALS" : "Credentials",
     "CREDENTIALSINFO" : "Mandatory for private repositories only",
     "DELETE" : "削除",
+    "DEPRECIATE" : "TRANSLATION_IS_REQUIRED",
     "DETAILS" : {
       "ARCHIVE_COMPONENTS" : "アーカイブコンポーネント",
       "BUTTON_ADD_NODE_TYPE" : "新しいコンポーネントの追加",
@@ -655,10 +655,12 @@
       }
     },
     "FROMGIT" : "Imported from Git",
+    "GIT" : "TRANSLATION_IS_REQUIRED",
     "IMPORTTOOLTIP" : "Import",
     "IMPORT_ALL" : "Import all",
     "IMPORT_SUCCESS" : "CSAR have been imported",
     "LEGEND" : "Csars added",
+    "NEW" : "TRANSLATION_IS_REQUIRED",
     "NEW_GIT" : "Gitの新規ロケーション",
     "PASSWORD" : "Password",
     "SAVE_LOCALLY" : "Save the repository locally",
@@ -675,13 +677,13 @@
       "DEPLOYMENT_IN_PROGRESS" : "Deployment in progress",
       "FAILURE" : "Failed",
       "INIT_DEPLOYMENT" : "Deployment init",
-      "UPDATE_DEPLOYMENT": "Deployment update",
-      "UPDATE_IN_PROGRESS" : "Updating deployment",
-      "UPDATE_FAILURE" : "Update failed",
-      "UPDATED" : "Updated",
       "UNDEPLOYED" : "Undeployed",
       "UNDEPLOYMENT_IN_PROGRESS" : "Undeployment in progress",
       "UNKNOWN" : "Unknown",
+      "UPDATED" : "Updated",
+      "UPDATE_DEPLOYMENT" : "Deployment update",
+      "UPDATE_FAILURE" : "Update failed",
+      "UPDATE_IN_PROGRESS" : "Updating deployment",
       "WARNING" : "Warning"
     },
     "TOASTER_STATUS" : {
@@ -694,13 +696,13 @@
   "EDITOR" : {
     "ARTIFACTS" : {
       "REPOS" : {
+        "A4C_CSAR" : "CSAR",
         "ARCHIVE_REPOSITORIES" : "Archive Repositories",
         "FILE" : "File",
         "GLOBAL_REPOSITORIES" : "Global repositories",
         "ID" : "Repository ID",
         "LOCAL" : "Local",
         "LOCAL_FS" : "Local file system",
-        "A4C_CSAR" : "CSAR",
         "MUST_BE_UNIQUE" : "Repository ID must be unique for this archive",
         "NEW_REPOSITORY" : "New repository",
         "REMOTE" : "Remote",
@@ -714,6 +716,7 @@
       "MESSAGE" : "Do you want to save changes before leaving the editor ?",
       "TITLE" : "Unsaved changes"
     },
+    "DOWNLOAD" : "Download",
     "DO_NOT_SAVE" : "Skip",
     "EMPTY_GIT_HISTORY" : "The git history is empty, you need to save the topology.",
     "GIT" : {
@@ -747,8 +750,8 @@
       "DETAIL" : "Details"
     },
     "MENU_FILES" : "Archive content",
-    "MENU_INPUTS_VAR": "Inputs and Variables",
     "MENU_HISTORY" : "History",
+    "MENU_INPUTS_VAR" : "Inputs and Variables",
     "MENU_TOPOLOGY" : "Topology",
     "MENU_VALIDATION" : "Topology validation",
     "MENU_WORKFLOW" : "Workflows",
@@ -756,7 +759,6 @@
     "REDO" : "Redo",
     "SAVE" : "Save",
     "UNDO" : "Undo",
-    "DOWNLOAD": "Download",
     "VALIDATION" : {
       "CURRENT_TOPOLOGY" : "Current topology",
       "CURRENT_TOPOLOGY_NO_OPERATIONS" : "The current topology haven't changed.",
@@ -778,16 +780,16 @@
     "PRODUCTION" : "実運用",
     "USER_ACCEPTANCE_TESTS" : "ユーザ受入テスト"
   },
-  "ENVIRONMENT_TYPE_ALL": "All environment types",
+  "ENVIRONMENT_TYPE_ALL" : "All environment types",
   "ERRORS" : {
     "100" : "Authentication required",
     "101" : "Authentication error, please check your login and password",
     "102" : "Insufficient rights for this module or this resource",
     "200" : "Unexpected error happened while parsing CSAR",
     "300" : "Unexpected error happened while accessing to CSAR indexing service",
-    "352": {
-      "MESSAGE": "Incorrect plugin configuration",
-      "TITLE": "Plugin error"
+    "352" : {
+      "MESSAGE" : "Incorrect plugin configuration",
+      "TITLE" : "Plugin error"
     },
     "371" : {
       "MESSAGE" : "Value {{value}} for parameter {{name}} of type {{type}} is not valid",
@@ -861,11 +863,11 @@
     "860" : "The topology that you select needs recovery",
     "870" : "The topology that you select cannot be used as it won't be visible in the context of the application",
     "INTERNAL" : "Internal error",
-    "UNKNOWN": "Unknown error",
-    "SERVER_LOG": {
-      "MISSING_VARIABLES": "Missing variables: {{variables}}",
-      "UNRESOLVABLE_PREDEFINED_INPUTS": "Unresolvable predefined inputs: {{unresolvableInputs}}"
-    }
+    "SERVER_LOG" : {
+      "MISSING_VARIABLES" : "Missing variables: {{variables}}",
+      "UNRESOLVABLE_PREDEFINED_INPUTS" : "Unresolvable predefined inputs: {{unresolvableInputs}}"
+    },
+    "UNKNOWN" : "Unknown error"
   },
   "EXECUTE" : "Execute",
   "FALSE" : "False",
@@ -897,11 +899,11 @@
     }
   },
   "GIT" : {
-    "CONFIGURE_TITLE" : "Git configuration",
     "ALIEN_MANAGED" : "A4C",
-    "USER_MANAGED": "Manually",
-    "BRANCH": "Branch",
-    "MANAGED_BY": "Managed by"
+    "BRANCH" : "Branch",
+    "CONFIGURE_TITLE" : "Git configuration",
+    "MANAGED_BY" : "Managed by",
+    "USER_MANAGED" : "Manually"
   },
   "GROUPS" : {
     "AUTHORIZED" : "group authorized",
@@ -937,40 +939,30 @@
   "N/A" : "N/A",
   "NAVADMIN" : {
     "MENU_AUDIT" : "操作ログ",
-    "MENU_METRICS" : "Server state",
     "MENU_ORCHESTRATORS" : "オーケストレータ",
     "MENU_PLUGINS" : "プラグイン",
+    "MENU_SERVER" : "TRANSLATION_IS_REQUIRED",
+    "MENU_SERVICES" : "Services",
     "MENU_TAGS" : "メタプロパティ",
-    "MENU_SERVICES": "Services",
     "MENU_USERS" : "ユーザ"
   },
   "NAVAPPLICATIONS" : {
-    "MENU_DEPLOY_NEXT": "Prepare next deployment",
-    "MENU_DEPLOY_CURRENT": "Manage current deployment",
-    "MENU_DEPLOY_NEXT.VERSION": "Version",
-    "MENU_DEPLOY_NEXT.TOPOLOGY": "トポロジ",
-    "MENU_DEPLOY_NEXT.INPUTS": "Inputs",
-    "MENU_DEPLOY_NEXT.LOCATIONS": "Locations",
-    "MENU_DEPLOY_NEXT.MATCHING": "Matching",
-    "MENU_DEPLOY_NEXT.DEPLOY": "Review & launch",
-    "MENU_HISTORY": "Deployment History",
-
-    "MENU_DEPLOY_CURRENT.INFO" : "情報",
-    "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "ランタイム",
-    "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER" : "Workflow",
-
+    "MENU_DEPLOY_CURRENT" : "Manage current deployment",
+    "MENU_DEPLOY_CURRENT_INFO" : "情報",
+    "MENU_DEPLOY_CURRENT_RUNTIME_EDITOR" : "ランタイム",
+    "MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER" : "Workflow",
+    "MENU_DEPLOY_NEXT" : "Prepare next deployment",
+    "MENU_DEPLOY_NEXT_DEPLOY" : "Review & launch",
+    "MENU_DEPLOY_NEXT_INPUTS" : "Inputs",
+    "MENU_DEPLOY_NEXT_LOCATIONS" : "Locations",
+    "MENU_DEPLOY_NEXT_MATCHING" : "Matching",
+    "MENU_DEPLOY_NEXT_TOPOLOGY" : "トポロジ",
+    "MENU_DEPLOY_NEXT_VERSION" : "Version",
     "MENU_ENVIRONMENT" : "環境",
+    "MENU_HISTORY" : "Deployment History",
     "MENU_USERS" : "ユーザとグループ",
-    "MENU_VARIABLES": "Variables",
+    "MENU_VARIABLES" : "Variables",
     "MENU_VERSIONS" : "バージョン"
-  },
-  "NAVCATALOG": {
-    "ARCHIVES_PROMOTION": "Archives promotion requests",
-    "BROWSE_COMPONENTS": "Browse components",
-    "MANAGE_ARCHIVES": "Manage archives",
-    "BROWSE_TOPOLOGIES": "Browse topologies",
-    "BROWSE_POLICIES": "Browse policies",
-    "TOPOLOGIES": "Topologies"
   },
   "NAVBAR" : {
     "BUTTON_LOGIN" : "ログイン",
@@ -978,13 +970,23 @@
     "INPUT_SEARCH_MESSAGE" : "検索",
     "MENU_ADMIN" : "管理",
     "MENU_APPS" : "アプリケーション",
+    "MENU_CATALOG" : "TRANSLATION_IS_REQUIRED",
     "MENU_COMPONENTS" : "コンポーネント",
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS Git Integration",
     "MENU_REPOSITORIES" : "Artifacts repositories",
     "MENU_TOPOLOGY_TEMPLATE" : "トポロジテンプレート"
   },
+  "NAVCATALOG" : {
+    "ARCHIVES_PROMOTION" : "Archives promotion requests",
+    "BROWSE_COMPONENTS" : "Browse components",
+    "BROWSE_POLICIES" : "Browse policies",
+    "BROWSE_TOPOLOGIES" : "Browse topologies",
+    "MANAGE_ARCHIVES" : "Manage archives",
+    "TOPOLOGIES" : "Topologies"
+  },
   "NEXT" : "Next",
+  "NO_DATA_AVAILABLE" : "No data available.",
   "OK" : "上書き",
   "OPTIONAL" : "Optional",
   "ORCHESTRATORS" : {
@@ -1002,8 +1004,8 @@
           "ADD" : "Authorize applications",
           "ADD_POPUP" : {
             "EMPTY_PLACEHOLDER" : "authorized applications / environments for this location",
-            "MESSAGE": "You can add authorizations by application, by environments. You can also add authorizations by environment types.",
             "LOC_AUTH_FILTER" : "Location authorized",
+            "MESSAGE" : "You can add authorizations by application, by environments. You can also add authorizations by environment types.",
             "TITLE" : "Select applications / environments"
           },
           "REVOKE" : "Revoke applications"
@@ -1038,6 +1040,15 @@
       "ENVIRONMENT_TYPE" : "environment type",
       "INFRA_TYPE" : "Infrastructure type",
       "INFRA_TYPE_SELECT" : "-- Select an infrastructure type --",
+      "LOCATION" : "TRANSLATION_IS_REQUIRED",
+      "MODIFIER" : {
+        "DROP" : "Drop new modifier here or on the table above",
+        "INFO" : "Location topology modifiers are pieces of code that will change a topology when assigned to this location. It may perform various things but should always respect the original topology contract. You can read more on topology modifiers and the deployment lifecycle here",
+        "MODIFIER" : "Topology modifier",
+        "PHASE" : "Deployment phase",
+        "PLUGIN" : "Plugin id",
+        "PLUGIN_BEAN" : "Plugin bean"
+      },
       "NEW" : "New Location",
       "ON_DEMAND_RESOURCES" : "On demand resources",
       "POLICIES" : "Policies",
@@ -1049,28 +1060,20 @@
         "PROVIDED" : "Provided type from the orchestrator",
         "TYPE" : "Resource types"
       },
-      "SECURITY" : "Security",
-      "SERVICES" : "Services",
       "SECRETS" : {
-        "SECRET": "Secret",
-        "NEED_SECRET": " might need credentials to resolve secret",
-        "PLUGIN_NAME": "Plugin name",
-        "VAULT_CREDENTIALS": "Vaut Credentials",
-        "NO_SECRET_PLUGIN": "No secret plugin found.",
-        "TOKEN": "Token",
-        "LDAP": "LDAP",
-        "AUTHENTICATION_METHOD": "Authentication method",
-        "VAULT_URL": "Vault URL",
-        "VAULT_CERTIFICATE": "Vault Certificate"
+        "AUTHENTICATION_METHOD" : "Authentication method",
+        "LDAP" : "LDAP",
+        "NEED_SECRET" : " might need credentials to resolve secret",
+        "NO_SECRET_PLUGIN" : "No secret plugin found.",
+        "PLUGIN_NAME" : "Plugin name",
+        "SECRET" : "Secret",
+        "TOKEN" : "Token",
+        "VAULT_CERTIFICATE" : "Vault Certificate",
+        "VAULT_CREDENTIALS" : "Vaut Credentials",
+        "VAULT_URL" : "Vault URL"
       },
-      "MODIFIER": {
-        "MODIFIER": "Topology modifier",
-        "PLUGIN": "Plugin id",
-        "PLUGIN_BEAN": "Plugin bean",
-        "PHASE": "Deployment phase",
-        "DROP": "Drop new modifier here or on the table above",
-        "INFO": "Location topology modifiers are pieces of code that will change a topology when assigned to this location. It may perform various things but should always respect the original topology contract. You can read more on topology modifiers and the deployment lifecycle here"
-      }
+      "SECURITY" : "Security",
+      "SERVICES" : "Services"
     },
     "NAV" : {
       "ARTIFACTS" : "Artifacts",
@@ -1082,6 +1085,7 @@
     },
     "NEW" : "新規オーケストレータ",
     "NO_PLUGIN" : "オーケストレータプラグインが見つかりません。 プラグインをアップロードしてください。",
+    "ORCHESTRATOR" : "TRANSLATION_IS_REQUIRED",
     "PLUGIN" : "プラグイン",
     "PLUGIN_SELECT" : "-- Select an orchestrator plugin --",
     "STATES" : {
@@ -1095,7 +1099,6 @@
   "PAGINATION" : {
     "OVERFLOW" : "The number of results exceeds the maximum number supported by Alien4Cloud, please use the search box."
   },
-  "NO_DATA_AVAILABLE" : "No data available.",
   "PLUGINS" : {
     "BEANS" : "コンポーネント",
     "CONFIGURE" : "設定",
@@ -1109,6 +1112,7 @@
     },
     "UPLOAD" : "プラグインのアップロード"
   },
+  "POLICIES" : "TRANSLATION_IS_REQUIRED",
   "PROPERTY_RESET" : "Set to default value or reset",
   "PROPERTY_SUGGESTION" : {
     "MODAL" : {
@@ -1130,52 +1134,59 @@
     "USERS" : "ユーザ"
   },
   "SELECT" : "Select",
-  "SERVER": {
-    "STATE": "Server state",
-    "MAINTENANCE": {
-      "DISABLE": "End maintenance",
-      "DISABLE_CONFIRM": "Are you sure you want to turn maintenance mode off ?",
-      "ENABLE": "Start maintenance",
-      "ENABLE_CONFIRM": "Are you sure that you want to turn maintenance mode on ? In maintenance mode the REST API will respond with an error and users will be redirected to maintenance state display screen.",
-      "MESSAGE": "The server is currently in maintenance, please try your request later or contact your admin.",
-      "TITLE": "Maintenance",
-      "UPDATE": {
-        "PROGRESS": "Progress (%)",
-        "MESSAGE": "Message",
-        "TITLE": "Update maintenance state"
+  "SERVER" : {
+    "MAINTENANCE" : {
+      "DISABLE" : "End maintenance",
+      "DISABLE_CONFIRM" : "Are you sure you want to turn maintenance mode off ?",
+      "ENABLE" : "Start maintenance",
+      "ENABLE_CONFIRM" : "Are you sure that you want to turn maintenance mode on ? In maintenance mode the REST API will respond with an error and users will be redirected to maintenance state display screen.",
+      "MESSAGE" : "The server is currently in maintenance, please try your request later or contact your admin.",
+      "TITLE" : "Maintenance",
+      "UPDATE" : {
+        "MESSAGE" : "Message",
+        "PROGRESS" : "Progress (%)",
+        "TITLE" : "Update maintenance state"
       }
+    },
+    "STATE" : "Server state"
+  },
+  "SERVICE" : {
+    "RELATIONSHIP" : {
+      "CAPABILITY_DESCRIPTION" : "Relationship type used to define operations that run on the service side.",
+      "LABEL" : "Relationship type",
+      "REQUIREMENT_DESCRIPTION" : "Relationship type used to define operations that run on the service side."
     }
   },
-  "SERVICES": {
-    "SERVICE": "Service",
-    "CATALOG": "Services catalog",
-    "DETAIL": {
-      "BACK": "Back to catalog",
-      "DETAIL": "Detail",
-      "TITLE": "Service configuration"
+  "SERVICES" : {
+    "CATALOG" : "Services catalog",
+    "DETAIL" : {
+      "BACK" : "Back to catalog",
+      "DETAIL" : "Detail",
+      "TITLE" : "Service configuration"
     },
-    "INSTANCE": "Instance",
-    "LIST": "Current services",
-    "NEW": {
-      "NODE_TYPE": "Type",
-      "NODE_TYPE_VERSION": "Type version",
-      "TITLE": "New service"
-    },
-    "MANAGED": {
-      "NAME": "Managed service",
-      "TITLE": "Service management",
-      "NO_SUBSTITUTION_MESSAGE": "The topology must define a substitution type for it to be exposed as a service.",
-      "CREATE": {
-        "MESSAGE": "Expose this deployment as a service (other applications will be able to use it during matching phase).",
-        "CONFIRM_TITLE": "Expose as service",
-        "CONFIRM_MESSAGE": "Do you really want to expose this as a service ?"
+    "INSTANCE" : "Instance",
+    "LIST" : "Current services",
+    "MANAGED" : {
+      "CREATE" : {
+        "CONFIRM_MESSAGE" : "Do you really want to expose this as a service ?",
+        "CONFIRM_TITLE" : "Expose as service",
+        "MESSAGE" : "Expose this deployment as a service (other applications will be able to use it during matching phase)."
       },
-      "UNBIND": {
-        "MESSAGE": "Unbind the service from this environment.",
-        "CONFIRM_TITLE": "Unbind service",
-        "CONFIRM_MESSAGE": "Do you really want to unbind the service from the environment?\n If not used anywhere, the service will be deleted. Otherwise, You should then contact your administrator to clean it up if needed."
+      "NAME" : "Managed service",
+      "NO_SUBSTITUTION_MESSAGE" : "The topology must define a substitution type for it to be exposed as a service.",
+      "TITLE" : "Service management",
+      "UNBIND" : {
+        "CONFIRM_MESSAGE" : "Do you really want to unbind the service from the environment?\n If not used anywhere, the service will be deleted. Otherwise, You should then contact your administrator to clean it up if needed.",
+        "CONFIRM_TITLE" : "Unbind service",
+        "MESSAGE" : "Unbind the service from this environment."
       }
-    }
+    },
+    "NEW" : {
+      "NODE_TYPE" : "Type",
+      "NODE_TYPE_VERSION" : "Type version",
+      "TITLE" : "New service"
+    },
+    "SERVICE" : "Service"
   },
   "START_DATE" : "開始日",
   "STATES" : {
@@ -1216,6 +1227,7 @@
   "TRUE" : "True",
   "UPDATE_DATE" : "更新日付",
   "UPLOAD" : {
+    "BROWSE" : "TRANSLATION_IS_REQUIRED",
     "COMPLETE" : "Complete"
   },
   "USERS" : {
