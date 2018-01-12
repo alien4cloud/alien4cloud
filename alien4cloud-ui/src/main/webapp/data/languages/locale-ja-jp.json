@@ -50,7 +50,13 @@
       "DELETING_FAILED" : "Unable to delete the application. First, undeploy it and retry."
     },
     "IMAGE_UPLOAD" : "新しいイメージのアップロード",
-    "INPUTS" : "TRANSLATION_IS_REQUIRED",
+    "INPUTS" : {
+      "CLEAR" : "Clear",
+      "DEPLOYER" : "Deployer input",
+      "EXPRESSION" : "Expression",
+      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE" : "An expression not matching the input type has been provided. Go to \"Expression\" tab to edit it. \nIf you want to edit it as a property, make sure to either provide an expression matching the input type, or set it empty.",
+      "MODAL_HEADER" : "Edit input < {{var}} >"
+    },
     "META_PROPERTIES" : "メタプロパティ",
     "NEW" : "新規アプリケーション",
     "RUNTIME" : {
@@ -655,7 +661,9 @@
       }
     },
     "FROMGIT" : "Imported from Git",
-    "GIT" : "TRANSLATION_IS_REQUIRED",
+    "GIT" : {
+      "GIT_IMPORT" : "Git import"
+    },
     "IMPORTTOOLTIP" : "Import",
     "IMPORT_ALL" : "Import all",
     "IMPORT_SUCCESS" : "CSAR have been imported",
@@ -865,6 +873,8 @@
     "INTERNAL" : "Internal error",
     "SERVER_LOG" : {
       "MISSING_VARIABLES" : "Missing variables: {{variables}}",
+      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "TRANSLATION_IS_REQUIRED",
+      "PREDEFINED_INPUTS_TYPE_VIOLATION" : "TRANSLATION_IS_REQUIRED",
       "UNRESOLVABLE_PREDEFINED_INPUTS" : "Unresolvable predefined inputs: {{unresolvableInputs}}"
     },
     "UNKNOWN" : "Unknown error"
@@ -1156,7 +1166,7 @@
       "LABEL" : "Relationship type",
       "REQUIREMENT_DESCRIPTION" : "Relationship type used to define operations that run on the service side."
     },
-    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE": "The instance can't be edited because it is in state started. Please change the state to off if you want to edit this instance."
+    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE" : "The instance can't be edited because it is in state started. Please change the state to off if you want to edit this instance."
   },
   "SERVICES" : {
     "CATALOG" : "Services catalog",

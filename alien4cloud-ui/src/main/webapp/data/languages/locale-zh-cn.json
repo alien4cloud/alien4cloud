@@ -5,7 +5,12 @@
     "ARCHIVE_NAME" : "文件名（id）",
     "DEPLOY" : "部署",
     "DEPLOYMENT" : {
-      "HISTORY" : "TRANSLATION_IS_REQUIRED",
+      "HISTORY" : {
+        "DEPLOYED_AT" : "Deployed at",
+        "DEPLOYER" : "Deployer",
+        "DURATION" : "Duration",
+        "UNDEPLOYED_AT" : "Undeployed at"
+      },
       "MATCHING" : {
         "CONFIGURATION" : "资源配置",
         "CONFIGURATION_HELP" : "您可以配置被选中的匹配资源的属性。注意一些已经被地点管理员定义好的属性，这些属性不能被覆盖。",
@@ -45,7 +50,13 @@
       "DELETING_FAILED" : "不能够删除应用。首先，卸载它然后重试。"
     },
     "IMAGE_UPLOAD" : "上传新的映像",
-    "INPUTS" : "TRANSLATION_IS_REQUIRED",
+    "INPUTS" : {
+      "CLEAR" : "Clear",
+      "DEPLOYER" : "Deployer input",
+      "EXPRESSION" : "Expression",
+      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE" : "An expression not matching the input type has been provided. Go to \"Expression\" tab to edit it. \nIf you want to edit it as a property, make sure to either provide an expression matching the input type, or set it empty.",
+      "MODAL_HEADER" : "Edit input < {{var}} >"
+    },
     "META_PROPERTIES" : "元属性",
     "NEW" : "新建应用",
     "RUNTIME" : {
@@ -650,7 +661,9 @@
       }
     },
     "FROMGIT" : "从Git导入",
-    "GIT" : "TRANSLATION_IS_REQUIRED",
+    "GIT" : {
+      "GIT_IMPORT" : "Git import"
+    },
     "IMPORTTOOLTIP" : "导入",
     "IMPORT_ALL" : "导入所有",
     "IMPORT_SUCCESS" : "CSAR已经被导入",
@@ -858,7 +871,12 @@
     "860" : "您选择的拓扑需要恢复",
     "870" : "您选择的拓扑不能使用，因为它在应用程序的上下文中将不可见",
     "INTERNAL" : "内部错误",
-    "SERVER_LOG" : "TRANSLATION_IS_REQUIRED",
+    "SERVER_LOG" : {
+      "MISSING_VARIABLES" : "Missing variables: {{variables}}",
+      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "Constraint violation on predefined input <{{name}}>: ",
+      "PREDEFINED_INPUTS_TYPE_VIOLATION" : "Type mismatch on predefined input <{{name}}>: Value must be a {{type}}",
+      "UNRESOLVABLE_PREDEFINED_INPUTS" : "Unresolvable predefined inputs: {{unresolvableInputs}}"
+    },
     "UNKNOWN" : "未知错误"
   },
   "EXECUTE" : "执行",
@@ -1148,7 +1166,7 @@
       "LABEL" : "关系类型",
       "REQUIREMENT_DESCRIPTION" : "被用于定义运行在服务端的操作的关系类型。"
     },
-    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE": "The instance can't be edited because it is in state started. Please change the state to off if you want to edit this instance."
+    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE" : "The instance can't be edited because it is in state started. Please change the state to off if you want to edit this instance."
   },
   "SERVICES" : {
     "CATALOG" : "服务目录",
