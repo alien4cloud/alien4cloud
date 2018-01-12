@@ -150,7 +150,7 @@ public class FlowExecutor {
         topologyModifiers.add(inputsModifier);
         // Inject input artifacts in the topology.
         topologyModifiers.add(inputArtifactsModifier);
-        // Process validation that no required inputs are missing
+        // Process validation of constraints, and that no required inputs are missing
         topologyModifiers.add(inputValidationModifier);
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_INJECT_INPUT));
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_POLICY_MATCH));

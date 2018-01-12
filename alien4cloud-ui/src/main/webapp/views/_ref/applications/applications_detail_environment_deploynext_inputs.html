@@ -1,6 +1,5 @@
-<div class="row">
-
-    <div class="col-md-12 grp-margin" ng-if="deploymentTopologyDTO.validation.taskList['MISSING_VARIABLES'].length > 0">
+<div class="row grp-margin">
+    <div class="col-md-12" ng-if="deploymentTopologyDTO.validation.taskList['MISSING_VARIABLES'].length > 0">
         <div class="text-danger" ng-repeat="task in deploymentTopologyDTO.validation.taskList['MISSING_VARIABLES']">
             <i class="fa fa-times-circle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{
             'ERRORS.SERVER_LOG.MISSING_VARIABLES' | translate:task }}</b></em>
@@ -16,8 +15,28 @@
         </div>
     </div>
 
-    <!-- Input properties  -->
-    <div class="col-md-6 grp-margin">
+    <div class="col-md-12"
+         ng-if="deploymentTopologyDTO.validation.taskList['PREDEFINED_INPUTS_CONSTRAINT_VIOLATION'].length > 0">
+        <div class="text-danger"
+             ng-repeat="(inputName, violation) in deploymentTopologyDTO.validation.taskList['PREDEFINED_INPUTS_CONSTRAINT_VIOLATION'][0].violatingInputs">
+            <i class="fa fa-times-circle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{
+            'ERRORS.SERVER_LOG.PREDEFINED_INPUTS_CONSTRAINT_VIOLATION' | translate:{inputName: inputName} }}{{'ERRORS.800.'+violation.name | translate:violation }}</b></em>
+        </div>
+    </div>
+
+    <div class="col-md-12"
+         ng-if="deploymentTopologyDTO.validation.taskList['PREDEFINED_INPUTS_TYPE_VIOLATION'].length > 0">
+        <div class="text-danger"
+             ng-repeat="(inputName, violation) in deploymentTopologyDTO.validation.taskList['PREDEFINED_INPUTS_TYPE_VIOLATION'][0].violatingInputs">
+            <i class="fa fa-times-circle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{
+            'ERRORS.SERVER_LOG.PREDEFINED_INPUTS_TYPE_VIOLATION' | translate:violation }}</b></em>
+        </div>
+    </div>
+</div >
+
+<div class="row grp-margin">
+    <!-- Deployer Input properties  -->
+  <div class="col-md-6 grp-margin">
     <div class="content-head">
       <i class="fa fa-sign-in"></i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}
     </div>
@@ -99,9 +118,9 @@
 </div>
 
 <div class="row grp-margin">
-  <!-- DevOps Input properties  -->
+  <!-- preconfigured  Input properties  -->
   <div class="col-md-6">
-    <div class="content-head clickable"  ng-init="preconfiguredPropsCollapsed = true"
+    <div class="content-head clickable"
     ng-click="preconfiguredPropsCollapsed = !preconfiguredPropsCollapsed">
       <i class="fa fa-sign-in"></i> {{'APPLICATIONS.TOPOLOGY.PRECONFIGURED_PROPERTIES_INPUTS' | translate}}
       <i style="padding-right: .8em;" class="vertical-align-middle fa" ng-class="{'fa-caret-down' : !preconfiguredPropsCollapsed, 'fa-caret-right': preconfiguredPropsCollapsed}"></i>

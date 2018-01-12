@@ -906,7 +906,9 @@
     "UNKNOWN": "Erreur inconnue",
     "SERVER_LOG": {
       "MISSING_VARIABLES": "Variables manquantes: {{variables}}",
-      "UNRESOLVABLE_PREDEFINED_INPUTS": "Inputs prédéfinis non calculable: {{unresolvableInputs}}"
+      "UNRESOLVABLE_PREDEFINED_INPUTS": "Inputs prédéfini non calculable: {{unresolvableInputs}}",
+      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION": "Violation de contrainte sur l'input prédéfini <{{name}}>: ",
+      "PREDEFINED_INPUTS_TYPE_VIOLATION": "Incompatibilité de type sur l'input prédéfini <{{name}}>: La valeur doit être de type {{type}}"
     }
   },
   "EXECUTE": "Executer",
