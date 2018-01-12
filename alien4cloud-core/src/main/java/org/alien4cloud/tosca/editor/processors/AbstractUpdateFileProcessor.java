@@ -12,14 +12,15 @@ import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.InvalidPathException;
 import org.alien4cloud.tosca.editor.operations.AbstractUpdateFileOperation;
 import org.alien4cloud.tosca.editor.services.EditorTopologyUploadService;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.lang3.StringUtils;
 
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.utils.TreeNode;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.Topology;
 
 /**
  * Process an operation that uploaded or updated a file.
@@ -97,17 +98,24 @@ public abstract class AbstractUpdateFileProcessor<T extends AbstractUpdateFileOp
     @Override
     @SneakyThrows
     public void beforeCommit(T operation) {
-        try {
-            TreeNode fileTreeNode = FileProcessorHelper.getFileTreeNode(operation.getPath());
-            Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(operation.getPath());
-            Files.createDirectories(targetPath.getParent());
-            try (InputStream inputStream = artifactRepository.getFile(operation.getTempFileId())) {
-                Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        // validate that the operation is ok for beforeCommit process
+        if (canPerformBeforeCommit(operation)) {
+            try {
+                TreeNode fileTreeNode = FileProcessorHelper.getFileTreeNode(operation.getPath());
+                Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(operation.getPath());
+                Files.createDirectories(targetPath.getParent());
+                try (InputStream inputStream = artifactRepository.getFile(operation.getTempFileId())) {
+                    Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                artifactRepository.deleteFile(operation.getTempFileId());
+                fileTreeNode.setArtifactId(null);
+            } catch (NotFoundException e) {
+                log.debug("The file is not referenced in the tree, must have been deleted in later operation.", e);
             }
-            artifactRepository.deleteFile(operation.getTempFileId());
-            fileTreeNode.setArtifactId(null);
-        } catch (NotFoundException e) {
-            log.debug("The file is not referenced in the tree, must have been deleted in later operation.", e);
         }
+    }
+
+    private boolean canPerformBeforeCommit(T operation) {
+        return operation.getPath() != null && StringUtils.isNotBlank(operation.getTempFileId());
     }
 }
