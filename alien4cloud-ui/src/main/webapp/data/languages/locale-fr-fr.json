@@ -873,7 +873,9 @@
     "INTERNAL" : "Erreur interne",
     "SERVER_LOG" : {
       "MISSING_VARIABLES" : "Variables manquantes: {{variables}}",
-      "UNRESOLVABLE_PREDEFINED_INPUTS" : "Inputs prédéfinis non calculable: {{unresolvableInputs}}"
+      "UNRESOLVABLE_PREDEFINED_INPUTS": "Inputs prédéfini non calculable: {{unresolvableInputs}}",
+      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION": "Violation de contrainte sur l'input prédéfini <{{name}}>: ",
+      "PREDEFINED_INPUTS_TYPE_VIOLATION": "Incompatibilité de type sur l'input prédéfini <{{name}}>: La valeur doit être de type {{type}}"
     },
     "UNKNOWN" : "Erreur inconnue"
   },
@@ -1163,7 +1165,8 @@
       "CAPABILITY_DESCRIPTION" : "Un type de relation peut être utilisée pour définir les opérations à executer coté service.",
       "LABEL" : "Type de relation",
       "REQUIREMENT_DESCRIPTION" : "Un type de relation peut être utilisée pour définir les opérations à executer coté service."
-    }
+    },
+    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE": "L'instance ne peut pas être modifiée car elle est dans l'état démarré. Veuillez désactiver l'état si vous souhaitez modifier cette instance."
   },
   "SERVICES" : {
     "CATALOG" : "Catalogue des services",
