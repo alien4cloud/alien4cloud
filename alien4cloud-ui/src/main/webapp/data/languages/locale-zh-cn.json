@@ -1,0 +1,1297 @@
+{
+  "APPLICATIONS" : {
+    "APPLICATION" : "应用",
+    "APPLICATION_ROLES" : "应用类型",
+    "ARCHIVE_NAME" : "文件名（id）",
+    "DEPLOY" : "部署",
+    "DEPLOYMENT" : {
+      "HISTORY" : "TRANSLATION_IS_REQUIRED",
+      "MATCHING" : {
+        "CONFIGURATION" : "资源配置",
+        "CONFIGURATION_HELP" : "您可以配置被选中的匹配资源的属性。注意一些已经被地点管理员定义好的属性，这些属性不能被覆盖。",
+        "NODES_TITLE" : "TRANSLATION_IS_REQUIRED",
+        "POLICIES_TITLE" : "TRANSLATION_IS_REQUIRED",
+        "SERVICE" : "服务信息",
+        "SERVICE_HELP" : "以下是匹配服务的定义好的属性和特性。",
+        "SERVICE_UNDEPLOYED_HELP" : "选定的服务已被卸载，如果它被选定为匹配服务，在部署上这个可能会产生问题。"
+      },
+      "PROPERTIES" : {
+        "REQUIRED" : "需要",
+        "WARNING_MESSAGE" : "那些输入属性没有来自应用、云或环境提供的任何值。请联系您的管理员。"
+      },
+      "VERSION" : "部署的版本"
+    },
+    "DEPLOYMENT_INFO" : "TRANSLATION_IS_REQUIRED",
+    "DEPLOY_CONFIRM" : "TRANSLATION_IS_REQUIRED",
+    "ENVIRONMENT" : {
+      "ALL" : "所有环境",
+      "ENV" : "环境",
+      "ENV_ROLES" : "环境角色",
+      "FORM" : {
+        "DONT_COPY_INPUT" : "-- 不要复制输入 --",
+        "ENV_INPUT_CANDIDATE_LABEL" : "输入",
+        "ENV_INPUT_CANDIDATE_SELECT" : "-- 选择一个环境去复制输入 --",
+        "ENV_TYPE" : "环境类型",
+        "ENV_TYPE_SELECT" : "-- 选择环境类型 --",
+        "ENV_VERSION" : "应用版本",
+        "ENV_VERSION_SELECT" : "-- 选择应用版本 --"
+      },
+      "NEW" : "新建",
+      "SELECT_INPUT_CANDIDATE" : "选择一个环境去复制输入",
+      "STATUS" : "状态"
+    },
+    "ERRORS" : {
+      "DELETE_TITLE" : "删除应用",
+      "DELETING_FAILED" : "不能够删除应用。首先，卸载它然后重试。"
+    },
+    "IMAGE_UPLOAD" : "上传新的映像",
+    "INPUTS" : "TRANSLATION_IS_REQUIRED",
+    "META_PROPERTIES" : "元属性",
+    "NEW" : "新建应用",
+    "RUNTIME" : {
+      "BACK" : "返回",
+      "DEPLOYMENT" : "部署",
+      "EVENTS" : {
+        "ALL" : "所有事件",
+        "DATE" : "日期",
+        "DEPLOYMENT_STATUS_MESSAGE" : "{{status | translate}}",
+        "INSTANCES" : "实例状态",
+        "INSTANCE_DELETED_MESSAGE" : "实例 {{nodeId}}/{{instanceId}} 已经被移除",
+        "INSTANCE_STATE_MESSAGE" : "实例 {{nodeId}}/{{instanceId}} 改变状态到 {{state}}",
+        "MESSAGE" : "信息",
+        "MESSAGES" : "信息",
+        "MESSAGE_EVENT" : {
+          "INSTANCE_STATE_CHANGED" : "实例的状态已改变",
+          "STATUS_DEPLOYMENT_CHANGED" : "部署的状态已改变"
+        },
+        "STATUS" : "部署状态",
+        "STORAGE" : "实例状态(块存储)",
+        "STORAGE_MESSAGE" : "实例 {{nodeId}}/{{instanceId}} 已配置好. \n卷 ID: {{volumeId}} \n区: {{zone}}"
+      },
+      "EVENTS_TAB" : "事件",
+      "INFORMATIONS" : {
+        "APP_NAME" : "应用名称",
+        "DEPLOYMENT_ID" : "部署 ID",
+        "LOCATION_ID" : "地点 ID",
+        "LOCATION_NAME" : "地点名称",
+        "ORCHESTRATOR_ID" : "编排工具 ID",
+        "ORCHESTRATOR_NAME" : "编排工具 名称"
+      },
+      "INSTANCE" : "实例",
+      "INSTANCES" : "实例",
+      "KEY" : "键",
+      "OPERATION_EXECUTION" : {
+        "NO_RETURN" : "没有返回",
+        "RESULT_TITLE" : "对于操作 {{operation}} 的执行结果"
+      },
+      "RUNTIMEPROPS" : "运行时属性",
+      "SCALE" : "扩展",
+      "SCALE_BUTTON" : "扩展这个节点",
+      "STATUS" : "状态"
+    },
+    "TOPOLOGY" : {
+      "ADD_NODETEMPLATE" : "添加节点模板",
+      "ADD_RELATIONSHIP" : "添加关系到其他节点",
+      "ARTIFACTS" : {
+        "ADDINPUT" : "定义工件作为输入",
+        "INPUTS" : "输入工件",
+        "TITLE" : "工件"
+      },
+      "CAPABILITY_CARDINALITIES_TOOLTIP" : "上限 (剩余)",
+      "CARDINALITIES_TOOLTIP" : "上限..下限 (剩余)",
+      "CHANGE_RELATIONSHIP" : "改变一个现有的关系",
+      "DEPENDENCIES" : {
+        "CHANGE_VERSION" : {
+          "CONFIRM" : "您想要确认对于依赖的版本更改吗？这个操作会影响在拓扑内的一些节点和关系。",
+          "TITLE" : "版本更改"
+        },
+        "CONFLICTS" : {
+          "MESSAGE_FROM" : "来自 ",
+          "MESSAGE_VERSION" : " 版本 ",
+          "RESOLVED" : "解决到 ",
+          "TITLE" : "可传递的依赖冲突",
+          "WARNING" : "可传递的依赖冲突会引起不兼容问题。"
+        },
+        "VERSION_CONFLICT_MSG" : "您添加的节点的版本和TOSCA文件 {{name}} 造成了冲突。目前的拓扑版本是 {{current}} ，但是选中的新节点版本是 {{new}}。 如果您继续，Alien4Cloud会更新拓扑到最高版本。您想要继续吗？",
+        "VERSION_CONFLICT_TITLE" : "文件版本冲突"
+      },
+      "DEPENDENCY" : "依赖",
+      "GROUPS" : {
+        "ADD" : "添加一个组",
+        "MEMBERS" : "成员",
+        "TOOLTIP" : "组管理"
+      },
+      "INIT_FROM" : "初始化拓扑从",
+      "INIT_FROM_SCRATCH" : "空白",
+      "INIT_FROM_SCRATCH_TXT" : "创建一个新的空拓扑版本。",
+      "INIT_FROM_TEMPLATE_TXT" : "创建一个基于选中拓扑模板的拓扑。",
+      "INIT_FROM_VERSION" : "上一个版本",
+      "INIT_FROM_VERSION_TXT" : "对于定义给定版本的每个拓扑创建一个新的版本（相同的限定符但是不同版本号）",
+      "INPUTS" : {
+        "ADD" : "添加到输入",
+        "CONSTRAINT" : "限制"
+      },
+      "INVALID_NAME" : "非法名称。",
+      "LOCATION_UNAUTHORIZED_MESSAGE" : "您没有足够权力去部署到上一个选中的地点: <{{locationName}}>, 编排工具： <{{orchestratorName}}>. \n 请联系您的管理员以获取更多信息。",
+      "NODE_INFO" : "选中的节点",
+      "NO_OUTPUTS" : "没有输出属性或特性",
+      "ORCHESTRATOR_PROPERTIES" : "编排工具属性",
+      "PARSING_ERROR" : "拓扑不是合法的。",
+      "PRECONFIGURED_PROPERTIES_INPUTS" : "TRANSLATION_IS_REQUIRED",
+      "PROPERTIES_INPUTS" : "输入属性",
+      "PROPERTIES_OUTPUTS" : "输出属性",
+      "RECOVERY" : {
+        "CHOICE_ASK" : "您想对这个拓扑做什么呢？",
+        "DESCRIPTION" : "下面的拓扑的依赖已经被更新：",
+        "DISMISS" : "不予考虑",
+        "ERRORS" : {
+          "RELEASED" : "一个拓扑的快照依赖已经被更改，但是您的拓扑已经被发布，所以不能被更改。快照的依赖上的更改会在目前的拓扑上引起一些问题，Alien4Cloud不能解决这些问题。目前的Alien4Cloud版本不允许您上传一个已发布版本，该版本拥有快照文件的依赖。您可能不得不或者删除目前的拓扑（解决问题后重新上传），或者继续在上面工作（由于快照依赖的更变，会有失败的可能性）。"
+        },
+        "ERRORS_TITLE" : "有错误，这些错误阻止了拓扑被恢复。",
+        "RECOVER" : {
+          "DESCRIPTION" : "尝试使用一下的操作来恢复拓扑。注意，这些拓扑之后会被保存。",
+          "TITLE" : "恢复"
+        },
+        "RESET" : {
+          "DESCRIPTION" : "删除拓扑内的所有东西，彻底清空。",
+          "TITLE" : "重置"
+        },
+        "SUCCESS_MSGE" : "拓扑更新成功!",
+        "TITLE" : "恢复拓扑"
+      },
+      "REFERENCE" : "参考",
+      "RELATIONSHIPS" : "关系",
+      "REPLACE_NODETEMPLATE" : "替换",
+      "REQUIREMENTS" : "先决条件",
+      "SEARCH_RELATIONSHIP_MODAL" : {
+        "BACK" : "返回",
+        "FINISH" : "完成",
+        "NO_TARGETS" : "没有从拓扑内发现任何元素满足这个要求。",
+        "SELECT_NAME_HEADER" : "选择关系名称",
+        "SELECT_RELATIONSHIP_HEADER" : "选择关系类型",
+        "SELECT_TARGET_HEADER" : "选择关系的目标"
+      },
+      "SELECT_NODETYPE" : "选择节点类型",
+      "SUBSTITUTIONS" : {
+        "CAPABILITY" : "能力",
+        "DISPLAY" : "显示代替的拓扑",
+        "EXPOSE" : "曝露",
+        "REQUIREMENT" : "要求",
+        "REQUIREMENTS" : "要求",
+        "TITLE" : "代替"
+      },
+      "TASK" : {
+        "ARTIFACT" : {
+          "ERROR" : "错误",
+          "ERRORS" : {
+            "MISSING" : "缺失"
+          },
+          "LABEL" : "工件",
+          "NODE" : "节点"
+        },
+        "CREATE_TOPOLOGY_MESSAGE" : "没有找到任何拓扑!创建一个新的拓扑然后用节点模板来填充它。",
+        "EMPTY_TOPOLOGY_MESSAGE" : "目前的拓扑是空的。添加节点模板",
+        "ERRORS_LABEL" : "错误",
+        "GO_TO_VALIDATION" : "去拓扑确认",
+        "IMPLEMENT" : "实现节点",
+        "IMPLEMENT_LABEL" : "去实现",
+        "INPUT_ARTIFACT" : {
+          "LABEL" : "输入工件"
+        },
+        "LABEL" : "拓扑不是有效的：",
+        "NODE_FILTER" : {
+          "CAPABILITY" : "能力",
+          "CAPABILITY_MISSING_ERROR" : "目标没有这个能力",
+          "NODE_FILTER_INVALID" : "节点过滤器不满足",
+          "PROPERTY" : "属性",
+          "PROPERTY_CONSTRAINT_VIOLATION_ERROR" : "这个属性上的一个限制没有被满足。",
+          "PROPERTY_MISSING_ERROR" : "目标不拥有这个属性",
+          "PROPERTY_TYPE_VIOLATION_ERROR" : "属性没有这个目标"
+        },
+        "RELATED_INPUT" : "相关输入",
+        "RELATIONSHIP" : "关系",
+        "REPLACE" : "用被建议的一个来替换",
+        "REPLACE_LABEL" : "替换",
+        "REQUIRED_PROPERTIES_LABEL" : "需要的属性",
+        "SCALABLE_CAPABILITY_INVALID" : {
+          "ERRORS" : {
+            "default_instances" : "无效的 default_instances 属性，请确认 0 < min_instances < default_instances < max_instances",
+            "max_instances" : "无效的 max_instances 属性，请确认 0 < min_instances < default_instances < max_instances",
+            "min_instances" : "无效的 min_instances 属性，请确认 0 < min_instances < default_instances < max_instances"
+          },
+          "LABEL" : "无效的扩展性政策",
+          "MISSING" : "必须的属性"
+        },
+        "TOADD_RELATIONSHIP_LABEL" : "没有被满足的要求（应添加关系）",
+        "VALIDATION_FAILED" : "最新保存的拓扑不是有效的，请到拓扑编辑器获取更多信息。",
+        "VALIDATION_SUCCESS" : "最新保存的拓扑是有效的。",
+        "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "目前的拓扑是有效的。",
+        "WORKFLOWS" : {
+          "HAS_ERROR" : "工作流 '{{workflowName}}' 不是有效的 : {{errorCount}} 个错误",
+          "TITLE" : "工作流"
+        }
+      },
+      "TEMPLATE_BASE" : "拓扑模板",
+      "TEMPLATE_SELECT" : "-- 选择一个拓扑模板 --",
+      "TEMPLATE_SELECT_VERSION" : "-- 选择一个模板版本 --",
+      "TEMPLATE_VERSION" : "模板版本",
+      "UPDATE_ARTIFACT" : "更新工件",
+      "VISUAL_DETAILED" : "查看详情",
+      "WARNING" : {
+        "DEPRECATION" : "The node {{name}} of type {{type}}, version{{version}} is marked as deprecated. You should update it's archive version in the topology dependencies.",
+        "HA_INVALID" : {
+          "ERROR" : "错误",
+          "GROUP" : "组",
+          "LABEL" : "不合法的 HA 政策"
+        },
+        "ILLEGAL_OPERATIONS" : {
+          "LABEL" : "被忽略的操作",
+          "LABEL_DETAILS" : "不是所有关系操作都被允许当涉及到服务。Client cannot modify a service configuration on its own and vice and versa.",
+          "OPERATION" : "操作",
+          "RELATIONSHIP_TYPE" : "关系类型",
+          "SERVICE" : "服务"
+        },
+        "LABEL" : "警告",
+        "PROPERTIES" : {
+          "LABEL" : "节点属性"
+        }
+      },
+      "YAML" : "yaml"
+    },
+    "UNDEPLOY" : "卸载",
+    "UNDEPLOY_CONFIRM" : "TRANSLATION_IS_REQUIRED",
+    "UNDEPLOY_MODAL" : {
+      "MESSAGE" : "您即将去卸载一下：",
+      "RESOURCES_TO_UNINSTALL" : "将要卸载的资源",
+      "TITLE" : "卸载提醒者"
+    },
+    "UPDATE_CONFIRM" : "TRANSLATION_IS_REQUIRED",
+    "UPDATE_DEPLOYMENT" : "更新",
+    "VARIABLES" : {
+      "APP_HELP" : "TRANSLATION_IS_REQUIRED",
+      "APP_SCOPE" : "TRANSLATION_IS_REQUIRED",
+      "APP_SCOPE_NOT_EDITABLE" : "TRANSLATION_IS_REQUIRED",
+      "DOC_LINK" : "Online documentation.",
+      "EDIT_MESSAGE" : "TRANSLATION_IS_REQUIRED",
+      "ENV_SCOPE" : "TRANSLATION_IS_REQUIRED",
+      "ENV_TYPE_SCOPE" : "TRANSLATION_IS_REQUIRED",
+      "MODAL_HEADER" : "TRANSLATION_IS_REQUIRED",
+      "TOGGLE_EDIT" : "TRANSLATION_IS_REQUIRED",
+      "TYPE_TO_ADD" : "TRANSLATION_IS_REQUIRED",
+      "UNDEFINED" : "TRANSLATION_IS_REQUIRED",
+      "UNSELECTED_HOLDER" : "TRANSLATION_IS_REQUIRED"
+    },
+    "VERSION" : {
+      "CHANGE_TOPO_VERSION_WARNING" : "还有一件事情：您需要选择一个拓扑版本去确认应用版本的更改",
+      "LABEL" : "应用版本",
+      "MODAL" : {
+        "PATTERN" : "非法格式",
+        "PREVIOUS_TOPO_VERSION" : "上一个拓扑版本",
+        "PREVIOUS_VERION" : "上一个版本",
+        "SELECT_PREVIOUS" : "选择一个旧版本去复制它的拓扑",
+        "TITLE" : "新版本",
+        "VERSION" : "版本号"
+      },
+      "NEW" : "新版本",
+      "TOPOLOGY" : {
+        "LABEL" : "拓扑版本",
+        "NEW" : "创建一个新拓扑",
+        "QUALIFIER" : "限定符",
+        "TITLE" : "New topology for application version"
+      }
+    },
+    "WF" : {
+      "CallOperationWorkflowActivity" : "Operation call",
+      "DelegateWorkflowActivity" : "Delegate workflow",
+      "InlineWorkflowActivity" : "TRANSLATION_IS_REQUIRED",
+      "SetStateWorkflowActivity" : "State change",
+      "activity" : "Activity",
+      "addInlineActivity" : "TRANSLATION_IS_REQUIRED",
+      "addOperationActivity" : "Add operation call",
+      "addStateActivity" : "Add state change",
+      "addWorkflow" : "Add workflow",
+      "appendInlineActivity" : "TRANSLATION_IS_REQUIRED",
+      "appendOperationActivity" : "Append operation call",
+      "appendStateActivity" : "Append state change",
+      "changeViewMode" : "Simplified view",
+      "connectFromSelection" : "Connect from selection",
+      "connectToSelection" : "Connect to selection",
+      "currentSelection" : "Current selection",
+      "delegateWorkflow" : "Workflow",
+      "disconnect" : "Disconnect",
+      "disconnectFrom" : "Disconnect from",
+      "disconnectTo" : "Disconnect to",
+      "errors" : {
+        "BadStateSequenceError" : "非法顺序 : 步骤 '{{from}}' 应该在 '{{to}}' 之前",
+        "ParallelSetStatesError" : "对于节点 '{{nodeId}}' 状态更改已并行完成",
+        "UnknownNodeError" : "被步骤 '{{stepId}}' 引用的节点 '{{nodeId}}' 不存在。",
+        "WorkflowHasCycleError" : "工作流包含一个回路。"
+      },
+      "hasErrors" : "错误(s)",
+      "host" : "主机",
+      "inline" : "TRANSLATION_IS_REQUIRED",
+      "insertInlineActivity" : "TRANSLATION_IS_REQUIRED",
+      "insertOperationActivity" : "Insert operation call",
+      "insertStateActivity" : "Insert state change",
+      "interfaceName" : "Interface",
+      "launch" : "Launch",
+      "operationName" : "Operation",
+      "reinit" : "Reset workflow",
+      "removeStep" : "Remove step",
+      "stateName" : "State",
+      "swapLeft" : "Swap to left",
+      "swapRigth" : "Swap to right",
+      "title" : "Workflows",
+      "unpin" : "Unpin",
+      "workflow" : "TRANSLATION_IS_REQUIRED"
+    }
+  },
+  "AUDIT" : {
+    "ACTIVE_FILTERS" : "活跃的过滤器",
+    "COLUMNS" : {
+      "ACTION" : "操作",
+      "ACTIONDESCRIPTION" : "描述",
+      "ALIEN4CLOUDUI" : "Alien4Cloud UI",
+      "CATEGORY" : "类别",
+      "METHOD" : "方法",
+      "PATH" : "调用",
+      "REQUESTBODY" : "Request body",
+      "REQUESTPARAMETERS" : "Request parameters",
+      "RESPONSESTATUS" : "Response status",
+      "SOURCEIP" : "源 IP",
+      "TIMESTAMP" : "日期",
+      "USERAGENT" : "User-Agent",
+      "USEREMAIL" : "邮件",
+      "USERFIRSTNAME" : "名",
+      "USERLASTNAME" : "姓",
+      "USERNAME" : "用户名",
+      "VERSION" : "API 版本"
+    },
+    "CONFIGURATION" : {
+      "ACTION_NAME" : "动作名称",
+      "BACK_TO_AUDIT_LOG" : "Back to audit logs",
+      "CONFIGURATION_IS_RESETED" : "Audit configuration has been reseted with success",
+      "ENABLED" : {
+        "LABEL" : "Enabled"
+      },
+      "LABEL" : "Audit Configuration",
+      "RESET" : "重设"
+    },
+    "LOG" : "Operations Audit"
+  },
+  "BOUNDS" : "界限",
+  "CANCEL" : "取消",
+  "CANCELLED" : "取消的",
+  "CLOSE" : "关闭",
+  "CLOUDS" : {
+    "ADMINISTRATION" : {
+      "DRIVER" : {
+        "TITLE" : "驱动配置"
+      },
+      "GLOBAL" : {
+        "DEPLOYMENT_NAME" : "部署的命名规则",
+        "TITLE" : "全局配置"
+      },
+      "HELP" : {
+        "CONTENT" : "您可以用环境、应用、应用的元属性和时间戳。我们用Spring Expression Language语法，确保去定义一个正确的语句。另外，我们建议您设置一个规则，这个规则会给每一个部署产生一个唯一的名字",
+        "TITLE" : "关于部署名称的命名规则的帮助"
+      }
+    },
+    "DISABLE" : "关闭",
+    "ENABLE" : "激活",
+    "ENVIRONMENT" : {
+      "DEVELOPMENT" : "开发",
+      "INTEGRATION_TESTS" : "集成测试",
+      "OTHER" : "其他",
+      "PRE_PRODUCTION" : "Pre-production",
+      "PRODUCTION" : "production",
+      "USER_ACCEPTANCE_TESTS" : "UAT"
+    },
+    "ERRORS" : {
+      "352" : "非法的云配置。请更换它然后重试。",
+      "352_TITLE" : "保存云配置",
+      "DELETING_FAILED" : "无法删除这个云。因为它正在被某些资源使用。",
+      "DELETING_FAILED_TITLE" : "删除一个云",
+      "ENABLING_FAILED" : "因为非法的配置，无法激活这个云。",
+      "ENABLING_FAILED_TITLE" : "激活一个云",
+      "REFRESHING_FAILED" : "刷新时产生了一个错误。",
+      "REFRESHING_FAILED_TITLE" : "刷新一个云"
+    },
+    "FORCE-DISABLE" : "强制关闭",
+    "FORCE-DISABLE-CONTENT" : "您想要关闭这个云尽管它正在被某些应用使用？",
+    "FORCE-DISABLE-TITLE" : "强制关闭云"
+  },
+  "CODE" : "zh-cn",
+  "COMMON" : {
+    "ADD" : "添加",
+    "ADD_USER_ATTRIBUTE" : "添加用户特性",
+    "ATTENTION" : "TRANSLATION_IS_REQUIRED",
+    "ATTRIBUTES" : "特性",
+    "AUTHOR" : "作者",
+    "AUTHORIZED" : "被授权的",
+    "CAPABILITIES" : "能力",
+    "CONTENT" : "TRANSLATION_IS_REQUIRED",
+    "DATA" : "数据",
+    "DATE" : "日期",
+    "DESCRIPTION" : "描述",
+    "DOWNLOAD" : "TRANSLATION_IS_REQUIRED",
+    "EDIT" : "TRANSLATION_IS_REQUIRED",
+    "EMAIL" : "邮件",
+    "EMAIL_INVALID" : "非法的邮件",
+    "ENABLED_false" : "关闭",
+    "ENABLED_true" : "激活",
+    "FILTER" : "过滤",
+    "GROUPS" : "组",
+    "ID" : "Id号",
+    "INFO" : "信息",
+    "INFOS" : "信息",
+    "KEY" : "键",
+    "MESSAGE" : "信息",
+    "NAME" : "名称",
+    "NO" : "号",
+    "NODE" : "节点",
+    "OR" : "TRANSLATION_IS_REQUIRED",
+    "PASSWORD" : "Password",
+    "PATH" : "Path",
+    "PROPERTIES" : "属性",
+    "RELATIONSHIP" : "Relationship",
+    "RESOURCES" : "资源",
+    "SEARCH" : "TRANSLATION_IS_REQUIRED",
+    "SOURCE" : "来源",
+    "STATE" : "状态",
+    "TARGET" : "目标",
+    "TYPE" : "类型",
+    "USERNAME" : "用户名",
+    "VERSION" : "版本",
+    "YES" : "是"
+  },
+  "COMPONENTS" : {
+    "ABSTRACT" : "抽象组件",
+    "ACTIVE_FILTERS" : "激活过滤器",
+    "ARCHIVE" : "文件",
+    "ARCHIVE_NAME" : "文件名",
+    "ARCHIVE_VERSION" : "文件版本",
+    "BROWSE" : "TRANSLATION_IS_REQUIRED",
+    "CAPABILITIES" : {
+      "CARDINALITIES_TOOLTIP" : "上限",
+      "TYPE" : "能力"
+    },
+    "CARDINALITIES_TOOLTIP" : "上限..下限",
+    "COMPONENT" : {
+      "ABSTRACT_COMPONENT" : "抽象组件",
+      "INTERFACES" : "接口",
+      "RECOMMEND_MESSAGE" : "将其定义为对于这个能力的默认组件。",
+      "UNRECOMMEND_MESSAGE" : "取消将其定义为对于这个能力的默认组件。"
+    },
+    "CONFIRM_RECOMMENDATION_MODAL" : {
+      "HEADER" : "确认默认的组件",
+      "MESSAGE" : "对于 [ {{capability}} ]，组件 [ {{componentId}} ] 已被设为默认. 您想要覆盖它吗？",
+      "OK" : "覆盖"
+    },
+    "CSAR" : {
+      "ACTIVE_FILTERS" : "激活过滤器",
+      "IMPORTSOURCE" : "TRANSLATION_IS_REQUIRED",
+      "TEMPLATEAUTHOR" : "作者",
+      "TITLE" : "CSARS",
+      "WORKSPACE" : "工作空间"
+    },
+    "DEFAULTCAPABILITIES" : "默认能力",
+    "DERIVEDFROM" : "衍生出",
+    "DRAG_DROP_UPLOAD" : "把文件拖到这里上传",
+    "FORM_ERRORS" : {
+      "TAG_KEY" : "标签名称只能包含字母a到Z、-、 _，除了空格"
+    },
+    "REQUIREMENTS" : {
+      "TYPE" : "先决条件"
+    },
+    "SEARCH" : {
+      "SHOW_ADV_SEARCH" : "高级搜索...",
+      "SIMPLE_SEARCH" : "简单搜索..."
+    },
+    "UPLOAD" : "上传 CSAR",
+    "UPLOAD_ERROR" : {
+      "300" : "在插件上传的过程中出现意外的IO错误。",
+      "353" : "META-INF/plugin.yml 文件无法在您的插件内找到。",
+      "354" : "TRANSLATION_IS_REQUIRED",
+      "ALIEN_MAPPING_ERROR" : "内部错误引起的上传失败。请与堆栈信息和文件一并提交一个问题。",
+      "CSAR_ALREADY_EXISTS" : "一个相同名称和版本的已发布的文件已经存在于Alien4Cloud的仓库中。为了确保用户使用的稳定性，Alien4Cloud不允许覆盖已发布的文件。然而，能够去覆盖一个快照文件，如果它没有被已部署的拓扑中使用。",
+      "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE" : "一个相同名称和版本的已发布的文件已经存在于其他工作空间的Alien4Cloud的仓库中。",
+      "CSAR_ALREADY_INDEXED" : "CSAR已经被编入Alien4Cloud的索引当中。",
+      "CSAR_IMPORT_ITSELF" : "不允许工件导入自身。",
+      "CSAR_USED_IN_ACTIVE_DEPLOYMENT" : "依赖于相同名称和版本的拓扑已经被部署。为了确保运行时处理的稳定性，Alien4Cloud不允许覆盖。",
+      "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE" : "依赖 [ {{note}} ] i{{note}} s 在目标的工作目录内不可见。",
+      "DEPENDENCY_VERSION_CONFLICT" : "依赖 [{{problem}}] 与依赖 [{{context}}] 产生冲突。冲突已通过使用最新版本解决。",
+      "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION" : "需要替换具体类型[{{note}}]），请使用抽象类型。",
+      "DERIVED_FROM_NOTHING" : "TOSCA类型[{{note}}]必须来自基类型[{{context}}]，Alien已自动添加[{{context}}]作为其父母",
+      "DUPLICATED_ELEMENT_DECLARATION" : "元素[{{note}}]已经在此定义文件中定义。",
+      "ENTRY_DEFINITION_NOT_FOUND" : "条目定义文件尚未找到。请将有效的定义文件放在工件的根目录下。",
+      "ERRONEOUS_ARCHIVE_FILE" : "无法加载工件文件。请检查该文件是否是有效的zip。",
+      "FAILED_TO_READ_FILE" : "无法读取文件 {{note}}",
+      "FILE_PATH" : "文件路径",
+      "INVALID_ARTIFACT_REFERENCE" : "无效的工件引用 {{note}}",
+      "INVALID_ICON_FORMAT" : "图标文件不是支持的图像格式。",
+      "INVALID_NAME" : "无效 {{context}} 问题名称： [{{problem}}]。 重命名到 [{{note}}]。",
+      "INVALID_SCALAR_UNIT" : "类型必须是TOSCA标量单位，需要单位和数值。",
+      "INVALID_YAML" : "文件不符合YAML格式，\n({{problem}})。",
+      "LABEL" : "错误",
+      "MISSING_DEPENDENCY" : "依赖 [{{note}}] 在Alien4Cloud存储库中找不到。",
+      "MISSING_FILE" : "引用文件 {{note}} 无法在工件内找到.",
+      "MISSING_TOPOLOGY_INPUT" : "输入列表中找不到 [{{context}}] 节点的属性 [{{problem}}] 引用的输入 [{{problem}}]。",
+      "MISSING_TOSCA_VERSION" : "TOSCA版本没有指定,它是必需的。",
+      "NotNull" : "属性[{{path}}]不能为空。",
+      "OUTPUTS_BAD_PARAMS_COUNT" : "函数参数count不正确",
+      "OUTPUTS_UNKNOWN_FUNCTION" : "未知功能[{{note}}]",
+      "POLICY_TARGET_NOT_FOUND" : "Policy target [{{note}}] cannot be found",
+      "POTENTIAL_BAD_PROPERTY_VALUE" : "可能会出现印刷错误：{{note}}。",
+      "RELATIONSHIP_NOT_BUILT" : "无法为要求建立关系[{{note}}]（请阅读错误）。",
+      "REQUIREMENT_CAPABILITY_NOT_FOUND" : "无法识别与要求[{{note}}]相对应的功能。",
+      "REQUIREMENT_NOT_FOUND" : "没有找到[{{note}}]的要求定义。",
+      "REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED" : "节点模板名称是需求定义所必需的，应将其定义为节点'node'的值。",
+      "REQUIREMENT_TARGET_NOT_FOUND" : "目标[{{note}}]的要求不存在。",
+      "SINGLE_DEFINITION_SUPPORTED" : "Alien4Cloud目前支持工件中的单个定义文件。",
+      "SNAPSHOT_DEPENDENCY" : "发布工件中不允许快照依赖关系[{{note}}]。",
+      "SYNTAX_ERROR" : "语法错误：类型为{{note}}的Yaml定义不符合TOSCA规范。",
+      "Size" : "属性[{{path}}]的大小不满足约束（空）。",
+      "TOPOLOGY_DETECTED" : "已在工件中检测到拓扑模板，并创建名称为：{{note}}。",
+      "TOPOLOGY_UPDATED" : "工件中已检测到拓扑模板，并更新：{{note}}。",
+      "TOSCA_TYPE_ALREADY_EXISTS_IN_OTHER_CSAR" : "工件不能覆盖其他工件的节点类型：{{problem}}。",
+      "TOSCA_VERSION_NOT_FIRST" : "TOSCA版本必须放在模板的第一行。",
+      "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT" : "传递依赖关系[{{problem}}]与直接依赖关系[{{context}}]相冲突。使用直接依赖关系版本解决了冲突：[{{note}}]。",
+      "TYPE_NOT_FOUND" : "引用类型[{{note}}]在工件或其依赖关系中都找不到。请检查导入部分或将类型添加到您的工件。",
+      "ToscaPropertyConstraint" : "约束[{{path}}]无效或不能应用于定义的属性。",
+      "ToscaPropertyConstraintDuplicate" : "约束[{{path}}]已经存在。相同的约束不能一次定义。",
+      "ToscaPropertyDefaultValueConstraints" : "属性[{{path}}]的默认值不遵守其约束。",
+      "ToscaPropertyDefaultValueType" : "属性[{{path}}]的默认值不遵循其类型。",
+      "ToscaPropertyType" : "属性[{{path}}]的类型无效，请检查支持的TOSCA类型。详情[{{message}}]",
+      "UNKNOWN_CAPABILITY" : "此节点的能力[{{note}}]未知。",
+      "UNKNOWN_CONSTRAINT" : "TOSCA规范中不存在约束[{{note}}]。",
+      "UNKNOWN_IMPLEMENTATION_ARTIFACT" : "无法找到扩展名[{{note}}]的任何“工件类型”。不支持工件类型。",
+      "UNKNOWN_TOSCA_VERSION" : "TOSCA版本是未知的，不被Alien4Cloud识别。",
+      "UNKNWON_DISCRIMINATOR_KEY" : "键{{note}}是未知的。",
+      "UNKNWON_WORKFLOW_STEP" : "工作流程步骤[{{note}}]不存在，已被忽略。",
+      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET" : "The relationship ({{note}}) defined as target of the workflow step does not exist in the specified node.",
+      "UNKNWON_WORKFLOW_STEP_TARGET" : "The target node ({{note}}) specified in the workflow step does not exist in the topology.",
+      "UNKOWN_GROUP_MEMBER" : "群组成员[{{note}}]不存在，因此被忽略。",
+      "UNKOWN_GROUP_POLICY" : "组策略[{{note}}]未被管理。",
+      "UNRECOGNIZED_PROPERTY" : "属性[{{note}}]未知，已被忽略。",
+      "UNRESOLVED_ARTIFACT" : "工件{{note}}无法解决。",
+      "UNSUPPORTED_SUBSTITUTION" : "不可替换定义类型的工件。",
+      "VALIDATION_ERROR" : "已声明的类型无效： {{context | translate:note}}",
+      "WORKFLOW_HAS_CYCLE" : "Workflow {{note}} contains an infinite cycle.",
+      "WORKFLOW_HAS_ERRORS" : "工作流程 [{{note}}] 是无效的。",
+      "WORKFLOW_INLINED_WORKFLOW_NOT_FOUND" : "Referenced inline workflow {{note}} does not exists.",
+      "YAML_MAPPING_NODE_EXPECTED" : "需要映射节点。",
+      "YAML_SCALAR_NODE_EXPECTED" : "此处需要可扩展类型的YAML节点。",
+      "YAML_SEQUENCE_EXPECTED" : "需要YAML序列。"
+    },
+    "VALIDSOURCES" : "有效代码",
+    "WORKSPACE" : "工作区"
+  },
+  "CONFIRM" : "确认",
+  "CONFIRM_MESSAGE" : "你真的要执行这个动作吗？",
+  "CONSTRAINT" : {
+    "EQUAL" : "等于",
+    "GREATER_OR_EQUAL" : "大于或等于",
+    "GREATER_THAN" : "大于",
+    "IN_RANGE" : "在范围",
+    "LENGTH" : "长度相等",
+    "LESS_OR_EQUAL" : "小于或等于",
+    "LESS_THAN" : "小于",
+    "MAX_LENGTH" : "最大长度",
+    "MIN_LENGTH" : "最小长度",
+    "PATTERN" : "模式",
+    "VALID_VALUES" : "有效值"
+  },
+  "CONSTRAINTS" : {
+    "VALIDATION" : {
+      "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS" : "默认值与约束不匹配",
+      "DEFAULT_VALUE_TYPE" : "默认值与其声明的类型不匹配",
+      "DUPLICATED_CONSTRAINT" : "检测到具有相同类型的多个约束",
+      "ROOT" : "约束无效",
+      "TYPE" : "约束中定义的值与其声明的类型不匹配"
+    }
+  },
+  "CREATE" : "新建",
+  "CREATION_DATE" : "创建时间",
+  "CSAR" : {
+    "ACTIONS" : "操作",
+    "ARCHIVE" : "工件的文件夹",
+    "ARCHIVE_TO_IMPORT" : "要上传的工件",
+    "BRANCH_OR_TAG" : "分支或标签",
+    "BRANCH_OR_TAG_TO_IMPORT" : "在分支或标签上",
+    "CREDENTIALS" : "秘钥",
+    "CREDENTIALSINFO" : "仅对私有存储库强制",
+    "DELETE" : "删除",
+    "DEPRECIATE" : "TRANSLATION_IS_REQUIRED",
+    "DETAILS" : {
+      "ARCHIVE_COMPONENTS" : "工件的组件",
+      "BUTTON_ADD_NODE_TYPE" : "添加新的组件",
+      "COMPONENT_FORM_TITLE" : "新建组件",
+      "LIST" : "CSAR的列表",
+      "NO_RESOURCES" : "没有链接的资源",
+      "RESOURCE" : {
+        "APP_TEXT" : "应用详情",
+        "CSAR_TEXT" : "CSAR详情",
+        "TOPOLOGY_TEXT" : "拓扑模板详情"
+      },
+      "RESOURCES" : "资源列表"
+    },
+    "DETAILS_TITLE" : "CSAR详情",
+    "EDIT" : "更新一个CSAR",
+    "EDITTOOLTIP" : "编辑",
+    "ERRORS" : {
+      "501_TITLE" : "已经存在相同URL的CSAR",
+      "507" : "CSAR删除失败，因为它被其他资源引用",
+      "507_TITLE" : "删除一个CSAR",
+      "IMPORT" : "CSAR不能被导入",
+      "NO_DATA" : {
+        "BODY" : "请从Git位置添加新的CSAR",
+        "HEADER" : "没有可导入的CSAR"
+      }
+    },
+    "FROMGIT" : "从Git导入",
+    "GIT" : "TRANSLATION_IS_REQUIRED",
+    "IMPORTTOOLTIP" : "导入",
+    "IMPORT_ALL" : "导入所有",
+    "IMPORT_SUCCESS" : "CSAR已经被导入",
+    "LEGEND" : "Csars被添加",
+    "NEW" : "TRANSLATION_IS_REQUIRED",
+    "NEW_GIT" : "Git位置",
+    "PASSWORD" : "密码",
+    "SAVE_LOCALLY" : "保存到本地的存储库",
+    "TEST_TOPOLOGY" : "测试拓扑结构的状态",
+    "UPDATE" : "更新",
+    "URL" : "存储库的URL"
+  },
+  "DATE_FORMAT" : "月-日-年",
+  "DELETE" : "删除",
+  "DELETE_CONFIRM" : "你真的要删除这个元素吗？",
+  "DEPLOYMENT" : {
+    "STATUS" : {
+      "DEPLOYED" : "已部署",
+      "DEPLOYMENT_IN_PROGRESS" : "正在部署",
+      "FAILURE" : "失败",
+      "INIT_DEPLOYMENT" : "初始化部署",
+      "UNDEPLOYED" : "未部署",
+      "UNDEPLOYMENT_IN_PROGRESS" : "正在卸载",
+      "UNKNOWN" : "未知",
+      "UPDATED" : "已更新",
+      "UPDATE_DEPLOYMENT" : "更新部署",
+      "UPDATE_FAILURE" : "更新失败",
+      "UPDATE_IN_PROGRESS" : "正在更新部署",
+      "WARNING" : "警告"
+    },
+    "TOASTER_STATUS" : {
+      "DEPLOYED" : "应用程序<{{appName}}>的环境<{{envName}}>已被部署。",
+      "FAILURE" : "在部署应用程序<{{appName}}>的环境<{{envName}}>期间发生故障。 有关更多信息，请参阅部署的日志。",
+      "UPDATE_FAILURE" : "在更新环境<{{envName}}>和应用程序<{{appName}}>的部署期间发生故障。 请参阅部署的日志。"
+    }
+  },
+  "DETAILS" : "详情",
+  "EDITOR" : {
+    "ARTIFACTS" : {
+      "REPOS" : {
+        "A4C_CSAR" : "CSAR",
+        "ARCHIVE_REPOSITORIES" : "工件存储库",
+        "FILE" : "文件",
+        "GLOBAL_REPOSITORIES" : "全局存储库",
+        "ID" : "存储库ID",
+        "LOCAL" : "本地",
+        "LOCAL_FS" : "本地文件系统",
+        "MUST_BE_UNIQUE" : "存储库ID对于此工件必须是唯一的",
+        "NEW_REPOSITORY" : "新建存储库",
+        "REMOTE" : "远程",
+        "TYPE" : "类型",
+        "URL" : "URL"
+      },
+      "REPOSITORY" : "存储库",
+      "SELECT" : "选择工件"
+    },
+    "ASK_SAVE" : {
+      "MESSAGE" : "在离开编辑器之前要保存更改吗？",
+      "TITLE" : "未保存修改"
+    },
+    "DOWNLOAD" : "下载",
+    "DO_NOT_SAVE" : "跳过",
+    "EMPTY_GIT_HISTORY" : "git历史记录为空，您需要保存拓扑。",
+    "GIT" : {
+      "MODAL" : {
+        "PASSWORD" : "密码",
+        "PULL" : "Git pull",
+        "PUSH" : "Git push",
+        "REMOTE" : "Git config",
+        "REMOTE_BRANCH" : "Branch",
+        "REMOTE_BRANCH_VALUE" : "Remote Branch (default: 'master')",
+        "URL" : "URL",
+        "URL_VALUE" : "https://...",
+        "USERNAME" : "Username"
+      },
+      "OPERATIONS" : {
+        "PULL" : {
+          "SUCCESS_MSGE" : "Successfully pulled from git",
+          "TITLE" : "Git pull operation"
+        },
+        "PUSH" : {
+          "SUCCESS_MSGE" : "Successfully pushed to git",
+          "TITLE" : "Git push operation"
+        }
+      },
+      "PULL" : "Pull",
+      "PUSH" : "Push",
+      "REMOTE" : "Remote"
+    },
+    "GIT_HISTORY" : "Git历史",
+    "HISTORY" : {
+      "DETAIL" : "详情"
+    },
+    "MENU_FILES" : "工件内容",
+    "MENU_HISTORY" : "历史",
+    "MENU_INPUTS_VAR" : "TRANSLATION_IS_REQUIRED",
+    "MENU_TOPOLOGY" : "拓扑",
+    "MENU_VALIDATION" : "拓扑验证",
+    "MENU_WORKFLOW" : "工作流",
+    "OPERATION" : "操作",
+    "REDO" : "重做",
+    "SAVE" : "保存",
+    "UNDO" : "撤销",
+    "VALIDATION" : {
+      "CURRENT_TOPOLOGY" : "当前拓扑",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS" : "当前拓扑没有改变。",
+      "LAST_SAVED_TOPOLOGY" : "上次保存的拓扑"
+    }
+  },
+  "EDIT_RIGHTS" : {
+    "EDIT_ROLE_ENV" : "编辑环境角色",
+    "EDIT_ROLE_HEADER_ENV" : "添加或删除角色到环境",
+    "EDIT_ROLE_HEADER_RESOURCE" : "添加或删除角色到资源",
+    "EDIT_ROLE_RESOURCE" : "编辑资源角色"
+  },
+  "END_DATE" : "结束日期",
+  "ENVIRONMENT_TYPE" : {
+    "DEVELOPMENT" : "开发",
+    "INTEGRATION_TESTS" : "合成测试",
+    "OTHER" : "其它",
+    "PRE_PRODUCTION" : "预生产",
+    "PRODUCTION" : "生产",
+    "USER_ACCEPTANCE_TESTS" : "UAT"
+  },
+  "ENVIRONMENT_TYPE_ALL" : "TRANSLATION_IS_REQUIRED",
+  "ERRORS" : {
+    "100" : "需要验证",
+    "101" : "验证错误，请检查您的登录名和密码",
+    "102" : "此模块或此资源的权限不足",
+    "200" : "解析CSAR时发生意外错误",
+    "300" : "访问CSAR索引服务时发生意外错误",
+    "352" : {
+      "MESSAGE" : "不正确的插件配置",
+      "TITLE" : "插件错误"
+    },
+    "371" : {
+      "MESSAGE" : "类型{{type}}的参数{{name}}的值{{value}}无效",
+      "TITLE" : "操作执行失败{{operation}}"
+    },
+    "372" : "部署的命名策略错误。",
+    "373" : "打开/关闭维护模式时出现意外的错误",
+    "374" : "您的元属性之一是空的，没有默认值。",
+    "375" : "尝试扩展时，提供商发生错误。",
+    "390" : "禁止删除最后一个管理员用户。",
+    "391" : "禁止删除最后一个管理员用户的ADMIN角色。",
+    "400" : "访问CSAR存储库时发生意外错误",
+    "401" : "您必须连接才能执行此操作。您现在将被重定向",
+    "500" : "未知错误",
+    "501" : "非法参数",
+    "502" : "对象已经存在",
+    "503" : "上传的图像遇到意外的错误",
+    "504" : "无法找到对象",
+    "507" : "不能删除此对象，因为它仍被其他对象使用",
+    "508" : {
+      "MESSAGE" : "由于某些对象仍然使用资源，因此无法执行操作",
+      "TITLE" : "资源被使用"
+    },
+    "509" : "不支持操作",
+    "601" : "应用无法部署",
+    "602" : "应用未能卸载",
+    "604" : "应用程序必须至少有一个环境",
+    "605" : "格式版本无效",
+    "607" : "已部署的环境无法删除",
+    "608" : "只有SNAPSHOT应用可以修改",
+    "609" : "触发部署后，无法访问PaaS供应商",
+    "610" : "应用程序必须至少有一个版本",
+    "611" : "应用程序环境必须具有应用程序版本。",
+    "612" : "应用程序环境的云在部署时无法更新。",
+    "613" : "在生成的部署PaaS Id上检测到冲突。请检查应用程序名称。 (详情请看 <a target='_blank' href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, 命名规则</a>) ",
+    "615" : "工件名称已被使用。",
+    "616" : "您无权克隆此Git存储库。请检查您的证书。",
+    "617" : "自上次导入过程以来，未检测到任何修改",
+    "618" : "名称无效。建议使用基本拉丁字母和下划线字母数字字符。",
+    "650" : "您的Compute中至少有两个具有冲突名称。",
+    "651" : "当云具有“可删除”选项设置时，BlockStorage不能具有VolumeID。",
+    "680" : "Git存储库url不存在或不是正确的。",
+    "681" : "Git存储库需要手动合并。",
+    "682" : "Git存储库不在安全状态，请手动修复。",
+    "750" : "编辑过程中产生并发",
+    "800" : {
+      "equal" : "值等于{{reference}}",
+      "greaterOrEqual" : "值必须 >= {{reference}}",
+      "greaterThan" : "值必须 > {{reference}}",
+      "inRange" : "值必须在 [ {{reference}} ] 范围内",
+      "length" : "值必须是 {{reference}}",
+      "lessOrEqual" : "值必须 <= {{reference}}",
+      "lessThan" : "值必须 < {{reference}}",
+      "maxLength" : "最大值的长度是 {{reference}}",
+      "minLength" : "最小值的长度是 {{reference}}",
+      "pattern" : "值必须匹配模式 {{reference}}",
+      "validValues" : "值必须在 [ {{reference}} ] 当中"
+    },
+    "803" : "版本出现冲突",
+    "804" : "{{value}} 类型不是 {{type}}",
+    "805" : {
+      "MESSAGE" : "需要一个或几个参数 : {{value}}",
+      "TITLE" : "操作执行失败 {{operation}}"
+    },
+    "807" : "只能修改SNAPSHOT版本的拓扑",
+    "808" : "这个名字不符合规定的规则",
+    "820" : "引用出现回路：拓扑模板本身无法引用自身！",
+    "830" : "发布的版本不能引用SNAPSHOT的依赖关系",
+    "831" : "此版本无法重命名，因为它已被其他地方使用",
+    "850" : "不允许这种类型的工作流的操作",
+    "860" : "您选择的拓扑需要恢复",
+    "870" : "您选择的拓扑不能使用，因为它在应用程序的上下文中将不可见",
+    "INTERNAL" : "内部错误",
+    "SERVER_LOG" : "TRANSLATION_IS_REQUIRED",
+    "UNKNOWN" : "未知错误"
+  },
+  "EXECUTE" : "执行",
+  "FALSE" : "错误",
+  "FORCE" : "强制",
+  "GENERIC_FORM" : {
+    "ADD" : "添加",
+    "CANCEL" : "取消",
+    "DELETE" : "删除",
+    "EDIT" : "编辑",
+    "FORM_INVALID_MESSAGE" : "注意！表单无效，直到所有问题解决为止，才会保存：",
+    "GOTO" : "调到",
+    "MAP_KEY_PLACEHOLDER" : "输入一个新的键",
+    "REQUIRED" : "必须填写的项",
+    "ROOT" : "根部",
+    "SAVE" : "保存",
+    "SAVE_IS_DONE" : "已保存",
+    "UNDEFINED" : "点击去编辑",
+    "UNDEFINED_READ_ONLY" : "未定义",
+    "VALIDATION_ERROR" : {
+      "greaterOrEqual" : "值必须 >= {{reference}}",
+      "greaterThan" : "值必须 > {{reference}}",
+      "inRange" : "值必须在 [ {{reference}} ] 范围内",
+      "length" : "值的长度必须 {{reference}}",
+      "lessOrEqual" : "值必须 <= {{reference}}",
+      "lessThan" : "值必须 < {{reference}}",
+      "maxLength" : "最大值的长度是 {{reference}}",
+      "minLength" : "最小值的长度是 {{reference}}",
+      "pattern" : "值必须匹配模式 {{reference}}"
+    }
+  },
+  "GIT" : {
+    "ALIEN_MANAGED" : "A4C",
+    "BRANCH" : "Branch",
+    "CONFIGURE_TITLE" : "Git configuration",
+    "MANAGED_BY" : "Managed by",
+    "USER_MANAGED" : "Manually"
+  },
+  "GROUPS" : {
+    "AUTHORIZED" : "被授权的组",
+    "EDIT_GROUPS" : "编辑组",
+    "NEW" : "新建组",
+    "ROLES" : "角色"
+  },
+  "HOME" : {
+    "ADMIN" : {
+      "TOUR" : "了解如何配置Alien4Cloud，用户和角色，云等"
+    }
+  },
+  "HOPSCOTCH_MISSING" : {
+    "CONTENT" : "缺少指引页面。",
+    "TITLE" : "指引"
+  },
+  "INSTANCE" : "实例",
+  "MAIN" : {
+    "CONTACT" : "请联系您的Alien4Cloud管理员。",
+    "RESTRICTED_END" : "访问此资源。",
+    "RESTRICTED_START" : "您权限不够",
+    "WELCOME" : "欢迎来到"
+  },
+  "MODAL" : {
+    "TITLE" : {
+      "CAPABILITY" : "能力描述",
+      "CUSTOM_COMMAND" : "自定义命令描述",
+      "META_PROPERTY" : "元属性描述",
+      "PROPERTY" : "属性描述",
+      "REQUIREMENT" : "要求描述"
+    }
+  },
+  "N/A" : "N/A",
+  "NAVADMIN" : {
+    "MENU_AUDIT" : "审核",
+    "MENU_ORCHESTRATORS" : "云编排工具",
+    "MENU_PLUGINS" : "插件",
+    "MENU_SERVER" : "服务器状态",
+    "MENU_SERVICES" : "服务",
+    "MENU_TAGS" : "元属性",
+    "MENU_USERS" : "用户"
+  },
+  "NAVAPPLICATIONS" : {
+    "MENU_DEPLOY_CURRENT" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_CURRENT_INFO" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_CURRENT_RUNTIME_EDITOR" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_NEXT" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_NEXT_DEPLOY" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_NEXT_INPUTS" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_NEXT_LOCATIONS" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_NEXT_MATCHING" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_NEXT_TOPOLOGY" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_NEXT_VERSION" : "TRANSLATION_IS_REQUIRED",
+    "MENU_ENVIRONMENT" : "环境",
+    "MENU_HISTORY" : "TRANSLATION_IS_REQUIRED",
+    "MENU_USERS" : "用户和组",
+    "MENU_VARIABLES" : "TRANSLATION_IS_REQUIRED",
+    "MENU_VERSIONS" : "版本"
+  },
+  "NAVBAR" : {
+    "BUTTON_LOGIN" : "登录",
+    "BUTTON_LOGOUT" : "注销",
+    "INPUT_SEARCH_MESSAGE" : "您需要什么？",
+    "MENU_ADMIN" : "管理",
+    "MENU_APPS" : "应用",
+    "MENU_CATALOG" : "TRANSLATION_IS_REQUIRED",
+    "MENU_COMPONENTS" : "组件",
+    "MENU_CSARS" : "CSARS",
+    "MENU_CSARS_GIT" : "CSARS Git 集成",
+    "MENU_REPOSITORIES" : "组件存储库",
+    "MENU_TOPOLOGY_TEMPLATE" : "拓扑模板"
+  },
+  "NAVCATALOG" : {
+    "ARCHIVES_PROMOTION" : "Archives promotion requests",
+    "BROWSE_COMPONENTS" : "Browse components",
+    "BROWSE_POLICIES" : "Browse policies",
+    "BROWSE_TOPOLOGIES" : "Browse topologies",
+    "MANAGE_ARCHIVES" : "Manage archives",
+    "TOPOLOGIES" : "Topologies"
+  },
+  "NEXT" : "下一个",
+  "NO_DATA_AVAILABLE" : "没有可用的数据",
+  "OK" : "同意",
+  "OPTIONAL" : "可选择的",
+  "ORCHESTRATORS" : {
+    "ARTIFACTS" : {
+      "MANAGED" : "管理组件"
+    },
+    "CONFIGURATION" : {
+      "LOCK_LOCATION_ROLE" : "该角色由全局云编排工具安全来管理",
+      "UNLOCK-BTN-CONTENT" : "您可以解锁以编辑云编排工具的配置，但这将影响已连接的驱动程序。",
+      "UNLOCK-BTN-TITLE" : "解锁"
+    },
+    "LOCATIONS" : {
+      "AUTHORIZATIONS" : {
+        "APPS" : {
+          "ADD" : "授权应用",
+          "ADD_POPUP" : {
+            "EMPTY_PLACEHOLDER" : "这个位置的授权应用/环境",
+            "LOC_AUTH_FILTER" : "被授权的位置",
+            "MESSAGE" : "TRANSLATION_IS_REQUIRED",
+            "TITLE" : "选择程序/环境 "
+          },
+          "REVOKE" : "撤销应用"
+        },
+        "AUTHORIZATIONS" : "授权",
+        "FORCE_MESSAGE" : "你真的想强制授权资源吗？ 这也会将位置授权给未经授权的用户！ ",
+        "FORCE_TITLE" : "强制",
+        "GROUPS" : {
+          "ADD" : "授权组",
+          "ADD_POPUP" : {
+            "EMPTY_PLACEHOLDER" : "这个位置的授权组",
+            "LOC_AUTH_FILTER" : "已授权位置",
+            "TITLE" : "选择组"
+          },
+          "REVOKE" : "撤销组"
+        },
+        "LOCATION_SECURITY_CHANGES" : "此选项卡允许您管理位置的授权。 访问某个位置需要访问此位置的资源。",
+        "USERS" : {
+          "ADD" : "授权用户",
+          "ADD_POPUP" : {
+            "EMPTY_PLACEHOLDER" : "这个位置的已授权用户",
+            "LOC_AUTH_FILTER" : "已授权位置",
+            "TITLE" : "选择用户"
+          },
+          "REVOKE" : "撤销用户"
+        }
+      },
+      "AUTO_CONFIG" : "自动配置",
+      "CONFIGURATION_RESOURCES" : "配置资源",
+      "CONFIG_REQUIRES_CONNEXION" : "必须连接云编配工具，以便您可以配置位置。",
+      "DELETE" : "删除位置",
+      "ENVIRONMENT_TYPE" : "环境类型",
+      "INFRA_TYPE" : "基础设施类型",
+      "INFRA_TYPE_SELECT" : "-- 请选择一个基础设施类型 --",
+      "LOCATION" : "位置",
+      "MODIFIER" : {
+        "DROP" : "Drop new modifier here or on the table above",
+        "INFO" : "Location topology modifiers are pieces of code that will change a topology when assigned to this location. It may perform various things but should always respect the original topology contract. You can read more on topology modifiers and the deployment lifecycle here",
+        "MODIFIER" : "TRANSLATION_IS_REQUIRED",
+        "PHASE" : "Deployment phase",
+        "PLUGIN" : "Plugin id",
+        "PLUGIN_BEAN" : "Plugin bean"
+      },
+      "NEW" : "新建位置",
+      "ON_DEMAND_RESOURCES" : "按需资源",
+      "POLICIES" : "政策",
+      "RESOURCES" : {
+        "BACK" : "返回目录",
+        "CONFIG" : "资源配置",
+        "CONFIG_HELP" : "您可以配置按需资源的模板的名称和属性。定义的属性将是不可变的，在部署之前，用户可以配置未定义的属性。",
+        "DROP" : "在这里或上面的表中删除新的资源",
+        "PROVIDED" : "云编排工具提供的类型",
+        "TYPE" : "资源类型"
+      },
+      "SECRETS" : {
+        "AUTHENTICATION_METHOD" : "Authentication method",
+        "LDAP" : "LDAP",
+        "NEED_SECRET" : " might need credentials to resolve secret",
+        "NO_SECRET_PLUGIN" : "No secret plugin found.",
+        "PLUGIN_NAME" : "Plugin name",
+        "SECRET" : "Secret",
+        "TOKEN" : "Token",
+        "VAULT_CERTIFICATE" : "Vault Certificate",
+        "VAULT_CREDENTIALS" : "Vaut Credentials",
+        "VAULT_URL" : "Vault URL"
+      },
+      "SECURITY" : "安全",
+      "SERVICES" : "服务"
+    },
+    "NAV" : {
+      "ARTIFACTS" : "工件",
+      "AUTHORIZATIONS" : "授权",
+      "CONFIGURATION" : "配置",
+      "DEPLOYMENTS" : "部署",
+      "INFO" : "信息",
+      "LOCATIONS" : "位置"
+    },
+    "NEW" : "新建云编排工具",
+    "NO_PLUGIN" : "没有云编排工具插件可以找到。你应该上传一个插件。",
+    "ORCHESTRATOR" : "云编排工具",
+    "PLUGIN" : "插件",
+    "PLUGIN_SELECT" : "-- 选择一个云编排工具插件 --",
+    "STATES" : {
+      "CONNECTED" : "已连接",
+      "CONNECTING" : "正在连接",
+      "DISABLED" : "禁用",
+      "DISABLING" : "正在禁用",
+      "DISCONNECTED" : "未连接"
+    }
+  },
+  "PAGINATION" : {
+    "OVERFLOW" : "结果数量超过Alien4Cloud支持的最大数量，请使用搜索框。"
+  },
+  "PLUGINS" : {
+    "BEANS" : "组件",
+    "CONFIGURE" : "配置",
+    "DEPRECATED" : "弃用",
+    "DISABLE" : "禁用",
+    "DRAG_DROP_UPLOAD" : "拖拽插件文件到这里上传",
+    "ENABLE" : "启用",
+    "ERRORS" : {
+      "350" : "无法删除或禁用此插件，因为它被一个或多个资源使用",
+      "350_TITLE" : "删除/禁用此插件"
+    },
+    "UPLOAD" : "上传插件"
+  },
+  "POLICIES" : "TRANSLATION_IS_REQUIRED",
+  "PROPERTY_RESET" : "设置为默认值或重置",
+  "PROPERTY_SUGGESTION" : {
+    "MODAL" : {
+      "DESCRIPTION" : "您输入的值从未在系统中注册过。",
+      "TITLE" : "发现新的值",
+      "USE" : "使用 ",
+      "USE_YOUR_VALUE" : " 并将其添加到建议值"
+    }
+  },
+  "REPOSITORY" : {
+    "ACTIVE_FILTERS" : "激活过滤器",
+    "ADD" : "新建存储库",
+    "CONFIGURATION" : "配置",
+    "PLUGINS_NOT_FOUND" : "没有找到解析器插件",
+    "REPOSITORYTYPE" : "类型"
+  },
+  "REQUIRED" : "要求的",
+  "ROLE_TABS" : {
+    "USERS" : "用户"
+  },
+  "SELECT" : "选择",
+  "SERVER" : {
+    "MAINTENANCE" : {
+      "DISABLE" : "结束维护",
+      "DISABLE_CONFIRM" : "您确定要关闭维护模式吗？",
+      "ENABLE" : "开始维护",
+      "ENABLE_CONFIRM" : "您确定要打开维护模式吗？ 在维护模式下，REST API会响应错误，用户将被重定向到维护状态显示的屏幕。",
+      "MESSAGE" : "服务器目前正在维护中，请稍后再试，或联系您的管理员。",
+      "TITLE" : "维护",
+      "UPDATE" : {
+        "MESSAGE" : "信息",
+        "PROGRESS" : "进度 (%)",
+        "TITLE" : "更新维护状态"
+      }
+    },
+    "STATE" : "服务器状态"
+  },
+  "SERVICE" : {
+    "RELATIONSHIP" : {
+      "CAPABILITY_DESCRIPTION" : "被用于定义运行在服务端的操作的关系类型。",
+      "LABEL" : "关系类型",
+      "REQUIREMENT_DESCRIPTION" : "被用于定义运行在服务端的操作的关系类型。"
+    }
+  },
+  "SERVICES" : {
+    "CATALOG" : "服务目录",
+    "DETAIL" : {
+      "BACK" : "返回目录",
+      "DETAIL" : "细节",
+      "TITLE" : "服务配置"
+    },
+    "INSTANCE" : "实例",
+    "LIST" : "当前服务",
+    "MANAGED" : {
+      "CREATE" : {
+        "CONFIRM_MESSAGE" : "你真的想把这个作为一个服务吗？",
+        "CONFIRM_TITLE" : "公开为服务",
+        "MESSAGE" : "将此部署公开为服务（其他应用程序将能够在匹配阶段使用它）。"
+      },
+      "NAME" : "管理的服务",
+      "NO_SUBSTITUTION_MESSAGE" : "拓扑必须定义一个替代类型，以便将其公开为服务。",
+      "TITLE" : "服务管理",
+      "UNBIND" : {
+        "CONFIRM_MESSAGE" : "你真的想解绑这个环境的服务吗？\n 如果没有被其他地方使用，服务将被删除。 否则，您应该联系您的管理员，以便在需要时进行清理。",
+        "CONFIRM_TITLE" : "解绑服务",
+        "MESSAGE" : "解绑这个环境的服务。"
+      }
+    },
+    "NEW" : {
+      "NODE_TYPE" : "类型",
+      "NODE_TYPE_VERSION" : "类型版本",
+      "TITLE" : "新建服务"
+    },
+    "SERVICE" : "服务"
+  },
+  "START_DATE" : "开始日期",
+  "STATES" : {
+    "available" : "有空的",
+    "configured" : "已被配置的",
+    "configuring" : "正在配置的",
+    "created" : "已被创建的",
+    "creating" : "正在创建的",
+    "deleted" : "已被删除的",
+    "deleting" : "正在删除的",
+    "error" : "错误",
+    "initial" : "初始的",
+    "maintenance" : "维护",
+    "started" : "已开始的",
+    "starting" : "正在开始的",
+    "stopped" : "已停止的",
+    "stopping" : "正在停止的",
+    "uninitialized" : "未初始化的",
+    "uninstalled" : "未安装的",
+    "uninstalling" : "正在卸载",
+    "unknown" : "正在等待云编排工具"
+  },
+  "SUGGESTIONS" : "建议",
+  "TAG_CONFIG" : {
+    "CREATE" : "新建元属性",
+    "DEFAULT" : "默认值"
+  },
+  "TEMPLATE" : {
+    "BREADCRUMB" : {
+      "TEMPLATE_LIST" : "拓扑模板"
+    },
+    "DUPLICATE" : "复制这个模板",
+    "NEW" : "新建模板",
+    "REMOVE_CONTENT" : "所有拓扑模板都链接到工件。 删除关联的工件来移除它们。",
+    "REMOVE_TITLE" : "如何删除拓扑模板？",
+    "REMOVE_TOOLTIP" : "删除模板"
+  },
+  "TRUE" : "正确",
+  "UPDATE_DATE" : "更新日期",
+  "UPLOAD" : {
+    "BROWSE" : "TRANSLATION_IS_REQUIRED",
+    "COMPLETE" : "完成"
+  },
+  "USERS" : {
+    "AUTHORIZED" : "用户授权",
+    "CONFIRM_PASSWORD_ERROR" : "密码不匹配。",
+    "CONFIRM_PASSWORD_HOLDER" : "确认",
+    "EDIT_GROUPS" : "编辑组",
+    "EDIT_GROUP_HEADER" : "添加或移除组",
+    "FIRST_NAME" : "名",
+    "LAST_NAME" : "姓",
+    "NEW" : "新建用户",
+    "PASSWORD" : "密码",
+    "ROLES" : "角色"
+  },
+  "VALUE" : "值",
+  "metrics" : {
+    "jvm" : {
+      "gc" : {
+        "marksweepcount" : "马克扫描计数",
+        "marksweeptime" : "马克扫描时间",
+        "scavengecount" : "清除计数",
+        "scavengetime" : "清除时间",
+        "title" : "垃圾回收"
+      },
+      "http" : {
+        "active" : "主动请求：",
+        "code" : {
+          "notfound" : "没找到",
+          "ok" : "Ok",
+          "servererror" : "服务器错误"
+        },
+        "table" : {
+          "average" : "平均",
+          "code" : "代码",
+          "count" : "计数",
+          "mean" : "平均数"
+        },
+        "title" : "HTTP 请求 (每秒的事件)",
+        "total" : "总请求："
+      },
+      "memory" : {
+        "heap" : "堆内存",
+        "nonheap" : "非堆内存",
+        "title" : "内存",
+        "total" : "总内存"
+      },
+      "threads" : {
+        "all" : "所有",
+        "blocked" : "阻塞的",
+        "dump" : {
+          "blockedcount" : "阻塞的线程数",
+          "blockedtime" : "阻塞的时间",
+          "hide" : "隐藏",
+          "id" : "ID号: ",
+          "lockname" : "锁名字",
+          "show" : "展示",
+          "stacktrace" : "堆栈跟踪",
+          "title" : "线程转储",
+          "waitedcount" : "等待的线程数",
+          "waitedtime" : "等待的时间"
+        },
+        "runnable" : "可运行的",
+        "timedwaiting" : "定时等待",
+        "title" : "线程",
+        "waiting" : "等待"
+      },
+      "title" : "Java虚拟机的度量"
+    },
+    "refresh" : {
+      "button" : "刷新"
+    },
+    "title" : "Alien4Cloud的度量"
+  },
+  "operations" : "操作"
+}
