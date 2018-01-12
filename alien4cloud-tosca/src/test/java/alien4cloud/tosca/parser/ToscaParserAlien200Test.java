@@ -5,12 +5,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Set;
 
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -31,9 +32,6 @@ import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
-/**
- * Created by lucboutier on 12/04/2017.
- */
 public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTest {
 
     @Override
@@ -53,19 +51,20 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         nodeType.setElementId("tosca.nodes.Root");
         nodeType.setArchiveName("tosca-normative-types");
         nodeType.setArchiveVersion("1.0.0-ALIEN14");
+        nodeType.setAbstract(true);
         Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
                 .thenReturn(nodeType);
     }
 
     @Test
-    public void testParseSimpleSecret() throws FileNotFoundException, ParsingException {
+    public void testParseSimpleSecret() throws ParsingException {
         mockNormativeTypes();
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "get-secret.yml"));
         assertEquals(0, parsingResult.getContext().getParsingErrors().size());
     }
 
     @Test
-    public void testPolicyTypeParsing() throws FileNotFoundException, ParsingException {
+    public void testPolicyTypeParsing() throws ParsingException {
         Mockito.reset(csarRepositorySearchService);
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
         PolicyType mockRoot = Mockito.mock(PolicyType.class);
@@ -141,7 +140,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
-    public void policyParsingWithUnknownTargetTypeShouldFail() throws FileNotFoundException, ParsingException {
+    public void policyParsingWithUnknownTargetTypeShouldFail() throws ParsingException {
         Mockito.reset(csarRepositorySearchService);
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
         PolicyType mockRoot = Mockito.mock(PolicyType.class);
@@ -155,7 +154,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
-    public void testPolicyTemplateParsing() throws FileNotFoundException, ParsingException {
+    public void testPolicyTemplateParsing() throws ParsingException {
         Mockito.reset(csarRepositorySearchService);
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
 
@@ -221,7 +220,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
-    public void policyTemplateParsingWithUnknownTypesShouldFail() throws FileNotFoundException, ParsingException {
+    public void policyTemplateParsingWithUnknownTypesShouldFail() throws ParsingException {
         Mockito.reset(csarRepositorySearchService);
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
 
@@ -247,7 +246,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
-    public void policyTemplateParsingWithUnknownTargetShouldFail() throws FileNotFoundException, ParsingException {
+    public void policyTemplateParsingWithUnknownTargetShouldFail() throws ParsingException {
         Mockito.reset(csarRepositorySearchService);
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
 
@@ -281,7 +280,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
-    public void parseTopologyTemplateWithActivities() throws ParsingException, IOException {
+    public void parseTopologyTemplateWithActivities() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-activities.yml"));
 
         assertFalse(parsingResult.getResult().getTopology().getWorkflows().isEmpty());
@@ -312,7 +311,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
-    public void parseTopologyTemplateWithInlineWorkflow() throws ParsingException, IOException {
+    public void parseTopologyTemplateWithInlineWorkflow() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-inline-workflow.yml"));
 
         assertFalse(parsingResult.getResult().getTopology().getWorkflows().isEmpty());
@@ -360,7 +359,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
-    public void parseTopologyTemplateWithRelationshipWorkflow() throws ParsingException, IOException {
+    public void parseTopologyTemplateWithRelationshipWorkflow() throws ParsingException {
         Mockito.reset(csarRepositorySearchService);
         Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
 
@@ -397,7 +396,7 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
     }
 
     @Test
-    public void parseTopologyTemplateWithRelationshipWorkflowMultipleActivities() throws ParsingException, IOException {
+    public void parseTopologyTemplateWithRelationshipWorkflowMultipleActivities() throws ParsingException {
         ParsingResult<ArchiveRoot> parsingResult = parser
                 .parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-workflow-relationship-operation.yml"));
 
@@ -427,5 +426,56 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         assertEquals(1, relStep_0.getActivities().size());
         assertEquals(1, relStep_0.getOnSuccess().size());
         assertTrue(relStep_0.getOnSuccess().contains("SoftwareComponent_install"));
+    }
+
+    @Test
+    public void parsingInvalidTargetInWorkflowStepShouldFail() throws ParsingException {
+        Mockito.reset(csarRepositorySearchService);
+        Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
+
+        NodeType mockType = Mockito.mock(NodeType.class);
+        Mockito.when(mockType.isAbstract()).thenReturn(true);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockType);
+        Mockito.when(
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                .thenReturn(mockType);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-workflow-invalid-target.yml"));
+        assertEquals(1, parsingResult.getContext().getParsingErrors().size());
+        assertEquals(ErrorCode.UNKNWON_WORKFLOW_STEP_TARGET, parsingResult.getContext().getParsingErrors().get(0).getErrorCode());
+    }
+
+    @Test
+    public void parsingInvalidRelationshipTargetInWorkflowStepShouldFail() throws ParsingException {
+        Mockito.reset(csarRepositorySearchService);
+        Mockito.when(csarRepositorySearchService.getArchive("tosca-normative-types", "1.0.0-ALIEN14")).thenReturn(Mockito.mock(Csar.class));
+
+        NodeType mockType = Mockito.mock(NodeType.class);
+        Mockito.when(mockType.isAbstract()).thenReturn(true);
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockType);
+        Mockito.when(mockType.getCapabilities()).thenReturn(Lists.newArrayList(new CapabilityDefinition("host", "tosca.capabilities.Container", 1)));
+        Mockito.when(
+                csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+                .thenReturn(mockType);
+        mockType = Mockito.mock(NodeType.class);
+        Mockito.when(mockType.getRequirements()).thenReturn(Lists.newArrayList(new RequirementDefinition("host", "tosca.capabilities.Container")));
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                Mockito.any(Set.class))).thenReturn(mockType);
+        CapabilityType mockCapaType = Mockito.mock(CapabilityType.class);
+        Mockito.when(mockCapaType.getElementId()).thenReturn("tosca.capabilities.Container");
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Container"),
+                Mockito.any(Set.class))).thenReturn(mockCapaType);
+        RelationshipType mockRelType = Mockito.mock(RelationshipType.class);
+        Mockito.when(mockRelType.getElementId()).thenReturn("tosca.relationships.HostedOn");
+        Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                Mockito.any(Set.class))).thenReturn(mockRelType);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser
+                .parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-workflow-relationship-operation-invalid-target.yml"));
+        // Same error is duplicated but is it that bad ?
+        assertEquals(2, parsingResult.getContext().getParsingErrors().size());
+        assertEquals(ErrorCode.UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET, parsingResult.getContext().getParsingErrors().get(0).getErrorCode());
     }
 }

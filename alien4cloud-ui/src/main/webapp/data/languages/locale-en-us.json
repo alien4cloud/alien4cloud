@@ -1,9 +1,9 @@
 {
-  "SERVICE":{
-    "RELATIONSHIP" : {
-      "LABEL" : "Relationship type",
-      "CAPABILITY_DESCRIPTION" : "Relationship type used to define operations that run on the service side.",
-      "REQUIREMENT_DESCRIPTION" : "Relationship type used to define operations that run on the service side."
+  "SERVICE": {
+    "RELATIONSHIP": {
+      "LABEL": "Relationship type",
+      "CAPABILITY_DESCRIPTION": "Relationship type used to define operations that run on the service side.",
+      "REQUIREMENT_DESCRIPTION": "Relationship type used to define operations that run on the service side."
     }
   },
   "APPLICATIONS": {
@@ -13,10 +13,10 @@
     "ARCHIVE_NAME_HELP": "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
     "AUTHORIZED": "application authorized",
     "DEPLOY": "Deploy",
-    "DEPLOYMENT_INFO" : "Deployment informations",
+    "DEPLOYMENT_INFO": "Deployment informations",
     "DEPLOY_CONFIRM": "Are you sure to deploy this production environment ?",
     "UNDEPLOY_CONFIRM": "Are you sure to undeploy this production environment ?",
-    "UPDATE_DEPLOYMENT" : "Update",
+    "UPDATE_DEPLOYMENT": "Update",
     "UPDATE_CONFIRM": "Are you sure to update this production environment ?",
     "DEPLOYMENT": {
       "DEPLOY": "Deploy",
@@ -613,9 +613,11 @@
       "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Failed to find any Artifact Type for the extension [ {{note}} ]. The artifact type won't be supported.",
       "UNKNOWN_TOSCA_VERSION": "Tosca version is unknown and not recognized by Alien4Cloud .",
       "UNKNWON_DISCRIMINATOR_KEY": "Key {{note}} is not known.",
+      "WORKFLOW_HAS_CYCLE": "Workflow {{note}} contains an infinite cycle.",
+      "WORKFLOW_INLINED_WORKFLOW_NOT_FOUND": "Referenced inline workflow {{note}} does not exists.",
       "UNKNWON_WORKFLOW_STEP": "Workflow step [{{note}}] doesn't exists and has been ignored",
-      "UNKNWON_WORKFLOW_STEP_TARGET": "The target node specified in the workflow step does not exist in the topology.",
-      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET": "The relationship defined as target of the workflow step does not exist in the specified node.",
+      "UNKNWON_WORKFLOW_STEP_TARGET": "The target node ({{note}}) specified in the workflow step does not exist in the topology.",
+      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET": "The relationship ({{note}}) defined as target of the workflow step does not exist in the specified node.",
       "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored",
       "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
       "UNRECOGNIZED_PROPERTY": "Property [ {{note}} ] is unknown and has been ignored.",
@@ -720,9 +722,9 @@
       "FAILURE": "Failed",
       "INIT_DEPLOYMENT": "Deployment init",
       "UPDATE_DEPLOYMENT": "Deployment update",
-      "UPDATE_IN_PROGRESS" : "Deployment update in progress",
-      "UPDATE_FAILURE" : "Update failed",
-      "UPDATED" : "Updated",
+      "UPDATE_IN_PROGRESS": "Deployment update in progress",
+      "UPDATE_FAILURE": "Update failed",
+      "UPDATED": "Updated",
       "UNDEPLOYED": "Undeployed",
       "UNDEPLOYMENT_IN_PROGRESS": "Undeployment in progress",
       "UNKNOWN": "Unknown",
@@ -731,7 +733,7 @@
     "TOASTER_STATUS": {
       "DEPLOYED": "The environment < {{envName}} > of application < {{appName}} > is deployed.",
       "FAILURE": "A failure has occurred during the deployment of the environment < {{envName}} > of application < {{appName}} >. See logs deployment for more informations.",
-      "UPDATE_FAILURE" : "A failure has occurred during the deployment update for the environment < {{envName}} > and application < {{appName}} >. See logs deployment for more informations."
+      "UPDATE_FAILURE": "A failure has occurred during the deployment update for the environment < {{envName}} > and application < {{appName}} >. See logs deployment for more informations."
     }
   },
   "DETAILS": "Details",
@@ -743,8 +745,8 @@
         "GLOBAL_REPOSITORIES": "Global repositories",
         "ID": "Repository ID",
         "LOCAL": "Local",
-        "LOCAL_FS" : "Local file system",
-        "A4C_CSAR" : "CSAR",
+        "LOCAL_FS": "Local file system",
+        "A4C_CSAR": "CSAR",
         "MUST_BE_UNIQUE": "Repository ID must be unique for this archive",
         "NEW_REPOSITORY": "New repository",
         "REMOTE": "Remote",
@@ -940,9 +942,9 @@
       "pattern": "Value must match the pattern {{reference}}"
     }
   },
-  "GIT" : {
-    "CONFIGURE_TITLE" : "Git configuration",
-    "ALIEN_MANAGED" : "A4C",
+  "GIT": {
+    "CONFIGURE_TITLE": "Git configuration",
+    "ALIEN_MANAGED": "A4C",
     "USER_MANAGED": "Manually",
     "BRANCH": "Branch",
     "MANAGED_BY": "Managed by"
@@ -998,11 +1000,9 @@
     "MENU_DEPLOY_NEXT.MATCHING": "Matching",
     "MENU_DEPLOY_NEXT.DEPLOY": "Review & deploy",
     "MENU_HISTORY": "Deployment History",
-
-    "MENU_DEPLOY_CURRENT.INFO" : "Info",
-    "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "Runtime view",
-    "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER" : "Workflow",
-
+    "MENU_DEPLOY_CURRENT.INFO": "Info",
+    "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR": "Runtime view",
+    "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER": "Workflow",
     "MENU_ENVIRONMENT": "Environments",
     "MENU_USERS": "Users and Groups",
     "MENU_VARIABLES": "Variables",
@@ -1098,7 +1098,7 @@
       },
       "SECURITY": "Security",
       "SERVICES": "Services",
-      "SECRETS" : {
+      "SECRETS": {
         "SECRET": "Secret",
         "NEED_SECRET": " might need credentials to resolve secret",
         "PLUGIN_NAME": "Plugin name",

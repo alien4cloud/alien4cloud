@@ -1,19 +1,16 @@
 package alien4cloud.tosca.parser.postprocess;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.apache.commons.collections4.MapUtils;
@@ -27,6 +24,13 @@ import com.google.common.collect.Sets;
 import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.paas.wf.validation.AbstractWorkflowError;
+import alien4cloud.paas.wf.validation.BadStateSequenceError;
+import alien4cloud.paas.wf.validation.InlinedWorkflowNotFoundError;
+import alien4cloud.paas.wf.validation.ParallelSetStatesError;
+import alien4cloud.paas.wf.validation.UnknownNodeError;
+import alien4cloud.paas.wf.validation.UnknownRelationshipError;
+import alien4cloud.paas.wf.validation.WorkflowHasCycleError;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -48,8 +52,6 @@ public class WorkflowPostProcessor {
      * @param topologyNode the yaml node of the topology
      */
     public void processWorkflows(Topology topology, Node topologyNode) {
-        // Check that step targets exists in the topology.
-        ensureReferencesExist(topology);
         // Workflow validation if any are defined
         TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new TopologyContext() {
             @Override
@@ -70,25 +72,6 @@ public class WorkflowPostProcessor {
         // If the workflow contains steps with multiple activities then split them into single activity steps
         splitMultipleActivitiesSteps(topologyContext);
         finalizeParsedWorkflows(topologyContext, topologyNode);
-    }
-
-    private void ensureReferencesExist(Topology topology) {
-        for (Workflow wf : safe(topology.getWorkflows()).values()) {
-            for (WorkflowStep step : safe(wf.getSteps().values())) {
-                NodeTemplate stepTarget = safe(topology.getNodeTemplates()).get(step.getTarget());
-                if (stepTarget == null) {
-                    Node node = ParsingContextExecution.getObjectToNodeMap().get(step.getTarget());
-                    ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNKNWON_WORKFLOW_STEP_TARGET, null,
-                            node.getStartMark(), "The target node referenced by the workflow step do not exist.", node.getEndMark(), step.getName()));
-                } else if (step instanceof RelationshipWorkflowStep
-                        && !safe(stepTarget.getRelationships()).containsKey(((RelationshipWorkflowStep) step).getTargetRelationship())) {
-                    Node node = ParsingContextExecution.getObjectToNodeMap().get(((RelationshipWorkflowStep) step).getTargetRelationship());
-                    ParsingContextExecution.getParsingErrors()
-                            .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET, null, node.getStartMark(),
-                                    "The target relationship referenced by the workflow step do not exist.", node.getEndMark(), step.getName()));
-                }
-            }
-        }
     }
 
     /**
@@ -185,8 +168,41 @@ public class WorkflowPostProcessor {
             WorkflowUtils.fillHostId(wf, topologyContext);
             int errorCount = workflowBuilderService.validateWorkflow(topologyContext, wf);
             if (errorCount > 0) {
+                processWorkflowErrors(wf, wf.getErrors(), node);
+            }
+        }
+    }
+
+    private void processWorkflowErrors(Workflow wf, List<AbstractWorkflowError> errors, Node workflowNode) {
+        for (AbstractWorkflowError error : errors) {
+            if (error instanceof BadStateSequenceError) {
+                ParsingContextExecution.getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.WORKFLOW_BAD_STATE_SEQUENCE, null, workflowNode.getStartMark(), null,
+                                workflowNode.getEndMark(), ((BadStateSequenceError) error).getTo() + " to " + ((BadStateSequenceError) error).getFrom()));
+            } else if (error instanceof InlinedWorkflowNotFoundError) {
+                Node node = ParsingContextExecution.getObjectToNodeMap().get(((InlinedWorkflowNotFoundError) error).getInlinedWorkflow());
+                ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.WORKFLOW_INLINED_WORKFLOW_NOT_FOUND, null,
+                        node.getStartMark(), null, node.getEndMark(), ((InlinedWorkflowNotFoundError) error).getInlinedWorkflow()));
+            } else if (error instanceof ParallelSetStatesError) {
+                ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.WORKFLOW_PARALLEL_SET_STATES, null,
+                        workflowNode.getStartMark(), null, workflowNode.getEndMark(), ((ParallelSetStatesError) error).getNodeId()));
+            } else if (error instanceof UnknownNodeError) {
+                Node node = ParsingContextExecution.getObjectToNodeMap().get(((UnknownNodeError) error).getNodeId());
+                ParsingContextExecution.getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNKNWON_WORKFLOW_STEP_TARGET, null, node.getStartMark(),
+                                "The target node referenced by the workflow step do not exist.", node.getEndMark(), ((UnknownNodeError) error).getNodeId()));
+            } else if (error instanceof UnknownRelationshipError) {
+                Node node = ParsingContextExecution.getObjectToNodeMap().get(((UnknownRelationshipError) error).getRelationshipId());
+                ParsingContextExecution.getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET, null, node.getStartMark(),
+                                "The target relationship referenced by the workflow step do not exist.", node.getEndMark(),
+                                ((UnknownRelationshipError) error).getRelationshipId()));
+            } else if (error instanceof WorkflowHasCycleError) {
+                ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.WORKFLOW_HAS_CYCLE, null,
+                        workflowNode.getStartMark(), null, workflowNode.getEndMark(), wf.getName()));
+            } else {
                 ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.WORKFLOW_HAS_ERRORS, null,
-                        node.getStartMark(), null, node.getEndMark(), wf.getName()));
+                        workflowNode.getStartMark(), null, workflowNode.getEndMark(), wf.getName()));
             }
         }
     }
