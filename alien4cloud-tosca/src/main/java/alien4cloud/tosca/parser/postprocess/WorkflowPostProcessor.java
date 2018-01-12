@@ -9,6 +9,8 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import alien4cloud.exception.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.workflow.Workflow;
@@ -37,6 +39,7 @@ import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.NameValidationUtils;
 
+@Slf4j
 @Component
 public class WorkflowPostProcessor {
 
@@ -163,7 +166,13 @@ public class WorkflowPostProcessor {
                     }
                 }
             }
-            WorkflowUtils.fillHostId(wf, topologyContext);
+            try {
+                WorkflowUtils.fillHostId(wf, topologyContext);
+            } catch (NotFoundException e) {
+                log.trace(
+                        "Not found exception during fill host id occurs when a relationship specified in workflow does not exist. This exception is ignored as the workflow validation trigger errors for such situations.",
+                        e);
+            }
             int errorCount = workflowBuilderService.validateWorkflow(topologyContext, wf);
             if (errorCount > 0) {
                 processWorkflowErrors(wf, wf.getErrors(), node);
