@@ -14,7 +14,7 @@ define(function (require) {
     menu: {
       id: 'applications.detail.environment.deploynext.version',
       state: 'applications.detail.environment.deploynext.version',
-      key: 'NAVAPPLICATIONS.MENU_DEPLOY_NEXT.VERSION',
+      key: 'NAVAPPLICATIONS.MENU_DEPLOY_NEXT_VERSION',
       icon: '',
       priority: 100,
       step: {
@@ -30,7 +30,7 @@ define(function (require) {
         breadcrumbsService.putConfig({
           state : 'applications.detail.environment.deploynext.version',
           text: function(){
-            return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.VERSION');
+            return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT_VERSION');
           },
           onClick: function() {
             $state.go('applications.detail.environment.deploynext.version');

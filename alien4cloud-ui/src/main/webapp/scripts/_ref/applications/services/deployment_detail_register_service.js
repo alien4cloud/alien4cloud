@@ -75,7 +75,7 @@ define(function (require) {
       menu: {
         id: detailInfoState,
         state: detailInfoState,
-        key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.INFO',
+        key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT_INFO',
         icon: 'fa fa-info',
         priority: 100
       }

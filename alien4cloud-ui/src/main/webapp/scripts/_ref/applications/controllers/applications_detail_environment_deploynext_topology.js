@@ -17,7 +17,7 @@ define(function (require) {
     menu: {
       id: 'applications.detail.environment.deploynext.topology',
       state: 'applications.detail.environment.deploynext.topology',
-      key: 'NAVAPPLICATIONS.MENU_DEPLOY_NEXT.TOPOLOGY',
+      key: 'NAVAPPLICATIONS.MENU_DEPLOY_NEXT_TOPOLOGY',
       icon: '',
       priority: 200,
       step: {
@@ -35,7 +35,7 @@ define(function (require) {
       breadcrumbsService.putConfig({
         state : 'applications.detail.environment.deploynext.topology',
         text: function(){
-          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.TOPOLOGY');
+          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT_TOPOLOGY');
         },
         onClick: function(){
           $state.go('applications.detail.environment.deploynext.topology', {

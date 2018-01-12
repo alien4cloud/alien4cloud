@@ -12,7 +12,7 @@ define(function (require) {
     controller: 'ComponentInfoCtrl',
     menu: {
       state: 'catalog.components.detail.info',
-      key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.INFO',
+      key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT_INFO',
       icon: 'fa fa-info',
       priority: 100
     }

@@ -28,7 +28,7 @@ define(function (require) {
     menu: {
       id: 'applications.detail.environment.deploynext.inputs',
       state: 'applications.detail.environment.deploynext.inputs',
-      key: 'NAVAPPLICATIONS.MENU_DEPLOY_NEXT.INPUTS',
+      key: 'NAVAPPLICATIONS.MENU_DEPLOY_NEXT_INPUTS',
       icon: '',
       priority: 300,
       step: {
@@ -47,7 +47,7 @@ define(function (require) {
       breadcrumbsService.putConfig({
         state : 'applications.detail.environment.deploynext.inputs',
         text: function(){
-          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.INPUTS');
+          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT_INPUTS');
         },
         onClick: function(){
           $state.go('applications.detail.environment.deploynext.inputs');

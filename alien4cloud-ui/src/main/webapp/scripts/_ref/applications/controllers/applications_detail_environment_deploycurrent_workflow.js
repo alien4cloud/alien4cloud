@@ -17,7 +17,7 @@ define(function (require) {
     menu: {
       id: 'applications.detail.environment.deploycurrent.workflow',
       state: 'applications.detail.environment.deploycurrent.workflow',
-      key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER',
+      key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER',
       icon: 'fa fa-code-fork fa-rotate-90',
       priority: 300
     }
@@ -30,7 +30,7 @@ define(function (require) {
         breadcrumbsService.putConfig({
           state : 'applications.detail.environment.deploycurrent.workflow',
           text: function(){
-            return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER');
+            return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER');
           },
           onClick: function(){
             $state.go('applications.detail.environment.deploycurrent.workflow');
