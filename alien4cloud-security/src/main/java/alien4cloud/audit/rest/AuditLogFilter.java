@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
@@ -149,7 +150,7 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
      * @throws IOException
      */
     private String filterRequestBody(String original, final Method method) throws IOException {
-        if (StringUtils.isEmpty(original)) {
+        if (StringUtils.isEmpty(original) || ArrayUtils.isEmpty(method.getBodyHiddenFields())) {
             return original;
         }
         Map<String, Object> body = JsonUtil.toMap(original);
