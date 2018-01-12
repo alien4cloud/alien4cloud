@@ -4,7 +4,8 @@
       "LABEL" : "Relationship type",
       "CAPABILITY_DESCRIPTION" : "Relationship type used to define operations that run on the service side.",
       "REQUIREMENT_DESCRIPTION" : "Relationship type used to define operations that run on the service side."
-    }
+    },
+    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE": "The instance can't be edited because it is in state started. Please change the state to off if you want to edit this instance."
   },
   "APPLICATIONS" : {
     "APPLICATION" : "アプリケーション",

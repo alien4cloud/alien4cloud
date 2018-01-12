@@ -1,4 +1,8 @@
 <!-- Properties -->
+<div id="node-editable-notification" ng-if="isService && !isRelEditable()" class="isa_warning">
+  <i class="fa fa-warning"></i>
+  <p>{{ 'SERVICE.WARNING_CANNOT_EDIT_SERVICE_INSTANCE' | translate }}</p>
+</div>
 <div ng-if="template.properties.length > 0">
   <div id="node-details-properties" class="clickable topology-column-content-head" ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
     <i class="fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>

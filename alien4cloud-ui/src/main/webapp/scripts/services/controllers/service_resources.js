@@ -261,6 +261,10 @@ define(function (require) {
       $scope.isPropertyEditable = function() {
         return $scope.stateDisabled && _.undefined($scope.selectedService.environmentId) ;
       };
+
+      $scope.isSecretEditable = function() {
+        return $scope.isPropertyEditable();
+      }
       
       $scope.updateProperty= function(propertyName, propertyValue) {
         var updateRequest = { nodeInstance: { properties:{} } };

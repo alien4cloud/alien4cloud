@@ -4,7 +4,8 @@
       "LABEL" : "关系类型",
       "CAPABILITY_DESCRIPTION" : "被用于定义运行在服务端的操作的关系类型。",
       "REQUIREMENT_DESCRIPTION" : "被用于定义运行在服务端的操作的关系类型。"
-    }
+    },
+    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE": "The instance can't be edited because it is in state started. Please change the state to off if you want to edit this instance."
   },
   "APPLICATIONS": {
     "APPLICATION": "应用",

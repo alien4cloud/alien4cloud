@@ -4,7 +4,8 @@
       "LABEL": "Type de relation",
       "CAPABILITY_DESCRIPTION": "Un type de relation peut être utilisée pour définir les opérations à executer coté service.",
       "REQUIREMENT_DESCRIPTION": "Un type de relation peut être utilisée pour définir les opérations à executer coté service."
-    }
+    },
+    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE": "L'instance ne peut pas être modifiée car elle est dans l'état démarré. Veuillez désactiver l'état si vous souhaitez modifier cette instance."
   },
   "APPLICATIONS": {
     "APPLICATION": "Application",

@@ -108,7 +108,7 @@ define(function (require) {
         scope.isSecretEditable = function(propertyPath) {
           if(scope.selectedResourceTemplate.service) {
             // do not edit servie properties
-            return false;
+            return true;
           }
           if(scope.getSubstitutedTemplate(scope.selectedNodeName).id === scope.selectedResourceTemplate.id){
             if(_.definedPath(propertyPath, 'capabilityName')){
