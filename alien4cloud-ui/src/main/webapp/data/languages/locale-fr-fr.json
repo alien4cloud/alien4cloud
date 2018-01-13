@@ -314,14 +314,14 @@
     "WF" : {
       "CallOperationWorkflowActivity" : "Appel d'opération",
       "DelegateWorkflowActivity" : "Workflow sous-traité",
-      "InlineWorkflowActivity" : "TRANSLATION_IS_REQUIRED",
+      "InlineWorkflowActivity" : "Workflow inline",
       "SetStateWorkflowActivity" : "Changement d'état",
       "activity" : "Activité",
-      "addInlineActivity" : "TRANSLATION_IS_REQUIRED",
+      "addInlineActivity" : "Ajouter l'appel d'un workflow inline",
       "addOperationActivity" : "Ajouter un appel d'opération",
       "addStateActivity" : "Ajouter un changement d'état",
       "addWorkflow" : "Ajouter un nouveau workflow",
-      "appendInlineActivity" : "TRANSLATION_IS_REQUIRED",
+      "appendInlineActivity" : "Ajouter l'appel d'un workflow inline (après)",
       "appendOperationActivity" : "Ajouter un appel d'opération (après)",
       "appendStateActivity" : "Ajouter un changement d'état (après)",
       "changeViewMode" : "Vue simplifiée",
@@ -340,8 +340,8 @@
       },
       "hasErrors" : "erreur(s)",
       "host" : "Hôte",
-      "inline" : "TRANSLATION_IS_REQUIRED",
-      "insertInlineActivity" : "TRANSLATION_IS_REQUIRED",
+      "inline" : "Inséré en ligne",
+      "insertInlineActivity" : "Insérer l'appel d'un workflow inline (avant)",
       "insertOperationActivity" : "Insérer un appel d'opération (avant)",
       "insertStateActivity" : "Insérer un changement d'état (avant)",
       "interfaceName" : "Interface",
@@ -354,7 +354,7 @@
       "swapRigth" : "Interchanger à droite",
       "title" : "Workflows",
       "unpin" : "Dévérouiller",
-      "workflow" : "TRANSLATION_IS_REQUIRED"
+      "workflow" : "Workflow"
     }
   },
   "AUDIT" : {
@@ -482,7 +482,7 @@
     "ARCHIVE" : "Archive",
     "ARCHIVE_NAME" : "Nom de l'archive",
     "ARCHIVE_VERSION" : "Version de l'archive",
-    "BROWSE" : "TRANSLATION_IS_REQUIRED",
+    "BROWSE" : "Parcourir",
     "CAPABILITIES" : {
       "CARDINALITIES_TOOLTIP" : "maximum",
       "TYPE" : "Capacités"
@@ -1053,7 +1053,7 @@
       "LOCATION" : "Location",
       "MODIFIER" : {
         "DROP" : "Drop new modifier here or on the table above",
-        "INFO" : "TRANSLATION_IS_REQUIRED",
+        "INFO" : "Les 'Topology modifiers' sont des éléments de code qui modifient une topologie lorsqu'ils sont assignés à cette location. Ils peuvent effectuer plusieurs modifications mais doivent toujours respecter le contrat original de la location. Vous pouvez trouvez plus d'information sur les modifier et sur le cycle de vie de déploiement ici",
         "MODIFIER" : "Modificateur de topology",
         "PHASE" : "Phase de déploiement",
         "PLUGIN" : "Plugin id",

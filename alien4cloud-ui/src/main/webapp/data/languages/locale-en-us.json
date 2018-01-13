@@ -482,7 +482,7 @@
     "ARCHIVE" : "Archive",
     "ARCHIVE_NAME" : "Archive name",
     "ARCHIVE_VERSION" : "Archive version",
-    "BROWSE" : "",
+    "BROWSE" : "Browse",
     "CAPABILITIES" : {
       "CARDINALITIES_TOOLTIP" : "upperBound",
       "TYPE" : "Capabilities"
