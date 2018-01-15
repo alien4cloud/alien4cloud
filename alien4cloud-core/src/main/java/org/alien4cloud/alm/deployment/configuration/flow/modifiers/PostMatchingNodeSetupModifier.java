@@ -6,13 +6,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import alien4cloud.tosca.context.ToscaContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodeCapabilitiesPropsOverride;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,13 +45,16 @@ public class PostMatchingNodeSetupModifier extends AbstractPostMatchingSetupModi
                 configChanged.changed = true;
                 capabilitiesOverrideIter.remove();
             } else { // Merge logic
-                capability.setProperties(mergeProperties(overrideCapabilityProperties.getValue().getProperties(), capability.getProperties(), s -> {
-                    configChanged.changed = true;
-                    context.getLog()
-                            .info("The property [" + s + "] previously specified to configure capability [" + overrideCapabilityProperties.getKey()
-                                    + "] of node [" + nodeTemplateId
-                                    + "] cannot be set anymore as it is already specified by the matched location resource or in the topology.");
-                }));
+                // When a selected node has changed we may need to cleanup properties that where defined but are not anymore on the capability
+                CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capability.getType());
+                capability.setProperties(mergeProperties(overrideCapabilityProperties.getValue().getProperties(), capability.getProperties(),
+                        capabilityType.getProperties(), s -> {
+                            configChanged.changed = true;
+                            context.getLog()
+                                    .info("The property [" + s + "] previously specified to configure capability [" + overrideCapabilityProperties.getKey()
+                                            + "] of node [" + nodeTemplateId
+                                            + "] cannot be set anymore as it is already specified by the matched location resource or in the topology.");
+                        }));
             }
         }
         return configChanged.changed;
