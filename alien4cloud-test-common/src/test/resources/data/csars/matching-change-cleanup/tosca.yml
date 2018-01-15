@@ -1,0 +1,85 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.test.matching.CleanupSelectionUpdate
+  template_author: alien4cloud
+  template_version: 2.0.0-SNAPSHOT
+
+description: >
+  This template contains types to test that post-matching properties and capabilities properties are well cleaned up on selection change between types with identical names but different properties.
+
+  Scenario:
+    Upload this archive
+    Create a location (any orchestrator, mock is fine).
+    Add the custom resources org.alien4cloud.test.matching.LocationCustomImplOne and org.alien4cloud.test.matching.LocationCustomImplTwo to the location.
+    Create an application and add the org.alien4cloud.test.matching.TopologyAbstractNode in the topology (node template)
+    Go to matching and select the resource of type org.alien4cloud.test.matching.LocationCustomImplOne
+    Define a value to common_property, type_variant_prop, and constraint_variant_prop (value should be less than 6 characters)
+    In the my_capability capability define the properties in the same way
+    Change the matching selections
+    Check that property unique_prop does not exists anymore, all the property values must have been removed except for common_property
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.test.matching.nodes.TopologyAbstractNode:
+    abstract: true
+    derived_from: tosca.nodes.Root
+    description: The abstract node to use in the topology.
+    properties:
+      common_property:
+        type: string
+        description: this property is defined in the top level node and should be kept if defined as post-matching property when changing selection.
+
+  org.alien4cloud.test.matching.nodes.LocationCustomImplOne:
+    derived_from: org.alien4cloud.test.matching.nodes.TopologyAbstractNode
+    description: A node to add as custom resource to the location (do not defined props values)
+    properties:
+      unique_prop:
+        type: string
+      type_variant_prop:
+        type: string
+      constraint_variant_prop:
+        type: string
+    capabilities:
+      my_capability: org.alien4cloud.test.matching.capabilities.CapabilityTypeOne
+
+  org.alien4cloud.test.matching.nodes.LocationCustomImplTwo:
+    derived_from: org.alien4cloud.test.matching.nodes.TopologyAbstractNode
+    description: A node to add as custom resource to the location (do not defined props values)
+    properties:
+      type_variant_prop:
+        type: integer
+      constraint_variant_prop:
+        type: string
+        constraints:
+          - min_length: 6
+    capabilities:
+      my_capability: org.alien4cloud.test.matching.capabilities.CapabilityTypeTwo
+
+capability_types:
+  org.alien4cloud.test.matching.capabilities.CapabilityTypeOne:
+    derived_from: tosca.capabilities.Root
+    properties:
+      unique_prop:
+        type: string
+      common_property:
+        type: string
+      type_variant_prop:
+        type: string
+      constraint_variant_prop:
+        type: string
+
+  org.alien4cloud.test.matching.capabilities.CapabilityTypeTwo:
+    derived_from: tosca.capabilities.Root
+    properties:
+      common_property:
+        type: string
+      type_variant_prop:
+        type: integer
+      constraint_variant_prop:
+        type: string
+        constraints:
+          - min_length: 6
+

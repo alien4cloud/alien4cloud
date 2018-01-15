@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
@@ -20,6 +21,8 @@ import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.topology.task.LocationPolicyTask;
 import alien4cloud.tosca.context.ToscaContext;
@@ -91,20 +94,22 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractTempla
 
     protected Map<String, AbstractPropertyValue> mergeProperties(Map<String, AbstractPropertyValue> source, Map<String, AbstractPropertyValue> target,
             Map<String, PropertyDefinition> targetPropDefinitions, Consumer<String> messageConsumer) {
+        Set<String> removeFromSource = Sets.newHashSet();
         for (Entry<String, AbstractPropertyValue> entry : safe(source).entrySet()) {
             if (target.get(entry.getKey()) == null || !target.containsKey(entry.getKey())) {
                 // First check that the source property is defined in the property definition and matches constraints.
                 if (targetPropDefinitions.containsKey(entry.getKey()) && isValidProperty(entry, targetPropDefinitions.get(entry.getKey()))) {
                     target.put(entry.getKey(), entry.getValue());
                 } else {
-                    // TODO replace with a better consumer for separate message that explain that the prop does not exists.
-                    messageConsumer.accept(entry.getKey());
-                    source.remove(entry.getKey());
+                    removeFromSource.add(entry.getKey());
                 }
             } else {
-                messageConsumer.accept(entry.getKey());
-                source.remove(entry.getKey());
+                removeFromSource.add(entry.getKey());
             }
+        }
+        for (String removeKey : removeFromSource) {
+            messageConsumer.accept(removeKey);
+            source.remove(removeKey);
         }
         return target.isEmpty() ? null : target;
     }
