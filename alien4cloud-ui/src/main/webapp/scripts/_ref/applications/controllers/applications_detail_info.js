@@ -45,6 +45,7 @@ define(function (require) {
       }
       $scope.environments = applicationEnvironmentsManager.environments;
       $scope.statusCss = alienUtils.getStatusIconCss;
+      $scope.searchEnv = {};
 
       // Add the resource layout controller to the scope (mixin)
       $controller('ResourceLayoutCtrl', {$scope: $scope, menu: menu, resourceLayoutService: resourceLayoutService, resource: $scope.application});
