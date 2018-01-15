@@ -9,6 +9,7 @@
           <span class="label label-default" style="margin-right: 5px;"
             ng-if="queryManager.query">
             search: {{queryManager.query}}
+            <i class="fa fa-times remove_filter_query" ng-click="resetQuery()"></i>
           </span>
           <span class="label label-default info" style="margin-right: 5px;"
             ng-repeat="(filterTerm, filterValues) in queryManager.filters"
