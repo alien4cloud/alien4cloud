@@ -18,7 +18,9 @@ public interface GraphConsumer {
     /**
      * Called at the end of browsing
      *
-     * @param components list of graph's component from a root
+     * @param roots list of graph's component from a root
      */
-    void onRoots(List<Map<String, WorkflowStep>> components);
+    void onRoots(List<Map<String, WorkflowStep>> roots);
+
+    List<Map<String, WorkflowStep>> getRoots();
 }

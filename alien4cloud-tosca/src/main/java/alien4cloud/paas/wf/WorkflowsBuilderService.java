@@ -51,7 +51,7 @@ public class WorkflowsBuilderService {
     private CustomWorkflowBuilder customWorkflowBuilder;
 
     @Resource
-    private WorkflowFlattenService workflowFlattenService;
+    private WorkflowSimplifyService workflowFlattenService;
 
     private Map<String, DefaultDeclarativeWorkflows> defaultDeclarativeWorkflowsPerDslVersion;
 
@@ -95,7 +95,7 @@ public class WorkflowsBuilderService {
     public void postProcessTopologyWorkflows(TopologyContext topologyContext) {
         topologyContext.getTopology().getUnprocessedWorkflows().putAll(topologyContext.getTopology().getWorkflows().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> WorkflowUtils.cloneWorkflow(entry.getValue()))));
-        workflowFlattenService.flattenPerNode(topologyContext);
+        workflowFlattenService.simplifyWorkflow(topologyContext);
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             workflowValidator.validate(topologyContext, wf);
         }

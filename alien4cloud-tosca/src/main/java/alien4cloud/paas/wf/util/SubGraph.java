@@ -28,8 +28,7 @@ public class SubGraph {
     }
 
     public void browse(GraphConsumer graphConsumer) {
-        Map<String, WorkflowStep> subGraphSteps = workflow.getSteps().entrySet().stream().filter(workflowEntry -> filter.isInSubGraph(workflowEntry.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, WorkflowStep> subGraphSteps = WorkflowGraphUtils.getAllStepsInSubGraph(workflow, filter);
         Set<String> allSubGraphNodeIds = subGraphSteps.keySet();
         List<WorkflowStep> rootNodes = subGraphSteps.values().stream().filter(node -> Collections.disjoint(node.getPrecedingSteps(), allSubGraphNodeIds))
                 .collect(Collectors.toList());
@@ -67,5 +66,10 @@ public class SubGraph {
             }
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "SubGraph{" + "workflow=" + workflow.getName() + ", filter=" + filter + '}';
     }
 }

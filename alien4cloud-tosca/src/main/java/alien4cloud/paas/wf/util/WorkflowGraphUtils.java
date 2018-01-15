@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
@@ -74,7 +75,12 @@ public class WorkflowGraphUtils {
             }
 
             @Override
-            public void onRoots(List<Map<String, WorkflowStep>> components) {
+            public void onRoots(List<Map<String, WorkflowStep>> roots) {
+            }
+
+            @Override
+            public List<Map<String, WorkflowStep>> getRoots() {
+                return null;
             }
         });
         return cycles;
@@ -158,5 +164,10 @@ public class WorkflowGraphUtils {
             return operation != null && operation.getImplementationArtifact() != null
                     && StringUtils.isNotBlank(operation.getImplementationArtifact().getArtifactRef());
         }).orElse(false);
+    }
+
+    public static Map<String, WorkflowStep> getAllStepsInSubGraph(Workflow workflow, SubGraphFilter filter) {
+        return workflow.getSteps().entrySet().stream().filter(workflowEntry -> filter.isInSubGraph(workflowEntry.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

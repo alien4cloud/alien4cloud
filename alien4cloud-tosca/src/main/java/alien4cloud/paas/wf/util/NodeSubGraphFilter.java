@@ -31,6 +31,6 @@ public class NodeSubGraphFilter implements SubGraphFilter {
 
     @Override
     public String toString() {
-        return "Sub graph {" + "workflow=" + workflow.getName() + ", nodeId='" + nodeId + '\'' + '}';
+        return "Node Filter { nodeId='" + nodeId + '\'' + '}';
     }
 }
