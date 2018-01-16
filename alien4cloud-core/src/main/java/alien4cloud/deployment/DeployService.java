@@ -184,7 +184,7 @@ public class DeployService {
                     callback.onSuccess(data);
                     // Trigger post update workflow if defined in both the initial and current topologies.
                     if (deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null
-                            && deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null) {
+                            && deploymentTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null) {
                         schedulePostUpdateWorkflow(System.currentTimeMillis(), existingDeployment, orchestratorPlugin, deploymentContext);
                     }
                 }
