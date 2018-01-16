@@ -2,7 +2,6 @@ package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -26,11 +25,12 @@ public class DeleteRelationshipProcessor extends AbstractRelationshipProcessor<D
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
-    protected void processRelationshipOperation(Csar csar, Topology topology, DeleteRelationshipOperation operation, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate) {
+    protected void processRelationshipOperation(Csar csar, Topology topology, DeleteRelationshipOperation operation, NodeTemplate nodeTemplate,
+            RelationshipTemplate relationshipTemplate) {
         log.debug("Removing the Relationship template <" + operation.getRelationshipName() + "> from the Node template <" + operation.getNodeName()
                 + ">, Topology <" + topology.getId() + "> .");
         topologyService.unloadType(topology, relationshipTemplate.getType());
-        nodeTemplate.getRelationships().remove(operation.getRelationshipName());
         workflowBuilderService.removeRelationship(topology, csar, operation.getNodeName(), operation.getRelationshipName(), relationshipTemplate);
+        nodeTemplate.getRelationships().remove(operation.getRelationshipName());
     }
 }

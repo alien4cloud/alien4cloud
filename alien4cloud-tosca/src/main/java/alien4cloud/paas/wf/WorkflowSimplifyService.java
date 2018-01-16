@@ -82,7 +82,7 @@ public class WorkflowSimplifyService {
     }
 
     public void simplifyWorkflow(TopologyContext topologyContext) {
-        doWithNode(topologyContext, (subGraph, workflow) -> flattenWorkflow(topologyContext, workflow, subGraph));
+        doWithNode(topologyContext, (subGraph, workflow) -> flattenWorkflow(topologyContext, subGraph));
         doWithNode(topologyContext, (subGraph, workflow) -> removeUnnecessarySteps(topologyContext, workflow, subGraph));
     }
 
@@ -90,6 +90,10 @@ public class WorkflowSimplifyService {
         LastPathGraphConsumer consumer = new LastPathGraphConsumer();
         subGraph.browse(consumer);
         ensureRootUnique(subGraph, consumer);
+        if (consumer.getRoots().isEmpty()) {
+            // This is really strange as we have a node template without any workflow step
+            return;
+        }
         Set<String> allStepIds = consumer.getRoots().get(0).keySet();
         List<WorkflowStep> sortedByWeightsSteps = consumer.getLastPath();
         List<Integer> nonEmptyIndexes = new ArrayList<>();
@@ -191,10 +195,14 @@ public class WorkflowSimplifyService {
                 }));
     }
 
-    private void flattenWorkflow(TopologyContext topologyContext, Workflow workflow, SubGraph subGraph) {
+    private void flattenWorkflow(TopologyContext topologyContext, SubGraph subGraph) {
         ComputeNodesWeightsGraphConsumer consumer = new ComputeNodesWeightsGraphConsumer();
         subGraph.browse(consumer);
         ensureRootUnique(subGraph, consumer);
+        if (consumer.getRoots().isEmpty()) {
+            // This is really strange as we have a node template without any workflow step
+            return;
+        }
         Map<String, WorkflowStep> component = consumer.getRoots().get(0);
         LinkedList<WorkflowStep> sortedByWeightsSteps = new LinkedList<>(component.values());
         sortedByWeightsSteps.sort(new WorkflowStepWeightComparator(consumer.getAllNodeWeights(), topologyContext.getTopology()));

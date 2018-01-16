@@ -1,11 +1,9 @@
 package alien4cloud.paas.wf.util;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.definitions.Interface;
@@ -31,22 +29,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.TopologyContext;
-import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
 import alien4cloud.paas.wf.model.Path;
 import alien4cloud.utils.AlienUtils;
 
 public class WorkflowGraphUtils {
-
-    public static WorkflowStep getRequiredStep(Workflow workflow, String stepId) {
-        if (workflow.getSteps() == null) {
-            throw new InconsistentWorkflowException("The workflow doesn't contain any steps");
-        }
-        WorkflowStep step = workflow.getSteps().get(stepId);
-        if (step == null) {
-            throw new InconsistentWorkflowException(String.format("The workflow doesn't contains the expected step <%s> !", stepId));
-        }
-        return step;
-    }
 
     /**
      * Build the paths of the graph starting from the entry points (steps without predecessors, so connected to 'start').
@@ -84,19 +70,6 @@ public class WorkflowGraphUtils {
             }
         });
         return cycles;
-    }
-
-    /**
-     * The graph entry is the lists of steps that haven't predecessor: these steps are de-facto connected to 'start'.
-     */
-    public static Set<WorkflowStep> getGraphEntrySteps(Workflow workflow) {
-        Set<WorkflowStep> entries = new HashSet<>();
-        for (WorkflowStep step : workflow.getSteps().values()) {
-            if (step.getPrecedingSteps() == null || step.getPrecedingSteps().isEmpty()) {
-                entries.add(step);
-            }
-        }
-        return entries;
     }
 
     public static String getConcernedNodeName(WorkflowStep stepFound, Topology topology) {
