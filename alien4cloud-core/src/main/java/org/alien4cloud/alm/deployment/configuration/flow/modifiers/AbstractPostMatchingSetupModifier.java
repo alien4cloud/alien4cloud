@@ -51,18 +51,18 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractTempla
 
         boolean configChanged = false;
 
-        Iterator<Entry<String, NodePropsOverride>> nodePropsOverrideIter = safe(propertiesOverrides).entrySet().iterator();
-        while (nodePropsOverrideIter.hasNext()) {
-            Entry<String, NodePropsOverride> nodePropsOverrideEntry = nodePropsOverrideIter.next();
+        Iterator<Entry<String, NodePropsOverride>> propertiesOverrideIter = safe(propertiesOverrides).entrySet().iterator();
+        while (propertiesOverrideIter.hasNext()) {
+            Entry<String, NodePropsOverride> nodePropsOverrideEntry = propertiesOverrideIter.next();
             if (lastUserSubstitutions.containsKey(nodePropsOverrideEntry.getKey())) {
                 // Merge the user overrides into the node.
                 configChanged = mergeNode(topology, context, nodePropsOverrideEntry.getKey(), nodePropsOverrideEntry.getValue());
             } else {
                 // This node is no more a matched node, remove from configuration
                 configChanged = true;
-                context.getLog().info("Definition of user properties for " + getSubject() + " [" + nodePropsOverrideEntry.getKey()
-                        + "] have been removed as the " + getSubject() + " is not available for matching anymore.");
-                nodePropsOverrideIter.remove();
+                context.log().info("Definition of user properties for " + getSubject() + " [" + nodePropsOverrideEntry.getKey() + "] have been removed as the "
+                        + getSubject() + " is not available for matching anymore.");
+                propertiesOverrideIter.remove();
             }
         }
         // If the configuration has changed then update it.
@@ -85,7 +85,7 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractTempla
         NodeType nodeType = ToscaContext.get(NodeType.class, template.getType());
         template.setProperties(mergeProperties(nodePropsOverride.getProperties(), template.getProperties(), nodeType.getProperties(), propertyName -> {
             configChanged.changed = true;
-            context.getLog().info("The property [" + propertyName + "] previously specified to configure " + getSubject() + " [" + templateId
+            context.log().info("The property [" + propertyName + "] previously specified to configure " + getSubject() + " [" + templateId
                     + "] cannot be set anymore as it is already specified by the matched location resource or in the topology.");
         }));
 
