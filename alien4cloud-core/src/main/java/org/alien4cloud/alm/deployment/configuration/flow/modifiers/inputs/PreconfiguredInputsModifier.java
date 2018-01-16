@@ -18,8 +18,8 @@ import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.variable.AlienContextVariables;
 import org.alien4cloud.tosca.variable.InputsMappingFileVariableResolver;
-import org.alien4cloud.tosca.variable.MissingVariablesException;
 import org.alien4cloud.tosca.variable.QuickFileStorageService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
@@ -64,20 +64,22 @@ public class PreconfiguredInputsModifier implements ITopologyModifier {
         Properties envVarProps = quickFileStorageService.loadEnvironmentVariables(topology.getId(), environment.getId());
         Map<String, Object> inputsMappingsMap = quickFileStorageService.loadInputsMappingFile(topology.getId());
 
-        Map<String, PropertyValue> resolvedInputsMappingFile = null;
-        try {
-            resolvedInputsMappingFile = InputsMappingFileVariableResolver
+        InputsMappingFileVariableResolver.InputsResolvingResult inputsResolvingResult = InputsMappingFileVariableResolver
                     .configure(appVarProps, envTypeVarProps, envVarProps, alienContextVariables)
                     .resolve(inputsMappingsMap, topology.getInputs());
-        } catch (MissingVariablesException e) {
-            context.log().error(new MissingVariablesTask(e.getMissingVariables()));
-            context.log().error(new UnresolvablePredefinedInputsTask(e.getUnresolvableInputs()));
+
+        if (CollectionUtils.isNotEmpty(inputsResolvingResult.getMissingVariables())) {
+            context.log().error(new MissingVariablesTask(inputsResolvingResult.getMissingVariables()));
+        }
+
+        if (CollectionUtils.isNotEmpty(inputsResolvingResult.getUnresolved())) {
+            context.log().error(new UnresolvablePredefinedInputsTask(inputsResolvingResult.getUnresolved()));
         }
 
         // checking constraints
         Map<String, ConstraintUtil.ConstraintInformation> violations = Maps.newHashMap();
         Map<String, ConstraintUtil.ConstraintInformation> typesViolations = Maps.newHashMap();
-        for (Map.Entry<String, PropertyValue> entry : safe(resolvedInputsMappingFile).entrySet()) {
+        for (Map.Entry<String, PropertyValue> entry : safe(inputsResolvingResult.getResolved()).entrySet()) {
             try {
                 ConstraintPropertyService.checkPropertyConstraint(entry.getKey(), entry.getValue(), topology.getInputs().get(entry.getKey()));
             } catch (ConstraintViolationException e) {
@@ -96,7 +98,11 @@ public class PreconfiguredInputsModifier implements ITopologyModifier {
 
         PreconfiguredInputsConfiguration preconfiguredInputsConfiguration = new PreconfiguredInputsConfiguration(environment.getTopologyVersion(),
                 environment.getId());
-        preconfiguredInputsConfiguration.setInputs(resolvedInputsMappingFile);
+        preconfiguredInputsConfiguration.setInputs(inputsResolvingResult.getResolved());
+
+        // add unresolved so that they are not considered as deployer input
+        inputsResolvingResult.getUnresolved().forEach(unresolved -> preconfiguredInputsConfiguration.getInputs().put(unresolved, null));
+
         // TODO: improve me
         preconfiguredInputsConfiguration.setLastUpdateDate(new Date());
         preconfiguredInputsConfiguration.setCreationDate(new Date());
