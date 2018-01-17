@@ -42,7 +42,7 @@ public class WorkflowGraphUtils {
     public static List<Path> getWorkflowGraphCycles(Workflow workflow) {
         SubGraph subGraph = new SubGraph(workflow, stepId -> true);
         List<Path> cycles = new ArrayList<>();
-        subGraph.browse(new GraphConsumer() {
+        subGraph.browse(new SimpleGraphConsumer() {
             @Override
             public boolean onNewPath(List<WorkflowStep> path) {
                 if (path.size() > 1) {
@@ -58,15 +58,6 @@ public class WorkflowGraphUtils {
                     }
                 }
                 return true;
-            }
-
-            @Override
-            public void onRoots(List<Map<String, WorkflowStep>> roots) {
-            }
-
-            @Override
-            public List<Map<String, WorkflowStep>> getRoots() {
-                return null;
             }
         });
         return cycles;

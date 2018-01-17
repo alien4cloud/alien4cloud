@@ -15,12 +15,5 @@ public interface GraphConsumer {
      */
     boolean onNewPath(List<WorkflowStep> path);
 
-    /**
-     * Called at the end of browsing
-     *
-     * @param roots list of graph's component from a root
-     */
-    void onRoots(List<Map<String, WorkflowStep>> roots);
-
-    List<Map<String, WorkflowStep>> getRoots();
+    void onAllNodes(Map<String, WorkflowStep> allNodes);
 }

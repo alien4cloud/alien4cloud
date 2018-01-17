@@ -2,7 +2,7 @@ package alien4cloud.paas.wf.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,22 +36,19 @@ public class SubGraph {
             // It means the whole sub graph is connected between them, we begin anyway with one of the node
             rootNodes.add(subGraphSteps.values().iterator().next());
         }
-        List<Map<String, WorkflowStep>> components = new ArrayList<>();
+        Map<String, WorkflowStep> allNodes = new HashMap<>();
         for (WorkflowStep rootNode : rootNodes) {
-            Map<String, WorkflowStep> component = new LinkedHashMap<>();
-            components.add(component);
-            boolean shouldContinue = internalBrowseSubGraph(subGraphSteps, graphConsumer, new ArrayList<>(), rootNode, component);
+            boolean shouldContinue = internalBrowseSubGraph(subGraphSteps, graphConsumer, new ArrayList<>(), rootNode, allNodes);
             if (!shouldContinue) {
                 break;
             }
         }
-        // FIXME this is not a definition of component of a graph, for the moment the configured workflow does not have components so not very important to fix
-        graphConsumer.onRoots(components);
+        graphConsumer.onAllNodes(allNodes);
     }
 
     private boolean internalBrowseSubGraph(Map<String, WorkflowStep> subGraphSteps, GraphConsumer graphConsumer, List<WorkflowStep> parentPath,
-            WorkflowStep currentNode, Map<String, WorkflowStep> component) {
-        component.put(currentNode.getName(), currentNode);
+            WorkflowStep currentNode, Map<String, WorkflowStep> allNodes) {
+        allNodes.put(currentNode.getName(), currentNode);
         List<WorkflowStep> newPath = new ArrayList<>(parentPath);
         newPath.add(currentNode);
         boolean shouldContinue = graphConsumer.onNewPath(newPath);
@@ -60,7 +57,7 @@ public class SubGraph {
         }
         Set<String> childrenIds = Sets.intersection(currentNode.getOnSuccess(), subGraphSteps.keySet());
         for (String childNodeId : childrenIds) {
-            shouldContinue = internalBrowseSubGraph(subGraphSteps, graphConsumer, newPath, subGraphSteps.get(childNodeId), component);
+            shouldContinue = internalBrowseSubGraph(subGraphSteps, graphConsumer, newPath, subGraphSteps.get(childNodeId), allNodes);
             if (!shouldContinue) {
                 return false;
             }
