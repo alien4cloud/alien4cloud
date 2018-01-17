@@ -142,6 +142,10 @@
         "ADD" : "Ajouter aux Propriétés d'entrée",
         "CONSTRAINT" : "Contrainte"
       },
+      "SECRETS" : {
+        "CANNOT_SET_SECRET" : "Can not set this property as a secret.",
+        "EMPTY_SECRET_PATH" : "The secret path can not be empty."
+      },
       "INVALID_NAME" : "Nom invalide.",
       "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'authorisation de déployer sur la location précédament selectionnée pour cet environement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
       "NODE_INFO" : "Noeud sélectionné",
@@ -1131,6 +1135,9 @@
       "USE" : "Utiliser ",
       "USE_YOUR_VALUE" : " et l'ajouter aux valeur de suggestion"
     }
+  },
+  "SECRET_PROPERTY" : {
+    "INPUT_PLACEHOLDER" : "Enter the secret path"
   },
   "REPOSITORY" : {
     "ACTIVE_FILTERS" : "Filtres actifs",

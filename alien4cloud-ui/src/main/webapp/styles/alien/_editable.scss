@@ -13,7 +13,6 @@ a.editable-click {
   color: $text-color;
   text-decoration: none;
   border: solid 1px rgba(255,255,255,0);
-
 }
 .editable-click:hover,
 a.editable-click:hover {
@@ -74,3 +73,30 @@ select.form-control-inline {
 .editable-number, .editable-texarea {
   white-space: nowrap;
 }
+
+.editable-property span {
+  @extend .not-overflow;
+  max-width: 120px;
+}
+
+/* ---- It is the css class for secret editable --------*/
+.editable-secret {
+  @extend .editable-property;
+  background-color: #DCDCDC;
+  border-radius: 0.25em;
+}
+
+.editable-secret:hover {
+  background-color: #F0F0F0;
+}
+
+.editable-secret {
+  display: -webkit-inline-flex;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+.editable-secret i {
+  padding-top: 3px;
+}
+/* ------------------------------------*/

@@ -142,6 +142,10 @@
         "ADD" : "添加到输入",
         "CONSTRAINT" : "限制"
       },
+      "SECRETS" : {
+        "CANNOT_SET_SECRET" : "Can not set this property as a secret.",
+        "EMPTY_SECRET_PATH" : "The secret path can not be empty."
+      },
       "INVALID_NAME" : "非法名称。",
       "LOCATION_UNAUTHORIZED_MESSAGE" : "您没有足够权力去部署到上一个选中的地点: <{{locationName}}>, 编排工具： <{{orchestratorName}}>. \n 请联系您的管理员以获取更多信息。",
       "NODE_INFO" : "选中的节点",
@@ -1131,6 +1135,9 @@
       "USE" : "使用 ",
       "USE_YOUR_VALUE" : " 并将其添加到建议值"
     }
+  },
+  "SECRET_PROPERTY" : {
+    "INPUT_PLACEHOLDER" : "Enter the secret path"
   },
   "REPOSITORY" : {
     "ACTIVE_FILTERS" : "激活过滤器",

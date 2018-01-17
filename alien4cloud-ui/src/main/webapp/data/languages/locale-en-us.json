@@ -142,6 +142,10 @@
         "ADD" : "Add To Input",
         "CONSTRAINT" : "Constraint"
       },
+      "SECRETS" : {
+        "CANNOT_SET_SECRET" : "Can not set this property as a secret.",
+        "EMPTY_SECRET_PATH" : "The secret path can not be empty."
+      },
       "INVALID_NAME" : "Invalid name.",
       "LOCATION_UNAUTHORIZED_MESSAGE" : "You do not have the rights to deploy on the previously selected location: <{{locationName}}>, orchestrator: <{{orchestratorName}}>. \n Contact your admin for more explanations.",
       "NODE_INFO" : "Selected node",
@@ -1131,6 +1135,9 @@
       "USE" : "Use ",
       "USE_YOUR_VALUE" : " and add it to the suggestion values"
     }
+  },
+  "SECRET_PROPERTY" : {
+    "INPUT_PLACEHOLDER" : "Enter the secret path"
   },
   "REPOSITORY" : {
     "ACTIVE_FILTERS" : "Active filters",

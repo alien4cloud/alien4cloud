@@ -534,3 +534,9 @@ img.icon_32 {
   font-style: italic;
   color: rgba(48, 72, 204, 0.65);
 }
+
+.not-overflow {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
