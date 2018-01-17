@@ -34,6 +34,7 @@ import alien4cloud.paas.wf.validation.WorkflowValidator;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.WorkflowTask;
 import alien4cloud.tosca.parser.ToscaParser;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.YamlParserUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -187,13 +188,27 @@ public class WorkflowsBuilderService {
         debugWorkflow(topologyContext.getTopology());
     }
 
-    public void removeRelationship(Topology topology, Csar csar, String nodeTemplateName, String relationshipName, RelationshipTemplate relationshipTemplate) {
+    public void removeRelationship(Topology topology, Csar csar, String sourceNodeId, String relationshipName, RelationshipTemplate relationshipTemplate) {
         TopologyContext topologyContext = buildTopologyContext(topology, csar);
         topologyContext.getTopology().getWorkflows().putAll(topologyContext.getTopology().getUnprocessedWorkflows());
-        String relationshipTarget = relationshipTemplate.getTarget();
+        NodeTemplate sourceNode = topology.getNodeTemplates().get(sourceNodeId);
+        String targetNodeId = relationshipTemplate.getTarget();
+        NodeTemplate targetNode = topologyContext.getTopology().getNodeTemplates().get(targetNodeId);
         for (Workflow wf : topology.getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
-            builder.removeRelationship(wf, nodeTemplateName, relationshipName, relationshipTarget);
+            // Remove relationships from source to target
+            // Remove relationships from target to source
+            Map<String, RelationshipTemplate> sourceRelationships = sourceNode.getRelationships().entrySet().stream()
+                    .filter(relationshipEntry -> relationshipEntry.getValue().getTarget().equals(targetNodeId))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            Map<String, RelationshipTemplate> targetRelationships = AlienUtils.safe(targetNode.getRelationships()).entrySet().stream()
+                    .filter(relationshipEntry -> relationshipEntry.getValue().getTarget().equals(sourceNodeId))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            builder.removeRelationships(wf, sourceNodeId, sourceRelationships, targetNodeId, targetRelationships);
+            sourceRelationships.entrySet().stream().filter(entry -> !entry.getKey().equals(relationshipName))
+                    .forEach(entry -> builder.addRelationship(wf, sourceNode.getName(), sourceNode, entry.getKey(), entry.getValue(), topologyContext));
+            targetRelationships.forEach((id, relationship) -> builder.addRelationship(wf, targetNodeId, targetNode, id, relationship, topologyContext));
+            // Remove unique relationship that we really want to remove
             WorkflowUtils.fillHostId(wf, topologyContext);
         }
         postProcessTopologyWorkflows(topologyContext);

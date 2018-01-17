@@ -6,22 +6,21 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import alien4cloud.tosca.context.ToscaContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodeCapabilitiesPropsOverride;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
-import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.tosca.context.ToscaContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * This modifier applies user defined properties on subtituted node after matching.
+ * This modifier applies user defined properties on substituted node after matching.
  */
 @Slf4j
 @Component
@@ -50,7 +49,7 @@ public class PostMatchingNodeSetupModifier extends AbstractPostMatchingSetupModi
                 capability.setProperties(mergeProperties(overrideCapabilityProperties.getValue().getProperties(), capability.getProperties(),
                         capabilityType.getProperties(), s -> {
                             configChanged.changed = true;
-                            context.getLog()
+                            context.log()
                                     .info("The property [" + s + "] previously specified to configure capability [" + overrideCapabilityProperties.getKey()
                                             + "] of node [" + nodeTemplateId
                                             + "] cannot be set anymore as it is already specified by the matched location resource or in the topology.");

@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
@@ -22,7 +19,6 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.ScalingPolicy;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.apache.commons.collections4.MapUtils;
@@ -40,6 +36,9 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.NameValidationUtils;
 import alien4cloud.utils.PropertyUtil;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -462,7 +461,7 @@ public class TopologyUtils {
                     continue;
                 }
                 if (relTemp.getTarget() != null && relTemp.getTarget().equals(targetNodeTemplate)) {
-                    toReturn.add(new RelationshipEntry(nodeTemp, relTemp));
+                    toReturn.add(new RelationshipEntry(nodeTemp, key2, relTemp));
                 }
             }
         }
@@ -475,6 +474,7 @@ public class TopologyUtils {
     @AllArgsConstructor
     public static class RelationshipEntry {
         private NodeTemplate source;
+        private String relationshipId;
         private RelationshipTemplate relationship;
     }
 }

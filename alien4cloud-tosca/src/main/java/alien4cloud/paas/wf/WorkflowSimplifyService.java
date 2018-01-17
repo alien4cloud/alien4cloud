@@ -9,15 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.paas.wf.exception.WorkflowException;
-import alien4cloud.paas.wf.util.GraphConsumer;
 import alien4cloud.paas.wf.util.NodeSubGraphFilter;
+import alien4cloud.paas.wf.util.SimpleGraphConsumer;
 import alien4cloud.paas.wf.util.SubGraph;
 import alien4cloud.paas.wf.util.SubGraphFilter;
 import alien4cloud.paas.wf.util.WorkflowGraphUtils;
@@ -35,11 +33,9 @@ public class WorkflowSimplifyService {
     }
 
     @Getter
-    private static class ComputeNodesWeightsGraphConsumer implements GraphConsumer {
+    private static class ComputeNodesWeightsGraphConsumer extends SimpleGraphConsumer {
 
         private Map<String, Integer> allNodeWeights = new HashMap<>();
-
-        private List<Map<String, WorkflowStep>> roots;
 
         @Override
         public boolean onNewPath(List<WorkflowStep> path) {
@@ -55,17 +51,10 @@ public class WorkflowSimplifyService {
             allNodeWeights.put(currentNode.getName(), newComputedWeight);
             return true;
         }
-
-        @Override
-        public void onRoots(List<Map<String, WorkflowStep>> roots) {
-            this.roots = roots;
-        }
     }
 
     @Getter
-    private static class LastPathGraphConsumer implements GraphConsumer {
-
-        private List<Map<String, WorkflowStep>> roots;
+    private static class LastPathGraphConsumer extends SimpleGraphConsumer {
 
         private List<WorkflowStep> lastPath;
 
@@ -74,31 +63,33 @@ public class WorkflowSimplifyService {
             lastPath = path;
             return true;
         }
-
-        @Override
-        public void onRoots(List<Map<String, WorkflowStep>> roots) {
-            this.roots = roots;
-        }
     }
 
     public void simplifyWorkflow(TopologyContext topologyContext) {
-        doWithNode(topologyContext, (subGraph, workflow) -> flattenWorkflow(topologyContext, workflow, subGraph));
+        doWithNode(topologyContext, (subGraph, workflow) -> flattenWorkflow(topologyContext, subGraph));
         doWithNode(topologyContext, (subGraph, workflow) -> removeUnnecessarySteps(topologyContext, workflow, subGraph));
     }
 
     private void removeUnnecessarySteps(TopologyContext topologyContext, Workflow workflow, SubGraph subGraph) {
         LastPathGraphConsumer consumer = new LastPathGraphConsumer();
         subGraph.browse(consumer);
-        ensureRootUnique(subGraph, consumer);
-        Set<String> allStepIds = consumer.getRoots().get(0).keySet();
+        if (consumer.getAllNodes().isEmpty()) {
+            // This is really strange as we have a node template without any workflow step
+            return;
+        }
+        Set<String> allStepIds = consumer.getAllNodes().keySet();
         List<WorkflowStep> sortedByWeightsSteps = consumer.getLastPath();
         List<Integer> nonEmptyIndexes = new ArrayList<>();
         LinkedHashSet<Integer> emptyIndexes = new LinkedHashSet<>();
         int lastIndexWithOutgoingLinks = -1;
+        int firstIndexWithOutgoingLinks = -1;
         for (int i = 0; i < sortedByWeightsSteps.size(); i++) {
             WorkflowStep step = sortedByWeightsSteps.get(i);
             if (!allStepIds.containsAll(step.getOnSuccess())) {
                 lastIndexWithOutgoingLinks = i;
+                if (firstIndexWithOutgoingLinks == -1) {
+                    firstIndexWithOutgoingLinks = i;
+                }
             }
             if (!WorkflowGraphUtils.isStepEmpty(step, topologyContext)) {
                 nonEmptyIndexes.add(i);
@@ -123,8 +114,12 @@ public class WorkflowSimplifyService {
             if (stepIsEmpty) {
                 if (followingSubstitutedIndex == null && !allStepIds.containsAll(step.getOnSuccess())) {
                     // the step is empty but no substitute for following links, it means that before the step there are no non empty steps
-                    // this should never happens because all node workflow begins with a set state initial step
-                    throw new WorkflowException("The node workflow should be properly configured with a set state initial");
+                    if (firstIndexWithOutgoingLinks >= 0 && firstIndexWithOutgoingLinks <= index) {
+                        // the step or before the step, outgoing links exist out of the sub graph so we should not remove it, because it will impact the
+                        // structure of the graph
+                        emptyIndexes.remove(index);
+                        continue;
+                    }
                 }
                 if (precedingSubstitutedIndex == null && !allStepIds.containsAll(step.getPrecedingSteps())) {
                     // the step is empty but no substitute for preceding links, it means that after the step there are no non empty steps
@@ -171,17 +166,6 @@ public class WorkflowSimplifyService {
         }
     }
 
-    private void ensureRootUnique(SubGraph subGraph, GraphConsumer consumer) {
-        if (consumer.getRoots().size() > 1) {
-            StringBuilder buffer = new StringBuilder();
-            for (Map<String, WorkflowStep> component : consumer.getRoots()) {
-                buffer.append(" - ").append(component.keySet().stream().collect(Collectors.joining(","))).append("\n");
-            }
-            // The sub graph is not connected, it has more than one components which make the flatten process impossible
-            throw new WorkflowException("The " + subGraph + " has multiple roots and can not be flatten\nThe roots are:\n" + buffer);
-        }
-    }
-
     private void doWithNode(TopologyContext topologyContext, DoWithNodeCallBack callBack) {
         AlienUtils.safe(topologyContext.getTopology().getWorkflows()).values().stream().filter(workflow -> !workflow.isHasCustomModifications())
                 .forEach(workflow -> AlienUtils.safe(topologyContext.getTopology().getNodeTemplates()).keySet().forEach(nodeId -> {
@@ -191,14 +175,17 @@ public class WorkflowSimplifyService {
                 }));
     }
 
-    private void flattenWorkflow(TopologyContext topologyContext, Workflow workflow, SubGraph subGraph) {
+    private void flattenWorkflow(TopologyContext topologyContext, SubGraph subGraph) {
         ComputeNodesWeightsGraphConsumer consumer = new ComputeNodesWeightsGraphConsumer();
         subGraph.browse(consumer);
-        ensureRootUnique(subGraph, consumer);
-        Map<String, WorkflowStep> component = consumer.getRoots().get(0);
-        LinkedList<WorkflowStep> sortedByWeightsSteps = new LinkedList<>(component.values());
+        if (consumer.getAllNodes().isEmpty()) {
+            // This is really strange as we have a node template without any workflow step
+            return;
+        }
+        Map<String, WorkflowStep> allNodes = consumer.getAllNodes();
+        LinkedList<WorkflowStep> sortedByWeightsSteps = new LinkedList<>(allNodes.values());
         sortedByWeightsSteps.sort(new WorkflowStepWeightComparator(consumer.getAllNodeWeights(), topologyContext.getTopology()));
-        Set<String> allSubGraphNodeIds = component.keySet();
+        Set<String> allSubGraphNodeIds = allNodes.keySet();
         sortedByWeightsSteps.forEach(workflowStep -> {
             // Remove all old links between the steps in the graph
             workflowStep.removeAllPrecedings(allSubGraphNodeIds);

@@ -1,22 +1,8 @@
 package alien4cloud.deployment;
 
-import java.util.Map;
-
 import javax.annotation.Resource;
 import javax.inject.Inject;
-
-import org.alien4cloud.secret.services.SecretProviderService;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.normative.constants.AlienCapabilityTypes;
-import org.alien4cloud.tosca.normative.constants.AlienInterfaceTypes;
-import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
-import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
-import org.alien4cloud.tosca.utils.NodeTemplateUtils;
-import org.alien4cloud.tosca.utils.TopologyUtils;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
@@ -35,7 +21,18 @@ import alien4cloud.paas.model.OperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.tosca.context.ToscaContextualAspect;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.secret.services.SecretProviderService;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.normative.constants.AlienCapabilityTypes;
+import org.alien4cloud.tosca.normative.constants.AlienInterfaceTypes;
+import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
+import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
+import org.alien4cloud.tosca.utils.NodeTemplateUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils;
+import org.springframework.stereotype.Service;
 
 /**
  * Manages operations performed on a running deployment.
@@ -155,9 +152,12 @@ public class DeploymentRuntimeService {
         // get the secret provider configuration from the location
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(topology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-        secretProviderConfigurationAndCredentials = secretProviderService.generateSecretConfiguration(locations,
-                secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
-                secretProviderConfigurationAndCredentials.getCredentials());
+
+        if ( secretProviderConfigurationAndCredentials.getSecretProviderConfiguration() != null ) {
+            secretProviderConfigurationAndCredentials = secretProviderService
+                    .generateSecretConfiguration(locations, secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
+                            secretProviderConfigurationAndCredentials.getCredentials());
+        }
 
         // Get alien4cloud specific interface to support cluster controller nodes.
         Capability clusterControllerCapability = NodeTemplateUtils.getCapabilityByType(nodeTemplate, AlienCapabilityTypes.CLUSTER_CONTROLLER);

@@ -137,6 +137,11 @@ define(function (require) {
       $scope.search();
     };
 
+    $scope.resetQuery = function() {
+      $scope.searchBoxContent = "";
+      $scope.search();
+    }
+
     $scope.addFilterValue = function(key, value) {
       value = $scope.queryManager.facetIdConverter.toFilter(key, value);
       var filter = _.get($scope.queryManager, ['filters', key]);

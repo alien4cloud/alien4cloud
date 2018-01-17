@@ -62,11 +62,17 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         NodeTemplate oldNodeTemplate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
 
         String[] splittedId = operation.getNewTypeId().split(":");
+
+        // Unload and remove old node template
+        topologyService.unloadType(topology, oldNodeTemplate.getType());
+        // remove the node from the topology and the workflows
+        nodeTemplates.remove(oldNodeTemplate.getName());
+        workflowBuilderService.removeNode(topology, csar, oldNodeTemplate.getName());
+
+        // Build the new one
         NodeType newType = toscaTypeSearchService.find(NodeType.class, splittedId[0], splittedId[1]);
         // Load the new type to the topology in order to update its dependencies
         newType = topologyService.loadType(topology, newType);
-
-        // Build the new one
         NodeTemplate newNodeTemplate = TemplateBuilder.buildNodeTemplate(newType, oldNodeTemplate, false);
         newNodeTemplate.setName(operation.getNodeName());
         newNodeTemplate.setTags(oldNodeTemplate.getTags());
@@ -74,12 +80,6 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         newNodeTemplate.setRelationships(oldNodeTemplate.getRelationships());
         // Put the new one in the topology
         nodeTemplates.put(oldNodeTemplate.getName(), newNodeTemplate);
-
-        // Unload and remove old node template
-        topologyService.unloadType(topology, oldNodeTemplate.getType());
-        // remove the node from the workflows
-        workflowBuilderService.removeNode(topology, csar, oldNodeTemplate.getName());
-
         // When replacing a node with another some relationships target capabilities or requirements may be impacted and moved to another capability/requirement
         // name.
         updateRelationshipsCapabilitiesRelationships(topology, newNodeTemplate);
@@ -96,7 +96,12 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         // add the new node to the workflow
         TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         workflowBuilderService.addNode(topologyContext, oldNodeTemplate.getName());
-
+        // add the relationships from the new node to the workflow
+        safe(newNodeTemplate.getRelationships()).forEach(
+                (relationshipId, relationshipTemplate) -> workflowBuilderService.addRelationship(topologyContext, newNodeTemplate.getName(), relationshipId));
+        // add the relationships to the new node to the workflow
+        TopologyUtils.getTargetRelationships(oldNodeTemplate.getName(), nodeTemplates).forEach(relationshipEntry -> workflowBuilderService
+                .addRelationship(topologyContext, relationshipEntry.getSource().getName(), relationshipEntry.getRelationshipId()));
         danglingRequirementService.addDanglingRequirements(topology, topologyContext, newNodeTemplate, null);
     }
 
