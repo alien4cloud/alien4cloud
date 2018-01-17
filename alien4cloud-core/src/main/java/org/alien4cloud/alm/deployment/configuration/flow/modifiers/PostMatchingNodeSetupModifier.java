@@ -14,6 +14,7 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.tosca.context.ToscaContext;
@@ -24,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class PostMatchingNodeSetupModifier extends AbstractPostMatchingSetupModifier<NodeTemplate> {
+public class PostMatchingNodeSetupModifier extends AbstractPostMatchingSetupModifier<NodeType, NodeTemplate> {
 
     @Override
     protected boolean doMergeNode(Topology topology, FlowExecutionContext context, String nodeTemplateId, NodePropsOverride nodePropsOverride) {
@@ -77,5 +78,10 @@ public class PostMatchingNodeSetupModifier extends AbstractPostMatchingSetupModi
     @Override
     Map<String, NodeTemplate> getTemplates(Topology topology) {
         return topology.getNodeTemplates();
+    }
+
+    @Override
+    Class<NodeType> getToscaTypeClass() {
+        return NodeType.class;
     }
 }

@@ -20,7 +20,7 @@ import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 
 import com.google.common.collect.Sets;
 
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
  * This modifier applies user defined properties on substituted resources after matching.
  */
 @Slf4j
-public abstract class AbstractPostMatchingSetupModifier<T extends AbstractTemplate> implements ITopologyModifier {
+public abstract class AbstractPostMatchingSetupModifier<T extends AbstractInheritableToscaType, U extends AbstractTemplate> implements ITopologyModifier {
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
@@ -81,9 +81,9 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractTempla
     protected boolean doMergeNode(Topology topology, FlowExecutionContext context, String templateId, NodePropsOverride nodePropsOverride) {
         final ConfigChanged configChanged = new ConfigChanged();
         // This node is still a matched node merge properties
-        T template = getTemplates(topology).get(templateId);
-        NodeType nodeType = ToscaContext.get(NodeType.class, template.getType());
-        template.setProperties(mergeProperties(nodePropsOverride.getProperties(), template.getProperties(), nodeType.getProperties(), propertyName -> {
+        U template = getTemplates(topology).get(templateId);
+        T toscaType = ToscaContext.get(getToscaTypeClass(), template.getType());
+        template.setProperties(mergeProperties(nodePropsOverride.getProperties(), template.getProperties(), toscaType.getProperties(), propertyName -> {
             configChanged.changed = true;
             context.log().info("The property [" + propertyName + "] previously specified to configure " + getSubject() + " [" + templateId
                     + "] cannot be set anymore as it is already specified by the matched location resource or in the topology.");
@@ -138,5 +138,7 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractTempla
 
     abstract String getSubject();
 
-    abstract Map<String, T> getTemplates(Topology topology);
+    abstract Map<String, U> getTemplates(Topology topology);
+
+    abstract Class<T> getToscaTypeClass();
 }
