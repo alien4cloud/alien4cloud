@@ -80,16 +80,16 @@ define(function (require) {
                 parent: successor.parent,
                 merged: [successor, node]
               });
-              if(_.defined(successor.parent)) {
-                simpleGraph.setParent(successors[0], successor.parent);
-              }
+//              if(_.defined(successor.parent)) {
+//                simpleGraph.setParent(successors[0], successor.parent);
+//              }
             }
           } else {
             // add non-merged node
             simpleGraph.setNode(nodeKey, node);
-            if(_.defined(node.parent)) {
-              simpleGraph.setParent(nodeKey, node.parent);
-            }
+//            if(_.defined(node.parent)) {
+//              simpleGraph.setParent(nodeKey, node.parent);
+//            }
             // add edges to graph
             var edges = graph.outEdges(nodeKey);
             _.each(edges, function(edge) {
@@ -142,7 +142,7 @@ define(function (require) {
               x = x - mergedNode.width - instance.spacing;
               mergedNode.y = node.y;
               graph.setNode(mergedNode.id, mergedNode);
-              graph.setParent(mergedNode.id, mergedNode.parent);
+//              graph.setParent(mergedNode.id, mergedNode.parent);
             });
           }
 
