@@ -93,7 +93,11 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         }
 
         topologyService.loadType(topology, indexedRelationshipType);
-
+        NodeTemplate newSourceNode = topology.getNodeTemplates().get(sourceNode.getName());
+        if (sourceNode != newSourceNode) {
+            // topology has been reloaded
+            sourceNode = newSourceNode;
+        }
         Map<String, RelationshipTemplate> relationships = sourceNode.getRelationships();
         if (relationships == null) {
             relationships = Maps.newHashMap();
