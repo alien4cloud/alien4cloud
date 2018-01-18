@@ -69,10 +69,10 @@ public class TopologyCompositionService {
             // std workflows are reinitialized when some composition is processed
             // TODO: find a better way to manage this
             TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
-            workflowBuilderService.reinitWorkflow(INSTALL, topologyContext);
-            workflowBuilderService.reinitWorkflow(START, topologyContext);
-            workflowBuilderService.reinitWorkflow(STOP, topologyContext);
-            workflowBuilderService.reinitWorkflow(UNINSTALL, topologyContext);
+            workflowBuilderService.reinitWorkflow(INSTALL, topologyContext, false);
+            workflowBuilderService.reinitWorkflow(START, topologyContext, false);
+            workflowBuilderService.reinitWorkflow(STOP, topologyContext, false);
+            workflowBuilderService.reinitWorkflow(UNINSTALL, topologyContext, false);
             workflowBuilderService.postProcessTopologyWorkflows(topologyContext);
         }
     }

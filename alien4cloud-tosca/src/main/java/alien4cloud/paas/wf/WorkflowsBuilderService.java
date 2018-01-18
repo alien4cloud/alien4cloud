@@ -109,7 +109,7 @@ public class WorkflowsBuilderService {
         workflow.setStandard(true);
         workflow.setHasCustomModifications(false);
         topologyContext.getTopology().getWorkflows().put(name, workflow);
-        reinitWorkflow(name, topologyContext);
+        reinitWorkflow(name, topologyContext, false);
     }
 
     public Workflow createWorkflow(Topology topology, String name) {
@@ -337,7 +337,7 @@ public class WorkflowsBuilderService {
         }
     }
 
-    public void reinitWorkflow(String workflowName, TopologyContext topologyContext) {
+    public void reinitWorkflow(String workflowName, TopologyContext topologyContext, boolean simplify) {
         Workflow wf = topologyContext.getTopology().getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
@@ -348,6 +348,9 @@ public class WorkflowsBuilderService {
         AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
         wf = builder.reinit(wf, topologyContext);
         WorkflowUtils.fillHostId(wf, topologyContext);
+        if (simplify) {
+            postProcessTopologyWorkflows(topologyContext);
+        }
     }
 
     public TopologyContext buildTopologyContext(Topology topology) {
