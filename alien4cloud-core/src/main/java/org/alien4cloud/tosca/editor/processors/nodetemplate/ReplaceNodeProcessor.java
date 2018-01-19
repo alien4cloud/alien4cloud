@@ -102,7 +102,9 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         // add the relationships to the new node to the workflow
         TopologyUtils.getTargetRelationships(oldNodeTemplate.getName(), nodeTemplates).forEach(relationshipEntry -> workflowBuilderService
                 .addRelationship(topologyContext, relationshipEntry.getSource().getName(), relationshipEntry.getRelationshipId()));
-        danglingRequirementService.addDanglingRequirements(topology, topologyContext, newNodeTemplate, null);
+        if(!operation.isSkipAutoCompletion()) {
+            danglingRequirementService.addDanglingRequirements(topology, topologyContext, newNodeTemplate, null);
+        }
     }
 
     private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {

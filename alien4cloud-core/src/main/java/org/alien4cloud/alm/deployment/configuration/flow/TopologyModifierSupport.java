@@ -73,11 +73,13 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         String nodeName = TopologyCompositionService.ensureNodeNameIsUnique(topology.getNodeTemplates().keySet(), desiredNodeName, 0);
         addNodeOperation.setNodeName(nodeName);
         addNodeOperation.setIndexedNodeTypeId(nodeType + ":" + nodeVersion);
+        addNodeOperation.setSkipAutoCompletion(true);
         addNodeProcessor.process(csar, topology, addNodeOperation);
         return topology.getNodeTemplates().get(nodeName);
     }
 
-    protected RelationshipTemplate addRelationshipTemplate(Csar csar, Topology topology, NodeTemplate sourceNode, String targetNodeName, String relationshipTypeName, String requirementName, String capabilityName) {
+    protected RelationshipTemplate addRelationshipTemplate(Csar csar, Topology topology, NodeTemplate sourceNode, String targetNodeName,
+            String relationshipTypeName, String requirementName, String capabilityName) {
         AddRelationshipOperation addRelationshipOperation = new AddRelationshipOperation();
         addRelationshipOperation.setNodeName(sourceNode.getName());
         addRelationshipOperation.setTarget(targetNodeName);
@@ -97,6 +99,7 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         ReplaceNodeOperation replaceNodeOperation = new ReplaceNodeOperation();
         replaceNodeOperation.setNodeName(node.getName());
         replaceNodeOperation.setNewTypeId(nodeType + ":" + nodeVersion);
+        replaceNodeOperation.setSkipAutoCompletion(true);
         replaceNodeProcessor.process(csar, topology, replaceNodeOperation);
         return topology.getNodeTemplates().get(node.getName());
     }
@@ -104,7 +107,8 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
     /**
      * Add the propertyValue to the list at the given path (Only the last property of the path must be a list).
      */
-    protected void appendNodePropertyPathValue(Csar csar, Topology topology, NodeTemplate nodeTemplate, String propertyPath, AbstractPropertyValue propertyValue) {
+    protected void appendNodePropertyPathValue(Csar csar, Topology topology, NodeTemplate nodeTemplate, String propertyPath,
+            AbstractPropertyValue propertyValue) {
         setNodePropertyPathValue(csar, topology, nodeTemplate, propertyPath, propertyValue, true);
     }
 
@@ -128,7 +132,8 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         });
     }
 
-    private void setNodePropertyPathValue(Csar csar, Topology topology, NodeTemplate nodeTemplate, String propertyPath, AbstractPropertyValue propertyValue, boolean lastPropertyIsAList) {
+    private void setNodePropertyPathValue(Csar csar, Topology topology, NodeTemplate nodeTemplate, String propertyPath, AbstractPropertyValue propertyValue,
+            boolean lastPropertyIsAList) {
         Map<String, AbstractPropertyValue> propertyValues = nodeTemplate.getProperties();
         String nodePropertyName = feedPropertyValue(propertyValues, propertyPath, propertyValue, lastPropertyIsAList);
         Object nodePropertyValue = propertyValues.get(nodePropertyName);

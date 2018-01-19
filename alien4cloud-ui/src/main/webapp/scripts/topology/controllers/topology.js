@@ -176,15 +176,6 @@ define(function (require) {
         return angular.isDefined(map) && map !== null && Object.keys(map).length > 0;
       };
 
-      $scope.nodeNameObj = {}; // added to support <tabset> "childscope issue"
-      function fillNodeSelectionVars(nodeTemplate) {
-        $scope.selectedNodeTemplate = nodeTemplate;
-        $scope.nodeNameObj.val = nodeTemplate.name;
-        $scope.selectionabstract = $scope.topology.nodeTypes[nodeTemplate.type].abstract;
-      }
-
-      $scope.getIcon = toscaService.getIcon;
-      $scope.getTag = toscaService.getTag;
       // check if compute type
       $scope.isComputeType = function(nodeTemplate) {
         if (_.undefined($scope.topology) || _.undefined(nodeTemplate)) {
@@ -192,6 +183,35 @@ define(function (require) {
         }
         return toscaService.isComputeType(nodeTemplate.type, $scope.topology.nodeTypes);
       };
+      $scope.isDockerType = function(nodeTemplate) {
+        if (_.undefined($scope.topology) || _.undefined(nodeTemplate)) {
+          return false;
+        }
+        return toscaService.isDockerType(nodeTemplate.type, $scope.topology.nodeTypes);
+      };
+
+      $scope.nodeNameObj = {}; // added to support <tabset> "childscope issue"
+      function fillNodeSelectionVars(nodeTemplate) {
+        $scope.selectedNodeTemplate = nodeTemplate;
+        $scope.nodeNameObj.val = nodeTemplate.name;
+        if($scope.isDockerType(nodeTemplate)) {
+          $scope.dockerImage = { defined: false };
+          $scope.dockerImage.value = undefined;
+          var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
+          $scope.dockerImage.typeValue = _.get(nodeType, 'interfaces.["tosca.interfaces.node.lifecycle.Standard"].operations.create.implementationArtifact.artifactRef');
+          var templateDockerImage = _.get(nodeTemplate, 'interfaces.["tosca.interfaces.node.lifecycle.Standard"].operations.create.implementationArtifact.artifactRef');
+          if(_.defined(templateDockerImage)) {
+            $scope.dockerImage.value = templateDockerImage;
+          } else if(_.defined($scope.dockerImage.typeValue)) {
+            $scope.dockerImage.value = $scope.dockerImage.typeValue;
+          }
+          $scope.dockerImage.defined = _.defined($scope.dockerImage.value);
+        }
+        $scope.selectionabstract = $scope.topology.nodeTypes[nodeTemplate.type].abstract;
+      }
+
+      $scope.getIcon = toscaService.getIcon;
+      $scope.getTag = toscaService.getTag;
 
       /**
        * Capabilities and Requirements docs

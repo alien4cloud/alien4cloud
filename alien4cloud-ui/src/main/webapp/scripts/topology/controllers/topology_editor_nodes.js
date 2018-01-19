@@ -179,6 +179,27 @@ define(function (require) {
             true
           );
         },
+        /** Update the docker image of a node */
+        updateDockerImage: function(dockerImage) {
+          console.log('update docker image', dockerImage);
+          var scope = this.scope;
+          var updatedNodeTemplate = scope.selectedNodeTemplate;
+          return scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateDockerImageOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              dockerImage: dockerImage
+            },
+            function(result) {
+              if (_.undefined(result.error)) {
+                _.set(updatedNodeTemplate, 'interfaces.["tosca.interfaces.node.lifecycle.Standard"].operations.create.implementationArtifact.artifactRef', dockerImage);
+                scope.dockerImage.value = dockerImage;
+              }
+            },
+            null,
+            scope.selectedNodeTemplate.name,
+            true
+          );
+        },
         /*duplicate a node in the topology. Also duplicate the hosted nodes hierarchy. Discard any relationship targeting a node out of the hosted hierarchy*/
         duplicate: function(nodeName) {
           var scope = this.scope;

@@ -153,7 +153,7 @@ public class TopologyService {
         NodeType indexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
         processNodeTemplate(topology, nodeTempEntry, nodeTemplatesToFilters);
         List<SuggestionsTask> topoTasks = searchForNodeTypes(topology.getWorkspace(), nodeTemplatesToFilters,
-                MapUtil.newHashMap(new String[] { nodeTemplateName }, new NodeType[] { indexedNodeType }));
+                MapUtil.newHashMap(new String[] { nodeTemplateName }, new NodeType[] { indexedNodeType }), false);
 
         if (CollectionUtils.isEmpty(topoTasks)) {
             return null;
@@ -244,7 +244,7 @@ public class TopologyService {
      * Search for nodeTypes given some filters. Apply AND filter strategy when multiple values for a filter key.
      */
     public List<SuggestionsTask> searchForNodeTypes(String workspace, Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
-            Map<String, NodeType> toExcludeIndexedNodeTypes) throws IOException {
+            Map<String, NodeType> toExcludeIndexedNodeTypes, boolean excludeAbstract) throws IOException {
         if (nodeTemplatesToFilters == null || nodeTemplatesToFilters.isEmpty()) {
             return null;
         }
@@ -261,7 +261,9 @@ public class TopologyService {
                 }
 
                 // retrieve only non abstract components
-                formattedFilters.put("abstract", ArrayUtils.toArray("false"));
+                if(excludeAbstract) {
+                    formattedFilters.put("abstract", ArrayUtils.toArray(String.valueOf("false")));
+                }
                 // use topology workspace + global workspace
                 formattedFilters.put("workspace", ArrayUtils.toArray(workspace, "ALIEN_GLOBAL_WORKSPACE"));
 
