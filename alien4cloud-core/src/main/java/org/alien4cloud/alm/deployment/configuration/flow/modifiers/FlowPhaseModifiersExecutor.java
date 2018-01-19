@@ -27,6 +27,7 @@ public class FlowPhaseModifiersExecutor implements ITopologyModifier {
             return;
         }
 
+        long start = System.currentTimeMillis();
         log.debug("Starting phase {} with {} modifiers to execute.", phase, phaseModifiers.size());
         for (ITopologyModifier modifier : phaseModifiers) {
             modifier.process(context.getTopology(), context);
@@ -35,6 +36,6 @@ public class FlowPhaseModifiersExecutor implements ITopologyModifier {
                 return;
             }
         }
-        log.debug("Phase {} completed.", phase);
+        log.debug("Phase {} completed in {} ms.", phase, System.currentTimeMillis() - start);
     }
 }

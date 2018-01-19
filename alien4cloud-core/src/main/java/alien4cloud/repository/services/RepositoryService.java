@@ -85,6 +85,9 @@ public class RepositoryService {
      * @return the artifact's path downloaded locally, null if artifact cannot be resolved
      */
     public String resolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials) {
+        if (repositoryType.equals("a4c_ignore")) {
+            return null;
+        }
         for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
             String resolvedArtifact = configurableArtifactResolver.resolveArtifact(artifactReference, repositoryURL, repositoryType, credentials);
             if (resolvedArtifact != null) {
@@ -108,6 +111,9 @@ public class RepositoryService {
     }
 
     public boolean canResolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials) {
+        if (repositoryType.equals("a4c_ignore")) {
+            return true;
+        }
         for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
             ValidationResult validationResult = configurableArtifactResolver.canHandleArtifact(artifactReference, repositoryURL, repositoryType, credentials);
             if (validationResult.equals(ValidationResult.SUCCESS)) {

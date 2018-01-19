@@ -57,11 +57,13 @@ public class UpdateDockerImageProcessor extends AbstractNodeProcessor<UpdateDock
                 ImplementationArtifact createIA = new ImplementationArtifact();
                 createIA.setArtifactType(NormativeArtifactTypes.DOCKER);
                 createIA.setRepositoryName("docker");
-                createIA.setArtifactRepository("http");
                 create.setImplementationArtifact(createIA);
             }
         }
+        create.getImplementationArtifact().setArchiveName(csar.getName());
+        create.getImplementationArtifact().setArchiveVersion(csar.getVersion());
         create.getImplementationArtifact().setArtifactRef(operation.getDockerImage());
+        create.getImplementationArtifact().setArtifactRepository("a4c_ignore");
     }
 
     private Operation getCreateOperation(Map<String, Interface> interfaces) {
