@@ -57,18 +57,18 @@ define(function(require) {
   }
 
   function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menus) {
-    console.log('Refresh deployment context');
+    // console.log('Refresh deployment context');
     return deploymentTopologyServices.get({
       appId: application.id,
       envId: deploymentContext.selectedEnvironment.id
     }).$promise.then(function(response) {
-        console.log('Got response', response);
+        // console.log('Got response', response);
         deploymentTopologyProcessor.process(response.data);
-        console.log('processed', response);
+        // console.log('processed', response);
         deploymentContext.deploymentTopologyDTO = response.data;
         tasksProcessor.processAll(deploymentContext.deploymentTopologyDTO.validation);
-        console.log('task processed', deploymentContext.deploymentTopologyDTO.validation);
-        console.log('process step statuses');
+        // console.log('task processed', deploymentContext.deploymentTopologyDTO.validation);
+        // console.log('process step statuses');
         updateStepsStatuses(menus, deploymentContext.deploymentTopologyDTO.validation);
         return deploymentContext;
       });
