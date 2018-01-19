@@ -1,13 +1,13 @@
 package org.alien4cloud.tosca.utils;
 
-import org.alien4cloud.tosca.model.definitions.ImplementationArtifact;
-import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.definitions.Operation;
+import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Map;
 import java.util.Optional;
 
-import static alien4cloud.utils.AlienUtils.safe;
+import org.alien4cloud.tosca.model.definitions.ImplementationArtifact;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
 
 public final class InterfaceUtils {
     private InterfaceUtils() {
@@ -20,7 +20,9 @@ public final class InterfaceUtils {
             return null;
         }
         Operation operation = safe(interfaz.getOperations()).get(operationName);
-        if(operation )
+        if(operation == null) {
+            return null;
+        }
+        return operation.getImplementationArtifact();
     }
-
 }
