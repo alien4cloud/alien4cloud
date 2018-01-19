@@ -14,7 +14,6 @@ public final class InterfaceUtils {
     }
 
     public static ImplementationArtifact getArtifact(Map<String, Interface> interfaceMap, String interfaceName, String operationName) {
-        Optional.of(safe(interfaceMap).get(interfaceName)).map()
         Interface interfaz = safe(interfaceMap).get(interfaceName);
         if (interfaz == null) {
             return null;
