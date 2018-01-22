@@ -1,15 +1,18 @@
 package alien4cloud.dao;
 
-import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.utils.ReflectionUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import java.beans.IntrospectionException;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
@@ -21,17 +24,17 @@ import org.elasticsearch.mapping.ElasticSearchClient;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.elasticsearch.util.MapUtil;
 
-import javax.annotation.Resource;
-import java.beans.IntrospectionException;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.ReflectionUtil;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages one or multiple indexes and the related java and elastic search types.
@@ -130,7 +133,7 @@ public abstract class ESIndexMapper {
      * 
      * @param typesMap The type map.
      */
-    public void addAlienScore(Map<String, Object> typesMap) {
+    public static void addAlienScore(Map<String, Object> typesMap) {
         for (Object typeMappingObject : typesMap.values()) {
             @SuppressWarnings("unchecked")
             Map<String, Object> typeMappingMap = (Map<String, Object>) typeMappingObject;
@@ -147,7 +150,7 @@ public abstract class ESIndexMapper {
      *
      * @param typesMap The type map.
      */
-    private void addTTL(Map<String, Object> typesMap, String ttl) {
+    public static void addTTL(Map<String, Object> typesMap, String ttl) {
         if (ttl == null) {
             // if no ttl value is provided then just return.
             return;
