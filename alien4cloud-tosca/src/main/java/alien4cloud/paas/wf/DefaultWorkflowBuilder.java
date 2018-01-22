@@ -124,6 +124,7 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
         boolean sourceIsNative = WorkflowUtils.isNativeOrSubstitutionNode(nodeId, topologyContext);
         boolean targetIsNative = WorkflowUtils.isNativeOrSubstitutionNode(relationshipTemplate.getTarget(), topologyContext);
         if (!sourceIsNative || !targetIsNative) {
+            // source or target is native or abstract
             // for native types we don't care about relation ships in workflows
             RelationshipDeclarativeWorkflow relationshipDeclarativeWorkflow = defaultDeclarativeWorkflows.getRelationshipWorkflows().get(workflow.getName());
             // only trigger this method if it's a default workflow
@@ -153,6 +154,15 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
                 declareWeaving(relationshipWeavingDeclarativeWorkflow.getSource(), sourceSteps, targetSteps);
                 declareWeaving(relationshipWeavingDeclarativeWorkflow.getTarget(), targetSteps, sourceSteps);
             }
+        } else {
+            // both source and target are native then the relationship does not have any operation implemented
+            // we will just try to declare weaving between source node operations and target node operations
+            Steps sourceSteps = new Steps(workflow, nodeId);
+            Steps targetSteps = new Steps(workflow, relationshipTemplate.getTarget());
+            RelationshipWeavingDeclarativeWorkflow relationshipWeavingDeclarativeWorkflow = getRelationshipWeavingDeclarativeWorkflow(
+                    relationshipTemplate.getType(), topologyContext, workflow.getName());
+            declareWeaving(relationshipWeavingDeclarativeWorkflow.getSource(), sourceSteps, targetSteps);
+            declareWeaving(relationshipWeavingDeclarativeWorkflow.getTarget(), targetSteps, sourceSteps);
         }
     }
 }
