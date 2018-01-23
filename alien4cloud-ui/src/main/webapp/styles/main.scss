@@ -516,6 +516,7 @@ img.icon_32 {
 .info-popover {
   word-wrap: break-word;
   word-break: break-word;
+  z-index: 99999999 !important;
 }
 .info-popover-sm, .info-popover-lg {
   max-width: 400px;
