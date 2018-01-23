@@ -2,16 +2,16 @@
 <Configuration status="WARN">
     <Appenders>
         <Console name="STDOUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
         </Console>
         <File name="FILE" fileName="alien4cloud.log">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
         </File>
     </Appenders>
     <Loggers>
         <root level="info">
-            <AppenderRef ref="STDOUT"/>
-            <AppenderRef ref="FILE"/>
+            <AppenderRef ref="STDOUT" />
+            <AppenderRef ref="FILE" />
         </root>
         <logger name="springfox.documentation" level="warn"/>
         <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="warn"/>
