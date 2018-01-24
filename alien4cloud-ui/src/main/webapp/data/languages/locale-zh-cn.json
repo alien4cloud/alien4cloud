@@ -6,16 +6,16 @@
     "DEPLOY" : "部署",
     "DEPLOYMENT" : {
       "HISTORY" : {
-        "DEPLOYED_AT" : "Deployed at",
-        "DEPLOYER" : "Deployer",
-        "DURATION" : "Duration",
-        "UNDEPLOYED_AT" : "Undeployed at"
+        "DEPLOYED_AT" : "部署在",
+        "DEPLOYER" : "部署者",
+        "DURATION" : "时长",
+        "UNDEPLOYED_AT" : "卸载在"
       },
       "MATCHING" : {
         "CONFIGURATION" : "资源配置",
         "CONFIGURATION_HELP" : "您可以配置被选中的匹配资源的属性。注意一些已经被地点管理员定义好的属性，这些属性不能被覆盖。",
-        "NODES_TITLE" : "TRANSLATION_IS_REQUIRED",
-        "POLICIES_TITLE" : "TRANSLATION_IS_REQUIRED",
+        "NODES_TITLE" : "节点匹配",
+        "POLICIES_TITLE" : "政策匹配",
         "SERVICE" : "服务信息",
         "SERVICE_HELP" : "以下是匹配服务的定义好的属性和特性。",
         "SERVICE_UNDEPLOYED_HELP" : "选定的服务已被卸载，如果它被选定为匹配服务，在部署上这个可能会产生问题。"
@@ -26,8 +26,8 @@
       },
       "VERSION" : "部署的版本"
     },
-    "DEPLOYMENT_INFO" : "TRANSLATION_IS_REQUIRED",
-    "DEPLOY_CONFIRM" : "TRANSLATION_IS_REQUIRED",
+    "DEPLOYMENT_INFO" : "部署信息",
+    "DEPLOY_CONFIRM" : "您确定要部署这个生产环境？",
     "ENVIRONMENT" : {
       "ALL" : "所有环境",
       "ENV" : "环境",
@@ -51,11 +51,11 @@
     },
     "IMAGE_UPLOAD" : "上传新的映像",
     "INPUTS" : {
-      "CLEAR" : "Clear",
-      "DEPLOYER" : "Deployer input",
-      "EXPRESSION" : "Expression",
-      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE" : "An expression not matching the input type has been provided. Go to \"Expression\" tab to edit it. \nIf you want to edit it as a property, make sure to either provide an expression matching the input type, or set it empty.",
-      "MODAL_HEADER" : "Edit input < {{var}} >"
+      "CLEAR" : "清除",
+      "DEPLOYER" : "部署者输入",
+      "EXPRESSION" : "表达式",
+      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE" : "不匹配输入类型的表达式已经提供了。 转到\"表达式 \"标签来编辑它。 \ n如果要将其作为属性进行编辑，请确保提供与输入类型匹配的表达式，或将其设置为空。",
+      "MODAL_HEADER" : "编辑输入 < {{var}} >"
     },
     "META_PROPERTIES" : "元属性",
     "NEW" : "新建应用",
@@ -143,8 +143,8 @@
         "CONSTRAINT" : "限制"
       },
       "SECRETS" : {
-        "CANNOT_SET_SECRET" : "Can not set this property as a secret.",
-        "EMPTY_SECRET_PATH" : "The secret path can not be empty."
+        "CANNOT_SET_SECRET" : "不能将此属性设置为秘密",
+        "EMPTY_SECRET_PATH" : "秘密路径不能为空"
       },
       "INVALID_NAME" : "非法名称。",
       "LOCATION_UNAUTHORIZED_MESSAGE" : "您没有足够权力去部署到上一个选中的地点: <{{locationName}}>, 编排工具： <{{orchestratorName}}>. \n 请联系您的管理员以获取更多信息。",
@@ -152,7 +152,7 @@
       "NO_OUTPUTS" : "没有输出属性或特性",
       "ORCHESTRATOR_PROPERTIES" : "编排工具属性",
       "PARSING_ERROR" : "拓扑不是合法的。",
-      "PRECONFIGURED_PROPERTIES_INPUTS" : "TRANSLATION_IS_REQUIRED",
+      "PRECONFIGURED_PROPERTIES_INPUTS" : "预配置输入属性",
       "PROPERTIES_INPUTS" : "输入属性",
       "PROPERTIES_OUTPUTS" : "输出属性",
       "RECOVERY" : {
@@ -253,7 +253,7 @@
       "UPDATE_ARTIFACT" : "更新工件",
       "VISUAL_DETAILED" : "查看详情",
       "WARNING" : {
-        "DEPRECATION" : "The node {{name}} of type {{type}}, version{{version}} is marked as deprecated. You should update it's archive version in the topology dependencies.",
+        "DEPRECATION" : "类型{{type}}的节点{{name}}，版本{{version}}被标记为已弃用。 您应该在拓扑相关性中更新它的归档版本。",
         "HA_INVALID" : {
           "ERROR" : "错误",
           "GROUP" : "组",
@@ -261,7 +261,7 @@
         },
         "ILLEGAL_OPERATIONS" : {
           "LABEL" : "被忽略的操作",
-          "LABEL_DETAILS" : "不是所有关系操作都被允许当涉及到服务。Client cannot modify a service configuration on its own and vice and versa.",
+          "LABEL_DETAILS" : "不是所有关系操作都被允许当涉及到服务。客户端无法自行修改服务配置，反之亦然。",
           "OPERATION" : "操作",
           "RELATIONSHIP_TYPE" : "关系类型",
           "SERVICE" : "服务"
@@ -274,27 +274,27 @@
       "YAML" : "yaml"
     },
     "UNDEPLOY" : "卸载",
-    "UNDEPLOY_CONFIRM" : "TRANSLATION_IS_REQUIRED",
+    "UNDEPLOY_CONFIRM" : "您确定要卸载这个生产环境吗？",
     "UNDEPLOY_MODAL" : {
       "MESSAGE" : "您即将去卸载一下：",
       "RESOURCES_TO_UNINSTALL" : "将要卸载的资源",
       "TITLE" : "卸载提醒者"
     },
-    "UPDATE_CONFIRM" : "TRANSLATION_IS_REQUIRED",
+    "UPDATE_CONFIRM" : "您确定要更新这个生产环境吗？",
     "UPDATE_DEPLOYMENT" : "更新",
     "VARIABLES" : {
-      "APP_HELP" : "TRANSLATION_IS_REQUIRED",
-      "APP_SCOPE" : "TRANSLATION_IS_REQUIRED",
-      "APP_SCOPE_NOT_EDITABLE" : "TRANSLATION_IS_REQUIRED",
-      "DOC_LINK" : "Online documentation.",
-      "EDIT_MESSAGE" : "TRANSLATION_IS_REQUIRED",
-      "ENV_SCOPE" : "TRANSLATION_IS_REQUIRED",
-      "ENV_TYPE_SCOPE" : "TRANSLATION_IS_REQUIRED",
-      "MODAL_HEADER" : "TRANSLATION_IS_REQUIRED",
-      "TOGGLE_EDIT" : "TRANSLATION_IS_REQUIRED",
-      "TYPE_TO_ADD" : "TRANSLATION_IS_REQUIRED",
-      "UNDEFINED" : "TRANSLATION_IS_REQUIRED",
-      "UNSELECTED_HOLDER" : "TRANSLATION_IS_REQUIRED"
+      "APP_HELP" : "您可以在应用程序级别定义变量。 然后可以在拓扑中引用这些变量，并在部署之前用它们的值替换。 欲了解更多信息，请看下面的地址。",
+      "APP_SCOPE" : "应用范围",
+      "APP_SCOPE_NOT_EDITABLE" : "请注意，应用程序的变量不能在这里编辑",
+      "DOC_LINK" : "在线文档",
+      "EDIT_MESSAGE" : "点击编辑以添加值。",
+      "ENV_SCOPE" : "环境范围",
+      "ENV_TYPE_SCOPE" : "环境类型范围",
+      "MODAL_HEADER" : " 变量< {{var}} >在哪里定义？",
+      "TOGGLE_EDIT" : "编辑 {{state}}",
+      "TYPE_TO_ADD" : "输入以筛选或添加变量",
+      "UNDEFINED" : "未定义",
+      "UNSELECTED_HOLDER" : "选择左侧的范围项目以查看值"
     },
     "VERSION" : {
       "CHANGE_TOPO_VERSION_WARNING" : "还有一件事情：您需要选择一个拓扑版本去确认应用版本的更改",
@@ -312,30 +312,30 @@
         "LABEL" : "拓扑版本",
         "NEW" : "创建一个新拓扑",
         "QUALIFIER" : "限定符",
-        "TITLE" : "New topology for application version"
+        "TITLE" : "为应用版本新建拓扑"
       }
     },
     "WF" : {
-      "CallOperationWorkflowActivity" : "Operation call",
-      "DelegateWorkflowActivity" : "Delegate workflow",
-      "InlineWorkflowActivity" : "TRANSLATION_IS_REQUIRED",
-      "SetStateWorkflowActivity" : "State change",
-      "activity" : "Activity",
-      "addInlineActivity" : "TRANSLATION_IS_REQUIRED",
-      "addOperationActivity" : "Add operation call",
-      "addStateActivity" : "Add state change",
-      "addWorkflow" : "Add workflow",
-      "appendInlineActivity" : "TRANSLATION_IS_REQUIRED",
-      "appendOperationActivity" : "Append operation call",
-      "appendStateActivity" : "Append state change",
-      "changeViewMode" : "Simplified view",
-      "connectFromSelection" : "Connect from selection",
-      "connectToSelection" : "Connect to selection",
-      "currentSelection" : "Current selection",
-      "delegateWorkflow" : "Workflow",
-      "disconnect" : "Disconnect",
-      "disconnectFrom" : "Disconnect from",
-      "disconnectTo" : "Disconnect to",
+      "CallOperationWorkflowActivity" : "操作调用",
+      "DelegateWorkflowActivity" : "委派工作流",
+      "InlineWorkflowActivity" : "内联工作流",
+      "SetStateWorkflowActivity" : "状态改变",
+      "activity" : "活动",
+      "addInlineActivity" : "添加内联工作流",
+      "addOperationActivity" : "添加操作调用",
+      "addStateActivity" : "添加状态改变",
+      "addWorkflow" : "添加工作流",
+      "appendInlineActivity" : "追加内联的工作流",
+      "appendOperationActivity" : "追加操作调用",
+      "appendStateActivity" : "追加状态改变",
+      "changeViewMode" : "简单视图",
+      "connectFromSelection" : "从选中的连接",
+      "connectToSelection" : "连接到选中的",
+      "currentSelection" : "当前选中的",
+      "delegateWorkflow" : "工作流",
+      "disconnect" : "断开连接的",
+      "disconnectFrom" : "从断开",
+      "disconnectTo" : "断开到",
       "errors" : {
         "BadStateSequenceError" : "非法顺序 : 步骤 '{{from}}' 应该在 '{{to}}' 之前",
         "ParallelSetStatesError" : "对于节点 '{{nodeId}}' 状态更改已并行完成",
@@ -344,21 +344,21 @@
       },
       "hasErrors" : "错误(s)",
       "host" : "主机",
-      "inline" : "TRANSLATION_IS_REQUIRED",
-      "insertInlineActivity" : "TRANSLATION_IS_REQUIRED",
-      "insertOperationActivity" : "Insert operation call",
-      "insertStateActivity" : "Insert state change",
-      "interfaceName" : "Interface",
-      "launch" : "Launch",
-      "operationName" : "Operation",
-      "reinit" : "Reset workflow",
-      "removeStep" : "Remove step",
-      "stateName" : "State",
-      "swapLeft" : "Swap to left",
-      "swapRigth" : "Swap to right",
-      "title" : "Workflows",
-      "unpin" : "Unpin",
-      "workflow" : "TRANSLATION_IS_REQUIRED"
+      "inline" : "内联的",
+      "insertInlineActivity" : "插入内联的工作流",
+      "insertOperationActivity" : "插入操作调用",
+      "insertStateActivity" : "插入状态改变",
+      "interfaceName" : "界面",
+      "launch" : "开始",
+      "operationName" : "操作",
+      "reinit" : "重设工作流",
+      "removeStep" : "移除步骤",
+      "stateName" : "状态",
+      "swapLeft" : "交换到左边",
+      "swapRigth" : "交换到右边",
+      "title" : "工作流",
+      "unpin" : "取消固定",
+      "workflow" : "工作流"
     }
   },
   "AUDIT" : {
@@ -366,16 +366,16 @@
     "COLUMNS" : {
       "ACTION" : "操作",
       "ACTIONDESCRIPTION" : "描述",
-      "ALIEN4CLOUDUI" : "Alien4Cloud UI",
+      "ALIEN4CLOUDUI" : "Alien4Cloud 图形界面",
       "CATEGORY" : "类别",
       "METHOD" : "方法",
       "PATH" : "调用",
-      "REQUESTBODY" : "Request body",
-      "REQUESTPARAMETERS" : "Request parameters",
-      "RESPONSESTATUS" : "Response status",
+      "REQUESTBODY" : "请求体",
+      "REQUESTPARAMETERS" : "请求参数",
+      "RESPONSESTATUS" : "回答状态",
       "SOURCEIP" : "源 IP",
       "TIMESTAMP" : "日期",
-      "USERAGENT" : "User-Agent",
+      "USERAGENT" : "用户代理",
       "USEREMAIL" : "邮件",
       "USERFIRSTNAME" : "名",
       "USERLASTNAME" : "姓",
@@ -384,15 +384,15 @@
     },
     "CONFIGURATION" : {
       "ACTION_NAME" : "动作名称",
-      "BACK_TO_AUDIT_LOG" : "Back to audit logs",
-      "CONFIGURATION_IS_RESETED" : "Audit configuration has been reseted with success",
+      "BACK_TO_AUDIT_LOG" : "返回审计日志",
+      "CONFIGURATION_IS_RESETED" : "成功重设审计日志的设置",
       "ENABLED" : {
-        "LABEL" : "Enabled"
+        "LABEL" : "激活"
       },
-      "LABEL" : "Audit Configuration",
+      "LABEL" : "审计设置",
       "RESET" : "重设"
     },
-    "LOG" : "Operations Audit"
+    "LOG" : "操作的审计"
   },
   "BOUNDS" : "界限",
   "CANCEL" : "取消",
@@ -418,8 +418,8 @@
       "DEVELOPMENT" : "开发",
       "INTEGRATION_TESTS" : "集成测试",
       "OTHER" : "其他",
-      "PRE_PRODUCTION" : "Pre-production",
-      "PRODUCTION" : "production",
+      "PRE_PRODUCTION" : "预生产",
+      "PRODUCTION" : "生产",
       "USER_ACCEPTANCE_TESTS" : "UAT"
     },
     "ERRORS" : {
@@ -440,17 +440,17 @@
   "COMMON" : {
     "ADD" : "添加",
     "ADD_USER_ATTRIBUTE" : "添加用户特性",
-    "ATTENTION" : "TRANSLATION_IS_REQUIRED",
+    "ATTENTION" : "注意",
     "ATTRIBUTES" : "特性",
     "AUTHOR" : "作者",
     "AUTHORIZED" : "被授权的",
     "CAPABILITIES" : "能力",
-    "CONTENT" : "TRANSLATION_IS_REQUIRED",
+    "CONTENT" : "内容",
     "DATA" : "数据",
     "DATE" : "日期",
     "DESCRIPTION" : "描述",
-    "DOWNLOAD" : "TRANSLATION_IS_REQUIRED",
-    "EDIT" : "TRANSLATION_IS_REQUIRED",
+    "DOWNLOAD" : "下载",
+    "EDIT" : "编辑",
     "EMAIL" : "邮件",
     "EMAIL_INVALID" : "非法的邮件",
     "ENABLED_false" : "关闭",
@@ -465,13 +465,13 @@
     "NAME" : "名称",
     "NO" : "号",
     "NODE" : "节点",
-    "OR" : "TRANSLATION_IS_REQUIRED",
-    "PASSWORD" : "Password",
-    "PATH" : "Path",
+    "OR" : "或者",
+    "PASSWORD" : "密码",
+    "PATH" : "路径",
     "PROPERTIES" : "属性",
-    "RELATIONSHIP" : "Relationship",
+    "RELATIONSHIP" : "关系",
     "RESOURCES" : "资源",
-    "SEARCH" : "TRANSLATION_IS_REQUIRED",
+    "SEARCH" : "搜索",
     "SOURCE" : "来源",
     "STATE" : "状态",
     "TARGET" : "目标",
@@ -486,7 +486,7 @@
     "ARCHIVE" : "文件",
     "ARCHIVE_NAME" : "文件名",
     "ARCHIVE_VERSION" : "文件版本",
-    "BROWSE" : "TRANSLATION_IS_REQUIRED",
+    "BROWSE" : "浏览",
     "CAPABILITIES" : {
       "CARDINALITIES_TOOLTIP" : "上限",
       "TYPE" : "能力"
@@ -505,7 +505,7 @@
     },
     "CSAR" : {
       "ACTIVE_FILTERS" : "激活过滤器",
-      "IMPORTSOURCE" : "TRANSLATION_IS_REQUIRED",
+      "IMPORTSOURCE" : "来源",
       "TEMPLATEAUTHOR" : "作者",
       "TITLE" : "CSARS",
       "WORKSPACE" : "工作空间"
@@ -527,7 +527,7 @@
     "UPLOAD_ERROR" : {
       "300" : "在插件上传的过程中出现意外的IO错误。",
       "353" : "META-INF/plugin.yml 文件无法在您的插件内找到。",
-      "354" : "TRANSLATION_IS_REQUIRED",
+      "354" : "无法加载和激活该插件 \n{{message}}",
       "ALIEN_MAPPING_ERROR" : "内部错误引起的上传失败。请与堆栈信息和文件一并提交一个问题。",
       "CSAR_ALREADY_EXISTS" : "一个相同名称和版本的已发布的文件已经存在于Alien4Cloud的仓库中。为了确保用户使用的稳定性，Alien4Cloud不允许覆盖已发布的文件。然而，能够去覆盖一个快照文件，如果它没有被已部署的拓扑中使用。",
       "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE" : "一个相同名称和版本的已发布的文件已经存在于其他工作空间的Alien4Cloud的仓库中。",
@@ -556,7 +556,7 @@
       "NotNull" : "属性[{{path}}]不能为空。",
       "OUTPUTS_BAD_PARAMS_COUNT" : "函数参数count不正确",
       "OUTPUTS_UNKNOWN_FUNCTION" : "未知功能[{{note}}]",
-      "POLICY_TARGET_NOT_FOUND" : "Policy target [{{note}}] cannot be found",
+      "POLICY_TARGET_NOT_FOUND" : "政策目标 [{{note}}] 无法找到",
       "POTENTIAL_BAD_PROPERTY_VALUE" : "可能会出现印刷错误：{{note}}。",
       "RELATIONSHIP_NOT_BUILT" : "无法为要求建立关系[{{note}}]（请阅读错误）。",
       "REQUIREMENT_CAPABILITY_NOT_FOUND" : "无法识别与要求[{{note}}]相对应的功能。",
@@ -584,17 +584,17 @@
       "UNKNOWN_TOSCA_VERSION" : "TOSCA版本是未知的，不被Alien4Cloud识别。",
       "UNKNWON_DISCRIMINATOR_KEY" : "键{{note}}是未知的。",
       "UNKNWON_WORKFLOW_STEP" : "工作流程步骤[{{note}}]不存在，已被忽略。",
-      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET" : "The relationship ({{note}}) defined as target of the workflow step does not exist in the specified node.",
-      "UNKNWON_WORKFLOW_STEP_TARGET" : "The target node ({{note}}) specified in the workflow step does not exist in the topology.",
+      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET" : "定义为工作流步骤目标的关系（{{note}}）在指定节点中不存在。",
+      "UNKNWON_WORKFLOW_STEP_TARGET" : "工作流步骤中指定的目标节点（{{note}}）在拓扑中不存在。",
       "UNKOWN_GROUP_MEMBER" : "群组成员[{{note}}]不存在，因此被忽略。",
       "UNKOWN_GROUP_POLICY" : "组策略[{{note}}]未被管理。",
       "UNRECOGNIZED_PROPERTY" : "属性[{{note}}]未知，已被忽略。",
       "UNRESOLVED_ARTIFACT" : "工件{{note}}无法解决。",
       "UNSUPPORTED_SUBSTITUTION" : "不可替换定义类型的工件。",
       "VALIDATION_ERROR" : "已声明的类型无效： {{context | translate:note}}",
-      "WORKFLOW_HAS_CYCLE" : "Workflow {{note}} contains an infinite cycle.",
+      "WORKFLOW_HAS_CYCLE" : "工作流 {{note}} 包含环路。",
       "WORKFLOW_HAS_ERRORS" : "工作流程 [{{note}}] 是无效的。",
-      "WORKFLOW_INLINED_WORKFLOW_NOT_FOUND" : "Referenced inline workflow {{note}} does not exists.",
+      "WORKFLOW_INLINED_WORKFLOW_NOT_FOUND" : "引用的内联工作流 {{note}} 不存在。",
       "YAML_MAPPING_NODE_EXPECTED" : "需要映射节点。",
       "YAML_SCALAR_NODE_EXPECTED" : "此处需要可扩展类型的YAML节点。",
       "YAML_SEQUENCE_EXPECTED" : "需要YAML序列。"
@@ -637,7 +637,7 @@
     "CREDENTIALS" : "秘钥",
     "CREDENTIALSINFO" : "仅对私有存储库强制",
     "DELETE" : "删除",
-    "DEPRECIATE" : "TRANSLATION_IS_REQUIRED",
+    "DEPRECIATE" : "已被弃用",
     "DETAILS" : {
       "ARCHIVE_COMPONENTS" : "工件的组件",
       "BUTTON_ADD_NODE_TYPE" : "添加新的组件",
@@ -666,13 +666,13 @@
     },
     "FROMGIT" : "从Git导入",
     "GIT" : {
-      "GIT_IMPORT" : "Git import"
+      "GIT_IMPORT" : "Git 导入"
     },
     "IMPORTTOOLTIP" : "导入",
     "IMPORT_ALL" : "导入所有",
     "IMPORT_SUCCESS" : "CSAR已经被导入",
     "LEGEND" : "Csars被添加",
-    "NEW" : "TRANSLATION_IS_REQUIRED",
+    "NEW" : "新建文件",
     "NEW_GIT" : "Git位置",
     "PASSWORD" : "密码",
     "SAVE_LOCALLY" : "保存到本地的存储库",
@@ -741,20 +741,20 @@
         "REMOTE_BRANCH_VALUE" : "Remote Branch (default: 'master')",
         "URL" : "URL",
         "URL_VALUE" : "https://...",
-        "USERNAME" : "Username"
+        "USERNAME" : "用户名"
       },
       "OPERATIONS" : {
         "PULL" : {
-          "SUCCESS_MSGE" : "Successfully pulled from git",
-          "TITLE" : "Git pull operation"
+          "SUCCESS_MSGE" : "成功从git下载代码",
+          "TITLE" : "Git下载操作"
         },
         "PUSH" : {
-          "SUCCESS_MSGE" : "Successfully pushed to git",
-          "TITLE" : "Git push operation"
+          "SUCCESS_MSGE" : "成功推送代码到git",
+          "TITLE" : "Git推送操作"
         }
       },
-      "PULL" : "Pull",
-      "PUSH" : "Push",
+      "PULL" : "下载",
+      "PUSH" : "推送",
       "REMOTE" : "Remote"
     },
     "GIT_HISTORY" : "Git历史",
@@ -763,7 +763,7 @@
     },
     "MENU_FILES" : "工件内容",
     "MENU_HISTORY" : "历史",
-    "MENU_INPUTS_VAR" : "TRANSLATION_IS_REQUIRED",
+    "MENU_INPUTS_VAR" : "输入和变量",
     "MENU_TOPOLOGY" : "拓扑",
     "MENU_VALIDATION" : "拓扑验证",
     "MENU_WORKFLOW" : "工作流",
@@ -792,7 +792,7 @@
     "PRODUCTION" : "生产",
     "USER_ACCEPTANCE_TESTS" : "UAT"
   },
-  "ENVIRONMENT_TYPE_ALL" : "TRANSLATION_IS_REQUIRED",
+  "ENVIRONMENT_TYPE_ALL" : "所有环境类型",
   "ERRORS" : {
     "100" : "需要验证",
     "101" : "验证错误，请检查您的登录名和密码",
@@ -876,10 +876,10 @@
     "870" : "您选择的拓扑不能使用，因为它在应用程序的上下文中将不可见",
     "INTERNAL" : "内部错误",
     "SERVER_LOG" : {
-      "MISSING_VARIABLES" : "Missing variables: {{variables}}",
-      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "Constraint violation on predefined input <{{name}}>: ",
-      "PREDEFINED_INPUTS_TYPE_VIOLATION" : "Type mismatch on predefined input <{{name}}>: Value must be a {{type}}",
-      "UNRESOLVABLE_PREDEFINED_INPUTS" : "Unresolvable predefined inputs: {{unresolvableInputs}}"
+      "MISSING_VARIABLES" : "缺失变量：{{variables}}",
+      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "预定义输入<{{name}}>不满足约束：",
+      "PREDEFINED_INPUTS_TYPE_VIOLATION" : "预定义输入 <{{name}}>类型不匹配：值必须是类型 {{type}}",
+      "UNRESOLVABLE_PREDEFINED_INPUTS" : "无法解决的预定义输入：{{unresolvableInputs}}"
     },
     "UNKNOWN" : "未知错误"
   },
@@ -914,10 +914,10 @@
   },
   "GIT" : {
     "ALIEN_MANAGED" : "A4C",
-    "BRANCH" : "Branch",
-    "CONFIGURE_TITLE" : "Git configuration",
-    "MANAGED_BY" : "Managed by",
-    "USER_MANAGED" : "Manually"
+    "BRANCH" : "分支",
+    "CONFIGURE_TITLE" : "Git 配置",
+    "MANAGED_BY" : "管理来自",
+    "USER_MANAGED" : "手动地"
   },
   "GROUPS" : {
     "AUTHORIZED" : "被授权的组",
@@ -961,21 +961,21 @@
     "MENU_USERS" : "用户"
   },
   "NAVAPPLICATIONS" : {
-    "MENU_DEPLOY_CURRENT" : "TRANSLATION_IS_REQUIRED",
-    "MENU_DEPLOY_CURRENT_INFO" : "TRANSLATION_IS_REQUIRED",
-    "MENU_DEPLOY_CURRENT_RUNTIME_EDITOR" : "TRANSLATION_IS_REQUIRED",
-    "MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER" : "TRANSLATION_IS_REQUIRED",
-    "MENU_DEPLOY_NEXT" : "TRANSLATION_IS_REQUIRED",
-    "MENU_DEPLOY_NEXT_DEPLOY" : "TRANSLATION_IS_REQUIRED",
-    "MENU_DEPLOY_NEXT_INPUTS" : "TRANSLATION_IS_REQUIRED",
-    "MENU_DEPLOY_NEXT_LOCATIONS" : "TRANSLATION_IS_REQUIRED",
-    "MENU_DEPLOY_NEXT_MATCHING" : "TRANSLATION_IS_REQUIRED",
-    "MENU_DEPLOY_NEXT_TOPOLOGY" : "TRANSLATION_IS_REQUIRED",
-    "MENU_DEPLOY_NEXT_VERSION" : "TRANSLATION_IS_REQUIRED",
+    "MENU_DEPLOY_CURRENT" : "管理当前部署",
+    "MENU_DEPLOY_CURRENT_INFO" : "信息",
+    "MENU_DEPLOY_CURRENT_RUNTIME_EDITOR" : "运行时视图",
+    "MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER" : "工作流",
+    "MENU_DEPLOY_NEXT" : "准备下一个部署",
+    "MENU_DEPLOY_NEXT_DEPLOY" : "回顾和部署",
+    "MENU_DEPLOY_NEXT_INPUTS" : "输入",
+    "MENU_DEPLOY_NEXT_LOCATIONS" : "位置",
+    "MENU_DEPLOY_NEXT_MATCHING" : "匹配",
+    "MENU_DEPLOY_NEXT_TOPOLOGY" : "拓扑",
+    "MENU_DEPLOY_NEXT_VERSION" : "版本",
     "MENU_ENVIRONMENT" : "环境",
-    "MENU_HISTORY" : "TRANSLATION_IS_REQUIRED",
+    "MENU_HISTORY" : "部署历史",
     "MENU_USERS" : "用户和组",
-    "MENU_VARIABLES" : "TRANSLATION_IS_REQUIRED",
+    "MENU_VARIABLES" : "变量",
     "MENU_VERSIONS" : "版本"
   },
   "NAVBAR" : {
@@ -984,7 +984,7 @@
     "INPUT_SEARCH_MESSAGE" : "您需要什么？",
     "MENU_ADMIN" : "管理",
     "MENU_APPS" : "应用",
-    "MENU_CATALOG" : "TRANSLATION_IS_REQUIRED",
+    "MENU_CATALOG" : "目录",
     "MENU_COMPONENTS" : "组件",
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS Git 集成",
@@ -992,12 +992,12 @@
     "MENU_TOPOLOGY_TEMPLATE" : "拓扑模板"
   },
   "NAVCATALOG" : {
-    "ARCHIVES_PROMOTION" : "Archives promotion requests",
-    "BROWSE_COMPONENTS" : "Browse components",
-    "BROWSE_POLICIES" : "Browse policies",
-    "BROWSE_TOPOLOGIES" : "Browse topologies",
-    "MANAGE_ARCHIVES" : "Manage archives",
-    "TOPOLOGIES" : "Topologies"
+    "ARCHIVES_PROMOTION" : "档案分享请求",
+    "BROWSE_COMPONENTS" : "浏览组件",
+    "BROWSE_POLICIES" : "浏览政策",
+    "BROWSE_TOPOLOGIES" : "浏览拓扑",
+    "MANAGE_ARCHIVES" : "管理档案",
+    "TOPOLOGIES" : "拓扑"
   },
   "NEXT" : "下一个",
   "NO_DATA_AVAILABLE" : "没有可用的数据",
@@ -1019,7 +1019,7 @@
           "ADD_POPUP" : {
             "EMPTY_PLACEHOLDER" : "这个位置的授权应用/环境",
             "LOC_AUTH_FILTER" : "被授权的位置",
-            "MESSAGE" : "TRANSLATION_IS_REQUIRED",
+            "MESSAGE" : "您可以根据环境来添加应用程序的授权。您还可以通过环境类型添加授权。",
             "TITLE" : "选择程序/环境 "
           },
           "REVOKE" : "撤销应用"
@@ -1056,12 +1056,12 @@
       "INFRA_TYPE_SELECT" : "-- 请选择一个基础设施类型 --",
       "LOCATION" : "位置",
       "MODIFIER" : {
-        "DROP" : "Drop new modifier here or on the table above",
-        "INFO" : "Location topology modifiers are pieces of code that will change a topology when assigned to this location. It may perform various things but should always respect the original topology contract. You can read more on topology modifiers and the deployment lifecycle here",
-        "MODIFIER" : "TRANSLATION_IS_REQUIRED",
-        "PHASE" : "Deployment phase",
-        "PLUGIN" : "Plugin id",
-        "PLUGIN_BEAN" : "Plugin bean"
+        "DROP" : "放置新的修改器在这里或者上面的表格里",
+        "INFO" : "位置拓扑结构修改器一段代码，它会在分配给此位置时更改拓扑。 它可以执行各种事情，但应始终尊重原始的拓扑协议。 您可以在这里阅读拓扑修改器和部署生命周期的更多信息",
+        "MODIFIER" : "拓扑修改器",
+        "PHASE" : "部署阶段",
+        "PLUGIN" : "插件 id",
+        "PLUGIN_BEAN" : "插件 bean"
       },
       "NEW" : "新建位置",
       "ON_DEMAND_RESOURCES" : "按需资源",
@@ -1075,15 +1075,15 @@
         "TYPE" : "资源类型"
       },
       "SECRETS" : {
-        "AUTHENTICATION_METHOD" : "Authentication method",
+        "AUTHENTICATION_METHOD" : "认证方法",
         "LDAP" : "LDAP",
-        "NEED_SECRET" : " might need credentials to resolve secret",
-        "NO_SECRET_PLUGIN" : "No secret plugin found.",
-        "PLUGIN_NAME" : "Plugin name",
-        "SECRET" : "Secret",
+        "NEED_SECRET" : " 可能需要凭证来解决秘密",
+        "NO_SECRET_PLUGIN" : "找不到任何解决秘密的插件",
+        "PLUGIN_NAME" : "插件名字",
+        "SECRET" : "秘密",
         "TOKEN" : "Token",
-        "VAULT_CERTIFICATE" : "Vault Certificate",
-        "VAULT_CREDENTIALS" : "Vaut Credentials",
+        "VAULT_CERTIFICATE" : "Vault 证书",
+        "VAULT_CREDENTIALS" : "Vaut 凭证",
         "VAULT_URL" : "Vault URL"
       },
       "SECURITY" : "安全",
@@ -1126,7 +1126,7 @@
     },
     "UPLOAD" : "上传插件"
   },
-  "POLICIES" : "TRANSLATION_IS_REQUIRED",
+  "POLICIES" : "政策",
   "PROPERTY_RESET" : "设置为默认值或重置",
   "PROPERTY_SUGGESTION" : {
     "MODAL" : {
@@ -1137,7 +1137,7 @@
     }
   },
   "SECRET_PROPERTY" : {
-    "INPUT_PLACEHOLDER" : "Enter the secret path"
+    "INPUT_PLACEHOLDER" : "输入秘密的路径"
   },
   "REPOSITORY" : {
     "ACTIVE_FILTERS" : "激活过滤器",
@@ -1173,7 +1173,7 @@
       "LABEL" : "关系类型",
       "REQUIREMENT_DESCRIPTION" : "被用于定义运行在服务端的操作的关系类型。"
     },
-    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE" : "The instance can't be edited because it is in state started. Please change the state to off if you want to edit this instance."
+    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE" : "实例无法编辑，因为它处于启动状态。 如果要编辑此实例，请将状态更改为关闭。"
   },
   "SERVICES" : {
     "CATALOG" : "服务目录",
@@ -1245,7 +1245,7 @@
   "TRUE" : "正确",
   "UPDATE_DATE" : "更新日期",
   "UPLOAD" : {
-    "BROWSE" : "TRANSLATION_IS_REQUIRED",
+    "BROWSE" : "浏览",
     "COMPLETE" : "完成"
   },
   "USERS" : {
