@@ -1,0 +1,144 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: merge_complex_properties
+  template_author: alien
+  template_version: 0.1-SNAPSHOT
+
+description: Test supports of complex properties merge.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN12
+
+data_types:
+
+  alien.test.datatypes.CustomMergeable:
+    derived_from: tosca.datatypes.Root
+    properties:
+      a:
+        type: string
+      b:
+        type: list
+        entry_schema:
+          type: string
+      c:
+        type: alien.test.datatypes.CustomInner1
+      d:
+        type: map
+        entry_schema:
+          type: string
+
+  alien.test.datatypes.CustomInner1:
+    derived_from: tosca.datatypes.Root
+    properties:
+      ca:
+        type: string
+      cb:
+        type: integer
+      cc:
+        type: alien.test.datatypes.CustomInner2
+
+  alien.test.datatypes.CustomInner2:
+    derived_from: tosca.datatypes.Root
+    properties:
+      cca:
+        type: string
+      ccb:
+        type: integer
+
+node_types:
+
+  alien.test.nodes.NodeWithComplexProp:
+    derived_from: tosca.nodes.Root
+    properties:
+      testComplexProp:
+        type: alien.test.datatypes.CustomMergeable
+      testStringProp:
+        type: string
+      testIntegerProp:
+        type: integer
+      testMapProp:
+        type: map
+        entry_schema:
+          type: string
+
+topology_template:
+
+  node_templates:
+
+    Source1:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: toto
+    Target1:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: tata
+    Merged1:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: tata
+
+    Source2:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: toto
+    Target2:
+      type: alien.test.nodes.NodeWithComplexProp
+    Merged2:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: toto
+
+    Source3:
+      type: alien.test.nodes.NodeWithComplexProp
+    Target3:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: toto
+    Merged3:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: toto
+
+    Source4:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        c:
+          ca: kikoo
+          cc:
+            cca: test
+            ccb: 12
+    Target4:
+      type: alien.test.nodes.NodeWithComplexProp
+    Merged4:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        c:
+          ca: kikoo
+          cc:
+            cca: test
+            ccb: 12
+
+    Source5:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        c:
+          ca: kikoo
+          cc:
+            ccb: 12
+    Target5:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        c:
+          ca: kikoo
+          cc:
+            cca: test
+    Merged5:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        c:
+          ca: kikoo
+          cc:
+            cca: test
+            ccb: 12
