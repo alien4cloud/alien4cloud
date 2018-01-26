@@ -1,6 +1,7 @@
 package alien4cloud.utils;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
@@ -14,6 +15,8 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.rest.utils.JsonUtil;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 public final class PropertyUtil {
     private PropertyUtil() {
@@ -270,4 +273,49 @@ public final class PropertyUtil {
         return null;
     }
 
+    public static Map<String, AbstractPropertyValue> merge(Map<String, AbstractPropertyValue> source, Map<String, AbstractPropertyValue> target,
+            boolean overrideNull, Set<String> untouched) {
+        if (target == null || target.isEmpty()) {
+            return source;
+        }
+        for (Map.Entry<String, AbstractPropertyValue> entry : safe(source).entrySet()) {
+            String sourceKey = entry.getKey();
+            AbstractPropertyValue sourceValue = entry.getValue();
+//            AbstractPropertyValue mergedValue = mergeRecursive(sourceValue, target.get(sourceKey), overrideNull, untouched);
+
+        }
+        return target;
+    }
+
+//    private static AbstractPropertyValue mergeRecursive(AbstractPropertyValue complexSource, AbstractPropertyValue complexTarget, boolean overrideNull, Set<String> untouched) {
+//        if (overrideNull && complexTarget == null) {
+//            return complexSource;
+//        }
+//        if (complexSource == null) {
+//            return complexTarget;
+//        }
+//        if (complexSource instanceof ComplexPropertyValue && complexTarget instanceof ComplexPropertyValue) {
+//            Map<String, Object> source = ((ComplexPropertyValue) complexSource).getValue();
+//            Map<String, Object> target = ((ComplexPropertyValue) complexTarget).getValue();
+//            if (target == null || target.isEmpty()) {
+//                return complexSource;
+//            }
+//            for (Map.Entry<String, Object> entry : safe(source).entrySet()) {
+//                String sourceKey = entry.getKey();
+//                Object sourceValue = entry.getValue();
+//                if ((overrideNull && target.get(sourceKey) == null) || !target.containsKey(sourceKey)) {
+//                    target.put(sourceKey, sourceValue);
+//                } else if (target.containsKey(sourceKey)) {
+//                    AbstractPropertyValue mergedValue = mergeRecursive(sourceValue, target.get(sourceKey), overrideNull, untouched);
+//                    target.put(sourceKey, mergedValue);
+//                } else {
+//                    // untouched.add(entry.getKey());
+//                }
+//            }
+//            return new ComplexPropertyValue(target);
+//        } else {
+//
+//        }
+//
+//    }
 }

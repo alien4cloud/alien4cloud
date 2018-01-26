@@ -1,5 +1,6 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -126,6 +127,7 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
         U u = ToscaContext.get(getToscaTypeClass(), templateType);
         Map<String, PropertyDefinition> propertyDefinitions = u.getProperties();
 
+
 //        Map<String, AbstractPropertyValue> target = resourceProperties;
 //        Map<String, AbstractPropertyValue> source = originalProperties;
 //        if (target == null) {
@@ -150,6 +152,23 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
 //        return target.isEmpty() ? null : target;
         return CollectionUtils.merge(originalProperties, resourceProperties, true, untouched);
     }
+    private Map<String, AbstractPropertyValue> merge(Map<String, AbstractPropertyValue> source, Map<String, AbstractPropertyValue> target, boolean overrideNull, Set<String> untouched) {
+        if (target == null) {
+            target = Maps.newLinkedHashMap();
+        }
+
+        for (Map.Entry<String, AbstractPropertyValue> entry : safe(source).entrySet()) {
+            if ((overrideNull && target.get(entry.getKey()) == null) || !target.containsKey(entry.getKey())) {
+                target.put(entry.getKey(), entry.getValue());
+            } else {
+                untouched.add(entry.getKey());
+            }
+        }
+
+        return target.isEmpty() ? null : target;
+    }
+
+
 
     protected abstract String getOriginalTemplateCacheKey();
 
