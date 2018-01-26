@@ -1,29 +1,20 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.tosca.context.ToscaContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.springframework.context.annotation.Lazy;
 
 import com.google.common.collect.Maps;
@@ -32,18 +23,17 @@ import com.google.common.collect.Sets;
 import alien4cloud.model.orchestrators.locations.AbstractLocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.task.LocationPolicyTask;
-import alien4cloud.utils.CollectionUtils;
+import alien4cloud.utils.PropertyUtil;
 import lombok.Getter;
 import lombok.Setter;
-
-import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Replace a template with a matched template.
  */
 @Getter
 @Setter
-public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate, V extends AbstractLocationResourceTemplate<T>, U extends AbstractInheritableToscaType> implements ITopologyModifier {
+public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate, V extends AbstractLocationResourceTemplate<T>, U extends AbstractInheritableToscaType>
+        implements ITopologyModifier {
     @Inject
     @Lazy
     private ILocationResourceService locationResourceService;
@@ -115,60 +105,18 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
         // TODO Log all properties defined in the topology but not merged into the final node
         Set<String> topologyNotMergedProps = Sets.newHashSet();
         // Merge properties from the topology node but prevent any override.
-        replacingNode.setProperties(getMergedProperties(replacedTopologyNode.getProperties(), replacingNode.getProperties(), true, topologyNotMergedProps, replacingNode.getType()));
+        replacingNode.setProperties(getMergedProperties(replacedTopologyNode.getProperties(), replacingNode.getProperties(), true, topologyNotMergedProps));
         // We need to keep tags (metadata) in the replaced node
         replacingNode.setTags(replacedTopologyNode.getTags());
 
         processSpecificReplacement(replacingNode, replacedTopologyNode, topologyNotMergedProps);
     }
 
-    private Map<String, AbstractPropertyValue> getMergedProperties(Map<String, AbstractPropertyValue> originalProperties, Map<String, AbstractPropertyValue> resourceProperties, boolean overrideNull, Set<String> untouched, String templateType) {
+    private Map<String, AbstractPropertyValue> getMergedProperties(Map<String, AbstractPropertyValue> originalProperties,
+            Map<String, AbstractPropertyValue> resourceProperties, boolean overrideNull, Set<String> untouched) {
 
-        U u = ToscaContext.get(getToscaTypeClass(), templateType);
-        Map<String, PropertyDefinition> propertyDefinitions = u.getProperties();
-
-
-//        Map<String, AbstractPropertyValue> target = resourceProperties;
-//        Map<String, AbstractPropertyValue> source = originalProperties;
-//        if (target == null) {
-//            target = Maps.newLinkedHashMap();
-//        }
-//
-//        for (Map.Entry<String, AbstractPropertyValue> entry : safe(source).entrySet()) {
-//            if (entry.getValue() instanceof ComplexPropertyValue) {
-//                PropertyDefinition pd = propertyDefinitions.get(entry.getKey());
-//                if (pd != null) {
-//                    target.put(entry.getKey(), getMergedComplexProperty(entry.getValue(), target.get(entry.getKey()), entry.getKey(), overrideNull, pd));
-//                }
-//            } else {
-//                if ((overrideNull && target.get(entry.getKey()) == null) || !target.containsKey(entry.getKey())) {
-//                    target.put(entry.getKey(), entry.getValue());
-//                } else {
-//                    untouched.add(entry.getKey());
-//                }
-//            }
-//        }
-//
-//        return target.isEmpty() ? null : target;
-        return CollectionUtils.merge(originalProperties, resourceProperties, true, untouched);
+        return PropertyUtil.merge(originalProperties, resourceProperties, true, untouched);
     }
-    private Map<String, AbstractPropertyValue> merge(Map<String, AbstractPropertyValue> source, Map<String, AbstractPropertyValue> target, boolean overrideNull, Set<String> untouched) {
-        if (target == null) {
-            target = Maps.newLinkedHashMap();
-        }
-
-        for (Map.Entry<String, AbstractPropertyValue> entry : safe(source).entrySet()) {
-            if ((overrideNull && target.get(entry.getKey()) == null) || !target.containsKey(entry.getKey())) {
-                target.put(entry.getKey(), entry.getValue());
-            } else {
-                untouched.add(entry.getKey());
-            }
-        }
-
-        return target.isEmpty() ? null : target;
-    }
-
-
 
     protected abstract String getOriginalTemplateCacheKey();
 
