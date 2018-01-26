@@ -23,6 +23,7 @@ import alien4cloud.topology.task.RequirementsTask;
 import alien4cloud.topology.task.SuggestionsTask;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.topology.task.WorkflowTask;
+import alien4cloud.topology.validation.DeprecatedNodeTypesValidationService;
 import alien4cloud.topology.validation.NodeFilterValidationService;
 import alien4cloud.topology.validation.TopologyAbstractRelationshipValidationService;
 import alien4cloud.topology.validation.TopologyArtifactsValidationService;
@@ -46,6 +47,8 @@ public class TopologyValidationService {
     private WorkflowsBuilderService workflowBuilderService;
     @Resource
     private TopologyArtifactsValidationService topologyArtifactsValidationService;
+    @Resource
+    private DeprecatedNodeTypesValidationService deprecatedNodeTypesValidationService;
 
     /**
      * Validate if a topology is valid for deployment configuration or not,
@@ -86,6 +89,9 @@ public class TopologyValidationService {
 
         // validate that all artifacts has been filled
         dto.addTasks(topologyArtifactsValidationService.validate(topology));
+
+        // Add warning for deprecated nodes.
+        dto.addWarnings(deprecatedNodeTypesValidationService.validate(topology));
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
         List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validateStaticProperties(topology);

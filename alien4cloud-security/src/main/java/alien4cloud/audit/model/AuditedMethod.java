@@ -15,8 +15,8 @@ public class AuditedMethod extends Method {
 
     private boolean enabled;
 
-    public AuditedMethod(String signature, String method, String category, String action, boolean enabled) {
-        super(signature, method, category, action);
+    public AuditedMethod(String signature, String method, String category, String action, String[] bodyHiddenFields, boolean enabled) {
+        super(signature, method, category, action, bodyHiddenFields);
         this.enabled = enabled;
     }
 }

@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @NoArgsConstructor
 public class UnknownRelationshipError extends AbstractWorkflowError {
     private String stepId;

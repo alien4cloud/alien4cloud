@@ -1,72 +1,48 @@
 {
-  "SERVICE":{
-    "RELATIONSHIP" : {
-      "LABEL" : "Type de relation",
-      "CAPABILITY_DESCRIPTION" : "Un type de relation peut être utilisée pour définir les opérations à executer coté service.",
-      "REQUIREMENT_DESCRIPTION" : "Un type de relation peut être utilisée pour définir les opérations à executer coté service."
-    }
-  },
   "APPLICATIONS" : {
     "APPLICATION" : "Application",
     "APPLICATION_ROLES" : "Rôles d'application",
     "ARCHIVE_NAME" : "Nom d'archive (Id)",
-    "ARCHIVE_NAME_HELP" : "Le nom de l'archive TOSCA (Cloud Service Archive) liée à l'application. C'est également l'id unique et immutable de l'application.",
-    "AUTHORIZED" : "application autorisée",
     "DEPLOY" : "Déployer",
-    "DEPLOYMENT_INFO" : "Informations de déploiement",
-    "DEPLOY_CONFIRM": "Êtes-vous sûr de déployer cet environment de production ?",
-    "UNDEPLOY_CONFIRM": "Êtes-vous sûr de désinstaller cet environment de production ?",
-    "UPDATE_CONFIRM": "Êtes-vous sûr de mettre à jour cet environment de production ?",
-    "UPDATE_DEPLOYMENT" : "Mettre à jour",
     "DEPLOYMENT" : {
-      "DEPLOY" : "Déployer",
-      "INPUT" : "Input",
+      "HISTORY" : {
+        "DEPLOYED_AT" : "Déploié à",
+        "DEPLOYER" : "Déploieur",
+        "DURATION" : "Durée",
+        "UNDEPLOYED_AT" : "Un-déploié à"
+      },
       "MATCHING" : {
         "CONFIGURATION" : "Configuration de la resource",
         "CONFIGURATION_HELP" : "Vous pouvez configurer la resource choisie. Notez que certaines propriétés ont été définies par l'administrateur de la location. Ces propriétés ne peuvent être surchargées.",
+        "NODES_TITLE" : "Matching de noeuds",
+        "POLICIES_TITLE" : "Matching de policies",
         "SERVICE" : "Détails du service",
         "SERVICE_HELP" : "Les propriétés et attributs du service sélectioné sont affichées ci-dessous",
-        "SERVICE_UNDEPLOYED_HELP" : "Le service sélectionné n'est pas déployé. Cela peut causer des problèmes lors du déploiement en cas de choix de ce service pour remplacer le noeud selectionné.",
-        "TITLE" : "Matching",
-        "NODES_TITLE": "Matching de noeuds",
-        "POLICIES_TITLE": "Matching de policies"
-      },
-      "HISTORY": {
-        "DEPLOYER": "Déploieur",
-        "DEPLOYED_AT": "Déploié à",
-        "UNDEPLOYED_AT": "Un-déploié à",
-        "DURATION": "Durée"
+        "SERVICE_UNDEPLOYED_HELP" : "Le service sélectionné n'est pas déployé. Cela peut causer des problèmes lors du déploiement en cas de choix de ce service pour remplacer le noeud selectionné."
       },
       "PROPERTIES" : {
         "REQUIRED" : "Obligatoire",
-        "WARNING" : "Alerte",
         "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
-      },
-      "SETUP": {
-        "TITLE": "Configuration du déploiement",
-        "MESSAGE": "Configurez et préparez le prochain déploiement."
-      },
-      "DEPLOYED_INFOS": {
-        "TITLE": "Déploiement actif",
-        "MESSAGE": "Informations concernant le déploiement actif."
       },
       "VERSION" : "Version déployée"
     },
+    "DEPLOYMENT_INFO" : "Informations de déploiement",
+    "DEPLOY_CONFIRM" : "Êtes-vous sûr de déployer cet environment de production ?",
     "ENVIRONMENT" : {
       "ALL" : "All Environment",
       "ENV" : "Environnement",
       "ENV_ROLES" : "Rôles d'environment",
-      "SELECT_INPUT_CANDIDATE": "Selectionner l'environment pour copier les inputs",
       "FORM" : {
+        "DONT_COPY_INPUT" : "-- Ne pas copier les inputs --",
+        "ENV_INPUT_CANDIDATE_LABEL" : "Inputs",
+        "ENV_INPUT_CANDIDATE_SELECT" : "-- Selectionner l'environment pour copier les inputs --",
         "ENV_TYPE" : "Type d'environnement",
         "ENV_TYPE_SELECT" : "-- Sélectionner le type d'environnement --",
         "ENV_VERSION" : "Version de l'application",
-        "ENV_VERSION_SELECT" : "-- Sélectionner la version de l'application --",
-        "ENV_INPUT_CANDIDATE_LABEL": "Inputs",
-        "ENV_INPUT_CANDIDATE_SELECT": "-- Selectionner l'environment pour copier les inputs --",
-        "DONT_COPY_INPUT": "-- Ne pas copier les inputs --"
+        "ENV_VERSION_SELECT" : "-- Sélectionner la version de l'application --"
       },
       "NEW" : "Nouvel environnement",
+      "SELECT_INPUT_CANDIDATE" : "Selectionner l'environment pour copier les inputs",
       "STATUS" : "Etat"
     },
     "ERRORS" : {
@@ -74,10 +50,12 @@
       "DELETING_FAILED" : "Impossible de supprimer l'application. Annuler son déploiement et réessayez."
     },
     "IMAGE_UPLOAD" : "Déposer une image",
-    "INPUTS": {
-      "EXPRESSION": "Expression",
-      "DEPLOYER": "Deployer input",
-      "CLEAR": "Effacer"
+    "INPUTS" : {
+      "CLEAR" : "Effacer",
+      "DEPLOYER" : "Deployer input",
+      "EXPRESSION" : "Expression",
+      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE" : "Une expression ne matchant pas le type de l'input a été renseignée. Allez dans la partie \"Expression\" pour l'editer. \nSi vous voulez editer cet input comme propriété, assurez vous de fournir soit une expression qui matche le type de l'input, soit une valeur vide.",
+      "MODAL_HEADER" : "Editer l'input < {{var}} >"
     },
     "META_PROPERTIES" : "Méta-propriétés",
     "NEW" : "Nouvelle Application",
@@ -113,11 +91,6 @@
       "INSTANCE" : "Instance",
       "INSTANCES" : "Instances",
       "KEY" : "Clé",
-      "MAINTENANCE" : "Mode maintenance",
-      "MAINTENANCE_BUTTON" : {
-        "OFF" : "Souhaitez-vous sortir du mode maintenance ?",
-        "ON" : "Souhaitez-vous activer le mode maintenance ?"
-      },
       "OPERATION_EXECUTION" : {
         "NO_RETURN" : "Pas de retour",
         "RESULT_TITLE" : "Resultat de l'éxecution de l'opération {{operation}}"
@@ -125,8 +98,7 @@
       "RUNTIMEPROPS" : "Propriétés d'exécution",
       "SCALE" : "Scale",
       "SCALE_BUTTON" : "Scale le noeud",
-      "STATUS" : "Statut",
-      "VALUE" : "Valeur"
+      "STATUS" : "Statut"
     },
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "Ajouter un Noeud",
@@ -140,8 +112,6 @@
       "CARDINALITIES_TOOLTIP" : "minimun..maximum (restant)",
       "CHANGE_RELATIONSHIP" : "Changer une relation existante",
       "DEPENDENCIES" : {
-        "VERSION_CONFLICT_TITLE": "Conflict de version d'archive",
-        "VERSION_CONFLICT_MSG": "La version du noeud ajouté créé un conflict sur l'archive {{name}}. La version actuelle de la topologie est {{current}} alors que celle du noeud sélectionné est {{new}}. Si vous continuez, alien4cloud va résoudre le conflict en sélectionnant la version la plus élevée. Voulez vous continuer ?",
         "CHANGE_VERSION" : {
           "CONFIRM" : "Confirmez-vous le changement de version de la dépendance ? Cette opération peut affecter certains nodes et/ou relations dans la topologie.",
           "TITLE" : "Modifier la version"
@@ -153,19 +123,13 @@
           "TITLE" : "Conflits de dépendances transitives :",
           "WARNING" : "Les conflits de dépendances transitives peuvent entrainer des incompatibilités."
         },
-        "INCOMPATIBLE_VERSIONS" : {
-          "CONTENT" : "La topologie a déjà une dépendance vers l'archive <{{archiveName}}> version <{{archiveVersion}}>. Vous ne pouvez pas utiliser un composant provenant de cette même archive avec une version différente. Vous pouvez changer la version de la dépendance si vous souhaitez utiliser une version différente.",
-          "TITLE" : "Conflit de version de dépendances"
-        }
+        "VERSION_CONFLICT_MSG" : "La version du noeud ajouté créé un conflict sur l'archive {{name}}. La version actuelle de la topologie est {{current}} alors que celle du noeud sélectionné est {{new}}. Si vous continuez, alien4cloud va résoudre le conflict en sélectionnant la version la plus élevée. Voulez vous continuer ?",
+        "VERSION_CONFLICT_TITLE" : "Conflict de version d'archive"
       },
       "DEPENDENCY" : "Dépendances",
-      "DESC_TEMPLATE" : "Description du modèle",
-      "EDITOR" : "Visual Editor",
-      "FILES" : "Archive content browser",
       "GROUPS" : {
         "ADD" : "Ajouter un groupe",
         "MEMBERS" : "Membres",
-        "POLICIES" : "Politiques",
         "TOOLTIP" : "Gestion des groupes"
       },
       "INIT_FROM" : "Initialiser les topologies depuis",
@@ -178,15 +142,18 @@
         "ADD" : "Ajouter aux Propriétés d'entrée",
         "CONSTRAINT" : "Contrainte"
       },
+      "SECRETS" : {
+        "CANNOT_SET_SECRET" : "Can not set this property as a secret.",
+        "EMPTY_SECRET_PATH" : "The secret path can not be empty."
+      },
       "INVALID_NAME" : "Nom invalide.",
       "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'authorisation de déployer sur la location précédament selectionnée pour cet environement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
       "NODE_INFO" : "Noeud sélectionné",
       "NO_OUTPUTS" : "Aucune propriété ou attribut en sortie",
       "ORCHESTRATOR_PROPERTIES" : "Propriétés de l'orchestrateur",
       "PARSING_ERROR" : "La topologie n'est pas valide",
-      "PLAN" : "Workflow",
+      "PRECONFIGURED_PROPERTIES_INPUTS" : "Propriétés d'entrée préconfigurées",
       "PROPERTIES_INPUTS" : "Propriétés d'entrée",
-      "PRECONFIGURED_PROPERTIES_INPUTS": "Propriétés d'entrée préconfigurées",
       "PROPERTIES_OUTPUTS" : "Propriétés de sortie",
       "RECOVERY" : {
         "CHOICE_ASK" : "Que souhaitez vous faire de la topologie ?",
@@ -248,16 +215,16 @@
         },
         "LABEL" : "La topologie n'est pas valide :",
         "NODE_FILTER" : {
-          "CAPABILITY_MISSING_ERROR" : "La cible de posséde pas cette capacité",
           "CAPABILITY" : "Capacité",
+          "CAPABILITY_MISSING_ERROR" : "La cible de posséde pas cette capacité",
           "NODE_FILTER_INVALID" : "NodeFilters non statisfaits",
+          "PROPERTY" : "Propriété",
           "PROPERTY_CONSTRAINT_VIOLATION_ERROR" : "L'une des contraintes sur cette propriété n'ai pas respectée",
           "PROPERTY_MISSING_ERROR" : "La cible de posséde pas cette propriété",
-          "PROPERTY" : "Propriété",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "Le type de la propriété cible est invalide"
         },
         "RELATED_INPUT" : "Propriétée d'entrée",
-        "RELATIONSHIP": "Relation",
+        "RELATIONSHIP" : "Relation",
         "REPLACE" : "Remplacer par l'un des noeuds suggérés",
         "REPLACE_LABEL" : "A remplacer",
         "REQUIRED_PROPERTIES_LABEL" : "Propriétés obligatoires",
@@ -286,17 +253,18 @@
       "UPDATE_ARTIFACT" : "Mettre à jour l'artefact",
       "VISUAL_DETAILED" : "vue détaillée",
       "WARNING" : {
+        "DEPRECATION" : "Le noeud {{name}} de type {{type}}, version {{version}}, est marqué comme déprécié. Veuillez mettre à jour la version de son archive dans les dépendances de la topologie.",
         "HA_INVALID" : {
           "ERROR" : "Erreur",
           "GROUP" : "Groupe",
           "LABEL" : "HA politique est invalide"
         },
-        "ILLEGAL_OPERATIONS": {
-          "OPERATION": "Opération",
-          "SERVICE": "Service",
-          "RELATIONSHIP_TYPE": "Type de relation",
-          "LABEL": "Opérations ignorées",
-          "LABEL_DETAILS": "Certaines opérations d'une relation impliquant un service ne sont pas autorisées. Un client ne peut pas modifier directement la configuration d'un service et vice et versa."
+        "ILLEGAL_OPERATIONS" : {
+          "LABEL" : "Opérations ignorées",
+          "LABEL_DETAILS" : "Certaines opérations d'une relation impliquant un service ne sont pas autorisées. Un client ne peut pas modifier directement la configuration d'un service et vice et versa.",
+          "OPERATION" : "Opération",
+          "RELATIONSHIP_TYPE" : "Type de relation",
+          "SERVICE" : "Service"
         },
         "LABEL" : "Alertes",
         "PROPERTIES" : {
@@ -306,13 +274,30 @@
       "YAML" : "yaml"
     },
     "UNDEPLOY" : "Désinstaller",
-    "UNDEPLOY_MODAL": {
-      "MESSAGE": "Vous êtes sur le point de dsintaller ce qui suit:",
-      "RESOURCES_TO_UNINSTALL": "Ressources à désinstaller",
-      "TITLE": "Informations concernant la désinstallation"
+    "UNDEPLOY_CONFIRM" : "Êtes-vous sûr de désinstaller cet environment de production ?",
+    "UNDEPLOY_MODAL" : {
+      "MESSAGE" : "Vous êtes sur le point de dsintaller ce qui suit:",
+      "RESOURCES_TO_UNINSTALL" : "Ressources à désinstaller",
+      "TITLE" : "Informations concernant la désinstallation"
+    },
+    "UPDATE_CONFIRM" : "Êtes-vous sûr de mettre à jour cet environment de production ?",
+    "UPDATE_DEPLOYMENT" : "Mettre à jour",
+    "VARIABLES" : {
+      "APP_HELP" : "Vous pouvez configurer ici des variables d'application. Ces variables peuvent être référencées dans la topologie et seront remplacées par leur valeur avant le déploiement. Pour plus d'information consultez l'adresse suivante.",
+      "APP_SCOPE" : "Scope Application",
+      "APP_SCOPE_NOT_EDITABLE" : "Noter que les variables d'applications ne sont pas éditables ici.",
+      "DOC_LINK" : "Documentation en ligne.",
+      "EDIT_MESSAGE" : "Clicker sur le bouton \"Editer\" pour definir une valeur.",
+      "ENV_SCOPE" : "Scope Environment",
+      "ENV_TYPE_SCOPE" : "Scope Type d'Environment",
+      "MODAL_HEADER" : "Où est définie la variable < {{var}} > ?",
+      "TOGGLE_EDIT" : "Toggle edit {{state}}",
+      "TYPE_TO_ADD" : "Saisir pour filtrer, ou ajouter une variable...",
+      "UNDEFINED" : "Non défini",
+      "UNSELECTED_HOLDER" : "Selectionner un element de scope sur la gauche pour afficher la valeur"
     },
     "VERSION" : {
-      "CHANGE_TOPO_VERSION_WARNING": "Encore une chose: vous devez sélectionner une version de topologie pour valider le changement de version de l'application",
+      "CHANGE_TOPO_VERSION_WARNING" : "Encore une chose: vous devez sélectionner une version de topologie pour valider le changement de version de l'application",
       "LABEL" : "Version d'application",
       "MODAL" : {
         "PATTERN" : "Le format du numéro de version est invalide.",
@@ -331,13 +316,16 @@
       }
     },
     "WF" : {
-      "DelegateWorkflowActivity" : "Workflow sous-traité",
       "CallOperationWorkflowActivity" : "Appel d'opération",
+      "DelegateWorkflowActivity" : "Workflow sous-traité",
+      "InlineWorkflowActivity" : "Workflow inline",
       "SetStateWorkflowActivity" : "Changement d'état",
       "activity" : "Activité",
+      "addInlineActivity" : "Ajouter l'appel d'un workflow inline",
       "addOperationActivity" : "Ajouter un appel d'opération",
       "addStateActivity" : "Ajouter un changement d'état",
       "addWorkflow" : "Ajouter un nouveau workflow",
+      "appendInlineActivity" : "Ajouter l'appel d'un workflow inline (après)",
       "appendOperationActivity" : "Ajouter un appel d'opération (après)",
       "appendStateActivity" : "Ajouter un changement d'état (après)",
       "changeViewMode" : "Vue simplifiée",
@@ -356,6 +344,8 @@
       },
       "hasErrors" : "erreur(s)",
       "host" : "Hôte",
+      "inline" : "Inséré en ligne",
+      "insertInlineActivity" : "Insérer l'appel d'un workflow inline (avant)",
       "insertOperationActivity" : "Insérer un appel d'opération (avant)",
       "insertStateActivity" : "Insérer un changement d'état (avant)",
       "interfaceName" : "Interface",
@@ -367,7 +357,8 @@
       "swapLeft" : "Interchanger à gauche",
       "swapRigth" : "Interchanger à droite",
       "title" : "Workflows",
-      "unpin" : "Dévérouiller"
+      "unpin" : "Dévérouiller",
+      "workflow" : "Workflow"
     }
   },
   "AUDIT" : {
@@ -448,18 +439,18 @@
   "CODE" : "fr-fr",
   "COMMON" : {
     "ADD" : "Ajouter",
-    "ADD_USER_ATTRIBUTE": "Ajouter un attribut utilisateur",
-    "ATTENTION": "Attention",
+    "ADD_USER_ATTRIBUTE" : "Ajouter un attribut utilisateur",
+    "ATTENTION" : "Attention",
     "ATTRIBUTES" : "Attributs",
     "AUTHOR" : "Auteur",
-    "AUTHORIZED": "Authorisé",
+    "AUTHORIZED" : "Authorisé",
     "CAPABILITIES" : "Capacités",
-    "CONTENT": "Contenu",
+    "CONTENT" : "Contenu",
     "DATA" : "Données",
     "DATE" : "Date",
     "DESCRIPTION" : "Description",
-    "DOWNLOAD": "Télécharger",
-    "EDIT": "Editer",
+    "DOWNLOAD" : "Télécharger",
+    "EDIT" : "Editer",
     "EMAIL" : "Email",
     "EMAIL_INVALID" : "Email non valide.",
     "ENABLED_false" : "Désactivé",
@@ -469,24 +460,23 @@
     "ID" : "Id",
     "INFO" : "Information",
     "INFOS" : "Informations",
-    "KEY": "Clef",
+    "KEY" : "Clef",
     "MESSAGE" : "Message",
     "NAME" : "Nom",
     "NO" : "Non",
     "NODE" : "Noeud",
-    "OR": "ou",
-    "PATH": "Path",
-    "PASSWORD": "Mot de passe",
+    "OR" : "ou",
+    "PASSWORD" : "Mot de passe",
+    "PATH" : "Path",
     "PROPERTIES" : "Propriétés",
-    "RELATIONSHIP": "Relation",
-    "SEARCH": "Rechercher...",
+    "RELATIONSHIP" : "Relation",
+    "RESOURCES" : "Ressources",
+    "SEARCH" : "Rechercher...",
     "SOURCE" : "Source",
-    "RESOURCES": "Ressources",
     "STATE" : "Etat",
     "TARGET" : "Cible",
     "TYPE" : "Type",
     "USERNAME" : "Nom d'utilisateur",
-    "URL" : "URL",
     "VERSION" : "Version",
     "YES" : "Oui"
   },
@@ -496,6 +486,7 @@
     "ARCHIVE" : "Archive",
     "ARCHIVE_NAME" : "Nom de l'archive",
     "ARCHIVE_VERSION" : "Version de l'archive",
+    "BROWSE" : "Parcourir",
     "CAPABILITIES" : {
       "CARDINALITIES_TOOLTIP" : "maximum",
       "TYPE" : "Capacités"
@@ -514,7 +505,7 @@
     },
     "CSAR" : {
       "ACTIVE_FILTERS" : "Filtre actifs",
-      "IMPORTSOURCE": "Source",
+      "IMPORTSOURCE" : "Source",
       "TEMPLATEAUTHOR" : "Auteur",
       "TITLE" : "CSARS",
       "WORKSPACE" : "Workspace"
@@ -536,15 +527,17 @@
     "UPLOAD_ERROR" : {
       "300" : "Erreur inattendue lors de l'upload du plugin. \n{{message}}",
       "353" : "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml.",
-      "354": "Impossible d'activer le plugin: \n{{message}}",
+      "354" : "Impossible d'activer le plugin: \n{{message}}",
       "ALIEN_MAPPING_ERROR" : "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
       "CSAR_ALREADY_EXISTS" : "Une archive releasée ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
       "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE" : "Un CSAR avec le même nom et la même version existe déjà dans Alien.",
       "CSAR_ALREADY_INDEXED" : "Une archive a déjà été indexé dans Alien4Cloud avec le même contenu.",
+      "CSAR_IMPORT_ITSELF" : "Une archive ne peut pas s'importer elle même.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT" : "Une topologie ayant une dépendence vers une archive de ce nom et cette version est déployée. Afin de garantir la stabilité des déploiements, cette archive ne peut être modifiée.",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE" : "La dépendance [ {{note}} ] n'est pas visible depuis le workspace cible",
       "DEPENDENCY_VERSION_CONFLICT" : "La dependence [{{problem}}] est en conflit avec la dépendance [{{context}}]. Le conflit a été résolu en utilisant la version la plus récente.",
-      "DERIVED_FROM_NOTHING": "Le type tosca [{{note}}] doit hériter explicitement du type de base [{{context}}], Alien a automatiquement ajouté [{{context}}] comme son parent",
+      "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION" : "Substitution hérite le type concret [ {{note}} ], merci d'utiliser un type abstrait.",
+      "DERIVED_FROM_NOTHING" : "Le type tosca [{{note}}] doit hériter explicitement du type de base [{{context}}], Alien a automatiquement ajouté [{{context}}] comme son parent",
       "DUPLICATED_ELEMENT_DECLARATION" : "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
       "ENTRY_DEFINITION_NOT_FOUND" : "Le fichier de définitions n'a pas été trouvé. Le fichier de définitions yaml doit se trouver à la racine de l'archive",
       "ERRONEOUS_ARCHIVE_FILE" : "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",
@@ -563,6 +556,7 @@
       "NotNull" : "La propriété [ {{path}} ] n'est pas nullable",
       "OUTPUTS_BAD_PARAMS_COUNT" : "Le nombre d'arguments pour la fonction est incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION" : "La fonction [{{note}}] est inconnue dans ce contexte",
+      "POLICY_TARGET_NOT_FOUND" : "La cible de la policy [{{note}}] ne peut être trouvée.",
       "POTENTIAL_BAD_PROPERTY_VALUE" : "Possibilité d'erreur typographique: {{note}}.",
       "RELATIONSHIP_NOT_BUILT" : "La relationship correspondant au requirement [{{note}}] n'a pas pu être contruite (consultez les erreurs).",
       "REQUIREMENT_CAPABILITY_NOT_FOUND" : "La capacité correspondant au requirement [{{note}}] n'a pas pu être identifée.",
@@ -579,7 +573,6 @@
       "TOSCA_VERSION_NOT_FIRST" : "La version de TOSCA doit-être la première ligne du document TOSCA.",
       "TRANSITIVE_DEPENDENCY_VERSION_CONFLICT" : "La dépendance transitive [{{problem}}] est en conflit avec la dépendance directe [{{context}}]. Le conflit a été résolu en utilisant la version [{{note}}] de la dépendance directe.",
       "TYPE_NOT_FOUND" : "Le type [ {{note}} ] référencé n'existe ni dans l'archive ni dans ses dépendances. Veuillez valider les imports de dépendances ou ajouter le type à votre archive.",
-      "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION": "Substitution hérite le type concret [ {{note}} ], merci d'utiliser un type abstrait.",
       "ToscaPropertyConstraint" : "La contrainte [ {{path}} ] n'est pas correctement définie ou ne peut-être appliquée sur la propriété (type).",
       "ToscaPropertyConstraintDuplicate" : "La contrainte [ {{path}} ] est déjà présente. Une même contrainte ne peut-être définie plusieurs fois.",
       "ToscaPropertyDefaultValueConstraints" : "La valeur par défaut de la propriété [ {{path}} ] ne respecte pas les contraintes définies sur celle-ci.",
@@ -590,19 +583,21 @@
       "UNKNOWN_IMPLEMENTATION_ARTIFACT" : "Impossible de trouver un type d'artifact pour l'extension [ {{note}} ]. Le script ne sera pas supporté.",
       "UNKNOWN_TOSCA_VERSION" : "La version de TOSCA spécifiée n'est pas reconnue par Alien4Cloud",
       "UNKNWON_DISCRIMINATOR_KEY" : "La clef {{note}} est inconnue.",
-      "UNKNWON_WORKFLOW_STEP" : "Le pas de workflow [{{note}}] n'existe pas et est ignoré",
+      "UNKNWON_WORKFLOW_STEP" : "Le step de workflow ({{note}}) n'existe pas et est ignoré",
+      "UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET" : "La relation cible ({{note}}) définie pour le step du workflow n'est pas définie sur le noeud cible.",
+      "UNKNWON_WORKFLOW_STEP_TARGET" : "Le noeud cible ({{note}}) définir pour le step du workflow n'existe pas dans la topologie.",
       "UNKOWN_GROUP_MEMBER" : "Le membre du group [{{note}}] n'existe pas et est ignoré",
       "UNKOWN_GROUP_POLICY" : "La politique de groupe [{{note}}] n'est pas gérée",
       "UNRECOGNIZED_PROPERTY" : "La propriété [ {{note}} ] est inconnue et a été ignorée.",
       "UNRESOLVED_ARTIFACT" : "L'artifact {{note}} ne peut être résolu",
+      "UNSUPPORTED_SUBSTITUTION" : "La substitution n'est pas supportée dans une archive qui définit des types",
       "VALIDATION_ERROR" : "Le type déclaré n'est pas valide: {{context | translate:note}}",
+      "WORKFLOW_HAS_CYCLE" : "Le workflow {{note}} contient un cycle infini.",
       "WORKFLOW_HAS_ERRORS" : "Le workflow [{{note}}] n'est pas valide",
+      "WORKFLOW_INLINED_WORKFLOW_NOT_FOUND" : "Le workflow {{note}} référencié pour inline n'existe pas.",
       "YAML_MAPPING_NODE_EXPECTED" : "Un noeud de type mapping est attendu.",
       "YAML_SCALAR_NODE_EXPECTED" : "Un noeud YAML de type scalar est attendu ici.",
-      "YAML_SEQUENCE_EXPECTED" : "Une séquence YAML est attendu.",
-      "CSAR_IMPORT_ITSELF": "Une archive ne peut pas s'importer elle même.",
-      "UNSUPPORTED_SUBSTITUTION": "La substitution n'est pas supportée dans une archive qui définit des types",
-      "POLICY_TARGET_NOT_FOUND": "La cible de la policy [{{note}}] ne peut être trouvée."
+      "YAML_SEQUENCE_EXPECTED" : "Une séquence YAML est attendu."
     },
     "VALIDSOURCES" : "Sources valides",
     "WORKSPACE" : "Workspaces"
@@ -642,7 +637,7 @@
     "CREDENTIALS" : "Authentification",
     "CREDENTIALSINFO" : "Ces informations ne sont utiles que pour les dépôts privés",
     "DELETE" : "Supprimé",
-    "DEPRECIATE": "Marquer comme dépréciée",
+    "DEPRECIATE" : "Marquer comme dépréciée",
     "DETAILS" : {
       "ARCHIVE_COMPONENTS" : "Composants de l'archive",
       "BUTTON_ADD_NODE_TYPE" : "Ajouter un nouveau composant",
@@ -670,14 +665,14 @@
       }
     },
     "FROMGIT" : "Importés depuis Git",
-    "IMPORTTOOLTIP" : "Importer",
-    "GIT": {
-      "GIT_IMPORT": "Import git"
+    "GIT" : {
+      "GIT_IMPORT" : "Import git"
     },
+    "IMPORTTOOLTIP" : "Importer",
     "IMPORT_ALL" : "Importer tout",
     "IMPORT_SUCCESS" : "L'import a été effectué",
     "LEGEND" : "Csars ajoutés",
-    "NEW": "Nouvelle archive",
+    "NEW" : "Nouvelle archive",
     "NEW_GIT" : "Location Git",
     "PASSWORD" : "Mot de passe",
     "SAVE_LOCALLY" : "Conserver une copie locale du dépôt",
@@ -694,13 +689,13 @@
       "DEPLOYMENT_IN_PROGRESS" : "Déploiement en cours",
       "FAILURE" : "Echec",
       "INIT_DEPLOYMENT" : "Initialisation du déploiement",
-      "UPDATE_DEPLOYMENT" : "Déploiement en cours de modification",
-      "UPDATE_IN_PROGRESS" : "Déploiement en cours de modification",
-      "UPDATE_FAILURE" : "Echec de la mise à jour",
-      "UPDATED" : "Mis à jour",
       "UNDEPLOYED" : "Désinstallé",
       "UNDEPLOYMENT_IN_PROGRESS" : "Désinstallation en cours",
       "UNKNOWN" : "Inconnu",
+      "UPDATED" : "Mis à jour",
+      "UPDATE_DEPLOYMENT" : "Déploiement en cours de modification",
+      "UPDATE_FAILURE" : "Echec de la mise à jour",
+      "UPDATE_IN_PROGRESS" : "Déploiement en cours de modification",
       "WARNING" : "Alerte"
     },
     "TOASTER_STATUS" : {
@@ -713,13 +708,13 @@
   "EDITOR" : {
     "ARTIFACTS" : {
       "REPOS" : {
+        "A4C_CSAR" : "CSAR",
         "ARCHIVE_REPOSITORIES" : "Dépôt d'archive",
         "FILE" : "Fichier",
         "GLOBAL_REPOSITORIES" : "Dépôt global",
         "ID" : "Identifiant",
         "LOCAL" : "Local",
         "LOCAL_FS" : "Système de fichier local",
-        "A4C_CSAR" : "CSAR",
         "MUST_BE_UNIQUE" : "L'identifiant de repository doit être unique pour cette archive",
         "NEW_REPOSITORY" : "Nouveau dépôt",
         "REMOTE" : "Distant",
@@ -733,6 +728,7 @@
       "MESSAGE" : "Voulez vous sauvegarder les changements avant de quitter l'éditeur ?",
       "TITLE" : "Changements non sauvegardés"
     },
+    "DOWNLOAD" : "Télécharger",
     "DO_NOT_SAVE" : "Ignorer",
     "EMPTY_GIT_HISTORY" : "L'historique git est vide, vous devez sauver la topologie.",
     "GIT" : {
@@ -767,7 +763,7 @@
     },
     "MENU_FILES" : "Fichiers de l'archive",
     "MENU_HISTORY" : "Historique",
-    "MENU_INPUTS_VAR": "Inputs et Variables",
+    "MENU_INPUTS_VAR" : "Inputs et Variables",
     "MENU_TOPOLOGY" : "Topologie",
     "MENU_VALIDATION" : "Validation de la topologie",
     "MENU_WORKFLOW" : "Workflows",
@@ -775,7 +771,6 @@
     "REDO" : "Rejouer",
     "SAVE" : "Sauvegarder",
     "UNDO" : "Annuler",
-    "DOWNLOAD": "Télécharger",
     "VALIDATION" : {
       "CURRENT_TOPOLOGY" : "Topologie En cours d'édition",
       "CURRENT_TOPOLOGY_NO_OPERATIONS" : "La topologie actuelle n'a pas changé.",
@@ -797,16 +792,16 @@
     "PRODUCTION" : "Production",
     "USER_ACCEPTANCE_TESTS" : "Tests utilisateurs"
   },
-  "ENVIRONMENT_TYPE_ALL": "Tous les types d'environment",
+  "ENVIRONMENT_TYPE_ALL" : "Tous les types d'environment",
   "ERRORS" : {
     "100" : "Authentification requise",
     "101" : "Erreur d'authentification, vérifiez vos login et mot de passe",
     "102" : "Droits insuffisants pour ce module ou cette ressource",
     "200" : "Erreur inattendue lors de l'analyse du CSAR",
     "300" : "Erreur inattendue lors de l'accès au service d'indexation de CSAR",
-    "352": {
-      "MESSAGE": "Configuration du plugin incorrect",
-      "TITLE": "Erreur du plugin"
+    "352" : {
+      "MESSAGE" : "Configuration du plugin incorrect",
+      "TITLE" : "Erreur du plugin"
     },
     "371" : {
       "MESSAGE" : "La valeur {{value}} pour le paramètre {{name}} de type {{type}} est invalide",
@@ -880,11 +875,13 @@
     "860" : "La topologie séléctionnée a besoin d'être réconciliée",
     "870" : "La topologie séléctionnée n'est pas utilisable parce qu'elle ne sera pas visible dans le context de l'application",
     "INTERNAL" : "Erreur interne",
-    "UNKNOWN": "Erreur inconnue",
-    "SERVER_LOG": {
-      "MISSING_VARIABLES": "Variables manquantes: {{variables}}",
-      "UNRESOLVABLE_PREDEFINED_INPUTS": "Inputs prédéfinis non calculable: {{unresolvableInputs}}"
-    }
+    "SERVER_LOG" : {
+      "MISSING_VARIABLES" : "Variables manquantes: {{variables}}. Veuillez contacter le manager de l'application.",
+      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "Violation de contrainte sur l'input prédéfini <{{name}}>: ",
+      "PREDEFINED_INPUTS_TYPE_VIOLATION" : "Incompatibilité de type sur l'input prédéfini <{{name}}>: La valeur doit être de type {{type}}",
+      "UNRESOLVABLE_PREDEFINED_INPUTS" : "Inputs prédéfini non resolvables: {{unresolvableInputs}}. Veuillez contacter le manager de l'application."
+    },
+    "UNKNOWN" : "Erreur inconnue"
   },
   "EXECUTE" : "Executer",
   "FALSE" : "Faux",
@@ -916,11 +913,11 @@
     }
   },
   "GIT" : {
-    "CONFIGURE_TITLE" : "Configurer Git",
     "ALIEN_MANAGED" : "A4C",
-    "USER_MANAGED": "Manuellement",
-    "BRANCH": "Branche",
-    "MANAGED_BY": "Géré par"
+    "BRANCH" : "Branche",
+    "CONFIGURE_TITLE" : "Configurer Git",
+    "MANAGED_BY" : "Géré par",
+    "USER_MANAGED" : "Manuellement"
   },
   "GROUPS" : {
     "AUTHORIZED" : "groupe autorisé",
@@ -956,40 +953,30 @@
   "N/A" : "N/A",
   "NAVADMIN" : {
     "MENU_AUDIT" : "Audit",
-    "MENU_SERVER" : "Status du serveur",
     "MENU_ORCHESTRATORS" : "Orchestrateurs",
     "MENU_PLUGINS" : "Plugins",
+    "MENU_SERVER" : "Status du serveur",
+    "MENU_SERVICES" : "Services",
     "MENU_TAGS" : "Méta-propriétés",
-    "MENU_SERVICES": "Services",
     "MENU_USERS" : "Utilisateurs"
   },
   "NAVAPPLICATIONS" : {
-    "MENU_DEPLOY_NEXT": "Préparer le prochain déploiement",
-    "MENU_DEPLOY_CURRENT": "Gérer le déploiement actuel",
-    "MENU_DEPLOY_NEXT.VERSION": "Version",
-    "MENU_DEPLOY_NEXT.TOPOLOGY": "Topology",
-    "MENU_DEPLOY_NEXT.INPUTS": "Inputs",
-    "MENU_DEPLOY_NEXT.LOCATIONS": "Locations",
-    "MENU_DEPLOY_NEXT.MATCHING": "Matching",
-    "MENU_DEPLOY_NEXT.DEPLOY": "Vérifier & déployer",
-    "MENU_HISTORY": "Historique de déploiement",
-
-    "MENU_DEPLOY_CURRENT.INFO" : "Info",
-    "MENU_DEPLOY_CURRENT.RUNTIME_EDITOR" : "Vue runtime",
-    "MENU_DEPLOY_CURRENT.WORKFLOW_VIEWER" : "Workflow",
-
-    "MENU_ENVIRONMENT": "Environnements",
-    "MENU_USERS": "Utilisateurs et Groupes",
-    "MENU_VARIABLES": "Variables",
-    "MENU_VERSIONS": "Versions"
-  },
-  "NAVCATALOG": {
-    "ARCHIVES_PROMOTION": "Requêtes de promotion d'archives",
-    "BROWSE_COMPONENTS": "Consulter les composants",
-    "BROWSE_TOPOLOGIES": "Consulter les topologies",
-    "BROWSE_POLICIES": "Consulter les policies",
-    "TOPOLOGIES": "Topologies",
-    "MANAGE_ARCHIVES": "Gerer les archvies"
+    "MENU_DEPLOY_CURRENT" : "Gérer le déploiement actuel",
+    "MENU_DEPLOY_CURRENT_INFO" : "Info",
+    "MENU_DEPLOY_CURRENT_RUNTIME_EDITOR" : "Vue runtime",
+    "MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER" : "Workflow",
+    "MENU_DEPLOY_NEXT" : "Préparer le prochain déploiement",
+    "MENU_DEPLOY_NEXT_DEPLOY" : "Vérifier & déployer",
+    "MENU_DEPLOY_NEXT_INPUTS" : "Inputs",
+    "MENU_DEPLOY_NEXT_LOCATIONS" : "Locations",
+    "MENU_DEPLOY_NEXT_MATCHING" : "Matching",
+    "MENU_DEPLOY_NEXT_TOPOLOGY" : "Topology",
+    "MENU_DEPLOY_NEXT_VERSION" : "Version",
+    "MENU_ENVIRONMENT" : "Environnements",
+    "MENU_HISTORY" : "Historique de déploiement",
+    "MENU_USERS" : "Utilisateurs et Groupes",
+    "MENU_VARIABLES" : "Variables",
+    "MENU_VERSIONS" : "Versions"
   },
   "NAVBAR" : {
     "BUTTON_LOGIN" : "Connexion",
@@ -997,18 +984,26 @@
     "INPUT_SEARCH_MESSAGE" : "Que cherchez vous ?",
     "MENU_ADMIN" : "Administration",
     "MENU_APPS" : "Applications",
-    "MENU_CATALOG": "Catalogue",
+    "MENU_CATALOG" : "Catalogue",
     "MENU_COMPONENTS" : "Composants",
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS importés depuis Git",
     "MENU_REPOSITORIES" : "Dépôts d'artefacts",
     "MENU_TOPOLOGY_TEMPLATE" : "Modèles de topologie"
   },
+  "NAVCATALOG" : {
+    "ARCHIVES_PROMOTION" : "Requêtes de promotion d'archives",
+    "BROWSE_COMPONENTS" : "Consulter les composants",
+    "BROWSE_POLICIES" : "Consulter les policies",
+    "BROWSE_TOPOLOGIES" : "Consulter les topologies",
+    "MANAGE_ARCHIVES" : "Gerer les archvies",
+    "TOPOLOGIES" : "Topologies"
+  },
   "NEXT" : "Suivant",
+  "NO_DATA_AVAILABLE" : "Pas de données disponibles.",
   "OK" : "OK",
   "OPTIONAL" : "Optionnel",
   "ORCHESTRATORS" : {
-    "ORCHESTRATOR": "Orchestrateur",
     "ARTIFACTS" : {
       "MANAGED" : "Artefacts supportés"
     },
@@ -1018,14 +1013,13 @@
       "UNLOCK-BTN-TITLE" : "Déverrouiller"
     },
     "LOCATIONS" : {
-      "LOCATION": "Location",
       "AUTHORIZATIONS" : {
         "APPS" : {
           "ADD" : "Autoriser certaines applications",
           "ADD_POPUP" : {
             "EMPTY_PLACEHOLDER" : "d'applications ou d'environments autorisé pour cette location",
-            "MESSAGE": "Vous pouvez ajouter des autorisations par application, par environnements. Vous pouvez également ajouter des autorisations par types d'environnement.",
             "LOC_AUTH_FILTER" : "Autorisés sur la location",
+            "MESSAGE" : "Vous pouvez ajouter des autorisations par application, par environnements. Vous pouvez également ajouter des autorisations par types d'environnement.",
             "TITLE" : "Selectionner applications / environnements"
           },
           "REVOKE" : "Révoquer certaines applications"
@@ -1060,6 +1054,15 @@
       "ENVIRONMENT_TYPE" : "Type d'environnement",
       "INFRA_TYPE" : "Type d'infrastructure",
       "INFRA_TYPE_SELECT" : "-- Sélectionnez un type d'infrastructure --",
+      "LOCATION" : "Location",
+      "MODIFIER" : {
+        "DROP" : "Drop new modifier here or on the table above",
+        "INFO" : "Les 'Topology modifiers' sont des éléments de code qui modifient une topologie lorsqu'ils sont assignés à cette location. Ils peuvent effectuer plusieurs modifications mais doivent toujours respecter le contrat original de la location. Vous pouvez trouvez plus d'information sur les modifier et sur le cycle de vie de déploiement ici",
+        "MODIFIER" : "Modificateur de topology",
+        "PHASE" : "Phase de déploiement",
+        "PLUGIN" : "Plugin id",
+        "PLUGIN_BEAN" : "Plugin bean"
+      },
       "NEW" : "Nouvelle Location",
       "ON_DEMAND_RESOURCES" : "Ressources à la demande",
       "POLICIES" : "Policies",
@@ -1069,30 +1072,22 @@
         "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés du template de la resource. Les propriétés définies sont immutable, les propriétés non définies pourront être définie par l'utilisateur avant le déploiement.",
         "DROP" : "Déposez des ressources ici ou dans le tableau au dessus",
         "PROVIDED" : "Type fourni par l'orchestrateur",
-        "TYPE" : "Type de ressources",
-        "INFO": "Les modificateurs de topologie sont des éléments de code executés avant le déploiement d'une topologie sur celle-ci permettant de la modifier. Ils peuvent effectuer différentes choses mais doivent respecter le contrat de la topologie initiale. Vous pouvez avoir plus d'informations sur les modificateurs de topologie ici"
+        "TYPE" : "Type de ressources"
+      },
+      "SECRETS" : {
+        "AUTHENTICATION_METHOD" : "Méthode d'authentification",
+        "LDAP" : "LDAP",
+        "NEED_SECRET" : " pourrait avoir besoin de credentials pour résoudre les secrets",
+        "NO_SECRET_PLUGIN" : "Aucun plugin de gestion de secret n'a été trouvé",
+        "PLUGIN_NAME" : "Nom du plugin",
+        "SECRET" : "Secret",
+        "TOKEN" : "Token",
+        "VAULT_CERTIFICATE" : "Certificat du coffre fort",
+        "VAULT_CREDENTIALS" : "Identifiant du coffre-fort",
+        "VAULT_URL" : "URL du coffre fort"
       },
       "SECURITY" : "Sécurité",
-      "SERVICES" : "Services",
-      "SECRETS" : {
-        "SECRET": "Secret",
-        "NEED_SECRET": " pourrait avoir besoin de credentials pour résoudre les secrets",
-        "PLUGIN_NAME": "Nom du plugin",
-        "VAULT_CREDENTIALS": "Identifiant du coffre-fort",
-        "NO_SECRET_PLUGIN": "Aucun plugin de gestion de secret n'a été trouvé",
-        "TOKEN": "Token",
-        "LDAP": "LDAP",
-        "AUTHENTICATION_METHOD": "Méthode d'authentification",
-        "VAULT_URL": "URL du coffre fort",
-        "VAULT_CERTIFICATE": "Certificat du coffre fort"
-      },
-      "MODIFIER": {
-        "MODIFIER": "Modificateur de topology",
-        "PLUGIN": "Plugin id",
-        "PLUGIN_BEAN": "Plugin bean",
-        "PHASE": "Phase de déploiement",
-        "DROP": "Drop new modifier here or on the table above"
-      }
+      "SERVICES" : "Services"
     },
     "NAV" : {
       "ARTIFACTS" : "Artefacts",
@@ -1104,6 +1099,7 @@
     },
     "NEW" : "Nouvel orchestrateur",
     "NO_PLUGIN" : "Aucun plugin d'orchestrateur n'a pu être trouvé. Vous devez en uploader un.",
+    "ORCHESTRATOR" : "Orchestrateur",
     "PLUGIN" : "Plugin",
     "PLUGIN_SELECT" : "-- Sélectionnez un plugin d'orchestrateur --",
     "STATES" : {
@@ -1117,8 +1113,6 @@
   "PAGINATION" : {
     "OVERFLOW" : "Le nombre de résultat dépasse le nombre maxium supporté par Alien4Cloud, merci d'utiliser le champs de recherche."
   },
-  "NO_DATA_AVAILABLE" : "Pas de données disponibles.",
-  "POLICIES": "Policies",
   "PLUGINS" : {
     "BEANS" : "Composants",
     "CONFIGURE" : "Configurer",
@@ -1132,6 +1126,7 @@
     },
     "UPLOAD" : "Uploader un plugin"
   },
+  "POLICIES" : "Policies",
   "PROPERTY_RESET" : "Réinitialiser à la valeur par défaut",
   "PROPERTY_SUGGESTION" : {
     "MODAL" : {
@@ -1140,6 +1135,9 @@
       "USE" : "Utiliser ",
       "USE_YOUR_VALUE" : " et l'ajouter aux valeur de suggestion"
     }
+  },
+  "SECRET_PROPERTY" : {
+    "INPUT_PLACEHOLDER" : "Enter the secret path"
   },
   "REPOSITORY" : {
     "ACTIVE_FILTERS" : "Filtres actifs",
@@ -1153,52 +1151,60 @@
     "USERS" : "Utilisateurs"
   },
   "SELECT" : "Selectionner",
-  "SERVER": {
-    "STATE": "Status du server",
-    "MAINTENANCE": {
-      "DISABLE": "Terminer la maintenance",
-      "DISABLE_CONFIRM": "Voulez vous vraiment désactiver le mode maintenance ?",
-      "ENABLE": "Commencer une maintenance",
-      "ENABLE_CONFIRM": "Voulez vous vraiment activer le mode maintenance ? Lorsque celui-ci est activé l'API REST renvoiera une erreur et les utilisateurs seront redirigés vers l'écran de status de maintenance.",
-      "MESSAGE": "Le serveur est actuellement en maintenance, veuillez réessayer votre requête plus tard ou contactez votre administrateur.",
-      "TITLE": "Maintenance",
-      "UPDATE": {
-        "PROGRESS": "Progression (%)",
-        "MESSAGE": "Message",
-        "TITLE": "Mise à jour du status"
+  "SERVER" : {
+    "MAINTENANCE" : {
+      "DISABLE" : "Terminer la maintenance",
+      "DISABLE_CONFIRM" : "Voulez vous vraiment désactiver le mode maintenance ?",
+      "ENABLE" : "Commencer une maintenance",
+      "ENABLE_CONFIRM" : "Voulez vous vraiment activer le mode maintenance ? Lorsque celui-ci est activé l'API REST renvoiera une erreur et les utilisateurs seront redirigés vers l'écran de status de maintenance.",
+      "MESSAGE" : "Le serveur est actuellement en maintenance, veuillez réessayer votre requête plus tard ou contactez votre administrateur.",
+      "TITLE" : "Maintenance",
+      "UPDATE" : {
+        "MESSAGE" : "Message",
+        "PROGRESS" : "Progression (%)",
+        "TITLE" : "Mise à jour du status"
       }
-    }
+    },
+    "STATE" : "Status du server"
+  },
+  "SERVICE" : {
+    "RELATIONSHIP" : {
+      "CAPABILITY_DESCRIPTION" : "Un type de relation peut être utilisée pour définir les opérations à executer coté service.",
+      "LABEL" : "Type de relation",
+      "REQUIREMENT_DESCRIPTION" : "Un type de relation peut être utilisée pour définir les opérations à executer coté service."
+    },
+    "WARNING_CANNOT_EDIT_SERVICE_INSTANCE" : "L'instance ne peut pas être modifiée car elle est dans l'état démarré. Veuillez désactiver l'état si vous souhaitez modifier cette instance."
   },
   "SERVICES" : {
-    "SERVICE": "Service",
-    "CATALOG": "Catalogue des services",
+    "CATALOG" : "Catalogue des services",
     "DETAIL" : {
       "BACK" : "Retour au catalogue",
       "DETAIL" : "Détails",
       "TITLE" : "Configuration du service"
     },
     "INSTANCE" : "Instance",
-    "LIST": "Services actuels",
+    "LIST" : "Services actuels",
+    "MANAGED" : {
+      "CREATE" : {
+        "CONFIRM_MESSAGE" : "Voulez-vous vraiment exposer ce déploiement en tant que service?",
+        "CONFIRM_TITLE" : "Exposer",
+        "MESSAGE" : "Exposer ce déploiement en tant que service ( d'autres applications pourront l'utiliser pendant la phase de matching de resources )."
+      },
+      "NAME" : "Service exposé",
+      "NO_SUBSTITUTION_MESSAGE" : "La topologie doit définir un type de substitution afin d'être exposée en tant que service.",
+      "TITLE" : "Service",
+      "UNBIND" : {
+        "CONFIRM_MESSAGE" : "Voulez-vous vraiment dissocier ce service de cet environment?\nLe service sera supprimé s'il n'est utilisé par aucune resource. Sinon, Vous devrez alors contacter votre administrateur pour un nettoyage.",
+        "CONFIRM_TITLE" : "Dissocier le service",
+        "MESSAGE" : "Dissocier le service de cet environment."
+      }
+    },
     "NEW" : {
       "NODE_TYPE" : "Type",
       "NODE_TYPE_VERSION" : "Version du type",
       "TITLE" : "Nouveau service"
     },
-    "MANAGED": {
-      "NAME": "Service exposé",
-      "TITLE": "Service",
-      "NO_SUBSTITUTION_MESSAGE": "La topologie doit définir un type de substitution afin d'être exposée en tant que service.",
-      "CREATE": {
-        "MESSAGE": "Exposer ce déploiement en tant que service ( d'autres applications pourront l'utiliser pendant la phase de matching de resources ).",
-        "CONFIRM_TITLE": "Exposer",
-        "CONFIRM_MESSAGE": "Voulez-vous vraiment exposer ce déploiement en tant que service?"
-      },
-      "UNBIND": {
-        "MESSAGE": "Dissocier le service de cet environment.",
-        "CONFIRM_TITLE": "Dissocier le service",
-        "CONFIRM_MESSAGE": "Voulez-vous vraiment dissocier ce service de cet environment?\nLe service sera supprimé s'il n'est utilisé par aucune resource. Sinon, Vous devrez alors contacter votre administrateur pour un nettoyage."
-      }
-    }
+    "SERVICE" : "Service"
   },
   "START_DATE" : "Date de début",
   "STATES" : {
@@ -1239,7 +1245,7 @@
   "TRUE" : "Vrai",
   "UPDATE_DATE" : "Date de mise à jour",
   "UPLOAD" : {
-    "BROWSE": "parcourir",
+    "BROWSE" : "parcourir",
     "COMPLETE" : "Terminé"
   },
   "USERS" : {

@@ -1,4 +1,4 @@
-package alien4cloud.paas.wf;
+package alien4cloud.paas.wf.model;
 
 import java.util.ArrayList;
 import java.util.Collection;

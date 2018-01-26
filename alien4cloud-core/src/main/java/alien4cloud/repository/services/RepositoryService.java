@@ -1,19 +1,12 @@
 package alien4cloud.repository.services;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Maps;
 
 import alien4cloud.component.repository.IArtifactResolver;
 import alien4cloud.component.repository.IConfigurableArtifactResolver;
@@ -30,7 +23,11 @@ import alien4cloud.repository.model.RepositoryPluginComponent;
 import alien4cloud.repository.model.ValidationResult;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.utils.JsonUtil;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
@@ -77,14 +74,17 @@ public class RepositoryService {
 
     /**
      * Try to resolve an artifact from all configured resolver plugins and repositories
-     * 
+     *
      * @param artifactReference reference of the artifact inside the repository
-     * @param repositoryURL the repository's URL
-     * @param repositoryType the type of the repository
-     * @param credentials the credentials to retrieve the artifact
+     * @param repositoryURL     the repository's URL
+     * @param repositoryType    the type of the repository
+     * @param credentials       the credentials to retrieve the artifact
      * @return the artifact's path downloaded locally, null if artifact cannot be resolved
      */
     public String resolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials) {
+        if ("a4c_ignore".equals(repositoryType)) {
+            return null;
+        }
         for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
             String resolvedArtifact = configurableArtifactResolver.resolveArtifact(artifactReference, repositoryURL, repositoryType, credentials);
             if (resolvedArtifact != null) {
@@ -108,6 +108,9 @@ public class RepositoryService {
     }
 
     public boolean canResolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials) {
+        if ("a4c_ignore".equals(repositoryType)) {
+            return true;
+        }
         for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
             ValidationResult validationResult = configurableArtifactResolver.canHandleArtifact(artifactReference, repositoryURL, repositoryType, credentials);
             if (validationResult.equals(ValidationResult.SUCCESS)) {
@@ -126,16 +129,15 @@ public class RepositoryService {
     }
 
     public FacetedSearchResult search(FilteredSearchRequest searchRequest) {
-        return alienDAO.facetedSearch(Repository.class, searchRequest.getQuery(), searchRequest.getFilters(), null, searchRequest.getFrom(),
-                searchRequest.getSize());
+        return alienDAO
+                .facetedSearch(Repository.class, searchRequest.getQuery(), searchRequest.getFilters(), null, searchRequest.getFrom(), searchRequest.getSize());
     }
 
     public List<RepositoryPluginComponent> listPluginComponents() {
         List<RepositoryPluginComponent> repositoryPluginComponents = new ArrayList<>();
         List<PluginComponent> pluginComponents = pluginManager.getPluginComponents(IArtifactResolver.class.getSimpleName());
-        repositoryPluginComponents.addAll(pluginComponents.stream().map(
-                pluginComponent -> new RepositoryPluginComponent(pluginComponent, getResolverFactoryOrFail(pluginComponent.getPluginId()).getResolverType()))
-                .collect(Collectors.toList()));
+        repositoryPluginComponents.addAll(pluginComponents.stream().map(pluginComponent -> new RepositoryPluginComponent(pluginComponent,
+                getResolverFactoryOrFail(pluginComponent.getPluginId()).getResolverType())).collect(Collectors.toList()));
         return repositoryPluginComponents;
     }
 

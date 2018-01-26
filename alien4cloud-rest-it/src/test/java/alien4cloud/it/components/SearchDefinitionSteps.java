@@ -138,7 +138,7 @@ public class SearchDefinitionSteps {
     public void I_search_for_from_with_result_size_of_and_filter_set_to(String searchedComponentType, int from, int size, String filterName, String filterValue)
             throws Throwable {
         Map<String, String[]> filters = Maps.newHashMap();
-        filters.put(filterName, new String[]{filterValue.toLowerCase()});
+        filters.put(filterName, new String[] { filterValue });
         ComponentSearchRequest req = new ComponentSearchRequest(QUERY_TYPES.get(searchedComponentType), null, from, size, filters);
         req.setType(req.getType());
 
@@ -156,28 +156,28 @@ public class SearchDefinitionSteps {
             for (Object object : resultData) {
                 NodeType idnt = JsonUtil.readObject(JsonUtil.toString(object), NodeType.class);
                 switch (property) {
-                    case "capability":
-                        assertNotNull(idnt.getCapabilities());
-                        assertTrue(idnt.getCapabilities().contains(new CapabilityDefinition(propertyValue, propertyValue, 1)));
-                        break;
-                    case "requirement":
-                        assertNotNull(idnt.getRequirements());
-                        assertTrue(idnt.getRequirements().contains(new RequirementDefinition(propertyValue, propertyValue)));
-                        break;
-                    default:
-                        break;
+                case "capability":
+                    assertNotNull(idnt.getCapabilities());
+                    assertTrue(idnt.getCapabilities().contains(new CapabilityDefinition(propertyValue, propertyValue, 1)));
+                    break;
+                case "requirement":
+                    assertNotNull(idnt.getRequirements());
+                    assertTrue(idnt.getRequirements().contains(new RequirementDefinition(propertyValue, propertyValue)));
+                    break;
+                default:
+                    break;
                 }
             }
         } else if (searchedComponentType.equalsIgnoreCase("relationship types")) {
             for (Object object : resultData) {
                 RelationshipType idrt = JsonUtil.readObject(JsonUtil.toString(object), RelationshipType.class);
                 switch (property) {
-                    case "validSource":
-                        assertNotNull(idrt.getValidSources());
-                        assertTrue(Arrays.equals(new String[]{propertyValue}, idrt.getValidSources()));
-                        break;
-                    default:
-                        break;
+                case "validSource":
+                    assertNotNull(idrt.getValidSources());
+                    assertTrue(Arrays.equals(new String[] { propertyValue }, idrt.getValidSources()));
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -253,24 +253,24 @@ public class SearchDefinitionSteps {
             if (property != null && remaining > 0) {
                 if (type.equalsIgnoreCase("node types")) {
                     switch (property) {
-                        case "capability":
-                            ((NodeType) componentTemplate).setCapabilities(Lists.newArrayList(new CapabilityDefinition(propertyValue, propertyValue, 1)));
-                            break;
-                        case "requirement":
-                            ((NodeType) componentTemplate).setRequirements((Lists.newArrayList(new RequirementDefinition(propertyValue, propertyValue))));
-                            break;
-                        case "default capability":
-                            ((NodeType) componentTemplate).setDefaultCapabilities((Lists.newArrayList(propertyValue)));
-                            break;
-                        case "elementId":
-                            ((NodeType) componentTemplate).setElementId(propertyValue);
-                            break;
+                    case "capability":
+                        ((NodeType) componentTemplate).setCapabilities(Lists.newArrayList(new CapabilityDefinition(propertyValue, propertyValue, 1)));
+                        break;
+                    case "requirement":
+                        ((NodeType) componentTemplate).setRequirements((Lists.newArrayList(new RequirementDefinition(propertyValue, propertyValue))));
+                        break;
+                    case "default capability":
+                        ((NodeType) componentTemplate).setDefaultCapabilities((Lists.newArrayList(propertyValue)));
+                        break;
+                    case "elementId":
+                        ((NodeType) componentTemplate).setElementId(propertyValue);
+                        break;
 
-                        default:
-                            break;
+                    default:
+                        break;
                     }
                 } else if (type.equalsIgnoreCase("relationship types")) {
-                    ((RelationshipType) componentTemplate).setValidSources(new String[]{propertyValue});
+                    ((RelationshipType) componentTemplate).setValidSources(new String[] { propertyValue });
                 }
                 remaining -= 1;
             }

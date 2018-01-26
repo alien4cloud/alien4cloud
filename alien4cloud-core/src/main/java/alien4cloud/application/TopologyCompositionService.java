@@ -1,15 +1,20 @@
 package alien4cloud.application;
 
-import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.CyclicReferenceException;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.utils.MapUtil;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import lombok.extern.slf4j.Slf4j;
+import static alien4cloud.paas.function.FunctionEvaluator.isGetInput;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
@@ -21,19 +26,17 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
-import static alien4cloud.paas.function.FunctionEvaluator.isGetInput;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.CyclicReferenceException;
+import alien4cloud.paas.wf.TopologyContext;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.utils.MapUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -66,10 +69,11 @@ public class TopologyCompositionService {
             // std workflows are reinitialized when some composition is processed
             // TODO: find a better way to manage this
             TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
-            workflowBuilderService.reinitWorkflow(INSTALL, topologyContext);
-            workflowBuilderService.reinitWorkflow(START, topologyContext);
-            workflowBuilderService.reinitWorkflow(STOP, topologyContext);
-            workflowBuilderService.reinitWorkflow(UNINSTALL, topologyContext);
+            workflowBuilderService.reinitWorkflow(INSTALL, topologyContext, false);
+            workflowBuilderService.reinitWorkflow(START, topologyContext, false);
+            workflowBuilderService.reinitWorkflow(STOP, topologyContext, false);
+            workflowBuilderService.reinitWorkflow(UNINSTALL, topologyContext, false);
+            workflowBuilderService.postProcessTopologyWorkflows(topologyContext);
         }
     }
 

@@ -19,8 +19,8 @@ define(function (require) {
           return _.catch(function () {
             return topologyServices.dao.get({ topologyId: deploymentTopologyDTO.topology.id })
             .$promise.then(function(result) {
-                 return result.data;
-               });
+              return result.data;
+            });
           });
         }
       ]
@@ -28,18 +28,18 @@ define(function (require) {
     menu: {
       id: 'applications.detail.environment.deploynext.inputs',
       state: 'applications.detail.environment.deploynext.inputs',
-      key: 'NAVAPPLICATIONS.MENU_DEPLOY_NEXT.INPUTS',
+      key: 'NAVAPPLICATIONS.MENU_DEPLOY_NEXT_INPUTS',
       icon: '',
       priority: 300,
       step: {
-        taskCodes: ['INPUT_PROPERTY', 'INPUT_ARTIFACT_INVALID', 'UNRESOLVABLE_PREDEFINED_INPUTS', 'MISSING_VARIABLES']
+        taskCodes: ['INPUT_PROPERTY', 'INPUT_ARTIFACT_INVALID', 'UNRESOLVABLE_PREDEFINED_INPUTS', 'MISSING_VARIABLES', 'PREDEFINED_INPUTS_CONSTRAINT_VIOLATION', 'PREDEFINED_INPUTS_TYPE_VIOLATION']
       }
     }
   });
 
   modules.get('a4c-applications').controller('AppEnvDeployNextInputsCtrl',
-    ['$scope', '$filter', '$resource', '$uibModal', 'deploymentTopologyServices', 'topologyServices', 'breadcrumbsService','$translate', 'topoEditSecrets', 'topoEditProperties', 'topologyDTO',
-    function ($scope, $filter, $resource, $uibModal, deploymentTopologyServices, topologyServices, breadcrumbsService, $translate, topoEditSecrets, topoEditProperties, topologyDTO) {
+    ['$scope', '$state', '$filter', '$resource', '$uibModal', 'deploymentTopologyServices', 'topologyServices', 'breadcrumbsService','$translate', 'topoEditSecrets', 'topoEditProperties', 'topologyDTO',
+    function ($scope, $state, $filter, $resource, $uibModal, deploymentTopologyServices, topologyServices, breadcrumbsService, $translate, topoEditSecrets, topoEditProperties, topologyDTO) {
 
       topoEditSecrets($scope);
       topoEditProperties($scope);
@@ -47,7 +47,7 @@ define(function (require) {
       breadcrumbsService.putConfig({
         state : 'applications.detail.environment.deploynext.inputs',
         text: function(){
-          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.INPUTS');
+          return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT_INPUTS');
         },
         onClick: function(){
           $state.go('applications.detail.environment.deploynext.inputs');

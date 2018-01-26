@@ -13,41 +13,42 @@
     <aop:aspectj-autoproxy proxy-target-class="true"/>
 
     <context:component-scan
-            base-package="alien4cloud.dao,
-      alien4cloud.configuration,
-      alien4cloud.component,
-      alien4cloud.topology,
-      alien4cloud.common,
-      alien4cloud.deployment,
-      alien4cloud.rest.*,
-      alien4cloud.tosca.context,
-      alien4cloud.tosca.*,
-      alien4cloud.images,
-      alien4cloud.application,
-      alien4cloud.csar.*,
-      org.elasticsearch.mapping,
-      alien4cloud.orchestrators,
-      alien4cloud.paas,
-      alien4cloud.paas.plan,
-      alien4cloud.repository.*,
-      alien4cloud.tosca,
-      alien4cloud.suggestions,
-      alien4cloud.plugin,
-      alien4cloud.utils.services,
-      org.alien4cloud.alm.service,
-      org.alien4cloud.tosca.catalog,
-      org.alien4cloud.tosca.exporter,
-      org.alien4cloud.tosca.editor,
-      org.alien4cloud.tosca.topology,
-      org.alien4cloud.tosca.variable,
-      org.alien4cloud.secret.services,
-      alien4cloud.ui.form">
+      base-package="alien4cloud.dao,
+        alien4cloud.configuration,
+        alien4cloud.component,
+        alien4cloud.topology,
+        alien4cloud.common,
+        alien4cloud.deployment,
+        alien4cloud.rest.*,
+        alien4cloud.tosca.context,
+        alien4cloud.tosca.*,
+        alien4cloud.images,
+        alien4cloud.application,
+        alien4cloud.csar.*,
+        org.elasticsearch.mapping,
+        alien4cloud.orchestrators,
+        alien4cloud.paas,
+        alien4cloud.paas.plan,
+        alien4cloud.repository.*,
+        alien4cloud.tosca,
+        alien4cloud.suggestions,
+        alien4cloud.plugin,
+        alien4cloud.utils.services,
+        org.alien4cloud.alm.service,
+        org.alien4cloud.git,
+        org.alien4cloud.tosca.catalog,
+        org.alien4cloud.tosca.exporter,
+        org.alien4cloud.tosca.editor,
+        org.alien4cloud.tosca.topology,
+        org.alien4cloud.tosca.variable,
+        org.alien4cloud.tosca.services,
+        org.alien4cloud.secret.services,
+        alien4cloud.ui.form">
         <context:exclude-filter type="regex"
                                 expression="alien4cloud.orchestrators.services.OrchestratorSecurityService"/>
         <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap"/>
-        <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.security.groups.DefaultGroup"/>
         <context:exclude-filter type="regex" expression="alien4cloud.deployment.DeploymentTopologyDTOBuilder"/>
-        <context:exclude-filter type="regex" expression="DepToBui"/>
     </context:component-scan>
 
     <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory"/>
@@ -59,5 +60,6 @@
     <bean id="resourcePermissionService" class="alien4cloud.authorization.ResourcePermissionService"/>
     <mockito:mock id="group-dao" class="alien4cloud.security.groups.IAlienGroupDao"/>
     <mockito:mock id="user-dao" class="alien4cloud.security.users.IAlienUserDao"/>
-    <mockito:mock id="pluginmodifierregistry" class="org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry"/>
+    <mockito:mock id="pluginmodifierregistry"
+                  class="org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry"/>
 </beans>

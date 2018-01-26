@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.core.env.MapPropertySource;
 
 import com.google.common.collect.Maps;
@@ -15,6 +16,8 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.tosca.context.ToscaContext;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,9 +55,24 @@ public class InputsMappingFileVariableResolver {
             return this;
         }
 
-        public Map<String, PropertyValue> resolve(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) throws MissingVariablesException {
+        public InputsResolvingResult resolve(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) {
+            if (MapUtils.isEmpty(inputsDefinition)) {
+                return InputsResolvingResult.emptyInstance();
+            }
             ToscaTypeConverter converter = customConverter != null ? customConverter : InputsMappingFileVariableResolver.DEFAULT_CONVERTER;
             return new InputsMappingFileVariableResolverInternal(converter, appVariables, envTypeVariables, envVariables, alienContextVariables).resolve(inputMappingMap, inputsDefinition);
+        }
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class InputsResolvingResult {
+        private Map<String, PropertyValue> resolved;
+        private Set<String> unresolved;
+        private Set<String> missingVariables;
+
+        public static InputsResolvingResult emptyInstance() {
+            return new InputsResolvingResult(Maps.newHashMap(), Sets.newHashSet(), Sets.newHashSet());
         }
     }
 
@@ -67,7 +85,7 @@ public class InputsMappingFileVariableResolver {
             this.converter = converter;
         }
 
-        public Map<String, PropertyValue> resolve(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) throws MissingVariablesException {
+        public InputsResolvingResult resolve(Map<String, Object> inputMappingMap, Map<String, PropertyDefinition> inputsDefinition) {
             Map<String, PropertyValue> resolved = Maps.newHashMap();
             MapPropertySource inputMappingMapPropertySource = new MapPropertySource("inputsMapping", inputMappingMap);
             getPropertySources().addFirst(inputMappingMapPropertySource);
@@ -110,10 +128,10 @@ public class InputsMappingFileVariableResolver {
                 getPropertySources().remove(inputMappingMapPropertySource.getName());
             }
 
-            if (missingVariables.size() > 0) {
-                throw new MissingVariablesException(missingVariables, unresolvableInputs);
-            }
-            return resolved;
+            // if (missingVariables.size() > 0) {
+            // throw new MissingVariablesException(missingVariables, unresolvableInputs);
+            // }
+            return new InputsResolvingResult(resolved, unresolvableInputs, missingVariables);
         }
     }
 

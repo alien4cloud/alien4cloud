@@ -84,6 +84,16 @@ public class HttpStepsDefinitions {
         }
     }
 
+    @And("^The URLs with path \"([^\"]*)\" which are defined in attribute \"([^\"]*)\" of the (\\d+) instances of the node \"([^\"]*)\" should work and the html should contain \"([^\"]*)\"$")
+    public void theURLsWithPathWhichAreDefinedInAttributeOfTheInstancesOfTheNodeShouldWorkAndTheHtmlShouldContain(String path, String attributeName,
+            int numberOfInstances, String nodeName, String expectedContent) throws Throwable {
+        Map<String, String> allAttributes = AttributeUtil.getAttributes(nodeName, attributeName);
+        Assert.assertEquals(numberOfInstances, allAttributes.size());
+        for (String url : allAttributes.values()) {
+            HttpUtil.checkUrl(url + path, expectedContent, 2 * 60 * 1000L);
+        }
+    }
+
     @And("^The URL which is defined in attribute \"([^\"]*)\" of the node \"([^\"]*)\" should work and the html should contain \"([^\"]*)\" and \"([^\"]*)\"$")
     public void The_URL_which_is_defined_in_attribute_of_the_node_should_work_and_the_html_should_contain_and(String attributeName, String nodeName,
             String expectedContent, String otherExpectedContent) throws Throwable {

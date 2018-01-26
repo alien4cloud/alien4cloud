@@ -16,15 +16,16 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.utils.TopologyNavigationUtil;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.CloneUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +67,7 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
      * @param topology
      */
     private void processRelationships(Map<String, String> duplicatedNodes, Map<String, NodeTemplate> nodeTemplates, Topology topology, Csar csar) {
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
+        TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         duplicatedNodes.values().forEach(nodeName -> copyAndCleanRelationships(nodeName, duplicatedNodes, nodeTemplates, topologyContext));
     }
 
@@ -91,7 +92,7 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
         // copy outputs
         copyOutputs(topology, nodeTemplateToDuplicate.getName(), newNodeTemplate.getName());
 
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
+        TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
 
         // add the new node to the workflow
         workflowBuilderService.addNode(topologyContext, newNodeTemplate.getName());
@@ -110,7 +111,7 @@ public class DuplicateNodeProcessor implements IEditorOperationProcessor<Duplica
      * @param validTargets A map of oldNodeName -> duplicatedNodeName, we should keep relationships targeting one of these nodes.
      */
     private void copyAndCleanRelationships(String nodeName, Map<String, String> validTargets, Map<String, NodeTemplate> nodeTemplates,
-            WorkflowsBuilderService.TopologyContext topologyContext) {
+            TopologyContext topologyContext) {
 
         NodeTemplate nodeTemplate = nodeTemplates.get(nodeName);
         if (MapUtils.isNotEmpty(nodeTemplate.getRelationships())) {

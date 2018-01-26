@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @EqualsAndHashCode(of = { "id" })
 public class RepositoryDefinition {
     private String id;

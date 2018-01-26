@@ -33,6 +33,8 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.alien4cloud.tosca.utils.TopologyUtils;
+import org.alien4cloud.tosca.utils.TopologyUtils.RelationshipEntry;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -45,7 +47,6 @@ import com.google.common.collect.Sets;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
@@ -152,7 +153,7 @@ public class TopologyService {
         NodeType indexedNodeType = toscaTypeSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
         processNodeTemplate(topology, nodeTempEntry, nodeTemplatesToFilters);
         List<SuggestionsTask> topoTasks = searchForNodeTypes(topology.getWorkspace(), nodeTemplatesToFilters,
-                MapUtil.newHashMap(new String[] { nodeTemplateName }, new NodeType[] { indexedNodeType }));
+                MapUtil.newHashMap(new String[] { nodeTemplateName }, new NodeType[] { indexedNodeType }), false);
 
         if (CollectionUtils.isEmpty(topoTasks)) {
             return null;
@@ -221,12 +222,10 @@ public class TopologyService {
         }
 
         // process the node template target of relationships
-        List<RelationshipTemplate> relTemplatesTargetRelated = topologyServiceCore.getTargetRelatedRelatonshipsTemplate(nodeTempEntry.getKey(),
-                topology.getNodeTemplates());
-        for (RelationshipTemplate relationshipTemplate : relTemplatesTargetRelated) {
-            addFilters(nodeTempEntry.getKey(), capabilityFilterKey, relationshipTemplate.getRequirementType(), nodeTemplatesToFilters);
+        List<RelationshipEntry> targetRelationships = TopologyUtils.getTargetRelationships(nodeTempEntry.getKey(), topology.getNodeTemplates());
+        for (RelationshipEntry targetRelationshipEntry : targetRelationships) {
+            addFilters(nodeTempEntry.getKey(), capabilityFilterKey, targetRelationshipEntry.getRelationship().getRequirementType(), nodeTemplatesToFilters);
         }
-
     }
 
     private NodeType[] getIndexedNodeTypesFromSearchResponse(final GetMultipleDataResult<NodeType> searchResult, final NodeType toExcludeIndexedNodeType)
@@ -245,7 +244,7 @@ public class TopologyService {
      * Search for nodeTypes given some filters. Apply AND filter strategy when multiple values for a filter key.
      */
     public List<SuggestionsTask> searchForNodeTypes(String workspace, Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
-            Map<String, NodeType> toExcludeIndexedNodeTypes) throws IOException {
+            Map<String, NodeType> toExcludeIndexedNodeTypes, boolean excludeAbstract) throws IOException {
         if (nodeTemplatesToFilters == null || nodeTemplatesToFilters.isEmpty()) {
             return null;
         }
@@ -262,7 +261,9 @@ public class TopologyService {
                 }
 
                 // retrieve only non abstract components
-                formattedFilters.put("abstract", ArrayUtils.toArray("false"));
+                if(excludeAbstract) {
+                    formattedFilters.put("abstract", ArrayUtils.toArray(String.valueOf("false")));
+                }
                 // use topology workspace + global workspace
                 formattedFilters.put("workspace", ArrayUtils.toArray(workspace, "ALIEN_GLOBAL_WORKSPACE"));
 

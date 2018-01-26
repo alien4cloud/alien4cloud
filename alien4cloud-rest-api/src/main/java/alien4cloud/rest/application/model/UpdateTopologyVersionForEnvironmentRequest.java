@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class UpdateTopologyVersionForEnvironmentRequest {
     private String newTopologyVersion;
     private String environmentToCopyInput;

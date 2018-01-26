@@ -33,15 +33,15 @@ public class ResourceUpdateInterceptorForGit {
     private ApplicationEnvironmentService applicationEnvironmentService;
 
     @PostConstruct
-    public void configure(){
+    public void configure() {
         resourceUpdateInterceptor.getOnNewEnvironment().add(applicationEnvironment -> {
             // create local git if needed
-            localGitManager.checkout(applicationEnvironment, applicationEnvironment.getTopologyVersion());
+            checkoutVersionBranch(applicationEnvironment);
         });
 
         resourceUpdateInterceptor.getOnEnvironmentTopologyVersionChanged().add(topologyVersionChangedInfo -> {
             // checkout the new branch
-            localGitManager.checkout(topologyVersionChangedInfo.getEnvironment(), topologyVersionChangedInfo.getEnvironment().getTopologyVersion());
+            checkoutVersionBranch(topologyVersionChangedInfo.getEnvironment());
         });
 
         resourceUpdateInterceptor.getOnTopologyVersionUpdated().add(topologyVersionUpdated -> {
@@ -51,17 +51,23 @@ public class ResourceUpdateInterceptorForGit {
             Map<String, String> branchNameFromTo = Maps.newHashMap();
             topologyVersionUpdated.getFrom().getTopologyVersions().forEach((fromTopologyVersion, applicationTopologyVersion) -> {
                 String updatedVersion = StringUtils.replaceFirst(fromTopologyVersion, fromBaseVersion, newBaseVersion);
-                if(topologyVersionUpdated.getTo().isReleased()){
+                if (topologyVersionUpdated.getTo().isReleased()) {
                     updatedVersion = StringUtils.replaceFirst(updatedVersion, "-SNAPSHOT", "");
                 }
                 branchNameFromTo.put(fromTopologyVersion, updatedVersion);
             });
 
             ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(topologyVersionUpdated.getFrom().getApplicationId());
-            for(ApplicationEnvironment environment : environments){
-                GitLocation gitLocation = gitLocationDao.forDeploymentConfig.findByEnvironmentId(environment.getId());
+            for (ApplicationEnvironment environment : environments) {
+                GitLocation gitLocation = gitLocationDao.findDeploymentSetupLocation(environment.getApplicationId(), environment.getId());
                 localGitManager.renameBranches(gitLocation, branchNameFromTo);
             }
         });
+    }
+
+    private void checkoutVersionBranch(ApplicationEnvironment environment) {
+        GitLocation location = gitLocationDao.findDeploymentSetupLocation(environment.getApplicationId(), environment.getId());
+        location.setBranch(environment.getTopologyVersion());
+        localGitManager.checkout(location);
     }
 }

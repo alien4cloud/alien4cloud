@@ -48,8 +48,6 @@ define(function (require) {
             })
             .on('dragend', function() {
               if(_.defined(dragInfo, 'position')) {
-                // dragInfo.node.bbox.move(dragInfo.position.x, dragInfo.position.y);
-                console.log(topologySvgService.callbacks);
                 topologySvgService.callbacks.updateNodePosition(dragInfo.node.id, dragInfo.position.x, dragInfo.position.y);
               }
               dragInfo = undefined;

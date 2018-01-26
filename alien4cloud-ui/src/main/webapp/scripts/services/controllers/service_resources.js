@@ -148,7 +148,7 @@ define(function (require) {
       $scope.userAttributesKeys = [];
       function setSelectedTypesToScope() {
         $scope.selectedNodeType = $scope.selectedService.uiNodeType;
-
+        $scope.selectedNodeType.propertiesMap = _.indexBy($scope.selectedNodeType.properties, 'key');
         // model attributes: $scope.selectedService.nodeInstance.nodeTemplate.attributes
         // model + user attributes: $scope.selectedService.nodeInstance.attributeValues
 
@@ -261,10 +261,14 @@ define(function (require) {
       $scope.isPropertyEditable = function() {
         return $scope.stateDisabled && _.undefined($scope.selectedService.environmentId) ;
       };
+
+      $scope.isSecretEditable = function() {
+        return $scope.isPropertyEditable();
+      }
       
       $scope.updateProperty= function(propertyName, propertyValue) {
         var updateRequest = { nodeInstance: { properties:{} } };
-        updateRequest.nodeInstance.properties[propertyName] = { value: propertyValue };
+        updateRequest.nodeInstance.properties[propertyName] = propertyValue;
         return serviceResourceService.patch({
           serviceId: $scope.selectedService.id
         }, angular.toJson(updateRequest)).$promise;

@@ -6,6 +6,7 @@ import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConf
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.PolicyType;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class PostMatchingPolicySetupModifier extends AbstractPostMatchingSetupModifier<PolicyTemplate> {
+public class PostMatchingPolicySetupModifier extends AbstractPostMatchingSetupModifier<PolicyType, PolicyTemplate> {
 
     @Override
     Map<String, String> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
@@ -35,6 +36,11 @@ public class PostMatchingPolicySetupModifier extends AbstractPostMatchingSetupMo
     @Override
     Map<String, PolicyTemplate> getTemplates(Topology topology) {
         return topology.getPolicies();
+    }
+
+    @Override
+    Class<PolicyType> getToscaTypeClass() {
+        return PolicyType.class;
     }
 
 }

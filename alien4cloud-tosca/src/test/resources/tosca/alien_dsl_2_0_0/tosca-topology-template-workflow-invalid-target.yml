@@ -1,0 +1,23 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.test.workflow.Relationship
+  template_author: alien4cloud
+  template_version: 2.0.0-SNAPSHOT
+
+description: This template contains tests of workflow with relationship operation
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+topology_template:
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+  workflows:
+    install:
+      steps:
+        Compute_install:
+          target: invalid
+          activities:
+            - delegate: install

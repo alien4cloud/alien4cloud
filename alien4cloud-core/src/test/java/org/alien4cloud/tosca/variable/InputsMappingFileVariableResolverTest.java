@@ -4,12 +4,15 @@ import static org.alien4cloud.tosca.variable.InputsMappingFileVariableResolver.I
 import static org.alien4cloud.tosca.variable.InputsMappingFileVariableResolver.configure;
 import static org.alien4cloud.tosca.variable.PropertyDefinitionUtils.buildPropDef;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.Map;
 
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.alien4cloud.tosca.utils.PropertiesYamlParser;
@@ -61,7 +64,7 @@ public class InputsMappingFileVariableResolverTest {
 
     @Test
     // Good Test
-    public void should_list_all_missing_variables() throws Exception {
+    public void should_list_all_missing_variables_and_unresolved_inputs() throws Exception {
         Resource yamlApp = new FileSystemResource("src/test/resources/alien/variables/variables_app_missing_var.yml");
         inputsMappingFileVariableResolverConfigured = configure(
                 PropertiesYamlParser.ToProperties.from(yamlApp),
@@ -71,13 +74,15 @@ public class InputsMappingFileVariableResolverTest {
 
         Resource inputsMapping = new FileSystemResource("src/test/resources/alien/variables/inputs_mapping_with_missing_variable.yml");
 
-        try {
-            inputsMappingFileVariableResolverConfigured.resolve(PropertiesYamlParser.ToMap.from(inputsMapping), inputsPropertyDefinitions);
-            fail("should throw a MissingVariablesException when variables are missing");
-        } catch (MissingVariablesException e) {
-            assertThat(e.getMissingVariables()).hasSize(4);
-            assertThat(e.getMissingVariables()).contains("missing_inner_variable", "missing_float_variable", "missing_string_variable", "missing_int_variable");
-        }
+        InputsMappingFileVariableResolver.InputsResolvingResult result = inputsMappingFileVariableResolverConfigured
+                .resolve(PropertiesYamlParser.ToMap.from(inputsMapping), inputsPropertyDefinitions);
+
+        assertThat(result.getMissingVariables()).hasSize(4);
+        assertThat(result.getMissingVariables()).contains("missing_inner_variable", "missing_float_variable", "missing_string_variable",
+                "missing_int_variable");
+
+        assertThat(result.getUnresolved()).hasSize(4);
+        assertThat(result.getUnresolved()).contains("int_input", "float_input", "string_input", "complex_input");
     }
 
     @Test
@@ -138,8 +143,9 @@ public class InputsMappingFileVariableResolverTest {
         );
     }
 
-    private Map<String, PropertyValue> resolve(String path) throws MissingVariablesException {
-        return inputsMappingFileVariableResolverConfigured.resolve(PropertiesYamlParser.ToMap.from(new FileSystemResource(path)), inputsPropertyDefinitions);
+    private Map<String, PropertyValue> resolve(String path) {
+        return inputsMappingFileVariableResolverConfigured.resolve(PropertiesYamlParser.ToMap.from(new FileSystemResource(path)), inputsPropertyDefinitions)
+                .getResolved();
     }
 
     @Ignore("Update when ToscaTypeConverter behavior is clearly defined")

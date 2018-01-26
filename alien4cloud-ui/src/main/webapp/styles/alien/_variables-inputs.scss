@@ -23,3 +23,12 @@
   padding: 5px;
   border: 1px solid $gray-light;
 }
+
+.var-scope-delete {
+  padding-right: .5em;
+  display: none;
+}
+
+.var-defined:hover .var-scope-delete {
+  display: inline-block;
+}

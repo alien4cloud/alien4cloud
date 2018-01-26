@@ -139,7 +139,7 @@ public class OrchestratorPluginService implements IPaasEventService {
     /**
      * A registration for a paasProvider and the associated monitoring registration.
      */
-    @AllArgsConstructor(suppressConstructorProperties = true)
+    @AllArgsConstructor
     private class Registration {
         private IOrchestratorPlugin instance;
         private ScheduledFuture<?> registration;

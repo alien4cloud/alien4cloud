@@ -29,6 +29,7 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "alien/horizontal-menu";
 @import "alien/lang";
 @import "alien/location-resources-directive";
+@import "alien/message_box";
 @import "alien/navleft";
 @import "alien/plans";
 @import "alien/search-directive";
@@ -490,6 +491,7 @@ img.icon_32 {
 .info-popover {
   word-wrap: break-word;
   word-break: break-word;
+  z-index: 99999999 !important;
 }
 .info-popover-sm, .info-popover-lg {
   max-width: 400px;
@@ -532,4 +534,10 @@ img.icon_32 {
 .deployer_input {
   font-style: italic;
   color: rgba(48, 72, 204, 0.65);
+}
+
+.not-overflow {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

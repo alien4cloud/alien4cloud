@@ -17,6 +17,7 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
@@ -24,9 +25,9 @@ import com.google.common.collect.Maps;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.topology.validation.TopologyCapabilityBoundsValidationServices;
 import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import alien4cloud.tosca.topology.TemplateBuilder;
@@ -92,7 +93,11 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         }
 
         topologyService.loadType(topology, indexedRelationshipType);
-
+        NodeTemplate newSourceNode = topology.getNodeTemplates().get(sourceNode.getName());
+        if (sourceNode != newSourceNode) {
+            // topology has been reloaded
+            sourceNode = newSourceNode;
+        }
         Map<String, RelationshipTemplate> relationships = sourceNode.getRelationships();
         if (relationships == null) {
             relationships = Maps.newHashMap();
@@ -113,7 +118,7 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         relationshipTemplate.setProperties(properties);
 
         relationships.put(operation.getRelationshipName(), relationshipTemplate);
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
+        TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         workflowBuilderService.addRelationship(topologyContext, operation.getNodeName(), operation.getRelationshipName());
         log.debug("Added relationship to the topology [" + topology.getId() + "], node name [" + operation.getNodeName() + "], relationship name ["
                 + operation.getRelationshipName() + "]");

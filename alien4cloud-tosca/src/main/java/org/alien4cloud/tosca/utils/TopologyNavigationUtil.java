@@ -69,7 +69,7 @@ public final class TopologyNavigationUtil {
     public static RelationshipTemplate getRelationshipFromType(NodeTemplate template, String type, IRelationshipTypeFinder toscaTypeFinder) {
         for (RelationshipTemplate relationshipTemplate : safe(template.getRelationships()).values()) {
             RelationshipType relationshipType = toscaTypeFinder.findElement(relationshipTemplate.getType());
-            if (relationshipType != null && (relationshipType.getElementId().equals(type) || relationshipType.getDerivedFrom().contains(type))) {
+            if (relationshipType != null && ToscaTypeUtils.isOfType(relationshipType, type)) {
                 return relationshipTemplate;
             }
         }
@@ -202,6 +202,25 @@ public final class TopologyNavigationUtil {
                 if (relationshipTemplate.getTargetedCapabilityName().equals(capabilityName)
                         && relationshipTemplate.getTarget().equals(nodeTemplate.getName())) {
                     result.add(node);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns all the nodes that target this node template with a relationship of the given type.
+     */
+    public static Set<NodeTemplate> getSourceNodesByRelationshipType(Topology topology, NodeTemplate nodeTemplate, String relationshipTypeName) {
+        Set<NodeTemplate> result = Sets.newHashSet();
+        for (NodeTemplate node : topology.getNodeTemplates().values()) {
+            for (RelationshipTemplate relationshipTemplate : safe(node.getRelationships()).values()) {
+
+                if (relationshipTemplate.getTarget().equals(nodeTemplate.getName())) {
+                    RelationshipType relationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplate.getType());
+                    if (ToscaTypeUtils.isOfType(relationshipType, relationshipTypeName)) {
+                        result.add(node);
+                    }
                 }
             }
         }

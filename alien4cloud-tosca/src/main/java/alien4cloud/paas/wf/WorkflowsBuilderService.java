@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -21,7 +22,6 @@ import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
-import org.alien4cloud.tosca.utils.IToscaTypeFinder;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
@@ -34,6 +34,7 @@ import alien4cloud.paas.wf.validation.WorkflowValidator;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.WorkflowTask;
 import alien4cloud.tosca.parser.ToscaParser;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.YamlParserUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,6 +50,9 @@ public class WorkflowsBuilderService {
 
     @Resource
     private CustomWorkflowBuilder customWorkflowBuilder;
+
+    @Resource
+    private WorkflowSimplifyService workflowFlattenService;
 
     private Map<String, DefaultDeclarativeWorkflows> defaultDeclarativeWorkflowsPerDslVersion;
 
@@ -74,27 +78,38 @@ public class WorkflowsBuilderService {
             topologyContext.getTopology().setWorkflows(wfs);
         }
         if (!wfs.containsKey(INSTALL)) {
-            initStandardWorkflow(wfs, INSTALL, topologyContext);
+            initStandardWorkflow(INSTALL, topologyContext);
         }
         if (!wfs.containsKey(UNINSTALL)) {
-            initStandardWorkflow(wfs, UNINSTALL, topologyContext);
+            initStandardWorkflow(UNINSTALL, topologyContext);
         }
         if (!wfs.containsKey(START)) {
-            initStandardWorkflow(wfs, START, topologyContext);
+            initStandardWorkflow(START, topologyContext);
         }
         if (!wfs.containsKey(STOP)) {
-            initStandardWorkflow(wfs, STOP, topologyContext);
+            initStandardWorkflow(STOP, topologyContext);
         }
+        postProcessTopologyWorkflows(topologyContext);
         return topologyContext;
     }
 
-    private void initStandardWorkflow(Map<String, Workflow> wfs, String name, TopologyContext topologyContext) {
+    public void postProcessTopologyWorkflows(TopologyContext topologyContext) {
+        topologyContext.getTopology().getUnprocessedWorkflows().putAll(topologyContext.getTopology().getWorkflows().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> WorkflowUtils.cloneWorkflow(entry.getValue()))));
+        workflowFlattenService.simplifyWorkflow(topologyContext);
+        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
+            workflowValidator.validate(topologyContext, wf);
+        }
+        debugWorkflow(topologyContext.getTopology());
+    }
+
+    private void initStandardWorkflow(String name, TopologyContext topologyContext) {
         Workflow workflow = new Workflow();
         workflow.setName(name);
         workflow.setStandard(true);
         workflow.setHasCustomModifications(false);
-        wfs.put(name, workflow);
-        reinitWorkflow(name, topologyContext);
+        topologyContext.getTopology().getWorkflows().put(name, workflow);
+        reinitWorkflow(name, topologyContext, false);
     }
 
     public Workflow createWorkflow(Topology topology, String name) {
@@ -102,6 +117,7 @@ public class WorkflowsBuilderService {
         Workflow wf = new Workflow();
         wf.setName(workflowName);
         wf.setStandard(false);
+        wf.setHasCustomModifications(true);
         Map<String, Workflow> wfs = topology.getWorkflows();
         if (wfs == null) {
             wfs = Maps.newLinkedHashMap();
@@ -137,47 +153,66 @@ public class WorkflowsBuilderService {
 
     public void addNode(TopologyContext topologyContext, String nodeName) {
         boolean forceOperation = WorkflowUtils.isComputeOrNetwork(nodeName, topologyContext);
+        // Use the unprocessed workflow to perform add node as we know that every steps / links will be present as it's defined in declarative workflow
+        topologyContext.getTopology().getWorkflows().putAll(topologyContext.getTopology().getUnprocessedWorkflows());
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
             builder.addNode(wf, nodeName, topologyContext, forceOperation);
             WorkflowUtils.fillHostId(wf, topologyContext);
-            workflowValidator.validate(topologyContext, wf);
         }
-        debugWorkflow(topologyContext.getTopology());
+        postProcessTopologyWorkflows(topologyContext);
     }
 
     public void removeNode(Topology topology, Csar csar, String nodeName) {
         TopologyContext topologyContext = buildTopologyContext(topology, csar);
+        topologyContext.getTopology().getWorkflows().putAll(topologyContext.getTopology().getUnprocessedWorkflows());
         for (Workflow wf : topology.getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
             builder.removeNode(wf, nodeName);
             WorkflowUtils.fillHostId(wf, topologyContext);
-            workflowValidator.validate(topologyContext, wf);
         }
+        postProcessTopologyWorkflows(topologyContext);
         debugWorkflow(topology);
     }
 
     public void addRelationship(TopologyContext topologyContext, String nodeTemplateName, String relationshipName) {
+        topologyContext.getTopology().getWorkflows().putAll(topologyContext.getTopology().getUnprocessedWorkflows());
         NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeTemplateName);
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipName);
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
             builder.addRelationship(wf, nodeTemplateName, nodeTemplate, relationshipName, relationshipTemplate, topologyContext);
             WorkflowUtils.fillHostId(wf, topologyContext);
-            workflowValidator.validate(topologyContext, wf);
         }
+        postProcessTopologyWorkflows(topologyContext);
         debugWorkflow(topologyContext.getTopology());
     }
 
-    public void removeRelationship(Topology topology, Csar csar, String nodeTemplateName, String relationshipName, RelationshipTemplate relationshipTemplate) {
+    public void removeRelationship(Topology topology, Csar csar, String sourceNodeId, String relationshipName, RelationshipTemplate relationshipTemplate) {
         TopologyContext topologyContext = buildTopologyContext(topology, csar);
-        String relationshipTarget = relationshipTemplate.getTarget();
+        topologyContext.getTopology().getWorkflows().putAll(topologyContext.getTopology().getUnprocessedWorkflows());
+        NodeTemplate sourceNode = topology.getNodeTemplates().get(sourceNodeId);
+        String targetNodeId = relationshipTemplate.getTarget();
+        NodeTemplate targetNode = topologyContext.getTopology().getNodeTemplates().get(targetNodeId);
         for (Workflow wf : topology.getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
-            builder.removeRelationship(wf, nodeTemplateName, relationshipName, relationshipTarget);
+            // Remove relationships from source to target
+            // Remove relationships from target to source
+            Map<String, RelationshipTemplate> sourceRelationships = sourceNode.getRelationships().entrySet().stream()
+                    .filter(relationshipEntry -> relationshipEntry.getValue().getTarget().equals(targetNodeId))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            Map<String, RelationshipTemplate> targetRelationships = AlienUtils.safe(targetNode.getRelationships()).entrySet().stream()
+                    .filter(relationshipEntry -> relationshipEntry.getValue().getTarget().equals(sourceNodeId))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            builder.removeRelationships(wf, sourceNodeId, sourceRelationships, targetNodeId, targetRelationships);
+            sourceRelationships.entrySet().stream().filter(entry -> !entry.getKey().equals(relationshipName))
+                    .forEach(entry -> builder.addRelationship(wf, sourceNode.getName(), sourceNode, entry.getKey(), entry.getValue(), topologyContext));
+            targetRelationships.forEach((id, relationship) -> builder.addRelationship(wf, targetNodeId, targetNode, id, relationship, topologyContext));
+            // Remove unique relationship that we really want to remove
             WorkflowUtils.fillHostId(wf, topologyContext);
-            workflowValidator.validate(topologyContext, wf);
         }
+        postProcessTopologyWorkflows(topologyContext);
+        debugWorkflow(topologyContext.getTopology());
     }
 
     public Workflow removeEdge(Topology topology, Csar csar, String workflowName, String from, String to) {
@@ -294,12 +329,15 @@ public class WorkflowsBuilderService {
         for (Workflow wf : topology.getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
             builder.renameNode(wf, nodeTemplateName, newNodeTemplateName);
+            if (topology.getUnprocessedWorkflows().containsKey(wf.getName())) {
+                builder.renameNode(topology.getUnprocessedWorkflows().get(wf.getName()), nodeTemplateName, newNodeTemplateName);
+            }
             WorkflowUtils.fillHostId(wf, topologyContext);
             workflowValidator.validate(topologyContext, wf);
         }
     }
 
-    public void reinitWorkflow(String workflowName, TopologyContext topologyContext) {
+    public void reinitWorkflow(String workflowName, TopologyContext topologyContext, boolean simplify) {
         Workflow wf = topologyContext.getTopology().getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
@@ -310,14 +348,9 @@ public class WorkflowsBuilderService {
         AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
         wf = builder.reinit(wf, topologyContext);
         WorkflowUtils.fillHostId(wf, topologyContext);
-        workflowValidator.validate(topologyContext, wf);
-    }
-
-    public interface TopologyContext extends IToscaTypeFinder {
-
-        String getDSLVersion();
-
-        Topology getTopology();
+        if (simplify) {
+            postProcessTopologyWorkflows(topologyContext);
+        }
     }
 
     public TopologyContext buildTopologyContext(Topology topology) {

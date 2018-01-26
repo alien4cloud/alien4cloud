@@ -7,6 +7,11 @@ import org.alien4cloud.tosca.model.templates.Topology;
  */
 public interface ITopologyModifier {
     /**
+     * This meta property allows alien4cloud to know from which node in the original topology some modified topology nodes are comming from (replace, add etc.).
+     */
+    String A4C_META_ORIGINAL_NODES = "a4c_original_nodes";
+
+    /**
      * A topology modifier process a topology before deployment to change it. Topology modifier MUST respect the contract of the original topology and while it
      * may add elements, replace elements with others that respect original element contract etc. it may not remove elements or change contract of existing
      * elements.

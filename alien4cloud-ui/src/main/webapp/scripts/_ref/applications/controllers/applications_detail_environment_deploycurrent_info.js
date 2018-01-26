@@ -14,7 +14,7 @@ define(function (require) {
     menu: {
       id: 'applications.detail.environment.deploycurrent.info',
       state: 'applications.detail.environment.deploycurrent.info',
-      key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.INFO',
+      key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT_INFO',
       icon: 'fa fa-info',
       priority: 100
     }
@@ -27,7 +27,7 @@ define(function (require) {
     breadcrumbsService.putConfig({
       state : 'applications.detail.environment.deploycurrent.info',
       text: function(){
-        return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.INFO');
+        return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_CURRENT_INFO');
       },
       onClick: function(){
         $state.go('applications.detail.environment.deploycurrent.info');

@@ -55,7 +55,7 @@ define(function (require) {
         breadcrumbsService.putConfig({
           state: 'applications.detail.environment.deploynext.topology',
           text: function () {
-            return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT.TOPOLOGY');
+            return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_NEXT_TOPOLOGY');
           },
           onClick: function () {
             $state.go('applications.detail.environment.deploynext.topology', {

@@ -181,6 +181,10 @@ public final class FileUtil {
     }
 
     public static void copy(final Path source, final Path destination, final CopyOption... options) throws IOException {
+        copy(source, destination, false, options);
+    }
+
+    public static void copy(final Path source, final Path destination, final boolean ignoreExisting, final CopyOption... options) throws IOException {
         if (Files.notExists(destination)) {
             Files.createDirectories(destination);
         }
@@ -190,6 +194,9 @@ public final class FileUtil {
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 String fileRelativePath = relativizePath(source, file);
                 Path destFile = destination.resolve(fileRelativePath);
+                if (ignoreExisting && destFile.toFile().exists()) {
+                    return FileVisitResult.CONTINUE;
+                }
                 Files.copy(file, destFile, options);
                 return FileVisitResult.CONTINUE;
             }
@@ -198,7 +205,9 @@ public final class FileUtil {
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 String dirRelativePath = relativizePath(source, dir);
                 Path destDir = destination.resolve(dirRelativePath);
-                Files.createDirectories(destDir);
+                if (!(ignoreExisting && destDir.toFile().exists())) {
+                    Files.createDirectories(destDir);
+                }
                 return FileVisitResult.CONTINUE;
             }
         });

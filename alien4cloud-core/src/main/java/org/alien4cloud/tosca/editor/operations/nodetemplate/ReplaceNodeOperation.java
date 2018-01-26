@@ -14,6 +14,8 @@ public class ReplaceNodeOperation extends AbstractNodeOperation {
     /** Id of the new indexed node type to assign to the node. */
     @NotBlank
     private String newTypeId;
+    /** Optional flag to skip auto-completion when adding node. */
+    private boolean skipAutoCompletion = false;
 
     @Override
     public String commitMessage() {

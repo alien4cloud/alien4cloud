@@ -28,6 +28,10 @@ public abstract class AbstractUpdateTopologyVariableProcessor<T extends Abstract
 
         // if the expression is empty, remove the var
         if (StringUtils.isBlank(operation.getExpression())) {
+            // stop processing if the input is not yet preconfigured
+            if (!variables.containsKey(operation.getName())) {
+                return;
+            }
             variables.remove(operation.getName());
         } else {
             // update the value of the variable

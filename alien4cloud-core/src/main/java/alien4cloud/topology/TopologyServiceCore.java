@@ -199,35 +199,6 @@ public class TopologyServiceCore {
     }
 
     /**
-     *
-     * Get all the relationships in which a given node template is a target
-     *
-     * @param nodeTemplateName the name of the node template which is target for relationship
-     * @param nodeTemplates all topology's node templates
-     * @return all relationships which have nodeTemplateName as target
-     */
-    public List<RelationshipTemplate> getTargetRelatedRelatonshipsTemplate(String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
-        List<RelationshipTemplate> toReturn = Lists.newArrayList();
-        for (String key : nodeTemplates.keySet()) {
-            NodeTemplate nodeTemp = nodeTemplates.get(key);
-            if (nodeTemp.getRelationships() == null) {
-                continue;
-            }
-            for (String key2 : nodeTemp.getRelationships().keySet()) {
-                RelationshipTemplate relTemp = nodeTemp.getRelationships().get(key2);
-                if (relTemp == null) {
-                    continue;
-                }
-                if (relTemp.getTarget() != null && relTemp.getTarget().equals(nodeTemplateName)) {
-                    toReturn.add(relTemp);
-                }
-            }
-        }
-
-        return toReturn;
-    }
-
-    /**
      * Assign an id to the topology, save it and return the generated id.
      *
      * @param topology

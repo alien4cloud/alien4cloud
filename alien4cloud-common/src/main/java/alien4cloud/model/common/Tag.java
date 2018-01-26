@@ -14,7 +14,7 @@ import org.elasticsearch.mapping.IndexType;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @EqualsAndHashCode(of = "name")
 public class Tag {
     @TermFilter

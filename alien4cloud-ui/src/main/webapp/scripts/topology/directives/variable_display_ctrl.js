@@ -4,8 +4,9 @@ define(function (require) {
 
   var modules = require('modules');
   var _ = require('lodash');
-  var yaml = require('js-yaml');
 
+  require('angular-ui-ace');
+  require('scripts/common/directives/ace_save_button');
   require('scripts/topology/services/topology_variables_service');
   require('scripts/topology/services/topology_browser_service');
   require('scripts/common/filters/a4c_linky');
@@ -69,43 +70,73 @@ define(function (require) {
 
         function setAceEditorContent(){
           if(_.defined($scope.selectedScope)){
-            $scope.selectedScope.editorContent = $scope.selectedScope.expression;
+            $scope.selectedScope.editorContent = {
+              old: $scope.selectedScope.variable.expression,
+              new: $scope.selectedScope.variable.expression
+            };
           }
         }
 
-        function showVarExpression(selectedScope, expression) {
+        function showVarExpression(scopeType, selectedScope) {
           $scope.selectedScope = selectedScope;
-          $scope.selectedScope.expression = expression;
+          $scope.selectedScope.scope = scopeType;
           setAceEditorContent();
         }
 
-        $scope.showAppVarExpression = function(expression){
-          $scope.editMode=false;
-          showVarExpression({
-            scope:'APP',
-            name: $scope.topology.topology.archiveName,
-            id:$scope.topology.topology.archiveName,
-            readOnly:true
-          }, expression);
+        function stopEventPropagation($event){
+          if($event){
+            $event.stopPropagation();
+          }
+        }
+
+        function saveEnvVar(envId, expression){
+          var operation = {name: $scope.varName};
+          operation.type = 'org.alien4cloud.tosca.editor.operations.variable.UpdateEnvironmentVariableOperation';
+          operation.environmentId=envId;
+          operation.expression=expression;
+          $scope.execute(operation);
+        }
+
+        function saveEnvTypeVar(envType, expression){
+          var operation = {name: $scope.varName};
+          operation.type = 'org.alien4cloud.tosca.editor.operations.variable.UpdateEnvironmentTypeVariableOperation';
+          operation.environmentType=envType;
+          operation.expression=expression;
+          $scope.execute(operation);
+        }
+
+        $scope.showAppVarExpression = function(variable){
+          showVarExpression('APP', {
+            scopeName: $scope.topology.topology.archiveName,
+            scopeId:$scope.topology.topology.archiveName,
+            readOnly:true,
+            variable: variable
+          });
         };
 
-        $scope.showEnvVarExpression = function(varDTO){
-          showVarExpression({
-            scope:'ENV',
-            name: varDTO.scopeName,
-            id:varDTO.scopeId
-          }, varDTO.variable.expression);
+        $scope.showEnvVarExpression = function(varDTO, $event){
+          showVarExpression('ENV', varDTO);
+          stopEventPropagation($event);
         };
 
-        $scope.showEnvTypeVarExpression = function(varDTO){
-          showVarExpression({
-            scope:'ENV_TYPE',
-            name: varDTO.scopeName,
-            id:varDTO.scopeId
-          }, varDTO.variable.expression);
+        $scope.showEnvTypeVarExpression = function(varDTO, $event){
+          showVarExpression('ENV_TYPE', varDTO);
+          stopEventPropagation($event);
         };
 
-        $scope.cancel = function() {
+        $scope.deleteEnvVarExpression = function(varDTO, $event){
+          saveEnvVar(varDTO.scopeId, null);
+          varDTO.variable.expression=null;
+          stopEventPropagation($event);
+        };
+
+        $scope.deleteEnvTypeVarExpression = function(varDTO, $event){
+          saveEnvTypeVar(varDTO.scopeId, null);
+          varDTO.variable.expression=null;
+          stopEventPropagation($event);
+        };
+
+        $scope.close = function() {
           $uibModalInstance.dismiss('closed');
         };
 
@@ -132,25 +163,19 @@ define(function (require) {
         };
 
         $scope.saveEdited = function(){
-          var operation = {name: $scope.varName};
           switch ($scope.selectedScope.scope) {
             case 'ENV':
-              operation.type = 'org.alien4cloud.tosca.editor.operations.variable.UpdateEnvironmentVariableOperation';
-              operation.environmentId=$scope.selectedScope.id;
-              operation.expression=aceEditor.getSession().getDocument().getValue();
-              $scope.execute(operation);
-              $scope.selectedScope.expression=operation.expression;
+              saveEnvVar($scope.selectedScope.scopeId, $scope.selectedScope.editorContent.new);
               break;
             case 'ENV_TYPE':
-              operation.type = 'org.alien4cloud.tosca.editor.operations.variable.UpdateEnvironmentTypeVariableOperation';
-              operation.environmentType=$scope.selectedScope.id;
-              operation.expression=aceEditor.getSession().getDocument().getValue();
-              $scope.execute(operation);
-              $scope.selectedScope.expression=operation.expression;
+              saveEnvTypeVar($scope.selectedScope.scopeId, $scope.selectedScope.editorContent.new);
               break;
             default:
               console.error('Not yet supported: ', $scope.selectedScope.scope);
+              return;
           }
+          $scope.selectedScope.variable.expression=$scope.selectedScope.editorContent.new;
+          setAceEditorContent();
         };
 
         $scope.toggleEditMode = function(){
@@ -160,7 +185,11 @@ define(function (require) {
         $scope.refreshSelectedVar= refresh;
 
         $scope.dump = function() {
-          return $filter('a4cLinky')($scope.selectedScope.expression, 'refreshSelectedVar');
+          return $filter('a4cLinky')($scope.selectedScope.variable.expression, 'refreshSelectedVar');
+        };
+
+        $scope.disableSave = function(){
+          return !$scope.editMode || !$scope.selectedScope || _.get($scope.selectedScope, 'readOnly', false);
         };
 
         //first load

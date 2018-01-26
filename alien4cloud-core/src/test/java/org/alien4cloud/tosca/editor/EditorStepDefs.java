@@ -75,7 +75,7 @@ import cucumber.api.java.en.When;
 import gherkin.formatter.model.DataTableRow;
 import lombok.extern.slf4j.Slf4j;
 
-@ContextConfiguration("classpath:org/alien4cloud/tosca/editor/application-context-test.xml")
+@ContextConfiguration("classpath:application-context-test.xml")
 @Slf4j
 public class EditorStepDefs {
     @Resource(name = "alien-es-dao")
@@ -341,6 +341,11 @@ public class EditorStepDefs {
         }
 
         topologyEvaluationContext = new StandardEvaluationContext(variables);
+    }
+
+    @When("^I load preconfigured inputs$")
+    public void i_load_preconfigured_inputs() throws Throwable {
+        topologyEvaluationContext = new StandardEvaluationContext(editorFileService.loadInputsVariables(topologyIds.getLast()));
     }
 
     private void doExecuteOperation(AbstractEditorOperation operation, String topologyId) {

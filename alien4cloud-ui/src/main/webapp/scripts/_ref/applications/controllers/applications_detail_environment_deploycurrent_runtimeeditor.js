@@ -21,7 +21,7 @@ define(function (require) {
     menu: {
       id: 'applications.detail.environment.deploycurrent.runtimeeditor',
       state: 'applications.detail.environment.deploycurrent.runtimeeditor',
-      key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.RUNTIME_EDITOR',
+      key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT_RUNTIME_EDITOR',
       icon: 'fa fa-play',
       priority: 200
     }
@@ -64,7 +64,7 @@ define(function (require) {
     breadcrumbsService.putConfig({
       state : 'applications.detail.environment.deploycurrent.runtimeeditor',
       text: function(){
-        return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_CURRENT.RUNTIME_EDITOR');
+        return $translate.instant('NAVAPPLICATIONS.MENU_DEPLOY_CURRENT_RUNTIME_EDITOR');
       },
       onClick: function(){
         $state.go('applications.detail.environment.deploycurrent.runtimeeditor');

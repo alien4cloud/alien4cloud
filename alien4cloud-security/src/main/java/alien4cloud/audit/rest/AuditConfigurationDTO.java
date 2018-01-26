@@ -12,7 +12,7 @@ import alien4cloud.audit.model.AuditedMethod;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class AuditConfigurationDTO {
 
     private boolean enabled;

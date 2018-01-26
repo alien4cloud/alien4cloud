@@ -10,9 +10,11 @@
 
     <context:component-scan base-package="
 		alien4cloud.*,
-		org.alien4cloud.alm.*
+		org.alien4cloud.alm.*,
 		org.alien4cloud.tosca.*,
 		org.alien4cloud.secret.*,
+		org.alien4cloud.git,
+		org.alien4cloud.git.*,
 		org.elasticsearch.mapping">
         <!-- alien4cloud.security.* to exclude ldap package is not working in component-scan -->
         <context:exclude-filter type="regex" expression="alien4cloud\.ldap.*|alien4cloud\.initialization.*|alien4cloud\.webconfiguration.*"/>

@@ -77,7 +77,7 @@ define(function (require) {
 
       $scope.openVarModal = function(varName){
         $uibModal.open({
-          templateUrl: 'views/topology/variables/variable_value_display.html',
+          templateUrl: 'views/topology/variables/variable_display.html',
           controller: 'variableDisplayCtrl',
           scope: $scope,
           size: 'lg',

@@ -1,5 +1,7 @@
 package alien4cloud.tosca.serializer;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -41,7 +43,6 @@ import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActi
 import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -279,34 +280,49 @@ public class ToscaSerializerUtils {
 
     public static boolean hasRepositories(String topologyArchiveName, String topologyArchiveVersion, Topology topology) {
         // we don't support node types in Editor context, just check the node templates
-        if (topology.getNodeTemplates() != null && CollectionUtils.isNotEmpty(topology.getNodeTemplates().values())) {
-            for (NodeTemplate node : topology.getNodeTemplates().values()) {
-                if (node.getArtifacts() != null && CollectionUtils.isNotEmpty(node.getArtifacts().values())) {
-                    for (DeploymentArtifact artifact : node.getArtifacts().values()) {
-                        // Only consider artifact of the topology
-                        if ((topologyArchiveName.equals(artifact.getArchiveName()) && topologyArchiveVersion.equals(artifact.getArchiveVersion()))
-                                && StringUtils.isNotBlank(artifact.getRepositoryName())) {
-                            return true;
-                        }
+        for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
+            for (DeploymentArtifact artifact : safe(node.getArtifacts()).values()) {
+                // Only consider artifact of the topology
+                if (isInternalRepoArtifact(artifact, topologyArchiveName, topologyArchiveVersion)) {
+                    return true;
+                }
+            }
+            for (Interface anInterface : safe(node.getInterfaces()).values()) {
+                for (Operation operation : safe(anInterface.getOperations()).values()) {
+                    if (operation.getImplementationArtifact() != null
+                            && isInternalRepoArtifact(operation.getImplementationArtifact(), topologyArchiveName, topologyArchiveVersion)) {
+                        return true;
                     }
                 }
             }
         }
+
         return MapUtils.isNotEmpty(topology.getInputArtifacts()) && topology.getInputArtifacts().values().stream()
                 .anyMatch(deploymentArtifact -> StringUtils.isNotBlank(deploymentArtifact.getRepositoryName()));
+    }
+
+    private static boolean isInternalRepoArtifact(AbstractArtifact artifact, String topologyArchiveName, String topologyArchiveVersion) {
+        return (topologyArchiveName.equals(artifact.getArchiveName()) && topologyArchiveVersion.equals(artifact.getArchiveVersion()))
+                && StringUtils.isNotBlank(artifact.getArtifactRepository()) && StringUtils.isNotBlank(artifact.getRepositoryName());
     }
 
     public static String formatRepositories(String topologyArchiveName, String topologyArchiveVersion, Topology topology) {
         StringBuilder buffer = new StringBuilder();
         Set<String> repositoriesName = Sets.newHashSet();
-        for (NodeTemplate node : topology.getNodeTemplates().values()) {
-            if (node.getArtifacts() != null && CollectionUtils.isNotEmpty(node.getArtifacts().values())) {
-                for (DeploymentArtifact artifact : node.getArtifacts().values()) {
-                    // Only generate repositories for the current topology
-                    if ((topologyArchiveName.equals(artifact.getArchiveName()) && topologyArchiveVersion.equals(artifact.getArchiveVersion()))
-                            && StringUtils.isNotBlank(artifact.getRepositoryURL()) && repositoriesName.add(artifact.getRepositoryName())) {
-                        buffer.append("  ").append(artifact.getRepositoryName()).append(":");
-                        buffer.append("\n").append(formatRepository(artifact, 2)).append("\n");
+        for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
+            for (DeploymentArtifact artifact : safe(node.getArtifacts()).values()) {
+                // Only generate repositories for the current topology
+                if (isInternalRepoArtifact(artifact, topologyArchiveName, topologyArchiveVersion)) {
+                    buffer.append("  ").append(artifact.getRepositoryName()).append(":");
+                    buffer.append("\n").append(formatRepository(artifact, 2)).append("\n");
+                }
+            }
+            for (Interface anInterface : safe(node.getInterfaces()).values()) {
+                for (Operation operation : safe(anInterface.getOperations()).values()) {
+                    if (operation.getImplementationArtifact() != null
+                            && isInternalRepoArtifact(operation.getImplementationArtifact(), topologyArchiveName, topologyArchiveVersion)) {
+                        buffer.append("  ").append(operation.getImplementationArtifact().getRepositoryName()).append(":");
+                        buffer.append("\n").append(formatRepository(operation.getImplementationArtifact(), 2)).append("\n");
                     }
                 }
             }
@@ -323,10 +339,12 @@ public class ToscaSerializerUtils {
         return buffer.toString();
     }
 
-    public static String formatRepository(DeploymentArtifact value, int indent) {
+    public static String formatRepository(AbstractArtifact value, int indent) {
         StringBuilder buffer = new StringBuilder();
         String spaces = ToscaPropertySerializerUtils.indent(indent);
-        buffer.append(spaces).append("url: ").append(value.getRepositoryURL());
+        if (StringUtils.isNotBlank(value.getRepositoryURL())) {
+            buffer.append(spaces).append("url: ").append(value.getRepositoryURL());
+        }
         buffer.append("\n").append(spaces).append("type: ").append(value.getArtifactRepository());
         if (value.getRepositoryCredential() != null && value.getRepositoryCredential().containsKey("token")) {
             buffer.append("\n").append(spaces).append("credential:");

@@ -1,9 +1,9 @@
 package alien4cloud.audit.rest;
 
-import io.swagger.annotations.ApiOperation;
-
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,8 +13,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,15 +25,18 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerMapping;
 
-import alien4cloud.audit.AuditService;
-import alien4cloud.audit.annotation.Audit;
-import alien4cloud.audit.model.AuditConfiguration;
-import alien4cloud.audit.model.AuditTrace;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.User;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
+
+import alien4cloud.audit.AuditService;
+import alien4cloud.audit.model.AuditConfiguration;
+import alien4cloud.audit.model.AuditTrace;
+import alien4cloud.audit.model.Method;
+import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.User;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This filter is used to intercept all rest call that need to be audited
@@ -104,18 +107,18 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         return Ordered.LOWEST_PRECEDENCE - 10;
     }
 
-    private AuditTrace getAuditTrace(HttpServletRequest request, HttpServletResponse response, HandlerMethod method, User user, boolean requestContainsJson)
-            throws IOException {
-        Audit audit = auditService.getAuditAnnotation(method);
+    private AuditTrace getAuditTrace(HttpServletRequest request, HttpServletResponse response, HandlerMethod handlerMethod, User user, boolean requestContainsJson,
+            final AuditConfiguration configuration) throws IOException {
+        final Method method = auditService.getAuditedMethod(handlerMethod);
         // trace user info only when he is logged
         AuditTrace auditTrace = new AuditTrace();
         auditTrace.setTimestamp(System.currentTimeMillis());
-        auditTrace.setAction(auditService.getAuditActionName(method, audit));
-        ApiOperation apiDoc = getApiDoc(method);
+        auditTrace.setAction(method.getAction());
+        ApiOperation apiDoc = getApiDoc(handlerMethod);
         if (apiDoc != null) {
             auditTrace.setActionDescription(apiDoc.value());
         }
-        auditTrace.setCategory(auditService.getAuditCategoryName(method, audit));
+        auditTrace.setCategory(method.getCategory());
         auditTrace.setUserName(user.getUsername());
         auditTrace.setUserFirstName(user.getFirstName());
         auditTrace.setUserLastName(user.getLastName());
@@ -130,11 +133,31 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         auditTrace.setSourceIp(request.getRemoteAddr());
         // request body
         if (requestContainsJson) {
-            auditTrace.setRequestBody(StreamUtils.copyToString(request.getInputStream(), Charsets.UTF_8));
+            String original = StreamUtils.copyToString(request.getInputStream(), Charsets.UTF_8);
+            auditTrace.setRequestBody(filterRequestBody(original, method));
         }
         // response details
         auditTrace.setResponseStatus(response.getStatus());
         return auditTrace;
+    }
+
+    /**
+     * To filter the confidential parameters inside the request body
+     * 
+     * @param original A json string of request body
+     * @param method A method to be audited
+     * @return A new string already formatting the filtered parameters
+     * @throws IOException
+     */
+    private String filterRequestBody(String original, final Method method) throws IOException {
+        if (StringUtils.isEmpty(original) || ArrayUtils.isEmpty(method.getBodyHiddenFields())) {
+            return original;
+        }
+        Map<String, Object> body = JsonUtil.toMap(original);
+        for (String filteredParameter : method.getBodyHiddenFields()) {
+            body.computeIfPresent(filteredParameter, (k, v) -> String.join("", Collections.nCopies(10, AuditConfiguration.FORMATTER)));
+        }
+        return JsonUtil.toString(body);
     }
 
     private String getApiVersion(String uri) {
@@ -176,7 +199,7 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         } finally {
             AuditTrace auditTrace = null;
             try {
-                auditTrace = getAuditTrace(request, response, method, user, requestContainsJson);
+                auditTrace = getAuditTrace(request, response, method, user, requestContainsJson, configuration);
             } catch (Exception e) {
                 logger.warn("Unable to construct audit trace", e);
             }

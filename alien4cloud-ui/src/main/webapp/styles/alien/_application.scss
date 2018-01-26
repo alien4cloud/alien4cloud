@@ -30,6 +30,15 @@
   font-size: 14px;
 }
 
+#app-name span span {
+  @extend .not-overflow;
+  max-width: 350px;
+}
+
+#app-name .fa-edit {
+  float: right;
+}
+
 .resource-user-roles h5 {
   text-align: center;
   color:white;

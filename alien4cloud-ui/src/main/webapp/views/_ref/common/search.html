@@ -9,11 +9,13 @@
           <span class="label label-default" style="margin-right: 5px;"
             ng-if="queryManager.query">
             search: {{queryManager.query}}
+            <i class="fa fa-times remove_filter_query" ng-click="resetQuery()"></i>
           </span>
           <span class="label label-default info" style="margin-right: 5px;"
             ng-repeat="(filterTerm, filterValues) in queryManager.filters"
-            ng-click="editFilter(filterTerm)">
-            {{filterTerm}}={{filterValues}} <i class="fa fa-times" ng-click="removeFilter(filterTerm)"></i>
+            >
+            <span class="filter_query" ng-click="editFilter(filterTerm)">{{filterTerm}}={{filterValues}}</span>
+            <i class="fa fa-times remove_filter_query" ng-click="removeFilter(filterTerm)"></i>
           </span>
         </h4>
       </div>

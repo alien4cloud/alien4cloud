@@ -21,17 +21,17 @@ define(function(require) {
       var check = function(scope, secretPath) {
         // The capablity "scalable" can not become a secret
         if ("scalable" === scope.capabilityName) {
-          return "Can not set the capablity scalable with a secret.";
+          return $translate.instant('APPLICATIONS.TOPOLOGY.SECRETS.CANNOT_SET_SECRET');
         }
         // The property "component_version" can not become a secret
         if ("component_version" === scope.propertyName) {
-          return "Can not set the component_version with a secret.";
+          return $translate.instant('APPLICATIONS.TOPOLOGY.SECRETS.CANNOT_SET_SECRET');
         }
         if (_.undefined(secretPath)) {
           return "";
         }
         if (secretPath === "") {
-          return "The path can not be null.";
+          return $translate.instant('APPLICATIONS.TOPOLOGY.SECRETS.EMPTY_SECRET_PATH');
         }
         return undefined;
       };

@@ -414,6 +414,7 @@ public final class AuthorizationUtil {
         // authorizations
         httpSecurity.authorizeRequests().antMatchers("/*").permitAll();
         httpSecurity.authorizeRequests().antMatchers("/static/tosca/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
+        httpSecurity.authorizeRequests().antMatchers("/rest/admin/health").permitAll();
         httpSecurity.authorizeRequests().antMatchers("/rest/admin/**").hasAuthority("ADMIN");
 
         // FIXME Secure the editor data

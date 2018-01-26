@@ -107,7 +107,7 @@ public class AuditService {
         }
         Audit audit = getAuditAnnotation(controllerMethod);
         return new Method(controllerMethod.getMethod().toGenericString(), httpMethod, getAuditCategoryName(controllerMethod, audit),
-                getAuditActionName(controllerMethod, audit));
+                getAuditActionName(controllerMethod, audit), getAuditHiddenFields(audit));
     }
 
     public boolean isMethodAudited(AuditConfiguration auditConfiguration, HandlerMethod controllerMethod) {
@@ -139,6 +139,13 @@ public class AuditService {
             audit = AnnotationUtils.findAnnotation(method.getMethod().getDeclaringClass(), Audit.class);
         }
         return audit;
+    }
+
+    public String[] getAuditHiddenFields(final Audit audit) {
+        if (audit == null) {
+            return new String[0];
+        }
+        return audit.bodyHiddenFields();
     }
 
 }

@@ -5,7 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
@@ -21,6 +24,8 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -183,9 +188,10 @@ public class DeployService {
                     alienDao.save(existingDeployment);
                     callback.onSuccess(data);
                     // Trigger post update workflow if defined in both the initial and current topologies.
-                    if (deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null
+                    if (deploymentTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null
                             && deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null) {
-                        schedulePostUpdateWorkflow(System.currentTimeMillis(), existingDeployment, orchestratorPlugin, deploymentContext);
+                        scheduler.execute(
+                                () -> tryLaunchingPostUpdateWorkflow(System.currentTimeMillis(), existingDeployment, orchestratorPlugin, deploymentContext));
                     }
                 }
 
@@ -206,7 +212,14 @@ public class DeployService {
 
     private long timeout = 60 * 60 * 1000;
 
-    private void schedulePostUpdateWorkflow(final long startTime, final Deployment existingDeployment, final IOrchestratorPlugin orchestratorPlugin,
+    ListeningScheduledExecutorService scheduler;
+
+    @PostConstruct
+    public void init() {
+        scheduler = MoreExecutors.listeningDecorator(Executors.newScheduledThreadPool(4));
+    }
+
+    private void tryLaunchingPostUpdateWorkflow(long startTime, Deployment existingDeployment, IOrchestratorPlugin orchestratorPlugin,
             PaaSTopologyDeploymentContext deploymentContext) {
         // We have to wait for status to be update success
         if ((System.currentTimeMillis() - startTime) < timeout) {
@@ -230,12 +243,9 @@ public class DeployService {
                     } else if (data != null && DeploymentStatus.UPDATE_FAILURE.equals(data)) {
                         log(existingDeployment, "Update failed, not launching post update workflow.", null, PaaSDeploymentLogLevel.WARN);
                     } else {
-                        try {
-                            Thread.sleep(10000L);
-                            schedulePostUpdateWorkflow(startTime, existingDeployment, orchestratorPlugin, deploymentContext);
-                        } catch (InterruptedException e) {
-                            log(existingDeployment, e);
-                        }
+                        // re-schedule it in one second
+                        scheduler.schedule(() -> tryLaunchingPostUpdateWorkflow(startTime, existingDeployment, orchestratorPlugin, deploymentContext), 1,
+                                TimeUnit.SECONDS);
                     }
                 }
 

@@ -29,6 +29,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.components.CSARSource;
+import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
@@ -111,6 +112,7 @@ public class ArchiveIndexer {
         ArchiveRoot archiveRoot = new ArchiveRoot();
         archiveRoot.setArchive(csar);
         archiveRoot.setTopology(topology);
+        csar.setHasTopology(true);
 
         // dispatch event before indexing
         publisher.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
@@ -262,23 +264,22 @@ public class ArchiveIndexer {
         }
 
         // init the workflows
-        WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
-                .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
-                    @Override
-                    public String getDSLVersion() {
-                        return archiveRoot.getArchive().getToscaDefinitionsVersion();
-                    }
+        TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new TopologyContext() {
+            @Override
+            public String getDSLVersion() {
+                return archiveRoot.getArchive().getToscaDefinitionsVersion();
+            }
 
-                    @Override
-                    public Topology getTopology() {
-                        return topology;
-                    }
+            @Override
+            public Topology getTopology() {
+                return topology;
+            }
 
-                    @Override
-                    public <T extends AbstractToscaType> T findElement(Class<T> clazz, String elementId) {
-                        return ToscaContext.get(clazz, elementId);
-                    }
-                });
+            @Override
+            public <T extends AbstractToscaType> T findElement(Class<T> clazz, String elementId) {
+                return ToscaContext.get(clazz, elementId);
+            }
+        });
         workflowBuilderService.initWorkflows(topologyContext);
 
         parsingErrors.add(

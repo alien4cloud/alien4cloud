@@ -7,6 +7,6 @@ import alien4cloud.exception.TechnicalException;
  */
 public class RequirementBoundException extends TechnicalException {
     public RequirementBoundException(String nodeTemplateName, String requirementName) {
-        super("UpperBound reached on requirement <" + requirementName + "> on node <" + nodeTemplateName + ">.");
+        super("UpperBound reached on requirement [" + requirementName + "] on node [" + nodeTemplateName + "].");
     }
 }

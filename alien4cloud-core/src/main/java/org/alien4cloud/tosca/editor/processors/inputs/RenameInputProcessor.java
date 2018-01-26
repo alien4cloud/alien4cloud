@@ -2,12 +2,17 @@ package org.alien4cloud.tosca.editor.processors.inputs;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 
-import org.alien4cloud.tosca.editor.EditionContextManager;
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.editor.EditorFileService;
+import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.editor.operations.inputs.RenameInputOperation;
+import org.alien4cloud.tosca.editor.processors.UpdateFileProcessor;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -17,12 +22,14 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
+import org.alien4cloud.tosca.variable.QuickFileStorageService;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.utils.YamlParserUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,6 +38,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOperation> {
+
+    @Inject
+    private QuickFileStorageService quickFileStorageService;
+    @Inject
+    private EditorFileService editorFileService;
+    @Inject
+    private UpdateFileProcessor updateFileProcessor;
+
     @Override
     protected void processInputOperation(Csar csar, Topology topology, RenameInputOperation operation, Map<String, PropertyDefinition> inputs) {
         if (!inputs.containsKey(operation.getInputName())) {
@@ -64,6 +79,9 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
             }
         }
 
+        // rename preconfigured input
+        renamePreconfiguredInput(csar, topology, operation);
+
         log.debug("Change the name of an input parameter [ {} ] to [ {} ] for the topology ", operation.getInputName(), operation.getNewInputName(),
                 topology.getId());
     }
@@ -87,6 +105,26 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
                 }
             }
         }
+    }
+
+    /**
+     * Rename the preconfigured input entry in the inputs file
+     *
+     * @param csar
+     * @param topology
+     * @param operation
+     */
+    private void renamePreconfiguredInput(Csar csar, Topology topology, RenameInputOperation operation) {
+        Map<String, Object> variables = editorFileService.loadInputsVariables(csar.getId());
+        if (!variables.containsKey(operation.getInputName())) {
+            return;
+        }
+        Object value = variables.remove(operation.getInputName());
+        variables.put(operation.getNewInputName(), value);
+        UpdateFileOperation updateFileOperation = new UpdateFileOperation(quickFileStorageService.getRelativeInputsFilePath(),
+                new ByteArrayInputStream(YamlParserUtil.dumpAsMap(variables).getBytes(StandardCharsets.UTF_8)));
+
+        updateFileProcessor.process(csar, topology, updateFileOperation);
     }
 
     @Override

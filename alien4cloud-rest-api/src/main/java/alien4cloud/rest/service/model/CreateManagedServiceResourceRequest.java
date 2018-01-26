@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 @ApiModel("Request for creation of a new service.")
 public class CreateManagedServiceResourceRequest {
     @NotEmpty

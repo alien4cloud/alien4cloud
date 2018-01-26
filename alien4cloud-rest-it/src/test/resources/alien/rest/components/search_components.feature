@@ -63,12 +63,3 @@ Feature: Components Search
     When I search for "capability types" from 0 with result size of 100
     Then I should receive a RestResponse with no error
       And The response should contains 20 "capability types".
-
-  ## Pagination is broken in the new elasticsearch with aggregations
-#  @reset
-#  Scenario: Searching for next elements should return other elements than first request
-#    Given There is 20 "node types" with base name "" indexed in ALIEN
-#      And I have already made a query to search the 10 first "node types"
-#    When I search for "node types" from 10 with result size of 10
-#    Then I should receive a RestResponse with no error
-#      And The response should contains 10 other "node types".

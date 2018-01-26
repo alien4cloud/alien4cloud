@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class GetInputCandidatesRequest {
     String applicationEnvironmentId;
     String applicationTopologyVersion;

@@ -49,10 +49,10 @@ public class DeploymentConfigurationDao {
             if (ArrayUtils.isNotEmpty(bytes)) {
                 config = YamlParserUtil.parse(new String(bytes, StandardCharsets.UTF_8), clazz);
             }
-        }else{
+        } else {
             // Any data to migrate?
             config = alienDao.findById(clazz, id);
-            if(config != null){
+            if (config != null) {
                 // migrating data from ES to Git
                 save(config);
                 alienDao.delete(clazz, id);
@@ -75,22 +75,21 @@ public class DeploymentConfigurationDao {
         Files.write(path, yaml.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
-    public void deleteAllByTopologyVersionId(String versionId) {
+    public void deleteAllByTopologyVersionId(String applicationId, String versionId) {
         // delete local branch + related stash
-        List<Path> paths = localGitRepositoryPathResolver.findAllLocalDeploymentConfigGitPath();
+        List<Path> paths = localGitRepositoryPathResolver.findAllEnvironmentSetupLocalPath(applicationId);
         for (Path path : paths) {
             try {
                 RepositoryManager.dropStash(path, "a4c_stash_" + versionId);
                 RepositoryManager.deleteBranch(path, versionId, false);
-            }
-            catch(GitException e){
-                log.error("Error when deleting data related to the topology version <" + versionId + "> from local git.",e);
+            } catch (GitException e) {
+                log.error("Error when deleting data related to the topology version <" + versionId + "> from local git.", e);
             }
         }
     }
 
-    public void deleteAllByEnvironmentId(String environmentId) {
-        Path path = localGitRepositoryPathResolver.findLocalPathRelatedToEnvironment(environmentId);
+    public void deleteAllByEnvironmentId(String applicationId, String environmentId) {
+        Path path = localGitRepositoryPathResolver.findEnvironmentSetupLocalPath(applicationId, environmentId);
         deleteDirectory(path);
     }
 

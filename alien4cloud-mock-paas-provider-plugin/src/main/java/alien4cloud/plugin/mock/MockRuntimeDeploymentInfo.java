@@ -11,7 +11,7 @@ import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 
 @Getter
 @Setter
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class MockRuntimeDeploymentInfo {
     private PaaSTopologyDeploymentContext deploymentContext;
     private DeploymentStatus status;

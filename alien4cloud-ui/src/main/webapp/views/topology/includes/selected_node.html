@@ -134,6 +134,28 @@
   </div>
 </div>
 
+<!-- Docker image simple artifact override -->
+<div ng-if="isDockerType(selectedNodeTemplate)">
+  <div id="node-details-docker" class="clickable topology-column-content-head"
+       ng-click="isDockerCollapsed = !isDockerCollapsed">
+    <i class="fa" ng-class="{'fa-caret-down' : !isDockerCollapsed, 'fa-caret-right': isDockerCollapsed}"></i>
+    Docker
+  </div>
+  <div id="node-details-docker-panel" uib-collapse="isDockerCollapsed" class="row">
+    <div class="col-md-12">
+      <label class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': !dockerImage.defined}">Image
+      </label>
+      <div class="col-md-8">
+        <span editable-text="dockerImage.value" buttons="no"
+              onbeforesave="nodes.updateDockerImage($data)" blur="submit">
+          {{dockerImage.value | truncate:30}}
+          <span class="fa fa-pencil-square-o clickable"></span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Properties -->
 <div ng-if="selectedNodeTemplate.properties.length > 0">
   <div id="node-details-properties" class="clickable topology-column-content-head"

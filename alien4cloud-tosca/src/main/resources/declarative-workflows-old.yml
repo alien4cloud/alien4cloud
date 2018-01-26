@@ -135,36 +135,48 @@ relationship_workflows:
     # If we join all source and operation dependencies, we have a relationship workflow
     # source.stop -> remove_target -> remove_source
     operations:
-      # source.stop -> remove_target -> remove_source
       remove_source:
-        preceding_operations: [ remove_target ]
+        # target.stopping -> remove_source -> stop
+        target:
+          preceding_state: stopping
+          following_operations: [ stop ]
         operation_host: TARGET
       remove_target:
+        # source.stopping -> remove_target -> stop
         source:
-          preceding_operations: [ stop ]
+          preceding_state: stopping
+          following_operations: [ stop ]
         operation_host: SOURCE
 
   start:
     operations:
       add_source:
+        # [ source.started, target.started] -> add_source
         source:
-          preceding_operations: [ start ]
-          following_state: started
+          preceding_state: started
+        target:
+          preceding_state: started
         operation_host: TARGET
       add_target:
+        # [ source.started, target.started] -> add_target
         source:
-          preceding_operations: [ start ]
-          following_state: started
+          preceding_state: started
+        target:
+          preceding_state: started
         operation_host: SOURCE
   stop:
     operations:
-      # source.stop -> remove_target -> remove_source
       remove_source:
-        preceding_operations: [ remove_target ]
+        # target.stopping -> remove_source -> stop
+        target:
+          preceding_state: stopping
+          following_operations: [ stop ]
         operation_host: TARGET
       remove_target:
+        # source.stopping -> remove_target -> stop
         source:
-          preceding_operations: [ stop ]
+          preceding_state: stopping
+          following_operations: [ stop ]
         operation_host: SOURCE
 
 relationships_weaving:

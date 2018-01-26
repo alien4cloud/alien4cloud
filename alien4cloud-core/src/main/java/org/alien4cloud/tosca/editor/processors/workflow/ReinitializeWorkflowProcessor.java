@@ -1,6 +1,5 @@
 package org.alien4cloud.tosca.editor.processors.workflow;
 
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.ReinitializeWorkflowOperation;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -21,7 +20,7 @@ public class ReinitializeWorkflowProcessor extends AbstractWorkflowProcessor<Rei
     protected void processWorkflowOperation(Csar csar, Topology topology, ReinitializeWorkflowOperation operation, Workflow workflow) {
         ensureStandard(workflow, "Non standard workflow <" + workflow.getName() + "> can not be reinitialized");
         log.debug("reinitializing workflow [ {} ] from topology [ {} ]", workflow.getName(), topology.getId());
-        workflowBuilderService.reinitWorkflow(workflow.getName(), workflowBuilderService.buildTopologyContext(topology, csar));
+        workflowBuilderService.reinitWorkflow(workflow.getName(), workflowBuilderService.buildTopologyContext(topology, csar), true);
     }
 
 }

@@ -20,11 +20,11 @@
         <img ng-if="!noshow && application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" />
       </div>
       <div class="col-md-8">
-        <div id="app-name" class="h1" style="display: inline-block;" ng-switch="isManager">
-          <span ng-switch-when="true" editable-text="application.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateApplication('name',$data)" blur="submit" ng-if="isManager">
-            {{application.name}} <i class="fa fa-edit"></i>
+        <div id="app-name" class="h1" ng-switch="isManager">
+          <span ng-switch-when="true" uib-tooltip="{{application.name}}" editable-text="application.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateApplication('name',$data)" blur="submit" ng-if="isManager">
+            <span>{{application.name}}</span> <i class="fa fa-edit"></i>
           </span>
-          <span ng-switch-default>
+          <span ng-switch-default uib-tooltip="{{application.name}}">
             {{application.name}}
           </span>
         </div>
@@ -99,7 +99,7 @@
       <!-- inplace search bar-->
         <form class="grp-margin">
           <div class="input-group">
-            <input id="inplace-search-query" type="text" class="form-control input-sm" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchEnv" style="padding-left: {{searchPadding}}px;">
+            <input id="inplace-search-query" type="text" class="form-control input-sm" placeholder="{{'COMMON.SEARCH' | translate}}" ng-model="searchEnv.name" style="padding-left: {{searchPadding}}px;">
               <div class="input-group-addon"><i class="fa fa-search"></i></div>
           </div>
         </form>

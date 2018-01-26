@@ -16,6 +16,10 @@ public class AddNodeOperation extends AbstractNodeOperation {
     private String indexedNodeTypeId;
     /** Optional location of the node on the canvas. */
     private Point coords;
+    /** If specified dangling requirement autocompletion will skip the given requirement. */
+    private String requirementSkipAutoCompletion;
+    /** Optional flag to skip auto-completion when adding node. */
+    private boolean skipAutoCompletion = false;
 
     @Override
     public String commitMessage() {
