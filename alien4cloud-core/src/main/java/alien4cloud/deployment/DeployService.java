@@ -296,9 +296,11 @@ public class DeployService {
         alienMonitorDao.save(deploymentTopology);
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
-
-        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = secretProviderService.generateSecretConfiguration(locations,
-                secretProviderCredentials);
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = null;
+        if (secretProviderCredentials != null) {
+            secretProviderConfigurationAndCredentials = secretProviderService.generateToken(locations, secretProviderCredentials.getPluginName(),
+                    secretProviderCredentials);
+        }
 
         PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials,
                 deployment, locations, deploymentTopology);
