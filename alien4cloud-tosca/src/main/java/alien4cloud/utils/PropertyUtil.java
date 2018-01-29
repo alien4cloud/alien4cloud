@@ -278,7 +278,7 @@ public final class PropertyUtil {
      * @param source    the source map
      * @param target    the target map
      * @param overrideNull  a boolean value for override the null value of target
-     * @param untouched the list of unmodified key //TODO need to reorganise
+     * @param untouched the list of unmodified key //TODO not used and it needs to be reorganised
      * @return  a merged map
      */
     public static Map<String, AbstractPropertyValue> merge(Map<String, AbstractPropertyValue> source, Map<String, AbstractPropertyValue> target,
@@ -302,8 +302,6 @@ public final class PropertyUtil {
                             untouched);
                     target.put(sourceKey, (AbstractPropertyValue) mergedMap);
                 }
-            } else {
-                // untouched.add(entry.getKey());
             }
         }
         return target;
@@ -325,8 +323,6 @@ public final class PropertyUtil {
                             untouched);
                     target.put(sourceKey, mergedValue);
                 }
-            } else {
-                // untouched.add(entry.getKey());
             }
         }
         return target;
