@@ -75,6 +75,9 @@
     "META_PROPERTIES": "Meta-properties",
     "NEW": "New Application",
     "RUNTIME": {
+      "WORKFLOW" : {
+        "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully."
+      },
       "BACK": "Back",
       "DEPLOYMENT": "Deployment",
       "EVENTS": {
@@ -819,6 +822,10 @@
     "616": "You are not authorized to clone this Git repository. Please check your credentials.",
     "617": "No modification have been detected since the last import process",
     "618": "Invalid name. It is recommended to use alphanumeric character from the basic Latin alphabet and the underscrore only.",
+    "619" : {
+      "TITLE" : "Workflow execution",
+      "MESSAGE" : "Workflow {{workflowId}} fails to be executed."
+    },
     "650": "At least two of your Compute have a conflict name.",
     "651": "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "680": "The Git repository url doesn't exists or isn't a correct one.",
