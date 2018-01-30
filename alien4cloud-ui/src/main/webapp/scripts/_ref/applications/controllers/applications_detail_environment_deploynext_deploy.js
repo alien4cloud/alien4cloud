@@ -146,7 +146,7 @@ define(function (require) {
         // - the status is one of DEPLOYED , UPDATED,
         // - the current selectedlocation is the same as the one of the deployed topology
         $scope.isUpdatable = function () {
-          return _.includes(['DEPLOYED', 'UPDATED'], $scope.environment.status) &&
+          return _.includes(['DEPLOYED', 'UPDATED', 'UPDATE_FAILURE'], $scope.environment.status) &&
             _.definedPath($scope.deploymentTopologyDTO, 'locationPolicies._A4C_ALL') &&
             _.get($scope.deploymentTopologyDTO, 'locationPolicies._A4C_ALL') === _.get($scope.deployedTopology, 'topology.locationGroups._A4C_ALL.policies[0].locationId');
         };

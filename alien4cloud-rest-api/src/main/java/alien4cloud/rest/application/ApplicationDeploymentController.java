@@ -597,7 +597,7 @@ public class ApplicationDeploymentController {
                         @Override
                         public void onFailure(Throwable e) {
                             result.setErrorResult(
-                                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
+                                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.RUNTIME_WORKFLOW_ERROR.getCode(), e.getMessage())).build());
                         }
                     });
         } catch (OrchestratorDisabledException e) {

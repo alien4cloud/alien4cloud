@@ -1,4 +1,4 @@
-// Display the modal of credentias if necessary
+// Display the modal of credentials if necessary
 define(function (require) {
   'use strict';
 
