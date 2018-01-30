@@ -110,15 +110,18 @@ public class ComplexPropertyMergeTest {
 
     @Test
     public void mergeComplexProperty() {
-        int max = 5;
-
-        for (int i=1; i<max; i++) {
+        int i=1;
+        while (true) {
             NodeTemplate source = topology.getNodeTemplates().get("Source" + i);
+            if (source == null) {
+                break;
+            }
             NodeTemplate target = topology.getNodeTemplates().get("Target" + i);
             NodeTemplate expected = topology.getNodeTemplates().get("Merged" + i);
             Set<String> untouchable = Sets.newHashSet();
             Map<String, AbstractPropertyValue> actual = PropertyUtil.merge(source.getProperties(), target.getProperties(), true, untouchable);
             Assert.assertEquals("Merge result of Source" + i + " and Target" + i, expected.getProperties(), actual);
+            i++;
         }
 
     }
