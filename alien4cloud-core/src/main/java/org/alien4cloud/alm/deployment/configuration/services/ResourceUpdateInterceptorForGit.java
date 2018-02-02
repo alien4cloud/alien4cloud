@@ -65,7 +65,7 @@ public class ResourceUpdateInterceptorForGit {
         });
     }
 
-    private void checkoutVersionBranch(ApplicationEnvironment environment) {
+    public void checkoutVersionBranch(ApplicationEnvironment environment) {
         GitLocation location = gitLocationDao.findDeploymentSetupLocation(environment.getApplicationId(), environment.getId());
         location.setBranch(environment.getTopologyVersion());
         localGitManager.checkout(location);
