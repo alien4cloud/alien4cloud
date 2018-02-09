@@ -63,7 +63,7 @@ public abstract class AbstractToscaType implements IDatableResource, IWorkspaceR
     private String workspace;
 
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
-    @StringFieldMulti(main = @StringField(indexType = IndexType.analyzed), multiNames = "rawElementId", multi = @StringField(includeInAll = false, indexType = IndexType.not_analyzed))
+    @StringFieldMulti(main = @StringField(indexType = IndexType.analyzed, analyser = "simple"), multiNames = "rawElementId", multi = @StringField(includeInAll = false, indexType = IndexType.not_analyzed))
     @TermFilter
     private String elementId;
 
