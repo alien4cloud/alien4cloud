@@ -8,6 +8,12 @@ define(function(require) {
       return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId');
     }
   ]);
+  
+  modules.get('a4c-orchestrators', ['a4c-common']).factory('locationSecretService', ['$alresource',
+    function($alresource) {
+      return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/secret-conf');
+    }
+  ]);
 
   modules.get('a4c-orchestrators', ['a4c-common']).factory('locationResourcesService', ['$alresource',
     function($alresource) {

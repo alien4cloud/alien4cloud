@@ -15,7 +15,12 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Lists;
 
@@ -111,13 +116,24 @@ public class LocationController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
+    @ApiOperation(value = "Delete the secret configuration for the given locaiton.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/secret-conf", method = RequestMethod.DELETE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<Void> deleteSecretConfiguration(
+            @ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location to update", required = true) @PathVariable String id) {
+        Location location = locationService.getOrFail(id);
+        String currentName = location.getName();
+        location.setSecretProviderConfiguration(null);
+        locationService.ensureNameUnicityAndSave(location, currentName);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
     private SecretProviderConfigurationsDTO getSecretConfigurations(Location location) {
         Set<String> availablePlugins = secretProviderService.getAvailablePlugins();
-        Map<String, Map<String, Object>> genericFormDescriptionByPluginName = availablePlugins.stream()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        pluginName -> pojoFormDescriptorGenerator.generateDescriptor(secretProviderService.getPluginConfigurationDescriptor(pluginName)))
-                );
+        Map<String, Map<String, Object>> genericFormDescriptionByPluginName = availablePlugins.stream().collect(Collectors.toMap(Function.identity(),
+                pluginName -> pojoFormDescriptorGenerator.generateDescriptor(secretProviderService.getPluginConfigurationDescriptor(pluginName))));
 
         SecretProviderConfigurationsDTO dto = new SecretProviderConfigurationsDTO();
         dto.setCurrentConfiguration(location.getSecretProviderConfiguration());

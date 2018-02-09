@@ -1086,6 +1086,7 @@
         "LDAP" : "LDAP",
         "NEED_SECRET" : " might need credentials to resolve secret",
         "NO_SECRET_PLUGIN" : "No secret plugin found.",
+        "DELETE_SECRET_CONF": "Delete configuration",
         "PLUGIN_NAME" : "Plugin name",
         "SECRET" : "Secret",
         "TOKEN" : "Token",

@@ -1,11 +1,26 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
 
-import javax.inject.Inject;
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
+import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
+import org.alien4cloud.secret.services.SecretProviderService;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.deployment.matching.services.location.LocationMatchingService;
@@ -18,20 +33,7 @@ import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.exception.MissingPluginException;
 import alien4cloud.topology.validation.LocationPolicyValidationService;
 import alien4cloud.tosca.context.ToscaContext;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
-import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
-import org.alien4cloud.secret.services.SecretProviderService;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-
-import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * This processor actually does not change the topology but check that location settings are defined and up-to-date in order to allow other processors to
@@ -60,8 +62,8 @@ public class LocationMatchingModifier implements ITopologyModifier {
         // first process
         processLocationMatching(topology, context);
 
-        Optional<DeploymentMatchingConfiguration> configurationOptional = context
-                .getConfiguration(DeploymentMatchingConfiguration.class, LocationMatchingModifier.class.getSimpleName());
+        Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
+                LocationMatchingModifier.class.getSimpleName());
 
         // perform validation
         locationPolicyValidationService.validateLocationPolicies(configurationOptional.orElse(new DeploymentMatchingConfiguration()))
@@ -72,8 +74,9 @@ public class LocationMatchingModifier implements ITopologyModifier {
             Map<String, Location> selectedLocations = (Map<String, Location>) context.getExecutionCache()
                     .get(FlowExecutionContext.DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY);
 
-            List<Location> locationsWithVault = selectedLocations.values().stream().filter(location -> location.getSecretProviderConfiguration() != null
-                    && location.getSecretProviderConfiguration().getConfiguration() != null).collect(Collectors.toList());
+            List<Location> locationsWithVault = selectedLocations.values().stream().filter(
+                    location -> location.getSecretProviderConfiguration() != null && location.getSecretProviderConfiguration().getConfiguration() != null)
+                    .collect(Collectors.toList());
             boolean needVaultCredential = locationsWithVault.size() > 0;
             if (needVaultCredential) {
                 List<SecretCredentialInfo> secretCredentialInfos = new LinkedList<>();
@@ -102,16 +105,6 @@ public class LocationMatchingModifier implements ITopologyModifier {
         }
     }
 
-    private boolean needVaultCredential(Map<String, Location> selectedLocations) {
-        for (Location location : selectedLocations.values()) {
-            boolean needVaultKey = StringUtils.isNotBlank(location.getSecretProviderConfiguration().getPluginName());
-            if (needVaultKey) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void injectLocationTopologyModfier(FlowExecutionContext context, String locationName, LocationModifierReference modifierReference) {
         try {
             ITopologyModifier modifier = pluginModifierRegistry.getPluginBean(modifierReference.getPluginId(), modifierReference.getBeanName());
@@ -122,16 +115,15 @@ public class LocationMatchingModifier implements ITopologyModifier {
             }
             phaseModifiers.add(modifier);
         } catch (MissingPluginException e) {
-            context.log()
-                    .error("Location {} defines modifier that refers to plugin bean {}, {} cannot be found.", locationName, modifierReference.getPluginId(),
-                            modifierReference.getBeanName());
+            context.log().error("Location {} defines modifier that refers to plugin bean {}, {} cannot be found.", locationName,
+                    modifierReference.getPluginId(), modifierReference.getBeanName());
         }
     }
 
     private void processLocationMatching(Topology topology, FlowExecutionContext context) {
         // The configuration has already been loaded by a previous topology modifier.
-        Optional<DeploymentMatchingConfiguration> configurationOptional = context
-                .getConfiguration(DeploymentMatchingConfiguration.class, LocationMatchingModifier.class.getSimpleName());
+        Optional<DeploymentMatchingConfiguration> configurationOptional = context.getConfiguration(DeploymentMatchingConfiguration.class,
+                LocationMatchingModifier.class.getSimpleName());
 
         if (!configurationOptional.isPresent()) {
             return;

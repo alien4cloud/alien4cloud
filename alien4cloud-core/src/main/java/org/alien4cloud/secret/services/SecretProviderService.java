@@ -34,7 +34,7 @@ public class SecretProviderService {
         return secretProviderRegistry.getInstancesByPlugins().keySet();
     }
 
-    public ISecretProvider getPluginBean(String pluginName) {
+    private ISecretProvider getPluginBean(String pluginName) {
         Map<String, ISecretProvider> secretBeansMap = secretProviderRegistry.getInstancesByPlugins().get(pluginName);
         if (secretBeansMap == null) {
             throw new NotFoundException("No secret provider plugin is found in the system with name [" + pluginName + "]");
@@ -112,10 +112,7 @@ public class SecretProviderService {
     }
 
     public boolean isSecretProvided(SecretProviderConfigurationAndCredentials configurationAndCredentials) {
-        if (configurationAndCredentials == null || configurationAndCredentials.getCredentials() == null
-                || configurationAndCredentials.getSecretProviderConfiguration() == null) {
-            return false;
-        }
-        return true;
+        return configurationAndCredentials != null && configurationAndCredentials.getCredentials() != null
+                && configurationAndCredentials.getSecretProviderConfiguration() != null;
     }
 }

@@ -1086,6 +1086,7 @@
         "LDAP" : "LDAP",
         "NEED_SECRET" : " 可能需要凭证来解决秘密",
         "NO_SECRET_PLUGIN" : "找不到任何解决秘密的插件",
+        "DELETE_SECRET_CONF": "删除配置",
         "PLUGIN_NAME" : "插件名字",
         "SECRET" : "秘密",
         "TOKEN" : "Token",
