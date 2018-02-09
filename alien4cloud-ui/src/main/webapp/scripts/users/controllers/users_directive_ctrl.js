@@ -118,7 +118,7 @@ define(function (require) {
         var searchRequest = {
           query: groupQuery,
           from: 0,
-          size: 20
+          size: 100000
         };
         groupServices.search([], angular.toJson(searchRequest), function(results) {
           $scope.tempGroups = results.data.data;
