@@ -1,16 +1,21 @@
 package org.alien4cloud.tosca.variable;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.core.env.MapPropertySource;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -118,7 +123,13 @@ public class InputsMappingFileVariableResolver {
                     PropertyDefinition propertyDefinition = inputsDefinition.get(propertyName);
                     PropertyValue convertedPropertyValue;
                     if (resolvedPropertyValue != null && propertyDefinition != null) {
-                        convertedPropertyValue = converter.toPropertyValue(resolvedPropertyValue, propertyDefinition);
+                        try {
+                            convertedPropertyValue = converter.toPropertyValue(resolvedPropertyValue, propertyDefinition);
+                        } catch (IllegalStateException e) {
+                            // make the propertyValue based on the type of resolvedPropertyValue, and let the property constraint checker validate the type
+                            // later
+                            convertedPropertyValue = toDefaultType(resolvedPropertyValue);
+                        }
                         if (convertedPropertyValue != null) {
                             resolved.put(propertyName, convertedPropertyValue);
                         }
@@ -128,10 +139,16 @@ public class InputsMappingFileVariableResolver {
                 getPropertySources().remove(inputMappingMapPropertySource.getName());
             }
 
-            // if (missingVariables.size() > 0) {
-            // throw new MissingVariablesException(missingVariables, unresolvableInputs);
-            // }
             return new InputsResolvingResult(resolved, unresolvableInputs, missingVariables);
+        }
+
+        private PropertyValue toDefaultType(Object resolvedPropertyValue) {
+            if (resolvedPropertyValue instanceof Map) {
+                return new ComplexPropertyValue((Map) resolvedPropertyValue);
+            } else if (resolvedPropertyValue instanceof Collection) {
+                return new ListPropertyValue(Lists.newArrayList((Collection) resolvedPropertyValue));
+            }
+            return new ScalarPropertyValue(resolvedPropertyValue.toString());
         }
     }
 
