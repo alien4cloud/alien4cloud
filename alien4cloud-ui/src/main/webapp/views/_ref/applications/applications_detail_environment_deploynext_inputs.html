@@ -20,7 +20,7 @@
         <div class="text-danger"
              ng-repeat="(inputName, violation) in deploymentTopologyDTO.validation.taskList['PREDEFINED_INPUTS_CONSTRAINT_VIOLATION'][0].violatingInputs">
             <i class="fa fa-times-circle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{
-            'ERRORS.SERVER_LOG.PREDEFINED_INPUTS_CONSTRAINT_VIOLATION' | translate:{inputName: inputName} }}{{'ERRORS.800.'+violation.name | translate:violation }}</b></em>
+            'ERRORS.SERVER_LOG.PREDEFINED_INPUTS_CONSTRAINT_VIOLATION' | translate:{inputName: inputName} }}: <span ng-if="violation.name">{{'ERRORS.800.'+violation.name | translate:violation }}</span><span ng-if="!violation.name">{{violation.reference}}</span></b></em>
         </div>
     </div>
 

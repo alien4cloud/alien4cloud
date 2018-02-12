@@ -884,7 +884,7 @@
     "INTERNAL" : "Internal error",
     "SERVER_LOG" : {
       "MISSING_VARIABLES" : "Missing variables: {{variables}}. Please contact the application manager.",
-      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "Constraint violation on predefined input <{{name}}>: ",
+      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "Constraint violation on predefined input <{{inputName}}>",
       "PREDEFINED_INPUTS_TYPE_VIOLATION" : "Type mismatch on predefined input <{{name}}>: Value must be of type {{type}}",
       "UNRESOLVABLE_PREDEFINED_INPUTS" : "Unresolvable predefined inputs: {{unresolvableInputs}}. Please contact the application manager."
     },

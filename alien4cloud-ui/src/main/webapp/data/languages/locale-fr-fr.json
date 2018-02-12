@@ -884,7 +884,7 @@
     "INTERNAL" : "Erreur interne",
     "SERVER_LOG" : {
       "MISSING_VARIABLES" : "Variables manquantes: {{variables}}. Veuillez contacter le manager de l'application.",
-      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "Violation de contrainte sur l'input prédéfini <{{name}}>: ",
+      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "Violation de contrainte sur l'input prédéfini <{{inputName}}>: ",
       "PREDEFINED_INPUTS_TYPE_VIOLATION" : "Incompatibilité de type sur l'input prédéfini <{{name}}>: La valeur doit être de type {{type}}",
       "UNRESOLVABLE_PREDEFINED_INPUTS" : "Inputs prédéfini non resolvables: {{unresolvableInputs}}. Veuillez contacter le manager de l'application."
     },
