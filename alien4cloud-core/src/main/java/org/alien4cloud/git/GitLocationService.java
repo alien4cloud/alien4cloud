@@ -1,6 +1,7 @@
 package org.alien4cloud.git;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -128,7 +129,7 @@ public class GitLocationService {
         gitLocationDao.save(newGitLocation);
 
         // copy all files that where defined and does not exist in the new repository.
-        if (tempPath != null) {
+        if (Files.exists(tempPath)) {
             User currentUser = AuthorizationUtil.getCurrentUser();
             FileUtil.copy(tempPath, localGitManager.getLocalGitPath(newGitLocation), true);
             localGitManager.commitAndPush(newGitLocation, currentUser.getUsername(), currentUser.getEmail(),
