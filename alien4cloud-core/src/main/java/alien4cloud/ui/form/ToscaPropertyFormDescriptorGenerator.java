@@ -4,6 +4,7 @@ import static alien4cloud.ui.form.GenericFormConstants.ARRAY_TYPE;
 import static alien4cloud.ui.form.GenericFormConstants.COMPLEX_TYPE;
 import static alien4cloud.ui.form.GenericFormConstants.CONTENT_TYPE_KEY;
 import static alien4cloud.ui.form.GenericFormConstants.MAP_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.NOT_NULL_KEY;
 import static alien4cloud.ui.form.GenericFormConstants.ORDER_KEY;
 import static alien4cloud.ui.form.GenericFormConstants.PROPERTY_TYPE_KEY;
 import static alien4cloud.ui.form.GenericFormConstants.TOSCA_DEFINITION_KEY;
@@ -19,6 +20,7 @@ import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.PrimitiveDataType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
@@ -26,7 +28,6 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
-import org.alien4cloud.tosca.normative.types.ToscaTypes;
 
 @Component
 public class ToscaPropertyFormDescriptorGenerator {
@@ -39,8 +40,9 @@ public class ToscaPropertyFormDescriptorGenerator {
     }
 
     private Map<String, Object> doGenerateDescriptor(Set<String> processedDataTypes, PropertyDefinition propertyDefinition, Set<CSARDependency> dependencies) {
+        Map<String, Object> dataTypeDescriptors;
         if (ToscaTypes.isSimple(propertyDefinition.getType())) {
-            return generateDescriptorForSimpleType(propertyDefinition);
+            dataTypeDescriptors = generateDescriptorForSimpleType(propertyDefinition);
         } else if (ToscaTypes.LIST.equals(propertyDefinition.getType())) {
             PropertyDefinition entryDefinition = propertyDefinition.getEntrySchema();
             if (entryDefinition == null) {
@@ -52,18 +54,22 @@ public class ToscaPropertyFormDescriptorGenerator {
             if (entryDefinition == null) {
                 throw new InvalidArgumentException("Map type without entry schema");
             }
-            return generateDescriptorForMapType(processedDataTypes, entryDefinition, dependencies);
+            dataTypeDescriptors = generateDescriptorForMapType(processedDataTypes, entryDefinition, dependencies);
         } else {
             DataType dataType = csarRepositorySearchService.getElementInDependencies(DataType.class, propertyDefinition.getType(), dependencies);
             if (dataType == null) {
                 throw new InvalidArgumentException("Data type <" + propertyDefinition.getType() + "> do not exist in dependencies " + dependencies);
             }
             if (processedDataTypes.add(dataType.getElementId())) {
-                return generateDescriptorForDataType(processedDataTypes, dataType, dependencies);
+                dataTypeDescriptors = generateDescriptorForDataType(processedDataTypes, dataType, dependencies);
             } else {
-                return generateDescriptorForSimpleType(propertyDefinition);
+                dataTypeDescriptors = generateDescriptorForSimpleType(propertyDefinition);
             }
         }
+        if (propertyDefinition.isRequired()) {
+            dataTypeDescriptors.put(NOT_NULL_KEY, true);
+        }
+        return dataTypeDescriptors;
     }
 
     private Map<String, Object> generateDescriptorForDataType(Set<String> processedDataTypes, DataType dataType, Set<CSARDependency> dependencies) {

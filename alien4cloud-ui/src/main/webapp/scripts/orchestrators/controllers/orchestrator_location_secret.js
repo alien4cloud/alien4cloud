@@ -1,6 +1,7 @@
 define(function (require) {
   'use strict';
   
+  var angular = require('angular');
   var modules = require('modules');
   var states = require('states');
   var _ = require('lodash');
@@ -30,8 +31,12 @@ define(function (require) {
       // populate the scope with the ncessary for location policies resources security
       //locationResourcesSecurity('rest/latest/orchestrators/:orchestratorId/locations/:locationId/policies', $scope);
       $scope.saveConfiguration = function () {
-        $scope.updateLocation({'secretProviderConfiguration': $scope.currentPluginConfiguration});
-        $scope.uiModel.locationDTO.secretProviderConfigurations.currentConfiguration = $scope.currentPluginConfiguration;
+        return locationSecretService.save({
+          orchestratorId: $scope.orchestrator.id,
+          locationId: $scope.uiModel.locationDTO.location.id
+        }, angular.toJson($scope.currentPluginConfiguration), function () {
+          $scope.uiModel.locationDTO.secretProviderConfigurations.currentConfiguration = $scope.currentPluginConfiguration;
+        }).$promise;
       };
       
       $scope.deleteConfiguration = function () {

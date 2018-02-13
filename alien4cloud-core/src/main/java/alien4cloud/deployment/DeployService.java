@@ -189,8 +189,8 @@ public class DeployService {
                     // Trigger post update workflow if defined in both the initial and current topologies.
                     if (deploymentTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null
                             && deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null) {
-                        scheduler.execute(
-                                () -> tryLaunchingPostUpdateWorkflow(System.currentTimeMillis(), existingDeployment, orchestratorPlugin, deploymentContext, callback));
+                        scheduler.execute(() -> tryLaunchingPostUpdateWorkflow(System.currentTimeMillis(), existingDeployment, orchestratorPlugin,
+                                deploymentContext, callback));
                     }
                 }
 
@@ -219,7 +219,7 @@ public class DeployService {
     }
 
     private void tryLaunchingPostUpdateWorkflow(long startTime, Deployment existingDeployment, IOrchestratorPlugin orchestratorPlugin,
-                                                PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Object> callback) {
+            PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Object> callback) {
         // We have to wait for status to be update success
         if ((System.currentTimeMillis() - startTime) < timeout) {
             orchestratorPlugin.getStatus(deploymentContext, new IPaaSCallback<DeploymentStatus>() {
@@ -234,6 +234,7 @@ public class DeployService {
                                         callback.onSuccess(data);
                                         log(existingDeployment, "Post update workflow execution completed successfully", null, PaaSDeploymentLogLevel.INFO);
                                     }
+
                                     @Override
                                     public void onFailure(Throwable throwable) {
                                         callback.onFailure(throwable);
@@ -244,8 +245,8 @@ public class DeployService {
                         log(existingDeployment, "Update failed, not launching post update workflow.", null, PaaSDeploymentLogLevel.WARN);
                     } else {
                         // re-schedule it in one second
-                        scheduler.schedule(() -> tryLaunchingPostUpdateWorkflow(startTime, existingDeployment, orchestratorPlugin, deploymentContext, callback), 1,
-                                TimeUnit.SECONDS);
+                        scheduler.schedule(() -> tryLaunchingPostUpdateWorkflow(startTime, existingDeployment, orchestratorPlugin, deploymentContext, callback),
+                                1, TimeUnit.SECONDS);
                     }
                 }
 
@@ -299,7 +300,7 @@ public class DeployService {
         SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = null;
         if (secretProviderCredentials != null) {
             secretProviderConfigurationAndCredentials = secretProviderService.generateToken(locations, secretProviderCredentials.getPluginName(),
-                    secretProviderCredentials);
+                    secretProviderCredentials.getCredentials());
         }
 
         PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials,

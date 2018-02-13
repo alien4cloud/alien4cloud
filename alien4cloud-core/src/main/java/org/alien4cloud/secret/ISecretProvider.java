@@ -1,5 +1,7 @@
 package org.alien4cloud.secret;
 
+import org.alien4cloud.secret.exception.SecretProviderException;
+
 import alien4cloud.model.secret.SecretAuthResponse;
 
 /**
@@ -35,4 +37,12 @@ public interface ISecretProvider<T> {
      * @return the secret auth response which contains the new configuration and the new credentials
      */
     SecretAuthResponse auth(T configuration, Object credentials);
+
+    /**
+     * Validate the given configuration
+     * 
+     * @param configuration the configuration
+     * @throws SecretProviderException exception if the configuration is invalid
+     */
+    void validateConfiguration(T configuration) throws SecretProviderException;
 }

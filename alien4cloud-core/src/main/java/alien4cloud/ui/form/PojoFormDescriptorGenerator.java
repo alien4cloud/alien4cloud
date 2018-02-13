@@ -32,12 +32,12 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.ui.form.annotation.FormContentTypes;
 import alien4cloud.ui.form.annotation.FormCustomType;
 import alien4cloud.ui.form.annotation.FormLabel;
@@ -198,6 +198,9 @@ public class PojoFormDescriptorGenerator {
             } else if (propertyDefinition != null) {
                 type.put(TYPE_KEY, TOSCA_TYPE);
                 type.put(TOSCA_DEFINITION_KEY, propertyDefinition);
+                if (propertyDefinition.isRequired()) {
+                    type.put(NOT_NULL_KEY, true);
+                }
             } else if (isPrimitive(propClazz)) {
                 // Primitive type
                 type = buildSimpleTypeDescriptor(propClazz);

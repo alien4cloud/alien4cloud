@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.secret.SecretProviderConfiguration;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.rest.model.RestResponse;
@@ -116,7 +117,22 @@ public class LocationController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Delete the secret configuration for the given locaiton.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Set the secret configuration for the given location.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/secret-conf", method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<Void> setSecretConfiguration(
+            @ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location to update", required = true) @PathVariable String id,
+            @RequestBody SecretProviderConfiguration secretProviderConfiguration) {
+        Location location = locationService.getOrFail(id);
+        secretProviderService.validateConfiguration(secretProviderConfiguration.getPluginName(), secretProviderConfiguration.getConfiguration());
+        location.setSecretProviderConfiguration(secretProviderConfiguration);
+        locationService.save(location);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Delete the secret configuration for the given location.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/secret-conf", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
@@ -124,9 +140,8 @@ public class LocationController {
             @ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to update", required = true) @PathVariable String id) {
         Location location = locationService.getOrFail(id);
-        String currentName = location.getName();
         location.setSecretProviderConfiguration(null);
-        locationService.ensureNameUnicityAndSave(location, currentName);
+        locationService.save(location);
         return RestResponseBuilder.<Void> builder().build();
     }
 

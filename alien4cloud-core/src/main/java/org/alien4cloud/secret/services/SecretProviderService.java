@@ -43,6 +43,10 @@ public class SecretProviderService {
         }
     }
 
+    public void validateConfiguration(String pluginName, Object pluginConfiguration) {
+        getPluginBean(pluginName).validateConfiguration(getPluginConfiguration(pluginName, pluginConfiguration));
+    }
+
     public Class<?> getPluginConfigurationDescriptor(String pluginName) {
         return getPluginBean(pluginName).getConfigurationDescriptor();
     }
