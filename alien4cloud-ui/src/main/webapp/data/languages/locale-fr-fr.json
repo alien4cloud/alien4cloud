@@ -301,6 +301,7 @@
       "UNSELECTED_HOLDER" : "Selectionner un element de scope sur la gauche pour afficher la valeur"
     },
     "VERSION" : {
+      "CHANGE_VERSION": "Sélectionnez la version et la variante que vous souhaitez associer à cet environnement.",
       "CHANGE_TOPO_VERSION_WARNING" : "Encore une chose: vous devez sélectionner une version de topologie pour valider le changement de version de l'application",
       "LABEL" : "Version d'application",
       "MODAL" : {

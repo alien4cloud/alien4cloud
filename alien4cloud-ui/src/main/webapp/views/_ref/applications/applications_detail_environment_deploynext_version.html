@@ -1,4 +1,4 @@
-<p style="margin-top:12px">Select the version you want attached to this environment (TODO: improve text + translate)</p>
+<p style="margin-top:12px" class="text-muted">{{ 'APPLICATIONS.VERSION.CHANGE_VERSION' | translate}}</p>
 
 <div ng-repeat="appVersion in archive.versions">
 
@@ -9,9 +9,9 @@
             <button ng-if="selectedTopologyVersion && appVersion.id === selectedAppVersion.id" type="button" class="btn btn-warning">{{ selectedTopologyVersion.qualifier || "default" }}</button>
 
             <!-- dropdown for seleting topology version -->
-            <ul ng-if="!selectedTopologyVersion && appVersion.id === selectedAppVersion.id" id="button_version_qualifier_container" 
+            <ul ng-if="!selectedTopologyVersion && appVersion.id === selectedAppVersion.id" id="button_version_qualifier_container"
                 ng-style="dropdown.style" class="dropdown-menu"
-                style="display: inline-block; 
+                style="display: inline-block;
                        position: absolute;
                        z-index:100;
                        left: 102%;

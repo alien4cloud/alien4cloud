@@ -70,12 +70,12 @@
                  ng-class="{'disabled' : menuItem.disabled}">
                 <i class="{{menuItem.icon}} fa-fw" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
               </a>
-              <h4 style="text-align:center; color:#999999;">{{menuItem.key | translate}}</h4>
+              <h4 style="text-align:center;" class="text-muted">{{menuItem.key | translate}}</h4>
             </div>
             <div class="col-md-2">
               <delete-confirm id="btn-delete-app" style="margin-left: 25px;" ng-if="isManager" func="removeApplication(application.id)" position="left" bssize="btn-rnd-menu" fastyle="fa-trash-o fa-fw">
               </delete-confirm>
-              <h4 style="text-align:center; color:#999999;">{{'DELETE' | translate}}</h4>
+              <h4 style="text-align:center;" class="text-muted">{{'DELETE' | translate}}</h4>
             </div>
           </div>
         </div>

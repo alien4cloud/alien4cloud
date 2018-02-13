@@ -301,6 +301,7 @@
       "UNSELECTED_HOLDER" : "选择左侧的范围项目以查看值"
     },
     "VERSION" : {
+      "CHANGE_VERSION": "Select the version and qualifier you want attached to this environment.",
       "CHANGE_TOPO_VERSION_WARNING" : "还有一件事情：您需要选择一个拓扑版本去确认应用版本的更改",
       "LABEL" : "应用版本",
       "MODAL" : {

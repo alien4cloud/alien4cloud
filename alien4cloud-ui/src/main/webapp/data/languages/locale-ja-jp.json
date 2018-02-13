@@ -301,6 +301,7 @@
       "UNSELECTED_HOLDER" : "TRANSLATION_IS_REQUIRED"
     },
     "VERSION" : {
+      "CHANGE_VERSION": "Select the version and qualifier you want attached to this environment.",
       "CHANGE_TOPO_VERSION_WARNING" : "One more thing : you need to select a topology version to validate the change of application version",
       "LABEL" : "Application version",
       "MODAL" : {
