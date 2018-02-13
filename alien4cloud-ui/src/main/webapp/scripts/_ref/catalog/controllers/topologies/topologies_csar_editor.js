@@ -18,7 +18,7 @@ define(function (require) {
     templateUrl: 'views/topology/topology_editor_layout.html',
     controller: 'TopologyEditorCtrl'
   });
-  registerEditorSubstates('editor_catalog_topology.editor');
+  registerEditorSubstates('editor_catalog_topology.editor', {inputs: {show: false}});
   states.forward('editor_catalog_topology', 'editor_catalog_topology.editor');
 
   modules.get('a4c-catalog').controller('CatalogTopoEditorCtrl',
