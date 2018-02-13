@@ -12,6 +12,7 @@
         "UNDEPLOYED_AT" : "卸载在"
       },
       "MATCHING" : {
+        "NEW": "New modifier",
         "CONFIGURATION" : "资源配置",
         "CONFIGURATION_HELP" : "您可以配置被选中的匹配资源的属性。注意一些已经被地点管理员定义好的属性，这些属性不能被覆盖。",
         "NODES_TITLE" : "节点匹配",

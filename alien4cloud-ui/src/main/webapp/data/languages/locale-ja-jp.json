@@ -12,6 +12,7 @@
         "UNDEPLOYED_AT" : "Undeployed at"
       },
       "MATCHING" : {
+        "NEW": "New modifier",
         "CONFIGURATION" : "Resource configuration",
         "CONFIGURATION_HELP" : "You can configure properties of the matched resource. Note that some properties have been defined by the location administrator. These properties cannot be overriden.",
         "NODES_TITLE" : "TRANSLATION_IS_REQUIRED",

@@ -12,6 +12,7 @@
         "UNDEPLOYED_AT" : "Un-déploié à"
       },
       "MATCHING" : {
+        "NEW": "Nouveau modifier",
         "CONFIGURATION" : "Configuration de la resource",
         "CONFIGURATION_HELP" : "Vous pouvez configurer la resource choisie. Notez que certaines propriétés ont été définies par l'administrateur de la location. Ces propriétés ne peuvent être surchargées.",
         "NODES_TITLE" : "Matching de noeuds",
