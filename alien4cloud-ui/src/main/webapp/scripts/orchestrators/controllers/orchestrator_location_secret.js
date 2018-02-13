@@ -48,6 +48,7 @@ define(function (require) {
             pluginName: undefined,
             configuration: undefined
           };
+          delete $scope.uiModel.locationDTO.secretProviderConfigurations.currentConfiguration;
         });
       };
     }
