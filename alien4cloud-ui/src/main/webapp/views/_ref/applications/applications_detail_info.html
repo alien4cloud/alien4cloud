@@ -55,21 +55,30 @@
 
     <!-- dynamic sub-states menu -->
     <div class="grp-margin" style="margin-top:40px;">
-      <a ng-repeat="menuItem in menu"
-         style="margin-left: 25px;"
-         id="{{menuItem.id}}"
-         ng-if="menuItem.show"
-         ng-click="onItemClick($event, menuItem)"
-         ui-sref="{{menuItem.state}}"
-         uib-tooltip="{{menuItem.key | translate}}"
-         tooltip-placement="right"
-         tooltip-append-to-body="true"
-         class="btn btn-primary btn-rnd-menu"
-         ng-class="{'disabled' : menuItem.disabled}">
-        <i class="{{menuItem.icon}} fa-fw" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
-      </a>
-      <delete-confirm id="btn-delete-app" style="margin-left: 25px;" ng-if="isManager" func="removeApplication(application.id)" position="left" bssize="btn-rnd-menu" fastyle="fa-trash-o fa-fw">
-      </delete-confirm>
+        <div class="block-margin">
+          <div class="row">
+            <div ng-repeat="menuItem in menu" class="col-md-2">
+              <a style="margin-left: 25px;"
+                 id="{{menuItem.id}}"
+                 ng-if="menuItem.show"
+                 ng-click="onItemClick($event, menuItem)"
+                 ui-sref="{{menuItem.state}}"
+                 uib-tooltip="{{menuItem.key | translate}}"
+                 tooltip-placement="right"
+                 tooltip-append-to-body="true"
+                 class="btn btn-primary btn-rnd-menu"
+                 ng-class="{'disabled' : menuItem.disabled}">
+                <i class="{{menuItem.icon}} fa-fw" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
+              </a>
+              <h4 style="text-align:center; color:#999999;">{{menuItem.key | translate}}</h4>
+            </div>
+            <div class="col-md-2">
+              <delete-confirm id="btn-delete-app" style="margin-left: 25px;" ng-if="isManager" func="removeApplication(application.id)" position="left" bssize="btn-rnd-menu" fastyle="fa-trash-o fa-fw">
+              </delete-confirm>
+              <h4 style="text-align:center; color:#999999;">{{'DELETE' | translate}}</h4>
+            </div>
+          </div>
+        </div>
     </div>
 
 
