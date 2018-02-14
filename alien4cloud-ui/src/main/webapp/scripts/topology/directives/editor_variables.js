@@ -24,14 +24,14 @@ define(function (require) {
 
       var envVariableService = $alresource('/rest/latest/applications/:applicationId/topologyVersion/:topologyVersion/variables');
 
-      function refresh(){
+      var refresh = function(){
         envVariableService.get({
           applicationId: $scope.topology.topology.archiveName,
           topologyVersion: $scope.topology.topology.archiveVersion,
         }, function(result){
           $scope.variables = result.data;
         });
-      }
+      };
 
       $scope.openVarModal = function(varName){
         $uibModal.open({
@@ -61,6 +61,13 @@ define(function (require) {
           refresh();
         }
       });
+
+      $scope.deleteFromEnvScopes = function(variableName) {
+        $scope.execute({
+          type: 'org.alien4cloud.tosca.editor.operations.variable.DeleteTopologyVariableOperation',
+          name: variableName,
+        }, refresh);
+      };
     }
   ]);
 }); // define

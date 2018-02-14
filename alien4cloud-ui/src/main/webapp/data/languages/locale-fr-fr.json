@@ -28,22 +28,22 @@
       "VERSION" : "Version déployée"
     },
     "DEPLOYMENT_INFO" : "Informations de déploiement",
-    "DEPLOY_CONFIRM" : "Êtes-vous sûr de déployer cet environment de production ?",
+    "DEPLOY_CONFIRM" : "Êtes-vous sûr de déployer cet environnement de production ?",
     "ENVIRONMENT" : {
       "ALL" : "All Environment",
       "ENV" : "Environnement",
-      "ENV_ROLES" : "Rôles d'environment",
+      "ENV_ROLES" : "Rôles d'environnement",
       "FORM" : {
         "DONT_COPY_INPUT" : "-- Ne pas copier les inputs --",
         "ENV_INPUT_CANDIDATE_LABEL" : "Inputs",
-        "ENV_INPUT_CANDIDATE_SELECT" : "-- Selectionner l'environment pour copier les inputs --",
+        "ENV_INPUT_CANDIDATE_SELECT" : "-- Selectionner l'environnement pour copier les inputs --",
         "ENV_TYPE" : "Type d'environnement",
         "ENV_TYPE_SELECT" : "-- Sélectionner le type d'environnement --",
         "ENV_VERSION" : "Version de l'application",
         "ENV_VERSION_SELECT" : "-- Sélectionner la version de l'application --"
       },
       "NEW" : "Nouvel environnement",
-      "SELECT_INPUT_CANDIDATE" : "Selectionner l'environment pour copier les inputs",
+      "SELECT_INPUT_CANDIDATE" : "Selectionner l'environnement pour copier les inputs",
       "STATUS" : "Etat"
     },
     "ERRORS" : {
@@ -151,7 +151,7 @@
         "EMPTY_SECRET_PATH" : "The secret path can not be empty."
       },
       "INVALID_NAME" : "Nom invalide.",
-      "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'authorisation de déployer sur la location précédament selectionnée pour cet environement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
+      "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'authorisation de déployer sur la location précédament selectionnée pour cet environnement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
       "NODE_INFO" : "Noeud sélectionné",
       "NO_OUTPUTS" : "Aucune propriété ou attribut en sortie",
       "ORCHESTRATOR_PROPERTIES" : "Propriétés de l'orchestrateur",
@@ -278,13 +278,13 @@
       "YAML" : "yaml"
     },
     "UNDEPLOY" : "Désinstaller",
-    "UNDEPLOY_CONFIRM" : "Êtes-vous sûr de désinstaller cet environment de production ?",
+    "UNDEPLOY_CONFIRM" : "Êtes-vous sûr de désinstaller cet environnement de production ?",
     "UNDEPLOY_MODAL" : {
       "MESSAGE" : "Vous êtes sur le point de dsintaller ce qui suit:",
       "RESOURCES_TO_UNINSTALL" : "Ressources à désinstaller",
       "TITLE" : "Informations concernant la désinstallation"
     },
-    "UPDATE_CONFIRM" : "Êtes-vous sûr de mettre à jour cet environment de production ?",
+    "UPDATE_CONFIRM" : "Êtes-vous sûr de mettre à jour cet environnement de production ?",
     "UPDATE_DEPLOYMENT" : "Mettre à jour",
     "VARIABLES" : {
       "APP_HELP" : "Vous pouvez configurer ici des variables d'application. Ces variables peuvent être référencées dans la topologie et seront remplacées par leur valeur avant le déploiement. Pour plus d'information consultez l'adresse suivante.",
@@ -293,12 +293,14 @@
       "DOC_LINK" : "Documentation en ligne.",
       "EDIT_MESSAGE" : "Clicker sur le bouton \"Editer\" pour definir une valeur.",
       "ENV_SCOPE" : "Scope Environment",
-      "ENV_TYPE_SCOPE" : "Scope Type d'Environment",
+      "ENV_TYPE_SCOPE" : "Scope Type d'Environement",
       "MODAL_HEADER" : "Où est définie la variable < {{var}} > ?",
       "TOGGLE_EDIT" : "Toggle edit {{state}}",
       "TYPE_TO_ADD" : "Saisir pour filtrer, ou ajouter une variable...",
       "UNDEFINED" : "Non défini",
-      "UNSELECTED_HOLDER" : "Selectionner un element de scope sur la gauche pour afficher la valeur"
+      "UNSELECTED_HOLDER" : "Selectionner un element de scope sur la gauche pour afficher la valeur",
+      "APP_VAR": "Variable d'application",
+      "DELETE_FROM_ENVS": "Supprimer des scopes environnements"
     },
     "VERSION" : {
       "CHANGE_VERSION": "Sélectionnez la version et la variante que vous souhaitez associer à cet environnement.",
@@ -413,7 +415,7 @@
         "TITLE" : "Configuration globale"
       },
       "HELP" : {
-        "CONTENT" : "Vous pouvez utiliser l'environment, l'application, les méta-propriétés de l'application et un timestamp. La syntaxe utilisée est Spring Expression Language, assurez-vous de définir une expression correcte. De plus, nous vous recommandons de définir un règle qui générera un nom unique pour chaque déploiement.",
+        "CONTENT" : "Vous pouvez utiliser l'environnement, l'application, les méta-propriétés de l'application et un timestamp. La syntaxe utilisée est Spring Expression Language, assurez-vous de définir une expression correcte. De plus, nous vous recommandons de définir un règle qui générera un nom unique pour chaque déploiement.",
         "TITLE" : "Aide concernant la nomenclature des noms de déploiement"
       }
     },
@@ -704,9 +706,9 @@
       "WARNING" : "Alerte"
     },
     "TOASTER_STATUS" : {
-      "DEPLOYED" : "L'environment < {{envName}} > de l'application < {{appName}} > est déployé.",
-      "FAILURE" : "Échec du déploiement de l'environment < {{envName}} > de l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information.",
-      "UPDATE_FAILURE" : "Échec lors de la mise à jour du déploiement pour l'environment < {{envName}} > et l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information."
+      "DEPLOYED" : "L'environnement < {{envName}} > de l'application < {{appName}} > est déployé.",
+      "FAILURE" : "Échec du déploiement de l'environnement < {{envName}} > de l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information.",
+      "UPDATE_FAILURE" : "Échec lors de la mise à jour du déploiement pour l'environnement < {{envName}} > et l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information."
     }
   },
   "DETAILS" : "Détails",
@@ -797,7 +799,7 @@
     "PRODUCTION" : "Production",
     "USER_ACCEPTANCE_TESTS" : "Tests utilisateurs"
   },
-  "ENVIRONMENT_TYPE_ALL" : "Tous les types d'environment",
+  "ENVIRONMENT_TYPE_ALL" : "Tous les types d'environnement",
   "ERRORS" : {
     "100" : "Authentification requise",
     "101" : "Erreur d'authentification, vérifiez vos login et mot de passe",
@@ -839,7 +841,7 @@
     "608" : "Seules les applications version en SNAPSHOT peuvent être modifiés",
     "609" : "Fournisseur PaaS inaccessible après le déclenchement du déploiement",
     "610" : "Une application doit nécéssairement avoir au moins une version",
-    "611" : "Un environment d'application doit nécéssairement avoir une version d'applivation.",
+    "611" : "Un environnement d'application doit nécéssairement avoir une version d'applivation.",
     "612" : "Le cloud d'un environnement ne peut pas être modifié lorsqu'il est déployé.",
     "613" : "Conflit détecté sur l'Id PaaS généré. Vérifiez les noms de vos applications. (Voir <a target='_blank'href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a>, pour plus de details)",
     "615" : "Une archive avec le même nom existe déjà.",
@@ -1026,7 +1028,7 @@
         "APPS" : {
           "ADD" : "Autoriser certaines applications",
           "ADD_POPUP" : {
-            "EMPTY_PLACEHOLDER" : "d'applications ou d'environments autorisé pour cette location",
+            "EMPTY_PLACEHOLDER" : "d'applications ou d'environnements autorisé pour cette location",
             "LOC_AUTH_FILTER" : "Autorisés sur la location",
             "MESSAGE" : "Vous pouvez ajouter des autorisations par application, par environnements. Vous pouvez également ajouter des autorisations par types d'environnement.",
             "TITLE" : "Selectionner applications / environnements"
@@ -1204,9 +1206,9 @@
       "NO_SUBSTITUTION_MESSAGE" : "La topologie doit définir un type de substitution afin d'être exposée en tant que service.",
       "TITLE" : "Service",
       "UNBIND" : {
-        "CONFIRM_MESSAGE" : "Voulez-vous vraiment dissocier ce service de cet environment?\nLe service sera supprimé s'il n'est utilisé par aucune resource. Sinon, Vous devrez alors contacter votre administrateur pour un nettoyage.",
+        "CONFIRM_MESSAGE" : "Voulez-vous vraiment dissocier ce service de cet environnement?\nLe service sera supprimé s'il n'est utilisé par aucune resource. Sinon, Vous devrez alors contacter votre administrateur pour un nettoyage.",
         "CONFIRM_TITLE" : "Dissocier le service",
-        "MESSAGE" : "Dissocier le service de cet environment."
+        "MESSAGE" : "Dissocier le service de cet environnement."
       }
     },
     "NEW" : {

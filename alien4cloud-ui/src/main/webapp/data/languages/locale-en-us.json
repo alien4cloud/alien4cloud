@@ -298,7 +298,9 @@
       "TOGGLE_EDIT" : "Toggle edit {{state}}",
       "TYPE_TO_ADD" : "Type to filter or add a variable...",
       "UNDEFINED" : "Undefined",
-      "UNSELECTED_HOLDER" : "Select a scope item on the left to view the value"
+      "UNSELECTED_HOLDER" : "Select a scope item on the left to view the value",
+      "APP_VAR": "Application variable",
+      "DELETE_FROM_ENVS": "Delete from environment scopes"
     },
     "VERSION" : {
       "CHANGE_VERSION": "Select the version and qualifier you want attached to this environment.",

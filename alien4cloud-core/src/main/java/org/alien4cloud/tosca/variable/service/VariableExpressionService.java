@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -19,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -28,6 +28,9 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.YamlParserUtil;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Service
 public class VariableExpressionService {
@@ -93,14 +96,19 @@ public class VariableExpressionService {
      * A top level var is a var defined directly in a var file.
      * 
      * @param topologyVersion
-     * @param topologyVersion
      * @return
      */
-    public Set<String> getTopLevelVariables(String applicationId, String topologyVersion) {
-        Set<String> topLevelVars = Sets.newHashSet();
-        topLevelVars.addAll(getApplicationTopLevelVariables(applicationId));
-        topLevelVars.addAll(getEnvironmentTopLevelVariables(applicationId, topologyVersion));
-        topLevelVars.addAll(getEnvironmentTypeTopLevelVariables(applicationId, topologyVersion));
+    public Map<String, DefinedScope> getTopLevelVariables(String applicationId, String topologyVersion) {
+        // Set<String> topLevelVars = Sets.newHashSet();
+        Map<String, DefinedScope> topLevelVars = Maps.newHashMap();
+        getApplicationTopLevelVariables(applicationId).forEach(var -> topLevelVars.computeIfAbsent(var, key -> new DefinedScope()).application = true);
+        getEnvironmentTopLevelVariables(applicationId, topologyVersion)
+                .forEach(var -> topLevelVars.computeIfAbsent(var, key -> new DefinedScope()).environment = true);
+        getEnvironmentTypeTopLevelVariables(applicationId, topologyVersion)
+                .forEach(var -> topLevelVars.computeIfAbsent(var, key -> new DefinedScope()).environmentType = true);
+        // topLevelVars.addAll(getApplicationTopLevelVariables(applicationId));
+        // topLevelVars.addAll(getEnvironmentTopLevelVariables(applicationId, topologyVersion));
+        // topLevelVars.addAll(getEnvironmentTypeTopLevelVariables(applicationId, topologyVersion));
         return topLevelVars;
     }
 
@@ -124,4 +132,12 @@ public class VariableExpressionService {
                 .reduce(Sets.newHashSet(), (set, anotherSet) -> Sets.newHashSet(CollectionUtils.union(set, anotherSet)));
     }
 
+    @Getter
+    @Setter
+    @EqualsAndHashCode(of = "name")
+    public static class DefinedScope {
+        private boolean application;
+        private boolean environment;
+        private boolean environmentType;
+    }
 }

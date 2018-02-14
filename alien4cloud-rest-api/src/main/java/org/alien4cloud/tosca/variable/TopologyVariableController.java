@@ -1,7 +1,7 @@
 package org.alien4cloud.tosca.variable;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -35,9 +35,10 @@ public class TopologyVariableController {
     @ApiIgnore
     @RequestMapping(value = "/topologyVersion/{topologyVersion}/variables", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<Set<String>> getTopLevelVariables(@PathVariable String applicationId, @PathVariable String topologyVersion) {
-        Set<String> envDef = variableExpressionService.getTopLevelVariables(applicationId, topologyVersion);
-        return RestResponseBuilder.<Set<String>> builder().data(envDef).build();
+    public RestResponse<Map<String, VariableExpressionService.DefinedScope>> getTopLevelVariables(@PathVariable String applicationId,
+            @PathVariable String topologyVersion) {
+        Map<String, VariableExpressionService.DefinedScope> topLevelVariables = variableExpressionService.getTopLevelVariables(applicationId, topologyVersion);
+        return RestResponseBuilder.<Map<String, VariableExpressionService.DefinedScope>> builder().data(topLevelVariables).build();
     }
 
     @ApiIgnore
