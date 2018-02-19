@@ -64,6 +64,14 @@ public interface ILocationResourceService {
     LocationResourceTemplateWithDependencies addResourceTemplateFromArchive(String locationId, String resourceName, String resourceTypeName, String archiveName,
             String archiveVersion);
 
+    /**
+     * Duplicates a location resource template
+     * 
+     * @param resourceId
+     * @return
+     */
+    LocationResourceTemplateWithDependencies duplicateResourceTemplate(String resourceId);
+
     LocationResourceTypes getLocationResourceTypes(Collection<LocationResourceTemplate> resourceTemplates);
 
     LocationResourceTypes getPoliciesLocationResourceTypes(Collection<PolicyLocationResourceTemplate> resourceTemplates);
@@ -117,4 +125,6 @@ public interface ILocationResourceService {
      */
     LocationResourceTemplateWithDependencies addPolicyTemplateFromArchive(String locationId, String resourceName, String policyType, String archiveName,
             String archiveVersion);
+
+    LocationResourceTemplateWithDependencies duplicatePolicyTemplate(String resourceId);
 }

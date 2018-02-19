@@ -8,7 +8,7 @@ define(function(require) {
       return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId');
     }
   ]);
-  
+
   modules.get('a4c-orchestrators', ['a4c-common']).factory('locationSecretService', ['$alresource',
     function($alresource) {
       return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/secret-conf');
@@ -17,13 +17,13 @@ define(function(require) {
 
   modules.get('a4c-orchestrators', ['a4c-common']).factory('locationResourcesService', ['$alresource',
     function($alresource) {
-      return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:id');
+      return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:id/:extendUrl');
     }
   ]);
 
   modules.get('a4c-orchestrators', ['a4c-common']).factory('locationPoliciesService', ['$alresource',
     function($alresource) {
-      return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/policies/:id');
+      return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/policies/:id/:extendUrl');
     }
   ]);
 

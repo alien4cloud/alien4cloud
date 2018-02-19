@@ -34,7 +34,8 @@ define(function(require) {
         var processAfterAddingResource = function(response, newResource){
           locationResourcesProcessor.processLocationResourceTemplate(response.data.resourceTemplate);
           // if ResourceType is not in the fav list then get its type and add it to resource types map
-          if ($scope.showCatalog && _.findIndex($scope.favorites, 'id', newResource.sourceId) === -1) {
+          console.log($scope.favorites);
+          if ($scope.showCatalog && newResource && _.findIndex($scope.favorites, 'id', newResource.sourceId) === -1) {
             var typeId = newResource.resourceType;
             var componentId = newResource.sourceId;
 
@@ -71,6 +72,9 @@ define(function(require) {
               // property named elementId is expected instead of resourceType
               newResource.elementId = newResource.resourceType;
               delete newResource.resourceType;
+              // property named id is expected instead of sourceId
+              newResource.id = newResource.sourceId;
+              delete newResource.sourceId;
               newResource.provided = false;
               $scope.favorites.push(newResource);
             });

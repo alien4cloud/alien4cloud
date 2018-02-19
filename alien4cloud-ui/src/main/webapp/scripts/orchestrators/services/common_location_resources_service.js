@@ -86,7 +86,34 @@ define(function (require) {
             // then call the provided callback if needed
             if(_.isFunction(_.get(crudCallbacks, 'add'))){
               newResource.sourceId=source.id;
+              console.log(source);
               crudCallbacks.add(response, newResource);
+            }else {
+              scope.resourcesTemplates.push(response.data.resourceTemplate);
+              scope.selectTemplate(response.data.resourceTemplate);
+            }
+          });
+        };
+
+        scope.duplicateResourceTemplate = function(reourceId, $event) {
+          $event.stopPropagation();
+          if (!reourceId) {
+            return;
+          }
+
+          resourceService.save({
+            orchestratorId: scope.context.orchestrator.id,
+            locationId: scope.context.location.id,
+            id: reourceId,
+            extendUrl: 'duplicate'
+          }, angular.toJson({}), function(response) {
+            //always do this
+            locationResourcesProcessor.processTemplate(response.data.resourceTemplate);
+            scope.context.location.dependencies = response.data.newDependencies;
+
+            // then call the provided callback if needed
+            if(_.isFunction(_.get(crudCallbacks, 'add'))){
+              crudCallbacks.add(response);
             }else {
               scope.resourcesTemplates.push(response.data.resourceTemplate);
               scope.selectTemplate(response.data.resourceTemplate);

@@ -1083,7 +1083,8 @@
         "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés du template de la resource. Les propriétés définies sont immutable, les propriétés non définies pourront être définie par l'utilisateur avant le déploiement.",
         "DROP" : "Déposez des ressources ici ou dans le tableau au dessus",
         "PROVIDED" : "Type fourni par l'orchestrateur",
-        "TYPE" : "Type de ressources"
+        "TYPE" : "Type de ressources",
+        "DUPLICATE": "Dupliquer"
       },
       "SECRETS" : {
         "AUTHENTICATION_METHOD" : "Méthode d'authentification",

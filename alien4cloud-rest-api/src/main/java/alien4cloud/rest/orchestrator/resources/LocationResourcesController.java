@@ -53,6 +53,18 @@ public class LocationResourcesController extends AbstractLocationResourcesContro
         return RestResponseBuilder.<LocationResourceTemplateWithDependencies> builder().data(createdTemplate).build();
     }
 
+    @ApiOperation(value = "Duplicate a location resource template on a location.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/duplicate", method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<LocationResourceTemplateWithDependencies> duplicateResourceTemplate(
+            @ApiParam(value = "Id of the orchestrator for which to duplicate resource template.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to duplicate resource template.", required = true) @PathVariable String locationId,
+            @ApiParam(value = "Id of the location's resource.", required = true) @PathVariable String id) {
+        LocationResourceTemplateWithDependencies duplicatedTemplate = locationResourceService.duplicateResourceTemplate(id);
+        return RestResponseBuilder.<LocationResourceTemplateWithDependencies> builder().data(duplicatedTemplate).build();
+    }
+
     @ApiOperation(value = "Update location's resource's capability template capability property.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/template/capabilities/{capabilityName}/properties", method = RequestMethod.POST)
     @PreAuthorize("hasAuthority('ADMIN')")

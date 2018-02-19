@@ -1083,7 +1083,8 @@
         "CONFIG_HELP" : "You can configure the name and properties of the resource template. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
         "DROP" : "Drop new resources here or on the table above",
         "PROVIDED" : "Provided type from the orchestrator",
-        "TYPE" : "Resource types"
+        "TYPE" : "Resource types",
+        "DUPLICATE": "Duplicate"
       },
       "SECRETS" : {
         "AUTHENTICATION_METHOD" : "Authentication method",
