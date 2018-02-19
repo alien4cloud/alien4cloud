@@ -1,30 +1,8 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import org.alien4cloud.tosca.catalog.events.AfterArchiveIndexed;
-import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
-import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
-import org.alien4cloud.tosca.editor.services.TopologySubstitutionService;
-import org.alien4cloud.tosca.exporter.ArchiveExportService;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
-
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
+import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.AlreadyExistException;
@@ -40,6 +18,27 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.VersionUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.catalog.events.AfterArchiveIndexed;
+import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
+import org.alien4cloud.tosca.editor.services.TopologySubstitutionService;
+import org.alien4cloud.tosca.exporter.ArchiveExportService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -166,9 +165,14 @@ public class ArchiveIndexer {
             if (Objects.equals(currentIndexedArchive.getWorkspace(), archiveRoot.getArchive().getWorkspace())) {
                 if (currentIndexedArchive.getHash() != null && currentIndexedArchive.getHash().equals(archiveRoot.getArchive().getHash())) {
                     // if the archive has not changed do nothing.
-                    parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.CSAR_ALREADY_INDEXED, "", null,
-                            "The archive already exists in alien4cloud with an identical content (SHA-1 on archive content excluding hidden files is identical).",
-                            null, archiveName));
+                    parsingErrors
+                            .add(new ParsingError(
+                                    ParsingErrorLevel.INFO,
+                                    ErrorCode.CSAR_ALREADY_INDEXED,
+                                    "",
+                                    null,
+                                    "The archive already exists in alien4cloud with an identical content (SHA-1 on archive content excluding hidden files is identical).",
+                                    null, archiveName));
                     return;
                 }
             } else {
@@ -242,9 +246,11 @@ public class ArchiveIndexer {
         if (toscaType == null) {
             return;
         }
-        AbstractToscaType indexedNodeType = alienDAO.findById(AbstractToscaType.class, toscaType.getId());
+        AbstractToscaType indexedNodeType = alienDAO.buildQuery(AbstractToscaType.class)
+                .setFilters(FilterUtil.singleKeyFilter("elementId", toscaType.getElementId())).prepareSearch().find();
         if (indexedNodeType != null && !toscaType.getArchiveName().equals(indexedNodeType.getArchiveName())) {
-            throw new ToscaTypeAlreadyDefinedInOtherCSAR("Tosca type: " + toscaType.getElementId() + ", version: " + toscaType.getArchiveVersion());
+            throw new ToscaTypeAlreadyDefinedInOtherCSAR("Tosca type: " + toscaType.getElementId() + ", version: " + toscaType.getArchiveVersion()
+                    + " is already defined in archive " + indexedNodeType.getArchiveName() + ":" + indexedNodeType.getArchiveVersion());
         }
     }
 
@@ -258,8 +264,8 @@ public class ArchiveIndexer {
 
         if (archiveRoot.hasToscaTypes()) {
             // The archive contains types, we assume those types are used in the embedded topology so we add the dependency to this CSAR
-            CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion(),
-                    archiveRoot.getArchive().getHash());
+            CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion(), archiveRoot
+                    .getArchive().getHash());
             topology.getDependencies().add(selfDependency);
         }
 
@@ -282,8 +288,8 @@ public class ArchiveIndexer {
         });
         workflowBuilderService.initWorkflows(topologyContext);
 
-        parsingErrors.add(
-                new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null, archiveName));
+        parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
+                archiveName));
 
         topologyServiceCore.saveTopology(topology);
         topologySubstitutionService.updateSubstitutionType(topology, archiveRoot.getArchive());
