@@ -55,10 +55,10 @@
 
     <!-- dynamic sub-states menu -->
     <div class="grp-margin" style="margin-top:40px;">
-        <div class="block-margin">
+        <div class="marketing container" style="margin-left: 25px; width: auto;">
           <div class="row">
-            <div ng-repeat="menuItem in menu" class="col-md-2">
-              <a style="margin-left: 25px;"
+            <div ng-repeat="menuItem in menu" class="col-md-2" style="text-align: center;">
+              <a
                  id="{{menuItem.id}}"
                  ng-if="menuItem.show"
                  ng-click="onItemClick($event, menuItem)"
@@ -70,12 +70,12 @@
                  ng-class="{'disabled' : menuItem.disabled}">
                 <i class="{{menuItem.icon}} fa-fw" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
               </a>
-              <h4 style="text-align:center;" class="text-muted">{{menuItem.key | translate}}</h4>
+              <h4 style="overflow-wrap: break-word;" class="text-muted">{{menuItem.key | translate}}</h4>
             </div>
-            <div class="col-md-2">
-              <delete-confirm id="btn-delete-app" style="margin-left: 25px;" ng-if="isManager" func="removeApplication(application.id)" position="left" bssize="btn-rnd-menu" fastyle="fa-trash-o fa-fw">
+            <div class="col-md-2" style="text-align: center;">
+              <delete-confirm id="btn-delete-app"  ng-if="isManager" func="removeApplication(application.id)" position="left" bssize="btn-rnd-menu" fastyle="fa-trash-o fa-fw">
               </delete-confirm>
-              <h4 style="text-align:center;" class="text-muted">{{'DELETE' | translate}}</h4>
+              <h4 class="text-muted">{{'DELETE' | translate}}</h4>
             </div>
           </div>
         </div>
