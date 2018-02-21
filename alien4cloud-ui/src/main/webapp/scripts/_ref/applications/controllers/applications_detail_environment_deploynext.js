@@ -95,7 +95,7 @@ define(function (require) {
       $scope.deploymentTopologyDTO = deploymentTopologyDTO;
 
       $scope.$watch('environment.status', function (envStatus) {
-        if (_.includes(['DEPLOYED', 'UPDATED'], envStatus)) {
+        if (_.includes(['DEPLOYED', 'UPDATED', 'UPDATE_FAILURE'], envStatus)) {
           deploymentServices.runtime.getTopology({
             applicationId: $scope.application.id,
             applicationEnvironmentId: $scope.environment.id

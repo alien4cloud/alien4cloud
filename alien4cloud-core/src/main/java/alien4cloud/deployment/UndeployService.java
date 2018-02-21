@@ -75,8 +75,8 @@ public class UndeployService {
             Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deployedTopology);
             Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
             SecretProviderConfigurationAndCredentials authResponse = null;
-            if (secretProviderConfigurationAndCredentials != null && secretProviderConfigurationAndCredentials.getSecretProviderConfiguration() != null) {
-                authResponse = secretProviderService.generateSecretConfiguration(locations,
+            if (secretProviderService.isSecretProvided(secretProviderConfigurationAndCredentials)) {
+                authResponse = secretProviderService.generateToken(locations,
                         secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
                         secretProviderConfigurationAndCredentials.getCredentials());
             }

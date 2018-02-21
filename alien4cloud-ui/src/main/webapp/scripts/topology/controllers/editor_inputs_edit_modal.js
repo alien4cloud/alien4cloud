@@ -38,6 +38,7 @@ define(function (require) {
           propertiesServices.validConstraints({}, angular.toJson({
             'definitionId': $scope.inputName,
             'propertyDefinition': $scope.getPropertyDefinition(),
+            'dependencies': $scope.topology.topology.dependencies,
             'value': $scope.inputExpression.obj
           }), function(successResult) {
             if(_.get(successResult, 'error.code') === 804) {

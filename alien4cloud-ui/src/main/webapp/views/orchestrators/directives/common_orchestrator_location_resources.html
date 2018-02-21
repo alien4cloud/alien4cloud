@@ -13,6 +13,7 @@
             <th>Icon</th>
             <th>{{'COMMON.NAME' | translate}}</th>
             <th>{{'COMMON.TYPE' | translate}}</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -31,6 +32,14 @@
             </td>
             <td>{{template.name}}</td>
             <td style="word-break: break-all;">{{template.template.type}}</td>
+            <td ng-if="canDuplicate">
+              <a
+              uib-tooltip="{{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.DUPLICATE' | translate }}"
+              tooltip-append-to-body="true"
+              ng-click="duplicateResourceTemplate(template.id, $event)">
+                  <i class="fa fa-clone"></i>
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>

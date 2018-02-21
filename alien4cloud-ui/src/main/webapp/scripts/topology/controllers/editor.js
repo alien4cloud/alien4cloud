@@ -384,7 +384,6 @@ define(function (require) {
           }
           if($scope.skipStateChangeStart) {
             // Just skip once
-            $scope.skipStateChangeStart = false;
             return;
           }
           event.preventDefault();

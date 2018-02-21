@@ -47,4 +47,16 @@ public class LocationPolicyResourcesController extends AbstractLocationResources
         return RestResponseBuilder.<LocationResourceTemplateWithDependencies> builder().data(createdTemplate).build();
     }
 
+    @ApiOperation(value = "Duplicate a  policy template resource on a location .", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/duplicate", method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<LocationResourceTemplateWithDependencies> duplicateResourceTemplate(
+            @ApiParam(value = "Id of the orchestrator for which to duplicate policy template.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to duplicate policy template.", required = true) @PathVariable String locationId,
+            @ApiParam(value = "Id of the policy template to duplicate.", required = true) @PathVariable String id) {
+        LocationResourceTemplateWithDependencies duplicatedTemplate = locationResourceService.duplicatePolicyTemplate(id);
+        return RestResponseBuilder.<LocationResourceTemplateWithDependencies> builder().data(duplicatedTemplate).build();
+    }
+
 }

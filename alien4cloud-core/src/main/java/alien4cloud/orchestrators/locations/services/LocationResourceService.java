@@ -63,7 +63,6 @@ import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
-import org.alien4cloud.tosca.utils.TopologyUtils;
 import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.tosca.topology.TemplateBuilder;
 import alien4cloud.utils.ReflectionUtil;
@@ -342,6 +341,11 @@ public class LocationResourceService implements ILocationResourceService {
         locationResourceTemplate.getTypes().addAll(resourceType.getDerivedFrom());
         locationResourceTemplate.setTemplate(template);
 
+        publishCreatedEventAndSaveResource(location, locationResourceTemplate, resourceType);
+    }
+
+    private <T extends AbstractTemplate> void publishCreatedEventAndSaveResource(Location location,
+            AbstractLocationResourceTemplate<T> locationResourceTemplate, AbstractInheritableToscaType resourceType) {
         LocationTemplateCreated event = new LocationTemplateCreated(this);
         event.setTemplate(locationResourceTemplate);
         event.setLocation(location);
@@ -365,6 +369,37 @@ public class LocationResourceService implements ILocationResourceService {
         return new LocationResourceTemplateWithDependencies(this.addResourceTemplate(location, resourceName, resourceTypeName),
                 Sets.newHashSet(location.getDependencies()));
 
+    }
+
+    @Override
+    public LocationResourceTemplateWithDependencies duplicateResourceTemplate(String resourceId) {
+        LocationResourceTemplate locationResourceTemplate = getOrFail(resourceId);
+        locationResourceTemplate.setId(UUID.randomUUID().toString());
+        locationResourceTemplate.setName(locationResourceTemplate.getName() + "_" + "copy");
+        locationResourceTemplate.setGenerated(false);
+
+        Location location = locationService.getOrFail(locationResourceTemplate.getLocationId());
+        NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, locationResourceTemplate.getTemplate().getType(),
+                location.getDependencies());
+
+        publishCreatedEventAndSaveResource(location, locationResourceTemplate, resourceType);
+
+        return new LocationResourceTemplateWithDependencies(locationResourceTemplate, Sets.newHashSet(location.getDependencies()));
+    }
+
+    @Override
+    public LocationResourceTemplateWithDependencies duplicatePolicyTemplate(String resourceId) {
+        PolicyLocationResourceTemplate policyLocationResourceTemplate = getOrFail(resourceId);
+        policyLocationResourceTemplate.setId(UUID.randomUUID().toString());
+        policyLocationResourceTemplate.setName(policyLocationResourceTemplate.getName() + "_" + "copy");
+
+        Location location = locationService.getOrFail(policyLocationResourceTemplate.getLocationId());
+        PolicyType resourceType = csarRepoSearchService.getRequiredElementInDependencies(PolicyType.class,
+                policyLocationResourceTemplate.getTemplate().getType(), location.getDependencies());
+
+        publishCreatedEventAndSaveResource(location, policyLocationResourceTemplate, resourceType);
+
+        return new LocationResourceTemplateWithDependencies(policyLocationResourceTemplate, Sets.newHashSet(location.getDependencies()));
     }
 
     /*

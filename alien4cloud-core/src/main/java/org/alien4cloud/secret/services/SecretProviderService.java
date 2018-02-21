@@ -13,7 +13,6 @@ import org.alien4cloud.secret.ISecretProvider;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
-import alien4cloud.deployment.model.SecretProviderCredentials;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.secret.SecretAuthResponse;
@@ -35,13 +34,17 @@ public class SecretProviderService {
         return secretProviderRegistry.getInstancesByPlugins().keySet();
     }
 
-    public ISecretProvider getPluginBean(String pluginName) {
+    private ISecretProvider getPluginBean(String pluginName) {
         Map<String, ISecretProvider> secretBeansMap = secretProviderRegistry.getInstancesByPlugins().get(pluginName);
         if (secretBeansMap == null) {
             throw new NotFoundException("No secret provider plugin is found in the system with name [" + pluginName + "]");
         } else {
             return secretBeansMap.values().iterator().next();
         }
+    }
+
+    public void validateConfiguration(String pluginName, Object pluginConfiguration) {
+        getPluginBean(pluginName).validateConfiguration(getPluginConfiguration(pluginName, pluginConfiguration));
     }
 
     public Class<?> getPluginConfigurationDescriptor(String pluginName) {
@@ -70,30 +73,15 @@ public class SecretProviderService {
     }
 
     /**
-     * This method is used to build a valid object who contains the configuration of the secret provider from the location and the credentials for the current
-     * request/operation
-     *
-     * @param locations map of locations
-     * @param secretProviderCredentials the secret provider credentials configuration
-     * @return the more suitable model for orchestrator
-     */
-    public SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations,
-            SecretProviderCredentials secretProviderCredentials) {
-        if (secretProviderCredentials == null) {
-            return null;
-        }
-        return generateSecretConfiguration(locations, secretProviderCredentials.getPluginName(), secretProviderCredentials.getCredentials());
-    }
-
-    /**
      * Generate a token wrapped in the new instance of SecretProviderConfigurationAndCredentials
+     * 
      * @param locations
      * @param pluginName
      * @param credentials
      * @return new instance of SecretProviderConfigurationAndCredentials wrapping the token
      */
-    public SecretProviderConfigurationAndCredentials generateSecretConfiguration(Map<String, Location> locations, String pluginName, Object credentials) {
-        if (credentials == null) {
+    public SecretProviderConfigurationAndCredentials generateToken(Map<String, Location> locations, String pluginName, Object credentials) {
+        if (locations == null || pluginName == null || credentials == null) {
             return null;
         }
         Optional<Location> firstLocation = locations.values().stream()
@@ -102,19 +90,17 @@ public class SecretProviderService {
             log.error("Plugin name <" + pluginName + "> is not configured by the current location.");
             return null;
         }
-        return generateSecretConfiguration(firstLocation.get().getSecretProviderConfiguration(), credentials);
+        return internalGenerateToken(firstLocation.get().getSecretProviderConfiguration(), credentials);
     }
 
     /**
      * Generate a token wrapped in an instance of SecretProviderConfigurationAndCredentials by authenticating the credentials (username, password) with ldap
+     * 
      * @param locationConfiguration
      * @param credentials
      * @return SecretProviderConfigurationAndCredentials wrapping a token
      */
-    private SecretProviderConfigurationAndCredentials generateSecretConfiguration(SecretProviderConfiguration locationConfiguration, Object credentials) {
-        if(credentials == null) {
-            return null;
-        }
+    private SecretProviderConfigurationAndCredentials internalGenerateToken(SecretProviderConfiguration locationConfiguration, Object credentials) {
         // Instead of saving the credentials username and password, we transform the username and password to a client token
         ISecretProvider secretProvider = this.getPluginBean(locationConfiguration.getPluginName());
         Object configuration = this.getPluginConfiguration(locationConfiguration.getPluginName(), locationConfiguration.getConfiguration());
@@ -129,4 +115,8 @@ public class SecretProviderService {
         return result;
     }
 
+    public boolean isSecretProvided(SecretProviderConfigurationAndCredentials configurationAndCredentials) {
+        return configurationAndCredentials != null && configurationAndCredentials.getCredentials() != null
+                && configurationAndCredentials.getSecretProviderConfiguration() != null;
+    }
 }

@@ -24,8 +24,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentWorkflowCtrl',
-    ['$scope', 'topoEditDisplay', 'topoEditWf', 'applicationServices', 'breadcrumbsService', '$translate', '$state', 'secretDisplayModal',
-      function ($scope, topoEditDisplay, topoEditWf, applicationServices, breadcrumbsService, $translate, $state, secretDisplayModal) {
+    ['$scope', 'topoEditDisplay', 'topoEditWf', 'applicationServices', 'breadcrumbsService', '$translate', '$state', 'secretDisplayModal', 'toaster',
+      function ($scope, topoEditDisplay, topoEditWf, applicationServices, breadcrumbsService, $translate, $state, secretDisplayModal, toaster) {
 
         breadcrumbsService.putConfig({
           state : 'applications.detail.environment.deploycurrent.workflow',
@@ -70,8 +70,25 @@ define(function (require) {
               applicationId: $scope.application.id,
               applicationEnvironmentId: $scope.environment.id,
               workflowName: $scope.currentWorkflowName
-            }, angular.toJson(secretProviderInfoRequest), function success() {
-              $scope.isLaunchingWorkflow = false;
+            }, angular.toJson(secretProviderInfoRequest), function success(response) {
+              if (_.defined(response.error)) {
+                var title = $translate.instant('ERRORS.' + response.error.code + '.TITLE');
+                var resultHtml = [];
+                var msg = JSON.parse(response.error.message)
+                var msgHtml = $translate.instant('ERRORS.' + response.error.code + '.MESSAGE', {
+                  'workflowId': msg.workflowId
+                });
+                resultHtml.push('<li>' + msgHtml + '</li>');
+                toaster.pop('error', title, resultHtml.join(''), 0, 'trustedHtml', null);
+                $scope.isLaunchingWorkflow = false;
+              } else {
+                var dataStr = JSON.parse(response.data)
+                var title = $translate.instant("APPLICATIONS.DEPLOYMENT.RUNTIME.WORKFLOW.SUCCESS_TITLE", {
+                'workflowId': dataStr.workflowId});
+                var resultHtml = [];
+                toaster.pop('success', title, resultHtml.join(''), 0, 'trustedHtml', null);
+                $scope.isLaunchingWorkflow = false;
+              }
             });
 
           });

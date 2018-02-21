@@ -44,7 +44,11 @@ import com.google.common.collect.Maps;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.topology.*;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -587,6 +591,10 @@ public class EditorService {
         } finally {
             editionContextManager.destroy();
         }
+    }
+
+    public IEditorOperationProcessor getProcessor(AbstractEditorOperation opreation) {
+        return processorMap.get(opreation.getClass());
     }
 
 }

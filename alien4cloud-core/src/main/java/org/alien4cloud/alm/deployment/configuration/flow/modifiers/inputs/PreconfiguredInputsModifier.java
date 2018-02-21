@@ -83,9 +83,9 @@ public class PreconfiguredInputsModifier implements ITopologyModifier {
             try {
                 ConstraintPropertyService.checkPropertyConstraint(entry.getKey(), entry.getValue(), topology.getInputs().get(entry.getKey()));
             } catch (ConstraintViolationException e) {
-                violations.put(entry.getKey(), e.getConstraintInformation());
+                violations.put(entry.getKey(), getConstraintInformation(e.getMessage(), e.getConstraintInformation()));
             } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                typesViolations.put(entry.getKey(), e.getConstraintInformation());
+                typesViolations.put(entry.getKey(), getConstraintInformation(e.getMessage(), e.getConstraintInformation()));
             }
         }
 
@@ -108,6 +108,14 @@ public class PreconfiguredInputsModifier implements ITopologyModifier {
         preconfiguredInputsConfiguration.setCreationDate(new Date());
 
         context.saveConfiguration(preconfiguredInputsConfiguration);
+    }
+
+    private ConstraintUtil.ConstraintInformation getConstraintInformation(String message, ConstraintUtil.ConstraintInformation constraint) {
+        if (constraint == null) {
+            constraint = new ConstraintUtil.ConstraintInformation(null, message, null, null);
+        }
+
+        return constraint;
     }
 
 }

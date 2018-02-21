@@ -578,7 +578,7 @@ public class ApplicationDeploymentController {
             @ApiParam(value = "Application id.", required = true) @Valid @NotBlank @PathVariable String applicationId,
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
             @ApiParam(value = "Workflow name.", required = true) @Valid @NotBlank @PathVariable String workflowName,
-            @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+            @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody(required = false) SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
 
         final DeferredResult<RestResponse<Void>> result = new DeferredResult<>(15L * 60L * 1000L);
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
@@ -596,8 +596,8 @@ public class ApplicationDeploymentController {
 
                         @Override
                         public void onFailure(Throwable e) {
-                            result.setErrorResult(
-                                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
+                            result.setErrorResult(RestResponseBuilder.<Void> builder()
+                                    .error(new RestError(RestErrorCode.RUNTIME_WORKFLOW_ERROR.getCode(), e.getMessage())).build());
                         }
                     });
         } catch (OrchestratorDisabledException e) {

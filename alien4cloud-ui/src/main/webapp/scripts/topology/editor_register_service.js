@@ -2,10 +2,19 @@
 define(function (require) {
   'use strict';
   var states = require('states');
+  var _ = require('lodash');
 
   require('scripts/topology/controllers/editor');
 
-  return function(prefix) {
+  function override(menuOverrides, name, menu) {
+    var overrides = _.get(menuOverrides, name);
+    if(_.defined(overrides)) {
+      return _.merge(menu, overrides);
+    }
+    return menu;
+  }
+
+  return function(prefix, menuOverrides) {
     states.state(prefix + '.editor', {
       url: '/editor',
       templateUrl: 'views/topology/topology_editor.html',
@@ -14,84 +23,84 @@ define(function (require) {
         defaultFilters: [function(){return {};}],
         badges: [function(){return[];}]
       },
-      menu: {
+      menu: override(menuOverrides, 'editor',{
         id: 'am.' + prefix + '.editor',
         state: prefix + '.editor',
         key: 'EDITOR.MENU_TOPOLOGY',
         icon: 'fa fa-sitemap',
         show: true,
         priority: 10
-      }
+      })
     });
 
     states.state(prefix + '.workflow', {
       url: '/workflow',
       templateUrl: 'views/topology/topology_workflow_editor.html',
       controller: 'TopologyWorkflowEditorCtrl',
-      menu: {
+      menu: override(menuOverrides, 'workflow',{
         id: 'am.' + prefix + '.workflow',
         state: prefix + '.workflow',
         key: 'EDITOR.MENU_WORKFLOW',
         icon: 'fa fa-code-fork fa-rotate-90',
         show: true,
         priority: 20
-      }
+      })
     });
 
     states.state(prefix + '.inputs', {
       url: '/inputs',
       templateUrl: 'views/topology/topology_inputs_variables.html',
       controller: 'TopologyInputsVariablesCtrl',
-      menu: {
+      menu: override(menuOverrides, 'inputs', {
         id: 'am.' + prefix + '.inputs',
         state: prefix + '.inputs',
         key: 'EDITOR.MENU_INPUTS_VAR',
         icon: 'fa fa-sign-in',
         show: true,
         priority: 25
-      }
+      })
     });
 
     states.state(prefix + '.files', {
       url: '/files',
       templateUrl: 'views/topology/topology_browser.html',
       controller: 'TopologyBrowserCtrl',
-      menu: {
+      menu: override(menuOverrides, 'files', {
         id: 'am.' + prefix + '.files',
         state: prefix + '.files',
         key: 'EDITOR.MENU_FILES',
         icon: 'fa fa-folder-open',
         show: true,
         priority: 30
-      }
+      })
     });
 
     states.state(prefix + '.validation', {
       url: '/validation',
       templateUrl: 'views/topology/topology_validation.html',
       controller: 'TopologyValidationCtrl',
-      menu: {
+      menu: override(menuOverrides, 'validation', {
         id: 'am.' + prefix + '.validation',
         state: prefix + '.validation',
         key: 'EDITOR.MENU_VALIDATION',
         icon: 'fa fa-check',
         show: true,
         priority: 40
-      }
+      })
     });
 
     states.state(prefix + '.history', {
       url: '/history',
       templateUrl: 'views/topology/editor_history.html',
       controller: 'TopologyHistoryCtrl',
-      menu: {
+      menu: override(menuOverrides, 'history', {
         id: 'am.' + prefix + '.history',
         state: prefix + '.history',
         key: 'EDITOR.MENU_HISTORY',
         icon: 'fa fa-history',
         show: true,
         priority: 50
-      }
+      })
     });
 
     states.forward(prefix, prefix + '.editor');

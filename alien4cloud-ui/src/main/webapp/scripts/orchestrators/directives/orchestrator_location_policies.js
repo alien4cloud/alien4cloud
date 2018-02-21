@@ -17,6 +17,7 @@ define(function(require) {
         'context': '=?',
         'showCatalog': '=?',
         'showMultiSelect': '=?',
+        'canDuplicate': '=?'
       },
       link: {}
     };

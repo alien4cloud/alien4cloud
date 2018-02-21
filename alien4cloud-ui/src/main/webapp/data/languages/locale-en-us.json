@@ -12,6 +12,7 @@
         "UNDEPLOYED_AT" : "Undeployed at"
       },
       "MATCHING" : {
+        "NEW": "New modifier",
         "CONFIGURATION" : "Resource configuration",
         "CONFIGURATION_HELP" : "You can configure properties of the selected matched resource. Note that some properties have been defined by the location administrator. These properties cannot be overriden.",
         "NODES_TITLE" : "Nodes matching",
@@ -60,6 +61,9 @@
     "META_PROPERTIES" : "Meta-properties",
     "NEW" : "New Application",
     "RUNTIME" : {
+      "WORKFLOW" : {
+        "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully."
+      },
       "BACK" : "Back",
       "DEPLOYMENT" : "Deployment",
       "EVENTS" : {
@@ -294,9 +298,12 @@
       "TOGGLE_EDIT" : "Toggle edit {{state}}",
       "TYPE_TO_ADD" : "Type to filter or add a variable...",
       "UNDEFINED" : "Undefined",
-      "UNSELECTED_HOLDER" : "Select a scope item on the left to view the value"
+      "UNSELECTED_HOLDER" : "Select a scope item on the left to view the value",
+      "APP_VAR": "Application variable",
+      "DELETE_FROM_ENVS": "Delete from environment scopes"
     },
     "VERSION" : {
+      "CHANGE_VERSION": "Select the version and qualifier you want attached to this environment.",
       "CHANGE_TOPO_VERSION_WARNING" : "One more thing : you need to select a topology version to validate the change of application version",
       "LABEL" : "Application version",
       "MODAL" : {
@@ -841,6 +848,10 @@
     "616" : "You are not authorized to clone this Git repository. Please check your credentials.",
     "617" : "No modification have been detected since the last import process",
     "618" : "Invalid name. It is recommended to use alphanumeric character from the basic Latin alphabet and the underscrore only.",
+    "619" : {
+      "TITLE" : "Workflow execution",
+      "MESSAGE" : "Workflow {{workflowId}} fails to be executed."
+    },
     "650" : "At least two of your Compute have a conflict name.",
     "651" : "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "680" : "The Git repository url doesn't exists or isn't a correct one.",
@@ -877,7 +888,7 @@
     "INTERNAL" : "Internal error",
     "SERVER_LOG" : {
       "MISSING_VARIABLES" : "Missing variables: {{variables}}. Please contact the application manager.",
-      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "Constraint violation on predefined input <{{name}}>: ",
+      "PREDEFINED_INPUTS_CONSTRAINT_VIOLATION" : "Constraint violation on predefined input <{{inputName}}>",
       "PREDEFINED_INPUTS_TYPE_VIOLATION" : "Type mismatch on predefined input <{{name}}>: Value must be of type {{type}}",
       "UNRESOLVABLE_PREDEFINED_INPUTS" : "Unresolvable predefined inputs: {{unresolvableInputs}}. Please contact the application manager."
     },
@@ -1072,13 +1083,15 @@
         "CONFIG_HELP" : "You can configure the name and properties of the resource template. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
         "DROP" : "Drop new resources here or on the table above",
         "PROVIDED" : "Provided type from the orchestrator",
-        "TYPE" : "Resource types"
+        "TYPE" : "Resource types",
+        "DUPLICATE": "Duplicate"
       },
       "SECRETS" : {
         "AUTHENTICATION_METHOD" : "Authentication method",
         "LDAP" : "LDAP",
         "NEED_SECRET" : " might need credentials to resolve secret",
         "NO_SECRET_PLUGIN" : "No secret plugin found.",
+        "DELETE_SECRET_CONF": "Delete configuration",
         "PLUGIN_NAME" : "Plugin name",
         "SECRET" : "Secret",
         "TOKEN" : "Token",

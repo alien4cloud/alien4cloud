@@ -394,6 +394,10 @@ public class LocationService {
         alienDAO.save(location);
     }
 
+    public void save(Location location) {
+        alienDAO.save(location);
+    }
+
     private void ensureNameUnicityAndSave(Location location) {
         ensureNameUnicityAndSave(location, null);
     }

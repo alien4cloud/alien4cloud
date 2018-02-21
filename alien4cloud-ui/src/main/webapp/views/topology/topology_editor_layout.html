@@ -1,6 +1,6 @@
 <div class="editor-left-menu">
   <ul class="nav nav-stacked grp-margin nav-vcenter nav-leftside nav-small">
-    <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active">
+    <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active" ng-if="menuItem.show">
       <a id="{{menuItem.id}}"
         ng-click="onItemClick($event, menuItem)"
         ng-class="{'text-muted' : menuItem.disabled}"

@@ -77,16 +77,14 @@
       </div>
       <div class="form-group" ng-if="!isReadOnly && !automaticSave">
         <div class="text-center">
+          <button type="button" class="btn btn-primary" ng-click="saveAction(rootObject)">{{
+            (saveLabel || 'GENERIC_FORM.SAVE') | translate }}
+          </button>
           <button type="button" class="btn btn-default" ng-click="cancelForm()" ng-if="isCancelable">{{
             (cancelLabel || 'GENERIC_FORM.CANCEL') |
             translate }}
           </button>
-          <button type="button" class="btn btn-danger" ng-click="deleteData()" ng-if="isRemovable">{{
-            'GENERIC_FORM.DELETE' | translate }}
-          </button>
-          <button type="button" class="btn btn-primary" ng-click="saveAction(rootObject)">{{
-            (saveLabel || 'GENERIC_FORM.SAVE') | translate }}
-          </button>
+          <delete-confirm ng-if="isRemovable" func="deleteData()" position="right" fastyle="fa-trash-o" text="{{'GENERIC_FORM.DELETE' | translate }}"></delete-confirm>
         </div>
       </div>
     </div>

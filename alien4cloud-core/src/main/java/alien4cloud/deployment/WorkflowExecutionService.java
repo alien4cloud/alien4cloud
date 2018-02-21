@@ -51,10 +51,13 @@ public class WorkflowExecutionService {
         // get the secret provider configuration from the location
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(topology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deploymentTopology,
-                secretProviderService.generateSecretConfiguration(locations,
-                        secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
-                        secretProviderConfigurationAndCredentials.getCredentials()));
+        SecretProviderConfigurationAndCredentials authResponse = null;
+        if (secretProviderService.isSecretProvided(secretProviderConfigurationAndCredentials)) {
+            authResponse = secretProviderService.generateToken(locations,
+                    secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
+                    secretProviderConfigurationAndCredentials.getCredentials());
+        }
+        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deploymentTopology, authResponse);
         orchestratorPlugin.launchWorkflow(deploymentContext, workflowName, params, iPaaSCallback);
     }
 

@@ -70,7 +70,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         workflowBuilderService.removeNode(topology, csar, oldNodeTemplate.getName());
 
         // Build the new one
-        NodeType newType = toscaTypeSearchService.find(NodeType.class, splittedId[0], splittedId[1]);
+        NodeType newType = toscaTypeSearchService.findOrFail(NodeType.class, splittedId[0], splittedId[1]);
         // Load the new type to the topology in order to update its dependencies
         newType = topologyService.loadType(topology, newType);
         NodeTemplate newNodeTemplate = TemplateBuilder.buildNodeTemplate(newType, oldNodeTemplate, false);

@@ -70,7 +70,7 @@ public class DeploymentRuntimeService {
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(deployment.getEnvironmentId());
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = secretProviderService.generateSecretConfiguration(locations,
+        SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials = secretProviderService.generateToken(locations,
                 request.getSecretProviderPluginName(), request.getSecretProviderCredentials());
         return deploymentContextService.buildTopologyDeploymentContext(secretProviderConfigurationAndCredentials, deployment,
                 deploymentTopologyService.getLocations(deploymentTopology), deploymentTopology);
@@ -153,16 +153,17 @@ public class DeploymentRuntimeService {
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(topology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
 
-        if ( secretProviderConfigurationAndCredentials.getSecretProviderConfiguration() != null ) {
-            secretProviderConfigurationAndCredentials = secretProviderService
-                    .generateSecretConfiguration(locations, secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
-                            secretProviderConfigurationAndCredentials.getCredentials());
+        SecretProviderConfigurationAndCredentials authResponse = null;
+        if (secretProviderService.isSecretProvided(secretProviderConfigurationAndCredentials)) {
+            authResponse = secretProviderService.generateToken(locations,
+                    secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
+                    secretProviderConfigurationAndCredentials.getCredentials());
         }
 
         // Get alien4cloud specific interface to support cluster controller nodes.
         Capability clusterControllerCapability = NodeTemplateUtils.getCapabilityByType(nodeTemplate, AlienCapabilityTypes.CLUSTER_CONTROLLER);
         if (clusterControllerCapability == null) {
-            doScaleNode(nodeTemplateId, instances, callback, deployment, topology, nodeTemplate, secretProviderConfigurationAndCredentials);
+            doScaleNode(nodeTemplateId, instances, callback, deployment, topology, nodeTemplate, authResponse);
         } else {
             triggerClusterManagerScaleOperation(nodeTemplateId, instances, callback, deployment, topology, clusterControllerCapability,
                     secretProviderConfigurationAndCredentials);
