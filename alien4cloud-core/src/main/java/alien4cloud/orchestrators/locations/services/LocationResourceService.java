@@ -474,7 +474,7 @@ public class LocationResourceService implements ILocationResourceService {
         CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(),
                 location.getDependencies());
         PropertyDefinition propertyDefinition = getOrFailCapabilityPropertyDefinition(capabilityType, propertyName);
-        propertyService.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
+        propertyService.setCapabilityPropertyValue(location.getDependencies(), capability, propertyDefinition, propertyName, propertyValue);
     }
 
     private Capability getOrFailCapability(NodeTemplate nodeTemplate, String capabilityName) {
