@@ -74,17 +74,15 @@ define(function (require) {
               if (_.defined(response.error)) {
                 var title = $translate.instant('ERRORS.' + response.error.code + '.TITLE');
                 var resultHtml = [];
-                var msg = JSON.parse(response.error.message)
                 var msgHtml = $translate.instant('ERRORS.' + response.error.code + '.MESSAGE', {
-                  'workflowId': msg.workflowId
+                  'workflowId': $scope.currentWorkflowName
                 });
                 resultHtml.push('<li>' + msgHtml + '</li>');
                 toaster.pop('error', title, resultHtml.join(''), 0, 'trustedHtml', null);
                 $scope.isLaunchingWorkflow = false;
               } else {
-                var dataStr = JSON.parse(response.data)
-                var title = $translate.instant("APPLICATIONS.DEPLOYMENT.RUNTIME.WORKFLOW.SUCCESS_TITLE", {
-                'workflowId': dataStr.workflowId});
+                var title = $translate.instant("APPLICATIONS.RUNTIME.WORKFLOW.SUCCESS_TITLE", {
+                'workflowId': $scope.currentWorkflowName});
                 var resultHtml = [];
                 toaster.pop('success', title, resultHtml.join(''), 0, 'trustedHtml', null);
                 $scope.isLaunchingWorkflow = false;
