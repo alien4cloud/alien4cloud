@@ -71,9 +71,10 @@ define(function (require) {
               applicationEnvironmentId: $scope.environment.id,
               workflowName: $scope.currentWorkflowName
             }, angular.toJson(secretProviderInfoRequest), function success(response) {
+              var resultHtml = [];
+              var title = '';
               if (_.defined(response.error)) {
-                var title = $translate.instant('ERRORS.' + response.error.code + '.TITLE');
-                var resultHtml = [];
+                title = $translate.instant('ERRORS.' + response.error.code + '.TITLE');
                 var msgHtml = $translate.instant('ERRORS.' + response.error.code + '.MESSAGE', {
                   'workflowId': $scope.currentWorkflowName
                 });
@@ -81,9 +82,9 @@ define(function (require) {
                 toaster.pop('error', title, resultHtml.join(''), 0, 'trustedHtml', null);
                 $scope.isLaunchingWorkflow = false;
               } else {
-                var title = $translate.instant("APPLICATIONS.RUNTIME.WORKFLOW.SUCCESS_TITLE", {
-                'workflowId': $scope.currentWorkflowName});
-                var resultHtml = [];
+                title = $translate.instant('APPLICATIONS.RUNTIME.WORKFLOW.SUCCESS_TITLE', {
+                  'workflowId': $scope.currentWorkflowName
+                });
                 toaster.pop('success', title, resultHtml.join(''), 0, 'trustedHtml', null);
                 $scope.isLaunchingWorkflow = false;
               }

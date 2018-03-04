@@ -264,8 +264,8 @@ define(function (require) {
 
       $scope.isSecretEditable = function() {
         return $scope.isPropertyEditable();
-      }
-      
+      };
+
       $scope.updateProperty= function(propertyName, propertyValue) {
         var updateRequest = { nodeInstance: { properties:{} } };
         updateRequest.nodeInstance.properties[propertyName] = propertyValue;

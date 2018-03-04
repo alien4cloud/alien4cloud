@@ -74,11 +74,12 @@ define(function(require) {
         });
       };
 
-      $scope.canEditSecretProperty = function(propertyName){
+      $scope.canEditSecretProperty = function(propertyName) {
         return $scope.isSecretEditable({
           propertyPath: {
             propertyName: propertyName
-        }});
+          }
+        });
       };
 
     }]);

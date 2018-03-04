@@ -138,9 +138,9 @@ define(function (require) {
     };
 
     $scope.resetQuery = function() {
-      $scope.searchBoxContent = "";
+      $scope.searchBoxContent = '';
       $scope.search();
-    }
+    };
 
     $scope.addFilterValue = function(key, value) {
       value = $scope.queryManager.facetIdConverter.toFilter(key, value);
