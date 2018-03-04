@@ -119,7 +119,8 @@
 
         <span ng-switch-default id="p_{{propertyName}}" ng-class="{'editable-empty': !definitionObject.uiValue}">
           <!-- Default case (list, map or data type)-->
-          <button type="button" class="btn btn-default btn-xs" ng-click="openComplexPropertyModal()"><i class="fa fa-pencil-square-o"></i></button>
+          <button ng-if="editable" type="button" class="btn btn-default btn-xs" ng-click="openComplexPropertyModal()"><i class="fa fa-pencil-square-o"></i></button>
+          <em ng-if="!editable">{{definitionObject.uiValue}}</em>
         </span>
 
         <label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label>
