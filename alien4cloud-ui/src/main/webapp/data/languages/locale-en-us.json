@@ -1070,6 +1070,7 @@
         "DROP" : "Drop new modifier here or on the table above",
         "INFO" : "Location topology modifiers are pieces of code that will change a topology when assigned to this location. It may perform various things but should always respect the original topology contract. You can read more on topology modifiers and the deployment lifecycle here",
         "MODIFIER" : "Topology modifier",
+        "NEW" : "New modifier",
         "PHASE" : "Deployment phase",
         "PLUGIN" : "Plugin id",
         "PLUGIN_BEAN" : "Plugin bean"
