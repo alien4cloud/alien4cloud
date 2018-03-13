@@ -1,12 +1,10 @@
 package alien4cloud.utils.services;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.beans.IntrospectionException;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
@@ -22,11 +20,12 @@ import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import org.alien4cloud.tosca.normative.types.IPropertyType;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.properties.constraints.ConstraintUtil;
-import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
-import lombok.extern.slf4j.Slf4j;
+import java.beans.IntrospectionException;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Property value validation utility. It checks that a given property value is matching the required property definition.
@@ -229,8 +228,8 @@ public final class ConstraintPropertyService {
         }
         for (Map.Entry<String, Object> complexPropertyValueEntry : complexPropertyValue.entrySet()) {
             if (!safe(dataType.getProperties()).containsKey(complexPropertyValueEntry.getKey())) {
-                throw new ConstraintViolationException("Complex type " + propertyDefinition.getType() + " do not have nested property with name "
-                        + complexPropertyValueEntry.getKey() + " for property " + propertyName);
+                throw new ConstraintViolationException("Complex type <" + propertyDefinition.getType() + "> do not have nested property with name <"
+                        + complexPropertyValueEntry.getKey() + "> for property <" + propertyName + ">");
             } else {
                 Object nestedPropertyValue = complexPropertyValueEntry.getValue();
                 PropertyDefinition nestedPropertyDefinition = dataType.getProperties().get(complexPropertyValueEntry.getKey());
