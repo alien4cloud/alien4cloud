@@ -32,7 +32,7 @@
             <i class="fa fa-user"></i>
             <span>{{appUser.firstName}}</span> <span>{{appUser.lastName}}</span> <span>({{appUser.username}})</span>
           </li>
-          <li ng-repeat="appGroup in groupByAppRole[appRole] | orderBy:'name'">
+          <li ng-repeat="appGroup in groupsByRole[appRole] | orderBy:'name'">
             <i class="fa fa-users"></i>
             <span>{{appGroup.name}}</span>
           </li>
@@ -48,7 +48,7 @@
             <i class="fa fa-user"></i>
             <span>{{appUser.firstName}}</span> <span>{{appUser.lastName}}</span> <span>({{appUser.username}})</span>
           </li>
-          <li ng-repeat="appGroup in groupByAppRole[envRole] | orderBy:'name'">
+          <li ng-repeat="appGroup in groupsByRole[envRole] | orderBy:'name'">
             <i class="fa fa-users"></i>
             <span>{{appGroup.name}}</span>
           </li>
