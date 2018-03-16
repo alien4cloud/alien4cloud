@@ -4,6 +4,8 @@ import java.util.Set;
 
 import org.alien4cloud.tosca.model.CSARDependency;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 /**
  * A {@code ToscaImportsUtils} is a helper class that generates TOSCA imports.
  *
@@ -13,7 +15,7 @@ public class ToscaImportsUtils {
 
     public static String generateImports(Set<CSARDependency> dependencies) {
         StringBuilder sb = new StringBuilder();
-        dependencies.forEach(d -> {
+        safe(dependencies).forEach(d -> {
             if (sb.length() != 0) {
                 sb.append("\n");
             }
