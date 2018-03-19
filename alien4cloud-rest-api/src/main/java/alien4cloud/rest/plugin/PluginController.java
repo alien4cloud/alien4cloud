@@ -1,27 +1,5 @@
 package alien4cloud.rest.plugin;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.mapping.MappingBuilder;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -46,6 +24,26 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.mapping.MappingBuilder;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Controller for plugins.
@@ -139,7 +137,8 @@ public class PluginController {
     @ApiOperation(value = "Search for plugins registered in ALIEN.")
     @RequestMapping(method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<GetMultipleDataResult<Plugin>> search(@ApiParam(value = "Query text.") @RequestParam(required = false) String query,
+    public RestResponse<GetMultipleDataResult<Plugin>> search(
+            @ApiParam(value = "Query text.") @RequestParam(required = false) String query,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
         GetMultipleDataResult<Plugin> result = this.alienDAO.search(Plugin.class, query, null, from, size);
