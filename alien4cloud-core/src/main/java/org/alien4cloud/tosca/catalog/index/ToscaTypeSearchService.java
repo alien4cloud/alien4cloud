@@ -1,12 +1,11 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.dao.FilterUtil.singleKeyFilter;
-
-import java.util.*;
-
-import javax.annotation.Resource;
-
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.utils.VersionUtil;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -20,12 +19,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.utils.VersionUtil;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 @Slf4j
 @Component
@@ -175,12 +178,16 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
     }
 
     private void reorderIfNodeType(Class<? extends AbstractToscaType> clazz, String query, FacetedSearchResult result) {
-        if(NodeType.class.isAssignableFrom(clazz)){
+        if (NodeType.class.isAssignableFrom(clazz)) {
             Arrays.sort(result.getData(), Comparator.comparingLong(value -> {
                 NodeType nodeType = (NodeType)value;
-                if(query != null && nodeType.getElementId().toLowerCase().contains(query.toLowerCase())){
+                String normalizedElementId = nodeType.getElementId().toLowerCase();
+                String simplifiedNodeType = normalizedElementId.substring(normalizedElementId.lastIndexOf('.') + 1);
+                if (query != null && simplifiedNodeType.equals(query.toLowerCase())) {
+                    return nameQuerySimilitudeBoost * 2 * nodeType.getAlienScore();
+                } else if (query != null && normalizedElementId.contains(query.toLowerCase())) {
                     return nameQuerySimilitudeBoost * nodeType.getAlienScore();
-                }else{
+                } else {
                     return nodeType.getAlienScore();
                 }
             }).reversed());
