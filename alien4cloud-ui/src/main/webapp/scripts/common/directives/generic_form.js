@@ -388,6 +388,7 @@ define(function(require) {
                   // No error save the result
                   FORMS.setValueForPath(scope.rootObject, propertyValue, scope.path);
                   if (scope.configuration.automaticSave) {
+                    scope.configuration.validationStatuses[scope.propertyName] = true // Force validation status in order to save the value of the property
                     scope.saveAction(scope.rootObject);
                   }
                 }
