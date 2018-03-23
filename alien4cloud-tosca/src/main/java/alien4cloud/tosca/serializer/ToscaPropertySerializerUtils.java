@@ -41,7 +41,7 @@ public class ToscaPropertySerializerUtils {
             if (text == null) {
                 text = "";
             } else if (!VALID_YAML_PATTERN.matcher(text).matches() && !FLOAT_PATTERN.matcher(text).matches()) {
-                text = "\"" + text + "\"";
+                text = "\"" + escapeDoubleQuote(text) + "\"";
             }
             return text;
         }
