@@ -11,7 +11,7 @@ define(function (require) {
   require('scripts/_ref/applications/services/secret_display_modal');
 
   states.state('applications.detail.environment.deploycurrent.workflow', {
-    url: '/runtime_editor',
+    url: '/workflow',
     templateUrl: 'views/_ref/applications/applications_detail_environment_deploycurrent_workflow.html',
     controller: 'ApplicationEnvDeployCurrentWorkflowCtrl',
     menu: {
