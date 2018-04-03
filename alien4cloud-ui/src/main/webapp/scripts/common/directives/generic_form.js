@@ -969,6 +969,10 @@ define(function(require) {
     if (validateInput) {
       scope.validateInput = function() {
         scope.isInputValid = !scope.propertyType._notNull || _.defined(scope.input.value);
+        if (!scope.isInputValid && _.defined(scope.propertyType._definition.default.value)) {
+          // if the property has a default value, we consider this input has valid
+          scope.isInputValid = true;
+        }
         if (scope.configuration.validationErrors && scope.configuration.validationErrors[FORMS.valueRequiredError]) {
           // For the moment only error that a field is required exist
           var indexOfError = scope.configuration.validationErrors[FORMS.valueRequiredError].indexOf(scope.labelPath);
