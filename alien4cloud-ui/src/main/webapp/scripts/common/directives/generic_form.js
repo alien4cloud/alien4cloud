@@ -192,7 +192,6 @@ define(function(require) {
       for (var id in scope.configuration.validationStatuses) {
         if (scope.configuration.validationStatuses.hasOwnProperty(id) && !scope.configuration.validationStatuses[id]) {
           scope.configuration.showErrorsAlert = true;
-          return;
         }
       }
       var savePromise = saveCallback({
@@ -200,8 +199,6 @@ define(function(require) {
       });
       var cleanUpAfterSave = function() {
         delete scope.configuration.toBeSaved;
-        delete scope.configuration.validationErrors;
-        scope.configuration.showErrorsAlert = false;
       };
 
       if (_.defined(savePromise)) {
