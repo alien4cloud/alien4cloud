@@ -125,4 +125,19 @@ public class PropertyService {
         }
         setPropertyValue(capability.getProperties(), propertyDefinition, propertyName, propertyValue);
     }
+
+    /**
+     * Set value for a capability property
+     *
+     * @param capability the capability
+     * @param propertyDefinition the definition of the property
+     * @param propertyName the name of the property
+     * @param propertyValue the value of the property
+     */
+    @ToscaContextual
+    public void setCapabilityPropertyValue(Set<CSARDependency> dependencies, Capability capability, PropertyDefinition propertyDefinition, String propertyName,
+            Object propertyValue)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
+    }
 }

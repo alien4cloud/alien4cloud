@@ -1,5 +1,11 @@
 package org.alien4cloud.tosca.exporter;
 
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import alien4cloud.application.ApplicationService;
 import alien4cloud.model.application.Application;
 import alien4cloud.security.AuthorizationUtil;
@@ -12,11 +18,6 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.stereotype.Service;
-
-import javax.inject.Inject;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
@@ -51,10 +52,28 @@ public class ArchiveExportService {
      * @param csar The csar that contains archive meta-data.
      * @param topology The topology template within the archive.
      * @param generateWorkflow check if we generate the workflow
+     * @param dslVersion       the TOSCA DSL version to use
      * @return The TOSCA yaml file that describe the topology.
      */
     public String getYaml(Csar csar, Topology topology, boolean generateWorkflow, String dslVersion) {
-        Map<String, Object> velocityCtx = new HashMap<>();
+        return getYaml(csar, topology, generateWorkflow, dslVersion, null);
+    }
+
+    /**
+     * Get the yaml string out of a cloud service archive and topology.
+     *
+     * @param csar             The csar that contains archive meta-data.
+     * @param topology         The topology template within the archive.
+     * @param generateWorkflow check if we generate the workflow
+     * @param dslVersion       the TOSCA DSL version to use
+     * @param velocityCtx      allows to provide some extra configuration options to velocity
+     *
+     * @return The TOSCA yaml file that describe the topology.
+     */
+    public String getYaml(Csar csar, Topology topology, boolean generateWorkflow, String dslVersion, Map<String, Object> velocityCtx) {
+        if (velocityCtx == null) {
+            velocityCtx = new HashMap<>();
+        }
         velocityCtx.put("topology", topology);
         velocityCtx.put("template_name", csar.getName());
         velocityCtx.put("template_version", csar.getVersion());

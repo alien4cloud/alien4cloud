@@ -96,26 +96,28 @@ define(function (require) {
         togglePropertySecret: function(property) {
           // This request object is for unset the property.
           var requestObject = {
-              type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetNodePropertyAsSecretOperation',
-              nodeName: this.scope.selectedNodeTemplate.name,
-              propertyName: property.key
-            };
+            type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetNodePropertyAsSecretOperation',
+            nodeName: this.scope.selectedNodeTemplate.name,
+            propertyName: property.key
+          };
           var broadcastObject = {
-            'propertyName': property.key};
+            'propertyName': property.key
+          };
           this.toggleSecret(property, requestObject, broadcastObject);
         },
 
         toggleCapabilitySecret: function(property, capabilityName) {
           // This request object is for unset the capability.
           var requestObject = {
-              type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetNodeCapabilityPropertyAsSecretOperation',
-              nodeName: this.scope.selectedNodeTemplate.name,
-              propertyName: property.key,
-              capabilityName: capabilityName
-            };
+            type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetNodeCapabilityPropertyAsSecretOperation',
+            nodeName: this.scope.selectedNodeTemplate.name,
+            propertyName: property.key,
+            capabilityName: capabilityName
+          };
           var broadcastObject = {
             'propertyName': property.key,
-            'capabilityName': capabilityName};
+            'capabilityName': capabilityName
+          };
           this.toggleSecret(property, requestObject, broadcastObject);
         },
 
@@ -139,12 +141,13 @@ define(function (require) {
         togglePolicyPropertySecret: function(policy) {
           // This request object is for unset the property.
           var requestObject = {
-              type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetPolicyPropertyAsSecretOperation',
-              nodeName: this.scope.policies.selectedTemplate.name,
-              propertyName: policy.key
-            };
+            type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetPolicyPropertyAsSecretOperation',
+            nodeName: this.scope.policies.selectedTemplate.name,
+            propertyName: policy.key
+          };
           var broadcastObject = {
-            'propertyName': policy.key};
+            'propertyName': policy.key
+          };
           this.toggleSecret(policy, requestObject, broadcastObject);
         },
 
@@ -155,7 +158,8 @@ define(function (require) {
           var scope = this.scope;
           // identifier to locate the button
           var broadcastObject = {
-            'propertyName': inputParameterName};
+            'propertyName': inputParameterName
+          };
           if (scope.properties.isSecretValue(inputParameter.paramValue)) {
             // reset the secret to originalValue
             inputParameter.paramValue = null;
@@ -173,7 +177,8 @@ define(function (require) {
         toggleResourcePropertySecret: function(self) {
           var scope = this.scope;
           var broadcastObject = {
-            'propertyName': self.key};
+            'propertyName': self.key
+          };
           if (scope.properties.isSecretValue(self.value)) {
             // Unset the property
             self.value = null;
@@ -192,7 +197,8 @@ define(function (require) {
           var scope = this.scope;
           var broadcastObject = {
             'capabilityName': capabilityName,
-            'propertyName': property.key};
+            'propertyName': property.key
+          };
           if (scope.properties.isSecretValue(property.value)) {
             // Unset the property
             property.value = null;
@@ -215,7 +221,8 @@ define(function (require) {
           var property = topology.deployerInputProperties[inputId];
           var scope = this.scope;
           var broadcastObject = {
-            'propertyName': inputId};
+            'propertyName': inputId
+          };
           if (scope.properties.isSecretValue(property)) {
             // Unset the property
             property = null;
@@ -242,7 +249,8 @@ define(function (require) {
           var property = topology.preconfiguredInputProperties[inputId];
           var scope = this.scope;
           var broadcastObject = {
-            'propertyName': inputId};
+            'propertyName': inputId
+          };
           if (scope.properties.isSecretValue(property)) {
             // Unset the property
             property = null;
@@ -259,18 +267,18 @@ define(function (require) {
         },
 
         toggleRelationshipPropertySecret: function(property, relationshipName) {
-          var scope = this.scope;
           // This request object is for unset the property.
           var requestObject = {
-              type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetRelationshipPropertyAsSecretOperation',
-              nodeName: this.scope.selectedNodeTemplate.name,
-              propertyName: property.key,
-              relationshipName: relationshipName
-            };
+            type: 'org.alien4cloud.tosca.editor.operations.secrets.UnsetRelationshipPropertyAsSecretOperation',
+            nodeName: this.scope.selectedNodeTemplate.name,
+            propertyName: property.key,
+            relationshipName: relationshipName
+          };
           // Broadcast an event to auto open the editor inside the secret display.
           var broadcastObject = {
             'propertyName': property.key,
-            'relationshipName': relationshipName};
+            'relationshipName': relationshipName
+          };
           this.toggleSecret(property, requestObject, broadcastObject);
         }
 
