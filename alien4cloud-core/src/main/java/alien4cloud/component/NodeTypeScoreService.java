@@ -1,28 +1,23 @@
 package alien4cloud.component;
 
-import java.util.Date;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Maps;
-
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.version.Version;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.Map;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
@@ -55,7 +50,7 @@ public class NodeTypeScoreService implements Runnable {
         Date date = new Date(System.currentTimeMillis() + frequencyMs);
         log.info("Type score is scheduled with {} ms frequency", frequencyMs);
         scheduler.scheduleAtFixedRate(this, date, frequencyMs);
-        if(environment.acceptsProfiles("security-demo")){
+        if (environment.acceptsProfiles("security-demo")) {
             scheduler.schedule(this, new Date());
         }
     }

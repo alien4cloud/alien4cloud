@@ -1,5 +1,31 @@
-
-<div class="grp-margin">
-  Here goes details of deployment {{deploymentDTO.deployment.id}}
-
+<div class="row grp-margin">
+  <div class="col-md-4">
+    <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DEPLOYER' | translate }}</strong>
+  </div>
+  <div class="col-md-8">{{deploymentDTO.deployment.deployerUsername}}</div>
+</div>
+<div class="row grp-margin">
+  <div class="col-md-4">
+    <strong>{{'ORCHESTRATORS.NAV.LOCATIONS' | translate }}</strong>
+  </div>
+  <div class="col-md-8">{{deploymentDTO.locations[0].name}}</div>
+</div>
+<div class="row grp-margin">
+  <div class="col-md-4">
+    <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DEPLOYED_AT' | translate }}</strong>
+  </div>
+  <div class="col-md-8">{{deploymentDTO.deployment.startDate | date:'medium'}}</div>
+</div>
+<div class="row grp-margin">
+  <div class="col-md-4">
+    <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.UNDEPLOYED_AT' | translate }}</strong>
+  </div>
+  <div class="col-md-8">{{deploymentDTO.deployment.endDate | date:'medium'}}</div>
+</div>
+<div class="row grp-margin">
+  <div class="col-md-4">
+    <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DURATION' | translate }}</strong>
+  </div>
+  <div class="col-md-8">{{ ((deploymentDTO.deployment.endDate || now) - deploymentDTO.deployment.startDate) | amDurationFormat : 'millisecond' }}
+  </div>
 </div>

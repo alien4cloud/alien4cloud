@@ -127,7 +127,8 @@ define(function(require) {
         return $scope.isSecretEditable({
           propertyPath: {
             propertyName: propertyName
-        }});
+          }
+        });
       };
 
       $scope.canEditSecretCapability = function(capabilityName, propertyName){
@@ -135,7 +136,8 @@ define(function(require) {
           propertyPath: {
             capabilityName: capabilityName,
             propertyName: propertyName
-        }});
+          }
+        });
       };
 
     }]);

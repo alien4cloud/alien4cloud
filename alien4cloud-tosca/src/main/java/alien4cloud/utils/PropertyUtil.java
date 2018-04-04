@@ -1,6 +1,9 @@
 package alien4cloud.utils;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Map;
+import java.util.Set;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
@@ -270,4 +273,58 @@ public final class PropertyUtil {
         return null;
     }
 
+    /**
+     * Merge the map of two node properties recursively.
+     * @param source    the source map
+     * @param target    the target map
+     * @param overrideNull  a boolean value for override the null value of target
+     * @param untouched the list of unmodified key //TODO not used and it needs to be reorganised
+     * @return  a merged map
+     */
+    public static Map<String, AbstractPropertyValue> merge(Map<String, AbstractPropertyValue> source, Map<String, AbstractPropertyValue> target,
+            boolean overrideNull, Set<String> untouched) {
+        if (target == null || target.isEmpty()) {
+            return source;
+        }
+        for (Map.Entry<String, AbstractPropertyValue> entry : safe(source).entrySet()) {
+            String sourceKey = entry.getKey();
+            AbstractPropertyValue sourceValue = entry.getValue();
+            AbstractPropertyValue targetValue = target.get(sourceKey);
+            if ((overrideNull && targetValue == null) || !target.containsKey(sourceKey)) {
+                target.put(sourceKey, sourceValue);
+            } else if (target.containsKey(sourceKey) && targetValue != null) {
+                if (sourceValue instanceof ComplexPropertyValue) {
+                    Map<String, Object> mergedMap = mergeMap(((ComplexPropertyValue) sourceValue).getValue(),
+                            ((ComplexPropertyValue) targetValue).getValue(), overrideNull, untouched);
+                    target.put(sourceKey, new ComplexPropertyValue(mergedMap));
+                } else if (sourceValue instanceof Map) {
+                    Map<String, Object> mergedMap = mergeMap((Map<String, Object>) sourceValue, (Map<String, Object>) targetValue, overrideNull,
+                            untouched);
+                    target.put(sourceKey, (AbstractPropertyValue) mergedMap);
+                }
+            }
+        }
+        return target;
+    }
+
+    private static Map<String, Object> mergeMap(Map<String, Object> source, Map<String, Object> target, boolean overrideNull, Set<String> untouched) {
+        if (target == null || target.isEmpty()) {
+            return source;
+        }
+        for (Map.Entry<String, Object> entry : safe(source).entrySet()) {
+            String sourceKey = entry.getKey();
+            Object sourceValue = entry.getValue();
+            Object targetValue = target.get(sourceKey);
+            if ((overrideNull && targetValue == null) || !target.containsKey(sourceKey)) {
+                target.put(sourceKey, sourceValue);
+            } else if (target.containsKey(sourceKey) && targetValue != null) {
+                if (sourceValue instanceof Map) {
+                    Map<String, Object> mergedValue = mergeMap((Map<String, Object>) sourceValue, (Map<String, Object>) targetValue, overrideNull,
+                            untouched);
+                    target.put(sourceKey, mergedValue);
+                }
+            }
+        }
+        return target;
+    }
 }

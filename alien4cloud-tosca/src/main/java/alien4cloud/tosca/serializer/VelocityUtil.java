@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -41,13 +40,20 @@ public class VelocityUtil {
         for (Entry<String, ?> contextEntry : properties.entrySet()) {
             context.put(contextEntry.getKey(), contextEntry.getValue());
         }
-        context.put("utils", new ToscaSerializerUtils());
-        context.put("propertyUtils", new ToscaPropertySerializerUtils());
+        putIfAbsent(context, "utils", new ToscaSerializerUtils());
+        putIfAbsent(context, "propertyUtils", new ToscaPropertySerializerUtils());
+        putIfAbsent(context, "importsUtils", new ToscaImportsUtils());
 
         try {
             template.merge(context, outputWriter);
         } finally {
             outputWriter.close();
+        }
+    }
+
+    private static void putIfAbsent(VelocityContext context, String key, Object value) {
+        if (!context.containsKey(key)) {
+            context.put(key, value);
         }
     }
 }

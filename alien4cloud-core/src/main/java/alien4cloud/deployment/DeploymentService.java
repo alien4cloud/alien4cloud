@@ -1,23 +1,9 @@
 package alien4cloud.deployment;
 
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-
-import java.util.*;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IESQueryBuilderHelper;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.exceptions.ImpossibleDeploymentUpdateException;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
@@ -26,7 +12,24 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 /**
  * Manage deployment operations on a cloud.
@@ -63,23 +66,42 @@ public class DeploymentService {
      * @return An array of deployments.
      */
     public Deployment[] getDeployments(String orchestratorId, String sourceId, String environmentId, int from, int size) {
+        FilterBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
+        IESQueryBuilderHelper<Deployment> queryBuilderHelper = alienDao.buildQuery(Deployment.class);
+        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", true).search(from, size).getData();
+    }
+
+    /**
+     * Search all deployments. See below to known with filters are supported.
+     *
+     * @param query Query text.
+     * @param orchestratorId Id of the orchestrator for which to get deployments (can be null to get deployments for all orchestrator).
+     * @param environmentId  Id of the environment for which to get deployments (can be null to get deployments for all environments).
+     * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
+     * @param from Query from the given index.
+     * @param size Maximum number of results to retrieve.
+     * @return the deployments with pagination
+     */
+    public FacetedSearchResult searchDeployments(String query, String orchestratorId, String environmentId, String sourceId, int from, int size) {
+        FilterBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
+        return alienDao.facetedSearch(Deployment.class, query, null, filterBuilder, null, from, size, "startDate", true);
+    }
+
+    private FilterBuilder buildDeploymentFilters(String orchestratorId, String sourceId, String environmentId) {
         FilterBuilder filterBuilder = null;
         if (orchestratorId != null) {
-            filterBuilder = FilterBuilders.termFilter("orchestratorId", orchestratorId);
+            FilterBuilder orchestratorFilter = FilterBuilders.termFilter("orchestratorId", orchestratorId);
+            filterBuilder = filterBuilder == null ? orchestratorFilter : FilterBuilders.andFilter(orchestratorFilter, filterBuilder);
         }
         if (environmentId != null) {
-            filterBuilder = FilterBuilders.termFilter("environmentId", environmentId);
+            FilterBuilder environmentFilter = FilterBuilders.termFilter("environmentId", environmentId);
+            filterBuilder = filterBuilder == null ? environmentFilter : FilterBuilders.andFilter(environmentFilter, filterBuilder);
         }
         if (sourceId != null) {
             FilterBuilder sourceFilter = FilterBuilders.termFilter("sourceId", sourceId);
             filterBuilder = filterBuilder == null ? sourceFilter : FilterBuilders.andFilter(sourceFilter, filterBuilder);
         }
-
-        IESQueryBuilderHelper<Deployment> queryBuilderHelper = alienDao.buildQuery(Deployment.class);
-        if (filterBuilder != null) {
-            queryBuilderHelper.setFilters(filterBuilder);
-        }
-        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", true).search(from, size).getData();
+        return filterBuilder;
     }
 
     /**

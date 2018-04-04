@@ -29,7 +29,7 @@ import alien4cloud.utils.TagUtil;
  * Last policy matching modifier, it actually inject policy modifiers implementations as policies implementations may impact the actual topology to be deployed.
  */
 @Component
-public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifier<PolicyTemplate, PolicyLocationResourceTemplate> {
+public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifier<PolicyTemplate, PolicyLocationResourceTemplate, PolicyType> {
     @Inject
     private PluginModifierRegistry pluginModifierRegistry;
 
@@ -44,6 +44,11 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
             topology.getDependencies().addAll(location.getLocation().getDependencies());
         }
         ToscaContext.get().resetDependencies(topology.getDependencies());
+    }
+
+    @Override
+    protected Class<PolicyType> getToscaTypeClass() {
+        return PolicyType.class;
     }
 
     @Override

@@ -1,15 +1,13 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
-import static alien4cloud.utils.AlienUtils.safe;
-import static com.google.common.collect.Maps.newLinkedHashMap;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.inject.Inject;
-
+import alien4cloud.paas.wf.TopologyContext;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.topology.TopologyService;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.topology.TemplateBuilder;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -33,12 +31,14 @@ import org.alien4cloud.tosca.utils.TopologyUtils.RelationshipEntry;
 import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.paas.wf.TopologyContext;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.topology.TemplateBuilder;
-import lombok.extern.slf4j.Slf4j;
+import javax.inject.Inject;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import static alien4cloud.utils.AlienUtils.safe;
+import static com.google.common.collect.Maps.newLinkedHashMap;
 
 /**
  * Replace the type of a node template by another compatible type (inherited or that fulfills the same used capabilities and requirements).
@@ -62,6 +62,9 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         NodeTemplate oldNodeTemplate = TopologyUtils.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
 
         String[] splittedId = operation.getNewTypeId().split(":");
+
+        // When we replace the target of a relationship, we should stash the relationship contains in the source when we remove or add the target node
+        Map<String, Map<String, RelationshipTemplate>> relationshipsSwapped = removeTheRelationshipsOnSource(topology, csar, operation.getNodeName());
 
         // Unload and remove old node template
         topologyService.unloadType(topology, oldNodeTemplate.getType());
@@ -96,6 +99,10 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         // add the new node to the workflow
         TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology, csar);
         workflowBuilderService.addNode(topologyContext, oldNodeTemplate.getName());
+
+        // add the relationship previouly swaped
+        addTheRelationshipsOnSource(topology, relationshipsSwapped);
+
         // add the relationships from the new node to the workflow
         safe(newNodeTemplate.getRelationships()).forEach(
                 (relationshipId, relationshipTemplate) -> workflowBuilderService.addRelationship(topologyContext, newNodeTemplate.getName(), relationshipId));
@@ -160,5 +167,42 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
     private boolean isCapabilityNotOfType(Capability capability, String expectedCapabilityType) {
         CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capability.getType());
         return !ToscaTypeUtils.isOfType(capabilityType, expectedCapabilityType);
+    }
+
+    /**
+     * If the node to replace is an target of relationship, we should swapped the relationship on source and clean used workflow steps
+     */
+    private Map<String, Map<String, RelationshipTemplate>> removeTheRelationshipsOnSource(Topology topology, Csar csar, String nodeToReplace) {
+        Map<String, Map<String, RelationshipTemplate>> relationshipDeleted = Maps.newLinkedHashMap();
+        for (NodeTemplate nodeTemplate : safe(topology.getNodeTemplates()).values()) {
+            if (!nodeToReplace.equals(nodeTemplate.getName())) {
+                List<String> relationshipsToRemove = Lists.newArrayList();
+                for (RelationshipTemplate relationshipTemplate : safe(nodeTemplate.getRelationships()).values()) {
+                    if (nodeToReplace.equals(relationshipTemplate.getTarget())) {
+                        relationshipsToRemove.add(relationshipTemplate.getName());
+                        if (!relationshipDeleted.containsKey(relationshipTemplate.getName())) {
+                            Map<String, RelationshipTemplate> relationships = Maps.newHashMap();
+                            // we save the RelationshipTemplate, so we will preserve the current properties of this relationship
+                            relationshipDeleted.put(nodeTemplate.getName(), relationships);
+                        }
+                        relationshipDeleted.get(nodeTemplate.getName()).put(relationshipTemplate.getName(), relationshipTemplate);
+                        // we should remove this relationship to maintain a great a workflow
+                        workflowBuilderService.removeRelationship(topology, csar, nodeTemplate.getName(),
+                                relationshipTemplate.getName(), relationshipTemplate);
+                    }
+                }
+            }
+        }
+        return relationshipDeleted;
+    }
+
+    private void addTheRelationshipsOnSource(Topology topology, Map<String, Map<String, RelationshipTemplate>> relationshipDeleted) {
+        for (String nodeName : relationshipDeleted.keySet()) {
+            NodeTemplate nodeTemplate = safe(topology.getNodeTemplates()).get(nodeName);
+            Map<String, RelationshipTemplate> relationship = relationshipDeleted.get(nodeName);
+            for (String targetId : relationship.keySet()) {
+                nodeTemplate.getRelationships().put(targetId, relationship.get(targetId));
+            }
+        }
     }
 }

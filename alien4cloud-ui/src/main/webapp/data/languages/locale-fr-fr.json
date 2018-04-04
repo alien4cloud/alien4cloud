@@ -1070,6 +1070,7 @@
         "DROP" : "Drop new modifier here or on the table above",
         "INFO" : "Les 'Topology modifiers' sont des éléments de code qui modifient une topologie lorsqu'ils sont assignés à cette location. Ils peuvent effectuer plusieurs modifications mais doivent toujours respecter le contrat original de la location. Vous pouvez trouvez plus d'information sur les modifier et sur le cycle de vie de déploiement ici",
         "MODIFIER" : "Modificateur de topology",
+        "NEW" : "Nouveau 'topology modifier'",
         "PHASE" : "Phase de déploiement",
         "PLUGIN" : "Plugin id",
         "PLUGIN_BEAN" : "Plugin bean"

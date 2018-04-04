@@ -7,27 +7,19 @@ define(function (require) {
   require('scripts/deployment/services/deployment_services');
 
   modules.get('a4c-applications').controller('DeploymentHistoryCtrl',
-    ['$scope', '$state', 'deploymentServices', 'historyConf',
-      function ($scope, $state, deploymentServices, historyConf) {
-
-        function processDeployments(deployments) {
-          if (_.defined(deployments)) {
-            _.each(deployments, function (deployment) {
-              if(_.defined(deployment.deployment.endDate)){
-                deployment.deployment.duration = '';
-              }else{
-                deployment.deployment.duration = '';
-              }
-            });
-          }
-        }
-
+    ['$scope', '$state', 'deploymentServices', 'historyConf', 'searchServiceFactory',
+      function ($scope, $state, deploymentServices, historyConf, searchServiceFactory) {
         $scope.now = new Date();
 
-        deploymentServices.get(historyConf.searchParam, function (result) {
-          processDeployments(result.data);
-          $scope.deployments = result.data;
-        });
+        var searchServiceUrl = 'rest/latest/deployments/search';
+        $scope.queryManager = {
+          query: ''
+        };
+        $scope.searchService = searchServiceFactory(searchServiceUrl, true, $scope.queryManager, 30, 50, true, null, historyConf.searchParam);
+        $scope.searchService.search();
+        $scope.queryManager.onSearchCompleted = function(searchResult) {
+          $scope.deployments = searchResult.data.data;
+        };
 
         var goToDeploymentDetail = function(deployment) {
           $state.go(historyConf.rootState+'.detail', {
