@@ -2,17 +2,21 @@ package alien4cloud.application;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienConstants.APP_WORKSPACE_PREFIX;
+import static alien4cloud.utils.AlienUtils.safe;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.utils.AlienUtils;
+import com.google.common.collect.Lists;
 import org.alien4cloud.alm.events.AfterApplicationTopologyVersionDeleted;
 import org.alien4cloud.alm.events.AfterApplicationVersionDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
@@ -112,7 +116,7 @@ public class ApplicationVersionService {
         appVersion.setNestedVersion(VersionUtil.parseVersion(version));
         appVersion.setReleased(!VersionUtil.isSnapshot(version));
         appVersion.setDescription(description);
-        appVersion.setTopologyVersions(Maps.newHashMap());
+        appVersion.setTopologyVersions(Maps.newLinkedHashMap());
 
         // Create all topology versions based on the previous version configuration
         if (originalIsAppVersion && originalId != null) {
@@ -519,10 +523,10 @@ public class ApplicationVersionService {
                 throw new AlreadyExistException("An application version already exist for this application with the version :" + newVersion);
             }
 
-            ApplicationEnvironment[] relatedEnvironments = findAllApplicationVersionUsage(applicationVersion.getApplicationId(),
+            List<ApplicationEnvironment> relatedEnvironments = findAllApplicationVersionUsage(applicationVersion.getApplicationId(),
                     applicationVersion.getVersion());
 
-            if (ArrayUtils.isNotEmpty(relatedEnvironments)) {
+            if (!safe(relatedEnvironments).isEmpty()) {
                 // should fal the update if linked to deployed environment
                 failIfAnyEnvironmentDeployed(relatedEnvironments);
 
@@ -537,7 +541,7 @@ public class ApplicationVersionService {
             newApplicationVersion.setDescription(applicationVersion.getDescription());
             newApplicationVersion.setApplicationId(applicationVersion.getApplicationId());
             newApplicationVersion.setReleased(!VersionUtil.isSnapshot(newVersion));
-            newApplicationVersion.setTopologyVersions(Maps.newHashMap());
+            newApplicationVersion.setTopologyVersions(Maps.newLinkedHashMap());
 
             importTopologiesFromPreviousVersion(newApplicationVersion, applicationVersion);
 
@@ -555,8 +559,8 @@ public class ApplicationVersionService {
         }
     }
 
-    private void failIfAnyEnvironmentDeployed(ApplicationEnvironment[] relatedEnvironments) {
-        Usage[] usages = Arrays.stream(relatedEnvironments).map(environment -> {
+    private void failIfAnyEnvironmentDeployed(List<ApplicationEnvironment> relatedEnvironments) {
+        Usage[] usages = relatedEnvironments.stream().map(environment -> {
             Usage usage = null;
             Deployment deployment = applicationEnvironmentService.getActiveDeployment(environment.getId());
             if (deployment != null) {
@@ -571,9 +575,9 @@ public class ApplicationVersionService {
         }
     }
 
-    private void failIfAnyEnvironmentExposedAsService(String applicationId, ApplicationEnvironment[] environments) {
+    private void failIfAnyEnvironmentExposedAsService(String applicationId, List<ApplicationEnvironment> environments) {
         Application application = applicationService.getOrFail(applicationId);
-        Usage[] usages = Arrays.stream(environments).map(environment -> {
+        Usage[] usages = environments.stream().map(environment -> {
             Usage usage = null;
             ServiceResource service = alienDAO.buildQuery(ServiceResource.class).setFilters(fromKeyValueCouples("environmentId", environment.getId()))
                     .prepareSearch().find();
@@ -589,17 +593,17 @@ public class ApplicationVersionService {
         }
     }
 
-    private void updateTopologyVersion(ApplicationEnvironment[] relatedEnvironments, ApplicationVersion oldVersion, ApplicationVersion newVersion) {
-        if (ArrayUtils.isEmpty(relatedEnvironments)) {
+    private void updateTopologyVersion(List<ApplicationEnvironment> relatedEnvironments, ApplicationVersion oldVersion, ApplicationVersion newVersion) {
+        if (AlienUtils.safe(relatedEnvironments).isEmpty()) {
             return;
         }
-        Arrays.stream(relatedEnvironments).forEach(environment -> {
+        relatedEnvironments.stream().forEachOrdered(environment -> {
             ApplicationTopologyVersion oldTopologyVersion = oldVersion.getTopologyVersions().get(environment.getTopologyVersion());
             String newTopologyVersion = getTopologyVersion(newVersion.getVersion(), oldTopologyVersion.getQualifier());
             applicationEnvironmentService.updateTopologyVersion(environment, environment.getTopologyVersion(), newVersion.getVersion(), newTopologyVersion,
                     environment.getId());
-        });
 
+        });
     }
 
     /**
@@ -670,10 +674,11 @@ public class ApplicationVersionService {
                 .prepareSearch().find();
     }
 
-    public ApplicationEnvironment[] findAllApplicationVersionUsage(String applicationId, String applicationVersion) {
+    public List<ApplicationEnvironment> findAllApplicationVersionUsage(String applicationId, String applicationVersion) {
         // find all linked environment
-        return alienDAO.buildQuery(ApplicationEnvironment.class).setFilters(fromKeyValueCouples("applicationId", applicationId, "version", applicationVersion))
+        ApplicationEnvironment[] aes = alienDAO.buildQuery(ApplicationEnvironment.class).setFilters(fromKeyValueCouples("applicationId", applicationId, "version", applicationVersion))
                 .prepareSearch().search(0, Integer.MAX_VALUE).getData();
+        return Lists.newArrayList(aes);
     }
 
     /**
