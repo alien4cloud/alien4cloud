@@ -91,8 +91,8 @@ define(function (require) {
     };
   }];
 
-  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$translate', '$uibModal', '$alresource', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify', 'appEnvironments',
-    function($scope, $translate, $uibModal, $alresource, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify, appEnvironments) {
+  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$translate', '$uibModal', '$alresource', 'userContextServices', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify', 'appEnvironments',
+    function($scope, $translate, $uibModal, $alresource, userContextServices, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify, appEnvironments) {
       var topoVersionService = $alresource('rest/latest/applications/:appId/versions/:versionId/topologyVersions/:topoVersionId');
 
       $scope.isManager = userCanModify;
@@ -159,6 +159,7 @@ define(function (require) {
         }, angular.toJson(applicationVersionUpdateRequest), undefined).$promise.then(
           function() {
             // success
+            var previousTopologiesContext = userContextServices.getTopologyContext(version.applicationId);
             if (fieldName === 'version') {
               _.each($scope.appEnvironments.environments, function(env) {
                   if (env.applicationId === version.applicationId && env.currentVersionName === version.version) {
@@ -171,6 +172,9 @@ define(function (require) {
             }
             $scope.searchService.search();
             refreshAllAppVersions();
+            if (_.defined(previousTopologiesContext)) {
+              userContextServices.deleteTopologyContext(version.applicationId);
+            }
           }, function() {
             return false;
           }

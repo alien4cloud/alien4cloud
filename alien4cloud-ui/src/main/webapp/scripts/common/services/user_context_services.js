@@ -20,6 +20,10 @@ define(function (require) {
       return previousTopologiesContext[applicationId];
     };
 
+    var deleteTopologyContext = function (applicationId) {
+      delete previousTopologiesContext[applicationId];
+    };
+
     var updateTopologyContext = function (applicationId, version, variant) {
       previousTopologiesContext[applicationId] = {
         version: version.id,
@@ -39,6 +43,7 @@ define(function (require) {
       'updateEnvironmentContext': updateEnvironmentContext,
       'getTopologyContext': getTopologyContext,
       'updateTopologyContext': updateTopologyContext,
+      'deleteTopologyContext': deleteTopologyContext,
       'clear': clear
     };
 
