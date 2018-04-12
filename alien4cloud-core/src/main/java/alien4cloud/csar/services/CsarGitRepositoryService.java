@@ -27,7 +27,7 @@ public class CsarGitRepositoryService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
-    private static final String forbiddenSubPatchCharacter = "*";
+    private static final String forbiddenSubPathCharacter = "*";
 
     /**
      * Create a CsarGitRepository in the system to store its informations
