@@ -33,7 +33,6 @@ import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.GitException;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
@@ -43,7 +42,6 @@ import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.AlienConstants;
 import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.yaml.snakeyaml.error.Mark;
 
 @Slf4j
 @Service
@@ -129,7 +127,7 @@ public class CsarGitService {
             git = RepositoryManager.cloneOrCheckout(tempDirPath, csarGitRepository.getRepositoryUrl(), csarGitRepository.getUsername(),
                     csarGitRepository.getPassword(), csarGitCheckoutLocation.getBranchId(), csarGitRepository.getId());
             // if the repository is persistent we also have to pull to get the latest version
-            if (csarGitRepository.isStoredLocally() && !RepositoryManager.isATag(git, csarGitCheckoutLocation.getBranchId())) {
+            if (csarGitRepository.isStoredLocally() && RepositoryManager.isBranch(git, csarGitCheckoutLocation.getBranchId()) && !RepositoryManager.isTag(git, csarGitCheckoutLocation.getBranchId())) {
                 // try to pull
                 log.debug("Pull local repository");
                 RepositoryManager.pull(git, csarGitRepository.getUsername(), csarGitRepository.getPassword());

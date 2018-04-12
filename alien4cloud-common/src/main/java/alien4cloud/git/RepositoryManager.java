@@ -216,17 +216,28 @@ public class RepositoryManager {
      * @param branch the branchId
      * @return <code>true</code> if the branchId refer to a tag, <code>false</code> otherwise.
      */
-    public static boolean isATag(Git repository, String branch) {
-        String fullBranchReference = getFullReference(repository, branch);
-        String[] segments = fullBranchReference.split("/");
-        return segments.length > 2 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[segments.length - 2]);
+    public static boolean isTag(Git repository, String branch) {
+        return getFullTagReference(repository, branch) == "" ? false : true;
     }
 
-    private static String addPrefixOnTag(Git repository, String branch) {
-        if (isATag(repository, branch)) {
-            return "tags/" + branch;
+    /**
+     * Check if a given branchId is a branch
+     *
+     * @param repository the Git repository
+     * @param branch the branchId
+     * @return <code>true</code> if the branchId refer to a branch, <code>false</code> otherwise.
+     */
+    public static boolean isBranch(Git repository, String branch) {
+        return getFullBranchReference(repository, branch) == "" ? false : true;
+    }
+    
+    private static String addPrefix(Git repository, String branch) {
+        if (isBranch(repository, branch)) {
+            return branch;
+        } else if (isTag(repository, branch)){
+            return "tags/" + branch; 
         }
-        return branch;
+        throw new GitException(String.format("branch %s does not exist", branch));
     }
 
     private static boolean branchExistsLocally(Git git, String branch) throws GitAPIException {
@@ -344,24 +355,37 @@ public class RepositoryManager {
         }
     }
 
-    private static String getFullReference(Git repository, String branch) {
+    private static String getFullTagReference(Git repository, String branch) {
         Map<String, Ref> refs = repository.getRepository().getAllRefs();
         for (String refId : refs.keySet()) {
             String[] segments = refId.split("/");
-            if (segments.length > 1 && branch.equals(segments[segments.length - 1])) {
+            if (segments.length > 1 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[1])) {
                 return refId;
             }
         }
-        return branch;
+        return "";
     }
+
+    private static String getFullBranchReference(Git repository, String branch) {
+        final String remoteName = "remotes/origin";
+        Map<String, Ref> refs = repository.getRepository().getAllRefs();
+        for (String refId : refs.keySet()) {
+            String[] segments = refId.split("/");
+            if (segments.length > 1 && branch.equals(segments[segments.length - 1]) && refId.contains(remoteName)) {
+                return refId;
+            }
+        }
+        return "";
+    }
+
 
     private static void checkoutRepository(Git repository, String branch) {
         try {
-            String fullBranchReference = addPrefixOnTag(repository, branch);
+            String fullBranchReference = addPrefix(repository, branch);
             CheckoutCommand checkoutCommand = repository.checkout();
             checkoutCommand.setName(fullBranchReference);
-            if (!branchExistsLocally(repository, fullBranchReference)) {
-                checkoutCommand.setCreateBranch(true).setStartPoint(getFullReference(repository, branch));
+            if (isBranch(repository, branch) && !branchExistsLocally(repository, fullBranchReference)) {
+                checkoutCommand.setCreateBranch(true);
             }
             checkoutCommand.call();
         } catch (GitAPIException e) {
