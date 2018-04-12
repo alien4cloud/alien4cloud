@@ -1,15 +1,5 @@
 package alien4cloud.csar.services;
 
-import java.util.List;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.stereotype.Service;
-
-import com.google.common.base.Strings;
-
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -18,15 +8,26 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
 import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.utils.UrlUtil;
+import com.google.common.base.Strings;
+import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Manages operations on a CsarGitRepository
  */
+@Slf4j
 @Service
 public class CsarGitRepositoryService {
     private static final String URL_FIELD = "repositoryUrl";
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+
+    private static final String forbiddenSubPatchCharacter = "*";
 
     /**
      * Create a CsarGitRepository in the system to store its informations
@@ -123,6 +124,10 @@ public class CsarGitRepositoryService {
             CsarGitCheckoutLocation existingLocation = findLocationIn(location, repositoryToUpdate.getImportLocations());
             if (existingLocation != null) {
                 location.setLastImportedHash(existingLocation.getLastImportedHash());
+            }
+            if (forbiddenSubPatchCharacter.equals(location.getSubPath())) {
+                location.setSubPath(null);
+                log.debug("The path file cannot be the special character : <" + forbiddenSubPatchCharacter + ">. All files will be imported.");
             }
         }
         repositoryToUpdate.setImportLocations(importLocations);
