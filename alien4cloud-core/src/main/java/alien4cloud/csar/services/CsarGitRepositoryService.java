@@ -27,7 +27,7 @@ public class CsarGitRepositoryService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
-    private static final String forbiddenSubPatchCharacter = "*";
+    private static final String forbiddenSubPathCharacter = "*";
 
     /**
      * Create a CsarGitRepository in the system to store its informations
@@ -125,9 +125,9 @@ public class CsarGitRepositoryService {
             if (existingLocation != null) {
                 location.setLastImportedHash(existingLocation.getLastImportedHash());
             }
-            if (forbiddenSubPatchCharacter.equals(location.getSubPath())) {
+            if (forbiddenSubPathCharacter.equals(location.getSubPath())) {
                 location.setSubPath(null);
-                log.debug("The path file cannot be the special character : <" + forbiddenSubPatchCharacter + ">. All files will be imported.");
+                log.debug("The path file cannot be the special character : <" + forbiddenSubPathCharacter + ">. All files will be imported.");
             }
         }
         repositoryToUpdate.setImportLocations(importLocations);
