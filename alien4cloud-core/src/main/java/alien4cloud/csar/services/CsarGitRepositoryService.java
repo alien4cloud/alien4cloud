@@ -60,9 +60,9 @@ public class CsarGitRepositoryService {
             throw new InvalidArgumentException("Import locations cannot be empty.");
         }
         importLocations.stream().forEachOrdered(location -> {
-            if (forbiddenSubPatchCharacter.equals(location.getSubPath())) {
+            if (forbiddenSubPathCharacter.equals(location.getSubPath())) {
                 location.setSubPath(null);
-                log.debug("The path file cannot be the special character : <" + forbiddenSubPatchCharacter + ">. All files will be imported.");
+                log.debug("The path file cannot be the special character : <" + forbiddenSubPathCharacter + ">. All files will be imported.");
             }
         });
     }
@@ -139,9 +139,9 @@ public class CsarGitRepositoryService {
             if (existingLocation != null) {
                 location.setLastImportedHash(existingLocation.getLastImportedHash());
             }
-            if (forbiddenSubPatchCharacter.equals(location.getSubPath())) {
+            if (forbiddenSubPathCharacter.equals(location.getSubPath())) {
                 location.setSubPath(null);
-                log.debug("The path file cannot be the special character : <" + forbiddenSubPatchCharacter + ">. All files will be imported.");
+                log.debug("The path file cannot be the special character : <" + forbiddenSubPathCharacter + ">. All files will be imported.");
             }
         }
         repositoryToUpdate.setImportLocations(importLocations);
