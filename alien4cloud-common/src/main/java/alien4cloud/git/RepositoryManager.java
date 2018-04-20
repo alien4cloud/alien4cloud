@@ -1,15 +1,25 @@
 package alien4cloud.git;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-
+import alien4cloud.exception.GitConflictException;
+import alien4cloud.exception.GitException;
+import alien4cloud.exception.GitMergingStateException;
+import alien4cloud.exception.GitStateException;
+import alien4cloud.utils.FileUtil;
+import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jgit.api.*;
+import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.CleanCommand;
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.DeleteBranchCommand;
+import org.eclipse.jgit.api.FetchCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.RenameBranchCommand;
+import org.eclipse.jgit.api.TransportCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -18,16 +28,26 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteConfig;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-import com.google.common.collect.Lists;
-
-import alien4cloud.exception.GitConflictException;
-import alien4cloud.exception.GitException;
-import alien4cloud.exception.GitMergingStateException;
-import alien4cloud.exception.GitStateException;
-import alien4cloud.utils.FileUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Utility to manage git repositories.
@@ -331,10 +351,10 @@ public class RepositoryManager {
                 checkoutCommand.setName(branch);
                 if (!branchExistsLocally(git, branch)) {
                     checkoutCommand.setCreateBranch(true);
-                    String fullReference = getFullReference(git, branch);
+                    String fullReference = getFullBranchReference(git, branch);
                     boolean existRemotely = !fullReference.equals(branch);
                     if (existRemotely) {
-                        checkoutCommand.setStartPoint(getFullReference(git, branch));
+                        checkoutCommand.setStartPoint(getFullBranchReference(git, branch));
                     } else {
                         checkoutCommand.setOrphan(true);
                     }
@@ -377,8 +397,7 @@ public class RepositoryManager {
         }
         return "";
     }
-
-
+    
     private static void checkoutRepository(Git repository, String branch) {
         try {
             String fullBranchReference = addPrefix(repository, branch);
