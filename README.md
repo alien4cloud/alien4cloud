@@ -3,7 +3,7 @@
 [Website](http://alien4cloud.github.io) |
 [Community](http://alien4cloud.github.io/community/index.html) |
 [Roadmap](http://alien4cloud.github.io/roadmap/index.html) |
-[Documentation](http://alien4cloud.github.io/#/documentation/1.1.0/index.html) |
+[Documentation](http://alien4cloud.github.io/#/documentation/2.0.0/index.html) |
 [Twitter](https://twitter.com/alien4cloud) |
 [Release notes](http://alien4cloud.github.io/#/release_notes/index.html)
 
