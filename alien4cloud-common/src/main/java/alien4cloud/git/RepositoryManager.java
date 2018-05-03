@@ -352,7 +352,7 @@ public class RepositoryManager {
                 if (!branchExistsLocally(git, branch)) {
                     checkoutCommand.setCreateBranch(true);
                     String fullReference = getFullBranchReference(git, branch);
-                    boolean existRemotely = !fullReference.equals(branch);
+                    boolean existRemotely = !fullReference.isEmpty();
                     if (existRemotely) {
                         checkoutCommand.setStartPoint(getFullBranchReference(git, branch));
                     } else {
