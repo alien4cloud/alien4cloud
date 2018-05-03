@@ -48,16 +48,16 @@ define(function (require) {
       };
 
       $scope.addVariable = function(variable){
-          $scope.openVarModal(variable.name);
-          if(_.indexOf($scope.variables, variable.name) < 0){
-            $scope.variables.push(variable.name);
-          }
-          variable.name='';
+        $scope.openVarModal(variable.name);
+        if (_.indexOf($scope.variables, variable.name) < 0) {
+          $scope.variables.push(variable.name);
+        }
+        variable.name='';
       };
 
 
-      $scope.$watch('triggerVarRefresh', function(newValue){
-        if(_.defined(newValue)){
+      $scope.$watch('triggerVarRefresh', function(newValue) {
+        if (_.defined(newValue)) {
           refresh();
         }
       });

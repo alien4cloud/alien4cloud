@@ -192,7 +192,6 @@ define(function(require) {
       for (var id in scope.configuration.validationStatuses) {
         if (scope.configuration.validationStatuses.hasOwnProperty(id) && !scope.configuration.validationStatuses[id]) {
           scope.configuration.showErrorsAlert = true;
-          return;
         }
       }
       var savePromise = saveCallback({
@@ -200,8 +199,6 @@ define(function(require) {
       });
       var cleanUpAfterSave = function() {
         delete scope.configuration.toBeSaved;
-        delete scope.configuration.validationErrors;
-        scope.configuration.showErrorsAlert = false;
       };
 
       if (_.defined(savePromise)) {
@@ -388,6 +385,7 @@ define(function(require) {
                   // No error save the result
                   FORMS.setValueForPath(scope.rootObject, propertyValue, scope.path);
                   if (scope.configuration.automaticSave) {
+                    scope.configuration.validationStatuses[scope.propertyName] = true // Force validation status in order to save the value of the property
                     scope.saveAction(scope.rootObject);
                   }
                 }
@@ -971,6 +969,10 @@ define(function(require) {
     if (validateInput) {
       scope.validateInput = function() {
         scope.isInputValid = !scope.propertyType._notNull || _.defined(scope.input.value);
+        if (!scope.isInputValid && scope.propertyType._definition && scope.propertyType._definition.default && _.defined(scope.propertyType._definition.default.value)) {
+          // if the property has a default value, we consider this input has valid
+          scope.isInputValid = true;
+        }
         if (scope.configuration.validationErrors && scope.configuration.validationErrors[FORMS.valueRequiredError]) {
           // For the moment only error that a field is required exist
           var indexOfError = scope.configuration.validationErrors[FORMS.valueRequiredError].indexOf(scope.labelPath);

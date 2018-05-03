@@ -3,11 +3,12 @@ define(function(require) {
 
   var modules = require('modules');
   var _ = require('lodash');
+  var $ = require('jquery');
 
   require('scripts/common/services/properties_services');
 
   modules.get('a4c-common').controller('SecretDisplayCtrl', ['$scope', '$translate', '$uibModal',
-    function($scope, $translate, $uibModal) {
+    function($scope, $translate) {
 
       // Init the directive id
       if (_.defined($scope.capabilityName)) {
@@ -19,18 +20,18 @@ define(function(require) {
       }
 
       var check = function(scope, secretPath) {
-        // The capablity "scalable" can not become a secret
-        if ("scalable" === scope.capabilityName) {
+        // The capablity 'scalable' can not become a secret
+        if ('scalable' === scope.capabilityName) {
           return $translate.instant('APPLICATIONS.TOPOLOGY.SECRETS.CANNOT_SET_SECRET');
         }
-        // The property "component_version" can not become a secret
-        if ("component_version" === scope.propertyName) {
+        // The property 'component_version' can not become a secret
+        if ('component_version' === scope.propertyName) {
           return $translate.instant('APPLICATIONS.TOPOLOGY.SECRETS.CANNOT_SET_SECRET');
         }
         if (_.undefined(secretPath)) {
-          return "";
+          return '';
         }
-        if (secretPath === "") {
+        if (secretPath === '') {
           return $translate.instant('APPLICATIONS.TOPOLOGY.SECRETS.EMPTY_SECRET_PATH');
         }
         return undefined;
@@ -69,7 +70,7 @@ define(function(require) {
               // Search with capabilityName and propertyName
               $('#' + capabilityName + '-' + propertyName + '-secret_path').trigger('click');
             } else {
-            	// Search only with propertyName
+              // Search only with propertyName
               $('#' + propertyName + '-secret_path').trigger('click');
             }
           }, 0);

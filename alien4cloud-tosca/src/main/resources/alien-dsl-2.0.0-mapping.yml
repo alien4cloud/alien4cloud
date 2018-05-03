@@ -408,6 +408,9 @@
   valid_source_types:
     list: validSources
     type: scalar
+  attributes:
+    map: attributes
+    type: attribute
 
 - relationship_type: org.alien4cloud.tosca.model.types.RelationshipType
   <<: *abstract_instantiable_type

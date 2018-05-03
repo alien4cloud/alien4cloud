@@ -30,9 +30,7 @@ description: ${utils.renderDescription(${template_description}, "")}
 #if($utils.collectionIsNotEmpty($topology.dependencies))
 
 imports:
-#foreach($dependency in ${topology.dependencies})
-  - ${dependency.name}:${dependency.version}
-#end
+${importsUtils.generateImports($topology.dependencies)}
 #end## if
 #if($utils.hasRepositories($template_name, $template_version, $topology))
 

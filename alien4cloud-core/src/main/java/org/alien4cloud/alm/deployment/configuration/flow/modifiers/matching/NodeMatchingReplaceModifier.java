@@ -20,6 +20,7 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
 import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -36,7 +37,7 @@ import alien4cloud.utils.CollectionUtils;
  * the one in the topology.
  */
 @Component
-public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier<NodeTemplate, LocationResourceTemplate> {
+public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier<NodeTemplate, LocationResourceTemplate, NodeType> {
 
     /**
      * Add locations dependencies
@@ -49,6 +50,11 @@ public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier
             topology.getDependencies().addAll(location.getLocation().getDependencies());
         }
         ToscaContext.get().resetDependencies(topology.getDependencies());
+    }
+
+    @Override
+    protected Class<NodeType> getToscaTypeClass() {
+        return NodeType.class;
     }
 
     @Override

@@ -79,22 +79,22 @@ define(function (require) {
 
   alienCommonModule.directive('a4cCompile', ['$compile', function ($compile) {
     return function(scope, element, attrs) {
-         scope.$watch(
-          function(scope) {
-             // watch the 'a4c-compile' expression for changes
-            return scope.$eval(attrs.a4cCompile);
-          },
-          function(value) {
-            // when the 'a4c-compile' expression changes
-            // assign it into the current DOM
-            element.html(value);
+      scope.$watch(
+        function(scope) {
+           // watch the 'a4c-compile' expression for changes
+          return scope.$eval(attrs.a4cCompile);
+        },
+        function(value) {
+          // when the 'a4c-compile' expression changes
+          // assign it into the current DOM
+          element.html(value);
 
-            // compile the new DOM and link it to the current
-            // scope.
-            // NOTE: we only compile .childNodes so that
-            // we don't get into infinite loop compiling ourselves
-            $compile(element.contents())(scope);
-          }
+          // compile the new DOM and link it to the current
+          // scope.
+          // NOTE: we only compile .childNodes so that
+          // we don't get into infinite loop compiling ourselves
+          $compile(element.contents())(scope);
+        }
       );
     };
   }]);

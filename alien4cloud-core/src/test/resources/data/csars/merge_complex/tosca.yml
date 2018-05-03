@@ -1,0 +1,275 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: merge_complex_properties
+  template_author: alien
+  template_version: 0.1-SNAPSHOT
+
+description: Test supports of complex properties merge.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN12
+
+data_types:
+
+  alien.test.datatypes.CustomMergeable:
+    derived_from: tosca.datatypes.Root
+    properties:
+      a:
+        type: string
+      b:
+        type: list
+        entry_schema:
+          type: string
+      c:
+        type: alien.test.datatypes.CustomInner1
+      d:
+        type: map
+        entry_schema:
+          type: string
+
+  alien.test.datatypes.CustomInner1:
+    derived_from: tosca.datatypes.Root
+    properties:
+      ca:
+        type: string
+      cb:
+        type: integer
+      cc:
+        type: alien.test.datatypes.CustomInner2
+
+  alien.test.datatypes.CustomInner2:
+    derived_from: tosca.datatypes.Root
+    properties:
+      cca:
+        type: string
+      ccb:
+        type: integer
+      ccb:
+        type: map
+        entry_schema:
+          type: string
+
+node_types:
+
+  alien.test.nodes.NodeWithComplexProp:
+    derived_from: tosca.nodes.Root
+    properties:
+      testComplexProp:
+        type: alien.test.datatypes.CustomMergeable
+      testStringProp:
+        type: string
+      testIntegerProp:
+        type: integer
+      testMapProp:
+        type: map
+        entry_schema:
+          type: string
+
+topology_template:
+
+  node_templates:
+
+    # a single property at level 0 (target keeped)
+    Source1:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: toto
+    Target1:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: tata
+    Merged1:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: tata
+
+    # a single property at level 0 (target replaced when null)
+    Source2:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: toto
+    Target2:
+      type: alien.test.nodes.NodeWithComplexProp
+    Merged2:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: toto
+
+    # a single property at level 0 (target not touched when source is null)
+    Source3:
+      type: alien.test.nodes.NodeWithComplexProp
+    Target3:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: toto
+    Merged3:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testStringProp: toto
+
+    # a complex property null in target
+    Source4:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            ca: kikoo
+            cc:
+              cca: test
+              ccb: 12
+    Target4:
+      type: alien.test.nodes.NodeWithComplexProp
+    Merged4:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            ca: kikoo
+            cc:
+              cca: test
+              ccb: 12
+
+    # a complex property merged
+    Source5:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            ca: kikoo
+            cc:
+              ccb: 12
+    Target5:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            ca: kikoo
+            cc:
+              cca: test
+    Merged5:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            ca: kikoo
+            cc:
+              cca: test
+              ccb: 12
+
+    # list in source should be merged when null in target
+    Source6:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          b:
+            - a
+            - b
+    Target6:
+      type: alien.test.nodes.NodeWithComplexProp
+    Merged6:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          b:
+            - a
+            - b
+
+    # list in source should not be merged when not null in target
+    Source7:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          b:
+            - a
+            - b
+    Target7:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          b:
+            - c
+            - d
+    Merged7:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          b:
+            - c
+            - d
+
+    # inner map in complex property only in source
+    Source8:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            cc:
+              ccb:
+                key1: value1
+                key2: value2
+    Target8:
+      type: alien.test.nodes.NodeWithComplexProp
+    Merged8:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            cc:
+              ccb:
+                key1: value1
+                key2: value2
+
+    # inner map in complex property merged keys
+    Source9:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            cc:
+              ccb:
+                key1: value1
+    Target9:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            cc:
+              ccb:
+                key2: value2
+    Merged9:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            cc:
+              ccb:
+                key1: value1
+                key2: value2
+
+    # inner map in complex property not touched in target
+    Source10:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            cc:
+              ccb:
+                key1: valueSource
+    Target10:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            cc:
+              ccb:
+                key1: value1
+                key2: value2
+    Merged10:
+      type: alien.test.nodes.NodeWithComplexProp
+      properties:
+        testComplexProp:
+          c:
+            cc:
+              ccb:
+                key1: value1

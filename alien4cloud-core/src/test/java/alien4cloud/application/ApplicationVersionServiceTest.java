@@ -1,6 +1,7 @@
 package alien4cloud.application;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ public class ApplicationVersionServiceTest {
         ApplicationVersion applicationVersion = new ApplicationVersion();
         applicationVersion.setApplicationId("application");
         applicationVersion.setVersion(version);
-        Map<String, ApplicationTopologyVersion> topologyVersionMap = Maps.newHashMap();
+        LinkedHashMap<String, ApplicationTopologyVersion> topologyVersionMap = Maps.newLinkedHashMap();
         ApplicationTopologyVersion applicationTopologyVersion = new ApplicationTopologyVersion();
         applicationTopologyVersion.setArchiveId(version);
         topologyVersionMap.put(version, applicationTopologyVersion);

@@ -55,7 +55,9 @@ public class PreconfiguredInputsModifier implements ITopologyModifier {
 
         AlienContextVariables alienContextVariables = new AlienContextVariables();
         alienContextVariables.setApplicationEnvironment(environment);
-        alienContextVariables.setLocation(locations.values().stream().findFirst().get());
+        if (locations != null) {
+            alienContextVariables.setLocation(locations.values().stream().findFirst().get());
+        }
         alienContextVariables.setApplication(environmentContext.getApplication());
 
         // TODO: avoid reloading every time - find a way to know the last update on files (git hash ?)

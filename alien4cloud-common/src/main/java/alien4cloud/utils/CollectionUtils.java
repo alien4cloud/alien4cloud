@@ -1,12 +1,16 @@
 package alien4cloud.utils;
 
-import java.util.*;
+import static alien4cloud.utils.AlienUtils.safe;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import static alien4cloud.utils.AlienUtils.safe;
 
 public final class CollectionUtils {
     private CollectionUtils() {

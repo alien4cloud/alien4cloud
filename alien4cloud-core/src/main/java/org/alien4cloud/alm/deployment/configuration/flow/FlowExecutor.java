@@ -136,6 +136,8 @@ public class FlowExecutor {
         topologyModifiers.add(substitutionCompositionModifier);
         // Process topology validation before actually letting the deployer to configure deployment
         topologyModifiers.add(editorTopologyValidator);
+        // just process inputs variables to make them available before location match
+        topologyModifiers.add(preconfiguredInputsModifier);
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_LOCATION_MATCH));
         // Checks location matching
         topologyModifiers.add(locationMatchingModifier);
