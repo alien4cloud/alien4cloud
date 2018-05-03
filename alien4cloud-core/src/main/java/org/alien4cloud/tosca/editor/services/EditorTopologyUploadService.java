@@ -122,6 +122,9 @@ public class EditorTopologyUploadService {
 
         // update the topology in the edition context with the new one
         EditionContextManager.get().setTopology(parsingResult.getResult().getTopology());
+        
+        // update casr description in the edition context
+        EditionContextManager.get().getCsar().setDescription(parsingResult.getResult().getArchive().getDescription());
     }
 
     private ParsingResult toParsingResult(ParsingException exception) {
