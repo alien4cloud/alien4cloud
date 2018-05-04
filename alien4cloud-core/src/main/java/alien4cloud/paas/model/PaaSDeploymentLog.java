@@ -1,6 +1,7 @@
 package alien4cloud.paas.model;
 
 import java.util.Date;
+import java.util.Objects;
 
 import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESObject;
@@ -152,4 +153,15 @@ public class PaaSDeploymentLog {
                 + timestamp + ", workflowId='" + workflowId + '\'' + ", executionId='" + executionId + '\'' + ", nodeId='" + nodeId + '\'' + ", instanceId='"
                 + instanceId + '\'' + ", interfaceName='" + interfaceName + '\'' + ", operationName='" + operationName + '\'' + ", content='" + content;
     }
+
+    public final static String FORMAT = "[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]%s\n";
+
+    private String formatEmptyString(String str) {
+        return Objects.toString(str, "");
+    }
+    
+    public String toFormattedString() {
+        return String.format(FORMAT, formatEmptyString(timestamp.toString()), formatEmptyString(level.name().toUpperCase()), formatEmptyString(deploymentPaaSId), formatEmptyString(workflowId), formatEmptyString(executionId), formatEmptyString(nodeId), formatEmptyString(instanceId), formatEmptyString(interfaceName), formatEmptyString(operationName), formatEmptyString(type), formatEmptyString(content));
+    }
+    
 }
