@@ -108,6 +108,10 @@ public class TemplateBuilder {
             nodeTemplate.setRelationships(templateToMerge.getRelationships());
         }
 
+        if (templateToMerge != null && templateToMerge.getTags() != null) {
+            nodeTemplate.setTags(templateToMerge.getTags());
+        }
+
         return nodeTemplate;
     }
 
