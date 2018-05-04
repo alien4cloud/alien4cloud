@@ -102,7 +102,8 @@
       "RUNTIMEPROPS" : "Runtime properties",
       "SCALE" : "Scale",
       "SCALE_BUTTON" : "Scale this node",
-      "STATUS" : "Status"
+      "STATUS" : "Status",
+      "LOGS" : "Logs"
     },
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "Add Node Template",

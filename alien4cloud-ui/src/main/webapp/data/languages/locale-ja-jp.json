@@ -102,7 +102,8 @@
       "RUNTIMEPROPS" : "ランタイムプロパティ",
       "SCALE" : "スケール",
       "SCALE_BUTTON" : "Scale this node",
-      "STATUS" : "Status"
+      "STATUS" : "Status",
+      "LOGS" : "Logs"
     },
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "ノードテンプレートの追加",
