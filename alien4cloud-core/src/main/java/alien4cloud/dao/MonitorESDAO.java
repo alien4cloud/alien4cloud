@@ -36,7 +36,7 @@ public class MonitorESDAO extends ESGenericSearchDAO {
 
         Class<?>[] classes = new Class<?>[] { AbstractMonitorEvent.class, PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class,
                 PaaSMessageMonitorEvent.class, PaaSInstancePersistentResourceMonitorEvent.class, PaaSWorkflowStepMonitorEvent.class,
-                PaaSWorkflowMonitorEvent.class };
+                PaaSWorkflowMonitorEvent.class, PaaSWorkflowSucceededEvent.class, PaaSWorkflowFailedEvent.class, PaaSWorkflowStartedEvent.class};
         initIndices("deployedtopologies", null, DeploymentTopology.class);
         initIndices("deploymentmonitorevents", eventMonitoringTtl, classes);
         initIndices(PaaSDeploymentLog.class.getSimpleName().toLowerCase(), eventMonitoringTtl, PaaSDeploymentLog.class);

@@ -4,6 +4,11 @@
     "APPLICATION_ROLES" : "Application roles",
     "ARCHIVE_NAME" : "Archive name (Id)",
     "DEPLOY" : "Deploy",
+    "EXECUTION" : {
+      "HISTORY" : {
+        "DESCRIPTION" : "List of executions"
+      }
+    },
     "DEPLOYMENT" : {
       "HISTORY" : {
         "DEPLOYED_AT" : "Deployed at",
@@ -486,7 +491,23 @@
     "TYPE" : "Type",
     "USERNAME" : "Username",
     "VERSION" : "Version",
-    "YES" : "Yes"
+    "YES" : "Yes",
+    "START_DATE" : "Start Date",
+    "END_DATE": "End Date",
+    "DURATION": "Duration",
+    "STATUS": "Status"
+  },
+  "ENTITY" : {
+    "EXECUTION" : {
+      "WORKFLOW" : "Workflow",
+      "STATUS" : {
+        "VALUES" : {
+          "SUCCEEDED" : "Succeeded",
+          "FAILED" : "Failed",
+          "RUNNING" : "Running"
+        }
+      }
+    }
   },
   "COMPONENTS" : {
     "ABSTRACT" : "Abstract component",
@@ -975,6 +996,7 @@
   "NAVAPPLICATIONS" : {
     "MENU_DEPLOY_CURRENT" : "Manage current deployment",
     "MENU_DEPLOY_CURRENT_INFO" : "Info",
+    "MENU_DEPLOY_CURRENT_EXEC" : "Executions",
     "MENU_DEPLOY_CURRENT_RUNTIME_EDITOR" : "Runtime view",
     "MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER" : "Workflow",
     "MENU_DEPLOY_NEXT" : "Prepare next deployment",
