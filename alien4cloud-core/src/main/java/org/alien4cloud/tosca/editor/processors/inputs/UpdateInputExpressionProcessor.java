@@ -9,7 +9,7 @@ import org.alien4cloud.tosca.editor.operations.inputs.UpdateInputExpressionOpera
 import org.alien4cloud.tosca.editor.processors.variable.AbstractUpdateTopologyVariableProcessor;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.variable.QuickFileStorageService;
+import org.alien4cloud.tosca.variable.service.QuickFileStorageService;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
