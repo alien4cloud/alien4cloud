@@ -37,7 +37,6 @@ public class ConfigurationController {
         ConfigurationDTO configuration = new ConfigurationDTO();
         configuration.setDefaultLanguage(defaultLanguageFromConfig);
         configuration.setPrefixLanguage(prefixLanguageFromConfig);
-        configuration.setSupportedLanguages(translationConfigurationService.getSupportedLanguages());
         return RestResponseBuilder.<ConfigurationDTO> builder().data(configuration).build();
     }
 

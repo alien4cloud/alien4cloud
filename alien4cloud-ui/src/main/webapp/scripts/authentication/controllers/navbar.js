@@ -11,7 +11,6 @@ define(function (require) {
 
   require('scripts/authentication/directives/navbar');
   require('scripts/authentication/services/authservices');
-  require('scripts/common/services/languages');
 
 
   modules.get('a4c-auth', ['pascalprecht.translate', 'ng-hopscotch']).controller('alienNavBarCtrl',
