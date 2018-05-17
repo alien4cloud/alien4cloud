@@ -4,6 +4,7 @@ import java.nio.file.Path;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.variable.service.QuickFileStorageService;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;

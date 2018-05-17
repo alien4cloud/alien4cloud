@@ -71,6 +71,30 @@ define(function () {
           return '';
       }
     },
+    getExecutionStatusIconCss: function(execution) {
+      switch (_.get(execution, 'status')) {
+        case 'SUCCEEDED':
+          return 'fa-circle text-success';
+        case 'FAILED':
+          return 'fa-circle text-danger';
+        case 'RUNNING':
+          return 'fa-spinner fa-spin text-primary';
+        default:
+          return '';
+      }
+    },
+    getExecutionStatusTextCss: function(environmentDTO) {
+      switch (_.get(environmentDTO, 'status')) {
+        case 'SUCCEEDED':
+          return 'text-success';
+        case 'FAILED':
+          return 'text-danger';
+        case 'RUNNING':
+          return 'text-primary';
+        default:
+          return '';
+      }
+    },
     getStatusColor: function(environmentDTO) {
       return colors[_.get(environmentDTO, 'status')];
     }

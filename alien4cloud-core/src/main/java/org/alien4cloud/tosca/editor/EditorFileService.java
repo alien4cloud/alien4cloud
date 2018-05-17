@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.processors.FileProcessorHelper;
 import org.alien4cloud.tosca.utils.PropertiesYamlParser;
-import org.alien4cloud.tosca.variable.QuickFileStorageService;
+import org.alien4cloud.tosca.variable.service.QuickFileStorageService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;

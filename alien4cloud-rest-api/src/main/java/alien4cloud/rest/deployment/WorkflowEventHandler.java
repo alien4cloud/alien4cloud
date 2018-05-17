@@ -1,15 +1,20 @@
 package alien4cloud.rest.deployment;
 
 import java.security.Principal;
+import java.util.Date;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.deployment.Execution;
+import alien4cloud.model.deployment.ExecutionStatus;
+import alien4cloud.paas.model.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Maps;
+import org.elasticsearch.common.lang3.StringUtils;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -22,9 +27,6 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaasEventListener;
 import alien4cloud.paas.IPaasEventService;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.AbstractPaaSWorkflowMonitorEvent;
-import alien4cloud.paas.model.PaaSWorkflowMonitorEvent;
 import alien4cloud.rest.websocket.ISecuredHandler;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
@@ -64,15 +66,57 @@ public class WorkflowEventHandler implements IPaasEventListener<AbstractMonitorE
                 if (log.isDebugEnabled()) {
                     log.debug("Workflow {} started with executionId {} (subkworkflow: {})", pwme.getWorkflowId(), pwme.getExecutionId(), pwme.getSubworkflow());
                 }
+                enrichExecution(deployment, pwme);
                 String workflowId = pwme.getWorkflowId();
                 if (pwme.getSubworkflow() != null) {
                     workflowId = pwme.getSubworkflow();
                 }
                 updateDeploymentExecutionId(deployment, workflowId, pwme.getExecutionId());
             }
+        } else if (event instanceof PaaSWorkflowStartedEvent) {
+            createExecution((PaaSWorkflowStartedEvent)event);
+        } else if (event instanceof PaaSWorkflowSucceededEvent) {
+            updateExecution((PaaSWorkflowSucceededEvent)event, ExecutionStatus.SUCCEEDED);
+        } else if (event instanceof PaaSWorkflowFailedEvent) {
+            updateExecution((PaaSWorkflowFailedEvent)event, ExecutionStatus.FAILED);
         }
     }
 
+    // TODO: move elsewhere since this has nothing to do in REST module
+    private void updateExecution(PaaSWorkflowFinishedEvent e, ExecutionStatus s) {
+        Execution execution = alienDAO.findById(Execution.class, e.getExecutionId());
+        if (execution != null) {
+            execution.setStatus(s);
+            execution.setEndDate(new Date(e.getDate()));
+            alienDAO.save(execution);
+        }
+    }
+
+    // TODO: move elsewhere since this has nothing to do in REST module
+    private void createExecution(PaaSWorkflowStartedEvent e) {
+        Execution execution = new Execution();
+        execution.setDeploymentId(e.getDeploymentId());
+        execution.setId(e.getExecutionId());
+        execution.setWorkflowId(e.getWorkflowId());
+        execution.setWorkflowName(e.getWorkflowName());
+        execution.setDisplayWorkflowName(e.getWorkflowName());
+        execution.setStartDate(new Date(e.getDate()));
+        execution.setStatus(ExecutionStatus.RUNNING);
+        alienDAO.save(execution);
+    }
+
+    // TODO: move elsewhere since this has nothing to do in REST module
+    private void enrichExecution(Deployment deployment, PaaSWorkflowMonitorEvent e) {
+        if (!StringUtils.isEmpty(e.getSubworkflow())) {
+            Execution execution = alienDAO.findById(Execution.class, e.getExecutionId());
+            if (execution != null) {
+                execution.setDisplayWorkflowName(e.getSubworkflow());
+                alienDAO.save(execution);
+            }
+        }
+    }
+
+    // TODO: move elsewhere since this has nothing to do in REST module
     private void updateDeploymentExecutionId(Deployment deployment, String workflowId, String executionId) {
         if (deployment.getWorkflowExecutions() == null) {
             Map<String, String> workflowExecutions = Maps.newHashMap();

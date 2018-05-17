@@ -18,7 +18,7 @@ import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.variable.AlienContextVariables;
 import org.alien4cloud.tosca.variable.InputsMappingFileVariableResolver;
-import org.alien4cloud.tosca.variable.QuickFileStorageService;
+import org.alien4cloud.tosca.variable.service.QuickFileStorageService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;

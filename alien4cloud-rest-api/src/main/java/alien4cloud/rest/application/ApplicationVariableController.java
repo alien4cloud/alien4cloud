@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.alien4cloud.git.GitLocationDao;
 import org.alien4cloud.git.LocalGitManager;
 import org.alien4cloud.git.model.GitLocation;
-import org.alien4cloud.tosca.variable.QuickFileStorageService;
+import org.alien4cloud.tosca.variable.service.QuickFileStorageService;
 import org.alien4cloud.tosca.variable.model.Variable;
 import org.alien4cloud.tosca.variable.service.VariableExpressionService;
 import org.springframework.http.MediaType;

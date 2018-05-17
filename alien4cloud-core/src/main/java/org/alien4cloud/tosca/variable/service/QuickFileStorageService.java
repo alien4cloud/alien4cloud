@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.variable;
+package org.alien4cloud.tosca.variable.service;
 
 import java.io.InputStream;
 import java.nio.file.Files;

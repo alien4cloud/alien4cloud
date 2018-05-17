@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditorFileService;
 import org.alien4cloud.tosca.editor.operations.variable.UpdateEnvironmentTypeVariableOperation;
-import org.alien4cloud.tosca.variable.QuickFileStorageService;
+import org.alien4cloud.tosca.variable.service.QuickFileStorageService;
 import org.springframework.stereotype.Component;
 
 /**
