@@ -149,3 +149,7 @@ logs_deployment_appender:
 
 features:
   editor_auto_completion: true
+
+languages:
+  default: fr-fr
+  prefix: locale

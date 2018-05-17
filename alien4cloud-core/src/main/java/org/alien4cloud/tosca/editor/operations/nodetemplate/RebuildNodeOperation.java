@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RebuildNodeOperation extends AbstractNodeOperation {
+public class  RebuildNodeOperation extends AbstractNodeOperation {
     @Override
     public String commitMessage() {
         return "rebuild node <" + getNodeName() + ">";
