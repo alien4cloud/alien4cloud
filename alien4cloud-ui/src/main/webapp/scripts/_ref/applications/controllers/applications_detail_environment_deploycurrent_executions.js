@@ -57,7 +57,6 @@ define(function (require) {
       query: ''
     };
 
-
     applicationServices.getActiveDeployment.get({
       applicationId: $scope.application.id,
       applicationEnvironmentId: $scope.environment.id
@@ -72,6 +71,12 @@ define(function (require) {
       }
     });
 
+    $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
+        if(event.rawType === 'paasworkflowmonitorevent') {
+            console.log("Some change on workflow has been detected for current wf");
+            $scope.searchService.search();
+        }
+    });
   }
 ]);
 });

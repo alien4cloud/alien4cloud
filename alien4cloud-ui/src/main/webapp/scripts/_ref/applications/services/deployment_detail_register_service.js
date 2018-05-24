@@ -6,6 +6,7 @@ define(function (require) {
   var _ = require('lodash');
   require('scripts/_ref/applications/controllers/deployment_history/deployment_history');
   require('scripts/_ref/applications/controllers/deployment_history/deployment_detail_info');
+  require('scripts/_ref/applications/controllers/deployment_history/deployment_detail_tasks');
 
   return function(prefix, getSearchParam) {
 
@@ -80,5 +81,22 @@ define(function (require) {
         priority: 100
       }
     });
+
+    // execution tasks state
+    var detailInfoTaskListState = 'applications.detail.environment.history.detail.info.tasks';
+    //states.forward(detailInfoState, detailInfoTaskListState);
+    states.state(detailInfoTaskListState, {
+      url: '/execution',
+      templateUrl: 'views/_ref/applications/deployment_history/deployment_detail_tasks.html',
+      controller: 'DeploymentExecutionDetailInfoCtrl',
+      menu: {
+        id: detailInfoTaskListState,
+        state: detailInfoTaskListState,
+        key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT_INFO',
+        icon: 'fa fa-info',
+        priority: 100
+      }
+    });
+
   };
 });

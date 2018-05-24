@@ -117,7 +117,7 @@ define(function (require) {
         loadTopologyRuntime();
 
         $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
-          if(event.rawType === 'paasmessagemonitorevent') {
+          if(event.rawType === 'paasmessagemonitorevent' || event.rawType === 'paasworkflowmonitorevent') {
             return;
           }
           // topology has changed

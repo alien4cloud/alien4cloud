@@ -1,0 +1,38 @@
+
+<empty-place-holder data="tasks"></empty-place-holder>
+<table ng-if="_.isNotEmpty(tasks)" class="table table-striped">
+  <thead>
+  <tr>
+    <th><b>{{'ENTITY.EXECUTION.WORKFLOW' | translate}}</b></th>
+    <th><b>{{'COMMON.START_DATE' | translate}}</b></th>
+    <th><b>{{'COMMON.END_DATE' | translate}}</b></th>
+    <th><b>{{'COMMON.DURATION' | translate}}</b></th>
+    <th><b>{{'COMMON.STATUS' | translate}}</b></th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr ng-repeat="task in tasks">
+    <td>
+      {{ task.nodeId }}
+    </td>
+    <td>
+      {{ task.instanceId }}
+    </td>
+    <td>
+      {{ task.operationName }}
+    </td>
+    <td>
+      {{ task.scheduleDate | date:'medium' }}
+    </td>
+    <td>
+      {{ (task.status }}
+    </td>
+    <td class="col-md-1 clickable">
+      <i class="fa fa-newspaper-o" ng-click="displayLogs(task.id)"></i>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<pagination-directive pagination-info="searchService.pagination" />

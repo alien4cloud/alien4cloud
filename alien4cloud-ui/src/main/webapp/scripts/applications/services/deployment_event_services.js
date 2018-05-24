@@ -45,7 +45,8 @@ define(function (require) {
             paasdeploymentstatusmonitorevent: {},
             paasinstancestatemonitorevent: {},
             paasmessagemonitorevent: {},
-            paasinstancestoragemonitorevent: {}
+            paasinstancestoragemonitorevent: {},
+            paasworkflowmonitorevent: {}
           };
         }
 

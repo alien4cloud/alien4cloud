@@ -47,7 +47,7 @@
   </thead>
   <tbody>
   <tr ng-repeat="execution in executions">
-    <td>
+    <td class="col-md-1 clickable" ng-click="displayTasks(execution)">
       {{ execution.workflowName || execution.workflowId }}
     </td>
     <td>

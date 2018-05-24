@@ -76,7 +76,7 @@
         "DATE" : "Date",
         "DEPLOYMENT_STATUS_MESSAGE" : "{{status | translate}}",
         "INSTANCES" : "Statut d'instance",
-        "INSTANCE_DELETED_MESSAGE" : "L'Instance {{nodeId}}/{{instanceId}} a été supprimé",
+        "INSTANCE_DELETED_MESSAGE" : "L'Instance {{nodeId}}/{{instanceId}} a été supprimée",
         "INSTANCE_STATE_MESSAGE" : "L'Etat de l'Instance {{nodeId}}/{{instanceId}} a changé à {{state}}",
         "MESSAGE" : "Message",
         "MESSAGES" : "Message",

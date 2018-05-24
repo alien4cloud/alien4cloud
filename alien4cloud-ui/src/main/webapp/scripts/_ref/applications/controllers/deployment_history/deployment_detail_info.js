@@ -7,6 +7,8 @@ define(function (require) {
   modules.get('a4c-applications').controller('DeploymentDetailInfoCtrl',
     ['$scope', '$state', 'deploymentDTO', 'searchServiceFactory',
       function ($scope, $state, deploymentDTO, searchServiceFactory) {
+
+        console.log("State is : " + $state.current.name);
         $scope.deploymentDTO = deploymentDTO.data;
         $scope.executionStatusIconCss = alienUtils.getExecutionStatusIconCss;
         $scope.executionStatusTextCss = alienUtils.getExecutionStatusTextCss;
@@ -16,6 +18,15 @@ define(function (require) {
             'deploymentId': deploymentDTO.data.deployment.id,
             'executionId': executionId
           });
+        };
+
+        $scope.displayTasks = function(execution) {
+          console.log("Will display tasks for exec " + execution.id);
+          $state.go('applications.detail.environment.history.detail.info.tasks');
+//          $state.go('applications.detail.environment.history.detail.info.tasks', {
+//            'executionId': execution.id,
+//            'execution': execution
+//          });
         };
 
         $scope.now = new Date();
