@@ -52,7 +52,7 @@ public class WorkflowsBuilderService {
     private CustomWorkflowBuilder customWorkflowBuilder;
 
     @Resource
-    private WorkflowSimplifyService workflowFlattenService;
+    private WorkflowSimplifyService workflowSimplifyService;
 
     private Map<String, DefaultDeclarativeWorkflows> defaultDeclarativeWorkflowsPerDslVersion;
 
@@ -96,11 +96,21 @@ public class WorkflowsBuilderService {
     public void postProcessTopologyWorkflows(TopologyContext topologyContext) {
         topologyContext.getTopology().getUnprocessedWorkflows().putAll(topologyContext.getTopology().getWorkflows().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> WorkflowUtils.cloneWorkflow(entry.getValue()))));
-        workflowFlattenService.simplifyWorkflow(topologyContext);
+        workflowSimplifyService.simplifyWorkflow(topologyContext);
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             workflowValidator.validate(topologyContext, wf);
         }
         debugWorkflow(topologyContext.getTopology());
+    }
+
+    public void refreshTopologyWorkflows(TopologyContext tc) {
+        // Copy the original workflow than put them into the simplified workflow map
+        tc.getTopology().getWorkflows().putAll(WorkflowUtils.cloneWorkflowMap(tc.getTopology().getUnprocessedWorkflows()));
+        workflowSimplifyService.simplifyWorkflow(tc);
+        for (Workflow wf : tc.getTopology().getWorkflows().values()) {
+            workflowValidator.validate(tc, wf);
+        }
+        debugWorkflow(tc.getTopology());
     }
 
     private void initStandardWorkflow(String name, TopologyContext topologyContext) {

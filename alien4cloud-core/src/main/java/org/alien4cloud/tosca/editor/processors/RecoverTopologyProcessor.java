@@ -2,7 +2,6 @@ package org.alien4cloud.tosca.editor.processors;
 
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
 import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -11,6 +10,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.AlienUtils;
@@ -27,10 +27,15 @@ public class RecoverTopologyProcessor implements IEditorOperationProcessor<Recov
     private EditorTopologyRecoveryHelperService recoveryHelperService;
     @Inject
     private TopologyService topologyService;
+    @Inject
+    private WorkflowsBuilderService builderService;
 
     @Override
     public void process(Csar csar, Topology topology, RecoverTopologyOperation operation) {
         checkOperation(operation, topology);
+
+        // Need to recover the workflow in the topo
+        builderService.refreshTopologyWorkflows(builderService.buildTopologyContext(topology));
 
         // process every recovery operation
         // we need a new context here, as we want to have fresh types from elasticsearch

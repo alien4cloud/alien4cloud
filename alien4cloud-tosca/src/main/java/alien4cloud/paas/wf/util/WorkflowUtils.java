@@ -405,6 +405,11 @@ public class WorkflowUtils {
         return cloned;
     }
 
+    public static Map<String, Workflow> cloneWorkflowMap(Map<String, Workflow> that) {
+        return that.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> WorkflowUtils.cloneWorkflow(entry.getValue())));
+    }
+
     public static WorkflowStep cloneStep(WorkflowStep step) {
         WorkflowStep cloned;
         if (step instanceof NodeWorkflowStep) {
