@@ -20,6 +20,13 @@ public class ExecutionService {
     private IGenericSearchDAO alienDao;
 
     /**
+     * Get an execution by it's id.
+     */
+    public Execution getExecution(String executionId) {
+        return alienDao.findById(Execution.class, executionId);
+    }
+
+    /**
      * Search executions. See below to known with filters are supported.
      *
      * @param query Query text.
@@ -31,6 +38,19 @@ public class ExecutionService {
     public FacetedSearchResult searchExecutions(String query, String deploymentId, int from, int size) {
         FilterBuilder filterBuilder = buildFilters(deploymentId);
         return alienDao.facetedSearch(Execution.class, query, null, filterBuilder, null, from, size, "startDate", true);
+    }
+
+    /**
+     * For a given deployment, get the last known execution.
+     */
+    public Execution getLastExecution(String deploymentId) {
+        FilterBuilder filterBuilder = buildFilters(deploymentId);
+        FacetedSearchResult<Execution> executions = alienDao.facetedSearch(Execution.class, "", null, filterBuilder, null, 0, 1, "startDate", true);
+        if (executions.getData() != null && executions.getData().length > 0) {
+            return executions.getData()[0];
+        } else {
+            return null;
+        }
     }
 
     private FilterBuilder buildFilters(String deploymentId) {

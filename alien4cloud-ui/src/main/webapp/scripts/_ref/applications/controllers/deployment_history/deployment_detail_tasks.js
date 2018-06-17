@@ -7,32 +7,33 @@ define(function (require) {
   modules.get('a4c-applications').controller('DeploymentExecutionDetailInfoCtrl',
     ['$scope', '$state', 'searchServiceFactory',
       function ($scope, $state, searchServiceFactory) {
-        console.log("ENtering task scope");
+        $scope.getTaskStatusIconCss = alienUtils.getTaskStatusIconCss;
+        $scope.getTaskStatusTextCss = alienUtils.getTaskStatusTextCss;
 
-//        $scope.deploymentDTO = deploymentDTO.data;
-//        $scope.executionId = executionId;
-//        $scope.executionStatusIconCss = alienUtils.getExecutionStatusIconCss;
-//        $scope.executionStatusTextCss = alienUtils.getExecutionStatusTextCss;
-//
-//        $scope.displayLogs = function(taskId) {
-//          $state.go('applications.detail.environment.history.detail.logs', {
-//            'deploymentId': deploymentDTO.data.deployment.id,
-//            'executionId': execution.id,
-//            'taskId': taskId
-//          });
-//        };
-//
-//        $scope.now = new Date();
-//
-//        var searchServiceUrl = 'rest/latest/tasks/search';
-//        $scope.queryManager = {
-//          query: ''
-//        };
-//        $scope.searchService = searchServiceFactory(searchServiceUrl, true, $scope.queryManager, 30, 50, true, null, { executionId: execution.id });
-//        $scope.searchService.search();
-//        $scope.queryManager.onSearchCompleted = function(searchResult) {
-//          $scope.tasks = searchResult.data.data;
-//        };
+        $scope.displayLogs = function(task) {
+          $state.go('applications.detail.environment.history.detail.logs', {
+            'applicationId': $scope.application.id,
+            'applicationEnvironmentId': $scope.environment.id,
+            'executionId': $state.params.execution.id,
+            'taskId': task.id
+          });
+        };
+
+        var searchServiceUrl = 'rest/latest/tasks/search';
+        $scope.queryManager = {
+          query: ''
+        };
+        $scope.searchService = searchServiceFactory(searchServiceUrl, true, $scope.queryManager, 15, 50, true, null, { executionId: $state.params.execution.id });
+        $scope.searchService.search();
+        $scope.queryManager.onSearchCompleted = function(searchResult) {
+          $scope.stepTasks = searchResult.data.data;
+        };
+
+        $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
+            if(event.rawType === 'paasworkflowmonitorevent') {
+                $scope.searchService.search();
+            }
+        });
       }
     ]);
 });

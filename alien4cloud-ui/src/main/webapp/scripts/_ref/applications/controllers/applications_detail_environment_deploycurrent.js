@@ -10,6 +10,7 @@ define(function (require) {
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_runtimeeditor');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_workflow');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_executions');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent_tasks');
 
   require('scripts/applications/services/application_event_services');
   require('scripts/applications/services/runtime_event_service');

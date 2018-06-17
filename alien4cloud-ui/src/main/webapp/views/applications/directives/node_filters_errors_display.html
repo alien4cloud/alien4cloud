@@ -2,7 +2,7 @@
   <span>{{'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.NODE_FILTER_INVALID' | translate}} :</span>
 </div>
 <div class="content-body">
-  <div ng-repeat=" task in tasks">
+  <div ng-repeat=" task in stepTasks">
     <p><span style="font-weight: 500">{{'COMMON.NODE' | translate}} : </span> <span>{{task.nodeTemplateName}}</span></p>
 
     <div style="padding-left: 5px;" ng-repeat=" nodeFilterToSatisfy in task.nodeFiltersToSatisfy">

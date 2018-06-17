@@ -2,8 +2,8 @@ package alien4cloud.deployment;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.model.runtime.Execution;
 import alien4cloud.model.runtime.Task;
+import alien4cloud.model.runtime.WorkflowStepInstance;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -12,26 +12,26 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 /**
- * Manage {@link Task} operations.
+ * Manage task operations.
  */
 @Service
 @Slf4j
-public class TaskService {
+public class WorkflowStepInstanceService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
 
     /**
-     * Search for {@link Task}s. See below to known with filters are supported.
+     * Search stepTasks. See below to known with filters are supported.
      *
      * @param query Query text.
-     * @param executionId Id of the execution for which to get tasks.
+     * @param executionId Id of the execution for which to get stepTasks.
      * @param from Query from the given index.
      * @param size Maximum number of results to retrieve.
-     * @return the tasks with pagination
+     * @return the stepTasks with pagination
      */
-    public FacetedSearchResult<Task> searchTasks(String query, String executionId, int from, int size) {
+    public FacetedSearchResult<WorkflowStepInstance> searchInstances(String query, String executionId, int from, int size) {
         FilterBuilder filterBuilder = buildFilters(executionId);
-        return alienDao.facetedSearch(Task.class, query, null, filterBuilder, null, from, size, "scheduleDate", true);
+        return alienDao.facetedSearch(WorkflowStepInstance.class, query, null, filterBuilder, null, from, size);
     }
 
     private FilterBuilder buildFilters(String executionId) {

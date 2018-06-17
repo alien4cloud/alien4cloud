@@ -4,6 +4,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.deployment.ExecutionService;
 import alien4cloud.deployment.TaskService;
+import alien4cloud.model.runtime.Task;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import io.swagger.annotations.Api;
@@ -27,21 +28,21 @@ public class TaskController {
     private TaskService taskService;
 
     /**
-     * Search for tasks.
+     * Search for {@link Task}s.
      *
-     * @return A rest response that contains a {@link FacetedSearchResult} containing tasks.
+     * @return A rest response that contains a {@link FacetedSearchResult} containing {@link Task}s.
      */
     @ApiOperation(value = "Search for tasks", notes = "Returns a search result with that contains tasks matching the request.")
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<FacetedSearchResult> search(
+    public RestResponse<FacetedSearchResult<Task>> search(
             @ApiParam(value = "Query text.") @RequestParam(required = false) String query,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "50") int size,
             @ApiParam(value = "Id of the execution for which to get tasks. If not provided, get tasks for all executions") @RequestParam(required = false) String executionId
             ) {
-        FacetedSearchResult searchResult = taskService.searchTasks(query, executionId, from, size);
-        return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
+        FacetedSearchResult<Task> searchResult = taskService.searchTasks(query, executionId, from, size);
+        return RestResponseBuilder.<FacetedSearchResult<Task>> builder().data(searchResult).build();
     }
 
 }

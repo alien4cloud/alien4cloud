@@ -47,16 +47,16 @@
   </thead>
   <tbody>
   <tr ng-repeat="execution in executions">
-    <td class="col-md-1 clickable" ng-click="displayTasks(execution)">
+    <td class="clickable" ng-click="displayTasks(execution)">
       {{ execution.workflowName || execution.workflowId }}
     </td>
-    <td>
+    <td class="clickable" ng-click="displayTasks(execution)">
       {{ execution.startDate | date:'medium' }}
     </td>
-    <td>
+    <td class="clickable" ng-click="displayTasks(execution)">
       {{ (execution.endDate | date:'medium') || '---' }}
     </td>
-    <td>
+    <td class="clickable" ng-click="displayTasks(execution)">
       {{ ((execution.endDate || now) - execution.startDate) | amDurationFormat : 'millisecond' }}
     </td>
     <td>

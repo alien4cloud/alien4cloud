@@ -71,6 +71,36 @@ define(function () {
           return '';
       }
     },
+    getTaskStatusIconCss: function(task) {
+      switch (_.get(task, 'status')) {
+        case 'SUCCEEDED':
+          return 'fa-circle text-success';
+        case 'FAILED':
+          return 'fa-circle text-danger';
+        case 'CANCELLED':
+          return 'fa-circle text-warning';
+        case 'SCHEDULED':
+        case 'STARTED':
+          return 'fa-spinner fa-spin text-primary';
+        default:
+          return '';
+      }
+    },
+    getTaskStatusTextCss: function(task) {
+      switch (_.get(task, 'status')) {
+        case 'SUCCEEDED':
+          return 'text-success';
+        case 'FAILED':
+          return 'text-danger';
+        case 'CANCELLED':
+          return 'text-warning';
+        case 'SCHEDULED':
+        case 'STARTED':
+          return 'text-primary';
+        default:
+          return '';
+      }
+    },
     getExecutionStatusIconCss: function(execution) {
       switch (_.get(execution, 'status')) {
         case 'SUCCEEDED':
@@ -93,6 +123,18 @@ define(function () {
           return 'text-primary';
         default:
           return '';
+      }
+    },
+    getExecutionStatusCss: function(executionStatus) {
+      switch (executionStatus) {
+        case 'SUCCEEDED':
+          return 'success';
+        case 'FAILED':
+          return 'danger';
+        case 'RUNNING':
+          return 'info';
+        default:
+          return 'warning';
       }
     },
     getStatusColor: function(environmentDTO) {

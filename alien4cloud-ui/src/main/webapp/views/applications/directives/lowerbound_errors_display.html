@@ -8,7 +8,7 @@
       <th>{{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}</th>
     </thead>
     <tbody>
-      <tr ng-repeat=" task in tasks">
+      <tr ng-repeat=" task in stepTasks">
         <td>
           <span>{{task.nodeTemplateName}}</span>
           <span>({{task.component.elementId}})</span>

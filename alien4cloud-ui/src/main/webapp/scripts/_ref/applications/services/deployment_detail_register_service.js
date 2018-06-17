@@ -83,18 +83,23 @@ define(function (require) {
     });
 
     // execution tasks state
-    var detailInfoTaskListState = 'applications.detail.environment.history.detail.info.tasks';
-    //states.forward(detailInfoState, detailInfoTaskListState);
+    var detailInfoTaskListState = detailState + '.tasks';
+    console.log("detailInfoTaskListState: " + detailInfoTaskListState);
     states.state(detailInfoTaskListState, {
-      url: '/execution',
+      url: '/execution/:executionId',
       templateUrl: 'views/_ref/applications/deployment_history/deployment_detail_tasks.html',
       controller: 'DeploymentExecutionDetailInfoCtrl',
-      menu: {
-        id: detailInfoTaskListState,
-        state: detailInfoTaskListState,
-        key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT_INFO',
-        icon: 'fa fa-info',
-        priority: 100
+      onEnter: ['breadcrumbsService','$filter','$state', function(breadcrumbsService, $filter, $state) {
+        breadcrumbsService.putConfig({
+          state: detailInfoTaskListState,
+          text: function () {
+            return (_.defined($state.params.execution.workflowName)) ? $state.params.execution.workflowName : $state.params.execution.id;
+          }
+        });
+      }],
+      params: {
+        execution: null,
+        executionId: null
       }
     });
 

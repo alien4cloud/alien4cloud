@@ -22,11 +22,10 @@ define(function (require) {
 
         $scope.displayTasks = function(execution) {
           console.log("Will display tasks for exec " + execution.id);
-          $state.go('applications.detail.environment.history.detail.info.tasks');
-//          $state.go('applications.detail.environment.history.detail.info.tasks', {
-//            'executionId': execution.id,
-//            'execution': execution
-//          });
+          $state.go('applications.detail.environment.history.detail.tasks', {
+            'execution': execution,
+            'executionId': execution.id,
+          });
         };
 
         $scope.now = new Date();
@@ -35,7 +34,7 @@ define(function (require) {
         $scope.queryManager = {
           query: ''
         };
-        $scope.searchService = searchServiceFactory(searchServiceUrl, true, $scope.queryManager, 30, 50, true, null, { deploymentId: deploymentDTO.data.deployment.id });
+        $scope.searchService = searchServiceFactory(searchServiceUrl, true, $scope.queryManager, 15, 50, true, null, { deploymentId: deploymentDTO.data.deployment.id });
         $scope.searchService.search();
         $scope.queryManager.onSearchCompleted = function(searchResult) {
           $scope.executions = searchResult.data.data;

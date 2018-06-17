@@ -11,10 +11,10 @@
     },
     "DEPLOYMENT" : {
       "HISTORY" : {
-        "DEPLOYED_AT" : "Déploié à",
-        "DEPLOYER" : "Déploieur",
+        "DEPLOYED_AT" : "Déployé à",
+        "DEPLOYER" : "Déployé par",
         "DURATION" : "Durée",
-        "UNDEPLOYED_AT" : "Un-déploié à"
+        "UNDEPLOYED_AT" : "Désinstallé à"
       },
       "MATCHING" : {
         "NEW": "Nouveau modifier",
@@ -23,12 +23,12 @@
         "NODES_TITLE" : "Matching de noeuds",
         "POLICIES_TITLE" : "Matching de policies",
         "SERVICE" : "Détails du service",
-        "SERVICE_HELP" : "Les propriétés et attributs du service sélectioné sont affichées ci-dessous",
+        "SERVICE_HELP" : "Les propriétés et attributs du service sélectionné sont affichés ci-dessous",
         "SERVICE_UNDEPLOYED_HELP" : "Le service sélectionné n'est pas déployé. Cela peut causer des problèmes lors du déploiement en cas de choix de ce service pour remplacer le noeud selectionné."
       },
       "PROPERTIES" : {
         "REQUIRED" : "Obligatoire",
-        "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
+        "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeur fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
       },
       "VERSION" : "Version déployée"
     },
@@ -478,6 +478,8 @@
     "NAME" : "Nom",
     "NO" : "Non",
     "NODE" : "Noeud",
+    "INSTANCE" : "Instance",
+    "OPERATION" : "Opération",
     "OR" : "ou",
     "PASSWORD" : "Mot de passe",
     "PATH" : "Path",
@@ -505,6 +507,17 @@
           "SUCCEEDED" : "Succès",
           "FAILED" : "Echec",
           "RUNNING" : "En cours"
+        }
+      }
+    },
+    "TASK" : {
+      "STATUS" : {
+        "VALUES" : {
+          "STARTED" : "Démarrée",
+          "SUCCEEDED" : "Succès",
+          "FAILED" : "Echec",
+          "SCHEDULED" : "Programmée",
+          "CANCELLED" : "Abandonnée"
         }
       }
     }

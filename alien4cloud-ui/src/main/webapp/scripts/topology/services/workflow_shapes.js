@@ -97,18 +97,23 @@ define(function (require) {
             var stepPinned = scope.workflows.isStepPinned(nodeId);
             var stepSelected = scope.workflows.isStepSelected(nodeId);
             var hasStepPinned = scope.workflows.hasStepPinned();
-            if (stepPinned) {
-              // the step is pinned, let's unpin it
-              scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
-            } else if(hasStepPinned) {
-              // a step is pinned, we play with selections
-              scope.workflows.toggleStepSelection(nodeId);
-            } else if(stepSelected) {
-              // the step is selected
-              scope.workflows.toggleStepSelection(nodeId);
+            if (scope.workflows.isRuntimeMode()) {
+                scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
+                //scope.workflows.setPinnedWorkflowStep(nodeId, steps[nodeId]);
             } else {
-              // no step pinned, let's pin this one
-              scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
+                if (stepPinned) {
+                  // the step is pinned, let's unpin it
+                  scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
+                } else if(hasStepPinned) {
+                  // a step is pinned, we play with selections
+                  scope.workflows.toggleStepSelection(nodeId);
+                } else if(stepSelected) {
+                  // the step is selected
+                  scope.workflows.toggleStepSelection(nodeId);
+                } else {
+                  // no step pinned, let's pin this one
+                  scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
+                }
             }
           };
 
@@ -117,17 +122,35 @@ define(function (require) {
           return shapeSvg;
         },
         operationStepUpdate: function(parent, node) {
+            // TODO: here check the mode (editor or runtime, if runtime, check step status
           var backgroundRect = parent.select('rect');
 
-          if (this.scope.workflows.isStepPinned(node.id)) {
-            backgroundRect.style('fill', '#CCE0FF');
-          } else if (this.scope.workflows.isStepSelected(node.id)) {
-            backgroundRect.style('fill', '#FFFFD6');
-          } else {
-            backgroundRect.style('fill', 'white');
+          backgroundRect.style('fill', 'white');
+          if (this.scope.workflows.isEditorMode()) {
+              if (this.scope.workflows.isStepPinned(node.id)) {
+                backgroundRect.style('fill', '#CCE0FF');
+              } else if (this.scope.workflows.isStepSelected(node.id)) {
+                backgroundRect.style('fill', '#FFFFD6');
+              }
+          } else if (this.scope.workflows.isRuntimeMode()) {
+            var monitoringData = this.scope.workflows.getMonitoringData();
+            if (_.defined(monitoringData) && monitoringData.stepStatus.hasOwnProperty(node.id)) {
+                var stepStatus = monitoringData.stepStatus[node.id];
+//                console.log("Step with id " + node.id + " has status " + stepStatus);
+                switch (String(stepStatus)) {
+                    case "STARTED":
+                        backgroundRect.style('fill', '#bce8f1'); // blue Cf. alert-info border
+                        break;
+                    case "COMPLETED_SUCCESSFULL":
+                        backgroundRect.style('fill', '#d6e9c6'); // green Cf. alert-success border
+                        break;
+                    case "COMPLETED_WITH_ERROR":
+                        backgroundRect.style('fill', '#ebccd1'); // red Cf. alert-danger border
+                        break;
+                }
+            }
           }
         },
-
         edge: function(parent) {
           var self = this;
           parent.append('path')

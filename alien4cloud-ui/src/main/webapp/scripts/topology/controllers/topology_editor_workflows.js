@@ -2,6 +2,7 @@
 define(function (require) {
   'use strict';
   var modules = require('modules');
+  var alienUtils = require('scripts/utils/alien_utils');
   var _ = require('lodash');
   
   modules.get('a4c-topology-editor').factory('topoEditWf', ['$uibModal', '$interval', '$filter', 'listToMapService',
@@ -16,6 +17,9 @@ define(function (require) {
         this.scope.pinnedWorkflowStep = undefined;
         
         this.scope.wfViewMode = 'full';
+        // editor || runtime
+        this.scope.wfEditorMode = 'editor';
+
         this.scope.wfPinnedEdge = undefined;
         
         // fa-battery-0 f244
@@ -40,18 +44,33 @@ define(function (require) {
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
         setCurrentWorkflowName: function (workflowName) {
-          this.clearSelection();
+          if (_.undefined(this.scope.topology)) {
+            return;
+          }
+
+          var wfNames = Object.keys(this.scope.topology.topology.workflows);
           // the given name is undefined, let select the first wf in the list
           if (_.undefined(workflowName)) {
-            var wfNames = Object.keys(this.scope.topology.topology.workflows);
             if (wfNames.length > 0) {
               workflowName = wfNames[0];
             }
           }
-          this.scope.currentWorkflowName = workflowName;
-          // this is need in case of failure while renaming
-          this.workflowName = workflowName;
-          this.refreshGraph(true, true);
+          if (wfNames.includes(workflowName)) {
+            this.clearSelection();
+            this.scope.currentWorkflowName = workflowName;
+            // this is need in case of failure while renaming
+            this.workflowName = workflowName;
+            this.refreshGraph(true, true);
+          }
+        },
+        setEditorMode: function (mode) {
+          this.scope.wfEditorMode = mode;
+        },
+        isEditorMode: function () {
+          return this.scope.wfEditorMode === 'editor';
+        },
+        isRuntimeMode: function () {
+          return this.scope.wfEditorMode === 'runtime';
         },
         switchViewMode: function () {
           if (this.scope.wfViewMode === 'simple') {
@@ -205,6 +224,26 @@ define(function (require) {
           this.scope.pinnedWorkflowStep = undefined;
           this.scope.previewWorkflowStep = undefined;
           this.refreshGraph();
+        },
+        // === runtime functions
+        getMonitoringData: function () {
+          if (_.defined(this.scope.workflowExecutionMonitoring)
+            && this.scope.workflowExecutionMonitoring.execution.workflowName === this.scope.currentWorkflowName) {
+            return this.scope.workflowExecutionMonitoring
+          }
+          return undefined;
+        },
+        getTaskStatusIconCss: alienUtils.getTaskStatusIconCss,
+        getPreviewedStepTasks: function () {
+          var monitoringData = this.getMonitoringData();
+          if (_.defined(monitoringData) && _.defined(this.scope.previewWorkflowStep)) {
+            var stepId = this.scope.previewWorkflowStep.name;
+            if (monitoringData.stepTasks.hasOwnProperty(stepId)) {
+                var result = monitoringData.stepTasks[stepId];
+                return result;
+            }
+          }
+          return undefined;
         },
         // === actions on workflows
         createWorkflow: function () {

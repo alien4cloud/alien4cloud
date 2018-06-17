@@ -1,6 +1,6 @@
 <div class="row grp-margin">
-  <!--  Required Implementation tasks  -->
-  <div class="col-md-6" ng-if="(tasks = deploymentTopologyDTO.validation.taskList['IMPLEMENT']).length>0">
+  <!--  Required Implementation stepTasks  -->
+  <div class="col-md-6" ng-if="(stepTasks = deploymentTopologyDTO.validation.taskList['IMPLEMENT']).length>0">
     <div class="task-list-box">
       <h4 class="clickable" ng-init="isToImplementNodesCollapsed = false"
           ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
@@ -11,7 +11,7 @@
       <div uib-collapse="isToImplementNodesCollapsed" >
         <table class="table table-condensed">
           <tbody>
-            <tr ng-repeat=" toImplementNodeTask in tasks">
+            <tr ng-repeat=" toImplementNodeTask in stepTasks">
               <td>
                 <span>{{toImplementNodeTask.nodeTemplateName}}</span>
                 <span>({{toImplementNodeTask.component.elementId}})</span>
@@ -22,9 +22,9 @@
       </div>
     </div>
   </div>
-  <!-- End Error Implementation tasks -->
+  <!-- End Error Implementation stepTasks -->
 
-  <!--  Required Replacement tasks  -->
+  <!--  Required Replacement stepTasks  -->
   <div class="col-md-6" ng-if="(repTasks = deploymentTopologyDTO.validation.taskList['REPLACE']).length>0">
     <div class="task-list-box">
       <h4 class="clickable" ng-init="isToReplaceNodesCollapsed = false"
@@ -59,7 +59,7 @@
         </table>
       </div>
     </div>
-    <!-- End Error Replacement tasks -->
+    <!-- End Error Replacement stepTasks -->
   </div>
 </div>
 
