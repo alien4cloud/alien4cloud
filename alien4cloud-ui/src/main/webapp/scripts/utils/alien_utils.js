@@ -107,6 +107,8 @@ define(function () {
           return 'fa-circle text-success';
         case 'FAILED':
           return 'fa-circle text-danger';
+        case 'CANCELLED':
+          return 'fa-circle text-warning';
         case 'RUNNING':
           return 'fa-spinner fa-spin text-primary';
         default:
@@ -121,8 +123,10 @@ define(function () {
           return 'text-danger';
         case 'RUNNING':
           return 'text-primary';
+        case 'CANCELLED':
+          return 'text-warning';
         default:
-          return '';
+          return 'text-warning';
       }
     },
     getExecutionStatusCss: function(executionStatus) {
@@ -133,6 +137,8 @@ define(function () {
           return 'danger';
         case 'RUNNING':
           return 'info';
+        case 'CANCELLED':
+          return 'warning';
         default:
           return 'warning';
       }

@@ -26,7 +26,7 @@ public class MonitoredDeploymentDTO {
     private Deployment deployment;
 
     /**
-     * Per workflow name, the expected operation count (actually used for workflow progress bar).
+     * Per workflow step name, the expected operation count (actually used for workflow progress bar).
      */
     private Map<String, Integer> workflowExpectedStepInstanceCount;
 }

@@ -504,7 +504,8 @@
         "VALUES" : {
           "SUCCEEDED" : "Succeeded",
           "FAILED" : "Failed",
-          "RUNNING" : "Running"
+          "RUNNING" : "Running",
+          "CANCELLED" : "Cancelled"
         }
       }
     },

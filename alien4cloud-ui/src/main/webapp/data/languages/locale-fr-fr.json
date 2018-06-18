@@ -506,7 +506,8 @@
         "VALUES" : {
           "SUCCEEDED" : "Succès",
           "FAILED" : "Echec",
-          "RUNNING" : "En cours"
+          "RUNNING" : "En cours",
+          "CANCELLED" : "Annulée"
         }
       }
     },
@@ -517,7 +518,7 @@
           "SUCCEEDED" : "Succès",
           "FAILED" : "Echec",
           "SCHEDULED" : "Programmée",
-          "CANCELLED" : "Abandonnée"
+          "CANCELLED" : "Annulée"
         }
       }
     }

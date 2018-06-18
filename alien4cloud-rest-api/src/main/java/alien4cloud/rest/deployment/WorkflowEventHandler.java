@@ -80,6 +80,8 @@ public class WorkflowEventHandler implements IPaasEventListener<AbstractMonitorE
             updateExecution((PaaSWorkflowSucceededEvent)event, ExecutionStatus.SUCCEEDED);
         } else if (event instanceof PaaSWorkflowFailedEvent) {
             updateExecution((PaaSWorkflowFailedEvent)event, ExecutionStatus.FAILED);
+        } else if (event instanceof PaaSWorkflowCancelledEvent) {
+            updateExecution((PaaSWorkflowCancelledEvent)event, ExecutionStatus.CANCELLED);
         } else if (event instanceof TaskSentEvent) {
             log.info("TaskSentEvent recceived for #" + ((TaskSentEvent)event).getTaskId());
             createTask((TaskSentEvent)event);
@@ -95,6 +97,10 @@ public class WorkflowEventHandler implements IPaasEventListener<AbstractMonitorE
             log.info("TaskFailedEvent recceived for #" + ((TaskFailedEvent)event).getTaskId());
             TaskFailedEvent taskEvent = (TaskFailedEvent)event;
             updateTask(taskEvent.getTaskId(), TaskStatus.FAILED, taskEvent, taskEvent.getErrorCauses());
+        } else if (event instanceof TaskCancelledEvent) {
+            log.info("TaskFailedEvent recceived for #" + ((TaskCancelledEvent)event).getTaskId());
+            TaskCancelledEvent taskEvent = (TaskCancelledEvent)event;
+            updateTask(taskEvent.getTaskId(), TaskStatus.CANCELLED, taskEvent, null);
         } else if (event instanceof WorkflowStepStartedEvent) {
             log.info("WorkflowStepStartedEvent recceived for #" + ((WorkflowStepStartedEvent)event).getStepId());
             createWorkflowStepInstance((WorkflowStepStartedEvent)event);

@@ -6,5 +6,6 @@ package alien4cloud.model.runtime;
 public enum ExecutionStatus {
     RUNNING,
     SUCCEEDED,
+    CANCELLED,
     FAILED
 }
