@@ -104,7 +104,7 @@ define(function () {
     getExecutionStatusIconCss: function(execution) {
       switch (_.get(execution, 'status')) {
         case 'SUCCEEDED':
-          return 'fa-circle text-success';
+          return (execution.hasFailedTasks) ? 'fa-exclamation-circle text-success' : 'fa-circle text-success';
         case 'FAILED':
           return 'fa-circle text-danger';
         case 'CANCELLED':
@@ -115,8 +115,8 @@ define(function () {
           return '';
       }
     },
-    getExecutionStatusTextCss: function(environmentDTO) {
-      switch (_.get(environmentDTO, 'status')) {
+    getExecutionStatusTextCss: function(execution) {
+      switch (_.get(execution, 'status')) {
         case 'SUCCEEDED':
           return 'text-success';
         case 'FAILED':
