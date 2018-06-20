@@ -3,7 +3,6 @@ package alien4cloud.rest.application;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -19,8 +18,8 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.elasticsearch.common.joda.time.DateTime;
 import org.elasticsearch.common.joda.time.DateTimeZone;
 import org.hibernate.validator.constraints.NotBlank;
@@ -260,7 +259,7 @@ public class ApplicationDeploymentController {
     }
 
     /**
-     * Get only the active deployment for the given application on the given cloud
+     * Get the active deployment monitoring data.
      *
      * @param applicationId id of the topology
      * @return the active deployment
@@ -278,25 +277,16 @@ public class ApplicationDeploymentController {
                 .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
         Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
 
-
         MonitoredDeploymentDTO monitoredDeploymentDTO = new MonitoredDeploymentDTO();
         monitoredDeploymentDTO.setDeployment(deployment);
-
-        Map<String, Integer> workflows = Maps.newHashMap();
-        topology.getWorkflows().forEach((workflowName, workflow) -> {
-            // TODO: use scale information in order to manage scaled nodes
-            final AtomicInteger stepInstanceCount = new AtomicInteger(0);
-            workflow.getSteps().forEach((s, workflowStep) -> {
-                // set state activity are not considered
-                if (!(workflowStep.getActivity() instanceof SetStateWorkflowActivity)) {
-                    stepInstanceCount.incrementAndGet();
-                }
-            });
-            workflows.put(workflowName, stepInstanceCount.get());
-        });
-        monitoredDeploymentDTO.setWorkflowExpectedStepInstanceCount(workflows);
+        Map<String, Integer> stepInstanceCount = toscaContextualAspect.execInToscaContext(() -> TopologyUtils.estimateWorkflowStepInstanceCount(topology), true, topology);
+        monitoredDeploymentDTO.setWorkflowExpectedStepInstanceCount(stepInstanceCount);
 
         return RestResponseBuilder.<MonitoredDeploymentDTO> builder().data(monitoredDeploymentDTO).build();
+    }
+
+    private Map<String, Integer> countNodeInstance(Topology topology) {
+        return TopologyUtils.estimateWorkflowStepInstanceCount(topology);
     }
 
     @ApiOperation(value = "Get current secret provider configuration for the given application on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
