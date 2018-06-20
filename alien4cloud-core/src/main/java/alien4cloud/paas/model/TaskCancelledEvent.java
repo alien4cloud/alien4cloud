@@ -14,6 +14,6 @@ import org.elasticsearch.annotation.ESObject;
 @ESObject
 @NoArgsConstructor
 @ToString
-public class TaskCancelledEvent extends AbstractTaskEvent {
+public class TaskCancelledEvent extends AbstractTaskEndedEvent {
 
 }

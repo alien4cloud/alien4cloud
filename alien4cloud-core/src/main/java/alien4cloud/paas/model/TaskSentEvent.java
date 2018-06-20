@@ -14,6 +14,7 @@ import org.elasticsearch.annotation.ESObject;
 @ESObject
 @NoArgsConstructor
 @ToString
+// TODO: rename : TaskScheduledEvent
 public class TaskSentEvent extends AbstractTaskEvent {
 
 }
