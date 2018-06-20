@@ -1,8 +1,7 @@
-package alien4cloud.model.deployment;
+package alien4cloud.model.runtime;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,6 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * An execution is related to a given deployment and concerns a given workflow.
@@ -49,14 +47,19 @@ public class Execution {
     @StringField(indexType = IndexType.not_analyzed)
     private String displayWorkflowName;
 
-    /** Start date of the deployment */
+    /** Start date of the execution */
     @TimeStamp(format = "", index = IndexType.not_analyzed)
     private Date startDate;
 
-    /** End date of the deployment. */
+    /** End date of the execution. */
     @TimeStamp(format = "", index = IndexType.not_analyzed)
     private Date endDate;
 
     @StringField(indexType = IndexType.not_analyzed)
     private ExecutionStatus status;
+
+    /** Indicates if this execution has failed tasks. */
+    @TermFilter
+    @BooleanField
+    private boolean hasFailedTasks;
 }

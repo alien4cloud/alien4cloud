@@ -3,13 +3,14 @@ package alien4cloud.rest.deployment;
 import java.security.Principal;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.deployment.Execution;
-import alien4cloud.model.deployment.ExecutionStatus;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.runtime.*;
 import alien4cloud.paas.model.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +39,7 @@ import alien4cloud.security.model.User;
 @Component
 public class WorkflowEventHandler implements IPaasEventListener<AbstractMonitorEvent>, ISecuredHandler, InitializingBean {
 
-    private static final String TOPIC_PREFIX = "/topic/workflow-events";
+    private static final String TOPIC_PREFIX = "/topic/deployment-events";
 
     private static final Pattern DESTINATION_PATTERN = Pattern.compile(TOPIC_PREFIX + "/(.*?)(:?/.*)?");
 
@@ -52,7 +53,7 @@ public class WorkflowEventHandler implements IPaasEventListener<AbstractMonitorE
     private SimpMessagingTemplate template;
 
     protected void send(AbstractMonitorEvent event) {
-        String eventType = MappingBuilder.indexTypeFromClass(event.getClass());
+        String eventType = "paasworkflowmonitorevent";
         String topicName = TOPIC_PREFIX + '/' + event.getDeploymentId() + '/' + eventType;
         if (log.isDebugEnabled()) {
             log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]: " + event);
@@ -79,6 +80,144 @@ public class WorkflowEventHandler implements IPaasEventListener<AbstractMonitorE
             updateExecution((PaaSWorkflowSucceededEvent)event, ExecutionStatus.SUCCEEDED);
         } else if (event instanceof PaaSWorkflowFailedEvent) {
             updateExecution((PaaSWorkflowFailedEvent)event, ExecutionStatus.FAILED);
+        } else if (event instanceof PaaSWorkflowCancelledEvent) {
+            updateExecution((PaaSWorkflowCancelledEvent)event, ExecutionStatus.CANCELLED);
+        } else if (event instanceof TaskSentEvent) {
+            log.info("TaskSentEvent recceived for #" + ((TaskSentEvent)event).getTaskId());
+            createTask((TaskSentEvent)event);
+        } else if (event instanceof TaskStartedEvent) {
+            log.info("TaskStartedEvent recceived for #" + ((TaskStartedEvent)event).getTaskId());
+            TaskStartedEvent taskStartedEvent = (TaskStartedEvent)event;
+            updateTask(taskStartedEvent.getTaskId(), TaskStatus.STARTED, taskStartedEvent, null);
+        } else if (event instanceof TaskSucceededEvent) {
+            log.info("TaskSucceededEvent recceived for #" + ((TaskSucceededEvent)event).getTaskId());
+            TaskSucceededEvent taskEvent = (TaskSucceededEvent)event;
+            updateTask(taskEvent.getTaskId(), TaskStatus.SUCCEEDED, taskEvent, null);
+        } else if (event instanceof TaskFailedEvent) {
+            log.info("TaskFailedEvent recceived for #" + ((TaskFailedEvent)event).getTaskId());
+            TaskFailedEvent taskEvent = (TaskFailedEvent)event;
+            updateTask(taskEvent.getTaskId(), TaskStatus.FAILED, taskEvent, taskEvent.getErrorCauses());
+        } else if (event instanceof TaskCancelledEvent) {
+            log.info("TaskFailedEvent recceived for #" + ((TaskCancelledEvent)event).getTaskId());
+            TaskCancelledEvent taskEvent = (TaskCancelledEvent)event;
+            updateTask(taskEvent.getTaskId(), TaskStatus.CANCELLED, taskEvent, null);
+        } else if (event instanceof WorkflowStepStartedEvent) {
+            log.info("WorkflowStepStartedEvent recceived for #" + ((WorkflowStepStartedEvent)event).getStepId());
+            createWorkflowStepInstance((WorkflowStepStartedEvent)event);
+        } else if (event instanceof WorkflowStepCompletedEvent) {
+            log.info("WorkflowStepCompletedEvent recceived for #" + ((WorkflowStepCompletedEvent)event).getStepId());
+            updateWorkflowStepInstance((WorkflowStepCompletedEvent)event);
+        }
+    }
+
+    // TODO: move elsewhere since this has nothing to do in REST module
+    private void createTask(TaskSentEvent e) {
+
+        String stepInstanceId = getWorkflowStepInstanceIdForTask(e);
+
+        Task t = new Task();
+        t.setId(e.getTaskId());
+        t.setExecutionId(e.getExecutionId());
+        t.setNodeId(e.getNodeId());
+        t.setInstanceId(e.getInstanceId());
+        t.setOperationName(e.getOperationName());
+        t.setDeploymentId(e.getDeploymentId());
+        t.setWorkflowStepInstanceId(stepInstanceId);
+        t.setScheduleDate(new Date(e.getDate()));
+        t.setStatus(TaskStatus.SCHEDULED);
+        alienDAO.save(t);
+    }
+
+    private String getWorkflowStepInstanceIdForTask(AbstractTaskEvent taskEvent) {
+        // find the WorkflowStepInstance that has the same executionId, operationName, nodeId, instanceId
+        String stepInstanceId = null;
+        Map<String, String[]> filter = Maps.newHashMap();
+        filter.put("executionId", new String[] { taskEvent.getExecutionId() });
+        if (taskEvent.getWorkflowStepId() == null) {
+            filter.put("nodeId", new String[] { taskEvent.getNodeId() });
+            filter.put("instanceId", new String[] { taskEvent.getInstanceId() });
+            filter.put("targetNodeId", new String[] { taskEvent.getTargetNodeId() });
+            filter.put("targetInstanceId", new String[] { taskEvent.getTargetInstanceId() });
+            filter.put("operationName", new String[] { taskEvent.getOperationName() });
+        } else {
+            filter.put("stepId", new String[] { taskEvent.getWorkflowStepId() });
+            filter.put("instanceId", new String[] { taskEvent.getInstanceId() });
+            filter.put("targetInstanceId", new String[] { taskEvent.getTargetInstanceId() });
+        }
+        GetMultipleDataResult<WorkflowStepInstance> result = alienDAO.find(WorkflowStepInstance.class, filter, Integer.MAX_VALUE);
+        if (result.getTotalResults() > 0) {
+            stepInstanceId = result.getData()[0].getId();
+        }
+        return stepInstanceId;
+    }
+
+    private void createWorkflowStepInstance(WorkflowStepStartedEvent e) {
+        WorkflowStepInstance i = new WorkflowStepInstance();
+        i.setStepId(e.getStepId());
+        i.setOperationName(e.getOperationName());
+        i.setDeploymentId(e.getDeploymentId());
+        i.setExecutionId(e.getExecutionId());
+        i.setId(UUID.randomUUID().toString());
+        i.setNodeId(e.getNodeId());
+        i.setInstanceId(e.getInstanceId());
+        i.setTargetNodeId(e.getTargetNodeId());
+        i.setTargetInstanceId(e.getTargetInstanceId());
+        i.setStatus(WorkflowStepInstanceStatus.STARTED);
+        alienDAO.save(i);
+    }
+
+    private void updateWorkflowStepInstance(WorkflowStepCompletedEvent e) {
+        Map<String, String[]> filter = Maps.newHashMap();
+        filter.put("executionId", new String[] { e.getExecutionId() });
+        filter.put("deploymentId", new String[] { e.getDeploymentId() });
+        filter.put("stepId", new String[] { e.getStepId() });
+        filter.put("nodeId", new String[] { e.getNodeId() });
+        filter.put("instanceId", new String[] { e.getInstanceId() });
+        filter.put("targetNodeId", new String[] { e.getTargetNodeId() });
+        filter.put("targetInstanceId", new String[] { e.getTargetInstanceId() });
+
+        GetMultipleDataResult<WorkflowStepInstance> result = alienDAO.find(WorkflowStepInstance.class, filter, 1);
+        if (result.getTotalResults() > 0) {
+            WorkflowStepInstance i = result.getData()[0];
+            i.setStatus(WorkflowStepInstanceStatus.COMPLETED);
+            alienDAO.save(i);
+        }
+    }
+
+    // TODO: move elsewhere since this has nothing to do in REST module
+    private void updateTask(String id, TaskStatus status, AbstractTaskEvent taskEvent, String details) {
+        Task t = alienDAO.findById(Task.class, id);
+        if (t != null) {
+            t.setStatus(status);
+
+            if (t.getWorkflowStepInstanceId() == null) {
+                String stepInstanceId = getWorkflowStepInstanceIdForTask(taskEvent);
+                t.setWorkflowStepInstanceId(stepInstanceId);
+            }
+
+            if (org.springframework.util.StringUtils.hasText(details)) {
+                t.setDetails(details);
+            }
+            alienDAO.save(t);
+
+            if (TaskStatus.FAILED == status) {
+                // we must update the related execution
+                if (t.getExecutionId() != null) {
+                    Execution e = alienDAO.findById(Execution.class, t.getExecutionId());
+                    if (e != null && !e.isHasFailedTasks()) {
+                        e.setHasFailedTasks(true);
+                        alienDAO.save(e);
+                    }
+                }
+                // we must update the related step instance
+                if (t.getWorkflowStepInstanceId() != null) {
+                    WorkflowStepInstance i = alienDAO.findById(WorkflowStepInstance.class, t.getWorkflowStepInstanceId());
+                    if (i != null && !i.isHasFailedTasks()) {
+                        i.setHasFailedTasks(true);
+                        alienDAO.save(i);
+                    }
+                }
+            }
         }
     }
 

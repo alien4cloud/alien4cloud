@@ -478,6 +478,8 @@
     "NAME" : "Name",
     "NO" : "No",
     "NODE" : "Node",
+    "INSTANCE" : "Instance",
+    "OPERATION" : "Operation",
     "OR" : "or",
     "PASSWORD" : "Password",
     "PATH" : "Path",
@@ -504,7 +506,19 @@
         "VALUES" : {
           "SUCCEEDED" : "Succeeded",
           "FAILED" : "Failed",
-          "RUNNING" : "Running"
+          "RUNNING" : "Running",
+          "CANCELLED" : "Cancelled"
+        }
+      }
+    },
+    "TASK" : {
+      "STATUS" : {
+        "VALUES" : {
+          "STARTED" : "Started",
+          "SUCCEEDED" : "Succeeded",
+          "FAILED" : "Failed",
+          "SCHEDULED" : "Scheduled",
+          "CANCELLED" : "Cancelled"
         }
       }
     }

@@ -15,11 +15,13 @@ import org.elasticsearch.annotation.ESObject;
 @ESObject
 @NoArgsConstructor
 @ToString
+@Deprecated
 public class PaaSWorkflowStepMonitorEvent extends AbstractPaaSWorkflowMonitorEvent {
 
     private String nodeId;
     private String instanceId;
     private String stepId;
     private String stage;
+    private String operationName;
 
 }

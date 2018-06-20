@@ -101,6 +101,15 @@ public class PaaSDeploymentLog {
     private String executionId;
 
     /**
+     * Id of the task that generated the log
+     * This field is optional
+     */
+    @TermFilter
+    @TermsFacet
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    private String taskId;
+
+    /**
      * Id of the node that generated the log
      * This field is optional
      */
@@ -150,18 +159,18 @@ public class PaaSDeploymentLog {
 
     public String toCompactString() {
         return "deploymentPaaSId='" + deploymentPaaSId + '\'' + ", level=" + level + ", type='" + type + '\'' + ", timestamp="
-                + timestamp + ", workflowId='" + workflowId + '\'' + ", executionId='" + executionId + '\'' + ", nodeId='" + nodeId + '\'' + ", instanceId='"
+                + timestamp + ", workflowId='" + workflowId + '\'' + ", executionId='" + executionId + '\'' + ", taskId='" + taskId + '\'' + ", nodeId='" + nodeId + '\'' + ", instanceId='"
                 + instanceId + '\'' + ", interfaceName='" + interfaceName + '\'' + ", operationName='" + operationName + '\'' + ", content='" + content;
     }
 
-    public final static String FORMAT = "[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]%s\n";
+    public final static String FORMAT = "[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]%s\n";
 
     private String formatEmptyString(String str) {
         return Objects.toString(str, "");
     }
     
     public String toFormattedString() {
-        return String.format(FORMAT, formatEmptyString(timestamp.toString()), formatEmptyString(level.name().toUpperCase()), formatEmptyString(deploymentPaaSId), formatEmptyString(workflowId), formatEmptyString(executionId), formatEmptyString(nodeId), formatEmptyString(instanceId), formatEmptyString(interfaceName), formatEmptyString(operationName), formatEmptyString(type), formatEmptyString(content));
+        return String.format(FORMAT, formatEmptyString(timestamp.toString()), formatEmptyString(level.name().toUpperCase()), formatEmptyString(deploymentPaaSId), formatEmptyString(workflowId), formatEmptyString(executionId), formatEmptyString(taskId), formatEmptyString(nodeId), formatEmptyString(instanceId), formatEmptyString(interfaceName), formatEmptyString(operationName), formatEmptyString(type), formatEmptyString(content));
     }
     
 }

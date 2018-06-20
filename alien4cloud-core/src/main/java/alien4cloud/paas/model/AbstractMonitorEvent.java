@@ -1,5 +1,9 @@
 package alien4cloud.paas.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,6 +19,8 @@ import org.elasticsearch.mapping.IndexType;
 @Setter
 @ESObject
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "eventType")
 public abstract class AbstractMonitorEvent {
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)

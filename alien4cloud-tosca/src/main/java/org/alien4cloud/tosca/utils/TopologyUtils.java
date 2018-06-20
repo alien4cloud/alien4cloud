@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
@@ -19,6 +20,9 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.ScalingPolicy;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.workflow.NodeWorkflowStep;
+import org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep;
+import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.apache.commons.collections4.MapUtils;
@@ -467,6 +471,62 @@ public class TopologyUtils {
         }
 
         return toReturn;
+    }
+
+    /**
+     * For the given topology, <u>estimate</u> the number of workflow step instances regarding the scaling settings.
+     * <p/>
+     * This should only be used for monitoring considerations since it will return an exact count.
+     *
+     * @param topology
+     * @return a map where key is the workflow name and the value the estimated count.
+     */
+    public static Map<String, Integer> estimateWorkflowStepInstanceCount(Topology topology) {
+        Map<String, Integer> stepInstancesCountPerWorkflow = Maps.newHashMap();
+
+        Map<String, Integer> nodeInstanceCount = Maps.newHashMap();
+
+        // for each node, count the number of expected instances
+        topology.getNodeTemplates().forEach((nodeName, nodeTemplate) -> {
+            int instanceCount = TopologyNavigationUtil.getDefaultInstanceCount(topology, nodeTemplate, 1);
+            nodeInstanceCount.put(nodeName, instanceCount);
+        });
+
+
+        topology.getWorkflows().forEach((workflowName, workflow) -> {
+            // TODO: use scale information in order to manage scaled nodes
+            final AtomicInteger stepInstanceCount = new AtomicInteger(0);
+            workflow.getSteps().forEach((s, workflowStep) -> {
+                // set state activity are not considered
+                if (workflowStep.getActivity() instanceof SetStateWorkflowActivity) {
+                    return;
+                }
+                if (workflowStep instanceof NodeWorkflowStep) {
+                    NodeWorkflowStep nws = (NodeWorkflowStep)workflowStep;
+                    Integer instanceCount = nodeInstanceCount.get(nws.getTarget());
+                    if (instanceCount != null) {
+                        stepInstanceCount.addAndGet(instanceCount);
+                    } else {
+                        stepInstanceCount.incrementAndGet();
+                    }
+                } else if (workflowStep instanceof RelationshipWorkflowStep) {
+                    RelationshipWorkflowStep rws = (RelationshipWorkflowStep)workflowStep;
+                    String sourceNodeId = rws.getTarget();
+                    NodeTemplate sourceNodeTemplate = TopologyUtils.getNodeTemplate(topology, sourceNodeId);
+                    String targetNodeId = sourceNodeTemplate.getRelationships().get(rws.getTargetRelationship()).getTarget();
+                    Integer instanceCount = nodeInstanceCount.get((rws.getOperationHost().equals("SOURCE")) ? sourceNodeId : targetNodeId);
+                    if (instanceCount != null) {
+                        stepInstanceCount.addAndGet(instanceCount);
+                    } else {
+                        stepInstanceCount.incrementAndGet();
+                    }
+                } else {
+                    stepInstanceCount.incrementAndGet();
+                }
+            });
+            stepInstancesCountPerWorkflow.put(workflowName, stepInstanceCount.get());
+        });
+        return stepInstancesCountPerWorkflow;
     }
 
     @Getter

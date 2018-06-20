@@ -476,6 +476,8 @@
     "NAME" : "名称",
     "NO" : "号",
     "NODE" : "节点",
+    "INSTANCE" : "Instance",
+    "OPERATION" : "Operation",
     "OR" : "或者",
     "PASSWORD" : "密码",
     "PATH" : "路径",
@@ -502,7 +504,19 @@
         "VALUES" : {
           "SUCCEEDED" : "Succeeded",
           "FAILED" : "Failed",
-          "RUNNING" : "Running"
+          "RUNNING" : "Running",
+          "CANCELLED" : "Cancelled"
+        }
+      }
+    },
+    "TASK" : {
+      "STATUS" : {
+        "VALUES" : {
+          "STARTED" : "Started",
+          "SUCCEEDED" : "Succeeded",
+          "FAILED" : "Failed",
+          "SCHEDULED" : "Scheduled",
+          "CANCELLED" : "Cancelled"
         }
       }
     }

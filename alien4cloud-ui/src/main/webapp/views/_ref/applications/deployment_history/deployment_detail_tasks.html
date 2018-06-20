@@ -1,0 +1,38 @@
+
+<empty-place-holder data="stepTasks"></empty-place-holder>
+<table ng-if="_.isNotEmpty(stepTasks)" class="table table-striped">
+  <thead>
+  <tr>
+    <th><b>{{'COMMON.NODE' | translate}}</b></th>
+    <th><b>{{'COMMON.INSTANCE' | translate}}</b></th>
+    <th><b>{{'COMMON.OPERATION' | translate}}</b></th>
+    <th><b>{{'COMMON.START_DATE' | translate}}</b></th>
+    <th><b>{{'COMMON.STATUS' | translate}}</b></th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr ng-repeat="task in stepTasks">
+    <td>
+      {{ task.nodeId }}
+    </td>
+    <td>
+      {{ task.instanceId }}
+    </td>
+    <td>
+      {{ task.operationName }}
+    </td>
+    <td>
+      {{ task.scheduleDate | date:'medium' }}
+    </td>
+    <td>
+      <i class="fa {{getTaskStatusIconCss(task)}}"></i> <span class="{{getTaskStatusTextCss(task)}}">{{'ENTITY.TASK.STATUS.VALUES.' + task.status | translate}}</span>
+    </td>
+    <td class="col-md-1 clickable">
+      <i class="fa fa-newspaper-o" ng-click="displayLogs(task)"></i>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<pagination-directive pagination-info="searchService.pagination" />

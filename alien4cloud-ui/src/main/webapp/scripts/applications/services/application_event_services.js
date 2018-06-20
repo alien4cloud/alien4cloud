@@ -56,6 +56,7 @@ define(function (require) {
           applicationEventServices.subscribeToInstanceStateChange(listenerId, callback);
           applicationEventServices.subscribeToStorageInstanceStateChange(listenerId, callback);
           applicationEventServices.subscribeToPaasMessage(listenerId, callback);
+          applicationEventServices.subscribeToPaasWorkflowMessage(listenerId, callback);
         };
 
         var doSubscribe = function(listenerId, type, callback) {
@@ -85,11 +86,16 @@ define(function (require) {
           doSubscribe(listenerId, 'paasmessagemonitorevent', callback);
         };
 
+        applicationEventServices.subscribeToPaasWorkflowMessage = function(listenerId, callback) {
+          doSubscribe(listenerId, 'paasworkflowmonitorevent', callback);
+        };
+
         applicationEventServices.unsubscribe = function(listenerId) {
           applicationEventServices.unsubscribeToStatusChange(listenerId);
           applicationEventServices.unsubscribeToInstanceStateChange(listenerId);
           applicationEventServices.unsubscribeToStorageInstanceStateChange(listenerId);
           applicationEventServices.unsubscribeToPaasMessage(listenerId);
+          applicationEventServices.unsubscribeToPaasWorkflowMessage(listenerId);
         };
 
         applicationEventServices.unsubscribeToStatusChange = function(listenerId) {
@@ -113,6 +119,12 @@ define(function (require) {
         applicationEventServices.unsubscribeToPaasMessage = function(listenerId) {
           if (_.defined(deploymentEventServices)) {
             deploymentEventServices.unsubscribe(listenerId, 'paasmessagemonitorevent');
+          }
+        };
+
+        applicationEventServices.unsubscribeToPaasWorkflowMessage = function(listenerId) {
+          if (_.defined(deploymentEventServices)) {
+            deploymentEventServices.unsubscribe(listenerId, 'paasworkflowmonitorevent');
           }
         };
 

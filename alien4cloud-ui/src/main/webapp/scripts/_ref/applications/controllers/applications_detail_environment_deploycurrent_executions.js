@@ -34,12 +34,18 @@ define(function (require) {
       }
     });
 
-
     $scope.displayLogs = function(executionId) {
       $state.go('applications.detail.environment.deploycurrent.logs', {
         'applicationId': $scope.application.id,
         'applicationEnvironmentId': $scope.environment.id,
         'executionId': executionId
+      });
+    };
+
+    $scope.displayTasks = function(execution) {
+      $state.go('applications.detail.environment.deploycurrent.executiontasks', {
+        'execution': execution,
+        'executionId': execution.id,
       });
     };
 
@@ -57,20 +63,32 @@ define(function (require) {
       query: ''
     };
 
-
     applicationServices.getActiveDeployment.get({
       applicationId: $scope.application.id,
       applicationEnvironmentId: $scope.environment.id
     }, undefined, function(success) {
       if (_.defined(success.data)) {
         $scope.activeDeployment = success.data;
-        $scope.searchService = searchServiceFactory(searchServiceUrl, true, $scope.queryManager, 30, 50, true, null, { deploymentId: $scope.activeDeployment.id });
+        $scope.searchService = searchServiceFactory(searchServiceUrl, true, $scope.queryManager, 15, 50, true, null, { deploymentId: $scope.activeDeployment.id });
         $scope.queryManager.onSearchCompleted = function(searchResult) {
           $scope.executions = searchResult.data.data;
         };
         $scope.searchService.search();
       }
     });
+
+    $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
+        if(event.rawType === 'paasworkflowmonitorevent') {
+            $scope.searchService.search();
+        }
+    });
+//
+//    $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
+//        if(event.rawType === 'paasmessagemonitorevent' || event.rawType === 'paasworkflowmonitorevent') {
+//            return;
+//        }
+//        $scope.searchService.search();
+//    });
 
   }
 ]);

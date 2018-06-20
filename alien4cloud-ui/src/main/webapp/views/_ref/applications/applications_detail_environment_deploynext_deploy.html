@@ -18,7 +18,7 @@
       </scalability-errors-display>
     </div>
   </div>
-  <!--  Required properties tasks  -->
+  <!--  Required properties stepTasks  -->
   <div class="col-md-6" ng-if="deploymentTopologyDTO.validation.taskList['PROPERTIES']">
     <div class="task-list-box">
       <properties-errors-display
@@ -28,7 +28,7 @@
     </div>
   </div>
   <div class="col-md-6">
-    <!--  Workflow tasks  -->
+    <!--  Workflow stepTasks  -->
     <div ng-if="(wfTasks = deploymentTopologyDTO.validation.taskList['WORKFLOW_INVALID']).length>0">
       <h4 class="clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
         <i class="fa" ng-class="{'fa-caret-down' : !isWorkflowsCollapsed, 'fa-caret-right': isWorkflowsCollapsed}"></i>

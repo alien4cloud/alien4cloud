@@ -12,7 +12,7 @@
       </div>
     </div>
 
-    <!--  Node Filter tasks  -->
+    <!--  Node Filter stepTasks  -->
     <div class="col-md-6" ng-if="validationDto.taskList['NODE_FILTER_INVALID'].length>0">
       <div class="task-list-box">
         <node-filters-errors-display
@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <!--  LowerBound not satisfied tasks  -->
+    <!--  LowerBound not satisfied stepTasks  -->
     <div class="col-md-6" ng-if="validationDto.taskList['SATISFY_LOWER_BOUND'].length>0">
       <div class="task-list-box">
         <lowerbound-errors-display
@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <!--  Required properties tasks  -->
+    <!--  Required properties stepTasks  -->
     <div class="col-md-6" ng-if="validationDto.taskList.PROPERTIES.length > 0">
       <div class="task-list-box">
         <properties-errors-display
@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <!--  scalability configuration tasks  -->
+    <!--  scalability configuration stepTasks  -->
     <div class="col-md-6" ng-if="validationDto.taskList['SCALABLE_CAPABILITY_INVALID'].length>0">
       <div class="task-list-box">
         <scalability-errors-display
@@ -49,7 +49,7 @@
       </div>
     </div>
 
-    <!-- Artifact tasks  -->
+    <!-- Artifact stepTasks  -->
     <div class="col-md-6" ng-if="validationDto.taskList['ARTIFACT_INVALID'].length>0">
       <div class="task-list-box">
         <artifacts-errors-display
@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <!--  Workflow tasks  -->
+    <!--  Workflow stepTasks  -->
     <div class="col-md-6" ng-if="(wfTasks = validationDto.taskList['WORKFLOW_INVALID']).length>0">
       <div class="task-list-box">
         <h4 class="clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">

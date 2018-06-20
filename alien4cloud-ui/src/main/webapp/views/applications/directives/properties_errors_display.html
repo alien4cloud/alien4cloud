@@ -8,7 +8,7 @@
       <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.REQUIRED' | translate}}</th>
     </thead>
     <tbody>
-      <tr ng-repeat="task in tasks">
+      <tr ng-repeat="task in stepTasks">
         <td>
           <strong>{{task.nodeTemplateName}}</strong>
           <span>({{task.component.elementId}})</span>
