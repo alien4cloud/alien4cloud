@@ -71,8 +71,8 @@ define(function (require) {
                 height = 60;
               } else if (shortActivityType === 'SetStateWorkflowActivity') {
                 if (scope.wfViewMode === 'simple') {
-                  width = 32;
-                  height = 24;
+                  width = 10;
+                  height = 10;
                 } else {
                   width = 60;
                   height = 45;

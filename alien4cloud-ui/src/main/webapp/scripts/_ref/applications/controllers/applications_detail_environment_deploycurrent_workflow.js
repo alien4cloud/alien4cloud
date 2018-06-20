@@ -39,6 +39,7 @@ define(function (require) {
           }
         });
 
+        $scope.wfViewMode = 'simple';
         $scope.displays = {
           workflows: { active: true, size: 400, selector: '#workflow-menu-box', only: ['workflows'] }
         };

@@ -15,8 +15,10 @@ define(function (require) {
         this.scope.previewWorkflowStep = undefined;
         // the current step that is pinned (on witch the user may act)
         this.scope.pinnedWorkflowStep = undefined;
-        
-        this.scope.wfViewMode = 'full';
+
+        if (_.undefined(this.scope.wfViewMode)) {
+          this.scope.wfViewMode = 'full';
+        }
         // editor || runtime
         this.scope.wfEditorMode = 'editor';
 
@@ -72,14 +74,15 @@ define(function (require) {
         isRuntimeMode: function () {
           return this.scope.wfEditorMode === 'runtime';
         },
-        switchViewMode: function () {
-          if (this.scope.wfViewMode === 'simple') {
-            this.scope.wfViewMode = 'full';
-          } else {
-            this.scope.wfViewMode = 'simple';
-          }
-          this.refreshGraph(true, true);
-        },
+//        switchViewMode: function () {
+//          if (this.scope.wfViewMode === 'simple') {
+//            this.scope.wfViewMode = 'full';
+//          } else {
+//            this.scope.wfViewMode = 'simple';
+//          }
+//          this.refreshGraph();
+////          this.refreshGraph(true, true);
+//        },
         previewStep: function (step) {
           this.scope.previewWorkflowStep = step;
           this.scope.$digest();

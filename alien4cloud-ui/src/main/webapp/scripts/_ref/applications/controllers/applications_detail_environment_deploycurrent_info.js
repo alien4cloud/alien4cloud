@@ -70,7 +70,11 @@ define(function (require) {
         $scope.isWaitingForMonitoringRefresh = false;
         var workflowName = result.data.execution.workflowName;
         if ($scope.monitoredWorkflowExpectedStepInstanceCount.hasOwnProperty(workflowName)) {
+          // always add +1 to the total to avoid false full bar (the total is an estimation)
           var progress = (result.data.actualKnownStepInstanceCount * 100) / $scope.monitoredWorkflowExpectedStepInstanceCount[workflowName];
+          if (progress >= 95 && result.data.execution.status != 'SUCCEEDED') {
+            progress = 90;
+          }
           $scope.wfProgressData = {'workflowName': workflowName, 'progress': progress, 'status': result.data.execution.status, 'current': result.data.lastKnownExecutingTask};
         }
       }, function(error) {

@@ -41,16 +41,30 @@ define(function (require) {
             var typeName = scope.topology.topology.nodeTemplates[nodeName].type;
             nodeType = scope.topology.nodeTypes[typeName];
           }
+
+          var shortActivityType = scope.workflows.getStepActivityType(step);
+          var simpleView = (scope.wfViewMode === 'simple' && shortActivityType === 'SetStateWorkflowActivity');
+
           var x = (node.width / 2) * -1;
           var w = node.width;
           var y = (node.height / 2) * -1;
           var h = node.height;
-
-          var shortActivityType = scope.workflows.getStepActivityType(step);
-          var simpleView = (scope.wfViewMode === 'simple' && shortActivityType === 'SetStateActivity');
+          if (simpleView) {
+            x = 0;
+            y = 0;
+            w = 2;
+            h = 2;
+          }
 
           // TODO better use CSS rather than fill and stroke
-          var shapeSvg = d3Service.rect(parent, x, y, w, h, 5, 5);
+          var shapeSvg = undefined;
+          if (simpleView) {
+            shapeSvg = d3Service.circle(parent, x, y, 2).attr('style', 'fill:DarkGray; stroke:DarkGray;');
+          } else {
+            shapeSvg = d3Service.rect(parent, x, y, w, h, 2, 2);
+            //shapeSvg = d3Service.circle(parent, x, y, 10).attr('class', 'connectorAction');
+          }
+
           // var shapeSvg = parent.insert('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h).attr('rx', 5).attr('ry', 5).style('fill', 'white');
           if (errorRenderingData.errorSteps[nodeId]) {
             // the step is in a bad sequence, make it red
@@ -63,9 +77,9 @@ define(function (require) {
             }
           }
           var iconSize = 25;
-          var icon;
+          var icon = undefined;
           if (simpleView){
-            icon = parent.append('text').attr('class', 'fa').attr('x', x + 8).attr('y', y + 17).text(scope.workflows.getStepActivityTypeIcon(step));
+            //icon = parent.append('text').attr('class', 'fa').attr('x', x + 8).attr('y', y + 17).text(scope.workflows.getStepActivityTypeIcon(step));
           } else {
             icon = parent.append('text').attr('class', 'fa').attr('x', x + w - 22).attr('y', y + 16).text(scope.workflows.getStepActivityTypeIcon(step));
           }
@@ -76,7 +90,7 @@ define(function (require) {
           } else if (shortActivityType === 'SetStateWorkflowActivity' && !simpleView) {
             parent.append('text').attr('class', 'wfStateLabel').attr('fill', '#003399').attr('y', y + h - 8).text(_.trunc(step.activities[0].stateName, {'length': 13})).style('text-anchor', 'middle');
             iconSize = 16;
-          } else {
+          } else if (!simpleView) {
             parent.append('text').attr('class', 'wfDelegateLabel').attr('fill', '#7A7A52').attr('y', y + h - 10).text(_.trunc(step.activities[0].inline, {'length': 10})).style('text-anchor', 'middle');
           }
           if (nodeType && nodeType.tags && !simpleView) {
@@ -133,19 +147,19 @@ define(function (require) {
                 backgroundRect.style('fill', '#FFFFD6');
               }
           } else if (this.scope.workflows.isRuntimeMode()) {
-            var monitoringData = this.scope.workflows.getMonitoringData();
-            if (_.defined(monitoringData) && monitoringData.stepStatus.hasOwnProperty(node.id)) {
-                var stepStatus = monitoringData.stepStatus[node.id];
-//                console.log("Step with id " + node.id + " has status " + stepStatus);
+            var stepStatus = this.getStepStatus(node.id);
+            if (_.defined(stepStatus)) {
+                parent.selectAll('text').style("fill", "white");
+
                 switch (String(stepStatus)) {
                     case "STARTED":
-                        backgroundRect.style('fill', '#bce8f1'); // blue Cf. alert-info border
+                        backgroundRect.style('fill', '#428bca'); // blue Cf. alert-info border
                         break;
                     case "COMPLETED_SUCCESSFULL":
-                        backgroundRect.style('fill', '#d6e9c6'); // green Cf. alert-success border
+                        backgroundRect.style('fill', '#5cb85c'); // green Cf. alert-success border  #d6e9c6
                         break;
                     case "COMPLETED_WITH_ERROR":
-                        backgroundRect.style('fill', '#ebccd1'); // red Cf. alert-danger border
+                        backgroundRect.style('fill', '#c9302c'); // red Cf. alert-danger border
                         break;
                 }
             }
@@ -233,6 +247,18 @@ define(function (require) {
           addMarker('arrow-error', '#f66', false);
           addMarker('arrow-error-pinned', '#f66', true);
           addMarker('arrow-preview', 'blue', false);
+        },
+
+        getStepStatus: function(nodeId) {
+          var self = this;
+          var stepStatus = undefined;
+          if (self.scope.workflows.isRuntimeMode()) {
+            var monitoringData = self.scope.workflows.getMonitoringData();
+            if (_.defined(monitoringData) && monitoringData.stepStatus.hasOwnProperty(nodeId)) {
+                stepStatus = monitoringData.stepStatus[nodeId];
+            }
+          }
+          return stepStatus;
         }
       };
     } // function
