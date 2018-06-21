@@ -72,6 +72,10 @@ public class WorkflowsBuilderService {
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.ALIEN_DSL_140, loadDefaultDeclarativeWorkflow("declarative-workflows-old.yml"));
     }
 
+    public DefaultDeclarativeWorkflows getDeclarativeWorkflows(String dslVersion) {
+        return defaultDeclarativeWorkflowsPerDslVersion.get(dslVersion);
+    }
+
     public TopologyContext initWorkflows(TopologyContext topologyContext) {
         Map<String, Workflow> wfs = topologyContext.getTopology().getWorkflows();
         if (wfs == null) {

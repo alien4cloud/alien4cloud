@@ -10,8 +10,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import alien4cloud.tosca.parser.ToscaParser;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.util.NodeSubGraphFilter;
@@ -24,9 +26,14 @@ import alien4cloud.utils.AlienUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Resource;
+
 @Slf4j
 @Component
 public class WorkflowSimplifyService {
+
+    @Resource
+    private WorkflowsBuilderService workflowsBuilderService;
 
     private interface DoWithNodeCallBack {
         void doWithNode(SubGraph subGraph, Workflow workflow);
@@ -68,6 +75,25 @@ public class WorkflowSimplifyService {
     public void simplifyWorkflow(TopologyContext topologyContext) {
         doWithNode(topologyContext, (subGraph, workflow) -> flattenWorkflow(topologyContext, subGraph));
         doWithNode(topologyContext, (subGraph, workflow) -> removeUnnecessarySteps(topologyContext, workflow, subGraph));
+        if (topologyContext.getDSLVersion().equals(ToscaParser.ALIEN_DSL_200)) {
+            // only this DSL is compatible with this feature
+            doWithNode(topologyContext, (subGraph, workflow) -> removeOrphanSetStateSteps(topologyContext, workflow, subGraph));
+        }
+    }
+
+    // TODO: we need to remove all setStateSteps that are not close to their corresponding operation step.
+    private void removeOrphanSetStateSteps(TopologyContext topologyContext, Workflow workflow, SubGraph subGraph) {
+        DefaultDeclarativeWorkflows declarativeWorkflows = workflowsBuilderService.getDeclarativeWorkflows(topologyContext.getDSLVersion());
+        // for each sub graph, iterate over steps
+        //   if it's a setStateStep consider it
+        //      in a given wf for a given step state step we can find the following operations in the declarative wf descriptor
+        //          ie -> declarativeWorkflows.getNodeWorkflows().get("install").getStates().get("creating").getFollowingOperations()
+        //          (will be 1 most time (FIXME))
+        //          if step is not followed by this operation IRL (for the current workflow, bla bla bla ...)
+        //              we must delete it
+        //              and delete the step that is just after the given operation
+        //                  ie -> declarativeWorkflows.getNodeWorkflows().get("install").getOperations().get("create").getFollowingState()
+        log.debug("subGraph", subGraph);
     }
 
     private void removeUnnecessarySteps(TopologyContext topologyContext, Workflow workflow, SubGraph subGraph) {
@@ -167,6 +193,7 @@ public class WorkflowSimplifyService {
     }
 
     private void doWithNode(TopologyContext topologyContext, DoWithNodeCallBack callBack) {
+        // workflows with custom modifications are not processed
         AlienUtils.safe(topologyContext.getTopology().getWorkflows()).values().stream().filter(workflow -> !workflow.isHasCustomModifications())
                 .forEach(workflow -> AlienUtils.safe(topologyContext.getTopology().getNodeTemplates()).keySet().forEach(nodeId -> {
                     SubGraphFilter stepFilter = new NodeSubGraphFilter(workflow, nodeId, topologyContext.getTopology());

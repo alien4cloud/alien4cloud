@@ -11,14 +11,17 @@ node_workflows:
         # initial -> creating
         following_state: creating
       creating:
+        following_operations: [ create ]
       created:
         # created -> configuring
         following_state: configuring
       configuring:
+        following_operations: [ configure ]
       configured:
         # configured -> starting
         following_state: starting
       starting:
+        following_operations: [ start ]
       started:
     # all call-operation steps that should be created for the install workflow
     operations:
@@ -48,9 +51,11 @@ node_workflows:
     # all set-state steps that should be created for the uninstall workflow
     states:
       stopping:
+        following_operations: [ stop ]
       stopped:
         following_state: deleting
       deleting:
+        following_operations: [ delete ]
       deleted:
     # all call-operation steps that should be created for the uninstall workflow
     operations:
@@ -70,6 +75,7 @@ node_workflows:
   start:
     states:
       starting:
+        following_operations: [ start ]
       started:
     operations:
       start:
@@ -80,6 +86,7 @@ node_workflows:
   stop:
     states:
       stopping:
+        following_operations: [ stop ]
       stopped:
     operations:
       stop:
@@ -89,15 +96,16 @@ node_workflows:
         operation_host: SELF
   run:
     states:
-      running:
-      run:
+      submitted:
+        following_operations: [ run ]
+      executed:
     # all call-operation steps that should be created for the install workflow
     operations:
       tosca.interfaces.node.lifecycle.Runnable.run:
         # precondition on states to trigger the step
         states: [ initial ]
-        preceding_state: running
-        following_state: run
+        preceding_state: submitted
+        following_state: executed
         operation_host: SELF
 
 
@@ -231,8 +239,8 @@ relationships_weaving:
     run:
       source:
         states:
-          running:
+          submitted:
             # dependencies here are declared for the partner of the source which is the target
             # the mirror model does not explicit something like wait_target_state as in a real DSL
-            # target.run -> source.running
-            preceding_state: run
+            # target.executed -> source.submitted
+            preceding_state: executed
