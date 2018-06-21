@@ -89,10 +89,10 @@ public class WorkflowSimplifyService {
         //      in a given wf for a given step state step we can find the following operations in the declarative wf descriptor
         //          ie -> declarativeWorkflows.getNodeWorkflows().get("install").getStates().get("creating").getFollowingOperations()
         //          (will be 1 most time (FIXME))
-        //          if step is not followed by this operation IRL (for the current workflow, bla bla bla ...)
-        //              we must delete it
-        //              and delete the step that is just after the given operation
-        //                  ie -> declarativeWorkflows.getNodeWorkflows().get("install").getOperations().get("create").getFollowingState()
+        //          IF step is not followed by this operation IRL (for the current workflow, bla bla bla ...)
+        //          AND is step immediatly followed by the setstate that is expected after the expected operation
+        //            ie -> declarativeWorkflows.getNodeWorkflows().get("install").getOperations().get("create").getFollowingState() = "creating"
+        //          THEN we must delete both
         log.debug("subGraph", subGraph);
     }
 
