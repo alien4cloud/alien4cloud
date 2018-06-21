@@ -1,7 +1,9 @@
 package alien4cloud.paas.wf;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -9,11 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import alien4cloud.tosca.parser.ToscaParser;
+import javax.annotation.Resource;
+
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
+import org.alien4cloud.tosca.model.workflow.declarative.NodeOperationDeclarativeWorkflow;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.wf.util.NodeSubGraphFilter;
@@ -22,11 +29,10 @@ import alien4cloud.paas.wf.util.SubGraph;
 import alien4cloud.paas.wf.util.SubGraphFilter;
 import alien4cloud.paas.wf.util.WorkflowGraphUtils;
 import alien4cloud.paas.wf.util.WorkflowStepWeightComparator;
+import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.utils.AlienUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
-import javax.annotation.Resource;
 
 @Slf4j
 @Component
@@ -77,23 +83,85 @@ public class WorkflowSimplifyService {
         doWithNode(topologyContext, (subGraph, workflow) -> removeUnnecessarySteps(topologyContext, workflow, subGraph));
         if (topologyContext.getDSLVersion().equals(ToscaParser.ALIEN_DSL_200)) {
             // only this DSL is compatible with this feature
-            doWithNode(topologyContext, (subGraph, workflow) -> removeOrphanSetStateSteps(topologyContext, workflow, subGraph));
+            doWithNode(topologyContext, (subGraph, workflow) -> removeOrphanSetStateSteps(topologyContext, workflow));
         }
     }
 
-    // TODO: we need to remove all setStateSteps that are not close to their corresponding operation step.
-    private void removeOrphanSetStateSteps(TopologyContext topologyContext, Workflow workflow, SubGraph subGraph) {
-        DefaultDeclarativeWorkflows declarativeWorkflows = workflowsBuilderService.getDeclarativeWorkflows(topologyContext.getDSLVersion());
-        // for each sub graph, iterate over steps
-        //   if it's a setStateStep consider it
-        //      in a given wf for a given step state step we can find the following operations in the declarative wf descriptor
-        //          ie -> declarativeWorkflows.getNodeWorkflows().get("install").getStates().get("creating").getFollowingOperations()
-        //          (will be 1 most time (FIXME))
-        //          IF step is not followed by this operation IRL (for the current workflow, bla bla bla ...)
-        //          AND is step immediatly followed by the setstate that is expected after the expected operation
-        //            ie -> declarativeWorkflows.getNodeWorkflows().get("install").getOperations().get("create").getFollowingState() = "creating"
-        //          THEN we must delete both
-        log.debug("subGraph", subGraph);
+    private void removeOrphanSetStateSteps(TopologyContext topologyContext, Workflow workflow) {
+        DefaultDeclarativeWorkflows dwf = workflowsBuilderService.getDeclarativeWorkflows(topologyContext.getDSLVersion());
+        // 1. Find the black list of operations
+        Map<String, NodeOperationDeclarativeWorkflow> standardOps = dwf.getNodeWorkflows().get(workflow.getName()).getOperations();
+        Set<String> allOps = standardOps.keySet();
+		Collection<WorkflowStep> steps = workflow.getSteps().values();
+		Set<String> actualOps = steps.stream()
+										.filter(step -> step.getActivity() instanceof CallOperationWorkflowActivity)
+										.map(step -> ((CallOperationWorkflowActivity) step.getActivity()).getOperationName())
+										.collect(Collectors.toSet());
+        allOps.removeAll(actualOps);
+        Set<String> blackListOps = allOps;
+
+        // 2. Find the black list of states
+        Set<String> blackListStates = new HashSet<>();
+        blackListOps.forEach(ops -> {
+            blackListStates.add(standardOps.get(ops).getPrecedingState());
+            blackListStates.add(standardOps.get(ops).getFollowingState());
+        });
+
+        // 3. Remove the black list of state operations
+        List<String> blackListSteps = new ArrayList<>();
+		steps.stream().filter(step -> step.getActivity() instanceof SetStateWorkflowActivity).forEach(step -> {
+
+            String stateName = ((SetStateWorkflowActivity) step.getActivity()).getStateName();
+            if (blackListStates.contains(stateName)) {
+            	// Reconnect the pointer
+				String currentStepName = step.getName();
+				WorkflowStep nextStep = findNextStep(steps, currentStepName);
+				WorkflowStep preStep = findPreStep(steps, step);
+				if (nextStep == null && preStep == null) {
+                    step.getOnSuccess().clear();
+                    step.getPrecedingSteps().clear();
+				} else if (preStep == null) {
+					// Delete the head and reset the next step as the new head
+                    step.getOnSuccess().clear();
+					nextStep.getPrecedingSteps().clear();
+				} else if (nextStep == null) {
+					// Delete the tail and reset the precedent step as the new tail
+                    step.getOnSuccess().clear();
+                    preStep.getOnSuccess().clear();
+				} else {
+                    step.getOnSuccess().clear();
+                    preStep.getOnSuccess().clear();
+                    preStep.getOnSuccess().add(nextStep.getName());
+					nextStep.getPrecedingSteps().clear();
+					nextStep.getPrecedingSteps().add(preStep.getName());
+				}
+                blackListSteps.add(currentStepName);
+            }
+        });
+        blackListSteps.forEach(name -> workflow.getSteps().remove(name));
+
+    }
+
+	private WorkflowStep findPreStep(Collection<WorkflowStep> steps, WorkflowStep currentStep) {
+		if (currentStep.getPrecedingSteps().isEmpty()) {
+			return null;
+		}
+		String predStepName = new ArrayList<>(currentStep.getPrecedingSteps()).get(0);
+		for (WorkflowStep step : steps) {
+			if (step.getName().equals(predStepName)) {
+				return step;
+			}
+		}
+		return null;
+	}
+
+	private WorkflowStep findNextStep(Collection<WorkflowStep> steps, String currentStep) {
+        for (WorkflowStep step : steps) {
+            if (step.getPrecedingSteps().contains(currentStep)) {
+                return step;
+            }
+        }
+        return null;
     }
 
     private void removeUnnecessarySteps(TopologyContext topologyContext, Workflow workflow, SubGraph subGraph) {
