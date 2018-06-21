@@ -471,6 +471,7 @@ public class PluginManager {
 
         for (String dependency : plugin.getDescriptor().getDependencies()) {
             ManagedPlugin dependencyPlugin = this.pluginContexts.get(dependency);
+            log.trace("Registering dependency {}", dependency);
             for (Entry<String, Object> exposed : dependencyPlugin.getExposedBeans().entrySet()) {
                 pluginContext.getBeanFactory().registerSingleton(exposed.getKey(), exposed.getValue());
             }
